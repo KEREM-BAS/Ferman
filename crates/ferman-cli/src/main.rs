@@ -12,9 +12,11 @@
 //! a page's text blocks (id, box, editability, text), `ferman edit` replaces one block's text and
 //! saves incrementally, `ferman save` saves a copy, and `ferman verify-edit` runs the pixel-diff
 //! acceptance check of one edit (docs/ARCHITECTURE.md §13.4) and exits with status 1 when it
-//! fails. Pages are numbered from 1, as `open` lists them. Errors print one short line to standard
-//! error and exit with status 1; argument errors exit with status 2. A failed write, including of
-//! `--version` or `--help`, exits with status 1.
+//! fails. On a signed file a change fails with `confirmation_required` until `--confirm-signed`
+//! says to go on, though the signature will no longer be valid (G35). Pages are numbered from 1,
+//! as `open` lists them. Errors print one short line to standard error and exit with status 1;
+//! argument errors exit with status 2. A failed write, including of `--version` or `--help`,
+//! exits with status 1.
 #![forbid(unsafe_code)]
 
 use std::error::Error;
@@ -92,6 +94,10 @@ enum Command {
         /// The file to save.
         #[arg(short, long, value_name = "FILE")]
         output: PathBuf,
+        /// Go on when this changes a signed file (its own path as the output), though its
+        /// signature will no longer be valid.
+        #[arg(long)]
+        confirm_signed: bool,
         #[command(flatten)]
         pdfium: PdfiumArg,
     },
@@ -142,6 +148,9 @@ struct EditArgs {
     /// The block's new text, its lines separated by line feeds, one per line of the block.
     #[arg(long)]
     text: String,
+    /// Go on when the file is signed, though its signature will no longer be valid.
+    #[arg(long)]
+    confirm_signed: bool,
 }
 
 fn main() -> ExitCode {
@@ -250,18 +259,24 @@ fn run(cli: &Cli) -> Result<ExitCode, Box<dyn Error>> {
             let document = facade::block_on(engine.open(file.clone(), None))?;
             apply_edit(&engine, document.id, edit)?;
             match output {
-                Some(output) => facade::block_on(engine.save_as(document.id, output.clone()))?,
-                None => facade::block_on(engine.save(document.id))?,
-            }
+                Some(output) => {
+                    facade::block_on(engine.save_as(document.id, output.clone(), None))?
+                }
+                None => facade::block_on(engine.save(document.id, None))?,
+            };
         }
         Command::Save {
             file,
             output,
+            confirm_signed,
             pdfium,
         } => {
             let engine = start(&pdfium.pdfium);
             let document = facade::block_on(engine.open(file.clone(), None))?;
-            facade::block_on(engine.save_as(document.id, output.clone()))?;
+            if *confirm_signed {
+                facade::block_on(engine.confirm_edit_signed(document.id))?;
+            }
+            facade::block_on(engine.save_as(document.id, output.clone(), None))?;
         }
         Command::VerifyEdit {
             file,
@@ -298,6 +313,9 @@ fn apply_edit(
     document: DocumentId,
     edit: &EditArgs,
 ) -> Result<(), Box<dyn Error>> {
+    if edit.confirm_signed {
+        facade::block_on(engine.confirm_edit_signed(document))?;
+    }
     let transaction =
         facade::block_on(engine.begin_edit(document, edit.page.index(), BlockId(edit.block)))?;
     let preview = match facade::block_on(engine.apply(transaction, edit.text.clone())) {
@@ -412,7 +430,7 @@ fn verify_edit(
         .find(|block| block.id == BlockId(edit.block))
         .ok_or("the page has no block with this id")?;
     apply_edit(engine, edited.id, edit)?;
-    facade::block_on(engine.save_as(edited.id, saved.to_path_buf()))?;
+    facade::block_on(engine.save_as(edited.id, saved.to_path_buf(), None))?;
     facade::block_on(engine.close(edited.id))?;
 
     // Everything after this reads the saved file from disk.

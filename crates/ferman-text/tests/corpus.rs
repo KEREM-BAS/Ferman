@@ -24,16 +24,10 @@ const PASSWORDS: [(&str, &str); 4] = [
 /// `disagree-pages`'s three pages, which is what that file tests (G102).
 const SKIPPED: [&str; 2] = ["disagree-pages", "truncated"];
 
-/// Pages known to differ (BACKLOG B112): `report-ar` draws a percentage that ends a sentence
-/// ("30%.") with the sign left of the number, and "(IBAN):" in an order that reading the line
-/// back with the bidi algorithm does not undo. A page that starts to match fails the test, so
-/// this list stays true.
-const KNOWN: [(&str, usize); 4] = [
-    ("report-ar", 7),
-    ("report-ar", 8),
-    ("report-ar", 9),
-    ("report-ar", 10),
-];
+/// Pages known to differ: `edit-e18-columns-standin` reads in drawing order, its two columns' lines
+/// taking turns (BACKLOG B163). A page that starts to match fails the test, so this list stays
+/// true.
+const KNOWN: [(&str, usize); 1] = [("edit-e18-columns-standin", 1)];
 
 fn squeeze(text: &str) -> String {
     text.nfc().filter(|c| !c.is_whitespace()).collect()
@@ -129,6 +123,32 @@ fn generated(name: &str) -> Document {
         &OpenOptions::default(),
     )
     .unwrap()
+}
+
+#[test]
+fn actual_text_counts_only_where_it_still_says_what_the_page_shows() {
+    // A sequence over a code without text in two shows; one whose text is not what its glyphs
+    // draw, as after an edit; and plain text. The file has no table of cross references, which
+    // the opener repairs.
+    let content = b"/Span <</ActualText (fi)>> BDC \
+        BT /F1 12 Tf 72 700 Td (\\001) Tj ET BT /F1 12 Tf 80 700 Td (\\001) Tj ET EMC \
+        /Span <</ActualText (old)>> BDC BT /F1 12 Tf 72 680 Td (new) Tj ET EMC \
+        BT /F1 12 Tf 72 660 Td (plain) Tj ET";
+    let mut bytes = b"%PDF-1.7\n1 0 obj <</Type/Catalog/Pages 2 0 R>> endobj\n\
+        2 0 obj <</Type/Pages/Kids[3 0 R]/Count 1>> endobj\n\
+        3 0 obj <</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R\
+        /Resources<</Font<</F1<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>>>>>>> endobj\n"
+        .to_vec();
+    bytes.extend_from_slice(format!("4 0 obj <</Length {}>> stream\n", content.len()).as_bytes());
+    bytes.extend_from_slice(content);
+    bytes.extend_from_slice(b"\nendstream endobj\ntrailer <</Root 1 0 R>>\n");
+    let document = open(
+        &Source::from_bytes(Arc::from(&bytes[..])),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let text = ferman_text::page_text(&document, 0).unwrap();
+    assert_eq!(text, "fi\nnew\nplain");
 }
 
 #[test]

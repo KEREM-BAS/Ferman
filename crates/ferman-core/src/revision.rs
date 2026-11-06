@@ -27,13 +27,14 @@ use std::ops::Range;
 use lopdf::{Dictionary, Object, ObjectId, Stream};
 
 use crate::interpret::{Span, SpanSource, TextSink};
+use crate::limits::LimitKind;
 use crate::structure::{Scope, inherited};
 use crate::{CoreError, Document, WriteError, appendix, content, filters};
 
 /// The objects one commit replaces or adds, by object id.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ChangeSet {
-    objects: BTreeMap<ObjectId, Object>,
+    pub(crate) objects: BTreeMap<ObjectId, Object>,
 }
 
 impl ChangeSet {
@@ -52,6 +53,15 @@ impl ChangeSet {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.objects.is_empty()
+    }
+
+    /// Whether it changes streams only: no page dictionary, so no resource a later edit of the
+    /// page could use.
+    #[must_use]
+    pub fn streams_only(&self) -> bool {
+        self.objects
+            .values()
+            .all(|object| matches!(object, Object::Stream(_)))
     }
 }
 
@@ -163,6 +173,9 @@ pub struct RevisionStore {
     current: usize,
     /// The open transaction.
     open: Option<ChangeSet>,
+    /// The decoded size of each stream the open transaction keeps, for
+    /// [`Limits::max_revision_decoded`](crate::limits::Limits::max_revision_decoded).
+    open_decoded: BTreeMap<ObjectId, u64>,
     /// The first number past the document's objects.
     base_size: u32,
 }
@@ -193,6 +206,7 @@ impl RevisionStore {
             return Err(CoreError::Write(WriteError::TransactionOpen));
         }
         self.open = Some(ChangeSet::default());
+        self.open_decoded.clear();
         Ok(())
     }
 
@@ -213,6 +227,7 @@ impl RevisionStore {
             .open
             .take()
             .ok_or(CoreError::Write(WriteError::NoTransaction))?;
+        self.open_decoded.clear();
         if !changes.is_empty() {
             self.revisions.truncate(self.current);
             self.revisions.push(changes);
@@ -224,6 +239,7 @@ impl RevisionStore {
     /// Discards the open transaction, if any.
     pub fn rollback(&mut self) {
         self.open = None;
+        self.open_decoded.clear();
     }
 
     /// Steps back one revision; returns the current one.
@@ -252,6 +268,134 @@ impl RevisionStore {
         }
         self.current = self.current.saturating_add(1);
         Ok(self.current)
+    }
+
+    /// Undoes applied revision `revision` alone in the open transaction, the revisions after it
+    /// staying: an object nothing changed since goes back to its version before; a stream later
+    /// revisions changed elsewhere gets those bytes back in place. `false`, with the transaction
+    /// as it was, when a later change touches the same bytes or object: the later one depends on
+    /// it. An object the revision added becomes null, so nothing it wrote is left in the file.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`], [`WriteError::NothingToUndo`] for a revision that does not
+    /// apply, and the errors of decoding a stream within the document's limits.
+    pub fn revert_revision(&mut self, doc: &Document, revision: usize) -> Result<bool, CoreError> {
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        let changes = self
+            .revisions
+            .get(revision)
+            .filter(|_| revision < self.current)
+            .ok_or(CoreError::Write(WriteError::NothingToUndo))?;
+        let mut queued = Vec::with_capacity(changes.objects.len());
+        for (&id, after) in &changes.objects {
+            let restored = if self.lookup(id) == Some(after) {
+                self.version_before(doc, id, revision)
+                    .cloned()
+                    .unwrap_or(Object::Null)
+            } else if let Some(merged) = self.merged_without(doc, id, revision)? {
+                merged
+            } else {
+                return Ok(false);
+            };
+            queued.push((id, restored));
+        }
+        for (id, object) in queued {
+            self.put(id, object)?;
+        }
+        Ok(true)
+    }
+
+    /// Puts every object the applied revisions changed back as the document opened with it, in
+    /// the open transaction; an object they added becomes null.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`].
+    pub fn revert_all(&mut self, doc: &Document) -> Result<(), CoreError> {
+        let originals: Vec<(ObjectId, Object)> = self
+            .committed()
+            .into_keys()
+            .map(|id| {
+                let original = doc.model().objects.get(&id).cloned();
+                (id, original.unwrap_or(Object::Null))
+            })
+            .collect();
+        for (id, object) in originals {
+            self.put(id, object)?;
+        }
+        Ok(())
+    }
+
+    /// Object `id` before revision `revision`; `None` when that revision added it.
+    fn version_before<'a>(
+        &'a self,
+        doc: &'a Document,
+        id: ObjectId,
+        revision: usize,
+    ) -> Option<&'a Object> {
+        self.revisions
+            .get(..revision)
+            .unwrap_or_default()
+            .iter()
+            .rev()
+            .find_map(|changes| changes.objects.get(&id))
+            .or_else(|| doc.model().objects.get(&id))
+    }
+
+    /// The newest version of stream `id` with revision `revision`'s change taken out, following
+    /// that change's bytes through every later version; `None` when one of them touches them.
+    fn merged_without(
+        &self,
+        doc: &Document,
+        id: ObjectId,
+        revision: usize,
+    ) -> Result<Option<Object>, CoreError> {
+        let version = |changes: &ChangeSet| changes.objects.get(&id).cloned();
+        let (Some(Object::Stream(before)), Some(Object::Stream(after))) = (
+            self.version_before(doc, id, revision),
+            self.revisions.get(revision).and_then(version),
+        ) else {
+            return Ok(None);
+        };
+        let original = decoded(before, doc)?;
+        let mut newest = decoded(&after, doc)?;
+        let (start, end, original_end) = changed(&newest, &original);
+        let replacement = original
+            .get(start..original_end)
+            .unwrap_or_default()
+            .to_vec();
+        let mut range = start..end;
+        let mut latest = after;
+        let later = self
+            .revisions
+            .get(revision.saturating_add(1)..self.current)
+            .unwrap_or_default();
+        for object in later.iter().chain(self.open.iter()).filter_map(version) {
+            let Object::Stream(stream) = object else {
+                return Ok(None);
+            };
+            let next = decoded(&stream, doc)?;
+            latest = stream;
+            if next == newest {
+                continue;
+            }
+            let (from, old_end, new_end) = changed(&newest, &next);
+            if old_end < range.start {
+                range.start = range.start.saturating_add(new_end).saturating_sub(old_end);
+                range.end = range.end.saturating_add(new_end).saturating_sub(old_end);
+            } else if from <= range.end {
+                return Ok(None);
+            }
+            newest = next;
+        }
+        Ok(Some(Object::Stream(respliced(
+            &latest,
+            &[(range, replacement)],
+            doc,
+        )?)))
     }
 
     /// How many revisions apply: 0 is the document as opened.
@@ -292,8 +436,8 @@ impl RevisionStore {
     /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`],
     /// [`WriteError::OverlappingSplices`], [`WriteError::SpliceOutsideStream`],
     /// [`WriteError::NotAStream`], [`WriteError::Placement`], [`WriteError::NotOnPage`],
-    /// [`WriteError::ObjectNumbers`], and the errors of decoding a stream within the
-    /// document's limits.
+    /// [`WriteError::ObjectNumbers`], the errors of decoding a stream within the document's
+    /// limits, and [`CoreError::ResourceLimit`] past the decoded size per revision.
     pub fn splice(
         &mut self,
         doc: &Document,
@@ -405,10 +549,7 @@ impl RevisionStore {
         if page_changed {
             queued.push((page, Object::Dictionary(dict)));
         }
-        for (id, object) in queued {
-            self.put(id, object)?;
-        }
-        Ok(())
+        self.put_counted(doc, queued)
     }
 
     /// A name for a copy of the font page `index` names `base` that its `/Font` resources and
@@ -448,7 +589,8 @@ impl RevisionStore {
     ///
     /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`], [`WriteError::Font`] for a name
     /// that is not a composite font of the page or a copy's name that is taken, and
-    /// [`WriteError::ObjectNumbers`].
+    /// [`WriteError::ObjectNumbers`], and [`CoreError::ResourceLimit`] past the decoded size per
+    /// revision.
     pub fn add_fonts(
         &mut self,
         doc: &Document,
@@ -560,10 +702,7 @@ impl RevisionStore {
         resources.set("Font", entries);
         dict.set("Resources", resources);
         queued.push((page, Object::Dictionary(dict)));
-        for (id, object) in queued {
-            self.put(id, object)?;
-        }
-        Ok(())
+        self.put_counted(doc, queued)
     }
 
     /// Object `id` in the open transaction or the current revisions, without the model's.
@@ -589,6 +728,21 @@ impl RevisionStore {
             }
         }
         objects
+    }
+
+    /// A store for `doc` whose one revision holds `objects`: a document restored from its
+    /// recovery files (`recovery`), every change unsaved. Without `unsaved` it has no revision.
+    pub(crate) fn restored(
+        doc: &Document,
+        objects: BTreeMap<ObjectId, Object>,
+        unsaved: bool,
+    ) -> Self {
+        let mut store = Self::new(doc);
+        if unsaved {
+            store.revisions.push(ChangeSet { objects });
+            store.current = 1;
+        }
+        store
     }
 
     /// Fails while a transaction is open.
@@ -619,16 +773,68 @@ impl RevisionStore {
         Ok(())
     }
 
+    /// Puts `queued` in the open transaction, or nothing when its streams, decoded, would pass the
+    /// decoded size per revision. A new version of a stream replaces the old one's share.
+    fn put_counted(
+        &mut self,
+        doc: &Document,
+        queued: Vec<(ObjectId, Object)>,
+    ) -> Result<(), CoreError> {
+        let mut sizes = self.open_decoded.clone();
+        for (id, object) in &queued {
+            if let Object::Stream(stream) = object {
+                let size = decoded(stream, doc)?.len();
+                sizes.insert(*id, u64::try_from(size).unwrap_or(u64::MAX));
+            } else {
+                sizes.remove(id);
+            }
+        }
+        let max = doc.limits().max_revision_decoded;
+        let total = sizes
+            .values()
+            .fold(0, |sum: u64, size| sum.saturating_add(*size));
+        if total > max {
+            return Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                max,
+            });
+        }
+        self.open_decoded = sizes;
+        for (id, object) in queued {
+            self.put(id, object)?;
+        }
+        Ok(())
+    }
+
     /// Adds `object` as a new object in the open transaction (the splicer queues its own).
-    #[cfg(test)]
+    #[cfg(any(test, feature = "fuzzing"))]
     pub(crate) fn add(&mut self, object: Object) -> Result<ObjectId, CoreError> {
         let id = (free(self.next_number())?, 0);
         self.put(id, object)?;
         Ok(id)
     }
 
+    /// Each stream of page `index`'s `/Contents` with its decoded data, in order.
+    #[cfg(feature = "fuzzing")]
+    pub(crate) fn page_streams(
+        &self,
+        doc: &Document,
+        index: usize,
+    ) -> Result<Vec<(ObjectId, Vec<u8>)>, CoreError> {
+        let page = doc
+            .structure()
+            .pages
+            .get(index)
+            .map(|page| page.id)
+            .ok_or(CoreError::Write(WriteError::NoSuchPage))?;
+        self.contents(doc, page)
+            .into_iter()
+            .map(|id| Ok((id, decoded(&self.stream(doc, id)?, doc)?)))
+            .collect()
+    }
+
     /// A scope that reads through this store.
-    fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
+    pub(crate) fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
         Scope {
             doc: doc.model(),
             limits: doc.limits(),
@@ -991,6 +1197,25 @@ fn respliced(
     Ok(Stream::new(dict, compressed))
 }
 
+/// Where `a` and `b` differ, as their common prefix and suffix leave it: the start, the end in
+/// `a` and the end in `b`.
+fn changed(a: &[u8], b: &[u8]) -> (usize, usize, usize) {
+    let start = a.iter().zip(b).take_while(|(x, y)| x == y).count();
+    let room = a.len().min(b.len()).saturating_sub(start);
+    let suffix = a
+        .iter()
+        .rev()
+        .zip(b.iter().rev())
+        .take(room)
+        .take_while(|(x, y)| x == y)
+        .count();
+    (
+        start,
+        a.len().saturating_sub(suffix),
+        b.len().saturating_sub(suffix),
+    )
+}
+
 /// `data` with each range of `edits` replaced by its bytes. Every other byte stays as it is.
 fn splice_bytes(data: &[u8], edits: &[(Range<usize>, Vec<u8>)]) -> Result<Vec<u8>, CoreError> {
     let mut sorted: Vec<&(Range<usize>, Vec<u8>)> = edits.iter().collect();
@@ -1074,6 +1299,7 @@ mod tests {
     use std::sync::Arc;
 
     use crate::interpret::{OperatorEvent, TextShow};
+    use crate::limits::Limits;
     use crate::{OpenOptions, Password, Source, open};
 
     /// Every operator of a page in content order, by name, with its span.
@@ -1648,5 +1874,93 @@ mod tests {
             Err(CoreError::Write(WriteError::Font))
         ));
         assert_eq!(store.open.as_ref().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn a_transaction_past_the_decoded_size_per_revision_changes_nothing() {
+        let bytes = std::fs::read(corpus("edit-e15-helvetica.pdf")).unwrap();
+        let mut doc = open_bytes(&bytes, None).unwrap();
+        let (page, span) = first_show(&doc).unwrap();
+        let SpanSource::Page { stream } = span.source else {
+            unreachable!()
+        };
+        let size = data(&doc, stream).len();
+        let replaced = span.range.len();
+        let splice = |grown: usize| Splice {
+            source: span.source,
+            range: span.range.clone(),
+            bytes: vec![b' '; replaced + grown],
+        };
+        // The stream may grow by 10 bytes.
+        doc.limits = Limits {
+            max_revision_decoded: u64::try_from(size + 10).unwrap(),
+            ..Limits::default()
+        };
+        let mut store = RevisionStore::new(&doc);
+        store.begin().unwrap();
+        store.splice(&doc, page, &[splice(10)], &[]).unwrap();
+        let before = store.open.clone();
+        // The next version replaces the stream's share: it is not added to it.
+        let span_now = 0..size + 10;
+        let over = Splice {
+            source: span.source,
+            range: span_now,
+            bytes: vec![b' '; size + 11],
+        };
+        assert!(matches!(
+            store.splice(&doc, page, &[over], &[]),
+            Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                ..
+            })
+        ));
+        assert_eq!(store.open, before, "the transaction stays as it was");
+        let same = Splice {
+            source: span.source,
+            range: 0..size + 10,
+            bytes: vec![b' '; size + 10],
+        };
+        store.splice(&doc, page, &[same], &[]).unwrap();
+
+        // A new transaction starts counting afresh, after a commit and after a rollback.
+        store.commit().unwrap();
+        store.begin().unwrap();
+        let kept = Splice {
+            source: span.source,
+            range: 0..1,
+            bytes: b" ".to_vec(),
+        };
+        store
+            .splice(&doc, page, std::slice::from_ref(&kept), &[])
+            .unwrap();
+        store.rollback();
+        store.begin().unwrap();
+        store.splice(&doc, page, &[kept], &[]).unwrap();
+
+        // New fonts' streams count too, and nothing enters the transaction when they pass it.
+        let font = EmbeddedFont {
+            name: b"Ferman1".to_vec(),
+            base_font: "ABCDEF+Test".to_owned(),
+            program: EmbeddedProgram::TrueType(vec![0; 64]),
+            to_unicode: Vec::new(),
+            widths: Vec::new(),
+            bbox: [0.0; 4],
+            italic_angle: 0.0,
+            ascent: 0.0,
+            descent: 0.0,
+            cap_height: 0.0,
+            x_height: None,
+            flags: 4,
+            stem_v: 0.0,
+        };
+        let before = store.open.clone();
+        assert!(matches!(
+            store.add_new_fonts(&doc, page, &[], &[], &[font]),
+            Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                ..
+            })
+        ));
+        assert_eq!(store.open, before);
     }
 }

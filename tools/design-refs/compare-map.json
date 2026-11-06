@@ -22,11 +22,10 @@
     },
     {
       "board": "f6a",
-      "golden": "shell_edit_win_light_en.png",
+      "golden": "edit_main_win_light_en.png",
       "crop": { "x": 0, "y": 45, "width": 1440, "height": 900 },
       "cropSource": "The window: the .fm-root inside div#f6a, 1440 × 900 (FmWindow platform=win mode=edit save=unsaved). Its box starts 44.69 px below the board's clip, snapped to row 45; in f6a.png its ring is row 44, row 945 and column 1440. The board render (3468 × 1008) also holds the 'F6a Main editor' heading above it and a caption below.",
-      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
-      "note": "Fix 6a, the Windows editor in Edit mode with unsaved edits. The canvas is masked: it shows the Kira contract with an edited block (M3), and M1 opens no PDF. The thumbnails and the text-block panel show that document and are expected to differ; the reference's 8 px rounded corners show the board's background."
+      "note": "Fix 6a, the Windows editor in Edit mode with unsaved edits (M3). Unmasked since M3 (B098). The test engine draws no page content, so the page's text and the thumbnails' are expected to differ; the reference's 8 px rounded corners show the board's background."
     },
     {
       "board": "a1-1",
@@ -36,7 +35,7 @@
     {
       "board": "a1-2b",
       "golden": "welcome_privacy_mac_light_en.png",
-      "note": "The privacy welcome step, macOS, light, English. Since export 519d42a the board lists the four network uses (G24) and links to Settings › Privacy, as the app does. The board is step 2 of 3 of the finished product, with Skip and three progress dots; the M1 app has two steps until a1-2a ships in M3, so its counter reads 1 of 2 with two dots (a1-2c-m1), and those are expected to differ."
+      "note": "The privacy welcome step, macOS, light, English. Since export 519d42a the board lists the four network uses (G24) and links to Settings › Privacy, as the app does. The board is step 2 of 3 of the finished product, with Skip and three progress dots; the app has its three steps since M3, as the board."
     },
     {
       "board": "a1-2c",
@@ -152,21 +151,18 @@
     },
     {
       "board": "a3-1d",
-      "golden": "shell_edit_mac_dark_en.png",
-      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
-      "note": "The macOS shell chrome in Edit mode, dark (ROADMAP §5 step 8). The canvas is masked. The thumbnails and the text-block panel show the edited document (M3) and are expected to differ."
+      "golden": "edit_main_mac_dark_en.png",
+      "note": "The main editor, dark: the lease with an edit and its block open, the text panel and three tabs (M3). Unmasked since M3 (B098). The test engine draws no page content, so the page's text and the thumbnails' are expected to differ."
     },
     {
       "board": "a12-1tr",
-      "golden": "shell_edit_mac_light_tr.png",
-      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
-      "note": "The macOS shell chrome in Edit mode in Turkish, light. The canvas is masked. The thumbnails, the text-block panel, Save and Review edits show the edited document (M3) and are expected to differ."
+      "golden": "edit_main_mac_light_tr.png",
+      "note": "The main editor in Turkish, light (M3). Unmasked since M3 (B098). The test engine draws no page content, so the page's text and the thumbnails' are expected to differ."
     },
     {
       "board": "a12-1ar",
-      "golden": "shell_edit_mac_light_ar.png",
-      "masks": [{ "label": "canvas", "x": 264, "y": 123, "width": 960, "height": 751 }],
-      "note": "The macOS shell chrome in Edit mode in Arabic, right to left, light: the traffic lights at the end, the sidebar and the panel swapped, the canvas never mirrored. The canvas is masked, mirrored to 264, 123. The thumbnails, the text-block panel, Save and Review edits show the edited document (M3) and are expected to differ; the board draws Arabic-Indic digits, as the Saudi Arabia region of the golden does."
+      "golden": "edit_main_mac_light_ar.png",
+      "note": "The main editor in Arabic, right to left, light: the traffic lights at the end, the sidebar and the panel swapped, the canvas never mirrored (M3). Unmasked since M3 (B098). The test engine draws no page content, so the page's text and the thumbnails' are expected to differ. The board draws Arabic-Indic digits, as the Saudi Arabia region of the golden does."
     },
     {
       "board": "a11-1h",
@@ -330,6 +326,238 @@
       "board": "a11-7c",
       "golden": "xfa_only_mac_light_en.png",
       "note": "An XFA-only form opened read-only with a11-7c's bar (M2). The board's side panel \"Why this happens\" is not built (G28); the test engine draws no page content."
+    },
+    {
+      "id": "a1-2a-mac",
+      "board": "a1-2a",
+      "golden": "welcome_edit_mac_light_en.png",
+      "note": "Welcome step 1 of 3, the editing specimen (M3)."
+    },
+    {
+      "id": "a3-1b-mac",
+      "board": "a3-1b",
+      "golden": "edit_caret_mac_light_en.png",
+      "note": "The caret in a paragraph, whose longer text reflows inside its frame (M3). The test engine draws no page content."
+    },
+    {
+      "id": "a3-1c-mac",
+      "board": "a3-1c",
+      "golden": "edit_selection_mac_light_en.png",
+      "note": "Words selected in a block, with the floating format bar; highlight, comment, link and find and replace disabled (M3). The test engine draws no page content."
+    },
+    {
+      "id": "a3-2-mac",
+      "board": "a3-2",
+      "golden": "edit_panel_mac_light_en.png",
+      "note": "The text panel of an open block (M3). The golden's block is set in IBM Plex Serif, the board's in Garamond Premier Pro. The test engine draws no page content."
+    },
+    {
+      "id": "a3-3a-mac",
+      "board": "a3-3a",
+      "golden": "missing_glyph_mac_light_en.png",
+      "note": "A character the font lacks: the amber underline, the frame's warning and one callout (M3, G36). The test engine draws no page content."
+    },
+    {
+      "id": "a3-3b-mac",
+      "board": "a3-3b",
+      "golden": "font_picker_mac_light_en.png",
+      "note": "The font picker over the editor (M3). A dialog rather than the drawn popover (W3). The test engine draws no page content."
+    },
+    {
+      "id": "a3-4-mac",
+      "board": "a3-4",
+      "golden": "overflow_mac_light_en.png",
+      "note": "Text that doesn't fit, with the three choices and their amounts (M3, G54). The test engine draws no page content."
+    },
+    {
+      "id": "a3-12-mac",
+      "board": "a3-12",
+      "golden": "review_list_mac_light_en.png",
+      "note": "The review list with the signature row, text, a kept warning and a font substitution (M3, G42). The golden's rows are its own, and the f4 toast of the last substitution shows. The test engine draws no page content."
+    },
+    {
+      "id": "a3-16a-mac",
+      "board": "a3-16a",
+      "golden": "signed_warning_mac_light_en.png",
+      "note": "The question before the first change to a signed document (M3, G35). The test engine draws no page content."
+    },
+    {
+      "id": "a3-16a-mac-tr",
+      "board": "a3-16a",
+      "lang": "tr",
+      "golden": "signed_warning_mac_light_tr.png",
+      "note": "As a3-16a-mac, in Turkish."
+    },
+    {
+      "id": "a3-16a-mac-ar",
+      "board": "a3-16a",
+      "lang": "ar",
+      "golden": "signed_warning_mac_light_ar.png",
+      "note": "As a3-16a-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a3-16b-mac",
+      "board": "a3-16b",
+      "golden": "signed_banner_mac_light_en.png",
+      "note": "The banner after Edit anyway (M3, G35). The test engine draws no page content."
+    },
+    {
+      "id": "a3-16b-mac-tr",
+      "board": "a3-16b",
+      "lang": "tr",
+      "golden": "signed_banner_mac_light_tr.png",
+      "note": "As a3-16b-mac, in Turkish."
+    },
+    {
+      "id": "a3-16b-mac-ar",
+      "board": "a3-16b",
+      "lang": "ar",
+      "golden": "signed_banner_mac_light_ar.png",
+      "note": "As a3-16b-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a3-19-mac",
+      "board": "a3-19",
+      "golden": "not_editable_mac_light_en.png",
+      "note": "Text drawn as shapes: the tooltip and the panel's callout (M3, G39). The test engine draws no page content."
+    },
+    {
+      "id": "a3-19-mac-tr",
+      "board": "a3-19",
+      "lang": "tr",
+      "golden": "not_editable_mac_light_tr.png",
+      "note": "As a3-19-mac, in Turkish."
+    },
+    {
+      "id": "a3-19-mac-ar",
+      "board": "a3-19",
+      "lang": "ar",
+      "golden": "not_editable_mac_light_ar.png",
+      "note": "As a3-19-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a1-10b-mac",
+      "board": "a1-10b",
+      "golden": "close_unsaved_mac_light_en.png",
+      "note": "Closing a tab with unsaved changes (M3). The test engine draws no page content."
+    },
+    {
+      "id": "a1-11-mac",
+      "board": "a1-11",
+      "golden": "save_as_mac_light_en.png",
+      "note": "The Save as sheet (M3, G111). The test engine draws no page content."
+    },
+    {
+      "id": "a1-11b-mac",
+      "board": "a1-11b",
+      "golden": "save_as_folder_mac_light_en.png",
+      "note": "The sheet with a folder from the system panel (M3, G26). \"Optimized for web\" stays disabled (G111). The test engine draws no page content."
+    },
+    {
+      "id": "a1-11b-mac-tr",
+      "board": "a1-11b",
+      "lang": "tr",
+      "golden": "save_as_folder_mac_light_tr.png",
+      "note": "As a1-11b-mac, in Turkish."
+    },
+    {
+      "id": "a1-11b-mac-ar",
+      "board": "a1-11b",
+      "lang": "ar",
+      "golden": "save_as_folder_mac_light_ar.png",
+      "note": "As a1-11b-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a1-12-mac",
+      "board": "a1-12",
+      "golden": "recovery_mac_light_en.png",
+      "note": "Restoring after a crash, over the start screen (M3)."
+    },
+    {
+      "id": "a11-1c-mac",
+      "board": "a11-1c",
+      "golden": "settings_editing_mac_light_en.png",
+      "note": "Settings › Editing (M3, G43). Keep versions and Font for new text are disabled."
+    },
+    {
+      "id": "a11-7-mac",
+      "board": "a11-7",
+      "golden": "save_disk_full_mac_light_en.png",
+      "note": "A save on a full disk (M3, G41). The test engine draws no page content."
+    },
+    {
+      "id": "a11-7b-mac",
+      "board": "a11-7b",
+      "golden": "file_changed_mac_light_en.png",
+      "note": "The file changed on disk, with Compare disabled (M3). The test engine draws no page content."
+    },
+    {
+      "id": "a11-7e-mac",
+      "board": "a11-7e",
+      "golden": "quit_unsaved_mac_light_en.png",
+      "note": "Quitting with three unsaved documents (M3, G40). The test engine draws no page content."
+    },
+    {
+      "id": "a11-7e-mac-tr",
+      "board": "a11-7e",
+      "lang": "tr",
+      "golden": "quit_unsaved_mac_light_tr.png",
+      "note": "As a11-7e-mac, in Turkish."
+    },
+    {
+      "id": "a11-7e-mac-ar",
+      "board": "a11-7e",
+      "lang": "ar",
+      "golden": "quit_unsaved_mac_light_ar.png",
+      "note": "As a11-7e-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a11-7f-mac",
+      "board": "a11-7f",
+      "golden": "recovery_changed_mac_light_en.png",
+      "note": "Recovery when an original changed (M3, G40). The golden shows one row of each kind."
+    },
+    {
+      "id": "a11-7f-mac-tr",
+      "board": "a11-7f",
+      "lang": "tr",
+      "golden": "recovery_changed_mac_light_tr.png",
+      "note": "As a11-7f-mac, in Turkish."
+    },
+    {
+      "id": "a11-7f-mac-ar",
+      "board": "a11-7f",
+      "lang": "ar",
+      "golden": "recovery_changed_mac_light_ar.png",
+      "note": "As a11-7f-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a12-1de-win",
+      "board": "a12-1de",
+      "golden": "edit_main_win_light_de.png",
+      "note": "The main editor, Windows, region Germany (M3): German is not translated, so the strings fall back to English and are expected to differ; the check is clipping and layout (ROADMAP §7)."
+    },
+    {
+      "id": "a12-1ja-mac",
+      "board": "a12-1ja",
+      "golden": "edit_main_mac_light_ja.png",
+      "note": "The main editor, macOS, region Japan (M3): Japanese is not translated, so the strings fall back to English and are expected to differ; the check is clipping and layout (ROADMAP §7)."
+    },
+    {
+      "board": "a3-12b",
+      "notCompared": "A spec sheet of panels and dialogs side by side, not a window, so no whole-window golden lines up with it. The goldens review_empty, review_revert_all and review_dependent draw its states; a reviewer compares them by eye (M3, G37, G38, G40, G42)."
+    },
+    {
+      "board": "a3-17",
+      "notCompared": "A spec sheet of panels and dialogs side by side, not a window, so no whole-window golden lines up with it. The goldens missing_same_font, missing_no_font and missing_not_embeddable draw its states; a reviewer compares them by eye (M3, G37, G38, G40, G42)."
+    },
+    {
+      "board": "a3-18",
+      "notCompared": "A spec sheet of panels and dialogs side by side, not a window, so no whole-window golden lines up with it. The goldens overflow_extend_blocked, overflow_tighten_blocked, overflow_extended, overflow_tightened and overflow_kept draw its states; a reviewer compares them by eye (M3, G37, G38, G40, G42)."
+    },
+    {
+      "board": "a11-7d",
+      "notCompared": "A spec sheet of panels and dialogs side by side, not a window, so no whole-window golden lines up with it. The goldens save_permission, save_locked, save_replace_failed and save_volume_gone draw its states; a reviewer compares them by eye (M3, G37, G38, G40, G42)."
     }
   ]
 }

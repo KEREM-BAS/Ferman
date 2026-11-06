@@ -1,6 +1,6 @@
 //! Subsets for embedding (ADR 0006 steps 2 and 3): the glyphs edited text needs, taken from an
-//! installed, bundled or embedded font, through subsetter (`variable-fonts` off), with what a PDF
-//! writer needs beside the program: the new glyph ids, their widths for `/W`, the text of each
+//! installed, bundled or embedded font, through subsetter (`variable-fonts` off; a named instance
+//! is written by the `instance` module), with what a PDF writer needs beside the program: the new glyph ids, their widths for `/W`, the text of each
 //! glyph for a ToUnicode CMap, a `ABCDEF+Name` font name and the font descriptor's metrics.
 //!
 //! subsetter makes every subset CID-keyed with CID = new glyph id and drops the `cmap`, so the
@@ -169,7 +169,8 @@ impl Subset {
 /// Subsets the font at `index` of `data` (0 unless it is a collection) to `glyphs`, each with the
 /// text it stands for ([`crate::ShapedRun::glyph_texts`] gives them). `.notdef` is always kept as
 /// glyph 0, with no text. A glyph listed with several texts keeps the shortest non-empty one
-/// (the first of equal length). A variable font is subset at its default instance.
+/// (the first of equal length). A variable font is subset at its default instance;
+/// [`subset_at`] takes a named one.
 ///
 /// # Errors
 ///
@@ -178,6 +179,21 @@ impl Subset {
 /// [`FontError::EmbeddingNotAllowed`] when the font's `fsType` forbids a subset;
 /// [`FontError::Subsetting`] when subsetter fails (a `CFF2` font, damaged tables).
 pub fn subset(data: &[u8], index: u32, glyphs: &[(GlyphId, String)]) -> Result<Subset, FontError> {
+    subset_at(data, index, glyphs, None)
+}
+
+/// [`subset`] at the named instance `instance` of a variable font: its outlines, advances,
+/// metrics and name.
+///
+/// # Errors
+///
+/// As [`subset`].
+pub fn subset_at(
+    data: &[u8],
+    index: u32,
+    glyphs: &[(GlyphId, String)],
+    instance: Option<&crate::FaceInstance>,
+) -> Result<Subset, FontError> {
     if data.len() > MAX_PROGRAM {
         return Err(FontError::ProgramTooLarge {
             size: u64::try_from(data.len()).unwrap_or(u64::MAX),
@@ -195,7 +211,23 @@ pub fn subset(data: &[u8], index: u32, glyphs: &[(GlyphId, String)]) -> Result<S
         .maxp()
         .map(|maxp| maxp.num_glyphs())
         .map_err(|_| FontError::Malformed { context: "maxp" })?;
-    let metrics = font.metrics(Size::unscaled(), LocationRef::default());
+    // subsetter adds a name record's offset and length in u16, which overflows on a hostile font.
+    if font.name().is_ok_and(|name| {
+        name.name_record().iter().any(|record| {
+            record
+                .string_offset()
+                .to_u32()
+                .saturating_add(u32::from(record.length()))
+                > u32::from(u16::MAX)
+        })
+    }) {
+        return Err(FontError::Subsetting);
+    }
+    let location = instance.map(|instance| instance.location(&font));
+    let location = location
+        .as_ref()
+        .map_or_else(LocationRef::default, LocationRef::from);
+    let metrics = font.metrics(Size::unscaled(), location);
     let upem = f32::from(metrics.units_per_em);
     if metrics.units_per_em == 0 {
         return Err(FontError::Malformed {
@@ -229,13 +261,33 @@ pub fn subset(data: &[u8], index: u32, glyphs: &[(GlyphId, String)]) -> Result<S
         remapper.remap(old);
     }
     let program = subsetter::subset(data, index, &remapper).map_err(|_| FontError::Subsetting)?;
+    let advances = font.glyph_metrics(Size::unscaled(), location);
     let program = if font.cff().is_ok() {
         SubsetProgram::Cff(table(&program, Tag::new(b"CFF "))?)
-    } else {
+    } else if location.is_default() {
         SubsetProgram::TrueType(program)
+    } else {
+        // In new-id order: every kept glyph has one, from 0 up.
+        let mut order: Vec<(u16, u16)> = Vec::with_capacity(texts.len());
+        for &old in texts.keys() {
+            let new = remapper.get(old).ok_or(FontError::Internal {
+                context: "subset glyph without a new id",
+            })?;
+            order.push((new, old));
+        }
+        order.sort_unstable();
+        let glyphs: Vec<(u16, f32)> = order
+            .iter()
+            .map(|&(_, old)| {
+                let glyph = skrifa::GlyphId::new(u32::from(old));
+                (old, advances.advance_width(glyph).unwrap_or(0.0))
+            })
+            .collect();
+        SubsetProgram::TrueType(crate::instance::instanced(
+            &program, &font, location, &glyphs,
+        )?)
     };
 
-    let advances = font.glyph_metrics(Size::unscaled(), LocationRef::default());
     let mut subset_glyphs = Vec::with_capacity(texts.len());
     for (old, text) in texts {
         let new = remapper.get(old).ok_or(FontError::Internal {
@@ -254,9 +306,13 @@ pub fn subset(data: &[u8], index: u32, glyphs: &[(GlyphId, String)]) -> Result<S
     }
     subset_glyphs.sort_by_key(|glyph| glyph.new);
 
-    let postscript_name = font
-        .localized_strings(skrifa::string::StringId::POSTSCRIPT_NAME)
-        .english_or_first()
+    let postscript_name = instance
+        .map(|instance| instance.postscript_name.clone())
+        .or_else(|| {
+            font.localized_strings(skrifa::string::StringId::POSTSCRIPT_NAME)
+                .english_or_first()
+                .map(|name| name.to_string())
+        })
         .map(|name| {
             name.chars()
                 .filter(|c| c.is_ascii_graphic())
@@ -274,12 +330,22 @@ pub fn subset(data: &[u8], index: u32, glyphs: &[(GlyphId, String)]) -> Result<S
         program,
         base_font,
         glyphs: subset_glyphs,
-        descriptor: descriptor(&font, &metrics, scale),
+        descriptor: descriptor(
+            &font,
+            &metrics,
+            scale,
+            instance.and_then(|instance| instance.value(b"wght")),
+        ),
     })
 }
 
 /// The descriptor of `font`, scaled to thousandths of an em.
-fn descriptor(font: &FontRef<'_>, metrics: &skrifa::metrics::Metrics, scale: f32) -> Descriptor {
+fn descriptor(
+    font: &FontRef<'_>,
+    metrics: &skrifa::metrics::Metrics,
+    scale: f32,
+    weight: Option<f32>,
+) -> Descriptor {
     let attributes = font.attributes();
     let italic = attributes.style != skrifa::attribute::Style::Normal;
     let mut flags = 4;
@@ -292,7 +358,7 @@ fn descriptor(font: &FontRef<'_>, metrics: &skrifa::metrics::Metrics, scale: f32
     if italic {
         flags |= 64;
     }
-    let weight = attributes.weight.value();
+    let weight = weight.unwrap_or(attributes.weight.value());
     let bounds = metrics.bounds.unwrap_or_default();
     Descriptor {
         ascent: (metrics.ascent * scale).round(),
@@ -561,6 +627,14 @@ mod tests {
         let upem = f32::from(program.units_per_em());
         let expected = program.advance_width(wanted[0].0).unwrap() * 1000.0 / upem;
         assert!((subset.glyphs[usize::from(new)].width - expected).abs() < 1e-3);
+    }
+
+    #[test]
+    fn a_name_record_past_u16_is_refused_not_a_panic() {
+        // Found by the font_program fuzz target on 2026-11-06.
+        let data =
+            include_bytes!("../../../tests/corpus/fuzz-font-program-name-overflow.otf").as_slice();
+        assert!(matches!(subset(data, 0, &[]), Err(FontError::Subsetting)));
     }
 
     #[test]

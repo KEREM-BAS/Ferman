@@ -30,7 +30,9 @@ part of 'edit_session.dart';
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -38,7 +40,9 @@ part of 'edit_session.dart';
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 
 @ProviderFor(DocumentEditor)
 final documentEditorProvider = DocumentEditorProvider._();
@@ -65,7 +69,9 @@ final documentEditorProvider = DocumentEditorProvider._();
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -73,7 +79,9 @@ final documentEditorProvider = DocumentEditorProvider._();
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 final class DocumentEditorProvider
     extends $NotifierProvider<DocumentEditor, EditorState> {
   /// Edits the open document's text through the engine's transactions, as
@@ -98,7 +106,9 @@ final class DocumentEditorProvider
   /// Text with characters its font lacks comes back with missing-glyph step
   /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
   /// closest candidate, or not at all with "Ask each time" (the
-  /// [settingsProvider]'s policy, which the engine gets as it changes).
+  /// [settingsProvider]'s policy, which the engine gets as it changes). With
+  /// "Keep the original font and mark the character" nothing waits: the text
+  /// applies, and [EditorState.markedChars] names the characters.
   /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
   /// commit waits for the answer, and closing the editor in any other way
   /// answers "Keep as is" first. A commit that set characters in another
@@ -106,7 +116,9 @@ final class DocumentEditorProvider
   ///
   /// Each commit, undo and redo marks the shell's document unsaved; [save]
   /// writes the committed steps to the file (an incremental update) and
-  /// marks it saved, or "Couldn't save" when it fails.
+  /// marks it saved, or "Couldn't save" when it fails, and returns the
+  /// failure for `documentSaverProvider` to show; [write] does the same for
+  /// Save as and Optimize and clean.
   DocumentEditorProvider._()
     : super(
         from: null,
@@ -134,7 +146,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
+String _$documentEditorHash() => r'f5658d683ff16317e98081f680fd2ac4f7632f8d';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).
@@ -158,7 +170,9 @@ String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -166,7 +180,9 @@ String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 
 abstract class _$DocumentEditor extends $Notifier<EditorState> {
   EditorState build();

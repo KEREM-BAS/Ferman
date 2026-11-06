@@ -81,6 +81,7 @@ class ColorPicker extends StatefulWidget {
     this.dialogLabel,
     this.eyedropper,
     this.focusNode,
+    this.triggerBuilder,
   });
 
   /// The bundle's `STANDARD` palette, 16 colours of document ink: greys
@@ -196,6 +197,11 @@ class ColorPicker extends StatefulWidget {
 
   /// The focus node of the trigger; one is created when null.
   final FocusNode? focusNode;
+
+  /// Draws another trigger, given what opens and closes the popover: a3-1c's
+  /// `ToolButton` in a floating toolbar. Not a design-system prop.
+  final Widget Function(BuildContext context, VoidCallback toggle)?
+  triggerBuilder;
 
   /// [color] as an upper-case `#RRGGBB` code (the CSS `text-transform:
   /// uppercase` of `.fm-colortrigger__value`).
@@ -569,42 +575,42 @@ class _ColorPickerState extends State<ColorPicker> {
     final label = widget.label;
     final value = widget.value;
     final open = _open;
-    final trigger = FermanInteractive(
-      onPressed: _enabled ? () => _toggle(pointer: false) : null,
-      onTap: _enabled ? () => _toggle(pointer: true) : null,
-      disabled: widget.disabled,
-      disabledReason: widget.disabledReason,
-      semanticLabel: label,
-      focusNode: _node,
-      builder: (context, states, _) => Semantics(
-        expanded: open,
-        value: value == null ? widget.noneLabel : ColorPicker.hexOf(value),
-        child: _trigger(context, states),
+    final builder = widget.triggerBuilder;
+    final trigger = builder != null
+        ? builder(context, () => _toggle(pointer: true))
+        : FermanInteractive(
+            onPressed: _enabled ? () => _toggle(pointer: false) : null,
+            onTap: _enabled ? () => _toggle(pointer: true) : null,
+            disabled: widget.disabled,
+            disabledReason: widget.disabledReason,
+            semanticLabel: label,
+            focusNode: _node,
+            builder: (context, states, _) => Semantics(
+              expanded: open,
+              value: value == null
+                  ? widget.noneLabel
+                  : ColorPicker.hexOf(value),
+              child: _trigger(context, states),
+            ),
+          );
+    final popover = Popover(
+      open: open,
+      onDismiss: _dismiss,
+      anchor: trigger,
+      // Escape in the popover returns focus to the trigger; a click
+      // outside (or Escape on the trigger) reaches _dismiss.
+      child: CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): _escape},
+        child: _AfterMount(onMount: _focusPopover, child: _popover(context)),
       ),
     );
+    // A row gives the custom trigger no width to stretch to.
+    if (builder != null) return popover;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: Field.gap,
-      children: [
-        if (label != null) Field.labelOf(context, label),
-        Popover(
-          open: open,
-          onDismiss: _dismiss,
-          anchor: trigger,
-          // Escape in the popover returns focus to the trigger; a click
-          // outside (or Escape on the trigger) reaches _dismiss.
-          child: CallbackShortcuts(
-            bindings: {
-              const SingleActivator(LogicalKeyboardKey.escape): _escape,
-            },
-            child: _AfterMount(
-              onMount: _focusPopover,
-              child: _popover(context),
-            ),
-          ),
-        ),
-      ],
+      children: [if (label != null) Field.labelOf(context, label), popover],
     );
   }
 }

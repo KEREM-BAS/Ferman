@@ -4,6 +4,8 @@
 //!   subset tag removed), then by family and style, and confirmed by its metrics: the units per
 //!   em agree and the advance widths of the glyphs both have are within 1/1000 em of the PDF's.
 //!   A font whose `fsType` forbids new text is reported with the reason, never used.
+//!   A variable font is one face in the index: its named instances are found here too, with their
+//!   own names, weights and widths ([`FaceInfo::instance`]), and step 3 lists them.
 //! - Step 3 and the a3-3b picker, [`rank_similar`]: candidates from the embedded, installed and
 //!   bundled fonts, ranked by coverage of the needed text first, then by metric similarity
 //!   (x-height, cap height, average width, weight, serif or sans). Italic and bold must match the
@@ -16,17 +18,21 @@
 
 use skrifa::instance::{LocationRef, Size};
 use skrifa::raw::TableProvider;
+use skrifa::string::StringId;
 use skrifa::{FontRef, MetadataProvider};
 
 use crate::FontError;
 use crate::subset::Embedding;
-use crate::system::{FaceInfo, FontLibrary};
+use crate::system::{FaceInfo, FaceInstance, FontLibrary};
 
 /// The most faces one query opens.
 pub const MAX_FACES_OPENED: usize = 256;
 
 /// The most bytes of font files one query reads; the face that crosses it is the last opened.
 pub const MAX_BYTES_READ: usize = 1024 * 1024 * 1024;
+
+/// The most named instances read from one font.
+const MAX_INSTANCES: usize = 128;
 
 /// The document's font, as step 2 looks for it.
 #[derive(Debug, Clone, Copy)]
@@ -102,7 +108,7 @@ pub fn find_same_font(library: &FontLibrary, query: &SameFontQuery<'_>) -> SameF
         let confirmed = library.with_data(face.id, |data, index| {
             read = read.saturating_add(data.len());
             let font = FontRef::from_index(data, index).ok()?;
-            confirms(&font, query).then(|| Embedding::of(data, index))
+            confirms(&font, query, LocationRef::default()).then(|| Embedding::of(data, index))
         });
         match confirmed.flatten() {
             Some(embedding) if embedding.allows_new_text() => {
@@ -114,12 +120,138 @@ pub fn find_same_font(library: &FontLibrary, query: &SameFontQuery<'_>) -> SameF
             None => {}
         }
     }
+    // A named instance of a variable font of the family: the default face's name and metrics
+    // are another instance's.
+    let wanted = letters(name.split('-').next().unwrap_or_default());
+    let of_family = library.faces().filter(|face| {
+        letters(&face.family) == wanted
+            || query
+                .family
+                .is_some_and(|family| face.family.eq_ignore_ascii_case(family))
+    });
+    for face in of_family.take(MAX_FACES_OPENED) {
+        if read > MAX_BYTES_READ {
+            break;
+        }
+        let confirmed = library.with_data(face.id, |data, index| {
+            read = read.saturating_add(data.len());
+            let font = FontRef::from_index(data, index).ok()?;
+            let instance = named_instances(&font, &face).into_iter().find(|named| {
+                let by_style = named.weight == query.weight
+                    && named.italic == query.italic
+                    && named.stretch == query.stretch;
+                (named.postscript_name == name || by_style)
+                    && named.instance.as_ref().is_some_and(|instance| {
+                        confirms(&font, query, LocationRef::from(&instance.location(&font)))
+                    })
+            })?;
+            Some((instance, Embedding::of(data, index)))
+        });
+        match confirmed.flatten() {
+            Some((face, embedding)) if embedding.allows_new_text() => {
+                return SameFont::Found { face, embedding };
+            }
+            Some((face, embedding)) => {
+                forbidden.get_or_insert(SameFont::NotEmbeddable { face, embedding });
+            }
+            None => {}
+        }
+    }
     forbidden.unwrap_or(SameFont::NotFound)
+}
+
+/// The letters and digits of `name` in lower case: "Noto Sans SC" as `NotoSansSC`'s.
+fn letters(name: &str) -> String {
+    name.chars()
+        .filter(char::is_ascii_alphanumeric)
+        .map(|c| c.to_ascii_lowercase())
+        .collect()
+}
+
+/// The named instances of the variable font `font`, each as `face` with its own name and style.
+/// Empty for a static font.
+fn named_instances(font: &FontRef<'_>, face: &FaceInfo) -> Vec<FaceInfo> {
+    let tags: Vec<[u8; 4]> = font
+        .axes()
+        .iter()
+        .map(|axis| axis.tag().to_be_bytes())
+        .collect();
+    if tags.is_empty() {
+        return Vec::new();
+    }
+    let name = |id: StringId| {
+        font.localized_strings(id)
+            .english_or_first()
+            .map(|name| name.to_string())
+    };
+    let prefix = name(StringId::VARIATIONS_POSTSCRIPT_NAME_PREFIX).or_else(|| {
+        name(StringId::POSTSCRIPT_NAME)
+            .map(|name| name.split('-').next().unwrap_or_default().to_owned())
+    });
+    font.named_instances()
+        .iter()
+        .take(MAX_INSTANCES)
+        .filter_map(|named| {
+            let postscript_name = named.postscript_name_id().and_then(name).or_else(|| {
+                let subfamily = name(named.subfamily_name_id())?;
+                let subfamily: String = subfamily
+                    .chars()
+                    .filter(char::is_ascii_alphanumeric)
+                    .collect();
+                Some(format!("{}-{subfamily}", prefix.as_deref()?))
+            })?;
+            // The casts saturate; a damaged value lands on the scale's ends.
+            #[allow(clippy::cast_possible_truncation)]
+            let coordinates: Vec<([u8; 4], i32)> = tags
+                .iter()
+                .copied()
+                .zip(
+                    named
+                        .user_coords()
+                        .map(|value| (value * 65536.0).round() as i32),
+                )
+                .collect();
+            let instance = FaceInstance {
+                postscript_name: postscript_name.clone(),
+                coordinates,
+            };
+            // The cast saturates on a damaged value.
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+            let weight = instance
+                .value(b"wght")
+                .map_or(face.weight, |weight| weight.clamp(1.0, 1000.0) as u16);
+            let italic = face.italic
+                || instance.value(b"ital").is_some_and(|value| value >= 1.0)
+                || instance.value(b"slnt").is_some_and(|value| value != 0.0);
+            let stretch = instance.value(b"wdth").map_or(face.stretch, stretch_class);
+            Some(FaceInfo {
+                postscript_name,
+                weight,
+                italic,
+                stretch,
+                instance: Some(instance),
+                ..face.clone()
+            })
+        })
+        .collect()
+}
+
+/// The width class of a `wdth` axis value, in percent.
+fn stretch_class(percent: f32) -> u16 {
+    const CLASSES: [f32; 9] = [50.0, 62.5, 75.0, 87.5, 100.0, 112.5, 125.0, 150.0, 200.0];
+    let mut best = (5_u16, f32::MAX);
+    for (class, width) in (1_u16..).zip(CLASSES) {
+        let distance = (width - percent).abs();
+        if distance < best.1 {
+            best = (class, distance);
+        }
+    }
+    best.0
 }
 
 /// Whether `font` has the metrics `query` gives: the same units per em, and every width of a
 /// character both have within 1/1000 em. With widths given, at least one must be compared.
-fn confirms(font: &FontRef<'_>, query: &SameFontQuery<'_>) -> bool {
+fn confirms(font: &FontRef<'_>, query: &SameFontQuery<'_>, location: LocationRef<'_>) -> bool {
     let Ok(head) = font.head() else {
         return false;
     };
@@ -128,7 +260,7 @@ fn confirms(font: &FontRef<'_>, query: &SameFontQuery<'_>) -> bool {
         return false;
     }
     let charmap = font.charmap();
-    let metrics = font.glyph_metrics(Size::unscaled(), LocationRef::default());
+    let metrics = font.glyph_metrics(Size::unscaled(), location);
     let mut compared = 0usize;
     for &(c, width) in query.widths {
         let Some(glyph) = charmap.map(c).filter(|glyph| glyph.to_u32() != 0) else {
@@ -172,14 +304,14 @@ impl StyleMetrics {
         let font = FontRef::from_index(data, index).map_err(|_| FontError::Malformed {
             context: "font program for its style",
         })?;
-        style_of(&font).ok_or(FontError::Malformed {
+        style_of(&font, LocationRef::default()).ok_or(FontError::Malformed {
             context: "units per em",
         })
     }
 }
 
-fn style_of(font: &FontRef<'_>) -> Option<StyleMetrics> {
-    let metrics = font.metrics(Size::unscaled(), LocationRef::default());
+fn style_of(font: &FontRef<'_>, location: LocationRef<'_>) -> Option<StyleMetrics> {
+    let metrics = font.metrics(Size::unscaled(), location);
     if metrics.units_per_em == 0 {
         return None;
     }
@@ -271,42 +403,70 @@ pub fn rank_similar(library: &FontLibrary, query: &SimilarQuery<'_>) -> Vec<Cand
     needed.dedup();
     let bold = |weight: u16| weight >= 600;
     let read = std::cell::Cell::new(0usize);
-    let mut candidates: Vec<Candidate> = library
+    let styled = |face: &FaceInfo| {
+        face.italic == query.style.italic && bold(face.weight) == bold(query.style.weight)
+    };
+    // The faces of the style first; of the others, only a variable font's named instances can
+    // have it.
+    let faces = library
         .faces()
-        .filter(|face| face.italic == query.style.italic)
-        .filter(|face| bold(face.weight) == bold(query.style.weight))
+        .filter(|face| styled(face))
+        .chain(library.faces().filter(|face| !styled(face)));
+    let mut candidates: Vec<Candidate> = faces
         .take(MAX_FACES_OPENED)
         .take_while(|_| read.get() <= MAX_BYTES_READ)
         .filter_map(|face| {
-            library
-                .with_data(face.id, |data, index| {
-                    read.set(read.get().saturating_add(data.len()));
-                    let font = FontRef::from_index(data, index).ok()?;
-                    let style = style_of(&font)?;
-                    // The index reads fsSelection; the metrics read the same tables, but check
-                    // again in case the face disagrees with itself.
-                    if style.italic != query.style.italic
-                        || bold(style.weight) != bold(query.style.weight)
-                    {
-                        return None;
-                    }
-                    let charmap = font.charmap();
-                    let covered = needed
-                        .iter()
-                        .filter(|&&c| charmap.map(c).is_some_and(|glyph| glyph.to_u32() != 0))
-                        .count();
-                    Some(Candidate {
-                        coverage: Coverage {
-                            covered,
-                            needed: needed.len(),
-                        },
-                        similarity: similarity(&query.style, &style),
-                        embedding: Embedding::of(data, index),
-                        face: face.clone(),
+            library.with_data(face.id, |data, index| {
+                read.set(read.get().saturating_add(data.len()));
+                let Ok(font) = FontRef::from_index(data, index) else {
+                    return Vec::new();
+                };
+                let charmap = font.charmap();
+                let covered = needed
+                    .iter()
+                    .filter(|&&c| charmap.map(c).is_some_and(|glyph| glyph.to_u32() != 0))
+                    .count();
+                let embedding = Embedding::of(data, index);
+                let named = named_instances(&font, &face);
+                let entries = if named.is_empty() {
+                    vec![face.clone()]
+                } else {
+                    named
+                };
+                entries
+                    .into_iter()
+                    .filter(|entry| styled(entry))
+                    .filter_map(|entry| {
+                        let location = entry.instance.as_ref().map(|i| i.location(&font));
+                        let location = location
+                            .as_ref()
+                            .map_or_else(LocationRef::default, LocationRef::from);
+                        let mut style = style_of(&font, location)?;
+                        if entry.instance.is_some() {
+                            style.weight = entry.weight;
+                            style.italic = entry.italic;
+                        }
+                        // The index reads fsSelection; the metrics read the same tables, but
+                        // check again in case the face disagrees with itself.
+                        if style.italic != query.style.italic
+                            || bold(style.weight) != bold(query.style.weight)
+                        {
+                            return None;
+                        }
+                        Some(Candidate {
+                            coverage: Coverage {
+                                covered,
+                                needed: needed.len(),
+                            },
+                            similarity: similarity(&query.style, &style),
+                            embedding,
+                            face: entry,
+                        })
                     })
-                })
-                .flatten()
+                    .collect::<Vec<_>>()
+            })
         })
+        .flatten()
         .filter(|candidate| candidate.coverage.needed == 0 || candidate.coverage.covered > 0)
         .collect();
     candidates.sort_by(|a, b| {

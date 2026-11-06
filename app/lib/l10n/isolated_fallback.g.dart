@@ -615,6 +615,15 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get onboardingStartUsing => isolate(super.onboardingStartUsing);
 
   @override
+  String get onboardingEditTitle => isolate(super.onboardingEditTitle);
+
+  @override
+  String get onboardingEditBody => isolate(super.onboardingEditBody);
+
+  @override
+  String get onboardingEditGlyphs => isolate(super.onboardingEditGlyphs);
+
+  @override
   String get onboardingPrivacyTitle => isolate(super.onboardingPrivacyTitle);
 
   @override
@@ -1434,6 +1443,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.startOpenedYesterday(time));
 
   @override
+  String get startBadgeEdited => isolate(super.startBadgeEdited);
+
+  @override
   String get startBadgeSigned => isolate(super.startBadgeSigned);
 
   @override
@@ -1724,10 +1736,22 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get propertiesPartialNote => isolate(super.propertiesPartialNote);
 
   @override
+  String propertiesPartialMissing(String letters) =>
+      isolate(super.propertiesPartialMissing(letters));
+
+  @override
   String get propertiesSubset => isolate(super.propertiesSubset);
 
   @override
   String get propertiesSubsetNote => isolate(super.propertiesSubsetNote);
+
+  @override
+  String propertiesSubsetMissing(String letters) =>
+      isolate(super.propertiesSubsetMissing(letters));
+
+  @override
+  String propertiesShownInstead(String font) =>
+      isolate(super.propertiesShownInstead(font));
 
   @override
   String get propertiesNotEmbedded => isolate(super.propertiesNotEmbedded);
@@ -1971,6 +1995,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.editGlyphBodyMany(chars));
 
   @override
+  String editGlyphMarkedBody(String chars) =>
+      isolate(super.editGlyphMarkedBody(chars));
+
+  @override
   String get editGlyphChoose => isolate(super.editGlyphChoose);
 
   @override
@@ -2069,6 +2097,572 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String get editFontSubstitutedDismiss =>
       isolate(super.editFontSubstitutedDismiss);
+
+  @override
+  String get saveAsTitle => isolate(super.saveAsTitle);
+
+  @override
+  String get saveAsName => isolate(super.saveAsName);
+
+  @override
+  String get saveAsNameEmpty => isolate(super.saveAsNameEmpty);
+
+  @override
+  String get saveAsNameInvalid => isolate(super.saveAsNameInvalid);
+
+  @override
+  String get saveAsNameTaken => isolate(super.saveAsNameTaken);
+
+  @override
+  String get saveAsWhere => isolate(super.saveAsWhere);
+
+  @override
+  String get saveAsOtherLocation => isolate(super.saveAsOtherLocation);
+
+  @override
+  String get saveAsFormat => isolate(super.saveAsFormat);
+
+  @override
+  String get saveAsPdf => isolate(super.saveAsPdf);
+
+  @override
+  String get saveAsPdfDescription => isolate(super.saveAsPdfDescription);
+
+  @override
+  String get saveAsPdfA => isolate(super.saveAsPdfA);
+
+  @override
+  String get saveAsWeb => isolate(super.saveAsWeb);
+
+  @override
+  String get saveAsCopy => isolate(super.saveAsCopy);
+
+  @override
+  String saveAsCopyDescription(String name, String folder) =>
+      isolate(super.saveAsCopyDescription(name, folder));
+
+  @override
+  String get saveAsComments => isolate(super.saveAsComments);
+
+  @override
+  String get saveAsHistory => isolate(super.saveAsHistory);
+
+  @override
+  String get saveAsCancel => isolate(super.saveAsCancel);
+
+  @override
+  String get saveAsClose => isolate(super.saveAsClose);
+
+  @override
+  String saveFailedTitle(String name) => isolate(super.saveFailedTitle(name));
+
+  @override
+  String get saveFailedDiskFull => isolate(super.saveFailedDiskFull);
+
+  @override
+  String get saveFailedPermission => isolate(super.saveFailedPermission);
+
+  @override
+  String get saveFailedLocked => isolate(super.saveFailedLocked);
+
+  @override
+  String get saveFailedRename => isolate(super.saveFailedRename);
+
+  @override
+  String get saveFailedVolume => isolate(super.saveFailedVolume);
+
+  @override
+  String get saveFailedHardLinked => isolate(super.saveFailedHardLinked);
+
+  @override
+  String get saveFailedNotOwner => isolate(super.saveFailedNotOwner);
+
+  @override
+  String get saveFailedOther => isolate(super.saveFailedOther);
+
+  @override
+  String get saveFailedNoRecoveryCopy =>
+      isolate(super.saveFailedNoRecoveryCopy);
+
+  @override
+  String get saveTryAgain => isolate(super.saveTryAgain);
+
+  @override
+  String get saveSomewhereElse => isolate(super.saveSomewhereElse);
+
+  @override
+  String get saveAsEllipsis => isolate(super.saveAsEllipsis);
+
+  @override
+  String get saveToastDiskFull => isolate(super.saveToastDiskFull);
+
+  @override
+  String get saveToastOther => isolate(super.saveToastOther);
+
+  @override
+  String get saveToastDismiss => isolate(super.saveToastDismiss);
+
+  @override
+  String fileChangedTitle(String name) => isolate(super.fileChangedTitle(name));
+
+  @override
+  String get fileChangedBody => isolate(super.fileChangedBody);
+
+  @override
+  String get fileChangedCompare => isolate(super.fileChangedCompare);
+
+  @override
+  String get fileChangedKeepMine => isolate(super.fileChangedKeepMine);
+
+  @override
+  String get fileChangedReload => isolate(super.fileChangedReload);
+
+  @override
+  String optimizeTitle(String name) => isolate(super.optimizeTitle(name));
+
+  @override
+  String get optimizeSignedBody => isolate(super.optimizeSignedBody);
+
+  @override
+  String get optimizeAction => isolate(super.optimizeAction);
+
+  @override
+  String get saveAsNameInvalidWindows =>
+      isolate(super.saveAsNameInvalidWindows);
+
+  @override
+  String get saveAsNameOpen => isolate(super.saveAsNameOpen);
+
+  @override
+  String saveAsCopyDescriptionHere(String name) =>
+      isolate(super.saveAsCopyDescriptionHere(name));
+
+  @override
+  String readOnlyFileTitle(String name) =>
+      isolate(super.readOnlyFileTitle(name));
+
+  @override
+  String get readOnlyFileBody => isolate(super.readOnlyFileBody);
+
+  @override
+  String get readOnlyFileSaveCopy => isolate(super.readOnlyFileSaveCopy);
+
+  @override
+  String closeUnsavedTitle(String name) =>
+      isolate(super.closeUnsavedTitle(name));
+
+  @override
+  String closeUnsavedBody(String edits) =>
+      isolate(super.closeUnsavedBody(edits));
+
+  @override
+  String closingEdits(int count, String formatted) =>
+      isolate(super.closingEdits(count, formatted));
+
+  @override
+  String get closeUnsavedSave => isolate(super.closeUnsavedSave);
+
+  @override
+  String get closeUnsavedDiscard => isolate(super.closeUnsavedDiscard);
+
+  @override
+  String quitReviewTitle(int count, String formatted) =>
+      isolate(super.quitReviewTitle(count, formatted));
+
+  @override
+  String get quitReviewBody => isolate(super.quitReviewBody);
+
+  @override
+  String get quitReviewSave => isolate(super.quitReviewSave);
+
+  @override
+  String get quitReviewDiscard => isolate(super.quitReviewDiscard);
+
+  @override
+  String recoveryTitle(int count, String formatted) =>
+      isolate(super.recoveryTitle(count, formatted));
+
+  @override
+  String get recoveryBody => isolate(super.recoveryBody);
+
+  @override
+  String get recoveryNote => isolate(super.recoveryNote);
+
+  @override
+  String get recoveryDiscard => isolate(super.recoveryDiscard);
+
+  @override
+  String recoveryOpen(int count, String formatted) =>
+      isolate(super.recoveryOpen(count, formatted));
+
+  @override
+  String get recoveryChangedBadge => isolate(super.recoveryChangedBadge);
+
+  @override
+  String get recoveryChangedBody => isolate(super.recoveryChangedBody);
+
+  @override
+  String get recoveryFileSuffix => isolate(super.recoveryFileSuffix);
+
+  @override
+  String get signedTitle => isolate(super.signedTitle);
+
+  @override
+  String signedBodyBy(String name, String signer, String date) =>
+      isolate(super.signedBodyBy(name, signer, date));
+
+  @override
+  String signedBody(String name, int count, String formatted) =>
+      isolate(super.signedBody(name, count, formatted));
+
+  @override
+  String get signedEditCopy => isolate(super.signedEditCopy);
+
+  @override
+  String get signedEditAnyway => isolate(super.signedEditAnyway);
+
+  @override
+  String signedCopyHint(String name) => isolate(super.signedCopyHint(name));
+
+  @override
+  String signedCopyName(String stem) => isolate(super.signedCopyName(stem));
+
+  @override
+  String signedCopyNameNumbered(String stem, int number) =>
+      isolate(super.signedCopyNameNumbered(stem, number));
+
+  @override
+  String signedBannerTitle(int count) =>
+      isolate(super.signedBannerTitle(count));
+
+  @override
+  String signedBannerBodyBy(String signer) =>
+      isolate(super.signedBannerBodyBy(signer));
+
+  @override
+  String get signedBannerBody => isolate(super.signedBannerBody);
+
+  @override
+  String get signedBannerReview => isolate(super.signedBannerReview);
+
+  @override
+  String signedReviewRow(String signer) =>
+      isolate(super.signedReviewRow(signer));
+
+  @override
+  String get signedReviewRowOther => isolate(super.signedReviewRowOther);
+
+  @override
+  String get settingsEditMarks => isolate(super.settingsEditMarks);
+
+  @override
+  String get settingsEditMarksNote => isolate(super.settingsEditMarksNote);
+
+  @override
+  String get settingsMissingGlyphs => isolate(super.settingsMissingGlyphs);
+
+  @override
+  String get settingsMissingGlyphsSimilar =>
+      isolate(super.settingsMissingGlyphsSimilar);
+
+  @override
+  String get settingsMissingGlyphsAsk =>
+      isolate(super.settingsMissingGlyphsAsk);
+
+  @override
+  String get settingsMissingGlyphsMark =>
+      isolate(super.settingsMissingGlyphsMark);
+
+  @override
+  String get settingsFontForNewText => isolate(super.settingsFontForNewText);
+
+  @override
+  String get settingsFontForNewTextMatch =>
+      isolate(super.settingsFontForNewTextMatch);
+
+  @override
+  String get settingsKeepVersions => isolate(super.settingsKeepVersions);
+
+  @override
+  String get settingsKeepVersions30 => isolate(super.settingsKeepVersions30);
+
+  @override
+  String get settingsReflow => isolate(super.settingsReflow);
+
+  @override
+  String get settingsRecoveryCopies => isolate(super.settingsRecoveryCopies);
+
+  @override
+  String get settingsSaving => isolate(super.settingsSaving);
+
+  @override
+  String get settingsSavingEnd => isolate(super.settingsSavingEnd);
+
+  @override
+  String get settingsSavingEndBody => isolate(super.settingsSavingEndBody);
+
+  @override
+  String get settingsOptimize => isolate(super.settingsOptimize);
+
+  @override
+  String get settingsOptimizeBody => isolate(super.settingsOptimizeBody);
+
+  @override
+  String get settingsRecoveryFolder => isolate(super.settingsRecoveryFolder);
+
+  @override
+  String shellZoomTypeHint(String min, String max) =>
+      isolate(super.shellZoomTypeHint(min, max));
+
+  @override
+  String get shellEditForbidden => isolate(super.shellEditForbidden);
+
+  @override
+  String get editPanelTipClick => isolate(super.editPanelTipClick);
+
+  @override
+  String editPanelTipKeys(String key) => isolate(super.editPanelTipKeys(key));
+
+  @override
+  String get editPanelInSession => isolate(super.editPanelInSession);
+
+  @override
+  String get editPanelReview => isolate(super.editPanelReview);
+
+  @override
+  String get languageNameGerman => isolate(super.languageNameGerman);
+
+  @override
+  String get languageNameJapanese => isolate(super.languageNameJapanese);
+
+  @override
+  String languageWithRegion(String language, String region) =>
+      isolate(super.languageWithRegion(language, region));
+
+  @override
+  String get editLanguage => isolate(super.editLanguage);
+
+  @override
+  String get editCheckSpelling => isolate(super.editCheckSpelling);
+
+  @override
+  String get editHyphenate => isolate(super.editHyphenate);
+
+  @override
+  String editStepLanguage(String page) => isolate(super.editStepLanguage(page));
+
+  @override
+  String get reviewClose => isolate(super.reviewClose);
+
+  @override
+  String get reviewShow => isolate(super.reviewShow);
+
+  @override
+  String get reviewFilterAll => isolate(super.reviewFilterAll);
+
+  @override
+  String get reviewFilterText => isolate(super.reviewFilterText);
+
+  @override
+  String get reviewFilterFonts => isolate(super.reviewFilterFonts);
+
+  @override
+  String get reviewFilterWarnings => isolate(super.reviewFilterWarnings);
+
+  @override
+  String get reviewEmptyTitle => isolate(super.reviewEmptyTitle);
+
+  @override
+  String get reviewEmptyBody => isolate(super.reviewEmptyBody);
+
+  @override
+  String get reviewNothing => isolate(super.reviewNothing);
+
+  @override
+  String get reviewRevertAll => isolate(super.reviewRevertAll);
+
+  @override
+  String get reviewExportList => isolate(super.reviewExportList);
+
+  @override
+  String get reviewGoTo => isolate(super.reviewGoTo);
+
+  @override
+  String get reviewRevert => isolate(super.reviewRevert);
+
+  @override
+  String get reviewStepReverted => isolate(super.reviewStepReverted);
+
+  @override
+  String get reviewStepRevertedAll => isolate(super.reviewStepRevertedAll);
+
+  @override
+  String get reviewWhereSignature => isolate(super.reviewWhereSignature);
+
+  @override
+  String reviewWhereSignaturePage(String page) =>
+      isolate(super.reviewWhereSignaturePage(page));
+
+  @override
+  String reviewWhereText(String page) => isolate(super.reviewWhereText(page));
+
+  @override
+  String reviewWhereFont(String page) => isolate(super.reviewWhereFont(page));
+
+  @override
+  String reviewWhereWarning(String page) =>
+      isolate(super.reviewWhereWarning(page));
+
+  @override
+  String reviewExportName(String name) => isolate(super.reviewExportName(name));
+
+  @override
+  String get reviewExportFailed => isolate(super.reviewExportFailed);
+
+  @override
+  String reviewRevertAllBody(String name) =>
+      isolate(super.reviewRevertAllBody(name));
+
+  @override
+  String reviewDependentBody(String later, String change) =>
+      isolate(super.reviewDependentBody(later, change));
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) =>
+      isolate(super.reviewDependentsBody(count, shown, change));
+
+  @override
+  String reviewKeptWarning(int count, String shown) =>
+      isolate(super.reviewKeptWarning(count, shown));
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) =>
+      isolate(super.reviewRevertAllTitle(count, shown));
+
+  @override
+  String reviewRevertAllButton(int count, String shown) =>
+      isolate(super.reviewRevertAllButton(count, shown));
+
+  @override
+  String reviewDependentTitle(int count, String shown) =>
+      isolate(super.reviewDependentTitle(count, shown));
+
+  @override
+  String reviewDependentButton(int count, String shown) =>
+      isolate(super.reviewDependentButton(count, shown));
+
+  @override
+  String get editPanelTitle => isolate(super.editPanelTitle);
+
+  @override
+  String get editPanelText => isolate(super.editPanelText);
+
+  @override
+  String get editPanelSize => isolate(super.editPanelSize);
+
+  @override
+  String get editPanelColour => isolate(super.editPanelColour);
+
+  @override
+  String get editPanelColoursDocument =>
+      isolate(super.editPanelColoursDocument);
+
+  @override
+  String get editPanelColoursStandard =>
+      isolate(super.editPanelColoursStandard);
+
+  @override
+  String get editPanelFontsDocument => isolate(super.editPanelFontsDocument);
+
+  @override
+  String get editPanelFontsDevice => isolate(super.editPanelFontsDevice);
+
+  @override
+  String get editPanelBold => isolate(super.editPanelBold);
+
+  @override
+  String get editPanelItalic => isolate(super.editPanelItalic);
+
+  @override
+  String get editPanelUnderline => isolate(super.editPanelUnderline);
+
+  @override
+  String get editPanelNoBold => isolate(super.editPanelNoBold);
+
+  @override
+  String get editPanelNoItalic => isolate(super.editPanelNoItalic);
+
+  @override
+  String get editPanelNoUnderline => isolate(super.editPanelNoUnderline);
+
+  @override
+  String get editPanelAlignment => isolate(super.editPanelAlignment);
+
+  @override
+  String get editPanelAlignLeft => isolate(super.editPanelAlignLeft);
+
+  @override
+  String get editPanelAlignCenter => isolate(super.editPanelAlignCenter);
+
+  @override
+  String get editPanelAlignRight => isolate(super.editPanelAlignRight);
+
+  @override
+  String get editPanelAlignJustify => isolate(super.editPanelAlignJustify);
+
+  @override
+  String get editPanelSpacing => isolate(super.editPanelSpacing);
+
+  @override
+  String get editPanelCharacter => isolate(super.editPanelCharacter);
+
+  @override
+  String get editPanelLine => isolate(super.editPanelLine);
+
+  @override
+  String get editPanelBefore => isolate(super.editPanelBefore);
+
+  @override
+  String get editPanelAfter => isolate(super.editPanelAfter);
+
+  @override
+  String get editPanelPosition => isolate(super.editPanelPosition);
+
+  @override
+  String get editPanelWidth => isolate(super.editPanelWidth);
+
+  @override
+  String get editPanelHeight => isolate(super.editPanelHeight);
+
+  @override
+  String get editPanelReset => isolate(super.editPanelReset);
+
+  @override
+  String get editPanelHint => isolate(super.editPanelHint);
+
+  @override
+  String get editBarLabel => isolate(super.editBarLabel);
+
+  @override
+  String get editBarLink => isolate(super.editBarLink);
+
+  @override
+  String get editBarHighlight => isolate(super.editBarHighlight);
+
+  @override
+  String get editBarComment => isolate(super.editBarComment);
+
+  @override
+  String get editBarReplace => isolate(super.editBarReplace);
+
+  @override
+  String editStepStyle(String page) => isolate(super.editStepStyle(page));
+
+  @override
+  String editStepMoved(String page) => isolate(super.editStepMoved(page));
+
+  @override
+  String editStepResized(String page) => isolate(super.editStepResized(page));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

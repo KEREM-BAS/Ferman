@@ -458,3 +458,35 @@ fn the_open_says_what_the_start_screen_badges_need() {
         block_on(engine().close(document.id)).unwrap();
     }
 }
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn font_coverage_says_what_pdfium_draws_and_what_a_subset_lacks() {
+    // Standard 14 Helvetica, not embedded: PDFium's face is named or is the same face.
+    let helvetica = open("edit-e15-helvetica", None).unwrap();
+    let coverage = block_on(engine().font_coverage(helvetica.id, "abc".to_owned())).unwrap();
+    assert!(coverage.iter().all(|font| font.missing_letters.is_empty()));
+    assert!(
+        coverage
+            .iter()
+            .all(|font| font.shown_as.as_deref() != Some(""))
+    );
+    block_on(engine().close(helvetica.id)).unwrap();
+
+    // A Turkish contract's subsets: Cyrillic is in none of them, its own letters in one at least.
+    let kira = open("kira-tr", None).unwrap();
+    let coverage = block_on(engine().font_coverage(kira.id, "\u{416}\u{15f}".to_owned())).unwrap();
+    assert!(!coverage.is_empty());
+    assert!(coverage.iter().all(|font| font.name.contains('+')));
+    assert!(
+        coverage
+            .iter()
+            .all(|font| font.missing_letters.contains('\u{416}'))
+    );
+    assert!(
+        coverage
+            .iter()
+            .any(|font| !font.missing_letters.contains('\u{15f}'))
+    );
+    block_on(engine().close(kira.id)).unwrap();
+}

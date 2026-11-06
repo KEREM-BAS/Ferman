@@ -5,12 +5,15 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/editor/block_editor.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
+import 'package:ferman/features/editor/edit_marks.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/document_view.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/recent/recent_files.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -121,6 +124,96 @@ void main() {
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
     await pumps(tester);
   }
+
+  testWidgets('the editing frame hugs its block on the canvas', (tester) async {
+    await pumpEditor(tester);
+    await click(tester, const Offset(72, 106));
+    // The field starts within a pixel of the block's own corner (a3-1b).
+    final field = tester.getTopLeft(find.byType(EditableText));
+    final corner = onScreen(tester, const Offset(72, 100));
+    expect((field - corner).distance, lessThanOrEqualTo(1.5));
+  });
+
+  group('f1', () {
+    const page = Rect.fromLTWH(0, 0, 600, 800);
+    MetaPlacement place(Rect frame, [List<Rect> others = const []]) =>
+        metaPlacementFor(frame: frame, page: page, others: others, room: 20);
+    const frame = Rect.fromLTWH(50, 100, 200, 40);
+    const line = Rect.fromLTRB(50, 80, 250, 90);
+
+    test('above when the room above the frame is free', () {
+      expect(place(frame), MetaPlacement.above);
+      // Clear of the 20 px band: the frame's outer edge is at 96.
+      expect(
+        place(frame, [const Rect.fromLTRB(50, 60, 250, 75)]),
+        MetaPlacement.above,
+      );
+    });
+
+    test('below when text or the page edge is directly above', () {
+      expect(place(frame, [line]), MetaPlacement.below);
+      expect(place(const Rect.fromLTWH(50, 10, 200, 40)), MetaPlacement.below);
+    });
+
+    test('the margin when neither side is free', () {
+      expect(
+        place(frame, [line, const Rect.fromLTRB(50, 150, 250, 160)]),
+        MetaPlacement.margin,
+      );
+      // The page's bottom edge counts as much as text does.
+      expect(
+        place(const Rect.fromLTWH(50, 770, 200, 20), [
+          const Rect.fromLTRB(50, 750, 250, 760),
+        ]),
+        MetaPlacement.margin,
+      );
+    });
+
+    test('moving the frame recalculates', () {
+      expect(place(frame, [line]), MetaPlacement.below);
+      expect(
+        place(const Rect.fromLTWH(50, 130, 200, 40), [line]),
+        MetaPlacement.above,
+      );
+    });
+  });
+
+  testWidgets('the editor places its label from the page’s other blocks', (
+    tester,
+  ) async {
+    await pumpEditor(
+      tester,
+      fake: FakeEngineService(
+        documents: {'/kira.pdf': document},
+        pageBlocks: {
+          0: PageBlocks(
+            blocks: [
+              block(1, const Rect.fromLTRB(72, 100, 300, 112), ['Madde 3']),
+              block(2, const Rect.fromLTRB(72, 114, 300, 126), ['Kira']),
+              block(3, const Rect.fromLTRB(72, 128, 300, 140), ['Bedel']),
+            ],
+          ),
+        },
+      ),
+    );
+    await click(tester, const Offset(100, 120));
+    expect(
+      tester.widget<BlockEditor>(find.byType(BlockEditor)).metaPlacement,
+      MetaPlacement.margin,
+    );
+  });
+
+  testWidgets('holding Alt frames every editable block (a3-1a)', (
+    tester,
+  ) async {
+    await pumpEditor(tester);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+    await pumps(tester);
+    expect(find.byType(TextEditBox), findsNWidgets(2));
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+    await pumps(tester);
+    expect(find.byType(TextEditBox), findsNothing);
+  });
 
   testWidgets('a click opens the block in a multi-line text field, and Esc '
       'commits the typing as one step', (tester) async {
@@ -292,6 +385,30 @@ void main() {
     expect(save().onPressed, isNotNull);
   });
 
+  testWidgets('a save after an edit gives the recent file the Edited badge, '
+      'which stays over a reopen (B129)', (tester) async {
+    await pumpEditor(tester);
+    final path = tab(tester).path!;
+    final recent = containerOf(tester).read(recentFilesProvider.notifier);
+    bool edited() =>
+        containerOf(tester)
+            .read(recentFilesProvider)
+            .firstWhere((file) => file.path == path)
+            .edited;
+    await recent.opened(path, name: 'kira.pdf', now: DateTime(2026));
+    await click(tester, const Offset(72, 106));
+    await tester.enterText(find.byType(EditableText), 'Madde 4');
+    await tester.pump();
+    engine.saveFailure = const EngineException(messageKey: 'errorInternal');
+    await control(tester, LogicalKeyboardKey.keyS);
+    expect(edited(), isFalse);
+    engine.saveFailure = null;
+    await control(tester, LogicalKeyboardKey.keyS);
+    expect(edited(), isTrue);
+    await recent.opened(path, name: 'kira.pdf', now: DateTime(2026));
+    expect(edited(), isTrue);
+  });
+
   testWidgets('typing not yet committed is unsaved, and Save commits it', (
     tester,
   ) async {
@@ -430,6 +547,108 @@ void main() {
     expect(editor(tester).history.current, 1);
     expect(find.byType(EditableText), findsNothing);
   });
+
+  group('edit marks (f3)', () {
+    List<EditMark>? marks(WidgetTester tester) {
+      final paint = find.byKey(
+        const ValueKey<String>('DocumentView.editMarks'),
+      );
+      if (paint.evaluate().isEmpty) return null;
+      return (tester.widget<CustomPaint>(paint).painter! as EditMarksPainter)
+          .marks;
+    }
+
+    Future<void> editSecondLine(WidgetTester tester) async {
+      await click(tester, const Offset(100, 306));
+      await tester.enterText(
+        find.byType(EditableText),
+        'Birinci satır\nDeğişti',
+      );
+      await tester.pump();
+      await key(tester, LogicalKeyboardKey.escape);
+      await pumps(tester);
+    }
+
+    testWidgets('only the changed line is marked, until it is undone', (
+      tester,
+    ) async {
+      await pumpEditor(tester);
+      expect(marks(tester), isNull);
+      await editSecondLine(tester);
+
+      final mark = marks(tester)!.single;
+      final view = containerOf(tester).read(viewerProvider)!;
+      final rect = view.placement.rects.first!;
+      final left = rect.left - view.offset.dx + 72 * view.scale;
+      final top = rect.top - view.offset.dy + 312 * view.scale;
+      expect(mark.line.top, moreOrLessEquals(top));
+      expect(mark.bar.left, moreOrLessEquals(left - 12 - 2));
+      expect(mark.bar.width, 2);
+
+      await control(tester, LogicalKeyboardKey.keyZ);
+      await pumps(tester);
+      expect(marks(tester), isNull);
+    });
+
+    testWidgets('the Edit row switch hides them and they stay after a save; '
+        'the saved file is the same either way', (tester) async {
+      final fake = _SavedFile(
+        documents: {'/kira.pdf': document},
+        pageBlocks: {0: page},
+      );
+      await pumpEditor(tester, fake: fake);
+      await editSecondLine(tester);
+      final notifier = containerOf(tester)
+          .read(documentEditorProvider.notifier);
+
+      await notifier.save();
+      await pumps(tester);
+      expect(marks(tester), hasLength(1));
+      expect(tab(tester).saveState, SaveState.saved);
+
+      final requests = fake.requests.length;
+      await tester.tap(find.text('Mark edited text'));
+      await pumps(tester);
+      expect(marks(tester), isNull);
+      expect(containerOf(tester).read(settingsProvider).markEdited, isFalse);
+      // The switch asks nothing of the engine and leaves the file saved.
+      expect(fake.requests.length, requests);
+      expect(tab(tester).saveState, SaveState.saved);
+
+      await notifier.save();
+      await pumps(tester);
+      expect(fake.files, hasLength(2));
+      expect(fake.files.last, fake.files.first);
+      expect(fake.files.first, contains('Değişti'));
+
+      await tester.tap(find.text('Mark edited text'));
+      await pumps(tester);
+      expect(marks(tester), hasLength(1));
+    });
+
+    TextLine line(String text) => TextLine(
+      text: text,
+      bbox: Rect.zero,
+      baselineStart: Offset.zero,
+      baselineEnd: Offset.zero,
+    );
+
+    List<String> changed(List<String> before, List<String> now) => [
+      for (final l in changedLines(before, [
+        for (final text in now) line(text),
+      ]))
+        l.text,
+    ];
+
+    test('changedLines keeps out the lines that stayed the same', () {
+      expect(changed(['a', 'b'], ['a', 'b']), isEmpty);
+      expect(changed(['a', 'b', 'c'], ['a', 'x', 'c']), ['x']);
+      expect(changed(['a', 'c'], ['a', 'b', 'c']), ['b']);
+      expect(changed(['a', 'b', 'c'], ['a', 'c']), isEmpty);
+      expect(changed(['a', 'a'], ['a', 'a', 'a']), ['a']);
+      expect(changed(['a'], ['b', 'c']), ['b', 'c']);
+    });
+  });
 }
 
 /// Lets the engine's replies and the frames after them through.
@@ -452,4 +671,24 @@ class _NoReload extends FakeEngineService {
   @override
   Future<RevisionInfo> undo(int document) async =>
       RevisionInfo(current: (await super.undo(document)).current);
+}
+
+/// A fake whose saves write what the engine holds, the page's text: all that
+/// reaches a file, with or without the marks on.
+class _SavedFile extends FakeEngineService {
+  new({super.documents, super.pageBlocks});
+
+  /// What each save wrote.
+  final List<String> files = [];
+
+  @override
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  }) async {
+    final blocks = await textBlocks(document, 0);
+    files.add(blocks.blocks.map((block) => block.text).join('\n'));
+    return await super.save(document, overChange: overChange, staging: staging);
+  }
 }

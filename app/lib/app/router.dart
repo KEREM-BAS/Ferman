@@ -1,6 +1,7 @@
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/features/gallery/gallery_screen.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
+import 'package:ferman/features/save/closing_dialogs.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
@@ -82,7 +83,7 @@ GoRouter router(Ref ref) {
             Routes.start || Routes.editor => true,
             _ => false,
           },
-          child: child,
+          child: ClosingOverlays(child: child),
         ),
         routes: [
           GoRoute(

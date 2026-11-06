@@ -5,7 +5,7 @@ use std::fmt;
 /// What kind of failure an [`ApiError`] reports.
 ///
 /// The UI maps each kind to a design state (docs/ARCHITECTURE.md §8.2). The kinds that only the
-/// later features produce (for example `Restricted` or `DiskFull`) arrive with those features.
+/// later features produce (for example `Restricted`) arrive with those features.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ErrorKind {
@@ -30,6 +30,26 @@ pub enum ErrorKind {
     /// The text, or the whole document, cannot be edited; the message key names the reason
     /// (docs/ARCHITECTURE.md §6.5).
     NotEditable,
+    /// A save found too little free space, before or while writing (a11-7).
+    DiskFull,
+    /// Another app holds the file, still after the retries (a11-7d, G40).
+    FileLocked,
+    /// The new file was written but could not replace the original (a11-7d, G40).
+    RenameFailed,
+    /// The disk or network drive went away during a save (a11-7d, G40).
+    VolumeGone,
+    /// The file has other hard links, which replacing it would break; Save as instead (G40).
+    HardLinked,
+    /// The file belongs to someone else and its owner cannot be kept; Save as instead (G40).
+    NotOwner,
+    /// The file changed on disk since it was opened or saved (a11-7b): "Keep mine" saves
+    /// anyway, "Reload" opens it again.
+    FileChangedOnDisk,
+    /// A change to a signed document waits for [`Engine::confirm_edit_signed`]
+    /// (docs/ARCHITECTURE.md §6.9, a3-16a).
+    ///
+    /// [`Engine::confirm_edit_signed`]: super::Engine::confirm_edit_signed
+    ConfirmationRequired,
     /// A bug in Ferman, including a caught panic. The UI shows a generic message and offers
     /// "Copy technical details".
     Internal,
@@ -50,6 +70,14 @@ impl ErrorKind {
             Self::ResourceLimit => "resource_limit",
             Self::Io => "io",
             Self::NotEditable => "not_editable",
+            Self::DiskFull => "disk_full",
+            Self::FileLocked => "file_locked",
+            Self::RenameFailed => "rename_failed",
+            Self::VolumeGone => "volume_gone",
+            Self::HardLinked => "hard_linked",
+            Self::NotOwner => "not_owner",
+            Self::FileChangedOnDisk => "file_changed_on_disk",
+            Self::ConfirmationRequired => "confirmation_required",
             Self::Internal => "internal",
         }
     }
@@ -191,8 +219,8 @@ impl fmt::Display for MessageKey {
 ///
 /// `message_key` names the sentence the UI shows. `details` is the technical text behind
 /// "Copy technical details" (a1-9b): structural facts only, never document text, typed characters
-/// or passwords. Message parameters and a retry flag join it when the first call needs them
-/// (docs/ARCHITECTURE.md §3.8).
+/// or passwords. `offer_save_as` says that a failed save's way out is Save as (docs/ARCHITECTURE.md
+/// §7.8). Message parameters join it when the first call needs them (docs/ARCHITECTURE.md §3.8).
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 #[error("{kind} [{message_key}]{}", details_suffix(.details))]
 pub struct ApiError {
@@ -202,6 +230,11 @@ pub struct ApiError {
     pub message_key: MessageKey,
     /// Technical details for "Copy technical details", if any.
     pub details: Option<String>,
+    /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
+    pub offer_save_as: bool,
+    /// On a failed save: the last recovery write failed too, so no recovery copy of the unsaved
+    /// edits exists (docs/ARCHITECTURE.md §7.8).
+    pub no_recovery_copy: bool,
 }
 
 impl ApiError {
@@ -212,6 +245,8 @@ impl ApiError {
             kind,
             message_key,
             details: None,
+            offer_save_as: false,
+            no_recovery_copy: false,
         }
     }
 
@@ -226,6 +261,27 @@ impl ApiError {
     pub fn not_editable(reason: ferman_text::NotEditableReason) -> Self {
         Self::new(ErrorKind::NotEditable, MessageKey::not_editable(reason))
             .with_details(format!("{reason:?}"))
+    }
+
+    /// The same error of a save: a file error offers Save as, as every [`SaveError`]
+    /// does but a file changed on disk.
+    ///
+    /// [`SaveError`]: ferman_core::SaveError
+    #[must_use]
+    pub fn of_save(mut self) -> Self {
+        self.offer_save_as = matches!(
+            self.kind,
+            ErrorKind::NotFound
+                | ErrorKind::PermissionDenied
+                | ErrorKind::Io
+                | ErrorKind::DiskFull
+                | ErrorKind::FileLocked
+                | ErrorKind::RenameFailed
+                | ErrorKind::VolumeGone
+                | ErrorKind::HardLinked
+                | ErrorKind::NotOwner
+        );
+        self
     }
 
     /// The same error with technical `details`.
@@ -310,6 +366,30 @@ impl From<ferman_core::CoreError> for ApiError {
             CoreError::Write(
                 ferman_core::WriteError::Placement | ferman_core::WriteError::Repaired,
             ) => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
+            // a11-7, a11-7b and a11-7d draw their own sentences for these kinds; the keys are
+            // the nearest of the open's until those screens bring theirs.
+            CoreError::Save(save) => {
+                use ferman_core::SaveError;
+                let kind = match save {
+                    SaveError::DiskFull => ErrorKind::DiskFull,
+                    SaveError::PermissionDenied => ErrorKind::PermissionDenied,
+                    SaveError::FileLocked => ErrorKind::FileLocked,
+                    SaveError::RenameFailed => ErrorKind::RenameFailed,
+                    SaveError::VolumeGone => ErrorKind::VolumeGone,
+                    SaveError::HardLinked => ErrorKind::HardLinked,
+                    SaveError::NotOwner => ErrorKind::NotOwner,
+                    SaveError::ChangedOnDisk => ErrorKind::FileChangedOnDisk,
+                    _ => ErrorKind::Io,
+                };
+                let key = if kind == ErrorKind::PermissionDenied {
+                    MessageKey::FILE_PERMISSION_DENIED
+                } else {
+                    MessageKey::FILE_READ
+                };
+                let mut api = Self::new(kind, key).with_details(err.to_string());
+                api.offer_save_as = save.offers_save_as();
+                return api;
+            }
             _ => (ErrorKind::Internal, MessageKey::INTERNAL),
         };
         Self::new(kind, key).with_details(err.to_string())
@@ -496,6 +576,35 @@ mod tests {
         }
         let err = ApiError::from(CoreError::Write(WriteError::ObjectNumbers));
         assert_eq!(err.kind, ErrorKind::Internal);
+    }
+
+    #[test]
+    fn save_failures_get_their_kind_and_the_save_as_offer() {
+        use ferman_core::{CoreError, SaveError};
+        for (save, kind) in [
+            (SaveError::DiskFull, ErrorKind::DiskFull),
+            (SaveError::PermissionDenied, ErrorKind::PermissionDenied),
+            (SaveError::FileLocked, ErrorKind::FileLocked),
+            (SaveError::RenameFailed, ErrorKind::RenameFailed),
+            (SaveError::VolumeGone, ErrorKind::VolumeGone),
+            (SaveError::HardLinked, ErrorKind::HardLinked),
+            (SaveError::NotOwner, ErrorKind::NotOwner),
+            (SaveError::Verify, ErrorKind::Io),
+        ] {
+            let err = ApiError::from(CoreError::Save(save));
+            assert_eq!(err.kind, kind, "{save:?}");
+            assert!(err.offer_save_as, "{save:?}");
+        }
+        let err = ApiError::from(CoreError::Save(SaveError::ChangedOnDisk));
+        assert_eq!(err.kind, ErrorKind::FileChangedOnDisk);
+        assert!(!err.offer_save_as);
+        assert_eq!(err.kind.as_str(), "file_changed_on_disk");
+        let io = ApiError::from(CoreError::Io {
+            kind: std::io::ErrorKind::NotFound,
+        });
+        assert!(!io.offer_save_as && io.clone().of_save().offer_save_as);
+        let misuse = ApiError::from(CoreError::Write(ferman_core::WriteError::TransactionOpen));
+        assert!(!misuse.of_save().offer_save_as);
     }
 
     #[test]

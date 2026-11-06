@@ -16,7 +16,7 @@
 // Values come from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use lopdf::{Dictionary, Object, ObjectId};
 
@@ -301,6 +301,16 @@ pub enum Agreement {
 const SIZE_TOLERANCE: f32 = 0.05;
 
 impl Structure {
+    /// Whether the file holds a signature a change would invalidate (G35): a signature field
+    /// with a value, a certification, or `/SigFlags` saying the file must only be appended to.
+    /// Empty signature fields alone do not count.
+    #[must_use]
+    pub fn signed(&self) -> bool {
+        self.signatures.iter().any(|signature| signature.signed)
+            || self.certification.is_some()
+            || self.forms.sig_flags & 2 != 0
+    }
+
     /// Compares the pages with the sizes PDFium gives, in page order.
     #[must_use]
     pub fn agrees_with(&self, renderer: &[(f32, f32)]) -> Agreement {
@@ -387,6 +397,14 @@ impl<'a> Scope<'a> {
     /// `dict[key]` as a text string.
     pub(crate) fn get_text(&self, dict: &'a Dictionary, key: &[u8]) -> Option<String> {
         Some(text_string::decode(self.get(dict, key)?.as_str().ok()?))
+    }
+
+    /// `dict`'s `/Lang`. A longer string is no language tag; refusing it before decoding keeps a
+    /// huge one shared by many marked-content sequences from being copied for each.
+    pub(crate) fn get_language(&self, dict: &'a Dictionary) -> Option<String> {
+        const LONGEST: usize = 64;
+        let raw = self.get(dict, b"Lang")?.as_str().ok()?;
+        (raw.len() <= LONGEST).then(|| text_string::decode(raw))
     }
 
     /// `dict[key]` as an integer.
@@ -550,6 +568,57 @@ fn page(scope: &Scope<'_>, id: ObjectId, index: u32, label: Option<String>) -> P
         size,
         id,
     }
+}
+
+/// The language of each marked-content id of `page`: the `/Lang` of the structure element
+/// `/ParentTree` names for it, or of its nearest ancestor with one (ISO 32000-2 §14.7.4, §14.9.2).
+/// Only the ids in `wanted` are looked up, because a hostile tree can name millions of elements;
+/// a fixed budget of lookups bounds the `/P` walks, and what is past it has no language.
+pub(crate) fn marked_content_languages(
+    scope: &Scope<'_>,
+    page: &Dictionary,
+    wanted: &HashSet<i64>,
+) -> HashMap<i64, String> {
+    const LOOKUPS: usize = 1 << 16;
+    let mut out = HashMap::new();
+    let (Some(key), Some(root)) = (
+        scope.get_int(page, b"StructParents"),
+        scope
+            .catalog()
+            .and_then(|catalog| scope.get_dict(catalog, b"StructTreeRoot"))
+            .and_then(|root| scope.get_dict(root, b"ParentTree")),
+    ) else {
+        return out;
+    };
+    let Some(parents) = navigation::number_tree(scope, root)
+        .into_iter()
+        .find_map(|(number, value)| (number == key).then_some(value))
+        .and_then(|value| scope.resolve(value))
+        .and_then(|value| value.as_array().ok())
+    else {
+        return out;
+    };
+    let mut lookups = 0_usize;
+    for &mcid in wanted {
+        let Some(element) = usize::try_from(mcid).ok().and_then(|at| parents.get(at)) else {
+            continue;
+        };
+        let mut element = scope.dict(element);
+        // A hostile tree may loop through `/P`.
+        for _ in 0..scope.limits.max_nesting {
+            let Some(dict) = element else { break };
+            lookups = lookups.saturating_add(1);
+            if lookups > LOOKUPS {
+                return out;
+            }
+            if let Some(lang) = scope.get_language(dict) {
+                out.insert(mcid, lang);
+                break;
+            }
+            element = scope.get_dict(dict, b"P");
+        }
+    }
+    out
 }
 
 /// The labels of `count` pages from `/PageLabels` (ISO 32000-2 §12.4.2), or none.

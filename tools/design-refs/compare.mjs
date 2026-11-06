@@ -51,10 +51,48 @@ export const GOLDEN_SCREENS = [
   'viewer_search_progress',
   'viewer_search_none',
   'start_no_pdfium',
+  // M3 (ROADMAP §7).
+  'edit_main',
+  'edit_caret',
+  'edit_selection',
+  'edit_panel',
+  'missing_glyph',
+  'font_picker',
+  'missing_kept',
+  'missing_same_font',
+  'missing_no_font',
+  'missing_not_embeddable',
+  'overflow',
+  'overflow_extend_blocked',
+  'overflow_tighten_blocked',
+  'overflow_extended',
+  'overflow_tightened',
+  'overflow_kept',
+  'not_editable',
+  'review_list',
+  'review_empty',
+  'review_revert_all',
+  'review_dependent',
+  'signed_warning',
+  'signed_banner',
+  'close_unsaved',
+  'save_as',
+  'save_as_folder',
+  'save_disk_full',
+  'save_permission',
+  'save_locked',
+  'save_replace_failed',
+  'save_volume_gone',
+  'file_changed',
+  'quit_unsaved',
+  'recovery',
+  'recovery_changed',
+  'settings_editing',
+  'welcome_edit',
 ];
 
 /** A golden's file name: `<screen>_<chrome>_<theme>_<lang>.png`. */
-export const GOLDEN_NAME = new RegExp(`^(${GOLDEN_SCREENS.join('|')})_(mac|win)_(light|dark)_(en|tr|ar)\\.png$`);
+export const GOLDEN_NAME = new RegExp(`^(${GOLDEN_SCREENS.join('|')})_(mac|win)_(light|dark)_(en|tr|ar|de|ja)\\.png$`);
 
 /** pixelmatch's own default: the YIQ colour distance, from 0 to 1, a pixel may differ by unseen. */
 export const DEFAULT_THRESHOLD = 0.1;
@@ -163,7 +201,7 @@ export function validateMap(data, { boardIds, boardLangs = new Map() }) {
     }
     const goldenMatch = typeof raw.golden === 'string' ? GOLDEN_NAME.exec(raw.golden) : null;
     if (goldenMatch === null) {
-      problems.push(`${where}: golden ${JSON.stringify(raw.golden)} is not <screen>_<mac|win>_<light|dark>_<en|tr|ar>.png`);
+      problems.push(`${where}: golden ${JSON.stringify(raw.golden)} is not <screen>_<mac|win>_<light|dark>_<en|tr|ar|de|ja>.png`);
     } else if (langs.length > 0 && goldenMatch[4] !== (raw.lang ?? 'en')) {
       problems.push(`${where}: the golden is in ${goldenMatch[4]} but the reference ${refName(pair)} is in ${raw.lang ?? 'en'}`);
     }

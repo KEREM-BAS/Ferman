@@ -149,6 +149,10 @@ jobs:
         shell: bash
         run: bash tools/corpus/fetch-fonts.sh
       - name: Test
+        # The save crash test kills a save at 1,000 points here (100 by default; on Windows it
+        # does not run).
+        env:
+          FERMAN_CRASH_POINTS: "1000"
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
         run: cargo test -p ferman-api --features frb --locked
@@ -192,7 +196,15 @@ jobs:
           files=("$RUNNER_TEMP"/saved/*.pdf)
           [ "${#files[@]}" -gt 0 ] || { echo "no saved files"; exit 1; }
           # Exit 3 is warnings only; the file is still valid.
-          for f in "${files[@]}"; do qpdf --check "$f" >/dev/null || [ $? -eq 3 ] || { echo "qpdf failed: $f"; exit 1; }; done
+          for f in "${files[@]}"; do
+            # The corpus's user passwords (tests/corpus/README.md); a file without one ignores it.
+            case "$(basename "$f")" in
+              *payslip-aes256*) password='Eylül2026maaşı' ;;
+              *payslip-*) password='bordro2026' ;;
+              *) password='' ;;
+            esac
+            qpdf --password="$password" --check "$f" >/dev/null || [ $? -eq 3 ] || { echo "qpdf failed: $f"; exit 1; }
+          done
           echo "${#files[@]} files checked"
       - name: CLI smoke test
         shell: bash
@@ -213,8 +225,9 @@ jobs:
 
   bench:
     # ARCHITECTURE §14's engine budgets on a CI runner (not R1 or R2): criterion's quick runs for
-    # the record, then one cold run each that fails above the reference budget, a guard against a
-    # gross regression. The calibrated CI budgets of §14 wait for numbers from R1 and R2.
+    # the record, then a guard against a gross regression: first_page and search fail one cold run
+    # above the reference budget, edit_and_save the median of 20 edits and one save above four
+    # times it. Measured budgets for CI wait for numbers from R1 and R2.
     name: Benchmarks (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -241,7 +254,7 @@ jobs:
           bash tools/pdfium/fetch.sh --platform linux-x64
           bash tools/corpus/fetch-fonts.sh
           cargo run -q --manifest-path tools/corpus/Cargo.toml --locked -- generate
-      - name: First page and search, with their guards
+      - name: First page, search, edit-to-render and save, with their guards
         env:
           FERMAN_BENCH_GUARD: "1"
         run: |
@@ -249,6 +262,7 @@ jobs:
           export FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so"
           cargo bench --locked -p ferman-render --bench first_page -- --quick
           cargo bench --locked -p ferman-text --bench search -- --quick
+          cargo bench --locked -p ferman-api --bench edit_and_save -- --quick
 
   deny:
     name: cargo-deny
@@ -287,7 +301,8 @@ jobs:
   fuzz:
     name: Fuzz smoke (Linux)
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # 24 targets of 60 s, and building them with ASan on a cache miss.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install the stable toolchain and the fuzz nightly (each rust-toolchain.toml)
@@ -320,7 +335,14 @@ jobs:
           test -n "$targets"
           for target in $targets; do
             echo "::group::$target"
-            cargo fuzz run "$target" -- -max_total_time=60 -rss_limit_mb=2048
+            corpus=()
+            case "$target" in
+              font_program | shaping | subsetting)
+                mkdir -p "corpus/$target"
+                corpus=("corpus/$target" seeds/fonts)
+                ;;
+            esac
+            cargo fuzz run "$target" "${corpus[@]}" -- -max_total_time=60 -rss_limit_mb=2048
             echo "::endgroup::"
           done
       - name: Upload the crashing inputs

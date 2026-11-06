@@ -51,11 +51,8 @@ void main() {
       expect(tile.shipped, tile.features.isEmpty, reason: tile.name);
     }
     expect(WelcomeFeature.languages.shipped, isTrue);
-    // "Edit text and images" waits for images (P2) after text (M3), G12.
-    expect(WelcomeFeature.editing.features, {
-      Feature.editingText,
-      Feature.addingImages,
-    });
+    // "Edit text" counts as shipped with text (M3), G12.
+    expect(WelcomeFeature.editing.shipped, isTrue);
   });
 
   test('a Settings pane is built only without a registry feature', () {
@@ -67,7 +64,12 @@ void main() {
         for (final pane in SettingsPane.values)
           if (pane.available) pane,
       ],
-      [SettingsPane.general, SettingsPane.language, SettingsPane.privacy],
+      [
+        SettingsPane.general,
+        SettingsPane.language,
+        SettingsPane.editing,
+        SettingsPane.privacy,
+      ],
     );
   });
 }

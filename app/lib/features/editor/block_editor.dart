@@ -4,8 +4,16 @@ import 'dart:math' as math;
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/format_bar.dart';
+import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/l10n/format.dart';
+import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,13 +32,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// the canvas puts "+1 line hidden" beside it. For screen readers the
 /// block is a multi-line text field.
 ///
-/// Text an input method is still composing (a Japanese or Korean IME,
-/// Turkish dead keys) shows in the field, underlined as the platform does,
-/// but goes to the engine only once the composition ends: one edit, never
-/// a step per keystroke of it (ROADMAP §7 step 7). Characters the block's
+/// Input arrives as deltas (`DeltaTextInputClient`). Text an input method is
+/// still composing (a Japanese or Korean IME, Turkish dead keys) shows in the
+/// field as a preview, underlined as the platform does, but goes to the
+/// engine only once the composition ends: one edit, never a step per
+/// keystroke of it (ROADMAP §7 step 7). Esc during a composition cancels it,
+/// and leaving the field keeps it. Characters the block's
 /// font lacks (missing-glyph step 3, a3-3a) get the amber wavy underline
 /// on the page's missing-glyph tint, and the frame's label turns amber
-/// with the font's name, below the frame.
+/// with the font's name, on the side [metaPlacement] says (f1).
+///
+/// Drag, double-click and triple-click select inside the field; a selection
+/// opens [FormatBar] above it (a3-1c), and ⌘B and ⌘I work while it is open.
+/// Esc closes the bar with the selection, then leaves editing.
 // shortcut: the field draws the text in the UI font sized from the block's
 // lines and leaves the font label (TextEditBox `meta`) out but for a3-3a's
 // warning, since the engine's blocks name no font yet; the page shows the
@@ -41,6 +55,8 @@ class BlockEditor extends ConsumerStatefulWidget {
     required this.edit,
     required this.frame,
     required this.scale,
+    this.metaPlacement = MetaPlacement.above,
+    this.uiDirection = TextDirection.ltr,
     super.key,
   });
 
@@ -53,6 +69,12 @@ class BlockEditor extends ConsumerStatefulWidget {
   /// The canvas's points per page point.
   final double scale;
 
+  /// Where the frame's label sits ([metaPlacementFor]).
+  final MetaPlacement metaPlacement;
+
+  /// The UI's direction, for the format bar: the canvas is never mirrored.
+  final TextDirection uiDirection;
+
   @override
   ConsumerState<BlockEditor> createState() => _BlockEditorState();
 
@@ -62,12 +84,42 @@ class BlockEditor extends ConsumerStatefulWidget {
     properties
       ..add(DiagnosticsProperty<ActiveEdit>('edit', edit))
       ..add(DiagnosticsProperty<Rect>('frame', frame))
-      ..add(DoubleProperty('scale', scale));
+      ..add(DoubleProperty('scale', scale))
+      ..add(EnumProperty<MetaPlacement>('metaPlacement', metaPlacement))
+      ..add(EnumProperty<TextDirection>('uiDirection', uiDirection));
   }
 }
 
-class _BlockEditorState extends ConsumerState<BlockEditor> {
+class _BlockEditorState extends ConsumerState<BlockEditor>
+    implements TextSelectionGestureDetectorBuilderDelegate {
   late final _MarkedController _controller;
+
+  @override
+  final GlobalKey<EditableTextState> editableTextKey = GlobalKey();
+
+  @override
+  bool get forcePressEnabled => false;
+
+  @override
+  bool get selectionEnabled => true;
+
+  late final TextSelectionGestureDetectorBuilder _gestures =
+      TextSelectionGestureDetectorBuilder(delegate: this);
+
+  final OverlayPortalController _bar = OverlayPortalController(
+    debugLabel: 'FormatBar',
+  );
+  final FocusScopeNode _barFocus = FocusScopeNode(debugLabel: 'FormatBar');
+
+  /// Whether text is selected, so the bar is open.
+  bool _selected = false;
+
+  /// Where the selection starts in the field, for the bar.
+  double _barStart = 0;
+
+  /// The selection the bar acts on: the field clears its own while the bar
+  /// has the focus, and gets this back after.
+  TextSelection? _barSelection;
 
   /// The text last given to the engine.
   late String _sent;
@@ -85,8 +137,10 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
     _sent = text;
     _controller = _MarkedController(text: text)
       ..selection = TextSelection.collapsed(offset: offset)
-      ..addListener(_changed);
+      ..addListener(_changed)
+      ..addListener(_selectionChanged);
     _focus.addListener(_focusChanged);
+    _barFocus.addListener(_selectionChanged);
     // The canvas has focus from the click, so autofocus would not take it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _focus.requestFocus();
@@ -94,28 +148,226 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
   }
 
   void _focusChanged() {
-    // The a3-3b picker takes the focus for a while and gives it back.
-    if (!_focus.hasFocus && !ref.read(documentEditorProvider).picking) {
+    // The a3-3b picker, the panel and its language take the focus for a while
+    // and give it back.
+    if (!_focus.hasFocus &&
+        !ref.read(documentEditorProvider).picking &&
+        !ref.read(documentEditorProvider).held &&
+        !_barFocus.hasFocus &&
+        !_editor.panelFocus.hasFocus &&
+        !BlockLanguageSection.hasFocus) {
+      // A composition the click cut off is kept, before the commit closes.
+      _send(_controller.text);
       unawaited(_editor.finish());
     }
   }
 
+  @override
+  void didUpdateWidget(BlockEditor old) {
+    super.didUpdateWidget(old);
+    // A resize broke the lines anew: typing goes on from the new ones. Only
+    // that: a keystroke or composition newer than the block stays in the field.
+    final text = widget.edit.block.text;
+    if (text != old.edit.block.text &&
+        text != _sent &&
+        _controller.text == _sent &&
+        !_composing(_controller.value) &&
+        sameWords(text) == sameWords(_sent)) {
+      // A style that breaks the lines anew keeps the selection and its bar.
+      final selection = _controller.selection;
+      _sent = text;
+      _controller.value = TextEditingValue(
+        text: text,
+        selection: selection.copyWith(
+          baseOffset: selection.baseOffset.clamp(0, text.length),
+          extentOffset: selection.extentOffset.clamp(0, text.length),
+        ),
+      );
+    }
+  }
+
+  /// The new box when [handle] was dragged by [by] on the canvas (B016).
+  void _resized(Offset handle, Offset by) {
+    final frame = widget.edit.block.frame;
+    final page = by / widget.scale;
+    final next = Rect.fromLTRB(
+      frame.left + (handle.dx < 0 ? page.dx : 0),
+      frame.top + (handle.dy < 0 ? page.dy : 0),
+      frame.right + (handle.dx > 0 ? page.dx : 0),
+      frame.bottom + (handle.dy > 0 ? page.dy : 0),
+    );
+    if (next.width < 1 || next.height < 1) return;
+    unawaited(
+      _editor.resizeBlock(
+        next,
+        name: AppLocalizations.of(context).editStepResized(
+          RegionFormat.forRegion(ref.read(regionProvider).region)
+              .integer(widget.edit.page + 1),
+        ),
+      ),
+    );
+  }
+
+  /// Esc: the input method never sees the key, so a composition is cancelled
+  /// here and the editor stays; otherwise the editor closes.
+  void _endEdit() {
+    final value = _controller.value;
+    if (!_composing(value)) {
+      unawaited(_editor.finish());
+      return;
+    }
+    _controller.value = TextEditingValue(
+      text:
+          value.composing.textBefore(value.text) +
+          value.composing.textAfter(value.text),
+      selection: TextSelection.collapsed(offset: value.composing.start),
+    );
+  }
+
+  bool _composing(TextEditingValue value) =>
+      value.isComposingRangeValid && !value.composing.isCollapsed;
+
   /// Sends the field's text once no input method composes in it.
   void _changed() {
     final value = _controller.value;
-    if (value.isComposingRangeValid && !value.composing.isCollapsed) return;
-    if (value.text == _sent) return;
-    _sent = value.text;
-    _editor.type(value.text);
+    if (!_composing(value)) _send(value.text);
+  }
+
+  void _send(String text) {
+    if (text == _sent) return;
+    _sent = text;
+    _editor.type(text);
+  }
+
+  /// Opens or closes the bar for the selection, after the frame: the
+  /// controller also changes during a build, and the bar needs the new
+  /// layout.
+  void _selectionChanged() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!_focus.hasFocus &&
+          (_barFocus.hasFocus || ref.read(documentEditorProvider).held)) {
+        return;
+      }
+      final selection = _controller.selection;
+      final selected = selection.isValid && !selection.isCollapsed;
+      _barSelection = selected ? selection : null;
+      final start = selected
+          ? editableTextKey.currentState?.renderEditable
+                    .getEndpointsForSelection(selection)
+                    .first
+                    .point
+                    .dx ??
+                0.0
+          : _barStart;
+      if (selected != _bar.isShowing) {
+        selected ? _bar.show() : _bar.hide();
+      }
+      if (selected != _selected || start != _barStart) {
+        setState(() {
+          _selected = selected;
+          _barStart = start;
+        });
+      }
+    });
+  }
+
+  /// Esc with text selected: the selection and the bar close, and editing
+  /// goes on (a3-1c).
+  void _closeBar() {
+    _barSelection = null;
+    _focus.requestFocus();
+    _controller.selection = TextSelection.collapsed(
+      offset: _controller.selection.extentOffset,
+    );
+    _selectionChanged();
+  }
+
+  /// The bar is done with the focus: the field takes it, and its selection,
+  /// back.
+  void _barDone() {
+    final selection = _barSelection;
+    final length = _controller.text.length;
+    if (selection != null) {
+      _controller.selection = selection.copyWith(
+        baseOffset: selection.baseOffset.clamp(0, length),
+        extentOffset: selection.extentOffset.clamp(0, length),
+      );
+    }
+    _focus.requestFocus();
+  }
+
+  /// A click outside the bar while it has the focus leaves the block, as
+  /// one outside the field does.
+  void _tappedOutsideBar(PointerDownEvent event) {
+    if (_barFocus.hasFocus && !ref.read(documentEditorProvider).held) {
+      unawaited(_editor.finish());
+    }
+  }
+
+  /// The selection's format keys, and Esc, while the bar is open (G141).
+  Map<ShortcutActivator, VoidCallback> _barKeys(BlockStyleInfo? info) {
+    if (!_selected) return const {};
+    final mac = ref.watch(shortcutPlatformProvider) == ShortcutPlatform.mac;
+    void face(BlockFont? font) {
+      if (font == null) return;
+      restyleBlock(context, ref, BlockStyle(font: font));
+    }
+
+    return {
+      const SingleActivator(LogicalKeyboardKey.escape): _closeBar,
+      if (info != null) ...{
+        SingleActivator(
+          LogicalKeyboardKey.keyB,
+          meta: mac,
+          control: !mac,
+        ): () =>
+            face(info.boldToggle),
+        SingleActivator(
+          LogicalKeyboardKey.keyI,
+          meta: mac,
+          control: !mac,
+        ): () =>
+            face(info.italicToggle),
+      },
+    };
+  }
+
+  Widget _barOverlay(BuildContext context, OverlayChildLayoutInfo layout) {
+    final info = ref.watch(documentEditorProvider.select((s) => s.style));
+    if (info == null) return const SizedBox.shrink();
+    return CustomSingleChildLayout(
+      delegate: FermanAnchoredLayout(
+        anchor: FermanAnchoredLayout.anchorRect(layout).translate(_barStart, 0),
+        side: AnchorSide.top,
+        alignment: AnchorAlignment.leading,
+        gap: FormatBar.gap,
+      ),
+      child: Directionality(
+        textDirection: widget.uiDirection,
+        child: FocusScope(
+          node: _barFocus,
+          // A click on the bar is no click outside the block's field.
+          child: TextFieldTapRegion(
+            onTapOutside: _tappedOutsideBar,
+            child: FormatBar(info: info, onDone: _barDone),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
+    _barFocus
+      ..removeListener(_selectionChanged)
+      ..dispose();
     _focus
       ..removeListener(_focusChanged)
       ..dispose();
     _controller
       ..removeListener(_changed)
+      ..removeListener(_selectionChanged)
       ..dispose();
     super.dispose();
   }
@@ -145,7 +397,15 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
       documentEditorProvider.select((s) => s.keptHidden > 0),
     );
     final missing = ref.watch(documentEditorProvider.select((s) => s.glyphs));
-    _controller.marks = missing?.chars ?? const [];
+    // A language picked in the panel gives the focus back for typing on.
+    ref.listen(documentEditorProvider.select((s) => s.language), (old, next) {
+      if (next != null && next != old) _focus.requestFocus();
+    });
+    // The preview changes with each text applied, so these offsets follow it.
+    final marked = ref
+        .watch(documentEditorProvider.select((s) => (s.preview, s.markedChars)))
+        .$2;
+    _controller.marks = missing?.chars ?? _marksOf(_controller.text, marked);
     _controller.markStyle = TextStyle(
       backgroundColor: theme.pageColors.glyphMissingBg,
       decoration: TextDecoration.underline,
@@ -153,30 +413,42 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
       decorationColor: theme.pageColors.glyphMissing,
       decorationThickness: PageMark.missingGlyphThickness,
     );
+    final rtl = block.direction == BlockDirection.rightToLeft;
     // The frame's bottom inside the field's box.
     final bottom = frame.height + TextEditBox.marginY - TextEditBox.paddingY;
-    Widget field = EditableText(
-      controller: _controller,
-      focusNode: _focus,
-      maxLines: null,
-      keyboardType: TextInputType.multiline,
-      textDirection: block.direction == BlockDirection.rightToLeft
-          ? TextDirection.rtl
-          : TextDirection.ltr,
-      style: theme.typography.body.copyWith(
-        fontSize: fontSize,
-        height: pitch / fontSize,
-        color: theme.ramps.paper900,
+    var field = _gestures.buildGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      child: _DeltaEditableText(
+        key: editableTextKey,
+        rendererIgnoresPointer: true,
+        controller: _controller,
+        focusNode: _focus,
+        maxLines: null,
+        keyboardType: TextInputType.multiline,
+        textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+        textAlign: switch (block.alignment) {
+          BlockAlignment.left => rtl ? TextAlign.end : TextAlign.start,
+          BlockAlignment.right => rtl ? TextAlign.start : TextAlign.end,
+          BlockAlignment.center => TextAlign.center,
+          BlockAlignment.justified => TextAlign.justify,
+        },
+        style: theme.typography.body.copyWith(
+          fontSize: fontSize,
+          height: pitch / fontSize,
+          color: theme.ramps.paper900,
+        ),
+        strutStyle: StrutStyle(
+          fontSize: fontSize,
+          height: pitch / fontSize,
+          forceStrutHeight: true,
+        ),
+        cursorColor: theme.pageColors.editCaret,
+        cursorWidth: TextCaret.width,
+        cursorHeight: fontSize * TextCaret.heightEm,
+        backgroundCursorColor: theme.colors.borderSubtle,
+        selectionColor: theme.pageColors.editSelection,
+        onTapOutside: _tappedOutside,
       ),
-      strutStyle: StrutStyle(
-        fontSize: fontSize,
-        height: pitch / fontSize,
-        forceStrutHeight: true,
-      ),
-      cursorColor: theme.pageColors.editCaret,
-      cursorWidth: TextCaret.width,
-      backgroundCursorColor: theme.colors.borderSubtle,
-      selectionColor: theme.pageColors.editSelection,
     );
     if (hidden) {
       final ink = theme.ramps.paper900;
@@ -217,21 +489,150 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
         ],
       );
     }
-    return TextEditBox(
-      // a3-3a: nothing above the frame is free, so the label flips below.
-      meta: missing?.font,
-      metaWarning: missing != null,
-      metaPlacement: MetaPlacement.below,
-      onStateChanged: (_) => unawaited(_editor.finish()),
-      child: ColoredBox(
-        color: theme.pageColors.pageBg,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: width,
-            maxWidth: width,
-            minHeight: height,
+    // The field hides the page's text under it, so it carries the editing
+    // tint itself; a dimmed page (Settings › General) dims it too.
+    Widget paper = ColoredBox(
+      color: Color.alphaBlend(TextEditBox.editingTint, theme.pageColors.pageBg),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: width,
+          maxWidth: width,
+          minHeight: height,
+        ),
+        child: CallbackShortcuts(
+          bindings: _barKeys(
+            ref.watch(documentEditorProvider.select((s) => s.style)),
           ),
-          child: field,
+          child: OverlayPortal.overlayChildLayoutBuilder(
+            controller: _bar,
+            overlayChildBuilder: _barOverlay,
+            child: field,
+          ),
+        ),
+      ),
+    );
+    final dim = theme.pageColorFilter;
+    if (dim != null) paper = ColorFiltered(colorFilter: dim, child: paper);
+    // f1: the label starts at the block's start edge, the right in a
+    // right-to-left block, whatever the canvas's direction.
+    return Directionality(
+      textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+      child: TextEditBox(
+        meta: missing?.font,
+        metaWarning: missing != null,
+        metaPlacement: widget.metaPlacement,
+        onStateChanged: (_) => _endEdit(),
+        onHandleDragged: _resized,
+        child: paper,
+      ),
+    );
+  }
+
+  /// A click outside the field leaves it, unless it is on the frame's
+  /// handles, which reach past this widget's own box.
+  void _tappedOutside(PointerDownEvent event) {
+    final box = context.findRenderObject();
+    if (box is RenderBox) {
+      final frame = (box.localToGlobal(Offset.zero) & box.size).inflate(
+        TextEditBox.marginX + TextEditBox.handleOffset,
+      );
+      if (frame.contains(event.position)) return;
+    }
+    _focus.unfocus();
+  }
+}
+
+/// Each character of [marked] in [text], at its offset in UTF-16 code units.
+List<MissingChar> _marksOf(String text, String marked) {
+  if (marked.isEmpty) return const [];
+  final marks = <MissingChar>[];
+  var at = 0;
+  for (final rune in text.runes) {
+    final char = String.fromCharCode(rune);
+    if (marked.contains(char)) marks.add(MissingChar(text: char, at: at));
+    at += char.length;
+  }
+  return marks;
+}
+
+/// The first free side for the label of the block framed at [frame] (f1):
+/// above, then below, else the margin. A side is free when the [room] the
+/// label and its gaps take past the frame's outer edge stays on [page] and
+/// meets none of [others]. All in canvas coordinates; the editor asks on
+/// every build, so the answer follows the frame as it moves or grows.
+// shortcut: [others] are the page's text blocks and tinted cells; the engine
+// names no images or vector marks yet, so a label may touch one (upgrade when
+// `PageBlocks` lists them).
+MetaPlacement metaPlacementFor({
+  required Rect frame,
+  required Rect page,
+  required Iterable<Rect> others,
+  required double room,
+}) {
+  final left = frame.left - TextEditBox.marginX;
+  final right = frame.right + TextEditBox.marginX;
+  final top = frame.top - TextEditBox.marginY;
+  final bottom = frame.bottom + TextEditBox.marginY;
+  bool free(Rect side) =>
+      side.top >= page.top &&
+      side.bottom <= page.bottom &&
+      !others.any(side.overlaps);
+  if (free(Rect.fromLTRB(left, top - room, right, top))) {
+    return MetaPlacement.above;
+  }
+  if (free(Rect.fromLTRB(left, bottom, right, bottom + room))) {
+    return MetaPlacement.below;
+  }
+  return MetaPlacement.margin;
+}
+
+/// An [EditableText] whose input connection speaks the delta model, the rest
+/// of it as is.
+class _DeltaEditableText extends EditableText {
+  new({
+    required super.controller,
+    required super.focusNode,
+    required super.style,
+    required super.cursorColor,
+    required super.backgroundCursorColor,
+    super.key,
+    super.rendererIgnoresPointer,
+    super.textAlign,
+    super.cursorHeight,
+    super.onTapOutside,
+    super.maxLines,
+    super.keyboardType,
+    super.textDirection,
+    super.strutStyle,
+    super.cursorWidth,
+    super.selectionColor,
+  });
+
+  // flutter_test's enterText and find.byType match the exact EditableText.
+  @override
+  Type get runtimeType => EditableText;
+
+  @override
+  EditableTextState createState() => _DeltaEditableTextState();
+}
+
+class _DeltaEditableTextState extends EditableTextState
+    implements DeltaTextInputClient {
+  @override
+  TextInputConfiguration get textInputConfiguration =>
+      super.textInputConfiguration.copyWith(enableDeltaModel: true);
+
+  @override
+  void updateEditingValueWithDeltas(List<TextEditingDelta> deltas) {
+    // A delta is relative to the platform's text, which is the truth when a
+    // change from here has not reached it yet.
+    updateEditingValue(
+      deltas.fold(
+        currentTextEditingValue,
+        (value, delta) => delta.apply(
+          value.text == delta.oldText
+              ? value
+              : TextEditingValue(text: delta.oldText),
         ),
       ),
     );

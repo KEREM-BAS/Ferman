@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void toggleEditHistory(WidgetRef ref) {
   final open = !ref.read(editHistoryOpenProvider);
   ref.read(editHistoryOpenProvider.notifier).show(open: open);
+  if (open) ref.read(reviewListProvider.notifier).show(open: false);
   if (open && !ref.read<ShellPanels>(shellPanelsProvider).panel) {
     toggleShellSide(ref, ShellSide.panel);
   }

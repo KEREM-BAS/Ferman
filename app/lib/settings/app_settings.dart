@@ -30,6 +30,9 @@ final class AppSettings {
     this.pageLayout = NewDocumentLayout.scroll,
     this.zoom = NewDocumentZoom.fitWidth,
     this.missingGlyphs = MissingGlyphPolicy.similar,
+    this.recoveryCopies = true,
+    this.reflow = true,
+    this.markEdited = true,
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -74,6 +77,9 @@ final class AppSettings {
       missingGlyphs:
           pick(MissingGlyphPolicy.values, json[_missingGlyphs]) ??
           MissingGlyphPolicy.similar,
+      recoveryCopies: json[_recoveryCopies] != false,
+      reflow: json[_reflow] != false,
+      markEdited: json[_markEdited] != false,
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -103,6 +109,9 @@ final class AppSettings {
   static const String _pageLayout = 'pageLayout';
   static const String _zoom = 'zoom';
   static const String _missingGlyphs = 'missingGlyphs';
+  static const String _recoveryCopies = 'recoveryCopies';
+  static const String _reflow = 'reflow';
+  static const String _markEdited = 'markEdited';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -119,6 +128,9 @@ final class AppSettings {
     _pageLayout,
     _zoom,
     _missingGlyphs,
+    _recoveryCopies,
+    _reflow,
+    _markEdited,
   };
 
   /// Settings → General → Theme.
@@ -172,6 +184,17 @@ final class AppSettings {
   /// G36): what missing-glyph step 3 does.
   final MissingGlyphPolicy missingGlyphs;
 
+  /// Settings → Editing → Save a recovery copy every minute (a11-1c).
+  final bool recoveryCopies;
+
+  /// Settings → Editing → Let paragraphs reflow inside their frame while
+  /// typing (a11-1c). Off, only a line feed ends a line.
+  final bool reflow;
+
+  /// Edit row and Settings → Editing → Mark edited text (a11-1c, f3): the
+  /// marks on the canvas, which never reach the file.
+  final bool markEdited;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -198,6 +221,9 @@ final class AppSettings {
     _pageLayout: pageLayout.name,
     _zoom: zoom.name,
     _missingGlyphs: missingGlyphs.name,
+    _recoveryCopies: recoveryCopies,
+    _reflow: reflow,
+    _markEdited: markEdited,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -217,6 +243,9 @@ final class AppSettings {
     NewDocumentLayout? pageLayout,
     NewDocumentZoom? zoom,
     MissingGlyphPolicy? missingGlyphs,
+    bool? recoveryCopies,
+    bool? reflow,
+    bool? markEdited,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -234,6 +263,9 @@ final class AppSettings {
     pageLayout: pageLayout ?? this.pageLayout,
     zoom: zoom ?? this.zoom,
     missingGlyphs: missingGlyphs ?? this.missingGlyphs,
+    recoveryCopies: recoveryCopies ?? this.recoveryCopies,
+    reflow: reflow ?? this.reflow,
+    markEdited: markEdited ?? this.markEdited,
     unknown: unknown,
     version: version,
   );
@@ -255,6 +287,9 @@ final class AppSettings {
       other.pageLayout == pageLayout &&
       other.zoom == zoom &&
       other.missingGlyphs == missingGlyphs &&
+      other.recoveryCopies == recoveryCopies &&
+      other.reflow == reflow &&
+      other.markEdited == markEdited &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -274,6 +309,9 @@ final class AppSettings {
     pageLayout,
     zoom,
     missingGlyphs,
+    recoveryCopies,
+    reflow,
+    markEdited,
     version,
     Object.hashAllUnordered(unknown.keys),
   );
@@ -316,8 +354,7 @@ enum NewDocumentZoom {
 }
 
 /// What missing-glyph step 3 does (a11-1c's "When a font is missing a
-/// character", G36). a11-1c's third choice, "Keep the original font and
-/// mark the character", is not built yet (B074).
+/// character", G36).
 enum MissingGlyphPolicy {
   /// "Use a similar font and say so": the closest candidate draws the
   /// characters at once, said once; the default (Q09).
@@ -325,4 +362,8 @@ enum MissingGlyphPolicy {
 
   /// "Ask each time": nothing is drawn until a font is chosen.
   ask,
+
+  /// "Keep the original font and mark the character": the characters stay
+  /// in their font without a glyph, and are marked.
+  mark,
 }

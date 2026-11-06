@@ -26,12 +26,14 @@ TextBlock block(
   Rect frame,
   List<String> lines, {
   NotEditableReason? notEditable,
+  String? language,
 }) {
   final height = frame.height / lines.length;
   return TextBlock(
     id: id,
     frame: frame,
     notEditable: notEditable,
+    language: language,
     lines: [
       for (final (i, text) in lines.indexed)
         TextLine(

@@ -50,7 +50,7 @@ final class AttachmentSaverProvider
   }
 }
 
-String _$attachmentSaverHash() => r'aacbb59a076f90b17bed672b16a477c1e79ef01a';
+String _$attachmentSaverHash() => r'ea98407db922834fe051d4c225f575eddee2c140';
 
 /// Saves attachments where the person says (Sidebar › Attachments › Save
 /// attachment as…, a2-3b, B110); its state is the last one that failed,

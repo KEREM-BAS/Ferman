@@ -14,6 +14,61 @@ import '../../../helpers/component_host.dart';
 import '../keyboard_reach.dart';
 
 void main() {
+  testWidgets('with onTyped a digit turns the box into a field; Enter gives '
+      'the text, Escape drops it, and a click still opens the list', (
+    tester,
+  ) async {
+    final typed = <String>[];
+    final node = FocusNode();
+    addTearDown(node.dispose);
+    await tester.pumpWidget(
+      componentHost(
+        Select<String>(
+          semanticLabel: 'Zoom',
+          value: '100',
+          onChanged: (_) {},
+          focusNode: node,
+          onTyped: typed.add,
+          options: const [
+            SelectOption(value: '100', label: 'Hundred'),
+            SelectOption(value: '200', label: 'Twohundred'),
+          ],
+        ),
+      ),
+    );
+    node.requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.digit4);
+    await tester.pump();
+    await tester.pump();
+    final input = find.byType(EditableText);
+    expect(tester.widget<EditableText>(input).controller.text, '4');
+    expect(tester.widget<EditableText>(input).focusNode.hasFocus, isTrue);
+    await tester.enterText(input, '42');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(typed, ['42']);
+    expect(find.text('Hundred'), findsOne);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.digit5);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(typed, ['42']);
+    expect(input, findsNothing);
+
+    // A modified digit is a shortcut, not typing.
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pumpAndSettle();
+    expect(input, findsNothing);
+
+    await tester.tap(find.byType(Select<String>));
+    await tester.pumpAndSettle();
+    expect(find.text('Twohundred'), findsOne);
+  });
+
   final light = FermanTheme.light.colors;
   final dark = FermanTheme.dark.colors;
 

@@ -8,6 +8,7 @@ void main() {
     test('defaults follow the system and onboarding is not done', () {
       const settings = AppSettings();
       expect(settings.themeMode, AppThemeMode.system);
+      expect(settings.markEdited, isTrue);
       expect(settings.languageCode, isNull);
       expect(settings.regionCode, isNull);
       expect(settings.paperSize, isNull);
@@ -23,6 +24,9 @@ void main() {
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
         'missingGlyphs': 'similar',
+        'recoveryCopies': true,
+        'reflow': true,
+        'markEdited': true,
       });
     });
 
@@ -53,7 +57,19 @@ void main() {
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
         'missingGlyphs': 'similar',
+        'recoveryCopies': true,
+        'reflow': true,
+        'markEdited': true,
       });
+    });
+
+    test('the third choice and reflow off round-trip', () {
+      const settings = AppSettings(
+        missingGlyphs: MissingGlyphPolicy.mark,
+        reflow: false,
+      );
+      expect(settings.toJson()['missingGlyphs'], 'mark');
+      expect(AppSettings.fromJson(settings.toJson()), settings);
     });
 
     test('unreadable values fall back to the defaults', () {

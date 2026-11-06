@@ -43,6 +43,8 @@ test('the sets: 23 boards for M1, the 43 M2 boards, and the boards with a langua
   for (const id of ['a1-2c-m1', 'a1-5-m1', 'a11-1-m1', 'a11-1w-m1', 'a11-1h-m1']) assert.ok(list.sets.m1.includes(id), id);
   assert.equal(list.sets.m2.length, 43);
   assert.equal(new Set(list.sets.m2).size, 43);
+  assert.equal(list.sets.m3.length, 26);
+  assert.equal(new Set(list.sets.m3).size, 26);
   // Every board of export 519d42a but the region-format table has the switch.
   assert.equal(list.sets.langs.length, 29);
   assert.ok(!list.sets.langs.includes('a12-0'));

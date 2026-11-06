@@ -52,13 +52,14 @@ class AttachmentSaver extends _$AttachmentSaver {
       final staged = await ref
           .read(engineServiceProvider)
           .saveAttachment(document, index, path, staging: staging);
-      if (staged != null && !await access.swapIn(staged, path)) {
+      if (staged != null && await access.swapIn(staged, path) != null) {
         throw const EngineException(
           kind: EngineErrorKind.io,
           messageKey: 'errorFileWrite',
         );
       }
     } on EngineException catch (error) {
+      if (staging != null) await access.discardStaging(staging);
       state = AttachmentSaveProblem(name: suggested, error: error);
     }
   }

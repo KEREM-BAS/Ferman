@@ -93,19 +93,20 @@ test('the map parses and every board in it exists in the design export', async (
   for (const pair of map.pairs.filter((p) => p.golden)) assert.match(pair.golden, GOLDEN_NAME, pair.id);
 });
 
-test('the map covers the M1 set, and CI renders every board it names (@m1 and @m2)', async () => {
+test('the map covers the M1 set, and CI renders every board it names (@m1, @m2 and @m3)', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
   const map = await loadMap(MAP_FILE, await known());
   const boards = new Set(map.pairs.map((p) => p.board));
   for (const id of list.sets.m1) assert.ok(boards.has(id), `${id} of @m1 has no pair`);
-  const rendered = new Set([...list.sets.m1, ...list.sets.m2]);
-  for (const id of boards) assert.ok(rendered.has(id), `${id} is not in @m1 or @m2, which CI renders`);
+  const rendered = new Set([...list.sets.m1, ...list.sets.m2, ...list.sets.m3]);
+  for (const id of boards) assert.ok(rendered.has(id), `${id} is not in @m1, @m2 or @m3, which CI renders`);
   assert.deepEqual(
     map.pairs.filter((p) => p.notCompared).map((p) => p.board),
-    ['a1-2c', 'a1-5', 'a11-1', 'a11-1w', 'a12-2b', 'a12-2d', 'a11-1h'],
+    ['a1-2c', 'a1-5', 'a11-1', 'a11-1w', 'a12-2b', 'a12-2d', 'a11-1h', 'a3-12b', 'a3-17', 'a3-18', 'a11-7d'],
   );
   for (const pair of map.pairs.filter((p) => p.notCompared)) {
-    assert.match(pair.notCompared, pair.board.startsWith('a12-') ? /German/ : new RegExp(`Superseded by ${pair.board}-m1`));
+    const sheet = ['a3-12b', 'a3-17', 'a3-18', 'a11-7d'].includes(pair.board);
+    assert.match(pair.notCompared, sheet ? /spec sheet/ : pair.board.startsWith('a12-') ? /German/ : new RegExp(`Superseded by ${pair.board}-m1`));
   }
   // Each M1 build board is compared in English, Turkish and Arabic, against the golden in that
   // language.
@@ -125,17 +126,14 @@ test('the map pairs the boards with the goldens drawn from them', async () => {
   assert.equal(golden['a11-1w-m1'], 'settings_general_win_light_en.png');
   assert.equal(golden['a11-1w-m1-tr'], 'settings_general_win_light_tr.png');
   assert.equal(golden['a1-2c-m1-ar'], 'welcome_free_mac_light_ar.png');
-  assert.equal(golden['f6a'], 'shell_edit_win_light_en.png');
+  assert.equal(golden['f6a'], 'edit_main_win_light_en.png');
   assert.equal(golden['a2-1b'], 'viewer_mac_light_en.png');
-  assert.equal(golden['a3-1d'], 'shell_edit_mac_dark_en.png');
-  assert.equal(golden['a12-1tr'], 'shell_edit_mac_light_tr.png');
-  assert.equal(golden['a12-1ar'], 'shell_edit_mac_light_ar.png');
+  assert.equal(golden['a3-1d'], 'edit_main_mac_dark_en.png');
+  assert.equal(golden['a12-1tr'], 'edit_main_mac_light_tr.png');
+  assert.equal(golden['a12-1ar'], 'edit_main_mac_light_ar.png');
   assert.equal(golden['a11-1h-m1'], 'settings_privacy_mac_light_en.png');
-  // Right to left, the canvas sits at the other end of the window.
-  assert.deepEqual(
-    map.pairs.find((p) => p.id === 'a12-1ar').masks.map((m) => [m.x, m.y, m.width, m.height]),
-    [[1440 - 216 - 960, 123, 960, 751]],
-  );
+  // Editing shipped in M3: no pair masks the canvas (B098).
+  assert.deepEqual(map.pairs.filter((p) => p.masks.length > 0), []);
   // The fix boards are larger than one window: each is cropped to a window or a strip of one.
   for (const id of ['f6-mac', 'f6-win', 'f6a']) {
     const pair = map.pairs.find((p) => p.id === id);
@@ -153,7 +151,7 @@ test('map validation reports every problem', async () => {
       { board: 'a0-0', golden: 'language_picker_mac_light_en.png' },
       { board: 'a1-1', golden: 'language_picker_linux_light_en.png' },
       { board: 'a1-1', golden: 'start_mac_light_en.png' },
-      { board: 'a1-5', golden: 'start_mac_light_de.png', colour: 'x' },
+      { board: 'a1-5', golden: 'start_mac_light_fr.png', colour: 'x' },
       { board: 'f6', id: 'f6-a', golden: 'shell_edit_mac_light_en.png', crop: { x: 0, y: 0, width: 10, height: 8 }, cropSource: 'x' },
       { board: 'f6', id: 'f6-b', golden: 'shell_edit_mac_light_en.png', crop: { x: 0, y: 0, width: 16, height: 8 } },
       { board: 'f6a', golden: 'shell_edit_win_light_en.png', masks: [{ label: 'canvas', x: 10, y: 0, width: 10, height: 8 }] },
@@ -173,7 +171,7 @@ test('map validation reports every problem', async () => {
         /unknown board id "a0-0"/,
         /golden "language_picker_linux_light_en\.png" is not/,
         /duplicate id "a1-1"/,
-        /start_mac_light_de\.png/,
+        /start_mac_light_fr\.png/,
         /unknown key "colour"/,
         /the crop is 10 × 8 but the golden is 16 × 8/,
         /\(f6-b\): a crop needs "cropSource"/,

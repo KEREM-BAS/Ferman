@@ -5,6 +5,8 @@
 //! here with `assert!`.
 #![forbid(unsafe_code)]
 
+pub mod edit_script;
+
 use ferman_core::CoreError;
 use ferman_core::filters::{DecodeParams, Filter, decode};
 
@@ -50,4 +52,48 @@ pub fn split_params(input: &[u8]) -> (DecodeParams, &[u8]) {
         early_change: bits & 0x80 == 0,
     };
     (params, data)
+}
+
+/// What the font targets start from: a bundled font with shaping tables, so patches reach `GSUB`,
+/// `GPOS`, `glyf` and the rest without a seed corpus.
+const BASE_FONT: &[u8] =
+    include_bytes!("../../app/assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf");
+
+/// A font program from the start of `input`, and the bytes left for the target.
+///
+/// An even first byte patches the base font: a count byte, then that many patches of a 24-bit
+/// offset and a value. An odd one takes the font whole: a 16-bit length of the bytes left for the
+/// target, those bytes, then the font (how a seed brings a CFF program; see README.md).
+#[must_use]
+pub fn font_case(input: &[u8]) -> Option<(Vec<u8>, &[u8])> {
+    let (&mode, input) = input.split_first()?;
+    if mode & 1 == 1 {
+        let (length, input) = input.split_first_chunk::<2>()?;
+        let (rest, font) = input.split_at_checked(usize::from(u16::from_be_bytes(*length)))?;
+        return Some((font.to_vec(), rest));
+    }
+    let (&count, input) = input.split_first()?;
+    let (patches, rest) = input.split_at_checked(usize::from(count) * 4)?;
+    let mut font = BASE_FONT.to_vec();
+    for patch in patches.as_chunks::<4>().0 {
+        let offset =
+            usize::from(patch[0]) << 16 | usize::from(patch[1]) << 8 | usize::from(patch[2]);
+        font[offset % BASE_FONT.len()] = patch[3];
+    }
+    Some((font, rest))
+}
+
+/// Text from arbitrary bytes, two for each character: its block and its place in that block.
+/// Random UTF-8 is nearly all ASCII; these blocks reach the scripts the shaper and the line
+/// breaker treat apart, mixed: Hebrew and Arabic, Devanagari, ZWNJ and the bidi controls, kana and
+/// CJK punctuation, Hangul, emoji.
+#[must_use]
+pub fn text_from(bytes: &[u8]) -> String {
+    const BLOCKS: [u32; 8] = [0, 0x0590, 0x0600, 0x0900, 0x2000, 0x3000, 0xAC00, 0x1_F300];
+    bytes
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .filter_map(|pair| char::from_u32(BLOCKS[usize::from(pair[0] & 7)] + u32::from(pair[1])))
+        .collect()
 }

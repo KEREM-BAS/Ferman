@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/casing.dart';
@@ -11,6 +12,35 @@ import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'document_properties.g.dart';
+
+/// The letters a subset's note asks about in each UI language, the ones a
+/// Latin subset is likeliest to lack first; other languages type Latin.
+const Map<String, String> _noteLetters = {
+  'ar': 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي',
+  'tr': 'ğĞşŞıİçÇöÖüÜabcdefghijklmnoprstuvyz',
+};
+const String _latinLetters = 'abcdefghijklmnopqrstuvwxyz';
+
+/// The most missing letters a note names.
+const int _noteLetterCount = 4;
+
+/// What [document]'s fonts need said beyond their status, by font name.
+@Riverpod(retry: _never)
+Future<Map<String, FontCoverage>> fontCoverage(
+  Ref ref,
+  int document,
+  String letters,
+) async {
+  final coverage = await ref
+      .watch(engineServiceProvider)
+      .fontCoverage(document, letters);
+  return {for (final font in coverage) font.name: font};
+}
+
+Duration? _never(int retryCount, Object error) => null;
 
 /// A document's facts as FmDocPanel and a2-7 write them, in the UI language
 /// with the region's numbers, dates and unit.
@@ -24,18 +54,33 @@ final class DocumentFacts {
     required this.tab,
     required this.document,
     this.home,
+    this.coverage = const {},
   });
 
   /// The facts of the tab [tab] in [context].
   factory of(BuildContext context, WidgetRef ref, ShellDocument tab) {
     final region = ref.watch(regionProvider);
+    final l10n = AppLocalizations.of(context);
+    final document = tab.document!;
     return DocumentFacts(
-      l10n: AppLocalizations.of(context),
+      l10n: l10n,
       format: RegionFormat.forRegion(region.region),
       unit: region.lengthUnit,
       tab: tab,
-      document: tab.document!,
+      document: document,
       home: ref.watch(homeDirectoryProvider),
+      // Until the engine answers, and if it cannot, the notes say only what
+      // holds without it.
+      coverage:
+          ref
+              .watch(
+                fontCoverageProvider(
+                  document.id,
+                  _noteLetters[l10n.localeName] ?? _latinLetters,
+                ),
+              )
+              .value ??
+          const {},
     );
   }
 
@@ -56,6 +101,9 @@ final class DocumentFacts {
 
   /// The home directory, shown as "~".
   final String? home;
+
+  /// What the fonts need said beyond their status, by name.
+  final Map<String, FontCoverage> coverage;
 
   /// How far a page may be from a paper size and still be named after it,
   /// in points: files write A4 as 595 × 842.
@@ -139,6 +187,43 @@ final class DocumentFacts {
       return '~${path.substring(home.length)}';
     }
     return path;
+  }
+
+  /// The note under [font] in the right panel (FmDocPanel), if any.
+  String? panelFontNote(FontEntry font) => _fontNote(
+    font,
+    l10n.propertiesPartialNote,
+    l10n.propertiesPartialMissing,
+  );
+
+  /// The note under [font] in the dialog (a2-7), if any.
+  String? dialogFontNote(FontEntry font) =>
+      _fontNote(font, l10n.propertiesSubsetNote, l10n.propertiesSubsetMissing);
+
+  String? _fontNote(
+    FontEntry font,
+    String subsetNote,
+    String Function(String letters) missing,
+  ) {
+    final known = coverage[font.name];
+    switch (FontStatus.of(font)) {
+      case FontStatus.embedded:
+        return null;
+      case FontStatus.missing:
+        final shown = known?.shownAs;
+        return shown == null
+            ? null
+            : l10n.propertiesShownInstead(bidiIsolate(shown));
+      case FontStatus.subset:
+        final letters = known?.missingLetters.runes.toList() ?? const [];
+        if (letters.isEmpty) return subsetNote;
+        final named = letters
+            .take(_noteLetterCount)
+            .map((letter) => '‘${String.fromCharCode(letter)}’')
+            .join(l10n.localeName == 'ar' ? '، ' : ', ');
+        final more = letters.length > _noteLetterCount ? ' …' : '';
+        return '$subsetNote ${missing(bidiIsolate('$named$more'))}';
+    }
   }
 
   /// [value] as a date and time, or "None".
@@ -382,6 +467,7 @@ class DocumentPanelSections extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = facts.l10n;
     final status = FontStatus.of(font);
+    final note = facts.panelFontNote(font);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space.space0_5,
@@ -414,11 +500,11 @@ class DocumentPanelSections extends ConsumerWidget {
             ),
           ],
         ),
-        if (status == FontStatus.subset)
+        if (note != null)
           Padding(
             padding: const EdgeInsetsDirectional.only(start: noteIndent),
             child: Text(
-              l10n.propertiesPartialNote,
+              note,
               style: theme.typography.caption.copyWith(
                 color: theme.colors.textTertiary,
               ),
@@ -769,9 +855,9 @@ class _DocumentPropertiesDialogState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(font.name, style: body),
-                    if (FontStatus.of(font) == FontStatus.subset)
+                    if (facts.dialogFontNote(font) case final note?)
                       Text(
-                        l10n.propertiesSubsetNote,
+                        note,
                         style: theme.typography.caption.copyWith(
                           color: theme.colors.textTertiary,
                         ),

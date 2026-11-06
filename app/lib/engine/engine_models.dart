@@ -119,12 +119,38 @@ enum EngineErrorKind {
   /// reason (ARCHITECTURE §6.5).
   notEditable,
 
+  /// A save found too little free space (a11-7).
+  diskFull,
+
+  /// Another app holds the file, still after the retries (a11-7d, G40).
+  fileLocked,
+
+  /// The new file could not replace the original (a11-7d, G40).
+  renameFailed,
+
+  /// The disk or network drive went away during a save (a11-7d, G40).
+  volumeGone,
+
+  /// The file has other hard links, which replacing it would break.
+  hardLinked,
+
+  /// The file belongs to someone else and its owner cannot be kept.
+  notOwner,
+
+  /// The file changed on disk since it was opened or saved (a11-7b).
+  fileChangedOnDisk,
+
+  /// A change to a signed document waits for
+  /// `EngineService.confirmEditSigned` (a3-16a, G35).
+  confirmationRequired,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
 
 /// An error the engine returned. [messageKey] names the ARB string the UI
-/// shows; [details] holds structural facts only.
+/// shows; [details] holds structural facts only. [offersSaveAs] says that a
+/// failed save's way out is Save as (ARCHITECTURE §7.8).
 @immutable
 class EngineException implements Exception {
   /// Creates an exception.
@@ -132,6 +158,8 @@ class EngineException implements Exception {
     required this.messageKey,
     this.details,
     this.kind = EngineErrorKind.internal,
+    this.offersSaveAs = false,
+    this.noRecoveryCopy = false,
   });
 
   /// What kind of failure this is.
@@ -142,6 +170,14 @@ class EngineException implements Exception {
 
   /// Technical details for "Copy technical details".
   final String? details;
+
+  /// Whether the UI offers Save as: a save that failed for a reason another
+  /// file avoids.
+  final bool offersSaveAs;
+
+  /// On a failed save: the last recovery write failed too, so no recovery
+  /// copy of the unsaved edits exists (ARCHITECTURE §7.8).
+  final bool noRecoveryCopy;
 
   @override
   String toString() =>
@@ -331,6 +367,23 @@ class FontEntry {
   final bool subset;
 }
 
+/// What Properties says about a font beyond its status (a2-7, FmDocPanel).
+@immutable
+class FontCoverage {
+  /// Creates a font's coverage.
+  const new({required this.name, this.shownAs, this.missingLetters = ''});
+
+  /// [FontEntry.name] of the font.
+  final String name;
+
+  /// The family a font that is not embedded is drawn in, when it is another
+  /// font.
+  final String? shownAs;
+
+  /// For a subset, the letters asked about that an edit cannot draw in it.
+  final String missingLetters;
+}
+
 /// How an encrypted document is encrypted.
 enum EncryptionMethod {
   /// RC4, with [Security.keyBits].
@@ -419,6 +472,9 @@ class Security {
 
   /// Whether the restrictions apply now.
   final bool restricted;
+
+  /// Whether the restrictions forbid changing the document now.
+  bool get forbidsEditing => restricted && !permissions.modify;
 }
 
 /// A layer (optional content group) of an [OpenedDocument] (a2-3c).
@@ -480,6 +536,8 @@ class OpenedDocument {
     this.layers = const [],
     this.layersSwitchable = false,
     this.signatures = const [],
+    this.signed = false,
+    this.certification,
     this.version = '',
     this.fileSize = 0,
     this.info = const DocumentInfo(),
@@ -524,6 +582,13 @@ class OpenedDocument {
 
   /// Its signature fields.
   final List<Signature> signatures;
+
+  /// Whether a change would invalidate a signature, so it waits for
+  /// `EngineService.confirmEditSigned` (G35).
+  final bool signed;
+
+  /// The certification signature's DocMDP level (1 to 3), when certified.
+  final int? certification;
 
   /// Its PDF version, such as `"1.7"`.
   final String version;
@@ -571,6 +636,8 @@ class OpenedDocument {
     layers: layers,
     layersSwitchable: layersSwitchable,
     signatures: signatures,
+    signed: signed,
+    certification: certification,
     version: version,
     fileSize: fileSize,
     info: info,
@@ -1004,6 +1071,7 @@ class TextBlock {
     this.alignment = BlockAlignment.left,
     this.direction = BlockDirection.leftToRight,
     this.notEditable,
+    this.language,
   });
 
   /// Its id on its page.
@@ -1023,6 +1091,10 @@ class TextBlock {
 
   /// Why it cannot be edited; null when it can.
   final NotEditableReason? notEditable;
+
+  /// Its language tag ("en-GB", the PDF's `/Lang`), else the document's;
+  /// null with neither.
+  final String? language;
 
   /// Its text: the lines joined by line feeds.
   String get text => lines.map((line) => line.text).join('\n');
@@ -1080,7 +1152,12 @@ class BlockPosition {
 @immutable
 class PageSelection {
   /// Creates a selection.
-  const new({this.page = 0, this.quads = const [], this.text = ''});
+  const new({
+    this.page = 0,
+    this.quads = const [],
+    this.text = '',
+    this.language,
+  });
 
   /// Its page, from 0. The engine's reply leaves it 0; the canvas sets it.
   final int page;
@@ -1090,6 +1167,10 @@ class PageSelection {
 
   /// Its text for copying.
   final String text;
+
+  /// The language tag of the block it ends in, as the canvas knows it; the
+  /// engine's reply leaves it null.
+  final String? language;
 }
 
 /// What a block's page would read after an edit is applied
@@ -1106,6 +1187,7 @@ class EditPreview {
     this.overflow,
     this.chosen,
     this.dependents = const [],
+    this.language,
   });
 
   /// The page's blocks with the new text, or with the text before when
@@ -1140,6 +1222,9 @@ class EditPreview {
   /// The table cells whose values likely depend on the edited one (a3-9):
   /// tinted, with "Totals don't update"; the engine never changes them.
   final List<DependentCell> dependents;
+
+  /// The block's language tag as a commit leaves it (a3-14).
+  final String? language;
 }
 
 /// Where a font comes from: the groups of the a3-3b picker.
@@ -1199,6 +1284,122 @@ class MissingChar {
 
   /// Its offset in the new text, in UTF-16 code units.
   final int at;
+}
+
+/// A font a block is set in (a3-2).
+@immutable
+class BlockFont {
+  /// The font [postscriptName] of [origin].
+  const new({required this.origin, required this.postscriptName});
+
+  /// Its group.
+  final FontOrigin origin;
+
+  /// Its PostScript name.
+  final String postscriptName;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlockFont &&
+      other.origin == origin &&
+      other.postscriptName == postscriptName;
+
+  @override
+  int get hashCode => Object.hash(origin, postscriptName);
+}
+
+/// What to change in a block (a3-2); what is null stays as it is.
+@immutable
+class BlockStyle {
+  /// A change of the fields given.
+  const new({
+    this.font,
+    this.size,
+    this.colour,
+    this.alignment,
+    this.charSpacing,
+    this.lineSpacing,
+  });
+
+  /// The font the whole block is set in.
+  final BlockFont? font;
+
+  /// The font size in points.
+  final double? size;
+
+  /// The fill colour, `0xRRGGBB`.
+  final int? colour;
+
+  /// How the lines sit.
+  final BlockAlignment? alignment;
+
+  /// The space between characters, in percent of the em.
+  final double? charSpacing;
+
+  /// The distance between baselines, in multiples of the font size.
+  final double? lineSpacing;
+}
+
+/// What the text panel shows of a block (a3-2).
+@immutable
+class BlockStyleInfo {
+  /// Creates the block's style.
+  const new({
+    required this.font,
+    required this.family,
+    required this.size,
+    required this.frame,
+    this.bold = false,
+    this.italic = false,
+    this.boldToggle,
+    this.italicToggle,
+    this.colour,
+    this.documentColours = const [],
+    this.alignment = BlockAlignment.left,
+    this.charSpacing = 0,
+    this.lineSpacing = 1.2,
+  });
+
+  /// Its first font's PostScript name, without the subset tag.
+  final String font;
+
+  /// Its first font's family.
+  final String family;
+
+  /// Whether its first font is bold.
+  final bool bold;
+
+  /// Whether its first font is italic.
+  final bool italic;
+
+  /// The face with the bold state turned over that can draw the whole
+  /// block; null disables Bold, which is never faked.
+  final BlockFont? boldToggle;
+
+  /// The same for Italic.
+  final BlockFont? italicToggle;
+
+  /// Its largest font size in points.
+  final double size;
+
+  /// Its fill colour, `0xRRGGBB`; null for a pattern or a colour space
+  /// without a conversion.
+  final int? colour;
+
+  /// The page's text colours, the most used first.
+  final List<int> documentColours;
+
+  /// How its lines sit.
+  final BlockAlignment alignment;
+
+  /// The space between characters, in percent of the em.
+  final double charSpacing;
+
+  /// The distance between baselines, in multiples of the font size.
+  final double lineSpacing;
+
+  /// Its box, in the page's displayed points.
+  final Rect frame;
 }
 
 /// A font step 3 offers (a3-3b).
@@ -1300,6 +1501,10 @@ enum SubstitutionKind {
 
   /// Step 3: a similar font.
   similar,
+
+  /// Step 3's "Keep the original font and mark the character": no other
+  /// font, and no glyph; [FontSubstitution.toFont] is the document's font.
+  marked,
 }
 
 /// Characters set in another font than their line's (a3-12, a11-6).
@@ -1344,6 +1549,8 @@ class FontSettings {
     this.fontDirs = const [],
     this.systemFonts = true,
     this.askEachTime = false,
+    this.markMissing = false,
+    this.keepLines = false,
   });
 
   /// The directory of the fonts included with Ferman.
@@ -1357,6 +1564,13 @@ class FontSettings {
 
   /// "Ask each time" (a11-1c): step 3 waits for a choice.
   final bool askEachTime;
+
+  /// "Keep the original font and mark the character" (a11-1c): step 3 keeps
+  /// the characters in their font without a glyph.
+  final bool markMissing;
+
+  /// Reflow while typing turned off (a11-1c): only a line feed ends a line.
+  final bool keepLines;
 }
 
 /// One of the overflow choices (a3-4).
@@ -1483,6 +1697,10 @@ class HistoryStep {
     required this.time,
     this.hiddenLines = 0,
     this.substitutions = const [],
+    this.page,
+    this.before = '',
+    this.after = '',
+    this.reverts = const [],
   });
 
   /// Its name as the app gave it at commit.
@@ -1498,13 +1716,51 @@ class HistoryStep {
   /// The characters it set in another font: the review list's font rows
   /// (a3-12).
   final List<FontSubstitution> substitutions;
+
+  /// The page of the block it changed, from 0; null for a revert and a step
+  /// restored from the recovery files.
+  final int? page;
+
+  /// The block's text before it: the review list's before (a3-12).
+  final String before;
+
+  /// The block's text after it.
+  final String after;
+
+  /// The steps this one reverted, by index; empty for an edit.
+  final List<int> reverts;
+}
+
+/// What a revert did (a3-12b).
+@immutable
+class Reverted {
+  /// Creates the result.
+  const new({
+    required this.reverted,
+    required this.revision,
+    this.dependents = const [],
+  });
+
+  /// Whether the step was reverted; false when later steps depend on it and
+  /// were not asked to go with it.
+  final bool reverted;
+
+  /// The steps that depend on it, by index, oldest first.
+  final List<int> dependents;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
 }
 
 /// A document's history for the Undo history panel (a3-10).
 @immutable
 class EditHistory {
   /// Creates a history.
-  const new({this.steps = const [], this.current = 0});
+  const new({
+    this.steps = const [],
+    this.current = 0,
+    this.signatureInvalidated = false,
+  });
 
   /// Every committed step, oldest first.
   final List<HistoryStep> steps;
@@ -1512,6 +1768,101 @@ class EditHistory {
   /// How many [steps] apply; the rest can be redone.
   final int current;
 
+  /// Whether the document as it stands no longer matches its signatures: the
+  /// signature row of the review list (a3-12, G42).
+  final bool signatureInvalidated;
+
   /// The steps that can be redone, next first.
   List<HistoryStep> get redoable => steps.sublist(current);
+
+  /// The indexes of the edits that still count: applied, not reverted, and
+  /// not a revert themselves. The review list's rows and the edit count.
+  List<int> get live {
+    final gone = {for (final step in steps.take(current)) ...step.reverts};
+    return [
+      for (var i = 0; i < current && i < steps.length; i++)
+        if (steps[i].reverts.isEmpty && !gone.contains(i)) i,
+    ];
+  }
+}
+
+/// A document that a session which ended without cleaning up left recovery
+/// files for (a1-12).
+@immutable
+class RecoverableDocument {
+  /// Creates the entry.
+  const new({
+    required this.session,
+    required this.document,
+    required this.original,
+    this.originalChanged = false,
+    this.changes = 0,
+    this.encrypted = false,
+  });
+
+  /// The session's name, for `EngineService.restoreRecovered` and
+  /// `EngineService.discardRecovery`.
+  final String session;
+
+  /// The document's name in the session.
+  final String document;
+
+  /// The file the document saves to.
+  final String original;
+
+  /// Whether that file changed on disk since: the restored document opens
+  /// under a new name (a11-7f).
+  final bool originalChanged;
+
+  /// How many unsaved changes the files hold.
+  final int changes;
+
+  /// Whether restoring needs the document's password (a1-8).
+  final bool encrypted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is RecoverableDocument &&
+      other.session == session &&
+      other.document == document &&
+      other.original == original &&
+      other.originalChanged == originalChanged &&
+      other.changes == changes &&
+      other.encrypted == encrypted;
+
+  @override
+  int get hashCode => Object.hash(
+    session,
+    document,
+    original,
+    originalChanged,
+    changes,
+    encrypted,
+  );
+}
+
+/// A document `EngineService.restoreRecovered` opened.
+@immutable
+class RestoredDocument {
+  /// Creates the result.
+  const new({
+    required this.opened,
+    required this.path,
+    this.originalChanged = false,
+    this.renderKey,
+  });
+
+  /// The document, as `EngineService.open` gives it.
+  final OpenedDocument opened;
+
+  /// The file it saves to: the original, or a new name beside it when the
+  /// original changed.
+  final String path;
+
+  /// Whether the original changed on disk since it was opened or saved.
+  final bool originalChanged;
+
+  /// Every page's render key with the restored changes; null when the engine
+  /// could not reload.
+  final int? renderKey;
 }

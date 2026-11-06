@@ -151,7 +151,7 @@ void main() {
       final l10n = AppLocalizations.of(
         tester.element(find.byType(WelcomeStep)),
       );
-      expect(find.text(l10n.onboardingStep('1', '2')), findsOneWidget);
+      expect(find.text(l10n.onboardingStep('2', '3')), findsOneWidget);
     });
 
     testWidgets('an English UI with the Saudi Arabia region gets Arabic-Indic '

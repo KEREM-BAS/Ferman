@@ -16,12 +16,18 @@
 //!   ([`FontChoice`]); without it the closest candidate (the first one whose licence allows a
 //!   subset and that covers every character) draws the characters provisionally and the
 //!   rewrite carries the [`MissingGlyphs`] as [`Rewrite::pending`](crate::Rewrite::pending), so
-//!   the caller can still choose, or keep it ([`FontChoice::KeepAsIs`]).
+//!   the caller can still choose, or keep it ([`FontChoice::KeepAsIs`]). With
+//!   [`FontSources::mark`] the characters stay in their own font instead, with a code that draws
+//!   no glyph and reads back as the character, and the rewrite says so with a [`Substitution`] of
+//!   kind [`SubstitutionKind::Marked`], so nothing waits for a choice and no font is embedded.
 //!
 //! **Scope.** The substitute draws only the missing characters (the a3-3b scope "Missing
 //! characters only"); every other character keeps its font. "Whole block" is not offered yet.
 //! A substitute must cover every missing character it is asked for; a partial candidate is listed
 //! with its coverage but not used.
+//! Shaped text is the exception where a font has no usable copy: all its text in the block goes to
+//! the similar font ([`similar_shaper`]), because a glyph kept in the subset cannot be shaped or
+//! joined to a new one.
 //!
 //! **Fonts restricted by `fsType`** (Q09): when the document's own program allows at most preview
 //! and print, its glyphs are not reused for new text, and the reason says so
@@ -33,12 +39,14 @@ use std::collections::HashMap;
 
 use ferman_core::revision::{EmbeddedFont, EmbeddedProgram};
 use ferman_fonts::{
-    Coverage, Direction, Embedding, FaceId, FontLibrary, FontOrigin, FontProgram, GlyphId,
-    SameFont, SameFontQuery, ShapeRequest, ShapingFont, SimilarQuery, StyleMetrics, SubsetProgram,
-    find_same_font, rank_similar, strip_subset_tag, subset, with_text,
+    Candidate, Coverage, Direction, Embedding, FaceId, FaceInfo, FaceInstance, FontLibrary,
+    FontOrigin, FontProgram, GlyphId, SameFont, SameFontQuery, ShapeRequest, ShapingFont,
+    SimilarQuery, StyleMetrics, SubsetProgram, find_same_font, rank_similar, strip_subset_tag,
+    subset_at, with_text,
 };
 
 use crate::extract::{Glyph, PdfFont, single};
+use crate::style::BlockFont;
 
 /// The most candidates step 3 lists.
 pub const MAX_CANDIDATES: usize = 12;
@@ -54,6 +62,12 @@ pub struct FontSources<'a> {
     /// "Ask each time" (a11-1c): step 3 stops at the choice instead of drawing the closest
     /// candidate provisionally.
     pub ask: bool,
+    /// "Keep the original font and mark the character" (a11-1c): step 3 keeps the characters in
+    /// their font without a glyph. A [`choice`](Self::choice) goes first.
+    pub mark: bool,
+    /// Reflow while typing turned off (a11-1c): only a line feed ends a line, so a line longer
+    /// than the frame runs past it instead of wrapping.
+    pub keep_lines: bool,
     /// The caller's step 3 choice.
     pub choice: Option<&'a FontChoice>,
 }
@@ -144,6 +158,9 @@ pub enum SubstitutionKind {
     SameFont,
     /// Step 3: a similar font.
     Similar,
+    /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
+    /// [`Substitution::to`] is the document's font.
+    Marked,
 }
 
 /// Characters an edit draws in another font than their line's: what the review list (a3-12) and
@@ -186,6 +203,9 @@ pub(crate) struct Substitute {
     /// Whether it is a font of the page ([`PageFont`]), which encodes the characters with its
     /// own codes: `glyphs` is empty and nothing new is embedded.
     pub(crate) existing: bool,
+    /// The characters that stay in the font `base` without a glyph ([`FontSources::mark`]); then
+    /// this is `base` itself, not another font.
+    pub(crate) marks: Vec<char>,
 }
 
 /// What [`resolve`] gives the second pass of the rewrite.
@@ -241,7 +261,7 @@ pub(crate) fn resolve(
                 SameFont::Found { face, .. } => {
                     if let Some(new_name) = name(&resource)
                         && let Some((substitute, embedded, drawn)) =
-                            substitute(library, face.id, &chars, font, new_name, &mut resolved)
+                            substitute(library, &face, &chars, font, new_name, &mut resolved)
                     {
                         left.retain(|c| !drawn.contains(c));
                         resolved.substitutions.push(Substitution {
@@ -271,6 +291,27 @@ pub(crate) fn resolve(
     if similar.is_empty() {
         return Ok(resolved);
     }
+    if sources.mark && sources.choice.is_none() {
+        for (font, resource, chars) in similar {
+            let from = font_name(fonts.get(&font));
+            resolved.substitutions.push(Substitution {
+                kind: SubstitutionKind::Marked,
+                chars: chars.iter().collect(),
+                to: from.clone(),
+                from,
+                origin: FontOrigin::Embedded,
+            });
+            resolved.substitutes.push(Substitute {
+                key: font,
+                base: font,
+                name: resource,
+                glyphs: Vec::new(),
+                existing: true,
+                marks: chars,
+            });
+        }
+        return Ok(resolved);
+    }
 
     // Step 3, for every character left, in the style of the first font that lacks one.
     let font = similar
@@ -288,28 +329,165 @@ pub(crate) fn resolve(
             }
         }
     }
-    // The installed and bundled fonts, and the page's own fonts that already encode them.
-    let mut ranked: Vec<(FontCandidate, Lender<'_>)> = Vec::new();
+    let ranked = ranked_fonts(fonts, style, &text, lenders, sources);
+    let chars: Vec<(char, usize)> = misses
+        .iter()
+        .filter(|miss| similar.iter().any(|(_, _, left)| left.contains(&miss.c)))
+        .map(|miss| (miss.c, miss.at))
+        .collect();
+    let missing = MissingGlyphs {
+        chars,
+        font: font_name(pdf),
+        reason,
+        bold: style.weight >= 600,
+        italic: style.italic,
+        candidates: ranked
+            .iter()
+            .map(|(candidate, _)| candidate.clone())
+            .collect(),
+    };
+    let Some((candidate, lender)) = picked(&missing, sources).and_then(|at| ranked.get(at)) else {
+        return Err(missing);
+    };
+    for (font, resource, chars) in &similar {
+        match lender {
+            Lender::Page(lender) => resolved.substitutes.push(Substitute {
+                key: lender.key,
+                base: *font,
+                name: lender.name.clone(),
+                glyphs: Vec::new(),
+                existing: true,
+                marks: Vec::new(),
+            }),
+            Lender::Library(library, face) => {
+                let Some(new_name) = name(resource) else {
+                    return Err(missing);
+                };
+                let Some((substitute, embedded, _)) =
+                    substitute(library, face, chars, *font, new_name, &mut resolved)
+                        .filter(|(_, _, drawn)| drawn.len() == chars.len())
+                else {
+                    return Err(missing);
+                };
+                resolved.substitutes.push(substitute);
+                resolved.fonts.push(embedded);
+            }
+        }
+        resolved.substitutions.push(Substitution {
+            kind: SubstitutionKind::Similar,
+            chars: chars.iter().collect(),
+            from: font_name(fonts.get(font)),
+            to: candidate.postscript_name.clone(),
+            origin: candidate.origin,
+        });
+    }
+    if sources.choice.is_none() {
+        resolved.pending = Some(missing);
+    }
+    Ok(resolved)
+}
+
+/// The candidate step 3 draws with: the caller's choice, or the closest, the first that can be
+/// used (one its licence forbids is only listed). `None` waits for a choice.
+fn picked(missing: &MissingGlyphs, sources: &FontSources<'_>) -> Option<usize> {
+    let closest = missing.candidates.iter().position(FontCandidate::usable);
+    let picked = match sources.choice {
+        Some(FontChoice::Font {
+            origin,
+            postscript_name,
+        }) => missing.candidates.iter().position(|candidate| {
+            candidate.origin == *origin && candidate.postscript_name == *postscript_name
+        }),
+        Some(FontChoice::KeepAsIs) => closest,
+        None if sources.ask => None,
+        None => closest,
+    };
+    picked.filter(|&at| {
+        missing
+            .candidates
+            .get(at)
+            .is_some_and(FontCandidate::usable)
+    })
+}
+
+/// `candidate` as a3-3b lists it.
+fn listed(library: &FontLibrary, candidate: &Candidate) -> FontCandidate {
+    FontCandidate {
+        origin: candidate.face.origin,
+        postscript_name: candidate.face.postscript_name.clone(),
+        family: candidate.face.family.clone(),
+        coverage: candidate.coverage,
+        similarity: candidate.similarity,
+        embedding: candidate.embedding,
+        preview: preview(library, candidate.face.id),
+    }
+}
+
+/// Step 3 for shaped text, drawn only in a font with its layout tables, so a font of the page
+/// lends nothing: the face that shapes `text`, the characters `chars` of the fonts' `font` wait
+/// for, and the pending choice when none was made.
+pub(crate) fn similar_shaper(
+    library: &FontLibrary,
+    font: Option<&PdfFont>,
+    text: &str,
+    chars: Vec<(char, usize)>,
+    reason: MissingReason,
+    sources: &FontSources<'_>,
+) -> Result<(FaceInfo, Option<MissingGlyphs>), MissingGlyphs> {
+    let style = font.map_or(DEFAULT_STYLE, style_of);
+    // Coverage by the decomposed letters, which a shaper composes or draws apart: a font need not
+    // have U+FB1D's glyph. Hangul syllables stay, since few fonts have the jamo.
+    let mut wanted = String::new();
+    for c in text.chars() {
+        if ('\u{AC00}'..='\u{D7A3}').contains(&c) {
+            wanted.push(c);
+        } else {
+            unicode_normalization::char::decompose_canonical(c, |part| wanted.push(part));
+        }
+    }
+    let query = SimilarQuery {
+        text: &wanted,
+        style,
+        max_results: MAX_CANDIDATES,
+    };
+    let ranked = rank_similar(library, &query);
+    let missing = MissingGlyphs {
+        chars,
+        font: font_name(font),
+        reason,
+        bold: style.weight >= 600,
+        italic: style.italic,
+        candidates: ranked
+            .iter()
+            .map(|candidate| listed(library, candidate))
+            .collect(),
+    };
+    let Some(candidate) = picked(&missing, sources).and_then(|at| ranked.get(at)) else {
+        return Err(missing);
+    };
+    let face = candidate.face.clone();
+    Ok((face, sources.choice.is_none().then_some(missing)))
+}
+
+/// The installed and bundled fonts in `style` that cover some of `text`, and the page's own fonts
+/// that already encode some of it, best first.
+fn ranked_fonts<'a>(
+    fonts: &HashMap<u64, PdfFont>,
+    style: StyleMetrics,
+    text: &str,
+    lenders: &'a [PageFont],
+    sources: &FontSources<'a>,
+) -> Vec<(FontCandidate, Lender<'a>)> {
+    let mut ranked: Vec<(FontCandidate, Lender<'a>)> = Vec::new();
     if let Some(library) = sources.library {
         let query = SimilarQuery {
-            text: &text,
+            text,
             style,
             max_results: MAX_CANDIDATES,
         };
         ranked.extend(rank_similar(library, &query).into_iter().map(|candidate| {
-            let lender = Lender::Library(library, candidate.face.id);
-            (
-                FontCandidate {
-                    origin: candidate.face.origin,
-                    postscript_name: candidate.face.postscript_name.clone(),
-                    family: candidate.face.family.clone(),
-                    coverage: candidate.coverage,
-                    similarity: candidate.similarity,
-                    embedding: candidate.embedding,
-                    preview: preview(library, candidate.face.id),
-                },
-                lender,
-            )
+            let listed = listed(library, &candidate);
+            (listed, Lender::Library(library, candidate.face))
         }));
     }
     let needed: Vec<char> = text.chars().filter(|c| !c.is_whitespace()).collect();
@@ -348,82 +526,193 @@ pub(crate) fn resolve(
             .then_with(|| a.postscript_name.cmp(&b.postscript_name))
     });
     ranked.truncate(MAX_CANDIDATES);
-    let chars: Vec<(char, usize)> = misses
-        .iter()
-        .filter(|miss| similar.iter().any(|(_, _, left)| left.contains(&miss.c)))
-        .map(|miss| (miss.c, miss.at))
-        .collect();
-    let missing = MissingGlyphs {
-        chars,
-        font: font_name(pdf),
+    ranked
+}
+
+/// The fonts a3-2's font field offers for a block in `pdf`'s style with the text `text`.
+pub(crate) fn block_candidates(
+    fonts: &HashMap<u64, PdfFont>,
+    pdf: &PdfFont,
+    text: &str,
+    lenders: &[PageFont],
+    sources: &FontSources<'_>,
+) -> Vec<FontCandidate> {
+    ranked_fonts(fonts, style_of(pdf), text, lenders, sources)
+        .into_iter()
+        .map(|(candidate, _)| candidate)
+        .collect()
+}
+
+/// The whole of `text` in the font `choice`, for the block whose first font is `base`, named
+/// `resource` on the page. The person chose it, so nothing here is a substitution to announce. A
+/// font that cannot draw it all, or may not be embedded, answers with the characters it lacks.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn whole_block(
+    fonts: &HashMap<u64, PdfFont>,
+    base: u64,
+    resource: &[u8],
+    text: &str,
+    lenders: &[PageFont],
+    sources: &FontSources<'_>,
+    choice: &BlockFont,
+    name: &mut dyn FnMut(&[u8]) -> Option<Vec<u8>>,
+) -> Result<Resolved, MissingGlyphs> {
+    let mut chars: Vec<char> = Vec::new();
+    let mut places: Vec<(char, usize)> = Vec::new();
+    for (at, c) in text.char_indices() {
+        if !c.is_control() {
+            let c = if c.is_whitespace() { ' ' } else { c };
+            places.push((c, at));
+            if !chars.contains(&c) {
+                chars.push(c);
+            }
+        }
+    }
+    let style = fonts.get(&base).map_or(DEFAULT_STYLE, style_of);
+    let refused = |left: &[char], reason: MissingReason| MissingGlyphs {
+        chars: places
+            .iter()
+            .copied()
+            .filter(|(c, _)| left.contains(c))
+            .collect(),
+        font: choice.postscript_name.clone(),
         reason,
         bold: style.weight >= 600,
         italic: style.italic,
-        candidates: ranked
+        candidates: Vec::new(),
+    };
+    let mut resolved = Resolved::default();
+    if choice.origin == FontOrigin::Embedded {
+        let Some(lender) = lenders
             .iter()
-            .map(|(candidate, _)| candidate.clone())
-            .collect(),
-    };
-    let usable = |at: usize| {
-        missing
-            .candidates
-            .get(at)
-            .is_some_and(FontCandidate::usable)
-    };
-    // The closest is the first that can be used; one its licence forbids is only listed.
-    let closest = missing.candidates.iter().position(FontCandidate::usable);
-    let picked = match sources.choice {
-        Some(FontChoice::Font {
-            origin,
-            postscript_name,
-        }) => missing.candidates.iter().position(|candidate| {
-            candidate.origin == *origin && candidate.postscript_name == *postscript_name
-        }),
-        Some(FontChoice::KeepAsIs) => closest,
-        None if sources.ask => None,
-        None => closest,
-    };
-    let Some((candidate, lender)) = picked
-        .filter(|&at| usable(at))
-        .and_then(|at| ranked.get(at))
-    else {
-        return Err(missing);
-    };
-    for (font, resource, chars) in &similar {
-        match lender {
-            Lender::Page(lender) => resolved.substitutes.push(Substitute {
-                key: lender.key,
-                base: *font,
-                name: lender.name.clone(),
-                glyphs: Vec::new(),
-                existing: true,
-            }),
-            Lender::Library(library, id) => {
-                let Some(new_name) = name(resource) else {
-                    return Err(missing);
-                };
-                let Some((substitute, embedded, _)) =
-                    substitute(library, *id, chars, *font, new_name, &mut resolved)
-                        .filter(|(_, _, drawn)| drawn.len() == chars.len())
-                else {
-                    return Err(missing);
-                };
-                resolved.substitutes.push(substitute);
-                resolved.fonts.push(embedded);
-            }
+            .find(|lender| lender.postscript_name == choice.postscript_name)
+        else {
+            return Err(refused(&chars, MissingReason::NotInstalled));
+        };
+        let left: Vec<char> = chars
+            .iter()
+            .copied()
+            .filter(|c| *c != ' ' && !lender.chars.contains(c))
+            .collect();
+        if !left.is_empty() {
+            return Err(refused(&left, MissingReason::NotInstalled));
         }
-        resolved.substitutions.push(Substitution {
-            kind: SubstitutionKind::Similar,
-            chars: chars.iter().collect(),
-            from: font_name(fonts.get(font)),
-            to: candidate.postscript_name.clone(),
-            origin: candidate.origin,
+        resolved.substitutes.push(Substitute {
+            key: lender.key,
+            base,
+            name: lender.name.clone(),
+            glyphs: Vec::new(),
+            existing: true,
+            marks: Vec::new(),
+        });
+        return Ok(resolved);
+    }
+    let not_there = || refused(&chars, MissingReason::NotInstalled);
+    let library = sources.library.ok_or_else(not_there)?;
+    let face = library
+        .faces()
+        .find(|face| face.origin == choice.origin && face.postscript_name == choice.postscript_name)
+        .ok_or_else(not_there)?;
+    let embedding = embedding_of(library, face.id).ok_or_else(not_there)?;
+    if !embedding.allows_subset() {
+        return Err(refused(
+            &chars,
+            MissingReason::NotEmbeddable {
+                font: choice.postscript_name.clone(),
+                embedding,
+            },
+        ));
+    }
+    let new_name = name(resource).ok_or_else(not_there)?;
+    let (substitute, embedded, drawn) =
+        substitute(library, &face, &chars, base, new_name, &mut resolved).ok_or_else(not_there)?;
+    let left: Vec<char> = chars
+        .iter()
+        .copied()
+        .filter(|c| *c != ' ' && !drawn.contains(c))
+        .collect();
+    if !left.is_empty() {
+        return Err(refused(&left, MissingReason::NotInstalled));
+    }
+    resolved.substitutes.push(substitute);
+    resolved.fonts.push(embedded);
+    Ok(resolved)
+}
+
+fn embedding_of(library: &FontLibrary, id: FaceId) -> Option<Embedding> {
+    library
+        .with_data(id, |data, _index| {
+            FontProgram::parse(data)
+                .ok()
+                .map(|program| Embedding::from_fs_type(program.fs_type()))
+        })
+        .flatten()
+}
+
+/// `postscript_name` without its subset tag, style and foundry suffixes: what the faces of a family
+/// share (`ABCDEF+Arial-BoldMT` and `ArialMT` both give `arial`).
+fn family_stem(postscript_name: &str) -> String {
+    let name = strip_subset_tag(postscript_name);
+    let stem = name.split(['-', ',']).next().unwrap_or(name);
+    let stem = stem.strip_suffix("MT").unwrap_or(stem);
+    let stem = stem.strip_suffix("PS").unwrap_or(stem);
+    stem.to_ascii_lowercase()
+}
+
+/// The face of `pdf`'s family that is `bold` and `italic`: a font of the page, else an installed or
+/// bundled one, that can draw all of `text` and may be embedded; `None` when no such face exists,
+/// since bold and italic are never faked.
+pub(crate) fn toggled_face(
+    fonts: &HashMap<u64, PdfFont>,
+    pdf: &PdfFont,
+    text: &str,
+    lenders: &[PageFont],
+    library: Option<&FontLibrary>,
+    bold: bool,
+    italic: bool,
+) -> Option<BlockFont> {
+    let stem = family_stem(pdf.resource.base_font.as_deref().unwrap_or_default());
+    let needed: Vec<char> = text.chars().filter(|c| !c.is_whitespace()).collect();
+    let on_page = lenders.iter().find(|lender| {
+        let other = fonts.get(&lender.key).map_or(DEFAULT_STYLE, style_of);
+        family_stem(&lender.postscript_name) == stem
+            && other.italic == italic
+            && (other.weight >= 600) == bold
+            && needed.iter().all(|c| lender.chars.contains(c))
+    });
+    if let Some(lender) = on_page {
+        return Some(BlockFont {
+            origin: FontOrigin::Embedded,
+            postscript_name: lender.postscript_name.clone(),
         });
     }
-    if sources.choice.is_none() {
-        resolved.pending = Some(missing);
-    }
-    Ok(resolved)
+    let library = library?;
+    let goal: u16 = if bold { 700 } else { 400 };
+    let mut faces: Vec<_> = library
+        .faces()
+        .filter(|face| {
+            family_stem(&face.postscript_name) == stem
+                && face.italic == italic
+                && (face.weight >= 600) == bold
+                && face.stretch == 5
+        })
+        .collect();
+    faces.sort_by_key(|face| face.weight.abs_diff(goal));
+    faces.into_iter().find_map(|face| {
+        let usable = library
+            .with_data(face.id, |data, _index| {
+                let program = FontProgram::parse(data).ok()?;
+                let draws = needed
+                    .iter()
+                    .all(|&c| program.glyph_for_char(c).is_some_and(|glyph| glyph.0 != 0));
+                Some(draws && Embedding::from_fs_type(program.fs_type()).allows_subset())
+            })
+            .flatten()?;
+        usable.then_some(BlockFont {
+            origin: face.origin,
+            postscript_name: face.postscript_name,
+        })
+    })
 }
 
 /// Step 2's search for `pdf` (key `key`) of a page whose glyphs are `glyphs`, confirmed by the
@@ -480,7 +769,7 @@ pub(crate) struct PageFont {
 
 /// Where a candidate's glyphs come from.
 enum Lender<'a> {
-    Library(&'a FontLibrary, FaceId),
+    Library(&'a FontLibrary, FaceInfo),
     Page(&'a PageFont),
 }
 
@@ -521,7 +810,7 @@ pub(crate) fn font_name(font: Option<&PdfFont>) -> String {
 }
 
 /// The style of `font`: its program's metrics, bold and italic also from its name.
-fn style_of(font: &PdfFont) -> StyleMetrics {
+pub(crate) fn style_of(font: &PdfFont) -> StyleMetrics {
     let mut style = font
         .resource
         .font_program
@@ -613,15 +902,16 @@ fn preview(library: &FontLibrary, id: FaceId) -> String {
 /// its objects and the characters it draws (those the face has).
 fn substitute(
     library: &FontLibrary,
-    id: FaceId,
+    face: &FaceInfo,
     chars: &[char],
     base: u64,
     name: Vec<u8>,
     resolved: &mut Resolved,
 ) -> Option<(Substitute, EmbeddedFont, Vec<char>)> {
     library
-        .with_data(id, |data, index| {
-            let shaper = ShapingFont::new(data.to_vec(), index).ok()?;
+        .with_data(face.id, |data, index| {
+            let instance = face.instance.as_ref();
+            let shaper = ShapingFont::new_at(data.to_vec(), index, instance).ok()?;
             // Each character on its own, so each glyph stands for exactly one.
             let mut wanted: Vec<(char, ferman_fonts::GlyphId)> = Vec::new();
             for &c in chars {
@@ -642,7 +932,7 @@ fn substitute(
                 .iter()
                 .map(|(c, glyph)| (*glyph, c.to_string()))
                 .collect();
-            let (embedded, codes) = embed(data, index, &texts, name.clone())?;
+            let (embedded, codes) = embed(data, index, instance, &texts, name.clone())?;
             let mut drawn = Vec::new();
             let mut glyphs = Vec::new();
             for ((c, _), (_, code, width)) in wanted.into_iter().zip(codes) {
@@ -661,6 +951,7 @@ fn substitute(
                     name,
                     glyphs,
                     existing: false,
+                    marks: Vec::new(),
                 },
                 embedded,
                 drawn,
@@ -673,15 +964,16 @@ fn substitute(
 pub(crate) type GlyphCodes = Vec<(GlyphId, Vec<u8>, f32)>;
 
 /// A new Type0 font named `name` (on the page) with the glyphs `wanted` of the font at `index` of
-/// `data`, each with the text its ToUnicode entry gives (an empty one reads as nothing): the font, and
+/// `data` (at `instance` of a variable font), each with the text its ToUnicode entry gives (an empty one reads as nothing): the font, and
 /// each wanted glyph's code and advance per unit of font size, in order.
 pub(crate) fn embed(
     data: &[u8],
     index: u32,
+    instance: Option<&FaceInstance>,
     wanted: &[(GlyphId, String)],
     name: Vec<u8>,
 ) -> Option<(EmbeddedFont, GlyphCodes)> {
-    let subset = subset(data, index, wanted).ok()?;
+    let subset = subset_at(data, index, wanted, instance).ok()?;
     let mut codes = Vec::new();
     let mut widths = Vec::new();
     let mut texts: Vec<(Vec<u8>, String)> = Vec::new();
@@ -720,4 +1012,22 @@ pub(crate) fn embed(
         stem_v: descriptor.stem_v,
     };
     Some((embedded, codes))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::family_stem;
+
+    #[test]
+    fn the_faces_of_a_family_share_a_stem() {
+        assert_eq!(family_stem("ABCDEF+Arial-BoldMT"), "arial");
+        assert_eq!(family_stem("ArialMT"), "arial");
+        assert_eq!(family_stem("Arial,Italic"), "arial");
+        assert_eq!(family_stem("IBMPlexSerif-Bold"), "ibmplexserif");
+        assert_eq!(family_stem("TimesNewRomanPS-BoldMT"), "timesnewroman");
+        assert_ne!(
+            family_stem("IBMPlexSans-Bold"),
+            family_stem("IBMPlexSerif-Bold")
+        );
+    }
 }

@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_region.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -128,8 +130,9 @@ class ShellTitleBarContent extends ConsumerWidget {
               l10n: l10n,
               closeShortcut: ShellCommand.closeDocument.caps(platform),
               onClose: switch (documents.documents[i].path) {
-                final path? when given == null =>
-                  () => ref.read(documentOpenerProvider.notifier).close(path),
+                final path? when given == null => () => unawaited(
+                  ref.read(documentCloserProvider.notifier).close(path),
+                ),
                 _ => null,
               },
               onPressed: given == null ? () => show(i) : null,
@@ -142,10 +145,9 @@ class ShellTitleBarContent extends ConsumerWidget {
                 all: documents.documents.indexed.toList(),
                 onShow: given == null ? show : null,
                 onCloseOthers: switch (documents.active?.path) {
-                  final path? when given == null =>
-                    () => ref
-                        .read(documentOpenerProvider.notifier)
-                        .closeOthers(path),
+                  final path? when given == null => () => unawaited(
+                    ref.read(documentCloserProvider.notifier).closeOthers(path),
+                  ),
                   _ => null,
                 },
               )

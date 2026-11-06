@@ -1,9 +1,11 @@
 import 'dart:async';
 
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/save/document_saver.dart';
+import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -23,9 +25,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final class _ScriptsDismissed;
 
 /// The bars above a document's pages (the banner slot of a1-9 and a2-10a):
-/// why it opened read-only (a1-9's repaired bar, a11-7c's XFA bar or
-/// G102's parsers bar), a2-10a's restricted bar while the author's
-/// restrictions apply, and the scripts bar of G100 until it is dismissed.
+/// why it opened read-only (a1-9's repaired bar, a11-7c's XFA bar, G102's
+/// parsers bar or a1-9d's bar of a file no one may write), a11-7b's bar while
+/// its file changed on disk, a3-16b's bar while its changes break its
+/// signatures, a2-10a's restricted bar while the author's restrictions
+/// apply, and the scripts bar of G100 until it is dismissed.
 /// [onUnlock] opens the owner password dialog.
 class DocumentBanners extends ConsumerStatefulWidget {
   /// The bars of [document].
@@ -59,12 +63,34 @@ class _DocumentBannersState extends ConsumerState<DocumentBanners> {
     final security = opened.security;
     final scripts = opened.scripts;
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final changed = ref.watch(
+      documentSaverProvider.select((s) => s.changed.contains(opened.id)),
+    );
+    final invalidated = ref.watch(
+      documentEditorProvider.select((s) => s.history.signatureInvalidated),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ?switch (opened.readOnly) {
+          // a1-9d, until an edit asks for a11-7d at Save.
+          null when widget.document.saveState == SaveState.readOnly => Banner(
+            variant: BannerVariant.bar,
+            icon: IconName.lock,
+            title: l10n.readOnlyFileTitle(bidiIsolate(widget.document.name)),
+            actions: [
+              Button(
+                size: ButtonSize.sm,
+                onPressed: () => ref
+                    .read(documentSaverProvider.notifier)
+                    .openSheet(copy: true),
+                child: Text(l10n.readOnlyFileSaveCopy),
+              ),
+            ],
+            child: Text(l10n.readOnlyFileBody),
+          ),
           null => null,
-          ReadOnlyReason.repaired => _RepairedBar(opened),
+          ReadOnlyReason.repaired => _RepairedBar(widget.document),
           ReadOnlyReason.xfaOnly => Banner(
             variant: BannerVariant.bar,
             tone: BannerTone.warning,
@@ -95,6 +121,8 @@ class _DocumentBannersState extends ConsumerState<DocumentBanners> {
             child: Text(l10n.disagreeBody),
           ),
         },
+        if (changed) FileChangedBar(widget.document),
+        if (invalidated) SignatureInvalidBar(opened),
         if (security != null && security.restricted)
           Banner(
             variant: BannerVariant.bar,
@@ -139,11 +167,12 @@ class _DocumentBannersState extends ConsumerState<DocumentBanners> {
 
 /// a1-9's repaired bar: how many problems repair fixed, Details with the
 /// popover "What Ferman repaired" and its Copy details, and "Save repaired
-/// copy…", disabled until the writer arrives (B103).
+/// copy…", which writes the repaired document where the system save panel
+/// says (B103, `DocumentSaver.saveRepairedCopy`).
 class _RepairedBar extends ConsumerStatefulWidget {
-  const new(this.document);
+  const new(this.tab);
 
-  final OpenedDocument document;
+  final ShellDocument tab;
 
   /// a1-9's repair details (`width: 420px`) …
   static const double detailsWidth = 420;
@@ -157,7 +186,7 @@ class _RepairedBar extends ConsumerStatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<OpenedDocument>('document', document));
+    properties.add(DiagnosticsProperty<ShellDocument>('tab', tab));
   }
 }
 
@@ -185,9 +214,10 @@ class _RepairedBarState extends ConsumerState<_RepairedBar> {
     final l10n = AppLocalizations.of(context);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     String count(int value) => format.integer(value);
-    final pages = widget.document.pages.length;
+    final document = widget.tab.document;
+    final pages = document?.pages.length ?? 0;
     final fixes = [
-      for (final fix in widget.document.repairs)
+      for (final fix in document?.repairs ?? const <RepairFix>[])
         switch (fix.kind) {
           RepairKind.crossReferenceRebuilt => (
             l10n.repairXrefTitle,
@@ -326,8 +356,11 @@ class _RepairedBarState extends ConsumerState<_RepairedBar> {
           ),
         Button(
           size: ButtonSize.sm,
-          disabled: true,
-          disabledReason: Feature.saveRepairedCopy.disabledReason(context),
+          onPressed: () => unawaited(
+            ref
+                .read(documentSaverProvider.notifier)
+                .saveRepairedCopy(widget.tab),
+          ),
           child: Text(l10n.repairedSave),
         ),
       ],

@@ -171,6 +171,35 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
     return true
   }
 
+  /// The name in Dart's `SwapFailure` of why "swapIn" failed.
+  private static func swapFailure(_ error: NSError) -> String {
+    // Foundation often wraps the system's reason in a general write error.
+    if let underlying = error.userInfo[NSUnderlyingErrorKey] as? NSError,
+      underlying.domain == NSPOSIXErrorDomain
+    {
+      switch Int32(underlying.code) {
+      case EBUSY: return "locked"
+      case EACCES, EPERM, EROFS: return "permission"
+      case ENOSPC: return "diskFull"
+      case ENOENT: return "volumeGone"
+      default: break
+      }
+    }
+    guard error.domain == NSCocoaErrorDomain else { return "other" }
+    switch error.code {
+    case NSFileWriteNoPermissionError, NSFileReadNoPermissionError, NSFileWriteVolumeReadOnlyError:
+      return "permission"
+    case NSFileWriteOutOfSpaceError:
+      return "diskFull"
+    case NSFileLockingError:
+      return "locked"
+    case NSFileNoSuchFileError, NSFileReadNoSuchFileError:
+      return "volumeGone"
+    default:
+      return "other"
+    }
+  }
+
   /// "bookmark" makes a security-scoped bookmark (base64) of a file Ferman
   /// may read now; "access" resolves one, starts access to its file once
   /// until "release" ends it (its document closed, B029) and answers with
@@ -184,6 +213,7 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   /// file first; "swapIn" puts that file in place with `replaceItemAt`, or
   /// moves it there when there is none yet, and removes the directory
   /// (ADR 0008, B110): the sandbox grants the chosen file, not its folder.
+  /// "discardStaging" removes such a directory, if empty, after a refused save.
   /// "pdfHandler" names the app that opens PDF files and says whether it is
   /// Ferman; "makeDefault" asks macOS, which asks the person, to make
   /// Ferman that app (B080, app/lib/platform/default_app.dart).
@@ -240,10 +270,20 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
       NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
       result(true)
     case "staging":
-      guard let path = call.arguments as? String,
+      // Unsandboxed, the engine writes beside the file as on the other systems.
+      guard ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil,
+        let path = call.arguments as? String
+      else {
+        result(nil)
+        return
+      }
+      // Only the volume counts, and a file that does not exist yet names none.
+      let near = URL(fileURLWithPath: path).resolvingSymlinksInPath()
+      guard
         let url = try? FileManager.default.url(
           for: .itemReplacementDirectory, in: .userDomainMask,
-          appropriateFor: URL(fileURLWithPath: path), create: true)
+          appropriateFor: FileManager.default.fileExists(atPath: path)
+            ? near : near.deletingLastPathComponent(), create: true)
       else {
         result(nil)
         return
@@ -254,21 +294,41 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
         let staged = arguments["staged"] as? String,
         let path = arguments["path"] as? String
       else {
-        result(false)
+        result("other")
         return
       }
       let stagedURL = URL(fileURLWithPath: staged)
-      let target = URL(fileURLWithPath: path)
+      // A symbolic link stays and the file it names is replaced, as in the engine's own save.
+      let named = URL(fileURLWithPath: path)
+      let isLink = (try? named.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink
+      let target = isLink == true ? named.resolvingSymlinksInPath() : named
       let manager = FileManager.default
-      var swapped = false
-      if manager.fileExists(atPath: path) {
-        swapped = (try? manager.replaceItemAt(target, withItemAt: stagedURL)) != nil
-      } else {
-        swapped = (try? manager.moveItem(at: stagedURL, to: target)) != nil
+      var failure: Any = true
+      do {
+        if manager.fileExists(atPath: target.path) {
+          _ = try manager.replaceItemAt(target, withItemAt: stagedURL)
+        } else {
+          try manager.moveItem(at: stagedURL, to: target)
+        }
+      } catch {
+        let error = error as NSError
+        failure = Self.swapFailure(error)
+        // Foundation's rare failure after moving the original aside: it goes back.
+        if let aside = error.userInfo["NSFileOriginalItemLocationKey"] as? URL,
+          !manager.fileExists(atPath: target.path)
+        {
+          try? manager.moveItem(at: aside, to: target)
+        }
       }
-      // The staged file, if it is still there, and its directory.
-      try? manager.removeItem(at: stagedURL.deletingLastPathComponent())
-      result(swapped)
+      // The staged file and its directory, never recursively: the original may be in there.
+      try? manager.removeItem(at: stagedURL)
+      _ = rmdir(stagedURL.deletingLastPathComponent().path)
+      result(failure)
+    case "discardStaging":
+      if let directory = call.arguments as? String {
+        _ = rmdir(directory)
+      }
+      result(nil)
     case "pdfHandler":
       guard let url = NSWorkspace.shared.urlForApplication(toOpen: .pdf) else {
         result(nil)

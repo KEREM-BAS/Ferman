@@ -196,8 +196,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Totals don’t update'), findsOneWidget);
-    // Review edits is not built yet (B049).
-    expect(choice(tester, 'Review the marked cell').onPressed, isNull);
+    expect(choice(tester, 'Review the marked cell').onPressed, isNotNull);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await pumps(tester);
     expect(

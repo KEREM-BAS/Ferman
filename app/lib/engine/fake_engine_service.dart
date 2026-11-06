@@ -29,6 +29,7 @@ class FakeEngineService implements EngineService {
     this.dependents = const {},
     this.missingGlyphs = const {},
     this.sameFonts = const {},
+    this.fontCoverages = const {},
   });
 
   /// Madde 6 of kira-tr in a3-3a and a3-3b: EB Garamond has no "ğ"; the
@@ -87,6 +88,16 @@ class FakeEngineService implements EngineService {
   /// The blocks, by id, whose missing characters step 2 takes from the same
   /// font: text with one of them carries this substitution.
   final Map<int, FontSubstitution> sameFonts;
+
+  /// What [fontCoverage] answers, by document.
+  final Map<int, List<FontCoverage>> fontCoverages;
+
+  @override
+  Future<List<FontCoverage>> fontCoverage(int document, String letters) async =>
+      fontCoverages[document] ?? const [];
+
+  /// The clock of the history's steps; goldens fix it.
+  DateTime Function() now = DateTime.now;
 
   /// The settings [setFontSettings] was given last.
   FontSettings fontSettings = const FontSettings();
@@ -231,6 +242,117 @@ class FakeEngineService implements EngineService {
     );
   }
 
+  /// The documents [closeDiscarding] closed, oldest first.
+  final List<int> closedDiscarding = [];
+
+  /// Closes as [close] does, and records the document.
+  @override
+  Future<void> closeDiscarding(int document) async {
+    closedDiscarding.add(document);
+    await close(document);
+  }
+
+  /// The folder [startRecovery] was given.
+  @override
+  String? recoveryRoot;
+
+  /// What the a11-1c switch says ([setRecoveryEnabled]).
+  bool recoveryEnabled = true;
+
+  /// What [listRecoverable] lists once recovery started; [restoreRecovered]
+  /// and [discardRecovery] take documents out.
+  final List<RecoverableDocument> recoverable = [];
+
+  /// The documents [restoreRecovered] opens, by document name.
+  final Map<String, OpenedDocument> recoveredDocuments = {};
+
+  /// The passwords of [recoverable] documents that are encrypted, by
+  /// document name.
+  final Map<String, String> recoveryPasswords = {};
+
+  @override
+  Future<void> startRecovery(String root) async {
+    if (recoveryRoot case final started? when started != root) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    recoveryRoot = root;
+  }
+
+  @override
+  Future<void> setRecoveryEnabled({required bool enabled}) async =>
+      recoveryEnabled = enabled;
+
+  @override
+  Future<List<RecoverableDocument>> listRecoverable() async =>
+      recoveryRoot == null ? const [] : List.unmodifiable(recoverable);
+
+  /// Opens the [recoveredDocuments] entry, with its [recoveryPasswords]
+  /// entry for an encrypted one; a changed original saves to
+  /// `<name> (recovered).pdf`, with [suffix] for "recovered".
+  @override
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+    String? suffix,
+  }) async {
+    final found = recoverable.where(
+      (found) => found.session == session && found.document == document,
+    );
+    final opened = recoveredDocuments[document];
+    if (recoveryRoot == null || found.isEmpty || opened == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorFileNotFound',
+      );
+    }
+    if (recoveryPasswords[document] case final expected?
+        when password != expected) {
+      throw password == null
+          ? const EngineException(
+              kind: EngineErrorKind.passwordRequired,
+              messageKey: 'errorPasswordRequired',
+            )
+          : const EngineException(
+              kind: EngineErrorKind.wrongPassword,
+              messageKey: 'errorWrongPassword',
+            );
+    }
+    final entry = found.first;
+    recoverable.remove(entry);
+    final original = entry.original;
+    final dot = original.lastIndexOf('.');
+    final stem = dot > original.lastIndexOf('/')
+        ? original.substring(0, dot)
+        : original;
+    return RestoredDocument(
+      opened: opened,
+      path: entry.originalChanged
+          ? '$stem (${suffix ?? 'recovered'})${original.substring(stem.length)}'
+          : original,
+      originalChanged: entry.originalChanged,
+      renderKey: ++_lastRenderKey,
+    );
+  }
+
+  @override
+  Future<void> discardRecovery(String session, {String? document}) async {
+    if (recoveryRoot == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    recoverable.removeWhere(
+      (found) =>
+          found.session == session &&
+          (document == null || found.document == document),
+    );
+  }
+
   /// Ends the document's views.
   @override
   Future<void> close(int document) async {
@@ -323,6 +445,10 @@ class FakeEngineService implements EngineService {
   /// Each document's committed steps, oldest first, and how many apply.
   final Map<int, ({List<_FakeStep> steps, int current})> _histories = {};
 
+  /// Whether a committed style gives the page's blocks new ids, as the engine
+  /// does: an id holds its operator's offset in the stream.
+  bool newIdsOnStyle = false;
+
   /// The open transactions.
   final Map<int, _FakeTransaction> _transactions = {};
   int _nextTransaction = 1;
@@ -367,29 +493,43 @@ class FakeEngineService implements EngineService {
   /// A block of [missingGlyphs] whose text has one of its characters goes
   /// through step 3: with "Ask each time" and no choice the text is not
   /// applied; otherwise the chosen candidate, or the first usable one
-  /// provisionally, draws them. A block of [sameFonts] carries its step 2
-  /// substitution.
+  /// provisionally, draws them; with "Keep the original font and mark the
+  /// character" the text applies, marked, and nothing waits. A block of
+  /// [sameFonts] carries its step 2 substitution. With reflow off only a new
+  /// line overflows.
   @override
   Future<EditPreview> applyEdit(int transaction, String text) async {
     final open = _open(transaction)..requested = text;
     final block = _block(open.document, open.page, open.block);
     final missing = _missing(open, text);
-    if (missing != null && !missing.drawn) {
+    final marked = fontSettings.markMissing && !open.chosenFont;
+    if (missing != null && !missing.drawn && !marked) {
       return _preview(open, missing: missing);
     }
     final same = sameFonts[open.block];
     open
       ..text = text
-      ..overflow = text.length > block.text.length
+      ..overflow =
+          (fontSettings.keepLines
+              ? '\n'.allMatches(text).length >= block.lines.length
+              : text.length > block.text.length)
           ? overflows[open.block]
           : null
       ..chosen = open.overflow == null ? null : OverflowChoice.keep
-      ..pending = open.chosenFont ? null : missing
+      ..pending = open.chosenFont || marked ? null : missing
       ..substitutions = [
         if (same != null &&
             same.chars.runes.map(String.fromCharCode).any(text.contains))
           same,
-        if (missing != null)
+        if (missing != null && marked)
+          FontSubstitution(
+            kind: SubstitutionKind.marked,
+            chars: {for (final c in missing.chars) c.text}.join(),
+            fromFont: missing.font,
+            toFont: missing.font,
+            origin: FontOrigin.embedded,
+          )
+        else if (missing != null)
           FontSubstitution(
             kind: SubstitutionKind.similar,
             chars: {for (final c in missing.chars) c.text}.join(),
@@ -502,6 +642,19 @@ class FakeEngineService implements EngineService {
     return _preview(open);
   }
 
+  @override
+  Future<EditPreview> setBlockLanguage(int transaction, String tag) async {
+    final open = _open(transaction);
+    if (tag.isEmpty || tag.contains(' ')) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    open.language = tag;
+    return _preview(open);
+  }
+
   EditPreview _preview(_FakeTransaction open, {MissingGlyphs? missing}) {
     final before = _blocks(open.document, open.page);
     final block = _block(open.document, open.page, open.block);
@@ -542,6 +695,7 @@ class FakeEngineService implements EngineService {
       lines: lines,
       alignment: block.alignment,
       direction: block.direction,
+      language: open.language ?? block.language,
     );
     final page = PageBlocks(
       blocks: [
@@ -550,9 +704,10 @@ class FakeEngineService implements EngineService {
       ],
       empty: before.empty,
     );
-    if (open.text != null) open.applied = page;
+    final changed = open.text != null || open.language != null;
+    if (changed) open.applied = page;
     return EditPreview(
-      page: open.text == null ? before : page,
+      page: changed ? page : before,
       missing: notApplied
           ? [
               for (final c in {for (final c in missing.chars) c.text}) c,
@@ -580,6 +735,7 @@ class FakeEngineService implements EngineService {
           for (final cell in before.blocks.where((b) => b.id == id))
             DependentCell(id: id, frame: cell.frame),
       ],
+      language: open.language ?? block.language,
     );
   }
 
@@ -603,31 +759,57 @@ class FakeEngineService implements EngineService {
         messageKey: 'errorInternal',
       );
     }
+    if (open.applied != null) _confirmed(open.document);
     _transactions.remove(transaction);
     final before = _blocks(open.document, open.page);
     final after = open.applied;
     final history = _history(open.document);
-    String texts(PageBlocks page) =>
-        page.blocks.map((block) => block.text).join('\u0000');
-    if (after == null || texts(after) == texts(before)) {
+    String texts(PageBlocks page) => page.blocks
+        .map((block) => '${block.text}${block.language}')
+        .join('\u0000');
+    if (after == null || (!open.styled && texts(after) == texts(before))) {
       return RevisionInfo(current: history.current);
     }
-    _edited[(open.document, open.page)] = after;
+    _edited[(open.document, open.page)] = newIdsOnStyle && open.styled
+        ? PageBlocks(
+            blocks: [
+              for (final block in after.blocks)
+                TextBlock(
+                  id: block.id + 100,
+                  frame: block.frame,
+                  lines: block.lines,
+                  alignment: block.alignment,
+                  direction: block.direction,
+                  language: block.language,
+                ),
+            ],
+          )
+        : after;
     _histories[open.document] = (
       steps: [
         ...history.steps.take(history.current),
         _FakeStep(
           HistoryStep(
             name: name,
-            time: DateTime.now(),
+            time: now(),
             hiddenLines: open.chosen == OverflowChoice.keep
                 ? open.overflow?.keepHidden ?? 0
                 : 0,
             substitutions: open.substitutions,
+            page: open.page,
+            before: before.blocks
+                .where((block) => block.id == open.block)
+                .map((block) => block.text)
+                .join(),
+            after: after.blocks
+                .where((block) => block.id == open.block)
+                .map((block) => block.text)
+                .join(),
           ),
           open.page,
           before,
           after,
+          block: open.block,
         ),
       ],
       current: history.current + 1,
@@ -650,6 +832,132 @@ class FakeEngineService implements EngineService {
       substitutions: told,
     );
   }
+
+  /// The styles asked for, oldest first.
+  final List<BlockStyle> styles = [];
+
+  /// The block styles [blockStyle] answers with, by block; a block without
+  /// one reads as none, so the shell keeps its document panel.
+  final Map<int, BlockStyleInfo> blockStyles = {};
+
+  /// The fonts [blockFonts] answers with.
+  List<FontCandidate> fonts = const [];
+
+  /// The blocks of a page with the block of [open] in [frame].
+  PageBlocks _framed(_FakeTransaction open, Rect frame) {
+    final page = open.applied ?? _blocks(open.document, open.page);
+    return PageBlocks(
+      blocks: [
+        for (final block in page.blocks)
+          if (block.id == open.block)
+            TextBlock(
+              id: block.id,
+              frame: frame,
+              lines: block.lines,
+              alignment: block.alignment,
+              direction: block.direction,
+              notEditable: block.notEditable,
+            )
+          else
+            block,
+      ],
+      empty: page.empty,
+    );
+  }
+
+  /// Keeps [style] for [blockStyle]; a font with the name `Missing` draws
+  /// nothing and is refused, as a font without the characters is.
+  @override
+  Future<EditPreview> setBlockStyle(int transaction, BlockStyle style) async {
+    final open = _open(transaction);
+    if (style.font?.postscriptName == 'Missing') {
+      return _preview(
+        open,
+        missing: const MissingGlyphs(
+          chars: [MissingChar(text: 'K', at: 0)],
+          font: 'Missing',
+        ),
+      );
+    }
+    styles.add(style);
+    open.styled = true;
+    final info = blockStyles[open.block];
+    if (info == null) {
+      open.applied ??= _blocks(open.document, open.page);
+      return EditPreview(page: open.applied!);
+    }
+    blockStyles[open.block] = BlockStyleInfo(
+      font: style.font?.postscriptName ?? info.font,
+      family: style.font?.postscriptName ?? info.family,
+      size: style.size ?? info.size,
+      frame: info.frame,
+      bold: info.bold,
+      italic: info.italic,
+      boldToggle: info.boldToggle,
+      italicToggle: info.italicToggle,
+      colour: style.colour ?? info.colour,
+      documentColours: info.documentColours,
+      alignment: style.alignment ?? info.alignment,
+      charSpacing: style.charSpacing ?? info.charSpacing,
+      lineSpacing: style.lineSpacing ?? info.lineSpacing,
+    );
+    open.applied ??= _blocks(open.document, open.page);
+    return EditPreview(page: open.applied!);
+  }
+
+  @override
+  Future<EditPreview> moveBlock(int transaction, Offset by) {
+    final open = _open(transaction);
+    final block = _block(open.document, open.page, open.block);
+    return resizeBlock(transaction, block.frame.shift(by));
+  }
+
+  /// The block takes [frame]; an empty one is refused, as the engine refuses
+  /// numbers out of range.
+  @override
+  Future<EditPreview> resizeBlock(int transaction, Rect frame) async {
+    final open = _open(transaction);
+    if (frame.isEmpty) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    open
+      ..styled = true
+      ..applied = _framed(open, frame);
+    return EditPreview(page: open.applied!);
+  }
+
+  /// The block's entry in [blockStyles]: a test that wants the text panel
+  /// gives its block one, and its frame follows the block.
+  @override
+  Future<BlockStyleInfo?> blockStyle(int document, int page, int block) async {
+    final kept = blockStyles[block];
+    if (kept == null) return null;
+    return BlockStyleInfo(
+      font: kept.font,
+      family: kept.family,
+      size: kept.size,
+      frame: _block(document, page, block).frame,
+      bold: kept.bold,
+      italic: kept.italic,
+      boldToggle: kept.boldToggle,
+      italicToggle: kept.italicToggle,
+      colour: kept.colour,
+      documentColours: kept.documentColours,
+      alignment: kept.alignment,
+      charSpacing: kept.charSpacing,
+      lineSpacing: kept.lineSpacing,
+    );
+  }
+
+  @override
+  Future<List<FontCandidate>> blockFonts(
+    int document,
+    int page,
+    int block,
+  ) async => fonts;
 
   @override
   Future<RevisionInfo> rollbackEdit(int transaction) async {
@@ -687,28 +995,319 @@ class FakeEngineService implements EngineService {
     return _reloaded(document);
   }
 
+  /// The steps asked to revert: a later live step of the same block depends
+  /// on an earlier one, or every later one of the page with [dependOnPage].
+  @override
+  Future<Reverted> revert(
+    int document,
+    int step,
+    String name, {
+    bool withDependents = false,
+  }) async {
+    final history = _history(document);
+    final live = EditHistory(
+      steps: [for (final item in history.steps) item.step],
+      current: history.current,
+    ).live;
+    _closed(document, can: live.contains(step));
+    final asked = history.steps[step];
+    final set = [
+      for (final index in live)
+        if (index == step ||
+            (index > step &&
+                history.steps[index].page == asked.page &&
+                (dependOnPage || history.steps[index].block == asked.block)))
+          index,
+    ];
+    final dependents = [
+      for (final index in set)
+        if (index != step) index,
+    ];
+    if (dependents.isNotEmpty && !withDependents) {
+      return Reverted(
+        reverted: false,
+        dependents: dependents,
+        revision: RevisionInfo(current: history.current),
+      );
+    }
+    final current = _blocks(document, asked.page);
+    final restored = {
+      for (final index in set.reversed)
+        for (final block in history.steps[index].before.blocks)
+          if (block.id == history.steps[index].block) block.id: block,
+    };
+    final after = PageBlocks(
+      blocks: [for (final block in current.blocks) restored[block.id] ?? block],
+      empty: current.empty,
+    );
+    _push(document, name, set, asked.page, current, after);
+    _edited[(document, asked.page)] = after;
+    return Reverted(
+      reverted: true,
+      dependents: dependents,
+      revision: _reloaded(document),
+    );
+  }
+
+  /// shortcut: the step remembers one page, so Undo after a revert of edits on
+  /// several pages brings back only the first; tests revert on one page.
+  @override
+  Future<RevisionInfo> revertAll(int document, String name) async {
+    final history = _history(document);
+    final live = EditHistory(
+      steps: [for (final item in history.steps) item.step],
+      current: history.current,
+    ).live;
+    _closed(document, can: live.isNotEmpty);
+    final first = history.steps[live.first];
+    final current = _blocks(document, first.page);
+    for (final index in live.reversed) {
+      final step = history.steps[index];
+      _edited[(document, step.page)] = step.before;
+    }
+    _push(document, name, live, first.page, current, first.before);
+    return _reloaded(document);
+  }
+
+  void _push(
+    int document,
+    String name,
+    List<int> reverts,
+    int page,
+    PageBlocks before,
+    PageBlocks after,
+  ) {
+    final history = _history(document);
+    _histories[document] = (
+      steps: [
+        ...history.steps.take(history.current),
+        _FakeStep(
+          HistoryStep(name: name, time: now(), reverts: reverts),
+          page,
+          before,
+          after,
+          block: -1,
+        ),
+      ],
+      current: history.current + 1,
+    );
+  }
+
+  /// Texts [saveText] wrote: path and text, oldest first.
+  final List<(String, String)> savedTexts = [];
+
+  /// Whether a later edit of the same page depends on an earlier one, not
+  /// only one of the same block.
+  bool dependOnPage = false;
+
+  @override
+  Future<String?> saveText(String path, String text, {String? staging}) async {
+    if (saveFailure case final error?) throw error;
+    savedTexts.add((path, text));
+    return staging == null ? null : '$staging/staged';
+  }
+
   @override
   Future<EditHistory> history(int document) async {
     final history = _history(document);
     return EditHistory(
       steps: [for (final step in history.steps) step.step],
       current: history.current,
+      signatureInvalidated:
+          signed.contains(document) &&
+          (history.current > 0 || optimized.contains(document)),
     );
   }
 
-  /// Records the save; [saveFailure] fails it.
-  @override
-  Future<void> save(int document) async {
-    if (saveFailure case final error?) throw error;
-    saves.add((document, null));
+  /// Makes the next document save ([save], [saveAs], [saveCopy],
+  /// [saveRepairedCopy], [optimizeAndClean]) fail with [kind], as the engine
+  /// reports it: Save as offered for every failure but a file changed on
+  /// disk.
+  void failNextSave(EngineErrorKind kind) => _nextSaveFailure = EngineException(
+    kind: kind,
+    messageKey: kind == EngineErrorKind.permissionDenied
+        ? 'errorFilePermissionDenied'
+        : 'errorFileRead',
+    offersSaveAs: kind != EngineErrorKind.fileChangedOnDisk,
+  );
+
+  EngineException? _nextSaveFailure;
+
+  /// Documents whose file changed on disk: [checkExternalChange] says so and
+  /// [save] fails with [EngineErrorKind.fileChangedOnDisk] until it saves
+  /// over the change.
+  final Set<int> changedOnDisk = {};
+
+  /// Documents that are signed: [wouldBreakSignatures] says so, and commits
+  /// and writes throw [EngineErrorKind.confirmationRequired] until
+  /// [confirmEditSigned].
+  final Set<int> signed = {};
+
+  /// The signed documents [confirmEditSigned] confirmed, with their tokens.
+  final Map<int, int> confirmations = {};
+
+  /// The working copies [saveUnsignedCopy] wrote: document and path.
+  final List<(int, String)> unsignedCopies = [];
+
+  /// Throws while the signed [document] waits for [confirmEditSigned].
+  void _confirmed(int document) {
+    if (signed.contains(document) && !confirmations.containsKey(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.confirmationRequired,
+        messageKey: 'errorInternal',
+      );
+    }
   }
 
-  /// Records the save; [saveFailure] fails it.
-  @override
-  Future<void> saveAs(int document, String path) async {
+  /// The copies [saveCopy] wrote: document and path.
+  final List<(int, String)> copies = [];
+
+  /// The repaired copies: document, path and whether it replaced the
+  /// original.
+  final List<(int, String, bool)> repairedCopies = [];
+
+  /// The documents [optimizeAndClean] rewrote, oldest first.
+  final List<int> optimized = [];
+
+  /// How many transactions are open, none of them lost to the app.
+  int get openTransactions => _transactions.length;
+
+  /// Throws [saveFailure], or the failure [failNextSave] set, once.
+  void _saving() {
     if (saveFailure case final error?) throw error;
-    saves.add((document, path));
+    if (_nextSaveFailure case final error?) {
+      _nextSaveFailure = null;
+      throw error;
+    }
   }
+
+  /// What each staged save will record once [finishSave] says it is in
+  /// place.
+  final Map<int, void Function()> _staged = {};
+
+  /// Whether [finishSave] reports a failed recovery write.
+  bool recoveryWriteFailed = false;
+
+  /// [record] now, or with [staging] a staged file there and [record] at
+  /// [finishSave].
+  String? _write(int document, String? staging, void Function() record) {
+    if (staging == null) {
+      record();
+      return null;
+    }
+    _staged[document] = record;
+    return '$staging/staged.pdf';
+  }
+
+  @override
+  Future<bool> finishSave(int document, {required bool swapped}) async {
+    final record = _staged.remove(document);
+    if (record == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    if (swapped) record();
+    return recoveryWriteFailed;
+  }
+
+  /// Records the save; [saveFailure], [failNextSave] and [changedOnDisk]
+  /// fail it.
+  @override
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  }) async {
+    _confirmed(document);
+    _saving();
+    if (!overChange && changedOnDisk.contains(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileRead',
+      );
+    }
+    return _write(document, staging, () {
+      changedOnDisk.remove(document);
+      saves.add((document, null));
+    });
+  }
+
+  /// Records the save; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<String?> saveAs(int document, String path, {String? staging}) async {
+    if (_history(document).current > 0) _confirmed(document);
+    _saving();
+    return _write(document, staging, () => saves.add((document, path)));
+  }
+
+  /// Records the copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<String?> saveCopy(int document, String path, {String? staging}) async {
+    if (_history(document).current > 0) _confirmed(document);
+    _saving();
+    return _write(document, staging, () => copies.add((document, path)));
+  }
+
+  /// Records the repaired copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<String?> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+    String? staging,
+  }) async {
+    _confirmed(document);
+    _saving();
+    return _write(
+      document,
+      staging,
+      () => repairedCopies.add((document, path, replaceOriginal)),
+    );
+  }
+
+  /// Records the rewrite; [saveFailure], [failNextSave] and [changedOnDisk]
+  /// fail it.
+  @override
+  Future<String?> optimizeAndClean(int document, {String? staging}) async {
+    _confirmed(document);
+    _saving();
+    if (changedOnDisk.contains(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileRead',
+      );
+    }
+    return _write(document, staging, () => optimized.add(document));
+  }
+
+  @override
+  Future<bool> wouldBreakSignatures(int document) async =>
+      signed.contains(document);
+
+  @override
+  Future<int> confirmEditSigned(int document) async =>
+      confirmations[document] ??= confirmations.length + 1;
+
+  /// Records the copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async {
+    _saving();
+    return _write(
+      document,
+      staging,
+      () => unsignedCopies.add((document, path)),
+    );
+  }
+
+  @override
+  Future<bool> checkExternalChange(int document) async =>
+      changedOnDisk.contains(document);
 
   /// The x of the caret before character [at] of [line].
   static double _x(TextLine line, int at) {
@@ -888,7 +1487,11 @@ final class _FakeTransaction {
   final int page;
   final int block;
   String? text;
+  String? language;
   PageBlocks? applied;
+
+  /// Whether a style, a move or a resize changed the block.
+  bool styled = false;
   OverflowPlan? overflow;
   OverflowChoice? chosen;
 
@@ -906,10 +1509,17 @@ final class _FakeTransaction {
 
 /// One committed step of the fake's history: its page before and after.
 final class _FakeStep {
-  const new(this.step, this.page, this.before, this.after);
+  const new(
+    this.step,
+    this.page,
+    this.before,
+    this.after, {
+    required this.block,
+  });
 
   final HistoryStep step;
   final int page;
+  final int block;
   final PageBlocks before;
   final PageBlocks after;
 }

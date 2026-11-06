@@ -24,22 +24,33 @@ jobs:
         target:
           - cmap
           - content_lexer
+          - edit_script
           - filter_ascii85
           - filter_ascii_hex
           - filter_flate
           - filter_lzw
           - filter_run_length
+          - font_program
           - interpreter
+          - line_breaking
           - open_document
+          - recovery_journal
+          - reencode
+          - rewrite_block
           - security_handler
+          - shaping
+          - subsetting
           - syntax_object
+          - to_unicode
           - type1
+          - type1_program
+          - writer_round_trip
           - xref_repair
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: The matrix names every target
         env:
-          LISTED: cmap content_lexer filter_ascii85 filter_ascii_hex filter_flate filter_lzw filter_run_length interpreter open_document security_handler syntax_object type1 xref_repair
+          LISTED: cmap content_lexer edit_script filter_ascii85 filter_ascii_hex filter_flate filter_lzw filter_run_length font_program interpreter line_breaking open_document recovery_journal reencode rewrite_block security_handler shaping subsetting syntax_object to_unicode type1 type1_program writer_round_trip xref_repair
         run: |
           actual="$(ls fuzz/fuzz_targets | sed 's/\.rs$//' | LC_ALL=C sort | tr '\n' ' ' | sed 's/ $//')"
           if [ "$actual" != "$LISTED" ]; then
@@ -66,7 +77,19 @@ jobs:
         # One input may still allocate at most 2 GB (malloc_limit). The whole process gets 4 GB: over
         # an hour ASan's allocator keeps freed memory, and xref_repair's RSS reached 2 GB on
         # 2026-11-02 with a live heap of 27 MB (the input it named peaks at 180 MB on its own).
-        run: cargo fuzz run "${{ matrix.target }}" -- -max_total_time=3600 -rss_limit_mb=4096 -malloc_limit_mb=2048
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          corpus=()
+          case "$TARGET" in
+            font_program | shaping | subsetting)
+              mkdir -p "corpus/$TARGET"
+              corpus=("corpus/$TARGET" seeds/fonts)
+              ;;
+          esac
+          cargo fuzz run "$TARGET" "${corpus[@]}" -- -max_total_time=3600 -rss_limit_mb=4096 -malloc_limit_mb=2048
       - name: Upload the crashing input
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -103,6 +103,7 @@ fn e02_step_3_offers_similar_fonts_and_draws_the_closest_until_chosen() {
         library: Some(&library),
         ask: true,
         choice: None,
+        ..FontSources::default()
     };
     // "Ask each time": nothing is written.
     let Outcome::MissingGlyphs(missing) = rewrite(&doc, &target, &text, &ask) else {
@@ -190,6 +191,7 @@ fn e03_step_2_takes_the_glyph_from_the_same_font() {
         library: Some(&library),
         ask: true,
         choice: None,
+        ..FontSources::default()
     };
     let Outcome::Rewritten(rewrite) = rewrite(&doc, &target, &text, &sources) else {
         panic!("not written");
@@ -225,6 +227,7 @@ fn e05_a_font_that_forbids_embedding_falls_to_step_3_with_the_reason() {
         library: Some(&library),
         ask: true,
         choice: None,
+        ..FontSources::default()
     };
     let Outcome::MissingGlyphs(missing) = rewrite(&doc, &target, &text, &sources) else {
         panic!("written");
@@ -273,6 +276,7 @@ fn a_block_of_a_form_gets_no_new_font() {
         library: Some(&library),
         ask: false,
         choice: None,
+        ..FontSources::default()
     };
     let outcome = rewrite(&doc, &target, &text, &sources);
     assert_eq!(

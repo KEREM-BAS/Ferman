@@ -108,6 +108,22 @@ pub enum ErrorKind {
     Io,
     /// The text or the document cannot be edited; the message key names the reason.
     NotEditable,
+    /// A save found too little free space (a11-7).
+    DiskFull,
+    /// Another app holds the file, still after the retries (a11-7d).
+    FileLocked,
+    /// The new file could not replace the original (a11-7d).
+    RenameFailed,
+    /// The disk or network drive went away during a save (a11-7d).
+    VolumeGone,
+    /// The file has other hard links; Save as instead.
+    HardLinked,
+    /// The file belongs to someone else and its owner cannot be kept; Save as instead.
+    NotOwner,
+    /// The file changed on disk since it was opened or saved (a11-7b).
+    FileChangedOnDisk,
+    /// A change to a signed document waits for [`confirm_edit_signed`] (a3-16a).
+    ConfirmationRequired,
     /// A bug in Ferman, including a caught panic.
     Internal,
 }
@@ -121,6 +137,10 @@ pub struct ApiError {
     pub message_key: String,
     /// Technical details for "Copy technical details": structural facts only.
     pub details: Option<String>,
+    /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
+    pub offer_save_as: bool,
+    /// On a failed save: no recovery copy of the unsaved edits exists either.
+    pub no_recovery_copy: bool,
 }
 
 /// Why a document opened read-only (ARCHITECTURE §5.2). In M2 every document is view-only; this is
@@ -194,6 +214,10 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
+    /// Whether a change would invalidate a signature, so it waits for [`confirm_edit_signed`].
+    pub signed: bool,
+    /// The certification signature's `/DocMDP` permission level (1 to 3), when certified.
+    pub certification: Option<u8>,
     /// The PDF version in the header, such as "1.7".
     pub version: String,
     /// The file's size in bytes.
@@ -267,6 +291,17 @@ pub struct FontEntry {
     pub embedded: bool,
     /// Whether only the characters the file uses are embedded (the name's tag).
     pub subset: bool,
+}
+
+/// What Properties says about a font beyond its status (a2-7, FmDocPanel).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontCoverage {
+    /// Its name, without a subset's `ABCDEF+` tag, as in [`FontEntry::name`].
+    pub name: String,
+    /// The family a font that is not embedded is drawn in, when it is another font.
+    pub shown_as: Option<String>,
+    /// For a subset, the letters asked about that an edit cannot draw in it.
+    pub missing_letters: String,
 }
 
 /// How an encrypted document is encrypted.
@@ -661,6 +696,8 @@ pub struct BlockInfo {
     pub direction: TextDirection,
     /// Why it cannot be edited; `None` when it can.
     pub not_editable: Option<NotEditableReason>,
+    /// Its language tag, else the document's.
+    pub language: Option<String>,
 }
 
 /// A page's text blocks.
@@ -721,6 +758,8 @@ pub struct EditPreview {
     pub chosen: Option<OverflowChoice>,
     /// The table cells whose values likely depend on the edited one (a3-9).
     pub dependents: Vec<DependentCell>,
+    /// The block's language tag as a commit leaves it (a3-14).
+    pub language: Option<String>,
 }
 
 /// A character of the new text that missing-glyph step 3 draws.
@@ -794,6 +833,64 @@ pub struct FontCandidate {
     pub preview: String,
 }
 
+/// A font a block is set in (a3-2).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlockFont {
+    /// Its group.
+    pub origin: FontOrigin,
+    /// Its PostScript name.
+    pub postscript_name: String,
+}
+
+/// What to change in a block (a3-2); what is `None` stays as it is.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockStyle {
+    /// The font the whole block is set in.
+    pub font: Option<BlockFont>,
+    /// The font size in points.
+    pub size: Option<f32>,
+    /// The fill colour, `0xRRGGBB`.
+    pub colour: Option<u32>,
+    /// How the lines sit.
+    pub alignment: Option<Alignment>,
+    /// The space between characters, in percent of the em.
+    pub char_spacing: Option<f32>,
+    /// The distance between baselines, in multiples of the font size.
+    pub line_spacing: Option<f32>,
+}
+
+/// What the text panel shows of a block (a3-2).
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockStyleInfo {
+    /// Its first font's PostScript name, without the subset tag.
+    pub font: String,
+    /// Its first font's family.
+    pub family: String,
+    /// Whether its first font is bold.
+    pub bold: bool,
+    /// Whether its first font is italic.
+    pub italic: bool,
+    /// The face with the bold state turned over that can draw the whole block; none disables
+    /// Bold (never faked).
+    pub bold_toggle: Option<BlockFont>,
+    /// The same for Italic.
+    pub italic_toggle: Option<BlockFont>,
+    /// Its largest font size in points.
+    pub size: f32,
+    /// Its fill colour, `0xRRGGBB`; none for a pattern or a colour space without a conversion.
+    pub colour: Option<u32>,
+    /// The page's text colours, the most used first, at most eight.
+    pub document_colours: Vec<u32>,
+    /// How its lines sit.
+    pub alignment: Alignment,
+    /// The space between characters, in percent of the em.
+    pub char_spacing: f32,
+    /// The distance between baselines, in multiples of the font size.
+    pub line_spacing: f32,
+    /// Its box in page space.
+    pub frame: PageRect,
+}
+
 /// Missing-glyph step 3's characters and candidates.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MissingGlyphs {
@@ -824,6 +921,8 @@ pub enum SubstitutionKind {
     SameFont,
     /// Step 3: a similar font.
     Similar,
+    /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
+    Marked,
 }
 
 /// Characters set in another font than their line's (a3-12, a11-6).
@@ -854,6 +953,10 @@ pub struct FontSettings {
     pub system_fonts: bool,
     /// "Ask each time" (a11-1c).
     pub ask_each_time: bool,
+    /// "Keep the original font and mark the character" (a11-1c).
+    pub mark_missing: bool,
+    /// Reflow while typing turned off (a11-1c): only a line feed ends a line.
+    pub keep_lines: bool,
 }
 
 /// One of the overflow choices (a3-4).
@@ -936,6 +1039,27 @@ pub struct HistoryStep {
     /// The characters it set in another font (the review list's font rows); `announced` is
     /// always true.
     pub substitutions: Vec<FontSubstitution>,
+    /// The page of the block it changed; `None` for a revert and a restored step.
+    pub page: Option<u32>,
+    /// The block's text before it: the review list's before; empty for a revert and a restored
+    /// step.
+    pub before: String,
+    /// The block's text after it: the review list's after.
+    pub after: String,
+    /// The steps this one reverted, by index; empty for an edit.
+    pub reverts: Vec<u32>,
+}
+
+/// What a revert did.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reverted {
+    /// Whether the step was reverted; `false` when later steps depend on it and were not asked
+    /// to go with it.
+    pub reverted: bool,
+    /// The steps that depend on it, by index, oldest first.
+    pub dependents: Vec<u32>,
+    /// Where the history stands.
+    pub revision: RevisionInfo,
 }
 
 /// A document's history (a3-10).
@@ -945,6 +1069,9 @@ pub struct History {
     pub steps: Vec<HistoryStep>,
     /// How many steps apply.
     pub current: u32,
+    /// Whether the document as it stands no longer matches its signatures: the review list's
+    /// signature row (a3-12).
+    pub signature_invalidated: bool,
 }
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
@@ -1064,14 +1191,170 @@ pub async fn save_attachment(
         .map_err(api_error_dto)
 }
 
-/// Closes a document and ends its views.
+/// Writes `text` to `path` through the safe write: the review list's export (a3-12).
+///
+/// See [`facade::Engine::save_text`].
+///
+/// # Errors
+///
+/// The file errors of the write.
+pub async fn save_text(
+    path: String,
+    text: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_text(PathBuf::from(path), text, staging.map(PathBuf::from))
+        .await
+        .map(|staged| staged.map(|path| path.to_string_lossy().into_owned()))
+        .map_err(api_error_dto)
+}
+
+/// Closes a document and ends its views. With `discard_recovery` ("Don't save") its recovery
+/// files are deleted; otherwise they stay for the next launch to offer.
 ///
 /// # Errors
 ///
 /// `NotFound` for a document that is not open.
-pub async fn close(document: u64) -> Result<(), ApiError> {
+pub async fn close(document: u64, discard_recovery: bool) -> Result<(), ApiError> {
+    let engine = engine()?;
+    let document = facade::DocumentId::from_raw(document);
+    if discard_recovery {
+        engine.close_discarding(document).await
+    } else {
+        engine.close(document).await
+    }
+    .map_err(api_error_dto)
+}
+
+/// A document a session that ended without cleaning up left recovery files for (a1-12).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoverableDocument {
+    /// The session's name.
+    pub session: String,
+    /// The document's name in the session.
+    pub document: String,
+    /// The file the document saves to.
+    pub original: String,
+    /// Whether that file changed on disk since: restoring opens it under a new name (a11-7f).
+    pub original_changed: bool,
+    /// How many unsaved changes the files hold.
+    pub changes: u32,
+    /// Whether restoring needs the document's password (a1-8).
+    pub encrypted: bool,
+}
+
+/// A document [`restore_recovered`] opened.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RestoredDocument {
+    /// The document, as [`open`] gives it.
+    pub opened: OpenedDocument,
+    /// The file it saves to: the original, or a new name beside it when the original changed.
+    pub path: String,
+    /// Whether the original changed on disk since the document was opened or saved.
+    pub original_changed: bool,
+    /// The pages' render key with the restored changes, when PDFium reloaded.
+    pub render_key: Option<u64>,
+}
+
+/// Starts crash recovery in `root`, the app data directory's recovery folder; again with the
+/// same root it does nothing.
+///
+/// See [`facade::Engine::start_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` once started in another folder, and the file errors of making it.
+pub async fn start_recovery(root: String) -> Result<(), ApiError> {
     engine()?
-        .close(facade::DocumentId::from_raw(document))
+        .start_recovery(PathBuf::from(root))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Turns the recovery files on or off ("Save a recovery copy every minute", a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn set_recovery_enabled(enabled: bool) -> Result<(), ApiError> {
+    engine()?
+        .set_recovery_enabled(enabled)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// The documents crashed sessions left recovery files for (a1-12).
+///
+/// See [`facade::Engine::list_recoverable`].
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn list_recoverable() -> Result<Vec<RecoverableDocument>, ApiError> {
+    engine()?
+        .list_recoverable()
+        .await
+        .map(|found| {
+            found
+                .into_iter()
+                .map(|found| RecoverableDocument {
+                    session: found.session,
+                    document: found.document,
+                    original: found.original.to_string_lossy().into_owned(),
+                    original_changed: found.original_changed,
+                    changes: found.changes,
+                    encrypted: found.encrypted,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Opens `document` of the crashed `session` with its unsaved changes as one unsaved step, with
+/// `password` for an encrypted one; `suffix` is the localized word in a new name (a11-7f).
+///
+/// See [`facade::Engine::restore_recovered`].
+///
+/// # Errors
+///
+/// `PasswordRequired`, `WrongPassword`, `NotFound` when the files are gone, and the errors of
+/// [`open`].
+pub async fn restore_recovered(
+    session: String,
+    document: String,
+    password: Option<String>,
+    suffix: Option<String>,
+) -> Result<RestoredDocument, ApiError> {
+    engine()?
+        .restore_recovered(
+            session,
+            document,
+            password.map(facade::Password::new),
+            suffix,
+        )
+        .await
+        .map(|restored| RestoredDocument {
+            opened: opened_document_dto(restored.opened),
+            path: restored.path.to_string_lossy().into_owned(),
+            original_changed: restored.original_changed,
+            render_key: restored.render_key,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Deletes the recovery files of `document` of `session`, or of the whole session without one
+/// (Discard in a1-12).
+///
+/// See [`facade::Engine::discard_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` for names that are not a session's or a document's, `Io` when the files
+/// cannot be deleted.
+pub async fn discard_recovery(session: String, document: Option<String>) -> Result<(), ApiError> {
+    engine()?
+        .discard_recovery(session, document)
         .await
         .map_err(api_error_dto)
 }
@@ -1199,6 +1482,41 @@ pub async fn text_blocks(document: u64, page: u32) -> Result<PageBlocks, ApiErro
         .map_err(api_error_dto)
 }
 
+/// What the document's fonts need said beyond their status, by font name: the family drawn
+/// instead of one that is not embedded, the `letters` a subset lacks.
+///
+/// See [`facade::Engine::font_coverage`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn font_coverage(document: u64, letters: String) -> Result<Vec<FontCoverage>, ApiError> {
+    let coverage = engine()?
+        .font_coverage(facade::DocumentId::from_raw(document), letters)
+        .await
+        .map_err(api_error_dto)?;
+    let mut entries: Vec<FontCoverage> = Vec::new();
+    for font in coverage {
+        let name = subset_tag(&font.name).1;
+        // Subsets of one font share an entry, as they share a row: any of them may be edited.
+        if let Some(entry) = entries.iter_mut().find(|entry| entry.name == name) {
+            let new: String = font
+                .missing_letters
+                .chars()
+                .filter(|&c| !entry.missing_letters.contains(c))
+                .collect();
+            entry.missing_letters.push_str(&new);
+        } else {
+            entries.push(FontCoverage {
+                name: name.to_owned(),
+                shown_as: font.shown_as,
+                missing_letters: font.missing_letters,
+            });
+        }
+    }
+    Ok(entries)
+}
+
 /// The caret in `block` of `page` nearest `point`.
 ///
 /// See [`facade::Engine::caret_at`].
@@ -1294,6 +1612,22 @@ pub async fn apply_edit(transaction: u64, text: String) -> Result<EditPreview, A
         .map_err(api_error_dto)
 }
 
+/// Sets the language of the transaction's block to the tag `tag`, stored as `/Lang`.
+///
+/// See [`facade::Engine::set_block_language`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for a tag that is not one,
+/// `Unsupported` for a block that cannot be marked.
+pub async fn set_block_language(transaction: u64, tag: String) -> Result<EditPreview, ApiError> {
+    engine()?
+        .set_block_language(facade::TransactionId::from_raw(transaction), tag)
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
 /// Writes the transaction's newest text again with the overflow choice `choice`.
 ///
 /// See [`facade::Engine::resolve_overflow`].
@@ -1332,6 +1666,8 @@ pub async fn set_font_settings(settings: FontSettings) -> Result<(), ApiError> {
             font_dirs: settings.font_dirs.into_iter().map(PathBuf::from).collect(),
             system_fonts: settings.system_fonts,
             ask_each_time: settings.ask_each_time,
+            mark_missing: settings.mark_missing,
+            keep_lines: settings.keep_lines,
         })
         .await
         .map_err(api_error_dto)
@@ -1378,6 +1714,135 @@ pub async fn keep_as_is(transaction: u64) -> Result<EditPreview, ApiError> {
         .keep_as_is(facade::TransactionId::from_raw(transaction))
         .await
         .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives the transaction's block `style`, laid out again in its frame (a3-2).
+///
+/// See [`facade::Engine::set_block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for numbers out of range,
+/// `Unsupported` for a style the block cannot take.
+pub async fn set_block_style(transaction: u64, style: BlockStyle) -> Result<EditPreview, ApiError> {
+    engine()?
+        .set_block_style(
+            facade::TransactionId::from_raw(transaction),
+            facade::BlockStyle {
+                font: style.font.map(block_font_from_dto),
+                size: style.size,
+                colour: style.colour,
+                alignment: style.alignment.map(|alignment| match alignment {
+                    Alignment::Left => facade::Alignment::Left,
+                    Alignment::Right => facade::Alignment::Right,
+                    Alignment::Center => facade::Alignment::Center,
+                    Alignment::Justified => facade::Alignment::Justified,
+                }),
+                char_spacing: style.char_spacing,
+                line_spacing: style.line_spacing,
+                frame: None,
+            },
+        )
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Moves the transaction's block by `dx` and `dy` in page space.
+///
+/// See [`facade::Engine::move_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+pub async fn move_block(transaction: u64, dx: f32, dy: f32) -> Result<EditPreview, ApiError> {
+    engine()?
+        .move_block(facade::TransactionId::from_raw(transaction), [dx, dy])
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives the transaction's block the box `frame`, its text reflowed in it (B016).
+///
+/// See [`facade::Engine::resize_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+pub async fn resize_block(transaction: u64, frame: PageRect) -> Result<EditPreview, ApiError> {
+    engine()?
+        .resize_block(
+            facade::TransactionId::from_raw(transaction),
+            [frame.left, frame.top, frame.right, frame.bottom],
+        )
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// What the text panel shows of `block` of `page` of `document`; none for a block without glyphs
+/// on the page.
+///
+/// See [`facade::Engine::block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a document or block that is not there, `InvalidInput` for a page it does not
+/// have.
+pub async fn block_style(
+    document: u64,
+    page: u32,
+    block: u64,
+) -> Result<Option<BlockStyleInfo>, ApiError> {
+    engine()?
+        .block_style(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+        )
+        .await
+        .map(|info| {
+            info.map(|info| BlockStyleInfo {
+                font: info.font,
+                family: info.family,
+                bold: info.bold,
+                italic: info.italic,
+                bold_toggle: info.bold_toggle.map(block_font_dto),
+                italic_toggle: info.italic_toggle.map(block_font_dto),
+                size: info.size,
+                colour: info.colour,
+                document_colours: info.document_colours,
+                alignment: alignment_dto(info.alignment),
+                char_spacing: info.char_spacing,
+                line_spacing: info.line_spacing,
+                frame: rect_dto(info.frame),
+            })
+        })
+        .map_err(api_error_dto)
+}
+
+/// The fonts a3-2's font field offers for `block` of `page` of `document`, best first.
+///
+/// See [`facade::Engine::block_fonts`].
+///
+/// # Errors
+///
+/// As [`block_style`].
+pub async fn block_fonts(
+    document: u64,
+    page: u32,
+    block: u64,
+) -> Result<Vec<FontCandidate>, ApiError> {
+    engine()?
+        .block_fonts(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+        )
+        .await
+        .map(|fonts| fonts.into_iter().map(font_candidate_dto).collect())
         .map_err(api_error_dto)
 }
 
@@ -1442,6 +1907,54 @@ pub async fn redo(document: u64) -> Result<RevisionInfo, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// Reverts step `step` of `document` alone, or with the later steps that depend on it when
+/// `with_dependents` (a3-12, a3-12b).
+///
+/// See [`facade::Engine::revert`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a step that does not apply or while a transaction is open,
+/// `ConfirmationRequired` for a signed document before its confirmation, `NotFound` for a closed
+/// document.
+pub async fn revert(
+    document: u64,
+    step: u32,
+    with_dependents: bool,
+    name: String,
+) -> Result<Reverted, ApiError> {
+    engine()?
+        .revert(
+            facade::DocumentId::from_raw(document),
+            step,
+            with_dependents,
+            name,
+        )
+        .await
+        .map(|reverted| Reverted {
+            reverted: reverted.reverted,
+            dependents: reverted.dependents,
+            revision: revision_dto(reverted.revision),
+        })
+        .map_err(api_error_dto)
+}
+
+/// Takes `document` back to how it opened, as a new step (a3-12b's Revert all).
+///
+/// See [`facade::Engine::revert_all`].
+///
+/// # Errors
+///
+/// `InvalidInput` while a transaction is open, `ConfirmationRequired` for a signed document before
+/// its confirmation, `NotFound` for a closed document.
+pub async fn revert_all(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .revert_all(facade::DocumentId::from_raw(document), name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// The history of `document` (a3-10).
 ///
 /// See [`facade::Engine::history`].
@@ -1471,9 +1984,14 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                             })
                         })
                         .collect(),
+                    page: step.page,
+                    before: step.before,
+                    after: step.after,
+                    reverts: step.reverts,
                 })
                 .collect(),
             current: history.current,
+            signature_invalidated: history.signature_invalidated,
         })
         .map_err(api_error_dto)
 }
@@ -1484,10 +2002,194 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
 ///
 /// # Errors
 ///
-/// `NotFound` for a document that is not open, and the file errors of the write.
-pub async fn save(document: u64) -> Result<(), ApiError> {
+/// `NotFound` for a document that is not open, `FileChangedOnDisk`, and the save failures with
+/// [`ApiError::offer_save_as`].
+pub async fn save(document: u64, staging: Option<String>) -> Result<Option<String>, ApiError> {
     engine()?
-        .save(facade::DocumentId::from_raw(document))
+        .save(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// A staged save's temp file, for the platform layer to swap in.
+fn staged_dto(staged: Option<PathBuf>) -> Option<String> {
+    staged.map(|path| path.to_string_lossy().into_owned())
+}
+
+/// Ends a staged save once the platform layer tried the swap; whether the last recovery write
+/// failed.
+///
+/// See [`facade::Engine::finish_save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` when no save waits.
+pub async fn finish_save(document: u64, swapped: bool) -> Result<bool, ApiError> {
+    engine()?
+        .finish_save(facade::DocumentId::from_raw(document), swapped)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Saves `document` over a file that changed on disk ("Keep mine", a11-7b).
+///
+/// See [`facade::Engine::save_over_change`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+pub async fn save_over_change(
+    document: u64,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_over_change(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+///
+/// See [`facade::Engine::save_copy`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+pub async fn save_copy(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// Writes a repaired document rewritten whole as the file at `path`; its own file only with
+/// `replace_original`.
+///
+/// See [`facade::Engine::save_repaired_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file without `replace_original`, and the save failures.
+pub async fn save_repaired_copy(
+    document: u64,
+    path: String,
+    replace_original: bool,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_repaired_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            replace_original,
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// Optimize and clean: the document's file rewritten whole.
+///
+/// See [`facade::Engine::optimize_and_clean`].
+///
+/// # Errors
+///
+/// As [`save`]; `Unsupported` for a repaired document.
+pub async fn optimize_and_clean(
+    document: u64,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .optimize_and_clean(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// Whether Optimize and clean would break the document's signatures.
+///
+/// See [`facade::Engine::would_break_signatures`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn would_break_signatures(document: u64) -> Result<bool, ApiError> {
+    engine()?
+        .would_break_signatures(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
+///
+/// See [`facade::Engine::confirm_edit_signed`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn confirm_edit_signed(document: u64) -> Result<u64, ApiError> {
+    engine()?
+        .confirm_edit_signed(facade::DocumentId::from_raw(document))
+        .await
+        .map(facade::ConfirmationToken::get)
+        .map_err(api_error_dto)
+}
+
+/// Writes the unsigned working copy of "Edit a copy" (a3-16a) as the file at `path`, which the
+/// app then opens.
+///
+/// See [`facade::Engine::save_unsigned_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file, and the save failures.
+pub async fn save_unsigned_copy(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_unsigned_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// Whether the document's file changed on disk since it was opened or saved; the app asks
+/// when its window regains focus (a11-7b).
+///
+/// See [`facade::Engine::check_external_change`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `Io` when the file cannot be read.
+pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
+    engine()?
+        .check_external_change(facade::DocumentId::from_raw(document))
         .await
         .map_err(api_error_dto)
 }
@@ -1499,10 +2201,19 @@ pub async fn save(document: u64) -> Result<(), ApiError> {
 /// # Errors
 ///
 /// As [`save`].
-pub async fn save_as(document: u64, path: String) -> Result<(), ApiError> {
+pub async fn save_as(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .save_as(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .save_as(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1588,17 +2299,13 @@ fn page_blocks_dto(blocks: facade::PageBlocks) -> PageBlocks {
                         baseline_end: point_dto(line.baseline[1]),
                     })
                     .collect(),
-                alignment: match block.alignment {
-                    facade::Alignment::Left => Alignment::Left,
-                    facade::Alignment::Right => Alignment::Right,
-                    facade::Alignment::Center => Alignment::Center,
-                    facade::Alignment::Justified => Alignment::Justified,
-                },
+                alignment: alignment_dto(block.alignment),
                 direction: match block.direction {
                     facade::TextDirection::LeftToRight => TextDirection::LeftToRight,
                     facade::TextDirection::RightToLeft => TextDirection::RightToLeft,
                     facade::TextDirection::Vertical => TextDirection::Vertical,
                 },
+                language: block.language,
                 not_editable: match block.editability {
                     facade::Editability::Editable => None,
                     facade::Editability::NotEditable(reason) => Some(reason_dto(reason)),
@@ -1654,6 +2361,53 @@ fn edit_preview_dto(preview: facade::EditPreview) -> EditPreview {
                 frame: rect_dto(cell.frame),
             })
             .collect(),
+        language: preview.language,
+    }
+}
+
+/// A font candidate as its mirror.
+fn font_candidate_dto(candidate: facade::FontCandidate) -> FontCandidate {
+    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
+    FontCandidate {
+        origin: origin_dto(candidate.origin),
+        usable: candidate.usable(),
+        postscript_name: candidate.postscript_name,
+        family: candidate.family,
+        covered: count(candidate.coverage.covered),
+        needed: count(candidate.coverage.needed),
+        similarity: candidate.similarity,
+        embedding: embedding_dto(candidate.embedding),
+        preview: candidate.preview,
+    }
+}
+
+/// An alignment as its mirror.
+fn alignment_dto(alignment: facade::Alignment) -> Alignment {
+    match alignment {
+        facade::Alignment::Left => Alignment::Left,
+        facade::Alignment::Right => Alignment::Right,
+        facade::Alignment::Center => Alignment::Center,
+        facade::Alignment::Justified => Alignment::Justified,
+    }
+}
+
+/// A block's font as its mirror.
+fn block_font_dto(font: facade::BlockFont) -> BlockFont {
+    BlockFont {
+        origin: origin_dto(font.origin),
+        postscript_name: font.postscript_name,
+    }
+}
+
+/// A block's font from its mirror.
+fn block_font_from_dto(font: BlockFont) -> facade::BlockFont {
+    facade::BlockFont {
+        origin: match font.origin {
+            FontOrigin::Embedded => facade::FontOrigin::Embedded,
+            FontOrigin::Installed => facade::FontOrigin::Installed,
+            FontOrigin::Bundled => facade::FontOrigin::Bundled,
+        },
+        postscript_name: font.postscript_name,
     }
 }
 
@@ -1698,6 +2452,7 @@ fn substitution_dto(told: facade::FontSubstitution) -> FontSubstitution {
         kind: match substitution.kind {
             facade::SubstitutionKind::SameFont => SubstitutionKind::SameFont,
             facade::SubstitutionKind::Similar => SubstitutionKind::Similar,
+            facade::SubstitutionKind::Marked => SubstitutionKind::Marked,
         },
         chars: substitution.chars,
         from_font: substitution.from,
@@ -1709,7 +2464,6 @@ fn substitution_dto(told: facade::FontSubstitution) -> FontSubstitution {
 
 /// Step 3's characters and candidates as their mirror.
 fn missing_glyphs_dto(missing: facade::MissingGlyphInfo) -> MissingGlyphs {
-    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
     let (reason, reason_font, reason_embedding) = match missing.reason {
         facade::MissingReason::NotInstalled => (MissingReasonKind::NotInstalled, None, None),
         facade::MissingReason::NotEmbeddable { font, embedding } => (
@@ -1741,17 +2495,7 @@ fn missing_glyphs_dto(missing: facade::MissingGlyphInfo) -> MissingGlyphs {
         candidates: missing
             .candidates
             .into_iter()
-            .map(|candidate| FontCandidate {
-                origin: origin_dto(candidate.origin),
-                usable: candidate.usable(),
-                postscript_name: candidate.postscript_name,
-                family: candidate.family,
-                covered: count(candidate.coverage.covered),
-                needed: count(candidate.coverage.needed),
-                similarity: candidate.similarity,
-                embedding: embedding_dto(candidate.embedding),
-                preview: candidate.preview,
-            })
+            .map(font_candidate_dto)
             .collect(),
         drawn: missing.drawn,
     }
@@ -1965,6 +2709,8 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             })
             .collect(),
         layers_switchable: document.layers_switchable,
+        signed: document.signed,
+        certification: document.certification,
         signatures: document
             .signatures
             .into_iter()
@@ -2155,10 +2901,20 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
             facade::ErrorKind::ResourceLimit => ErrorKind::ResourceLimit,
             facade::ErrorKind::Io => ErrorKind::Io,
             facade::ErrorKind::NotEditable => ErrorKind::NotEditable,
+            facade::ErrorKind::DiskFull => ErrorKind::DiskFull,
+            facade::ErrorKind::FileLocked => ErrorKind::FileLocked,
+            facade::ErrorKind::RenameFailed => ErrorKind::RenameFailed,
+            facade::ErrorKind::VolumeGone => ErrorKind::VolumeGone,
+            facade::ErrorKind::HardLinked => ErrorKind::HardLinked,
+            facade::ErrorKind::NotOwner => ErrorKind::NotOwner,
+            facade::ErrorKind::FileChangedOnDisk => ErrorKind::FileChangedOnDisk,
+            facade::ErrorKind::ConfirmationRequired => ErrorKind::ConfirmationRequired,
             facade::ErrorKind::Internal => ErrorKind::Internal,
         },
         message_key: err.message_key.as_str().to_owned(),
         details: err.details,
+        offer_save_as: err.offer_save_as,
+        no_recovery_copy: err.no_recovery_copy,
     }
 }
 
@@ -2233,7 +2989,7 @@ mod tests {
 
     #[test]
     fn a_stale_document_is_not_found() {
-        let err = block_on(close(u64::MAX)).unwrap_err();
+        let err = block_on(close(u64::MAX, false)).unwrap_err();
         assert_eq!(err.kind, ErrorKind::NotFound);
     }
 
@@ -2320,8 +3076,14 @@ mod tests {
                 kind: ErrorKind::Internal,
                 message_key: "errorInternal".to_owned(),
                 details: Some("no trailer".to_owned()),
+                offer_save_as: false,
+                no_recovery_copy: false,
             }
         );
+        let locked =
+            api_error_dto(ferman_core::CoreError::Save(ferman_core::SaveError::FileLocked).into());
+        assert_eq!(locked.kind, ErrorKind::FileLocked);
+        assert!(locked.offer_save_as);
         assert_eq!(
             api_error_dto(facade::ApiError::new(
                 facade::ErrorKind::NotFound,

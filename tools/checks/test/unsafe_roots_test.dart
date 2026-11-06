@@ -7,11 +7,14 @@ void main() {
   const check = UnsafeRootsCheck();
   const forbid = '//! A crate.\n#![forbid(unsafe_code)]\n\npub fn f() {}\n';
   const apiRoot = '//! The API.\n#![deny(unsafe_code)]\n\npub mod facade;\n';
+  const coreRoot =
+      '//! The model.\n#![deny(unsafe_code)]\n\n#[allow(unsafe_code)]\n'
+      'mod platform;\n';
 
   late Fixture fixture;
   setUp(() {
     fixture = Fixture()
-      ..write('crates/ferman-core/src/lib.rs', forbid)
+      ..write('crates/ferman-core/src/lib.rs', coreRoot)
       ..write('crates/ferman-api/src/lib.rs', apiRoot)
       ..write('crates/ferman-api/src/facade.rs', 'pub fn g() {}\n')
       ..write('crates/ferman-cli/src/main.rs', forbid);
@@ -27,25 +30,25 @@ void main() {
 
   test('accepts forbid with other lints in the same attribute', () {
     fixture.write(
-      'crates/ferman-core/src/lib.rs',
+      'crates/ferman-text/src/lib.rs',
       '#![forbid(\n    unsafe_code,\n    missing_docs\n)]\n',
     );
     expect(fixture.run(check), passes);
   });
 
   test('fails when a root does not forbid unsafe code', () {
-    fixture.write('crates/ferman-core/src/lib.rs', 'pub fn f() {}\n');
+    fixture.write('crates/ferman-text/src/lib.rs', 'pub fn f() {}\n');
     expect(
       fixture.run(check),
       failsWith([
-        'crates/ferman-core/src/lib.rs: missing #![forbid(unsafe_code)]',
+        'crates/ferman-text/src/lib.rs: missing #![forbid(unsafe_code)]',
       ]),
     );
   });
 
   test('does not count an attribute inside a comment', () {
     fixture.write(
-      'crates/ferman-core/src/lib.rs',
+      'crates/ferman-text/src/lib.rs',
       '// #![forbid(unsafe_code)]\npub fn f() {}\n',
     );
     expect(fixture.run(check), failsWith(['missing #![forbid(unsafe_code)]']));
@@ -114,6 +117,63 @@ void main() {
     expect(fixture.run(check), failsWith(['lib.rs:2: allow(unsafe_code)']));
   });
 
+  group('the platform module of ferman-core', () {
+    test('is the one module its root may allow', () {
+      expect(fixture.run(check), passes);
+    });
+
+    test('needs a denying root', () {
+      fixture.write(
+        'crates/ferman-core/src/lib.rs',
+        '$forbid#[allow(unsafe_code)]\nmod platform;\n',
+      );
+      expect(
+        fixture.run(check),
+        failsWith([
+          'missing #![deny(unsafe_code)]',
+          'must deny, not forbid, unsafe code',
+        ]),
+      );
+    });
+
+    test('no other module of ferman-core', () {
+      fixture.write(
+        'crates/ferman-core/src/lib.rs',
+        '$coreRoot#[allow(unsafe_code)]\nmod save;\n',
+      );
+      expect(
+        fixture.run(check),
+        failsWith(['ferman-core/src/lib.rs:6: allow(unsafe_code)']),
+      );
+    });
+
+    test('nor inside the module itself', () {
+      fixture.write(
+        'crates/ferman-core/src/platform.rs',
+        '#![allow(unsafe_code)]\n',
+      );
+      expect(
+        fixture.run(check),
+        failsWith(['ferman-core/src/platform.rs:1: allow(unsafe_code)']),
+      );
+    });
+
+    test('nor in another crate', () {
+      fixture.write(
+        'crates/ferman-text/src/lib.rs',
+        '//! Text.\n#![deny(unsafe_code)]\n#[allow(unsafe_code)]\n'
+            'mod platform;\n',
+      );
+      expect(
+        fixture.run(check),
+        failsWith([
+          'ferman-text/src/lib.rs: missing #![forbid(unsafe_code)]',
+          'ferman-text/src/lib.rs:3: allow(unsafe_code)',
+        ]),
+      );
+    });
+  });
+
   group('the FRB-generated module', () {
     test('may be allowed on one line', () {
       fixture.write(
@@ -148,12 +208,12 @@ void main() {
     test('is only accepted in the ferman-api root', () {
       fixture.write(
         'crates/ferman-core/src/lib.rs',
-        '$forbid#[cfg(feature = "frb")]\n#[allow(unsafe_code)]\n'
+        '$coreRoot#[cfg(feature = "frb")]\n#[allow(unsafe_code)]\n'
             'mod frb_generated;\n',
       );
       expect(
         fixture.run(check),
-        failsWith(['ferman-core/src/lib.rs:6: allow(unsafe_code)']),
+        failsWith(['ferman-core/src/lib.rs:7: allow(unsafe_code)']),
       );
     });
 

@@ -289,14 +289,14 @@ void main() {
 
   group('the app in Persian and Hebrew (G93)', () {
     for (final code in _isolated) {
-      testWidgets('$code: "1 of 2", "Open file…" and "3 interface languages" '
+      testWidgets('$code: "2 of 3", "Open file…" and "3 interface languages" '
           'read in order, at the start', (tester) async {
         final cases =
             <(M1Screen, String Function(AppLocalizations), List<String>)>[
               (
                 M1Screen.privacyStep,
-                (l10n) => l10n.onboardingStep('1', '2'),
-                ['1', 'of', '2'],
+                (l10n) => l10n.onboardingStep('2', '3'),
+                ['2', 'of', '3'],
               ),
               (
                 M1Screen.start,

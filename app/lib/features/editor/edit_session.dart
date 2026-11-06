@@ -1,14 +1,18 @@
 import 'dart:async';
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/design/components/components.dart' show SaveState;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/platform/file_access.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show FocusScopeNode;
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -24,6 +28,7 @@ final class ActiveEdit {
     required this.page,
     required this.block,
     required this.caret,
+    this.followed = false,
   });
 
   /// The engine's document.
@@ -38,6 +43,10 @@ final class ActiveEdit {
   /// Where the click put the caret: an index in the block's text, in code
   /// points.
   final int caret;
+
+  /// Whether this is the block already being edited, found again after a
+  /// style, a move or a resize: its editor stays, with its selection.
+  final bool followed;
 }
 
 /// Lines "Keep and warn" left hidden past a committed block's frame
@@ -69,6 +78,48 @@ final class HiddenLines {
   final int lines;
 }
 
+/// A block with committed steps that apply, for the edit marks (f3).
+@immutable
+final class EditedBlock {
+  /// [page]'s block [block], whose lines were [before] its first step.
+  const new({
+    required this.page,
+    required this.block,
+    required this.before,
+    required this.frame,
+  });
+
+  /// The page, from 0.
+  final int page;
+
+  /// The block's id.
+  final int block;
+
+  /// The lines' text before the block's oldest step that applies.
+  final List<String> before;
+
+  /// The block's frame when the step committed: its id changes with later
+  /// edits above it, so the marks find it by place ([blockOver]).
+  final Rect frame;
+}
+
+/// The block of [blocks] that overlaps [frame] the most, or null.
+TextBlock? blockOver(Iterable<TextBlock> blocks, Rect frame) {
+  TextBlock? best;
+  var most = 0.0;
+  for (final block in blocks) {
+    final common = block.frame.intersect(frame);
+    final area = common.width > 0 && common.height > 0
+        ? common.width * common.height
+        : 0.0;
+    if (area > most) {
+      most = area;
+      best = block;
+    }
+  }
+  return best;
+}
+
 /// The open document's editing: the block being edited, its history
 /// (a3-10) and the render key of its last revision.
 @immutable
@@ -81,10 +132,21 @@ final class EditorState {
     this.preview,
     this.settled = false,
     this.hidden = const [],
+    this.edited = const [],
     this.fontSettled = false,
     this.picking = false,
     this.toast,
+    this.style,
+    this.held = false,
   });
+
+  /// Whether a popover of the text panel has the focus for a while, so the
+  /// editor stays open as it does for the a3-3b picker.
+  final bool held;
+
+  /// The block being edited as the text panel shows it (a3-2), or null until
+  /// the engine read it.
+  final BlockStyleInfo? style;
 
   /// The block being edited, or null.
   final ActiveEdit? active;
@@ -102,6 +164,9 @@ final class EditorState {
   /// The lines "Keep and warn" left hidden in the steps that apply, the
   /// newest step of each block.
   final List<HiddenLines> hidden;
+
+  /// The blocks the steps that apply changed.
+  final List<EditedBlock> edited;
 
   /// Whether step 3's question was answered with "Keep as is" while no
   /// font could draw the characters, so the panel no longer asks.
@@ -123,8 +188,19 @@ final class EditorState {
       .where((s) => s.kind == SubstitutionKind.sameFont && !s.announced)
       .firstOrNull;
 
+  /// The characters "Keep the original font and mark the character" keeps
+  /// without a glyph in the text applied; empty for none.
+  String get markedChars => [
+    for (final s in preview?.substitutions ?? const <FontSubstitution>[])
+      if (s.kind == SubstitutionKind.marked) s.chars,
+  ].join();
+
   /// The overflow choices waiting for an answer, or null.
   OverflowPlan? get asking => settled ? null : preview?.overflow;
+
+  /// The language tag of the block being edited, or null (a3-14).
+  String? get language =>
+      active == null ? null : preview?.language ?? active?.block.language;
 
   /// The lines the open block's "Keep and warn" hides now; 0 for none.
   int get keptHidden => active != null && preview?.chosen == OverflowChoice.keep
@@ -156,10 +232,14 @@ final class EditorState {
     bool clearPreview = false,
     bool? settled,
     List<HiddenLines>? hidden,
+    List<EditedBlock>? edited,
     bool? fontSettled,
     bool? picking,
     FontSubstitution? toast,
     bool clearToast = false,
+    BlockStyleInfo? style,
+    bool clearStyle = false,
+    bool? held,
   }) => EditorState(
     active: clearActive ? null : active ?? this.active,
     history: history ?? this.history,
@@ -167,14 +247,26 @@ final class EditorState {
     preview: clearPreview ? null : preview ?? this.preview,
     settled: settled ?? (!clearPreview && this.settled),
     hidden: hidden ?? this.hidden,
+    edited: edited ?? this.edited,
     fontSettled: fontSettled ?? (!clearPreview && this.fontSettled),
     picking: picking ?? (!clearPreview && this.picking),
     toast: clearToast ? null : toast ?? this.toast,
+    style: clearActive || clearStyle ? null : style ?? this.style,
+    held: !clearActive && (held ?? this.held),
   );
 }
 
+/// [text]'s words: lines broken anew are the same text.
+String sameWords(String text) => text.split(RegExp(r'\s+')).join(' ');
+
 /// The block a committed step changed, for [HiddenLines].
-typedef _StepTarget = ({int page, int block, Rect frame, BlockDirection dir});
+typedef _StepTarget = ({
+  int page,
+  int block,
+  Rect frame,
+  BlockDirection dir,
+  List<String> before,
+});
 
 /// The newest commit whose overflow was still unanswered: a choice picked
 /// after it replaces that step.
@@ -209,7 +301,9 @@ typedef _Unanswered = ({
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -217,7 +311,9 @@ typedef _Unanswered = ({
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 @Riverpod(keepAlive: true)
 class DocumentEditor extends _$DocumentEditor {
   /// The coalescing rule's pause in milliseconds (PROGRESS, M3 decision
@@ -237,12 +333,27 @@ class DocumentEditor extends _$DocumentEditor {
   static const Duration toastTime = Duration(milliseconds: toastMs);
 
   Future<void> _queue = Future.value();
+
+  /// Whether the open transaction marks the block's language.
+  bool _languageSet = false;
   Timer? _toastTimer;
   int? _document;
   int? _transaction;
   String _name = '';
+
+  /// The name [open] gave the typing: a transaction [_apply] begins after a
+  /// style or a language is named by it again.
+  String _typingName = '';
   String? _pending;
+
+  /// The text the open transaction applied, or null.
   String? _applied;
+
+  /// The text the steps of this editor last committed, or null for none.
+  String? _committedText;
+
+  /// Where the block should be once the open style, move or resize commits.
+  Offset? _followCentre;
 
   /// The newest text sent to the engine, applied or not.
   String? _requested;
@@ -251,7 +362,18 @@ class DocumentEditor extends _$DocumentEditor {
   /// The block of each committed step, parallel to the history's steps;
   /// null for a step this notifier did not see committed.
   List<_StepTarget?> _targets = const [];
+
+  /// [_targets] of the other documents open: the marks stay until a document
+  /// closes (f4b), through a tab switch.
+  final Map<int, List<_StepTarget?>> _otherTargets = {};
   _Unanswered? _unanswered;
+
+  /// Whether the open transaction holds a style, a move or a resize, so its
+  /// commit finds the block again: its id may change with its operators.
+  bool _restyled = false;
+
+  /// The text panel's focus (a3-2): a click in it leaves the editor open.
+  final FocusScopeNode panelFocus = FocusScopeNode(debugLabel: 'Edit panel');
 
   EngineService get _engine => ref.read(engineServiceProvider);
 
@@ -262,10 +384,16 @@ class DocumentEditor extends _$DocumentEditor {
       ..onDispose(() {
         _idle?.cancel();
         _toastTimer?.cancel();
+        panelFocus.dispose();
       })
       ..listen(
-        settingsProvider.select((s) => s.missingGlyphs),
-        (_, policy) => unawaited(_fonts(policy)),
+        settingsProvider.select((s) => (s.missingGlyphs, s.reflow)),
+        (_, next) => unawaited(_fonts(next.$1, reflow: next.$2)),
+        fireImmediately: true,
+      )
+      ..listen(
+        settingsProvider.select((s) => s.recoveryCopies),
+        (_, enabled) => unawaited(_recovery(enabled: enabled)),
         fireImmediately: true,
       )
       ..listen(openDocumentProvider.select((document) => document?.id), (
@@ -276,8 +404,11 @@ class DocumentEditor extends _$DocumentEditor {
         unawaited(
           _run(() async {
             await _commit();
+            if (_document case final previous?) {
+              _otherTargets[previous] = _targets;
+            }
             _document = next;
-            _targets = const [];
+            _targets = _otherTargets[next] ?? const [];
             _unanswered = null;
             state = const EditorState();
             if (next != null) await _refresh(next, null);
@@ -291,17 +422,31 @@ class DocumentEditor extends _$DocumentEditor {
   }
 
   /// Tells the engine where the fonts for missing glyphs come from: this
-  /// computer's and Ferman's, and [policy]'s "Ask each time".
-  Future<void> _fonts(MissingGlyphPolicy policy) => _run(() async {
+  /// computer's and Ferman's, [policy]'s choice and whether text may [reflow].
+  Future<void> _fonts(MissingGlyphPolicy policy, {required bool reflow}) =>
+      _run(() async {
+        try {
+          await _engine.setFontSettings(
+            FontSettings(
+              askEachTime: policy == MissingGlyphPolicy.ask,
+              markMissing: policy == MissingGlyphPolicy.mark,
+              keepLines: !reflow,
+            ),
+          );
+        } on Object {
+          // Missing glyphs then go without installed and bundled fonts; an
+          // engine that did not start has no edits either.
+        }
+      });
+
+  /// Tells the engine a11-1c's "Save a recovery copy every minute".
+  Future<void> _recovery({required bool enabled}) async {
     try {
-      await _engine.setFontSettings(
-        FontSettings(askEachTime: policy == MissingGlyphPolicy.ask),
-      );
+      await _engine.setRecoveryEnabled(enabled: enabled);
     } on Object {
-      // Missing glyphs then go without installed and bundled fonts; an
-      // engine that did not start has no edits either.
+      // An engine that did not start has no edits to recover.
     }
-  });
+  }
 
   /// Runs [step] after every step asked for before it.
   Future<void> _run(Future<void> Function() step) {
@@ -312,25 +457,41 @@ class DocumentEditor extends _$DocumentEditor {
 
   /// Opens the editor on [block] of [page] with its caret at [caret],
   /// after committing the one open; its typing becomes the history step
-  /// [name]. A block the engine refuses opens nothing.
+  /// [name]. A block the engine refuses opens nothing. Before the first
+  /// change to a signed document it asks first (a3-16a) and opens the block
+  /// after "Edit anyway".
   Future<void> open(
     int page,
     TextBlock block, {
     required int caret,
     required String name,
   }) {
+    final tab = ref.read(shellDocumentsProvider).active;
+    final saver = ref.read(documentSaverProvider.notifier);
+    if (tab?.document case final document?
+        when document.id == _document && saver.needsConfirmation(document)) {
+      saver.askSigned(
+        tab!,
+        () => unawaited(open(page, block, caret: caret, name: name)),
+      );
+      return Future.value();
+    }
     _idle?.cancel();
     return _run(() async {
       await _close();
       final document = _document;
-      if (document == null) return;
+      // a3-16a waits on the typing just refused: its transaction stays.
+      if (document == null || _transaction != null) return;
       try {
         _transaction = await _engine.beginEdit(document, page, block.id);
       } on EngineException {
         return;
       }
       _name = name;
+      _typingName = name;
       _applied = null;
+      _committedText = null;
+      _languageSet = false;
       _unanswered = null;
       state = state.copy(
         active: ActiveEdit(
@@ -341,7 +502,177 @@ class DocumentEditor extends _$DocumentEditor {
         ),
         clearPreview: true,
       );
+      await _readStyle();
     });
+  }
+
+  /// Tells the editor a popover of the text panel has the focus, or gave it
+  /// back: it stays open meanwhile.
+  void holdEditor({required bool held}) => state = state.copy(held: held);
+
+  /// Reads the open block's style for the text panel.
+  Future<void> _readStyle() async {
+    final active = state.active;
+    if (active == null) return;
+    try {
+      final style = await _engine.blockStyle(
+        active.document,
+        active.page,
+        active.block.id,
+      );
+      if (identical(active, state.active)) {
+        state = state.copy(style: style, clearStyle: style == null);
+      }
+    } on EngineException {
+      // The panel shows the document's sections instead.
+    }
+  }
+
+  /// Gives the open block [style], as the history step [name] (a3-2).
+  Future<void> setBlockStyle(BlockStyle style, {required String name}) =>
+      _restyle(
+        name,
+        (transaction) => _engine.setBlockStyle(transaction, style),
+      );
+
+  /// Moves the open block by [by], as the history step [name].
+  Future<void> moveBlock(Offset by, {required String name}) => _restyle(
+    name,
+    (transaction) => _engine.moveBlock(transaction, by),
+    centre: (centre) => centre + by,
+  );
+
+  /// Gives the open block the box [frame], its text reflowed in it, as the
+  /// history step [name] (B016).
+  Future<void> resizeBlock(Rect frame, {required String name}) => _restyle(
+    name,
+    (transaction) => _engine.resizeBlock(transaction, frame),
+    centre: (_) => frame.center,
+  );
+
+  /// The fonts the text panel offers for the open block.
+  Future<List<FontCandidate>> blockFonts() async {
+    final active = state.active;
+    if (active == null) return const [];
+    try {
+      return await _engine.blockFonts(
+        active.document,
+        active.page,
+        active.block.id,
+      );
+    } on EngineException {
+      return const [];
+    }
+  }
+
+  /// One step of its own, after the typing so far: [write] in a transaction
+  /// committed at once. A font that cannot draw the block changes nothing.
+  /// Text that no longer fits keeps the transaction open with the overflow
+  /// choices, until they are answered or the editor is left.
+  Future<void> _restyle(
+    String name,
+    Future<EditPreview> Function(int transaction) write, {
+    Offset Function(Offset centre)? centre,
+  }) {
+    _idle?.cancel();
+    return _run(() async {
+      await _commit();
+      final active = state.active;
+      // a3-16a waits on the typing just refused: its transaction stays.
+      if (active == null || _transaction != null) return;
+      int? transaction;
+      try {
+        transaction = await _engine.beginEdit(
+          active.document,
+          active.page,
+          active.block.id,
+        );
+        final preview = await write(transaction);
+        if (preview.missing.isNotEmpty) {
+          await _engine.rollbackEdit(transaction);
+          state = state.copy(clearPreview: true);
+          return;
+        }
+        _transaction = transaction;
+        _name = name;
+        _applied = null;
+        _requested = null;
+        _restyled = true;
+        _unanswered = null;
+        final was = active.block.frame.center;
+        _followCentre = centre?.call(was) ?? was;
+        state = state.copy(
+          preview: preview,
+          settled: false,
+          fontSettled: false,
+        );
+        if (preview.overflow != null) return;
+        await _commit();
+      } on EngineException {
+        // Kept as it was.
+        if (transaction != null && _transaction == null) {
+          try {
+            await _engine.rollbackEdit(transaction);
+          } on EngineException {
+            // A failed commit dropped it already.
+          }
+        }
+      }
+    });
+  }
+
+  /// Finds the open block again after a style, a move or a resize: the block
+  /// with the text just committed nearest where it should be, or the editor
+  /// closes. Its id changes with its operators, and a block with other text is
+  /// never it: typing would write this block's text over that one.
+  Future<void> _followBlock(ActiveEdit active) async {
+    final page = await _engine.textBlocks(active.document, active.page);
+    final text = sameWords(_committedText ?? active.block.text);
+    final centre = _followCentre ?? active.block.frame.center;
+    final same = [
+      for (final block in page.blocks)
+        if (sameWords(block.text) == text) block,
+    ];
+    double away(TextBlock block) =>
+        (block.frame.center - centre).distanceSquared;
+    same.sort((a, b) => away(a).compareTo(away(b)));
+    final found = same.firstOrNull;
+    if (found == null) {
+      state = state.copy(clearActive: true);
+      return;
+    }
+    if (!identical(active, state.active)) return;
+    // The marks of the step just committed follow the block too.
+    final last = state.history.current - 1;
+    if (_targets.elementAtOrNull(last) case final target?) {
+      _targets = [
+        for (var i = 0; i < _targets.length; i++)
+          if (i == last)
+            (
+              page: target.page,
+              block: found.id,
+              frame: found.frame,
+              dir: target.dir,
+              before: target.before,
+            )
+          else
+            _targets[i],
+      ];
+      state = state.copy(
+        hidden: _hidden(state.history),
+        edited: _edited(state.history),
+      );
+    }
+    state = state.copy(
+      active: ActiveEdit(
+        document: active.document,
+        page: active.page,
+        block: found,
+        caret: active.caret,
+        followed: true,
+      ),
+    );
+    await _readStyle();
   }
 
   /// Gives the open block [text], its lines separated by line feeds.
@@ -361,11 +692,16 @@ class DocumentEditor extends _$DocumentEditor {
     _pending = null;
     if (text == null || active == null) return;
     try {
-      final transaction = _transaction ??= await _engine.beginEdit(
-        active.document,
-        active.page,
-        active.block.id,
-      );
+      var transaction = _transaction;
+      if (transaction == null) {
+        transaction = await _engine.beginEdit(
+          active.document,
+          active.page,
+          active.block.id,
+        );
+        _transaction = transaction;
+        _name = _typingName;
+      }
       _requested = text;
       final preview = await _engine.applyEdit(transaction, text);
       // Text with missing characters is not applied: the overflow stays
@@ -407,11 +743,20 @@ class DocumentEditor extends _$DocumentEditor {
       await _keep(transaction);
       state = state.copy(picking: false);
     }
+    // The choices would replace the step with its text alone, so a style or a
+    // language that overflows waits for them, as step 3 does.
+    final mixed = _restyled || _languageSet;
+    if (idle && mixed && state.asking != null) return;
     _transaction = null;
     final active = state.active;
     final document = active?.document ?? _document;
+    final restyled = _restyled;
+    _restyled = false;
     try {
       final info = await _engine.commitEdit(transaction, _name);
+      final text = _applied;
+      _applied = null;
+      _committedText = text ?? _committedText;
       if (document == null) return;
       _announce(info.substitutions);
       await _refresh(
@@ -424,21 +769,70 @@ class DocumentEditor extends _$DocumentEditor {
                 block: active.block.id,
                 frame: active.block.frame,
                 dir: active.block.direction,
+                before: [for (final line in active.block.lines) line.text],
               ),
       );
-      final text = _applied;
-      if (active != null && text != null && state.asking != null) {
-        _unanswered = (
-          document: document,
-          page: active.page,
-          block: active.block.id,
-          text: text,
-          name: _name,
-          current: state.history.current,
-        );
+      if (restyled && active != null) {
+        await _followBlock(active);
+      } else if (_languageSet && active != null) {
+        _followMarkedBlock(active);
       }
+      _languageSet = false;
+      if (state.asking != null) {
+        if (mixed) {
+          // Left without an answer: "Keep and warn" stands.
+          state = state.copy(settled: true);
+        } else if (active != null && text != null) {
+          _unanswered = (
+            document: document,
+            page: active.page,
+            block: active.block.id,
+            text: text,
+            name: _name,
+            current: state.history.current,
+          );
+        }
+      }
+    } on EngineException catch (error) {
+      // The engine dropped the transaction and the history is as it was,
+      // unless the signed document waits for a3-16a: it stays open, for the
+      // commit after "Edit anyway" or the rollback after Cancel.
+      if (error.kind == EngineErrorKind.confirmationRequired) {
+        _transaction = transaction;
+        _restyled = restyled;
+        final tab = ref
+            .read(shellDocumentsProvider)
+            .documents
+            .where((tab) => tab.document?.id == document)
+            .firstOrNull;
+        if (tab == null) {
+          await _rollbackUnconfirmed();
+        } else {
+          ref
+              .read(documentSaverProvider.notifier)
+              .askSigned(
+                tab,
+                () => unawaited(commit()),
+                cancelled: () => unawaited(_run(_rollbackUnconfirmed)),
+              );
+        }
+      }
+    }
+  }
+
+  /// Drops the typing the person chose not to confirm (a3-16a's Cancel).
+  Future<void> _rollbackUnconfirmed() async {
+    final transaction = _transaction;
+    _transaction = null;
+    _restyled = false;
+    if (transaction == null) return;
+    _pending = null;
+    _applied = null;
+    state = state.copy(clearActive: true, clearPreview: true);
+    try {
+      await _engine.rollbackEdit(transaction);
     } on EngineException {
-      // The engine dropped the transaction; the history is as it was.
+      // Nothing more to drop.
     }
   }
 
@@ -514,9 +908,9 @@ class DocumentEditor extends _$DocumentEditor {
     } on EngineException {
       // shortcut: the characters no font has stay in the field but not in
       // the page, until a11-1c's "Keep the original font and mark the
-      // character" (B074).
+      // character" (B140).
       state = state.copy(fontSettled: true);
-      final drawn = _applied;
+      final drawn = _applied ?? _committedText;
       if (drawn == null || drawn == _requested) return;
       try {
         _requested = drawn;
@@ -540,6 +934,53 @@ class DocumentEditor extends _$DocumentEditor {
   Future<void> _close() async {
     await _commit();
     if (state.active != null) state = state.copy(clearActive: true);
+  }
+
+  /// Sets the open block's language to [tag] (a3-14) in the open
+  /// transaction, with the newest text typed, so they commit as one step;
+  /// named [name] when no text changed.
+  Future<void> setLanguage(String tag, {required String name}) {
+    _idle?.cancel();
+    return _run(() async {
+      await _apply();
+      final active = state.active;
+      if (active == null) return;
+      try {
+        final transaction = _transaction ??= await _engine.beginEdit(
+          active.document,
+          active.page,
+          active.block.id,
+        );
+        final preview = await _engine.setBlockLanguage(transaction, tag);
+        if (_applied == null && !_restyled) _name = name;
+        _languageSet = true;
+        state = state.copy(preview: preview);
+        if (!_unsaved(active.document)) {
+          _mark(active.document, SaveState.unsaved);
+        }
+        _idle = Timer(idle, () => unawaited(commit()));
+      } on EngineException {
+        // The block keeps its language.
+      }
+    });
+  }
+
+  /// The block the open one became once its language is marked: the mark
+  /// moves its first operator, and with it the block's id.
+  void _followMarkedBlock(ActiveEdit active) {
+    final blocks = state.preview?.page.blocks ?? const <TextBlock>[];
+    final best = blockOver(blocks, active.block.frame);
+    if (best == null || state.active == null) return;
+    state = state.copy(
+      active: ActiveEdit(
+        document: active.document,
+        page: active.page,
+        block: best,
+        caret: active.caret,
+        // The same editor stays: its caret, selection and composition too.
+        followed: true,
+      ),
+    );
   }
 
   /// Picks the overflow [choice] for the text that does not fit (a3-4).
@@ -630,6 +1071,80 @@ class DocumentEditor extends _$DocumentEditor {
     });
   }
 
+  /// Reverts step [step] as the history step [name], after committing the
+  /// typing (a3-12). The later steps that depend on it when it was refused
+  /// for them: nothing changed, and [withDependents] takes them too (a3-12b).
+  Future<List<int>> revert(
+    int step,
+    String name, {
+    bool withDependents = false,
+  }) async {
+    _idle?.cancel();
+    var dependents = const <int>[];
+    await _run(() async {
+      await _close();
+      final document = _document;
+      if (document == null) return;
+      try {
+        final result = await _engine.revert(
+          document,
+          step,
+          name,
+          withDependents: withDependents,
+        );
+        if (!result.reverted) {
+          dependents = result.dependents;
+          return;
+        }
+        await _reverted(document, result.revision);
+      } on EngineException {
+        // The history is as it was.
+      }
+    });
+    return dependents;
+  }
+
+  /// Takes the document back to how it opened as the history step [name],
+  /// after committing the typing (a3-12b).
+  Future<void> revertAll(String name) {
+    _idle?.cancel();
+    return _run(() async {
+      await _close();
+      final document = _document;
+      if (document == null) return;
+      try {
+        await _reverted(document, await _engine.revertAll(document, name));
+      } on EngineException {
+        // The history is as it was.
+      }
+    });
+  }
+
+  /// A revert's step has no block, and the redo branch went with it.
+  Future<void> _reverted(int document, RevisionInfo info) async {
+    _targets = _targets.take(state.history.current).toList();
+    await _refresh(document, info);
+    state = state.copy(clearPreview: true);
+  }
+
+  /// Opens the editor on the block step [step] changed, its typing becoming
+  /// the history step [name]: Go to selects it on the page (a3-12). A block
+  /// no longer there leaves the page showing.
+  Future<void> select(int step, String name) async {
+    final document = _document;
+    final target = _targets.elementAtOrNull(step);
+    if (document == null || target == null) return;
+    await _run(_close);
+    final PageBlocks page;
+    try {
+      page = await _engine.textBlocks(document, target.page);
+    } on EngineException {
+      return;
+    }
+    final best = blockOver(page.blocks, target.frame);
+    if (best != null) await open(target.page, best, caret: 0, name: name);
+  }
+
   Future<void> _step(Future<RevisionInfo> Function(int) move) {
     _idle?.cancel();
     return _run(() async {
@@ -647,21 +1162,142 @@ class DocumentEditor extends _$DocumentEditor {
   }
 
   /// Saves the committed steps to the document's file, after committing
-  /// the typing (ADR 0008).
-  Future<void> save() {
+  /// the typing (ADR 0008): those of [document], by default the one shown;
+  /// [overChange] saves over a change on disk ("Keep mine", a11-7b). The
+  /// engine's error, or null when it saved.
+  Future<EngineException?> save({int? document, bool overChange = false}) {
+    final target = document ?? _document;
+    if (target == null) return Future.value();
+    return write(
+      target,
+      () => through(
+        target,
+        pathOf(target),
+        (staging) =>
+            _engine.save(target, overChange: overChange, staging: staging),
+      ),
+    );
+  }
+
+  /// The file of [document]'s tab. Read it only when the write's turn came:
+  /// a Save as ahead of it in the queue moves the document, and a swap over
+  /// the old path would replace the wrong file.
+  String? pathOf(int document) => ref
+      .read(shellDocumentsProvider)
+      .documents
+      .where((tab) => tab.document?.id == document)
+      .firstOrNull
+      ?.path;
+
+  /// Writes [document]'s file at [path] with [write]: under the macOS App
+  /// Sandbox [write] gets the staging directory the platform names, the
+  /// platform swaps in the file it stages, and the engine then records the
+  /// save (ADR 0008); elsewhere it writes the file itself. A failed swap
+  /// reads as the engine's failures do, with the file and the edits as they
+  /// were.
+  Future<void> through(
+    int document,
+    String? path,
+    Future<String?> Function(String? staging) write,
+  ) async {
+    final access = ref.read(fileAccessProvider);
+    final staging = path == null ? null : await access.staging(path);
+    final String? staged;
+    try {
+      staged = await write(staging);
+    } on Object {
+      if (staging != null) await access.discardStaging(staging);
+      rethrow;
+    }
+    if (staged == null || path == null) return;
+    final failure = await access.swapIn(staged, path);
+    final noRecoveryCopy = await _engine.finishSave(
+      document,
+      swapped: failure == null,
+    );
+    if (failure == null) return;
+    throw EngineException(
+      kind: switch (failure) {
+        SwapFailure.permission => EngineErrorKind.permissionDenied,
+        SwapFailure.diskFull => EngineErrorKind.diskFull,
+        SwapFailure.locked => EngineErrorKind.fileLocked,
+        SwapFailure.volumeGone => EngineErrorKind.volumeGone,
+        SwapFailure.other => EngineErrorKind.renameFailed,
+      },
+      messageKey: 'errorFileWrite',
+      offersSaveAs: true,
+      noRecoveryCopy: noRecoveryCopy,
+    );
+  }
+
+  /// Commits the typing, then writes [document] with [write] (a save, Save
+  /// as, Optimize and clean). It marks the document saving, then saved (a
+  /// document the engine holds read-only stays so). When it fails, unsaved
+  /// edits show "Couldn't save", or unsaved when the file changed on disk
+  /// (a11-7b), and a document with none keeps the state it had; a [copy]
+  /// leaves its state as it is. The engine's error, or null when it wrote.
+  Future<EngineException?> write(
+    int document,
+    Future<void> Function() write, {
+    bool copy = false,
+  }) async {
     _idle?.cancel();
-    return _run(() async {
+    EngineException? failed;
+    await _run(() async {
       await _close();
-      final document = _document;
-      if (document == null) return;
-      _mark(document, SaveState.saving);
+      final before = ref
+          .read(shellDocumentsProvider)
+          .documents
+          .where((tab) => tab.document?.id == document)
+          .firstOrNull;
+      if (!copy) _mark(document, SaveState.saving);
       try {
-        await _engine.save(document);
-        _mark(document, SaveState.saved, savedAt: DateTime.now());
-      } on Object {
-        _mark(document, SaveState.error);
+        await write();
+        if (!copy) {
+          _mark(
+            document,
+            before?.document?.readOnly == null
+                ? SaveState.saved
+                : SaveState.readOnly,
+            savedAt: DateTime.now(),
+          );
+          _rememberEdited(document);
+        }
+      } on Object catch (error) {
+        final engine = error is EngineException
+            ? error
+            : const EngineException(messageKey: 'errorInternal');
+        failed = engine;
+        if (!copy) {
+          _mark(document, switch (before) {
+            ShellDocument(unsaved: false, :final saveState?) => saveState,
+            _
+                when engine.kind == EngineErrorKind.fileChangedOnDisk ||
+                    engine.kind == EngineErrorKind.confirmationRequired =>
+              SaveState.unsaved,
+            _ => SaveState.error,
+          });
+        }
       }
     });
+    return failed;
+  }
+
+  /// Gives the recent file of [document], just saved, its "Edited" badge
+  /// when steps of its history apply (B129); undoing them all saves the file
+  /// as it was. Save as remembers the new file itself, in `savedAs`.
+  void _rememberEdited(int document) {
+    for (final tab in ref.read(shellDocumentsProvider).documents) {
+      if (tab.path case final path?
+          when tab.document?.id == document && tab.editCount > 0) {
+        unawaited(
+          ref
+              .read(recentFilesProvider.notifier)
+              .saveEdited(path)
+              .catchError((Object _) {}),
+        );
+      }
+    }
   }
 
   /// Reads [document]'s history after [info] (null: on opening it) and,
@@ -696,6 +1332,7 @@ class DocumentEditor extends _$DocumentEditor {
         history: history,
         renderKey: info?.renderKey,
         hidden: _hidden(history),
+        edited: _edited(history),
       );
     }
     if (changed) _mark(document, SaveState.unsaved);
@@ -704,7 +1341,7 @@ class DocumentEditor extends _$DocumentEditor {
   /// The lines hidden by the newest step of each block that applies.
   List<HiddenLines> _hidden(EditHistory history) {
     final newest = <(int, int), int>{};
-    for (var i = 0; i < history.current; i++) {
+    for (final i in history.live) {
       if (_targets.elementAtOrNull(i) case final target?) {
         newest[(target.page, target.block)] = i;
       }
@@ -721,6 +1358,23 @@ class DocumentEditor extends _$DocumentEditor {
             lines: history.steps[i].hiddenLines,
           ),
     ];
+  }
+
+  /// The blocks the steps that apply changed, each with its lines before
+  /// the oldest of them.
+  List<EditedBlock> _edited(EditHistory history) {
+    final oldest = <(int, int), EditedBlock>{};
+    for (var i = 0; i < history.current; i++) {
+      if (_targets.elementAtOrNull(i) case final target?) {
+        oldest[(target.page, target.block)] ??= EditedBlock(
+          page: target.page,
+          block: target.block,
+          before: target.before,
+          frame: target.frame,
+        );
+      }
+    }
+    return oldest.values.toList();
   }
 
   /// Whether the shell's tab of [document] has unsaved changes.
@@ -740,7 +1394,7 @@ class DocumentEditor extends _$DocumentEditor {
           tab.withSave(
             saveState,
             savedAt: savedAt,
-            editCount: document == _document ? state.history.current : null,
+            editCount: document == _document ? state.history.live.length : null,
           ),
         );
       }

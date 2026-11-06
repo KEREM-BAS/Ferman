@@ -146,6 +146,11 @@ enum Message {
         appendix: Arc<[u8]>,
         reply: oneshot::Sender<Result<u64, RenderError>>,
     },
+    PageFonts {
+        document: DocumentId,
+        pages: Vec<u32>,
+        reply: oneshot::Sender<Result<Vec<(String, String)>, RenderError>>,
+    },
     OpenView {
         document: DocumentId,
         sink: Box<dyn ViewSink>,
@@ -267,6 +272,27 @@ impl RenderThread {
         let reply = self.ask(|reply| Message::Reload {
             document,
             appendix,
+            reply,
+        });
+        async move { flatten(reply?.await) }
+    }
+
+    /// The fonts the text objects of `pages` use, each name once: the PDF's name (a subset's tag
+    /// included) and the family PDFium draws it in, the substitute for one that is not embedded.
+    /// A page that cannot be loaded adds nothing.
+    ///
+    /// # Errors
+    ///
+    /// The future resolves to [`RenderError::NotFound`] for a document that is not open, and to
+    /// [`RenderError::ThreadStopped`] if the thread is no longer running.
+    pub fn page_fonts(
+        &self,
+        document: DocumentId,
+        pages: Vec<u32>,
+    ) -> impl Future<Output = Result<Vec<(String, String)>, RenderError>> + Send + 'static {
+        let reply = self.ask(|reply| Message::PageFonts {
+            document,
+            pages,
             reply,
         });
         async move { flatten(reply?.await) }
@@ -477,6 +503,27 @@ impl<'p> State<'p> {
                 reply,
             } => {
                 let _ = reply.send(self.reload(document, appendix));
+            }
+            Message::PageFonts {
+                document,
+                pages,
+                reply,
+            } => {
+                let fonts = match self.documents.get_mut(&document) {
+                    Some(loaded) => {
+                        let mut fonts: Vec<(String, String)> = Vec::new();
+                        for page in pages {
+                            for font in loaded.page_fonts(page).unwrap_or_default() {
+                                if !fonts.iter().any(|(name, _)| *name == font.0) {
+                                    fonts.push(font);
+                                }
+                            }
+                        }
+                        Ok(fonts)
+                    }
+                    None => Err(RenderError::NotFound { what: "document" }),
+                };
+                let _ = reply.send(fonts);
             }
             Message::OpenView {
                 document,

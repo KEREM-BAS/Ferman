@@ -75,6 +75,43 @@ pub struct FaceInfo {
     pub italic: bool,
     /// The width class, 1 (ultra-condensed) to 9 (ultra-expanded), 5 normal.
     pub stretch: u16,
+    /// The named instance of a variable font this entry stands for; `None` for the file's
+    /// default ([`crate::matching`] finds the instances).
+    pub instance: Option<FaceInstance>,
+}
+
+/// A named instance of a variable font.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FaceInstance {
+    /// Its PostScript name, which names the font in a PDF.
+    pub postscript_name: String,
+    /// Its axis tags and user-space values, in 16.16 fixed point.
+    pub coordinates: Vec<([u8; 4], i32)>,
+}
+
+impl FaceInstance {
+    /// The value of the axis `tag`.
+    #[must_use]
+    pub fn value(&self, tag: &[u8; 4]) -> Option<f32> {
+        // Named instances' values have few digits.
+        #[allow(clippy::cast_precision_loss)]
+        self.coordinates
+            .iter()
+            .find(|(axis, _)| axis == tag)
+            .map(|(_, value)| *value as f32 / 65536.0)
+    }
+
+    /// Its location in `font`.
+    pub(crate) fn location(&self, font: &skrifa::FontRef<'_>) -> skrifa::instance::Location {
+        use skrifa::MetadataProvider;
+        font.axes()
+            .location(self.coordinates.iter().map(|(tag, _)| {
+                (
+                    skrifa::raw::types::Tag::new(tag),
+                    self.value(tag).unwrap_or_default(),
+                )
+            }))
+    }
 }
 
 /// The fonts Ferman can take glyphs from.
@@ -235,6 +272,7 @@ impl FontLibrary {
             weight: face.weight.0,
             italic: face.style != fontdb::Style::Normal,
             stretch: face.stretch.to_number(),
+            instance: None,
         }
     }
 

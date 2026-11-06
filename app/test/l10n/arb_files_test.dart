@@ -47,6 +47,7 @@ const Set<String> _sameInArabic = {
   'shellConvertPowerPoint',
   'shellConvertHtml', // file formats
   'shellConvertMarkdown',
+  'saveAsPdf', // a file format
   'regionPaperA4', // the ISO paper size name
   'regionPaperLetter', // the paper size name, as a12-2c writes it
   'propertiesVersionAcrobat', // a version number and the product name
@@ -58,6 +59,7 @@ const Set<String> _sameInArabic = {
   'propertiesFontType3',
   'propertiesAes128', // encryption method names
   'propertiesAes256',
+  'languageWithRegion', // placeholders and parentheses only
 };
 
 /// Each Arabic string the design's Arabic boards draw for M1, by the ARB

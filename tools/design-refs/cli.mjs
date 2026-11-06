@@ -24,7 +24,7 @@ those renders and writes a report (node tools/design-refs compare --help).
 Options:
   --only <ids>       render only these ids (comma-separated, repeatable): a board id renders the
                      board and its language variants, <id>.<lang> one variant; @<set> expands a
-                     set from boards.json (@m1, @m2, @langs); ds-additions is the DS additions sheet
+                     set from boards.json (@m1, @m2, @m3, @langs); ds-additions is the DS additions sheet
   --out <dir>        output directory (default: build/design-refs in the repository)
   --twice            render a second time in a fresh browser and fail unless every PNG is identical
   --jobs <n>         boards rendered in parallel (default: ${defaultJobs()})

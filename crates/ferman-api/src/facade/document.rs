@@ -17,7 +17,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::thread;
 
+use ferman_core::recovery::DocumentRecovery;
 use ferman_core::revision::RevisionStore;
+use ferman_core::save::FileStamp;
 use ferman_core::structure::{
     Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Scripts, Signature,
 };
@@ -31,7 +33,7 @@ use super::guard::{guard, guard_async};
 
 /// The stack of the thread that parses a file: lopdf and ferman-core recurse into nested objects,
 /// and their nesting limits are measured against it (ADR 0010).
-const PARSE_STACK: usize = 64 * 1024 * 1024;
+pub(super) const PARSE_STACK: usize = 64 * 1024 * 1024;
 
 /// The name of that thread, as debuggers and crash reports show it.
 const PARSE_THREAD: &str = "ferman-open";
@@ -59,6 +61,11 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields, shown neutrally until checking arrives (G31).
     pub signatures: Vec<Signature>,
+    /// Whether a change would invalidate a signature, so it waits for
+    /// [`Engine::confirm_edit_signed`] (G35).
+    pub signed: bool,
+    /// The certification signature's `/DocMDP` permission level (1 to 3), when certified.
+    pub certification: Option<u8>,
     /// The PDF version in the header, such as `1.7`.
     pub version: String,
     /// The file's size in bytes.
@@ -127,6 +134,11 @@ pub(super) struct Model {
     /// The serial of the last revision sent to the render thread, so an older one never follows
     /// a newer one (`edit`).
     pub(super) rendered: Mutex<u64>,
+    /// The file at `path` as it was opened, which a save checks (`edit`); for a restored
+    /// document, as its recovery manifest recorded it.
+    pub(super) stamp: FileStamp,
+    /// A restored document's recovery files, which its actor takes over (`recovery`).
+    pub(super) recovery: Mutex<Option<DocumentRecovery>>,
 }
 
 /// The document as the actor last published it: a snapshot of its committed revisions that
@@ -165,6 +177,8 @@ impl Model {
             }),
             path,
             rendered: Mutex::new(0),
+            stamp: document.source().stamp(),
+            recovery: Mutex::new(None),
             document,
             layers_switchable,
             owner_unlocked: AtomicBool::new(false),
@@ -230,8 +244,27 @@ impl Engine {
         password: Option<Password>,
     ) -> Result<OpenedDocument, ApiError> {
         guard_async(async move {
-            let render = self.render()?;
+            self.render()?;
             let (source, model, first) = parse(path.clone(), password.clone()).await?;
+            self.register(path, password, &source, model, first, |_| {})
+                .await
+        })
+        .await
+    }
+
+    /// Loads an opened document's bytes into PDFium, compares the parsers and keeps its model,
+    /// changed by `setup` first (a restored document's revisions).
+    pub(super) async fn register(
+        &self,
+        path: PathBuf,
+        password: Option<Password>,
+        source: &Source,
+        model: ferman_core::Document,
+        first: Option<Arc<PageText>>,
+        setup: impl FnOnce(&mut Model),
+    ) -> Result<OpenedDocument, ApiError> {
+        {
+            let render = self.render()?;
             // shortcut: ferman-core parses before PDFium loads, so the first page waits for both;
             // run them side by side if the first-page bench misses its budget.
             let rendered = render
@@ -278,6 +311,8 @@ impl Engine {
                 attachments: structure.attachments.clone(),
                 layers: structure.layers.clone(),
                 signatures: structure.signatures.clone(),
+                signed: structure.signed(),
+                certification: structure.certification,
                 layers_switchable,
                 version: model.version().to_owned(),
                 file_size: u64::try_from(source.bytes().len()).unwrap_or(u64::MAX),
@@ -304,19 +339,11 @@ impl Engine {
                 }
                 ReadOnly::XfaOnly => ferman_text::NotEditableReason::ReadOnly,
             });
-            self.models()?.insert(
-                rendered.id,
-                Arc::new(Model::new(
-                    model,
-                    path,
-                    not_editable,
-                    layers_switchable,
-                    first,
-                )),
-            );
+            let mut model = Model::new(model, path, not_editable, layers_switchable, first);
+            setup(&mut model);
+            self.models()?.insert(rendered.id, Arc::new(model));
             Ok(opened)
-        })
-        .await
+        }
     }
 
     /// Shows the layers of `document` whose `visible` is true and hides the others, in the order
@@ -455,15 +482,65 @@ impl Engine {
         .await
     }
 
-    /// Closes a document: its views end and PDFium lets it go.
+    /// Writes `text` to `path` through the safe write: the review list's export (a3-12). With
+    /// `staging`, as [`save_attachment`](Self::save_attachment), the staged path comes back for
+    /// the platform layer to swap in.
+    ///
+    /// # Errors
+    ///
+    /// The file errors of the write.
+    pub async fn save_text(
+        &self,
+        path: PathBuf,
+        text: String,
+        staging: Option<PathBuf>,
+    ) -> Result<Option<PathBuf>, ApiError> {
+        guard_async(async move {
+            let (reply, receiver) = futures_channel::oneshot::channel();
+            thread::Builder::new()
+                .name(PARSE_THREAD.to_owned())
+                .spawn(move || {
+                    let result = guard(AssertUnwindSafe(move || {
+                        Ok(ferman_core::save::safe_write(
+                            &path,
+                            text.as_bytes(),
+                            staging.as_deref(),
+                        )?)
+                    }));
+                    let _ = reply.send(result);
+                })
+                .map_err(|_| ApiError::internal("cannot start the writing thread"))?;
+            receiver
+                .await
+                .map_err(|_canceled| ApiError::internal("the writing thread stopped"))?
+        })
+        .await
+    }
+
+    /// Closes a document: its views end and PDFium lets it go. Its recovery files stay, for
+    /// the next launch to offer; [`close_discarding`](Self::close_discarding) deletes them.
     ///
     /// # Errors
     ///
     /// Returns `NotFound` for a document that is not open.
     pub async fn close(&self, document: DocumentId) -> Result<(), ApiError> {
+        self.close_with(document, false).await
+    }
+
+    /// Closes a document after "Don't save": as [`close`](Self::close), and its recovery files
+    /// are deleted (docs/ARCHITECTURE.md §7.6).
+    ///
+    /// # Errors
+    ///
+    /// As [`close`](Self::close).
+    pub async fn close_discarding(&self, document: DocumentId) -> Result<(), ApiError> {
+        self.close_with(document, true).await
+    }
+
+    async fn close_with(&self, document: DocumentId, discard: bool) -> Result<(), ApiError> {
         guard_async(async {
             self.models()?.remove(&document);
-            self.end_edits(document);
+            self.end_edits(document, discard).await;
             Ok(self.render()?.close_document(document).await?)
         })
         .await

@@ -20,6 +20,7 @@ members = ["."]
 libfuzzer-sys = "0.4.13"
 ferman-core = { path = "../crates/ferman-core", features = ["fuzzing"] }
 ferman-fonts = { path = "../crates/ferman-fonts" }
+ferman-text = { path = "../crates/ferman-text" }
 
 [lints.clippy]
 print_stdout = "deny"
@@ -109,6 +110,83 @@ doc = false
 [[bin]]
 name = "content_lexer"
 path = "fuzz_targets/content_lexer.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "writer_round_trip"
+path = "fuzz_targets/writer_round_trip.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "line_breaking"
+path = "fuzz_targets/line_breaking.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "reencode"
+path = "fuzz_targets/reencode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "shaping"
+path = "fuzz_targets/shaping.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "edit_script"
+path = "fuzz_targets/edit_script.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "to_unicode"
+path = "fuzz_targets/to_unicode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "recovery_journal"
+path = "fuzz_targets/recovery_journal.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "rewrite_block"
+path = "fuzz_targets/rewrite_block.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "font_program"
+path = "fuzz_targets/font_program.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "type1_program"
+path = "fuzz_targets/type1_program.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "subsetting"
+path = "fuzz_targets/subsetting.rs"
 test = false
 doc = false
 bench = false

@@ -423,7 +423,9 @@ denied outside tests; `missing_docs` as a warning, which `-D warnings` turns int
 `deny.toml` from [DEPENDENCIES.md](DEPENDENCIES.md); CI workflow with the three-system matrix; a
 `tests/corpus/README.md` skeleton with the provenance format.
 
-Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api. ferman-api uses
+Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api and, since M3,
+ferman-core, which denies it and allows it only in its `platform` module
+([ADR 0010](adr/0010-error-handling-no-panics.md)). ferman-api uses
 `#![deny(unsafe_code)]`, with `#[allow(unsafe_code)]` only on the FRB-generated module behind its
 `frb` feature. The generated glue needs `extern "C"` exports and `unsafe` blocks, and an inner
 `allow` cannot override `forbid`. This is the documented exception that
@@ -1818,7 +1820,8 @@ rows say "keys only".
   ARCHITECTURE.md §9.1: nesting, decoded size per stream, filter chain, `/Prev` chain, operators per
   page, form XObject depth, `q` nesting, `usecmap` depth, decoded size per revision and font program
   size (`crates/ferman-core/src/interpret.rs` tests, `ferman_fonts::type1` tests); Type3 and pattern
-  recursion, time per page and image pixels wait for their code ([B131](BACKLOG.md#open)).
+  recursion and time per page came with M3; image pixels wait for their code
+  ([B131](BACKLOG.md#open)).
 
 #### Step 3. API, tiles and the viewer
 
@@ -1914,10 +1917,10 @@ rows say "keys only".
 #### Step 5. Text extraction and search
 
 - [ ] For every generated corpus file, extracted text equals the generator's source text after NFC
-  normalisation (100%), including `report-ar` in logical order and `letter-ja-vertical`. Open:
-  `crates/ferman-text/tests/corpus.rs` `every_generated_file_reads_as_its_source_text` passes for
-  every page but four of `report-ar` (its `KNOWN` list), whose right-to-left lines are drawn in an
-  order the bidi algorithm does not give back ([B112](BACKLOG.md#open), [Q25](QUESTIONS.md#q25)).
+  normalisation (100%), including `report-ar` in logical order and `letter-ja-vertical`. Evidence:
+  `crates/ferman-text/tests/corpus.rs` `every_generated_file_reads_as_its_source_text`, with one page
+  exempt: `edit-e18-columns-standin` page 1 reads in drawing order and is in `KNOWN`
+  ([B163](BACKLOG.md#open), [B112](BACKLOG.md#done), [Q25](QUESTIONS.md#q25)).
 - [x] Turkish folding: "kira" finds "KİRA" and "Kira" in `kira-tr`; "ılık" finds "ILIK"; "istanbul"
   finds "İSTANBUL" (`a2-4a`). Evidence: `crates/ferman-text/src/search.rs`
   `the_defaults_fold_turkish_and_accents_for_every_document`,
@@ -2056,9 +2059,9 @@ rows say "keys only".
   `a restricted document's Security tab lists each permission and hands over to the owner-password
   dialog (a2-10b)`; `app/test/features/shell/document_banners_test.dart` `a document with scripts
   says so until dismissed, also after another tab showed (G100)`; `crates/ferman-api/tests/open.rs`
-  `the_open_carries_the_properties_and_the_owner_unlock_lifts_restrictions`), but a font that is not
-  embedded does not name the font shown instead until M3's font substitution
-  ([B122](BACKLOG.md#open)).
+  `the_open_carries_the_properties_and_the_owner_unlock_lifts_restrictions`). Since M3 a font that
+  is not embedded names the font shown instead (`font_coverage_says_what_pdfium_draws_and_what_a_subset_lacks`;
+  [B122](BACKLOG.md#open) keeps XMP and output intents).
 - [x] Dates, numbers and percentages follow the region, never the UI language
   ([G34](DESIGN_GAPS.md#g34)): the `RegionFormat` tests (`app/lib/l10n/format.dart`) take the six
   regions of `a12-0` (tr-TR, en-GB, en-US, de-DE, ar-SA, ar-AE) as their oracle, and the zoom field
@@ -2153,8 +2156,9 @@ E1 to E8, plus:
 
 ## 7. M3: edit text core
 
-**Status:** Planning since 2026-11-04 (M2 accepted the same day); the [M3 plan](PROGRESS.md#m3-plan)
-waits for the owner's approval. The questions M3 needs were answered on
+**Status:** Built, waiting for the owner's review (2026-11-06). The boxes below are ticked only where
+a test proves them; [What stays open](#what-stays-open-at-the-m3-review) lists the rest. The plan was
+approved on 2026-11-04 ([M3 plan](PROGRESS.md#m3-plan)). The questions M3 needs were answered on
 2026-10-16: [Q09](QUESTIONS.md#q09) missing-glyph default (the design's "Use a similar font and say
 so", with step 2 always tried first, and the `fsType` rule); [Q08](QUESTIONS.md#q08) group 4, similar
 fonts shipped beyond IBM Plex (Cormorant Garamond and Crimson Pro); [Q07](QUESTIONS.md#q07), the Save
@@ -2272,44 +2276,45 @@ arrives with those modes in M4; find and replace uses `a3-17`'s flow in P2.
 - [ ] Blocks, lines, alignment and columns match the generator's layout for every generated corpus
   file (100%). For the real-world set, at least 95% of blocks match hand-labelled ground truth
   (**Proposed** threshold); every mismatch is filed as a case.
-- [ ] Every block that cannot be edited carries its reason (image only, unknown text, outlined text,
+- [x] Every block that cannot be edited carries its reason (image only, unknown text, outlined text,
   restricted, read-only or damaged, signature appearance, annotation or form field, too complex), and
   the UI shows it with a not-allowed cursor, a tooltip and a panel callout ([G39](DESIGN_GAPS.md#g39)).
   On scanned pages, "Recognize text" is disabled with the future-version tooltip until P3 (`a3-11`).
-- [ ] Hover shows only the frame under the pointer, with an I-beam and the tooltip (`a3-1a`). Hit
+- [x] Hover shows only the frame under the pointer, with an I-beam and the tooltip (`a3-1a`). Hit
   testing of block boxes runs in the UI; caret positions come from the engine.
 
 #### Step 2. Transactions, undo and redo
 
-- [ ] `begin_edit`, `apply`, `commit` and `rollback` work as [ARCHITECTURE.md §3.6](ARCHITECTURE.md#36-edit-transactions-and-undo)
+- [x] `begin_edit`, `apply`, `commit` and `rollback` work as [ARCHITECTURE.md §3.6](ARCHITECTURE.md#36-edit-transactions-and-undo)
   describes; typing in one block coalesces into one transaction (**Proposed**: commit on blur, Esc,
   mode switch, save or 1.5 s idle).
-- [ ] Property test: 50 random edits, then 50 undos, return content streams byte-identical to the
+- [x] Property test: 50 random edits, then 50 undos, return content streams byte-identical to the
   original; redo returns each revision byte-identical.
-- [ ] Undo history (`a3-10`) lists named steps with time, the current step and redoable steps.
+- [x] Undo history (`a3-10`) lists named steps with time, the current step and redoable steps.
 
 #### Step 3. Re-encoding and rewriting for simple fonts
 
-- [ ] Text is re-encoded in the font's own encoding for Standard, WinAnsi, MacRoman and `/Differences`
+- [x] Text is re-encoded in the font's own encoding for Standard, WinAnsi, MacRoman and `/Differences`
   encodings, for Type1 (including the standard 14), TrueType (symbolic and non-symbolic) and Type3
   fonts whose glyph procedures cover the text.
-- [ ] Replacement operators restore the state invariant: text matrix, line matrix, text state, colour
+- [x] Replacement operators restore the state invariant: text matrix, line matrix, text state, colour
   and `q` depth after the block equal the original ([ARCHITECTURE.md §6.6](ARCHITECTURE.md#66-transaction-re-encoding-and-operator-rewriting)).
-- [ ] The pixel-diff harness and `ferman verify-edit` run every case in the table below
+- [x] The pixel-diff harness runs every case in the table below; `ferman verify-edit` shares its
+  `compare` and is tested on E04
   ([ARCHITECTURE.md §13.4](ARCHITECTURE.md#134-pixel-diff-acceptance-for-every-edit)).
 
 #### Step 4. Composite fonts
 
-- [ ] Type0 fonts with CIDFontType0 and CIDFontType2, Identity-H, Identity-V, embedded CMaps with
+- [x] Type0 fonts with CIDFontType0 and CIDFontType2, Identity-H, Identity-V, embedded CMaps with
   `usecmap` and predefined CMaps, `/CIDToGIDMap`, and widths from `/W`, `/DW`, `/W2` and `/DW2`.
-- [ ] A font dictionary used by unedited text is never changed by any edit case; new codes go into a
+- [x] A font dictionary used by unedited text is never changed by any edit case; new codes go into a
   new font dictionary used only by the edited block.
 
 #### Step 5. Layout, reflow and overflow
 
-- [ ] Typing reflows inside the original frame with the original font and justification (`a3-1b`);
+- [x] Typing reflows inside the original frame with the original font and justification (`a3-1b`);
   justification reproduces the original method (`Tw` or `TJ`).
-- [ ] Overflow (`a3-4`) offers the design's three choices with their amounts: "Extend block by N
+- [x] Overflow (`a3-4`) offers the design's three choices with their amounts: "Extend block by N
   line(s)", "Tighten spacing slightly (−x%)" and "Keep and warn" ([G54](DESIGN_GAPS.md#g54)), with
   the copy as drawn in `a3-4` ("Extend block by 1 line", "Tighten spacing slightly (−0.6%)"). The
   brief's short names ("Extend block", "Tighten spacing slightly", "Keep and warn") refer to these
@@ -2320,96 +2325,97 @@ arrives with those modes in M4; find and replace uses `a3-17`'s flow in P2.
 
 #### Step 6. Missing glyphs
 
-- [ ] Step 1 of the policy: a glyph in the embedded program but not in the encoding gets a new code
+- [x] Step 1 of the policy: a glyph in the embedded program but not in the encoding gets a new code
   through `/Differences` in a new font dictionary used only by the block.
-- [ ] Step 2: when the same font is installed (matched by PostScript name, then family and style,
+- [x] Step 2: when the same font is installed (matched by PostScript name, then family and style,
   checked by units per em and widths within 1/1000 of `/Widths`), the glyph is taken from it,
   re-subset, embedded as a new Type0 font with a ToUnicode CMap, and the user is told once
   ([G37](DESIGN_GAPS.md#g37)). Fonts whose `fsType` forbids embedding go to step 3 with the reason.
-- [ ] Step 3: the design's flow ([G36](DESIGN_GAPS.md#g36)). The character is drawn in the closest
+- [x] Step 3: the design's flow ([G36](DESIGN_GAPS.md#g36)). The character is drawn in the closest
   similar font and marked once: amber wavy underline, amber frame tab, warning on the font field, one
   callout with "Choose a font…" and "Keep as is" (`a3-3a`, `f2`). The picker (`a3-3b`) ranks embedded,
   installed and bundled fonts by coverage and metrics with a Turkish preview string. "Ask each time"
   in Settings asks first.
-- [ ] Never silent: every substitution appears in the review list (`a3-12`) and in the "Font
+- [x] Never silent: every substitution appears in the review list (`a3-12`) and in the "Font
   substituted" toast; the warning is never shown twice. Bold and italic are never faked.
 
 #### Step 7. Complex scripts, CJK and input
 
-- [ ] Arabic: bidi per paragraph, shaping with joining forms, lam-alef and marks; numbers, dates and
+- [x] Arabic: bidi per paragraph, shaping with joining forms, lam-alef and marks; numbers, dates and
   the IBAN stay isolated left to right; coverage is checked per shaped glyph, so a missing contextual
   form goes through the missing-glyph steps.
-- [ ] Persian with ZWNJ and Hebrew paragraphs edit correctly.
-- [ ] CJK: horizontal Japanese, Simplified and Traditional Chinese and Korean in Identity-H fonts;
-  vertical Japanese in Identity-V with the `vert` feature, tate-chu-yoko and kinsoku (`a3-15`), unless
-  deferred ([Q10](QUESTIONS.md#q10)).
+- [x] Persian with ZWNJ and Hebrew paragraphs edit correctly.
+- [x] CJK: horizontal Japanese, Simplified and Traditional Chinese and Korean in Identity-H fonts.
+- [ ] Vertical Japanese in Identity-V with the `vert` feature, tate-chu-yoko and kinsoku (`a3-15`).
+  Column by column with tate-chu-yoko is built (E13); reflowing columns with kinsoku moved to P2 (B136).
 - [ ] Input goes through `DeltaTextInputClient`: Japanese and Korean IME composition and Turkish dead
   keys work in integration tests; composing text is rendered provisionally without an undo step.
 
 #### Step 8. Saving
 
-- [ ] Incremental update by default: the original bytes are an exact prefix of the saved file, the
+- [x] Incremental update by default: the original bytes are an exact prefix of the saved file, the
   cross-reference form matches the original, and encrypted documents stay encrypted.
 - [ ] Atomic replace on each system ([ARCHITECTURE.md §7.2](ARCHITECTURE.md#72-atomic-replace)):
   temp file in the same directory, flush, verify, replace (`rename` on macOS and Linux, `ReplaceFileW`
   on Windows), flush the directory.
 - [ ] Crash injection on Linux and macOS: killing the process at 1,000 random points during save
   always leaves either the old or the new file, and both open correctly.
-- [ ] Failures ([ARCHITECTURE.md §7.8](ARCHITECTURE.md#78-when-writing-fails)): disk full (`a11-7`),
+- [x] Failures ([ARCHITECTURE.md §7.8](ARCHITECTURE.md#78-when-writing-fails)): disk full (`a11-7`),
   read-only or permission denied, file locked by another app, rename failed, volume gone. Each leaves
   the original untouched, deletes the temp file, keeps the edits, and offers Save as
   ([G40](DESIGN_GAPS.md#g40)).
-- [ ] A file changed on disk since it was opened stops the save and shows the `a11-7b` choices
+- [x] A file changed on disk since it was opened stops the save and shows the `a11-7b` choices
   "Compare", "Keep mine" and "Reload".
-- [ ] Save states follow `f4`, `f4a` and `f4b`: Unsaved, Saving…, Saved ("Saved on this device ·
+- [x] Save states follow `f4`, `f4a` and `f4b`: Unsaved, Saving…, Saved ("Saved on this device ·
   14:32"), Couldn't save with Save still enabled for a retry ([G41](DESIGN_GAPS.md#g41)).
-- [ ] Save as (`a1-11`) collects the file name, location and options in a Ferman sheet; choosing a
+- [x] Save as (`a1-11`) collects the file name, location and options in a Ferman sheet; choosing a
   drawn location in "Where" saves without a picker. "Other location…" hands off to the OS-native
   save picker, and the sheet then shows the chosen folder (`a1-11b`, [G26](DESIGN_GAPS.md#g26),
   [ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)). The
   "PDF/A-2b, for archiving" and "Optimized for web" formats stay disabled with the future-version
   tooltip, although a1-11b draws "Optimized for web" enabled ([G111](DESIGN_GAPS.md#g111)).
-- [ ] "Optimize and clean" writes a full rewrite without earlier revisions or unreferenced objects and
+- [x] "Optimize and clean" writes a full rewrite without earlier revisions or unreferenced objects and
   warns first on signed documents. Saving a repaired document (`a1-9`) always writes a full rewrite to
   a new file.
-- [ ] Settings → Editing (`a11-1c`) has the saving group proposed in [G43](DESIGN_GAPS.md#g43).
+- [x] Settings → Editing (`a11-1c`) has the saving group proposed in [G43](DESIGN_GAPS.md#g43).
 
 #### Step 9. Recovery and closing
 
-- [ ] Every commit appends to the recovery journal in the app data directory; a snapshot is written
+- [x] Every commit appends to the recovery journal in the app data directory; a snapshot is written
   every minute while changes are unsaved; the switch in `a11-1c` turns both off.
-- [ ] After `kill -9` during editing, the next launch shows `a1-12`; restored documents match the last
+- [x] After `kill -9` during editing, the next launch shows `a1-12`; restored documents match the last
   committed revision byte for byte, and files on disk are unchanged.
-- [ ] Recovery data of encrypted documents is encrypted with the document's key: a test scans the
+- [x] Recovery data of encrypted documents is encrypted with the document's key: a test scans the
   recovery directory for known plaintext and finds none.
 - [ ] Closing a tab with unsaved changes shows `a1-10b` with the platform's button order; quitting with
   several unsaved documents shows the review dialog ([G40](DESIGN_GAPS.md#g40)).
 
 #### Step 10. Signed documents
 
-- [ ] Signatures are detected at open (`/SigFlags`, signature fields with values, DocMDP).
-- [ ] Before the first change to a signed document the custom warning appears ([G35](DESIGN_GAPS.md#g35)):
+- [x] Signatures are detected at open (`/SigFlags`, signature fields with values, DocMDP).
+- [x] Before the first change to a signed document the custom warning appears ([G35](DESIGN_GAPS.md#g35)):
   "Edit a copy" (default), "Edit anyway", "Cancel", then a persistent banner; the review list gets a
   signature row ([G42](DESIGN_GAPS.md#g42)).
-- [ ] Without the confirmation token the engine refuses to commit (test).
-- [ ] After an incremental save of `kira-tr-signed`, the original signature's byte range still hashes
+- [x] Without the confirmation token the engine refuses to commit (test).
+- [x] After an incremental save of `kira-tr-signed`, the original signature's byte range still hashes
   to the signed digest (test); "Optimize and clean" warns that it breaks the signature.
 
 #### Step 11. Edit mode in the app
 
 - [ ] Caret, selection, the floating format bar and the dark editor (`a3-1b`, `a3-1c`, `a3-1d`).
-- [ ] The text-block panel (`a3-2`): font, size, colour with document colours first, bold, italic,
-  underline, alignment, spacing, position and size in the region's units, language.
-- [ ] Frame label placement follows `f1`: above, then below, then in the margin; it never covers
+- [x] The text-block panel (`a3-2`): font, size, colour with document colours first, bold, italic,
+  alignment, character and line spacing, position and size in the region's units, language. Underline
+  is disabled with its reason (B166, G140), and spacing before and after waits (B160, G140).
+- [x] Frame label placement follows `f1`: above, then below, then in the margin; it never covers
   content and is recalculated while the frame moves.
-- [ ] Edit marks follow `f3`: dotted underline and margin bar on changed lines only, never saved or
+- [x] Edit marks follow `f3`: dotted underline and margin bar on changed lines only, never saved or
   printed, controlled by "Mark edited text".
-- [ ] Review list (`a3-12`): every change with where, when, before and after, "Go to" and "Revert" per
+- [x] Review list (`a3-12`): every change with where, when, before and after, "Go to" and "Revert" per
   row, filter, "Revert all…" with a confirmation, "Export list", and an empty state; reverting an edit
   that a later edit depends on is refused with the reason ([G42](DESIGN_GAPS.md#g42)).
-- [ ] Table cells (`a3-9`): a number edited in a detected column keeps its right alignment, and
+- [x] Table cells (`a3-9`): a number edited in a detected column keeps its right alignment, and
   dependent totals are flagged, not changed. Per-block language (`a3-14`) is shown and can be set.
-- [ ] Welcome step 1 (`a1-2a`) joins the onboarding with its live specimen.
+- [x] Welcome step 1 (`a1-2a`) joins the onboarding with its live specimen.
 - [ ] Localization boards: `a12-1tr` and `a12-1ar` match in goldens; `a12-1de` and `a12-1ja` show no
   clipping with fallback strings and correct document fonts.
 
@@ -2436,7 +2442,7 @@ original file is an exact prefix of the saved file.
 | E10 | `fa-zwnj` | insert a Persian word containing ZWNJ | ZWNJ handling |
 | E11 | `he-para` | edit a Hebrew sentence | right-to-left reflow |
 | E12 | generated Japanese, `zh-hans`, `zh-hant`, `ko-para` | horizontal edits in Identity-H fonts | CID re-encoding, `/W` and `/DW` widths |
-| E13 | `letter-ja-vertical` | change the date run "19" in vertical text | Identity-V, `/W2` and `/DW2`, tate-chu-yoko; or "not editable" with the reason if deferred. Built in M3 W3 (`edit_cases` e13): a column's cells, a top-aligned column one cell longer, the upright "19" as "91" and as "20" in a chosen font; column reflow and kinsoku in the writer are deferred (BACKLOG B136) |
+| E13 | `letter-ja-vertical` | change the date run "19" in vertical text | Identity-V, `/W2` and `/DW2`, tate-chu-yoko; or "not editable" with the reason if deferred. Built in M3 W3 (`edit_cases` e13): a column's cells, a top-aligned column one cell longer, the upright "19" as "91" and as "20" in a chosen font; column reflow and kinsoku in the writer moved to P2 (BACKLOG B136) |
 | E14 | real-world LaTeX file | edit a paragraph in a Type1 font with `/Differences` | Type1 built-in and custom encodings |
 | E15 | generated | edit text in a standard-14 Helvetica font without an embedded program | standard-14 metrics |
 | E16 | generated | edit text in a Type3 font whose glyph procedures cover the new text | Type3 path |
@@ -2456,10 +2462,10 @@ original file is an exact prefix of the saved file.
 - [ ] Steps 1 to 11 accepted.
 - [ ] **Pixel diff = 0** outside the edited region for every case E01 to E26 at 72, 150 and 300 dpi on
   macOS, Windows and Linux, with the byte checks above (brief §4).
-- [ ] Every font type (Type1 with the standard 14, TrueType, Type3, Type0 with both CIDFont types) and
+- [x] Every font type (Type1 with the standard 14, TrueType, Type3, Type0 with both CIDFont types) and
   every encoding (Standard, WinAnsi, MacRoman, `/Differences`, Identity-H, Identity-V, embedded and
   predefined CMaps, ToUnicode) appears in at least one passing case.
-- [ ] Every operator listed in brief §4 has unit tests in the interpreter, including Form XObject
+- [x] Every operator listed in brief §4 has unit tests in the interpreter, including Form XObject
   recursion with cycle detection and marked content.
 - [ ] **Edit-to-render under 100 ms** for every keystroke, from key press to the frame showing the
   edited block: the slowest of 200 keystrokes on `kira-tr` and on a page of `long-500` stays under
@@ -2475,7 +2481,7 @@ original file is an exact prefix of the saved file.
 - [ ] Goldens for every M3 screen in light and dark × en, tr and ar (S4), including the states
   [G37](DESIGN_GAPS.md#g37), [G38](DESIGN_GAPS.md#g38), [G40](DESIGN_GAPS.md#g40) and
   [G42](DESIGN_GAPS.md#g42) ask for.
-- [ ] Accessibility: each block is a semantics node in reading order; the active block behaves as a
+- [x] Accessibility: each block is a semantics node in reading order; the active block behaves as a
   multi-line text field.
 - [ ] New fuzz targets run clean (60 s per pull request and 1 hour nightly, **Proposed**): incremental
   writer round trip; edit scripts (random operations on random blocks of corpus pages, asserting no
@@ -2484,6 +2490,30 @@ original file is an exact prefix of the saved file.
   (TrueType, CFF, Type1) through ferman-fonts; subsetting through ferman-fonts; shaping of random text;
   line breaking; the recovery journal reader. The M2 targets keep running.
 - [ ] Standard gates S1 to S9.
+
+### What stays open at the M3 review
+
+Ticked on tests that ran on the owner's Mac; CI's results on this branch were not looked at (owner,
+2026-11-06). Open, and why:
+
+- Step 5, the 100 % of the generated files: `edit-e18-columns-standin` page 1 reads in drawing order
+  (B163).
+- The glyph and shaping caches of the engine capabilities: not built (B167, ADR 0006).
+- Step 1, the 95 % of the real-world set, and every criterion on real files: E14, E17 and E18 run on
+  generated stand-ins until the owner's files come.
+- Step 7, vertical reflow (B136, P2), and IME and dead keys in integration tests: widget tests send the
+  deltas; no real input method has run.
+- Step 8, atomic replace on each system and crash injection at 1,000 points: run on macOS (100 points
+  by default); Windows and the 1,000 of CI were not looked at.
+- Step 9, closing and quitting: the dialogs and their order have widget tests; the real window paths
+  never ran.
+- Step 11, the dark editor and the localization boards: their goldens are written (`m3_screens_golden_test`),
+  but their images come from CI's `goldens-linux`.
+- Pixel diff on macOS, Windows and Linux; the structure check; Flow A on three systems; the fuzz runs;
+  gates S1 to S9: each needs CI, which was not looked at.
+- Edit-to-render and the save budget on R1 and R2: owner checks.
+- The goldens: no image exists yet.
+- The sandboxed macOS save (ADR 0008): the owner's check.
 
 ### Design gaps to settle in M3
 
@@ -2499,12 +2529,12 @@ G35 to G38 and G40 to G44, and drew G39 in part.
 
 E1 to E8, plus:
 
-- [ ] ADRs 0005, 0006, 0007 and 0008 match the implementation; harfrust is the shaper and no direct
+- [x] ADRs 0005, 0006, 0007 and 0008 match the implementation; harfrust is the shaper and no direct
   rustybuzz dependency exists.
-- [ ] The Turkish, Arabic and CJK cases the brief requires (E01 to E03, E09, E12) pass. Any other
+- [x] The Turkish, Arabic and CJK cases the brief requires (E01 to E03, E09, E12) pass. Any other
   case that cannot reach zero diff is fixed, or its block becomes "not editable" with a reason and a
   BACKLOG entry. No case is skipped or passed silently.
-- [ ] The edit corpus and its ground truth are documented in `tests/corpus/README.md`.
+- [x] The edit corpus and its ground truth are documented in `tests/corpus/README.md`.
 
 ## 8. M4: rest of phase 1
 

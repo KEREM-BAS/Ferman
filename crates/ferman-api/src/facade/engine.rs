@@ -64,6 +64,8 @@ pub struct Engine {
     pub(super) transactions: Mutex<HashMap<super::edit::TransactionId, DocumentId>>,
     /// The font settings and library for missing glyphs, which the actors share (`edit`).
     pub(super) fonts: Arc<super::edit::Fonts>,
+    /// The recovery switch and this instance's session, which the actors share (`recovery`).
+    pub(super) recovery: Arc<super::recovery::Recovery>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -100,6 +102,7 @@ impl Engine {
             actors: Mutex::default(),
             transactions: Mutex::default(),
             fonts: Arc::default(),
+            recovery: Arc::default(),
         }
     }
 

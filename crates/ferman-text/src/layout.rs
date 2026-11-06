@@ -151,6 +151,9 @@ pub struct TextBlock {
     pub cell: Option<TableCell>,
     /// Whether it can be edited.
     pub editability: Editability,
+    /// The language tag of most of its characters: `/Lang` of the marked content around them,
+    /// else of their structure element (or its ancestors); `None` when most have neither.
+    pub language: Option<String>,
 }
 
 impl TextBlock {
@@ -252,12 +255,58 @@ fn text_page_through(
         Err(CoreError::ResourceLimit { .. }) => true,
         Err(err) => return Err(err.into()),
     };
+    collector.finish();
     let page = document.structure().pages.get(index);
     let mut model = build(&collector.glyphs, page, context, limited);
     if model.blocks.is_empty() {
         model.empty = empty_reason(collector.images, collector.paths);
     }
+    let tagged = if collector.show_mcids.is_empty() {
+        HashMap::new()
+    } else {
+        let wanted = collector.show_mcids.values().copied().collect();
+        document.marked_content_languages(index, &wanted)
+    };
+    for block in &mut model.blocks {
+        block.language = block_language(block, &collector, &tagged);
+    }
     Ok(model)
+}
+
+/// The language most of `block`'s characters are in; `None` when most have none.
+fn block_language(
+    block: &TextBlock,
+    collector: &Collector,
+    tagged: &HashMap<i64, String>,
+) -> Option<String> {
+    let mut counts: Vec<(Option<&str>, usize)> = Vec::new();
+    for link in block
+        .lines
+        .iter()
+        .flat_map(|line| &line.chars)
+        .filter_map(|c| c.glyph.as_ref())
+    {
+        let key = (link.span.source, link.span.range.start);
+        // A form's marked-content ids belong to the form's own structure parents.
+        let language = collector.show_languages.get(&key).or_else(|| {
+            matches!(link.span.source, SpanSource::Page { .. })
+                .then(|| collector.show_mcids.get(&key))
+                .flatten()
+                .and_then(|mcid| tagged.get(mcid))
+        });
+        let language = language.map(String::as_str);
+        match counts.iter_mut().find(|(seen, _)| *seen == language) {
+            Some((_, count)) => *count = count.saturating_add(1),
+            None => counts.push((language, 1)),
+        }
+    }
+    let mut best: Option<(Option<&str>, usize)> = None;
+    for entry in counts {
+        if best.is_none_or(|(_, count)| entry.1 > count) {
+            best = Some(entry);
+        }
+    }
+    best.and_then(|(language, _)| language).map(str::to_owned)
 }
 
 /// Why a page without text has none to edit: a scan, or text drawn as shapes.
@@ -875,6 +924,7 @@ fn build(
                 column: draft.column,
                 cell: draft.cell,
                 editability: Editability::Editable,
+                language: None,
             };
             block.editability = editability(&block, &drawn, context, limited);
             block
@@ -1198,7 +1248,10 @@ fn align(
         })
         && body
             .iter()
-            .all(|line| line.spacing > last.spacing + 1.0 && line.high > last.high)
+            // Above zero: a short last line's kerning alone (`す。`) must not read as stretching.
+            .all(|line| {
+                line.spacing > 0.0 && line.spacing > last.spacing + 1.0 && line.high > last.high
+            })
     {
         return (Alignment::Justified, Some(Justification::Glyphs));
     }

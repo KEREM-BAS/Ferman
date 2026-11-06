@@ -64,8 +64,14 @@ abstract class DesktopWindow {
   /// Maximizes the window, or restores it when it is maximized.
   Future<void> toggleMaximize();
 
-  /// Closes the window.
+  /// Closes the window, once what [setCloseGuard] gave allows it; the
+  /// caption buttons, the traffic lights and the system's own ways of
+  /// closing it ask the same.
   Future<void> close();
+
+  /// Sets what decides whether the window may close: [guard] answers false
+  /// to keep it open (the person's Cancel, a save that failed).
+  void setCloseGuard(Future<bool> Function() guard);
 
   /// Moves the window with the pointer that is down on the title bar.
   Future<void> startDragging();
@@ -146,6 +152,9 @@ class NoDesktopWindow implements DesktopWindow {
   Future<void> close() async {}
 
   @override
+  void setCloseGuard(Future<bool> Function() guard) {}
+
+  @override
   Future<void> startDragging() async {}
 
   @override
@@ -203,12 +212,14 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
   }
 
   /// Hides the system title bar, so Ferman's own takes its place, and
-  /// follows the window's state from now on. On macOS the system's traffic
+  /// follows the window's state from now on, every close going through the
+  /// guard ([setCloseGuard]). On macOS the system's traffic
   /// lights stay; the title bar places them ([setTrafficLightLayout]). On
   /// Linux the GTK header bar hides and the client-side frame (shadow and
   /// resize edges) stays.
   Future<void> start() async {
     windowManager.addListener(this);
+    await windowManager.setPreventClose(true);
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     _doubleClick = await _channel.doubleClickSettings();
     await _refresh();
@@ -239,6 +250,30 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
 
   @override
   Future<void> close() => windowManager.close();
+
+  @override
+  void setCloseGuard(Future<bool> Function() guard) => _guard = guard;
+
+  Future<bool> Function()? _guard;
+  bool _asking = false;
+
+  /// Whether the guard allowed the close: on Linux the close that follows
+  /// comes back here as an event.
+  bool _closing = false;
+
+  @override
+  void onWindowClose() => unawaited(_closeAsked());
+
+  Future<void> _closeAsked() async {
+    if (_asking || _closing) return;
+    _asking = true;
+    try {
+      _closing = await _guard?.call() ?? true;
+      if (_closing) await windowManager.destroy();
+    } finally {
+      _asking = false;
+    }
+  }
 
   @override
   Future<void> startDragging() => windowManager.startDragging();

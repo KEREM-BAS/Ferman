@@ -41,14 +41,8 @@ String? _board(
     'a2-1b',
   (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.en) =>
     'f6',
-  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.dark, GoldenLanguage.en) =>
-    'a3-1d',
-  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.tr) =>
-    'a12-1tr',
-  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.ar) =>
-    'a12-1ar',
   (FermanMode.edit, GoldenChrome.win, GoldenTheme.light, GoldenLanguage.en) =>
-    'f6, f6a',
+    'f6',
   _ => null,
 };
 
@@ -59,7 +53,7 @@ Future<void> main() async {
   for (final mode in FermanMode.values) {
     for (final chrome in GoldenChrome.values) {
       for (final theme in GoldenTheme.values) {
-        for (final language in GoldenLanguage.values) {
+        for (final language in GoldenLanguage.matrix) {
           await windowGoldenTest(
             screen: _screen(mode),
             chrome: chrome,

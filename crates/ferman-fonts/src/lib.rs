@@ -8,9 +8,9 @@
 //! Its responsibilities: font programs (TrueType and CFF/CFF2 through skrifa and read-fonts, and a
 //! minimal Type1 parser for built-in encodings and glyph names), encoding tables, glyph names to
 //! Unicode, CMap and ToUnicode parsing with `usecmap` chains, coverage, metric comparison for the
-//! similar-font ranking, shaping, subsetting, system font discovery, the registry of fonts bundled
-//! with the app, and glyph and shaping caches. Missing glyphs are never substituted silently
-//! (ADR 0006).
+//! similar-font ranking, shaping, subsetting, system font discovery and the registry of fonts
+//! bundled with the app. The glyph and shaping caches are not built yet (BACKLOG B167). Missing
+//! glyphs are never substituted silently (ADR 0006).
 //!
 //! # Planned modules
 //!
@@ -41,6 +41,7 @@
 
 pub mod cmap;
 pub mod encoding;
+mod instance;
 pub mod matching;
 pub mod program;
 pub mod shape;
@@ -56,8 +57,10 @@ pub use matching::{
 };
 pub use program::{FontProgram, GlyphId};
 pub use shape::{Direction, FeatureSetting, ShapeRequest, ShapedGlyph, ShapedRun, ShapingFont};
-pub use subset::{Descriptor, Embedding, Subset, SubsetGlyph, SubsetProgram, subset};
-pub use system::{FaceId, FaceInfo, FontLibrary, FontOrigin, ScanLimits, system_font_dirs};
+pub use subset::{Descriptor, Embedding, Subset, SubsetGlyph, SubsetProgram, subset, subset_at};
+pub use system::{
+    FaceId, FaceInfo, FaceInstance, FontLibrary, FontOrigin, ScanLimits, system_font_dirs,
+};
 pub use type1::{BuiltinEncoding, builtin_encoding};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.

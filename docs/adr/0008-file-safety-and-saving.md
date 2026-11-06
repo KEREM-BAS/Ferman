@@ -77,6 +77,67 @@ Symbolic links are resolved and the target is replaced. Files with several hard 
 someone else, are not replaced silently: Ferman offers Save as. Sharing violations on Windows are
 retried briefly, then reported as "locked by another app".
 
+**Under the macOS App Sandbox (M3, W4, B139):** a file granted through the panel is granted on its
+own, so no temp file can go beside it. Every document save takes the staging directory the runner
+names (the item-replacement directory on the same volume; only under the sandbox, where
+`APP_SANDBOX_CONTAINER_ID` is set) and stops before the swap: `save::stage_pdf` runs all of the
+checks below there, the external-change check and the incremental prefix check included, and returns
+the temp file's path. The runner swaps it in (`replaceItemAt`, or `moveItem` for a new file), and
+only then `Engine::finish_save` records the new stamp and moves the document's file and saved
+revision. Until then the document is as it was, so a failed swap keeps the edits, leaves the original
+and deletes the staged file, and reads as the typed failures do (`SwapFailure`, from the Cocoa error;
+anything else is `RenameFailed`). What changes through `replaceItemAt`:
+
+| Check | Through the swap |
+|---|---|
+| Metadata | `replaceItemAt` keeps the original's permissions, ACLs, extended attributes and creation date itself (no `usingNewMetadataOnly`), so `keep_metadata` does not run |
+| Hard links | still refused: the swap gives the name a new file as a rename does, so the other links would stop following it (M2's attachment path skipped this; it no longer does) |
+| Owner | still refused for another user's file (`same_owner`): the runner has no call that restores an owner. Group is `replaceItemAt`'s |
+| Read-only target, free space, read-back, cross-reference parse, prefix | as in the sequence, on the volume of the staging directory |
+| Symbolic link | the runner resolves it first; the link stays |
+| Flush of the folder | `replaceItemAt`'s; Ferman has no handle on the folder under the sandbox |
+| Retry while locked | none: a sharing violation is a Windows failure, and `replaceItemAt` reports `EBUSY` as `FileLocked` at once |
+
+The one way the original could be disturbed is Foundation's own: a swap that fails after moving the
+original aside, which its documentation says it reports under `NSFileOriginalItemLocationKey`. That
+name is in no SDK header, so the runner reads it as a string. The runner then moves the original back,
+and it removes the staged file and only an empty staging directory, so nothing recursive can take the
+original with it. That path has never run; the owner's check on a sandboxed build covers the swap. A
+save the engine refuses before staging (changed on disk, confirmation) has its empty directory removed
+too (`FileAccess.discardStaging`). The app reads the swap's target only when the write's turn comes in
+the editor's queue, so a Save as ahead of it cannot send it to the old file, and every staged write
+goes through that queue, so one document has one staged file at a time. While a write waits for its
+swap, `check_external_change` says no change, so the window regaining focus then shows no false
+a11-7b; the next check sees anyone else's change. A process killed between the swap and `finish_save`
+loses nothing: the new file is in place, and the next launch offers the recovery files, whose recorded
+hash then reads as "changed on disk", so they open under a new name. A restored document starts access
+through its recent file's bookmark; without one its save fails with `PermissionDenied`, and Save as
+asks the panel for the grant. "Edit a copy" writes beside the signed file the same way, and asks where
+through Save as when the folder is not granted.
+
+**Built in M3 (W4, M3 plan decision 2 and question 1):** ferman-core's own code, on M2's
+`safe_write`, not atomic-write-file: `save::save_pdf` for documents and `save::safe_write` for
+other files run the same sequence. The calls the standard library lacks live in one module,
+`platform`, the crate's only unsafe code (ADR 0010): `statvfs` and `GetDiskFreeSpaceExW` for the
+free-space check (the file's size plus 1 MiB), `GetFileInformationByHandle` for the Windows link
+count, `fcopyfile` with `COPYFILE_ACL | COPYFILE_XATTR` (ACLs and extended attributes, Finder tags
+among them; best effort, so a volume without them still saves; not `COPYFILE_STAT`, which would
+give the new file the old modification time), and `ReplaceFileW` with its `MoveFileExW`
+fallback; the hidden attribute, mode bits and `fchown` come from the standard library. A
+read-only target is refused like a hard-linked one. A replace that hits a sharing violation
+(`EBUSY`, `ETXTBSY` elsewhere) is tried again after 50, 100, 200 and 400 ms, then reported as
+`FileLocked`. Every failure is a typed `SaveError` (`DiskFull`, `PermissionDenied`, `FileLocked`,
+`RenameFailed`, `VolumeGone`, `HardLinked`, `NotOwner`, `ChangedOnDisk`, `Verify`) and an
+`ApiError` kind that says whether Save as is the way out; a fault seam in the tests fails every
+step with each error and checks that the original is unchanged and no temp file is left. The one
+exception: a `ReplaceFileW` that fails after deleting the original (`ERROR_UNABLE_TO_MOVE_REPLACEMENT`)
+leaves the verified temp file, then the only copy on disk, while the edits stay in memory. Temp
+files of crashed saves (the name pattern above, older than the process's first save and than ten
+minutes, so another instance's save in progress is never touched) are deleted by the next save in
+that folder. The crash test runs the sequence in a child process that stops itself (`exit`, no
+destructors, as a kill) at a seeded step or data offset, 100 points by default and 1,000 in CI
+(`FERMAN_CRASH_POINTS`), on Linux and macOS, and finds the old file or the new one, each opening.
+
 The macOS App Sandbox stays on if M2 shows that this sequence and security-scoped bookmarks work
 under it; otherwise the Developer ID build drops it ([Q18](../QUESTIONS.md#q18), answered on
 2026-10-16). Under the sandbox, a file granted through the panel is granted on its own, not its
@@ -103,6 +164,14 @@ again with the document writer.
   Save as (a1-11) always use it.
 - **Repair is always a full rewrite to a new file.** A damaged document (a1-9) is never appended to.
   "Save repaired copy…" writes a new file; replacing the original needs explicit confirmation.
+- **Built in M3 (W4):** `RevisionStore::full_rewrite` writes the objects reached from `/Root` and
+  `/Info` in their newest version, numbered again from 1, streams without a filter compressed with
+  Flate (XMP metadata left readable), one classic cross-reference table; an encrypted document is
+  encrypted again with its own key and ciphers for the new numbers, its encryption dictionary and
+  the first `/ID` string kept. Duplicate streams are not merged yet. After Optimize and clean, later
+  saves of that document rewrite the whole file too, so the revisions it dropped never come back.
+  `Engine::save_repaired_copy(path, replace_original)` refuses the document's own file without
+  the flag; `Engine::would_break_signatures` tells the UI to warn first.
 - Hidden is not removed. Content hidden by a crop stays in the file until a full rewrite or "Remove
   hidden information", and the copy says so ([G57](../DESIGN_GAPS.md#g57)).
 
@@ -119,6 +188,9 @@ At open and after each save the engine records size, modification time and SHA-2
 compares size and time; if either differs it hashes again, and if the hash differs the save stops and
 the UI shows a11-7b ("Compare", "Keep mine", "Reload"). Ferman never picks a winner. A file-system watcher
 that shows the banner earlier is proposed in [ARCHITECTURE.md](../ARCHITECTURE.md) section 7.5.
+**Built in M3 (W4, decision 9):** no watcher; `Engine::check_external_change` runs the same check
+when the window regains focus. "Keep mine" is `Engine::save_over_change`; "Reload" is the app
+closing the document and opening it again. "Compare" waits for a diff view.
 
 ### Autosave journal and recovery
 
@@ -139,6 +211,17 @@ that shows the banner earlier is proposed in [ARCHITECTURE.md](../ARCHITECTURE.m
   never reaches disk. The folder is owner-only. Nothing in it is ever sent anywhere.
 - After a crash, the next launch shows a1-12. Recovery files are deleted after a successful save, "Don't
   save", or "Discard".
+- **Built in M3 (W4, decision 10):** a plain copy of the opened bytes up to 200 MB as `base.pdf` (no
+  clones yet), the manifest's stamp alone above it. The instance lock is a file lock the system releases
+  when the process ends (`File::try_lock`, which raises the workspace `rust-version` to 1.89), not a PID
+  check. A commit is journaled as its revision's objects, an undo or redo as every unsaved object, each
+  record with a sequence number and a checksum; snapshots are records too, so one reader (bounded, no
+  panics, a fuzzing entry point) serves both. Restoring opens the document as one unsaved step and moves
+  its files into the running session, which keeps them until a save or "Don't save"; a changed original
+  makes it save to `<name> (recovered).pdf`. The tests: a child process killed after its journal's sync
+  is restored with the revision it committed, byte for byte but the random second `/ID`; and nothing of
+  an encrypted document's new text or page text is found in plaintext anywhere under the folder
+  ([ARCHITECTURE.md](../ARCHITECTURE.md) section 7.6).
 
 ### Version history: the design's choice
 
@@ -176,8 +259,9 @@ the temp file of a save and files the user asks for.
   write path above. "Save repaired copy…" (a1-9) stays visible and disabled until M3 brings the
   writer (Proposed with the M2 plan, [BACKLOG.md](../BACKLOG.md) B103).
 - M3: save, save as, the incremental writer, the save sequence, external-change detection, the recovery
-  journal and a1-12, all a11-7 errors. atomic-write-file is evaluated against the table above; if it
-  falls short, ferman-core implements the sequence directly.
+  journal and a1-12, all a11-7 errors. Built, with ferman-core's own sequence rather than
+  atomic-write-file. Not yet run: a sandboxed macOS build, the real window-close paths, Windows outside
+  CI ([PROGRESS.md](../PROGRESS.md#pending-owner-checks-m3)).
 - M4: version history, with the follow-up ADR on its location.
 
 ## Alternatives considered

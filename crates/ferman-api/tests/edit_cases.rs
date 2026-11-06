@@ -43,9 +43,30 @@
 //! report-ar's IBAN, in the subset's own glyphs and with marks the subset lacks (step 2); E10's
 //! Persian word with a ZWNJ on fa-zwnj; E11's Hebrew paragraph reflowed on he-para.
 //!
+//! W5: step 3 for shaped text, with a similar font of the injected set (E09: the whole block when
+//! the same font is not installed, one script's characters when it lacks them, the licence's
+//! reason); a decomposed Hebrew letter, whose base also stands alone (E11); composed and shaped
+//! Hangul on ko-para with Noto Sans KR's named Regular instance (E12).
+//!
+//! E25 (W4) edits the signed contract below the facade, as every case here does (the confirmation
+//! a signed document needs is the facade's, tested in `edit.rs`), and checks that the signature's
+//! `/ByteRange` still covers the same bytes and hashes to the digest its CMS holds.
+//!
+//! The panel's cases (a3-2, B016): one style at a time on kira-tr's Madde 3 and fatura-tr's price,
+//! each laid out again in its frame and reopened from disk: size, colour, alignment, spacing, a
+//! new font, a move and a resize that reflows.
+//!
 //! The vertical cases (W3, E13) on letter-ja-vertical: a date column's cells in its `Identity-V`
 //! font, the body's last column one cell longer, and the upright "19" across its column, in the
-//! subset's digits and in a new font of the installed Noto Serif JP chosen in step 3.
+//! subset's digits and in a new font of the installed Noto Serif JP's named Regular instance.
+//!
+//! The audit of ROADMAP §7 (W5): every case E01 to E26 is here, at the three resolutions. E14, E17
+//! and E18 run on generated stand-ins (`edit-e14-latex-standin`, `edit-e17-kerned-standin`,
+//! `edit-e18-columns-standin`) until the owner's real files come; a stand-in passing says nothing
+//! about the producers' real output. E24 runs with the password: the update's bytes are encrypted,
+//! so its byte check compares the operators each revision's interpreter reads.
+//! `every_font_type_and_encoding_is_in_a_case` names the case for each font type and encoding of
+//! the acceptance criteria.
 // Test helpers fail loudly.
 #![allow(
     clippy::panic,
@@ -65,16 +86,16 @@ use ferman_api::facade::block_on;
 use ferman_core::filters::{DecodeParams, Filter, decode};
 use ferman_core::interpret::{OperatorEvent, Span, SpanSource, TextShow, TextSink};
 use ferman_core::revision::{Placement, RevisionStore, Splice};
-use ferman_core::{Document, OpenOptions, Source, open};
+use ferman_core::{Document, OpenOptions, Password, Source, open};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::{
     EDIT_MARGIN, PdfiumStatus, RESOLUTIONS, RenderConfig, RenderThread, compare, device_region,
     render_page,
 };
 use ferman_text::{
-    Choice, EditContext, ExtendBlocked, FontChoice, FontSources, MissingReason, Outcome,
-    SubstitutionKind, TextBlock, dependent_cells, rewrite_block_fonts, rewrite_block_with,
-    text_page,
+    Alignment, BlockFont, BlockStyle, Choice, EditContext, ExtendBlocked, FontChoice, FontSources,
+    Frame, MissingReason, Outcome, SubstitutionKind, TextBlock, dependent_cells, paragraph_text,
+    rewrite_block_fonts, rewrite_block_styled, rewrite_block_with, text_page,
 };
 use serde_json::json;
 
@@ -257,6 +278,10 @@ fn object_at(pdf: &[u8], mut at: usize) -> Option<(Object, usize)> {
     };
     let dict = pdf[body..keyword].to_vec();
     let mut length_at = find(&dict, b"/Length", 0)? + b"/Length".len();
+    // Not a font program's `/Length1`.
+    while dict.get(length_at).is_some_and(u8::is_ascii_digit) {
+        length_at = find(&dict, b"/Length", length_at)? + b"/Length".len();
+    }
     while dict.get(length_at).is_some_and(u8::is_ascii_whitespace) {
         length_at += 1;
     }
@@ -509,6 +534,15 @@ struct Saved {
     block: TextBlock,
     path: PathBuf,
     rewrite: ferman_text::Rewrite,
+    password: Option<&'static str>,
+}
+
+/// How a corpus file with `password` opens.
+fn options(password: Option<&str>) -> OpenOptions {
+    OpenOptions {
+        password: password.map(|password| Password::new(password.to_owned())),
+        ..OpenOptions::default()
+    }
 }
 
 /// [`case`] up to the save: rewrites, applies the font copies and splices in one transaction,
@@ -550,6 +584,30 @@ fn saved_text(
     choice: Option<Choice>,
     sources: &FontSources<'_>,
 ) -> (Saved, Vec<String>) {
+    saved_styled(
+        name,
+        original,
+        page,
+        needle,
+        text_of,
+        choice,
+        sources,
+        &BlockStyle::default(),
+    )
+}
+
+/// [`saved_text`] with the block's style changed (a3-2).
+#[allow(clippy::too_many_arguments)]
+fn saved_styled(
+    name: &str,
+    original: Vec<u8>,
+    page: usize,
+    needle: &str,
+    text_of: &dyn Fn(&TextBlock) -> String,
+    choice: Option<Choice>,
+    sources: &FontSources<'_>,
+    style: &BlockStyle,
+) -> (Saved, Vec<String>) {
     let doc = open(
         &Source::from_bytes(Arc::from(original.as_slice())),
         &OpenOptions::default(),
@@ -564,8 +622,10 @@ fn saved_text(
         .cloned()
         .unwrap_or_else(|| panic!("{name}: no block with {needle:?}"));
     let text = text_of(&block);
-    let outcome =
-        rewrite_block_fonts(&doc, None, page, &block, &text, &blocks, choice, sources).unwrap();
+    let outcome = rewrite_block_styled(
+        &doc, None, page, &block, &text, &blocks, choice, sources, style,
+    )
+    .unwrap();
     let Outcome::Rewritten(rewrite) = outcome else {
         panic!("{name}: {outcome:?}");
     };
@@ -622,6 +682,7 @@ fn saved_text(
         block,
         path,
         rewrite,
+        password: None,
     };
     (saved, problems)
 }
@@ -634,9 +695,10 @@ fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page
         block,
         path,
         rewrite,
+        password,
     } = saved_case;
     let saved = std::fs::read(path).unwrap();
-    let after = open(&Source::read(path).unwrap(), &OpenOptions::default()).unwrap();
+    let after = open(&Source::read(path).unwrap(), &options(*password)).unwrap();
     let mut boxes = vec![block.bbox];
     let new_boxes: Vec<[f32; 4]> = text_page(&after, page, &EditContext::default())
         .unwrap()
@@ -656,8 +718,10 @@ fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page
     }
 
     let render = render();
-    let before_pdf = block_on(render.open_document(Arc::from(original.as_slice()), None)).unwrap();
-    let after_pdf = block_on(render.open_document(Arc::from(saved.as_slice()), None)).unwrap();
+    let user = || password.map(|password| Password::new(password.to_owned()));
+    let before_pdf =
+        block_on(render.open_document(Arc::from(original.as_slice()), user())).unwrap();
+    let after_pdf = block_on(render.open_document(Arc::from(saved.as_slice()), user())).unwrap();
     if before_pdf.pages.len() != after_pdf.pages.len() || after.page_count() != doc.page_count() {
         problems.push(format!(
             "{} pages in PDFium after the save, {} before",
@@ -712,10 +776,152 @@ fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page
     assert!(problems.is_empty(), "{name}: {problems:?}\n{reports}");
 }
 
+/// A block's language draws nothing: no pixel of any page differs (a3-14).
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_block_language_changes_no_pixel() {
+    let original = corpus("kira-tr");
+    let doc = open(
+        &Source::from_bytes(Arc::from(original.as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let blocks = text_page(&doc, 0, &EditContext::default()).unwrap().blocks;
+    let block = blocks
+        .iter()
+        .find(|block| block.lines.len() > 1 && block.editability.is_editable())
+        .unwrap();
+    let splices = ferman_text::with_language(&doc, None, 0, block, "en-GB", Vec::new())
+        .unwrap()
+        .unwrap();
+    assert_eq!(splices.len() % 2, 0);
+    let splices: Vec<Splice> = splices
+        .into_iter()
+        .map(|splice| Splice {
+            source: splice.source,
+            range: splice.range,
+            bytes: splice.bytes,
+        })
+        .collect();
+    let mut store = RevisionStore::new(&doc);
+    store.begin().unwrap();
+    store.splice(&doc, 0, &splices, &[]).unwrap();
+    store.commit().unwrap();
+    let saved = store.incremental_update(&doc).unwrap();
+    assert_eq!(saved.get(..original.len()), Some(original.as_slice()));
+
+    let after = open(
+        &Source::from_bytes(Arc::from(saved.as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let marked = text_page(&after, 0, &EditContext::default())
+        .unwrap()
+        .blocks;
+    assert_eq!(marked.len(), blocks.len());
+    for (new, old) in marked.iter().zip(&blocks) {
+        assert_eq!(new.text(), old.text());
+        let language = (new.text() == block.text()).then_some("en-GB");
+        assert_eq!(new.language.as_deref(), language);
+    }
+
+    let render = render();
+    let before_pdf = block_on(render.open_document(Arc::from(original.as_slice()), None)).unwrap();
+    let after_pdf = block_on(render.open_document(Arc::from(saved.as_slice()), None)).unwrap();
+    for (index, size) in before_pdf.pages.iter().enumerate() {
+        let number = u32::try_from(index).unwrap();
+        for dpi in RESOLUTIONS {
+            let old = block_on(render_page(render, before_pdf.id, number, *size, dpi)).unwrap();
+            let new = block_on(render_page(render, after_pdf.id, number, *size, dpi)).unwrap();
+            let diff = compare(&old, &new, None, 0).unwrap();
+            assert_eq!(diff.differing, 0, "page {index} at {dpi} dpi");
+        }
+    }
+}
+
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e01_kira_tr_amount_in_a_subset_truetype() {
     case("e01-kira-tr", "kira-tr", 0, "18.500", "19.500");
+}
+
+/// The hexadecimal string `hex`, `<` and `>` included, as bytes; the padding stays.
+fn hex_string(hex: &[u8]) -> Vec<u8> {
+    let digit = |byte: u8| char::from(byte).to_digit(16).unwrap() as u8;
+    hex.strip_prefix(b"<")
+        .and_then(|hex| hex.strip_suffix(b">"))
+        .unwrap()
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|&[high, low]| digit(high) * 16 + digit(low))
+        .collect()
+}
+
+/// The SHA-256 the signer's `messageDigest` attribute holds: the first one in the CMS (a
+/// timestamp's own comes after it, in the unsigned attributes), found by its DER form: the OID
+/// 1.2.840.113549.1.9.4, then a SET of one OCTET STRING of 32 bytes.
+fn message_digest(cms: &[u8]) -> &[u8] {
+    const ATTRIBUTE: &[u8] = &[
+        0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09, 0x04, 0x31, 0x22, 0x04, 0x20,
+    ];
+    let at = find(cms, ATTRIBUTE, 0).expect("the CMS has a messageDigest attribute");
+    &cms[at + ATTRIBUTE.len()..at + ATTRIBUTE.len() + 32]
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e25_a_signed_range_survives_an_incremental_save() {
+    let name = "e25-kira-tr-signed";
+    let original = corpus("kira-tr-signed");
+    let (saved, problems) = saved_case(name, original.clone(), 0, "18.500", "19.500");
+    let file = std::fs::read(&saved.path).unwrap();
+
+    let structure = saved.doc.structure();
+    assert!(structure.signed());
+    let [start, first, second, last] = structure
+        .signatures
+        .iter()
+        .find(|signature| signature.signed)
+        .and_then(|signature| signature.byte_range)
+        .unwrap()
+        .map(|number| usize::try_from(number).unwrap());
+    let end = second + last;
+    assert_eq!(start, 0);
+    assert!(file.len() > end, "the edit follows the signed bytes");
+    assert_eq!(
+        file[..end],
+        original[..end],
+        "the signed bytes are the same"
+    );
+
+    // The two ranges hash to the digest the signature signed.
+    let mut signed = file[start..first].to_vec();
+    signed.extend_from_slice(&file[second..end]);
+    let signed = Source::from_bytes(signed.into());
+    let cms = hex_string(&file[first..second]);
+    assert_eq!(signed.sha256().as_slice(), message_digest(&cms));
+
+    // The revision the signature covers still opens as it was, and the new file still says it
+    // is signed.
+    let old = open(
+        &Source::from_bytes(file[..end].to_vec().into()),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    assert_eq!(old.page_count(), saved.doc.page_count());
+    assert!(old.repair().is_none());
+    assert!(
+        text_page(&old, 0, &EditContext::default())
+            .unwrap()
+            .blocks
+            .iter()
+            .any(|block| block.lines.iter().any(|line| line.text.contains("18.500")))
+    );
+    let new = open(&Source::from_bytes(file.into()), &OpenOptions::default()).unwrap();
+    assert!(new.structure().signed());
+
+    rendered_case(name, &saved, problems, 0, "19.500");
 }
 
 #[test]
@@ -753,6 +959,7 @@ fn e02_step_3_draws_a_chosen_bundled_font_and_keeps_the_closest() {
         library: Some(&library),
         ask: true,
         choice: None,
+        ..FontSources::default()
     };
     let doc = open(
         &Source::from_bytes(Arc::from(corpus("kira-tr").as_slice())),
@@ -818,6 +1025,30 @@ fn e02_step_3_draws_a_chosen_bundled_font_and_keeps_the_closest() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e02_the_third_choice_keeps_the_font_without_a_glyph() {
+    let library = library(None);
+    let rewrite = glyph_case(
+        "e02-kira-tr-marked",
+        "kira-tr",
+        "Olağan bakım",
+        &|block| joined(block, " ") + MADDE_6,
+        &FontSources {
+            library: Some(&library),
+            mark: true,
+            ..FontSources::default()
+        },
+        "değiştirilemez",
+    );
+    let [substitution] = rewrite.substitutions.as_slice() else {
+        panic!("{:?}", rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::Marked);
+    assert_eq!(substitution.to, substitution.from);
+    assert!(rewrite.new_fonts.is_empty() && rewrite.pending.is_none());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e03_step_2_embeds_the_same_font_as_a_new_type0_font() {
     let library = library(Some(garamond()));
     let rewrite = glyph_case(
@@ -829,6 +1060,7 @@ fn e03_step_2_embeds_the_same_font_as_a_new_type0_font() {
             library: Some(&library),
             ask: true,
             choice: None,
+            ..FontSources::default()
         },
         "değiştirilemez",
     );
@@ -850,6 +1082,7 @@ fn e05_fs_type_falls_to_step_3_with_the_reason() {
         library: Some(&library),
         ask: true,
         choice: None,
+        ..FontSources::default()
     };
     let doc = open(
         &Source::from_bytes(Arc::from(corpus("edit-e05-fstype").as_slice())),
@@ -919,6 +1152,29 @@ fn e19_rotated_page() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e19_rotated_text() {
+    // The line set with a rotating `Tm`, on the turned page.
+    case(
+        "e19-rotated-text",
+        "edit-e19-rotate",
+        0,
+        "Selin Öztürk",
+        "Selin Özrük",
+    );
+}
+
+/// The decoded streams of the update section of `saved`.
+fn update_streams(saved: &Saved) -> Vec<Vec<u8>> {
+    let file = std::fs::read(&saved.path).unwrap();
+    section_objects(&file[saved.original.len()..])
+        .iter()
+        .filter(|object| object.raw.is_some() && !object.is(b"/XRef"))
+        .map(Object::data)
+        .collect()
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e20_form_placed_twice() {
     case("e20-form-twice", "edit-e20-form-twice", 0, "ALINDI", "ALIN");
 }
@@ -926,25 +1182,49 @@ fn e20_form_placed_twice() {
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e21_actual_text() {
-    case(
+    let to = "0612 555";
+    let (saved, problems) = saved_case(
         "e21-actualtext",
-        "edit-e21-actualtext",
+        corpus("edit-e21-actualtext"),
         0,
         "0216 555",
-        "0612 555",
+        to,
     );
+    let streams = update_streams(&saved);
+    assert!(
+        streams.iter().any(|data| {
+            find(data, b"/ActualText", 0)
+                .and_then(|at| find(data, b"BDC", at))
+                .and_then(|at| find(data, b"EMC", at))
+                .is_some()
+        }),
+        "the marked content is kept"
+    );
+    rendered_case("e21-actualtext", &saved, problems, 0, to);
 }
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e22_two_streams() {
-    case(
+    let to = "duyurur";
+    let (saved, problems) = saved_text(
         "e22-split-contents",
-        "edit-e22-split-contents",
+        corpus("edit-e22-split-contents"),
         0,
         "bildirir",
-        "duyurur",
+        // Both of the paragraph's lines, so the edit has spans in both streams.
+        &|block| {
+            joined(block, "\n")
+                .replacen("Bina", "Bin", 1)
+                .replacen("bildirir", to, 1)
+        },
+        None,
+        &FontSources::default(),
     );
+    let mut streams: Vec<_> = saved.rewrite.splices.iter().map(|s| s.source).collect();
+    streams.dedup();
+    assert_eq!(streams.len(), 2, "{streams:?}");
+    rendered_case("e22-split-contents", &saved, problems, 0, to);
 }
 
 #[test]
@@ -962,13 +1242,29 @@ fn e23_shared_stream() {
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e26_inline_image() {
-    case(
-        "e26-inline-image",
-        "edit-e26-inline-image",
-        0,
-        "Duyuru",
-        "Duyurular",
+    let to = "Duyurular";
+    let original = corpus("edit-e26-inline-image");
+    let (saved, problems) = saved_case("e26-inline-image", original, 0, "Duyuru", to);
+    // The image's samples, as the generator writes them.
+    let mut image = b"BI\n/W 16\n/H 16\n/BPC 8\n/CS /G\nID ".to_vec();
+    for y in 0u8..16 {
+        for x in 0u8..16 {
+            image.push(0x80 + (x + y) * 4);
+        }
+    }
+    image.extend_from_slice(b"\nEI\n");
+    let streams = update_streams(&saved);
+    assert!(
+        streams.iter().any(|data| find(data, &image, 0).is_some()),
+        "the inline image's bytes are kept"
     );
+    rendered_case("e26-inline-image", &saved, problems, 0, to);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_japanese_identity_h() {
+    case("e12-ja-para", "ja-para", 0, "十九万五千円", "十五万九千円");
 }
 
 #[test]
@@ -1041,6 +1337,20 @@ fn rtl_case(
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e09_report_ar_lam_alef_reads_back_as_its_letters() {
+    // Lam-alef is one glyph in the subset; the saved page reads back the two logical letters.
+    rtl_case(
+        "e09-report-ar-lam-alef",
+        "report-ar",
+        9,
+        "(IBAN)",
+        ("الدولي", "الاستقلال"),
+        "رقم الحساب الاستقلال",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e09_report_ar_word_beside_the_iban() {
     // The IBAN and "(IBAN)" stay left to right; the new word's forms are the subset's own.
     let rewrite = rtl_case(
@@ -1096,6 +1406,259 @@ fn e11_he_para_sentence_reflows_right_to_left() {
     );
 }
 
+/// The bundled face `path` of `app/assets/fonts` as the font set's only one.
+fn only(faces: &[Vec<u8>]) -> FontLibrary {
+    let mut library = FontLibrary::new();
+    for face in faces {
+        library
+            .add_bytes(face.clone(), FontOrigin::Bundled)
+            .unwrap();
+    }
+    library
+}
+
+fn bundled(path: &str) -> Vec<u8> {
+    std::fs::read(root().join("app/assets/fonts").join(path)).unwrap()
+}
+
+const ARABIC_MEDIUM: &str = "ibm-plex-sans-arabic/IBMPlexSansArabic-Medium.ttf";
+const ARABIC_REGULAR: &str = "ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf";
+const HEBREW_MEDIUM: &str = "ibm-plex-sans-hebrew/IBMPlexSansHebrew-Medium.ttf";
+
+/// The outcome of giving the block with `needle` of `file` page `page` the text `text_of` gives.
+fn outcome_of(
+    file: &str,
+    page: usize,
+    needle: &str,
+    text_of: &dyn Fn(&TextBlock) -> String,
+    sources: &FontSources<'_>,
+) -> Outcome {
+    let original = corpus(file);
+    let doc = open(
+        &Source::from_bytes(Arc::from(original.as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let block = text_page(&doc, page, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| block.lines.iter().any(|line| line.text.contains(needle)))
+        .unwrap();
+    rewrite_block_fonts(
+        &doc,
+        None,
+        page,
+        &block,
+        &text_of(&block),
+        &[],
+        None,
+        sources,
+    )
+    .unwrap()
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e09_step_3_shapes_in_a_similar_font_when_the_same_is_not_installed() {
+    let library = only(&[bundled(ARABIC_MEDIUM)]);
+    let new_word = |block: &TextBlock| joined(block, "\n").replacen("الدولي", "الجمعية", 1);
+    // "Ask each time": the choice first, nothing written.
+    let ask = FontSources {
+        library: Some(&library),
+        ask: true,
+        mark: false,
+        keep_lines: false,
+        choice: None,
+    };
+    let outcome = outcome_of("report-ar", 9, "(IBAN)", &new_word, &ask);
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        panic!("{outcome:?}");
+    };
+    assert_eq!(missing.reason, MissingReason::NotInstalled);
+    assert_eq!(
+        missing.candidates[0].postscript_name,
+        "IBMPlexSansArabic-Medm"
+    );
+    assert!(missing.chars.iter().any(|&(c, _)| c == 'ج'));
+
+    // Without asking the closest draws it, and the choice stays open.
+    let sources = FontSources {
+        library: Some(&library),
+        ..FontSources::default()
+    };
+    let (saved, problems) = saved_text(
+        "e09-similar-closest",
+        corpus("report-ar"),
+        9,
+        "(IBAN)",
+        &new_word,
+        None,
+        &sources,
+    );
+    rendered_case("e09-similar-closest", &saved, problems, 9, "الجمعية");
+    assert!(saved.rewrite.pending.is_some());
+    let [substitution] = saved.rewrite.substitutions.as_slice() else {
+        panic!("{:?}", saved.rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::Similar);
+    assert_eq!(substitution.to, "IBMPlexSansArabic-Medm");
+
+    // The choice is taken: no question left.
+    let chosen = FontChoice::Font {
+        origin: FontOrigin::Bundled,
+        postscript_name: "IBMPlexSansArabic-Medm".to_owned(),
+    };
+    let (saved, problems) = saved_text(
+        "e09-similar-chosen",
+        corpus("report-ar"),
+        9,
+        "(IBAN)",
+        &new_word,
+        None,
+        &FontSources {
+            choice: Some(&chosen),
+            ..ask
+        },
+    );
+    rendered_case("e09-similar-chosen", &saved, problems, 9, "الجمعية");
+    assert!(saved.rewrite.pending.is_none());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e09_step_3_draws_only_the_characters_the_same_font_lacks() {
+    // Hebrew in an Arabic block: the Arabic stays in the subset, the Hebrew in Plex Hebrew.
+    let rewrite = rtl_case(
+        "e09-hebrew-in-arabic",
+        "report-ar",
+        9,
+        "(IBAN)",
+        ("الدولي", "שלום"),
+        "שלום",
+    );
+    let [substitution] = rewrite.substitutions.as_slice() else {
+        panic!("{:?}", rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::Similar);
+    assert!(substitution.to.starts_with("IBMPlexSansHebrew"));
+    assert_eq!(substitution.chars.chars().count(), 4);
+    assert!(rewrite.pending.is_some());
+}
+
+#[test]
+fn e09_a_licence_that_forbids_the_glyphs_sends_shaped_text_to_step_3() {
+    let library = only(&[
+        with_fs_type(bundled(ARABIC_REGULAR), 0x0002),
+        bundled(ARABIC_MEDIUM),
+    ]);
+    let ask = FontSources {
+        library: Some(&library),
+        ask: true,
+        mark: false,
+        keep_lines: false,
+        choice: None,
+    };
+    // Marks the subset lacks need the forbidden font.
+    let marks = |block: &TextBlock| joined(block, "\n").replacen("الدولي", "الدُّوَلِيّ", 1);
+    let outcome = outcome_of("report-ar", 9, "(IBAN)", &marks, &ask);
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        panic!("{outcome:?}");
+    };
+    assert!(
+        matches!(missing.reason, MissingReason::NotEmbeddable { .. }),
+        "{:?}",
+        missing.reason
+    );
+    assert!(!missing.candidates.is_empty());
+    // The subset's own glyphs need no embedding, so the copy still shapes them.
+    let word = |block: &TextBlock| joined(block, "\n").replacen("الدولي", "الجمعية", 1);
+    let outcome = outcome_of("report-ar", 9, "(IBAN)", &word, &ask);
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{outcome:?}");
+    };
+    assert!(rewrite.new_fonts.is_empty());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e11_a_decomposed_letter_keeps_its_text() {
+    // U+FB1D has no glyph of its own in Plex Hebrew: yod and hiriq, the character on the yod.
+    let rewrite = rtl_case(
+        "e11-decomposed",
+        "he-para",
+        0,
+        "השוכרים מתבקשים",
+        ("לשנה נוספת.", "לשנה נוספת \u{FB1D}."),
+        "\u{FB1D}",
+    );
+    assert!(!rewrite.new_fonts.is_empty());
+    // In a similar font every glyph is new, so the yod that also stands alone takes a second
+    // font: ToUnicode is per code.
+    let library = only(&[bundled(HEBREW_MEDIUM)]);
+    let (saved, problems) = saved_text(
+        "e11-decomposed-similar",
+        corpus("he-para"),
+        0,
+        "השוכרים מתבקשים",
+        &|block| joined(block, "\n").replacen("לשנה נוספת.", "לשנה נוספת \u{FB1D}.", 1),
+        None,
+        &FontSources {
+            library: Some(&library),
+            ..FontSources::default()
+        },
+    );
+    rendered_case("e11-decomposed-similar", &saved, problems, 0, "\u{FB1D}");
+    assert_eq!(saved.rewrite.new_fonts.len(), 2);
+    assert_eq!(saved.rewrite.substitutions.len(), 1);
+}
+
+/// Noto Sans KR from `build/corpus-fonts`.
+fn noto_kr() -> Vec<u8> {
+    std::fs::read(root().join("build/corpus-fonts/NotoSansKR-VF.ttf"))
+        .expect("build/corpus-fonts/NotoSansKR-VF.ttf (run tools/corpus/fetch-fonts.sh)")
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_ko_para_conjoining_jamo_compose_into_the_subset() {
+    // "하" typed as its jamo: no font and no shaper needed.
+    let (saved, problems) = saved_case(
+        "e12-ko-composed",
+        corpus("ko-para"),
+        0,
+        "연락해",
+        "연락\u{1112}\u{1161}",
+    );
+    rendered_case("e12-ko-composed", &saved, problems, 0, "연락하");
+    assert!(saved.rewrite.new_fonts.is_empty());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_ko_para_old_hangul_is_shaped_in_the_named_instance() {
+    // Old Hangul composes only through the font's GSUB; the file's Regular is a named instance
+    // of the installed variable font, whose default is Thin.
+    let library = library(Some(noto_kr()));
+    let rewrite = glyph_case(
+        "e12-ko-shaped",
+        "ko-para",
+        "연락해 주시기",
+        &|block| joined(block, "\n").replacen("연락해", "연락\u{1112}\u{119E}\u{11AB}", 1),
+        &FontSources {
+            library: Some(&library),
+            ..FontSources::default()
+        },
+        "\u{1112}\u{119E}\u{11AB}",
+    );
+    let [substitution] = rewrite.substitutions.as_slice() else {
+        panic!("{:?}", rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::SameFont);
+    assert_eq!(substitution.to, "NotoSansKR-Regular");
+    assert_eq!(rewrite.new_fonts.len(), 1);
+}
+
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e13_letter_ja_vertical_column_keeps_its_cells() {
@@ -1123,15 +1686,16 @@ fn e13_letter_ja_vertical_upright_run() {
     // Tate-chu-yoko: "19" across its column, centred in its cell, in the subset's own digits.
     case("e13-upright", "letter-ja-vertical", 0, "19万", "91万");
     // "20": digits the subset lacks, in a new font of the installed Noto Serif JP chosen in step
-    // 3 (its variable font's default instance is ExtraLight, so step 2 does not take it as the
-    // Regular), compressed to one em with Tz when wider.
+    // 3 (the page's digits are half-width forms, so step 2 does not confirm the font), its named
+    // Regular instance listed beside the variable font's default ExtraLight, compressed to one em
+    // with Tz when wider.
     let library = library(Some(
         std::fs::read(root().join("build/corpus-fonts/NotoSerifJP-VF.ttf"))
             .expect("build/corpus-fonts/NotoSerifJP-VF.ttf (run tools/corpus/fetch-fonts.sh)"),
     ));
     let chosen = FontChoice::Font {
         origin: FontOrigin::Installed,
-        postscript_name: "NotoSerifJP-ExtraLight".to_owned(),
+        postscript_name: "NotoSerifJP-Regular".to_owned(),
     };
     let rewrite = glyph_case(
         "e13-upright-step-3",
@@ -1142,6 +1706,7 @@ fn e13_letter_ja_vertical_upright_run() {
             library: Some(&library),
             ask: true,
             choice: Some(&chosen),
+            ..FontSources::default()
         },
         "20万",
     );
@@ -1149,7 +1714,10 @@ fn e13_letter_ja_vertical_upright_run() {
         panic!("{:?}", rewrite.substitutions);
     };
     assert_eq!(substitution.kind, SubstitutionKind::Similar);
-    assert_eq!(substitution.to, "NotoSerifJP-ExtraLight");
+    assert_eq!(substitution.to, "NotoSerifJP-Regular");
+    assert!(
+        matches!(&rewrite.new_fonts[0].base_font, name if name.ends_with("+NotoSerifJP-Regular"))
+    );
 }
 
 /// The block's lines joined as one paragraph by `joint`.
@@ -1356,6 +1924,180 @@ fn e06_tighten_fits_madde_4_within_the_cap() {
     assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Tighten), 0));
 }
 
+/// A style case on kira-tr's Madde 3, whose free space below lets it grow.
+fn style_case(name: &str, style: &BlockStyle, library: Option<&FontLibrary>) -> Saved {
+    let sources = FontSources {
+        library,
+        ..FontSources::default()
+    };
+    let (saved, problems) = saved_styled(
+        name,
+        corpus("kira-tr"),
+        0,
+        "Kira süresi 01.11.2026",
+        &paragraph_text,
+        Some(Choice::Extend),
+        &sources,
+        style,
+    );
+    rendered_case(name, &saved, problems, 0, "Kira süresi");
+    saved
+}
+
+/// The block with `needle` of page 0 of a saved case.
+fn styled_block(name: &str, needle: &str) -> TextBlock {
+    let saved = Source::read(&saved_dir().join(format!("{name}.pdf"))).unwrap();
+    text_page(
+        &open(&saved, &OpenOptions::default()).unwrap(),
+        0,
+        &EditContext::default(),
+    )
+    .unwrap()
+    .blocks
+    .into_iter()
+    .find(|block| block.text().contains(needle))
+    .unwrap()
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn style_a_new_size_scales_the_text_and_its_lines() {
+    let before = Frame::of(&styled_original("Kira süresi 01.11.2026")).unwrap();
+    style_case(
+        "style-size",
+        &BlockStyle {
+            size: Some(before.size * 1.2),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let after = Frame::of(&styled_block("style-size", "Kira süresi")).unwrap();
+    assert!((after.size - before.size * 1.2).abs() < 0.01, "{after:?}");
+    assert!(after.pitch > before.pitch, "{after:?}");
+}
+
+fn styled_original(needle: &str) -> TextBlock {
+    let doc = open(
+        &Source::from_bytes(Arc::from(corpus("kira-tr").as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    text_page(&doc, 0, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| block.text().contains(needle))
+        .unwrap()
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn style_a_colour_changes_the_block_and_nothing_after_it() {
+    let saved = style_case(
+        "style-colour",
+        &BlockStyle {
+            colour: Some(0x00C8_1E1E),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let splice = String::from_utf8_lossy(&saved.rewrite.splices[0].bytes).into_owned();
+    assert!(splice.contains(" rg"), "{splice}");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn style_alignment_and_spacing() {
+    style_case(
+        "style-align",
+        &BlockStyle {
+            alignment: Some(Alignment::Right),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let block = styled_block("style-align", "Kira süresi");
+    assert_eq!(block.alignment, Alignment::Right);
+    style_case(
+        "style-char",
+        &BlockStyle {
+            char_spacing: Some(2.0),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let before = Frame::of(&styled_original("Kira süresi 01.11.2026")).unwrap();
+    style_case(
+        "style-line",
+        &BlockStyle {
+            line_spacing: Some(before.pitch / before.size + 0.5),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let after = Frame::of(&styled_block("style-line", "Kira süresi")).unwrap();
+    assert!(after.pitch > before.pitch + before.size * 0.4, "{after:?}");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn style_a_chosen_font_sets_the_whole_block() {
+    let library = library(None);
+    let bold = library
+        .faces()
+        .find(|face| face.family == "IBM Plex Sans" && face.weight >= 600 && !face.italic)
+        .unwrap();
+    let saved = style_case(
+        "style-font",
+        &BlockStyle {
+            font: Some(BlockFont {
+                origin: FontOrigin::Bundled,
+                postscript_name: bold.postscript_name,
+            }),
+            ..BlockStyle::default()
+        },
+        Some(&library),
+    );
+    assert_eq!(saved.rewrite.new_fonts.len(), 1);
+    assert!(saved.rewrite.substitutions.is_empty());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn style_a_move_and_a_resize_that_reflows() {
+    let original = styled_original("Kira süresi 01.11.2026");
+    let [left, top, right, bottom] = original.bbox;
+    style_case(
+        "style-move",
+        &BlockStyle {
+            frame: Some([left + 12.0, top + 3.0, right + 12.0, bottom + 3.0]),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let moved = styled_block("style-move", "Kira süresi");
+    assert!(
+        (moved.bbox[0] - left - 12.0).abs() < 0.5,
+        "{:?}",
+        moved.bbox
+    );
+    assert!((moved.bbox[1] - top - 3.0).abs() < 0.5, "{:?}", moved.bbox);
+    assert_eq!(moved.lines.len(), original.lines.len());
+
+    let height = bottom - top;
+    style_case(
+        "style-resize",
+        &BlockStyle {
+            frame: Some([left, top, left + (right - left) * 0.6, top + height * 2.0]),
+            ..BlockStyle::default()
+        },
+        None,
+    );
+    let narrow = styled_block("style-resize", "Kira süresi");
+    assert!(narrow.lines.len() > original.lines.len());
+    assert!(narrow.bbox[2] < right - 20.0, "{:?}", narrow.bbox);
+}
+
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e07_right_aligned_amount_keeps_its_edge_and_flags_the_totals() {
@@ -1535,6 +2277,46 @@ fn a_composite_font_paragraph_reflows() {
 /// draws, as producers write them. Typing a character of the program the page does not draw
 /// needs a copy of the font.
 fn composite_pdf() -> Vec<u8> {
+    composite_pdf_encoded("/Identity-H", Vec::new())
+}
+
+/// A stream object of [`pdf_of`].
+fn stream_object(dict: &str, data: &[u8]) -> Vec<u8> {
+    let mut out = format!("<< {dict} /Length {} >>\nstream\n", data.len()).into_bytes();
+    out.extend_from_slice(data);
+    out.extend_from_slice(b"\nendstream");
+    out
+}
+
+/// A file of `objects`, numbered from 1, the first the catalog, with a classic table.
+fn pdf_of(objects: &[Vec<u8>]) -> Vec<u8> {
+    let mut pdf = b"%PDF-1.7\n".to_vec();
+    let mut offsets = Vec::new();
+    for (at, object) in objects.iter().enumerate() {
+        offsets.push(pdf.len());
+        pdf.extend_from_slice(format!("{} 0 obj\n", at + 1).as_bytes());
+        pdf.extend_from_slice(object);
+        pdf.extend_from_slice(b"\nendobj\n");
+    }
+    let xref = pdf.len();
+    pdf.extend_from_slice(
+        format!("xref\n0 {}\n0000000000 65535 f \n", objects.len() + 1).as_bytes(),
+    );
+    for offset in offsets {
+        pdf.extend_from_slice(format!("{offset:010} 00000 n \n").as_bytes());
+    }
+    pdf.extend_from_slice(
+        format!(
+            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n",
+            objects.len() + 1
+        )
+        .as_bytes(),
+    );
+    pdf
+}
+
+/// [`composite_pdf`] with `encoding` as the Type0 font's `/Encoding`, and `extra` objects from 10.
+fn composite_pdf_encoded(encoding: &str, extra: Vec<Vec<u8>>) -> Vec<u8> {
     const PLEX_SANS: &[u8] =
         include_bytes!("../../../app/assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf");
     let program = ferman_fonts::FontProgram::parse(PLEX_SANS).unwrap();
@@ -1564,46 +2346,19 @@ fn composite_pdf() -> Vec<u8> {
         cmap.push_str(&format!("<{gid:04X}> <{:04X}>\n", u32::from(*c)));
     }
     cmap.push_str("endbfchar\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n");
-    let stream = |dict: &str, data: &[u8]| {
-        let mut out = format!("<< {dict} /Length {} >>\nstream\n", data.len()).into_bytes();
-        out.extend_from_slice(data);
-        out.extend_from_slice(b"\nendstream");
-        out
-    };
-    let objects: Vec<Vec<u8>> = vec![
+    let mut objects: Vec<Vec<u8>> = vec![
         b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
         b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_vec(),
         b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 8 0 R >>".to_vec(),
-        b"<< /Type /Font /Subtype /Type0 /BaseFont /IBMPlexSans /Encoding /Identity-H /DescendantFonts [5 0 R] /ToUnicode 7 0 R >>".to_vec(),
+        format!("<< /Type /Font /Subtype /Type0 /BaseFont /IBMPlexSans /Encoding {encoding} /DescendantFonts [5 0 R] /ToUnicode 7 0 R >>").into_bytes(),
         format!("<< /Type /Font /Subtype /CIDFontType2 /BaseFont /IBMPlexSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 6 0 R /DW 1000 /W [{widths}] /CIDToGIDMap /Identity >>").into_bytes(),
         b"<< /Type /FontDescriptor /FontName /IBMPlexSans /Flags 32 /FontBBox [-200 -300 1200 1100] /ItalicAngle 0 /Ascent 1025 /Descent -275 /CapHeight 698 /StemV 80 /FontFile2 9 0 R >>".to_vec(),
-        stream("", cmap.as_bytes()),
-        stream("", content.as_bytes()),
-        stream(&format!("/Length1 {}", PLEX_SANS.len()), PLEX_SANS),
+        stream_object("", cmap.as_bytes()),
+        stream_object("", content.as_bytes()),
+        stream_object(&format!("/Length1 {}", PLEX_SANS.len()), PLEX_SANS),
     ];
-    let mut pdf = b"%PDF-1.7\n".to_vec();
-    let mut offsets = Vec::new();
-    for (at, object) in objects.iter().enumerate() {
-        offsets.push(pdf.len());
-        pdf.extend_from_slice(format!("{} 0 obj\n", at + 1).as_bytes());
-        pdf.extend_from_slice(object);
-        pdf.extend_from_slice(b"\nendobj\n");
-    }
-    let xref = pdf.len();
-    pdf.extend_from_slice(
-        format!("xref\n0 {}\n0000000000 65535 f \n", objects.len() + 1).as_bytes(),
-    );
-    for offset in offsets {
-        pdf.extend_from_slice(format!("{offset:010} 00000 n \n").as_bytes());
-    }
-    pdf.extend_from_slice(
-        format!(
-            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n",
-            objects.len() + 1
-        )
-        .as_bytes(),
-    );
-    pdf
+    objects.extend(extra);
+    pdf_of(&objects)
 }
 
 #[test]
@@ -1693,6 +2448,381 @@ fn e12_new_font_dictionary() {
     let to = "Merhaba güneş";
     let (saved, problems) = saved_case("e12-font-copy", composite_pdf(), 0, "Merhaba dünya", to);
     rendered_case("e12-font-copy", &saved, problems, 0, to);
+}
+
+/// The acceptance criteria's font types and encodings, each with a case above that edits it, and
+/// a mark of it in that case's file. E14's Type1 and the embedded CMap have their own cases; the
+/// default `StandardEncoding` has a file built in its case, which has no `/Encoding` to find.
+#[test]
+fn every_font_type_and_encoding_is_in_a_case() {
+    for (case, file, marks) in [
+        (
+            "e14",
+            "edit-e14-latex-standin",
+            &["/Subtype/Type1", "/FontFile ", "/Differences"][..],
+        ),
+        (
+            "e15",
+            "edit-e15-helvetica",
+            &["/Subtype/Type1", "/BaseFont/Helvetica"],
+        ),
+        ("e16", "edit-e16-type3", &["/Subtype/Type3", "/ToUnicode"]),
+        ("e01", "kira-tr", &["/Subtype/TrueType", "/WinAnsiEncoding"]),
+        ("mac_roman", "edit-macroman", &["/MacRomanEncoding"]),
+        (
+            "e04",
+            "edit-e04-differences",
+            &["/Subtype/TrueType", "/WinAnsiEncoding"],
+        ),
+        ("e12", "zh-hans", &["/CIDFontType2", "/Identity-H"]),
+        ("cff_cid_font", "edit-cff-cid", &["/CIDFontType0"]),
+        ("e13", "letter-ja-vertical", &["/Identity-V"]),
+        ("e12", "edit-90ms-rksj", &["/90ms-RKSJ-H"]),
+    ] {
+        let squeezed: Vec<u8> = corpus(file)
+            .into_iter()
+            .filter(|byte| *byte != b'\n')
+            .collect();
+        let text = String::from_utf8_lossy(&squeezed).replace("/Subtype /", "/Subtype/");
+        let text = text.replace("/BaseFont /", "/BaseFont/");
+        for mark in marks {
+            assert!(text.contains(mark), "{case}: {file} has no {mark}");
+        }
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e14_stand_in_type1_with_differences() {
+    case(
+        "e14-standin-differences",
+        "edit-e14-latex-standin",
+        0,
+        "on 12 May",
+        "on 21 May",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e14_stand_in_type1_built_in_encoding() {
+    case(
+        "e14-standin-built-in",
+        "edit-e14-latex-standin",
+        0,
+        "in 2025",
+        "in 2052",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e14_stand_in_paragraph_reflows_without_a_space_glyph() {
+    // The font has no space glyph: the new line breaks and spaces must not need one.
+    let rewrite = reflow_case(
+        "e14-standin-reflow",
+        "edit-e14-latex-standin",
+        0,
+        "The committee met",
+        &|block| joined(block, " ").replacen("in three districts", "in the districts", 1),
+        None,
+        "in the districts",
+    );
+    assert!(rewrite.new_fonts.is_empty() && rewrite.substitutions.is_empty());
+}
+
+#[test]
+fn e14_stand_in_programs_are_real_type1() {
+    let pdf = corpus("edit-e14-latex-standin");
+    let programs: Vec<Vec<u8>> = (1..100)
+        .filter_map(|number| original_object(&pdf, (number, 0)))
+        .filter(|object| object.is(b"/Length2"))
+        .map(|object| object.data())
+        .collect();
+    let [differences, built_in] = programs.as_slice() else {
+        panic!("{} programs", programs.len());
+    };
+    for program in &programs {
+        let parsed = ferman_fonts::FontProgram::parse(program).unwrap();
+        let glyph = parsed.glyph_for_name("e").expect("the program draws e");
+        assert!(parsed.advance_width(glyph).unwrap() > 0.0);
+    }
+    assert_eq!(
+        ferman_fonts::builtin_encoding(differences).unwrap(),
+        Some(ferman_fonts::BuiltinEncoding::Standard)
+    );
+    assert!(matches!(
+        ferman_fonts::builtin_encoding(built_in).unwrap(),
+        Some(ferman_fonts::BuiltinEncoding::Codes(_))
+    ));
+}
+
+/// Whether a `TJ` in `bytes` has a kerning number after a string that `close` ends.
+fn has_kerning(bytes: &[u8], close: u8) -> bool {
+    bytes.iter().enumerate().any(|(at, byte)| {
+        let number = |at| {
+            bytes
+                .get(at)
+                .is_some_and(|b: &u8| *b == b'-' || b.is_ascii_digit())
+        };
+        *byte == close && (number(at + 1) || (bytes.get(at + 1) == Some(&b' ') && number(at + 2)))
+    })
+}
+
+/// E17 on `page`: `close` ends the page's strings. The edited line and the file's other lines keep
+/// their kerning numbers.
+fn e17_case(name: &str, page: usize, close: u8) {
+    let to = "21 May";
+    let (saved, problems) = saved_case(name, corpus("edit-e17-kerned-standin"), page, "12 May", to);
+    let streams = update_streams(&saved);
+    assert!(
+        streams.iter().any(|data| has_kerning(data, close)),
+        "{name}: no kerning number left"
+    );
+    assert!(
+        saved
+            .rewrite
+            .splices
+            .iter()
+            .any(|splice| has_kerning(&splice.bytes, close)),
+        "{name}: the edited line lost its kerning"
+    );
+    rendered_case(name, &saved, problems, page, to);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e17_stand_in_word_kerning_in_a_simple_font() {
+    e17_case("e17-standin-word", 0, b')');
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e17_stand_in_google_docs_kerning_in_a_composite_font() {
+    e17_case("e17-standin-docs", 1, b'>');
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e18_stand_in_interleaved_columns_keep_the_state_invariant() {
+    // Each line is placed from the other column's: both columns' edits leave the other in place.
+    case(
+        "e18-standin-left",
+        "edit-e18-columns-standin",
+        0,
+        "ayrıca ücret",
+        "ayrıca para",
+    );
+    case(
+        "e18-standin-right",
+        "edit-e18-columns-standin",
+        0,
+        "14 Aralık",
+        "41 Aralık",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn standard_encoding_in_a_type1_font() {
+    // No `/Encoding`: StandardEncoding, where "’" is 0x27, which WinAnsi draws as "'".
+    let pdf = pdf_of(&[
+        b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_vec(),
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".to_vec(),
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_vec(),
+        stream_object("", b"BT /F1 12 Tf 40 140 Td (Its office) Tj 0 -30 Td (Next line) Tj ET"),
+    ]);
+    let to = "It’s office";
+    let (saved, problems) = saved_case("standard-encoding", pdf, 0, "Its office", to);
+    rendered_case("standard-encoding", &saved, problems, 0, to);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn embedded_cmap_with_usecmap() {
+    let cmap = |name: &str, usecmap: &str, range: &str| {
+        format!(
+            "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n{usecmap}/CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> def\n/CMapName /{name} def\n/CMapType 1 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n1 begincidrange\n{range}\nendcidrange\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n"
+        )
+    };
+    let info =
+        "/Type /CMap /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >>";
+    let pdf = |child: &str| {
+        composite_pdf_encoded(
+            "11 0 R",
+            vec![
+                stream_object(
+                    &format!("{info} /CMapName /FermanBase"),
+                    cmap("FermanBase", "", "<0000> <7FFF> 0").as_bytes(),
+                ),
+                stream_object(
+                    &format!("{info} /CMapName /FermanChild /UseCMap 10 0 R"),
+                    cmap("FermanChild", "/FermanBase usecmap\n", child).as_bytes(),
+                ),
+            ],
+        )
+    };
+    let to = "Merhaba dünaya";
+    // The child repeats the parent's range: PDFium does not follow `usecmap` (it draws CID 0 for
+    // what only the parent maps), so a render can compare only this form.
+    let (saved, problems) = saved_case(
+        "embedded-cmap",
+        pdf("<0000> <7FFF> 0"),
+        0,
+        "Merhaba dünya",
+        to,
+    );
+    rendered_case("embedded-cmap", &saved, problems, 0, to);
+    // The page's codes only through the parent: the engine's reading and bytes, without a render.
+    let (saved, problems) = saved_case(
+        "embedded-cmap-parent",
+        pdf("<8000> <FFFF> 32768"),
+        0,
+        "Merhaba dünya",
+        to,
+    );
+    assert!(problems.is_empty(), "{problems:?}");
+    let after = open(&Source::read(&saved.path).unwrap(), &OpenOptions::default()).unwrap();
+    assert!(ferman_text::page_text(&after, 0).unwrap().contains(to));
+}
+
+/// The operators of `page`, by name and range in the stream's decoded data.
+#[derive(Default)]
+struct Operators(Vec<(Vec<u8>, Range<usize>)>);
+
+impl TextSink for Operators {
+    fn font(&mut self, _font: &ferman_core::interpret::FontResource) {}
+
+    fn show(&mut self, _show: &TextShow<'_>) -> (f32, f32) {
+        (0.0, 0.0)
+    }
+
+    fn operator(&mut self, operator: &OperatorEvent<'_>) {
+        self.0
+            .push((operator.name.to_vec(), operator.span.range.clone()));
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e24_edited_after_unlocking_and_still_encrypted() {
+    const PASSWORD: &str = "Eylül2026maaşı";
+    let (name, from, to) = ("e24-payslip-aes256", "0187", "0188");
+    let original = corpus("payslip-aes256");
+    let doc = open(
+        &Source::from_bytes(Arc::from(original.as_slice())),
+        &options(Some(PASSWORD)),
+    )
+    .unwrap();
+    let blocks = text_page(&doc, 0, &EditContext::default()).unwrap().blocks;
+    let block = blocks
+        .iter()
+        .find(|block| block.text().contains(from))
+        .cloned()
+        .unwrap();
+    let text = joined(&block, "\n").replacen(from, to, 1);
+    let outcome = rewrite_block_fonts(
+        &doc,
+        None,
+        0,
+        &block,
+        &text,
+        &blocks,
+        None,
+        &FontSources::default(),
+    )
+    .unwrap();
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{name}: {outcome:?}");
+    };
+    let splices: Vec<Splice> = rewrite
+        .splices
+        .iter()
+        .map(|splice| Splice {
+            source: splice.source,
+            range: splice.range.clone(),
+            bytes: splice.bytes.clone(),
+        })
+        .collect();
+    let mut store = RevisionStore::new(&doc);
+    store.begin().unwrap();
+    store.splice(&doc, 0, &splices, &[]).unwrap();
+    store.commit().unwrap();
+    let path = saved_dir().join(format!("{name}.pdf"));
+    std::fs::write(&path, store.incremental_update(&doc).unwrap()).unwrap();
+
+    let saved = std::fs::read(&path).unwrap();
+    let mut problems = if saved.starts_with(&original) {
+        xref_problems(&original, &saved)
+    } else {
+        vec!["the original is not a prefix of the saved file".to_owned()]
+    };
+    let update = &saved[original.len()..];
+    assert!(
+        find(update, b"/Encrypt", 0).is_some(),
+        "the trailer keeps /Encrypt"
+    );
+    // Only the edited stream is new, and its bytes are AES blocks: an IV and whole blocks.
+    let edited: Vec<ObjectId> = splices
+        .iter()
+        .map(|splice| match splice.source {
+            SpanSource::Page { stream } | SpanSource::Form { form: stream } => stream,
+        })
+        .collect();
+    for object in section_objects(update) {
+        if object.is(b"/XRef") {
+            continue;
+        }
+        if !edited.contains(&object.id) {
+            problems.push(format!("object {:?} rewritten", object.id));
+        }
+        let raw = object.raw.as_ref().expect("a stream");
+        if raw.len() % 16 != 0 || find(raw, b"Tf", 0).is_some() {
+            problems.push(format!("stream {:?} is not encrypted", object.id));
+        }
+    }
+    assert!(
+        open(&Source::read(&path).unwrap(), &OpenOptions::default()).is_err(),
+        "no password, no document"
+    );
+    // The encrypted stream cannot be compared in the file: every operator outside the replaced
+    // spans must be where it was, moved only by the replacement's length.
+    let operators = |doc: &Document| {
+        let mut sink = Operators::default();
+        doc.page_text(0, &mut sink).unwrap();
+        sink.0
+    };
+    let after = open(&Source::read(&path).unwrap(), &options(Some(PASSWORD))).unwrap();
+    let (old, new) = (operators(&doc), operators(&after));
+    let [splice] = splices.as_slice() else {
+        panic!("{name}: one span expected, {}", splices.len());
+    };
+    let shift = splice.bytes.len() as isize - splice.range.len() as isize;
+    let moved = |range: &Range<usize>| {
+        range.start.wrapping_add_signed(shift)..range.end.wrapping_add_signed(shift)
+    };
+    let before: Vec<_> = old
+        .iter()
+        .filter(|(_, range)| range.end <= splice.range.start)
+        .collect();
+    let behind: Vec<_> = old
+        .iter()
+        .filter(|(_, range)| range.start >= splice.range.end)
+        .map(|(name, range)| (name.clone(), moved(range)))
+        .collect();
+    assert_eq!(new[..before.len()].iter().collect::<Vec<_>>(), before);
+    assert_eq!(new[new.len() - behind.len()..], behind[..]);
+
+    let saved = Saved {
+        original,
+        doc,
+        block,
+        path,
+        rewrite,
+        password: Some(PASSWORD),
+    };
+    rendered_case(name, &saved, problems, 0, to);
 }
 
 #[test]

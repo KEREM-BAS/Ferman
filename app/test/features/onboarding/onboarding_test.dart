@@ -407,9 +407,65 @@ void main() {
     });
   });
 
+  group('editing step (a1-2a)', () {
+    Future<void> openEdit(WidgetTester tester) async {
+      await pumpFermanApp(tester, settings: _firstRun);
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('counts three steps and shows the real editing frame', (
+      tester,
+    ) async {
+      await openEdit(tester);
+      expect(find.text('1 of 3'), findsOneWidget);
+      expect(_stepLabel('Step 1 of 3'), findsOneWidget);
+      expect(find.text('Back'), findsNothing);
+      final box = tester.widget<TextEditBox>(find.byType(TextEditBox));
+      expect(box.state, TextEditBoxState.editing);
+      expect(box.meta, 'IBM Plex Serif · 10.5\u00A0pt');
+      expect(box.metaPlacement, MetaPlacement.below);
+      expect(
+        tester.widget<PageMark>(find.byType(PageMark)).kind,
+        PageMarkKind.edited,
+      );
+      expect(find.byType(TextCaret), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp(r'^Madde 4 .*19\.500 TL.*IBAN')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the page never mirrors in right to left', (tester) async {
+      await pumpFermanApp(
+        tester,
+        settings: const AppSettings(languageCode: 'ar'),
+      );
+      await _advance(tester, 1);
+      expect(directionOf(tester, find.byType(WelcomeStep)), TextDirection.rtl);
+      expect(directionOf(tester, find.byType(PageMark)), TextDirection.ltr);
+    });
+
+    testWidgets('Next goes to the privacy step; Skip finishes first run', (
+      tester,
+    ) async {
+      await openEdit(tester);
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.text('Everything stays on your device'), findsOneWidget);
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OnboardingScreen), findsNothing);
+    });
+  });
+
   group('privacy step (a1-2b)', () {
     Future<void> openPrivacy(WidgetTester tester) async {
       await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
     }
 
@@ -418,7 +474,7 @@ void main() {
     ) async {
       await pumpFermanApp(tester, settings: _firstRun);
       await openPrivacy(tester);
-      expect(find.text('1 of 2'), findsOneWidget);
+      expect(find.text('2 of 3'), findsOneWidget);
       expect(find.text('Everything stays on your device'), findsOneWidget);
       for (final title in [
         'Files stay on this device',
@@ -443,13 +499,13 @@ void main() {
       expect(find.textContaining('revoked'), findsNothing);
     });
 
-    testWidgets('announces the step as "Step 1 of 2" (a1-2a note)', (
+    testWidgets('announces the step as "Step 2 of 3" (a1-2a note)', (
       tester,
     ) async {
       await pumpFermanApp(tester, settings: _firstRun);
       await openPrivacy(tester);
-      expect(_stepLabel('Step 1 of 2'), findsOneWidget);
-      expect(find.bySemanticsLabel('Step 1 of 2'), findsOneWidget);
+      expect(_stepLabel('Step 2 of 3'), findsOneWidget);
+      expect(find.bySemanticsLabel('Step 2 of 3'), findsOneWidget);
     });
 
     testWidgets('every fact row is as tall as the board draws it, the line '
@@ -540,12 +596,12 @@ void main() {
       expect(find.text('Everything stays on your device'), findsOneWidget);
     });
 
-    testWidgets('Back returns to the language picker', (tester) async {
+    testWidgets('Back returns to the editing step', (tester) async {
       await pumpFermanApp(tester, settings: _firstRun);
       await openPrivacy(tester);
       await tester.tap(find.text('Back'));
       await tester.pumpAndSettle();
-      expect(find.byType(LanguagePicker), findsOneWidget);
+      expect(find.text('Edit any PDF like a document'), findsOneWidget);
     });
 
     testWidgets('Skip finishes first run', (tester) async {
@@ -581,6 +637,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
     }
 
     testWidgets('says Apache-2.0 and never marks later features Included', (
@@ -588,20 +646,21 @@ void main() {
     ) async {
       await pumpFermanApp(tester, settings: _firstRun);
       await openFree(tester);
-      expect(find.text('2 of 2'), findsOneWidget);
+      expect(find.text('3 of 3'), findsOneWidget);
       expect(find.text('Free forever, nothing locked'), findsOneWidget);
       expect(find.textContaining('Apache-2.0'), findsOneWidget);
       expect(find.textContaining('GPL'), findsNothing);
       expect(find.text('Skip'), findsNothing);
-      // G12: only the interface languages have shipped.
+      // G12: only editing and the interface languages have shipped.
       expect(find.text('3 interface languages'), findsOneWidget);
       expect(
         find.bySemanticsLabel('3 interface languages. Included'),
         findsOneWidget,
       );
+      expect(find.bySemanticsLabel('Edit text. Included'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp(r'\. Available in a future version$')),
-        findsNWidgets(WelcomeFeature.values.length - 1),
+        findsNWidgets(WelcomeFeature.values.length - 2),
       );
       expect(
         find.bySemanticsLabel(RegExp(r'Redaction\. Included')),
@@ -611,7 +670,7 @@ void main() {
         hintOf(tester, find.text('Source code')),
         'Available in a future version',
       );
-      // Only the shipped feature carries the green check (G12).
+      // Only the shipped features carry the green check (G12).
       expect(
         find.descendant(
           of: find.byType(FeatureGrid),
@@ -619,9 +678,9 @@ void main() {
             (widget) => widget is Icon && widget.name == IconName.check,
           ),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
-      expect(_stepLabel('Step 2 of 2'), findsOneWidget);
+      expect(_stepLabel('Step 3 of 3'), findsOneWidget);
       // The licence links are links for screen readers (the board's <a>).
       for (final link in ['Source code', 'Support the project']) {
         expect(
@@ -692,7 +751,7 @@ void main() {
       await _advance(tester, 2);
       // The Arabic step counter's numbers are the Saudi region's
       // Arabic-Indic digits.
-      expect(find.text('٢ من ٢'), findsOneWidget);
+      expect(find.text('٢ من ٣'), findsOneWidget);
     });
   });
 
@@ -713,7 +772,7 @@ void main() {
           expect(localeOf(tester, find.byType(LanguagePicker)), Locale(code));
           expect(directionOf(tester, find.byType(LanguagePicker)), direction);
           expect(tester.takeException(), isNull);
-          for (var step = 1; step <= 2; step++) {
+          for (var step = 1; step <= 3; step++) {
             await _advance(tester, 1);
             expect(find.byType(WelcomeStep), findsOneWidget);
             expect(
@@ -742,7 +801,7 @@ void main() {
 bool _hasFocus(WidgetTester tester, Finder finder) =>
     Focus.of(tester.element(finder)).hasFocus;
 
-/// The step dots' screen-reader label, "Step 1 of 2" (a1-2a note).
+/// The step dots' screen-reader label, "Step 1 of 3" (a1-2a note).
 Finder _stepLabel(String label) => find.byWidgetPredicate(
   (widget) => widget is Semantics && widget.properties.label == label,
 );
