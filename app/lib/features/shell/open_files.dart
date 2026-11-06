@@ -170,7 +170,9 @@ class DocumentOpener extends _$DocumentOpener {
   Future<void> recordOpen(ShellDocumentList documents) async {
     final paths = [
       for (final document in documents.documents)
-        if (document.path case final path? when document.error == null) path,
+        if (document.path case final path?
+            when document.error == null && !document.combine)
+          path,
     ];
     try {
       await ref

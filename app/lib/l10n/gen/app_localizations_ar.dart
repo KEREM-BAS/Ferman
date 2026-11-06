@@ -3994,4 +3994,304 @@ class AppLocalizationsAr extends AppLocalizations {
   String jobReplaceFailedTitle(String name) {
     return 'تعذّر استبدال الصفحات بـ$name';
   }
+
+  @override
+  String organizeFileCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted ملف',
+      many: '$formatted ملفًا',
+      few: '$formatted ملفات',
+      two: 'ملفان',
+      one: 'ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePageCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted صفحة',
+      many: '$formatted صفحة',
+      few: '$formatted صفحات',
+      two: 'صفحتان',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get combineAddFiles => 'إضافة ملفات…';
+
+  @override
+  String get combineFilter => 'ملفات PDF والصور وملفات Office';
+
+  @override
+  String get combineEmptyTitle => 'لا توجد ملفات بعد';
+
+  @override
+  String get combineEmptyBody =>
+      'أضف ملفات PDF أو صورًا لدمجها في ملف جديد واحد.';
+
+  @override
+  String get combineDrag => 'اسحب لإعادة الترتيب';
+
+  @override
+  String get combineMoveUp => 'نقل لأعلى';
+
+  @override
+  String get combineMoveDown => 'نقل لأسفل';
+
+  @override
+  String get combinePagesToInclude => 'الصفحات المراد تضمينها';
+
+  @override
+  String get combineAllPages => 'الكل';
+
+  @override
+  String get combineRemoveFile => 'إزالة الملف';
+
+  @override
+  String get combineMetaImage => 'صورة · تُحوَّل إلى صفحة واحدة';
+
+  @override
+  String get combineMetaOffice => 'Word أو Excel';
+
+  @override
+  String get combineNeedsPassword => 'مقفل: أدخل كلمة المرور لإضافته.';
+
+  @override
+  String get combineWrongPassword => 'كلمة المرور هذه لا تفتحه. حاول مرة أخرى.';
+
+  @override
+  String get combineOwnerPassword =>
+      'يمنع هذا الملف الدمج. أدخل كلمة مرور المالك لإضافته.';
+
+  @override
+  String get combineUnreadable => 'يتعذر على Ferman قراءة هذا الملف.';
+
+  @override
+  String get combineBadRange => 'لا يحتوي هذا الملف على تلك الصفحات.';
+
+  @override
+  String get combinePassword => 'كلمة المرور';
+
+  @override
+  String get combineUnlock => 'فتح القفل';
+
+  @override
+  String get combineNotProtected => 'لن يحمل الملف الجديد كلمة مرور هذا الملف.';
+
+  @override
+  String get combineNotSigned => 'لن تنتقل تواقيعه إلى الملف الجديد.';
+
+  @override
+  String get combineNewFile => 'ملف جديد';
+
+  @override
+  String get combineDefaultName => 'ملف مدمج.pdf';
+
+  @override
+  String get combineBookmarks => 'إضافة إشارة مرجعية لكل ملف';
+
+  @override
+  String get combineKeepForms => 'الاحتفاظ بحقول النماذج';
+
+  @override
+  String get combineKeepFormsNote => 'لا تنتقل التواقيع من الملفات الأصلية.';
+
+  @override
+  String combineAbout(String size) {
+    return 'حوالى $size';
+  }
+
+  @override
+  String combineAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دمج $formatted ملف',
+      many: 'دمج $formatted ملفًا',
+      few: 'دمج $formatted ملفات',
+      two: 'دمج ملفين',
+      one: 'دمج ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResult(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'النتيجة · $formatted صفحة',
+      many: 'النتيجة · $formatted صفحة',
+      few: 'النتيجة · $formatted صفحات',
+      two: 'النتيجة · صفحتان',
+      one: 'النتيجة · صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResultPage(String page, String file) {
+    return 'الصفحة $page، من الملف $file';
+  }
+
+  @override
+  String combineOutputExists(String name) {
+    return '“$name” موجود بالفعل. اختر اسمًا آخر.';
+  }
+
+  @override
+  String splitTitle(String name) {
+    return 'تقسيم “$name”';
+  }
+
+  @override
+  String get splitBy => 'طريقة التقسيم';
+
+  @override
+  String get splitEvery => 'كل بضع صفحات';
+
+  @override
+  String get splitEveryBody => 'ملف جديد كل N صفحة.';
+
+  @override
+  String get splitBookmarks => 'عند الإشارات المرجعية العليا';
+
+  @override
+  String splitBookmarksBody(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ملف لكل فصل. عُثر على $formatted إشارة مرجعية.',
+      many: 'ملف لكل فصل. عُثر على $formatted إشارة مرجعية.',
+      few: 'ملف لكل فصل. عُثر على $formatted إشارات مرجعية.',
+      two: 'ملف لكل فصل. عُثر على إشارتين مرجعيتين.',
+      one: 'ملف لكل فصل. عُثر على إشارة مرجعية واحدة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitNoBookmarks => 'لا يحتوي هذا المستند على إشارات مرجعية.';
+
+  @override
+  String get splitSize => 'حسب حجم الملف';
+
+  @override
+  String get splitSizeBody =>
+      'ملفات لا تتجاوز حجمًا تختاره، لتناسب حدود البريد الإلكتروني.';
+
+  @override
+  String get splitBlank => 'عند الصفحات الفارغة';
+
+  @override
+  String get splitBlankBody => 'تُزال الصفحات الفارغة الفاصلة.';
+
+  @override
+  String get splitNoBlankPages => 'لم يُعثر على صفحات فارغة.';
+
+  @override
+  String get splitPagesPerFile => 'عدد الصفحات لكل ملف';
+
+  @override
+  String get splitLargest => 'أكبر ملف';
+
+  @override
+  String get splitFileNames => 'أسماء الملفات';
+
+  @override
+  String get splitSaveTo => 'الحفظ في';
+
+  @override
+  String get splitSameFolder => 'مجلد الملف الأصلي نفسه';
+
+  @override
+  String get splitChooseFolder => 'اختيار مجلد…';
+
+  @override
+  String get splitOverLimit => 'صفحة واحدة وحدها أكبر من هذا الحجم.';
+
+  @override
+  String get splitNotProtected =>
+      'لن تحمل الملفات الجديدة كلمة مرور هذا المستند.';
+
+  @override
+  String get splitNotSigned => 'لن تحمل الملفات الجديدة تواقيعه.';
+
+  @override
+  String splitAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تقسيم إلى $formatted ملف',
+      many: 'تقسيم إلى $formatted ملفًا',
+      few: 'تقسيم إلى $formatted ملفات',
+      two: 'تقسيم إلى ملفين',
+      one: 'تقسيم إلى ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createBlank => 'صفحة فارغة';
+
+  @override
+  String get createFromFiles => 'من ملفات…';
+
+  @override
+  String get createFromClipboard => 'من الحافظة';
+
+  @override
+  String get createDefaultName => 'بلا عنوان.pdf';
+
+  @override
+  String jobSplittingTitle(String name) {
+    return 'جارٍ تقسيم $name';
+  }
+
+  @override
+  String jobSplitTitle(String name) {
+    return 'تم تقسيم $name';
+  }
+
+  @override
+  String jobSplitFailedTitle(String name) {
+    return 'تعذر تقسيم $name';
+  }
+
+  @override
+  String jobCombiningTitle(String name) {
+    return 'جارٍ الدمج في $name';
+  }
+
+  @override
+  String jobCombinedTitle(String name) {
+    return 'تم الدمج في $name';
+  }
+
+  @override
+  String jobCombineFailedTitle(String name) {
+    return 'تعذر الدمج في $name';
+  }
+
+  @override
+  String jobCreatingTitle(String name) {
+    return 'جارٍ إنشاء $name';
+  }
+
+  @override
+  String jobCreatedTitle(String name) {
+    return 'تم إنشاء $name';
+  }
+
+  @override
+  String jobCreateFailedTitle(String name) {
+    return 'تعذر إنشاء $name';
+  }
 }

@@ -2,9 +2,9 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
+import 'package:ferman/features/organize/combine_tab.dart';
 import 'package:ferman/features/organize/crop_overlay.dart';
 import 'package:ferman/features/organize/crop_session.dart';
-import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_grid.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/document_banners.dart';
@@ -197,8 +197,16 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                 textDirection: TextDirection.ltr,
                 child: ColoredBox(
                   color: theme.colors.surfaceCanvas,
-                  child:
-                      active != null && (active.locked || active.error != null)
+                  child: active?.combine ?? false
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [const CombineTab(), ?taskDrawer],
+                          ),
+                        )
+                      : active != null &&
+                            (active.locked || active.error != null)
                       ? Directionality(
                           textDirection: uiDirection,
                           child: Stack(
@@ -328,7 +336,6 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                   ),
                                 ),
                               ?taskDrawer,
-                              const OrganizeDialogs(),
                               const Positioned.fill(child: SaveOverlays()),
                             ],
                           ),

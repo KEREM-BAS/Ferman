@@ -5,6 +5,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_recovery.dart';
 import 'package:ferman/features/save/document_saver.dart';
@@ -41,6 +42,7 @@ class ClosingOverlays extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         child,
+        ?ref.watch(organizeDialogProvider),
         if (jobs.cancelling case final row?) CancelTaskDialog(row),
         if (jobs.quitting.isNotEmpty) QuitTasksDialog(jobs.quitting),
         if (closing.asking case final tab?) UnsavedCloseDialog(tab),

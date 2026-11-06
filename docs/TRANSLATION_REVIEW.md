@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1014 messages in `app_en.arb`; translated: Turkish 1014, Arabic 1014.
+1082 messages in `app_en.arb`; translated: Turkish 1082, Arabic 1082.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1070,5 +1070,73 @@ The table below is generated from the ARB files by `tools/l10n`
 | `jobReplacingTitle` | Reading replacement pages from {name} | {name} dosyasından yeni sayfalar okunuyor | جارٍ قراءة الصفحات البديلة من {name} | a11-6b: a replace running. |
 | `jobReplacedTitle` | Replaced pages with {name} | Sayfalar {name} ile değiştirildi | استُبدلت الصفحات بـ{name} | a11-6b: a replace finished. |
 | `jobReplaceFailedTitle` | Couldn’t replace pages with {name} | Sayfalar {name} ile değiştirilemedi | تعذّر استبدال الصفحات بـ{name} | a11-6b: a replace failed. |
+| `organizeFileCount` | {count, plural, =1{1 file} other{{formatted} files}} | {count, plural, =1{1 dosya} other{{formatted} dosya}} | {count, plural, =1{ملف واحد} =2{ملفان} few{{formatted} ملفات} many{{formatted} ملفًا} other{{formatted} ملف}} | a6-2, a6-3: a count of files. |
+| `organizePageCount` | {count, plural, =1{1 page} other{{formatted} pages}} | {count, plural, =1{1 sayfa} other{{formatted} sayfa}} | {count, plural, =1{صفحة واحدة} =2{صفحتان} few{{formatted} صفحات} many{{formatted} صفحة} other{{formatted} صفحة}} | a6-2, a6-3: a count of pages. |
+| `combineAddFiles` | Add files… | Dosya ekle… | إضافة ملفات… | a6-3: the button that adds files. |
+| `combineFilter` | PDFs, images and Office files | PDF’ler, görseller ve Office dosyaları | ملفات PDF والصور وملفات Office | a6-3: the file type in the open panel. |
+| `combineEmptyTitle` | No files yet | Henüz dosya yok | لا توجد ملفات بعد | a6-3: the empty list (G29). |
+| `combineEmptyBody` | Add PDFs or images to combine them into one new file. | Tek bir yeni dosyada birleştirmek için PDF veya görsel ekleyin. | أضف ملفات PDF أو صورًا لدمجها في ملف جديد واحد. | a6-3: the empty list (G29). |
+| `combineDrag` | Drag to reorder | Sıralamak için sürükleyin | اسحب لإعادة الترتيب | a6-3: the grip of a row. |
+| `combineMoveUp` | Move up | Yukarı taşı | نقل لأعلى | a6-3: a screen reader action on a row. |
+| `combineMoveDown` | Move down | Aşağı taşı | نقل لأسفل | a6-3: a screen reader action on a row. |
+| `combinePagesToInclude` | Pages to include | Alınacak sayfalar | الصفحات المراد تضمينها | a6-3: the page range field of a row. |
+| `combineAllPages` | All | Tümü | الكل | a6-3: the page range for every page. |
+| `combineRemoveFile` | Remove file | Dosyayı kaldır | إزالة الملف | a6-3: the x of a row. |
+| `combineMetaImage` | Image · converted to 1 page | Görsel · 1 sayfaya dönüştürülür | صورة · تُحوَّل إلى صفحة واحدة | a6-3: an image row's second line. |
+| `combineMetaOffice` | Word or Excel | Word veya Excel | Word أو Excel | a6-3: the second line of a Word or Excel row, which cannot be combined yet (B175). |
+| `combineNeedsPassword` | Locked: enter its password to add it. | Kilitli: eklemek için parolasını girin. | مقفل: أدخل كلمة المرور لإضافته. | a6-3: a locked row (G45). |
+| `combineWrongPassword` | That password doesn’t open it. Try again. | Bu parola dosyayı açmıyor. Yeniden deneyin. | كلمة المرور هذه لا تفتحه. حاول مرة أخرى. | a6-3: a locked row after a wrong password (G45). |
+| `combineOwnerPassword` | This file forbids combining. Enter its owner password to add it. | Bu dosya birleştirmeye izin vermiyor. Eklemek için sahip parolasını girin. | يمنع هذا الملف الدمج. أدخل كلمة مرور المالك لإضافته. | a6-3: a row that forbids assembling (M4 plan, question 6). |
+| `combineUnreadable` | Ferman can’t read this file. | Ferman bu dosyayı okuyamıyor. | يتعذر على Ferman قراءة هذا الملف. | a6-3: a row neither a PDF nor an image Ferman can read, or a file that is gone. |
+| `combineBadRange` | This file doesn’t have those pages. | Bu dosyada o sayfalar yok. | لا يحتوي هذا الملف على تلك الصفحات. | a6-3: a row whose page range cannot be used. |
+| `combinePassword` | Password | Parola | كلمة المرور | a6-3: the password field of a locked row. |
+| `combineUnlock` | Unlock | Kilidi aç | فتح القفل | a6-3: the button of a locked row. |
+| `combineNotProtected` | The new file won’t have this file’s password. | Yeni dosya bu dosyanın parolasını taşımayacak. | لن يحمل الملف الجديد كلمة مرور هذا الملف. | a6-3: a row opened with its password (M4 plan, question 6). |
+| `combineNotSigned` | Its signatures won’t carry over. | İmzaları yeni dosyaya geçmeyecek. | لن تنتقل تواقيعه إلى الملف الجديد. | a6-3: a signed row (G159). |
+| `combineNewFile` | New file | Yeni dosya | ملف جديد | a6-3: the output name field. |
+| `combineDefaultName` | Combined.pdf | Birleştirilmiş.pdf | ملف مدمج.pdf | a6-3: the output name to begin with. |
+| `combineBookmarks` | Add a bookmark for each file | Her dosya için yer imi ekle | إضافة إشارة مرجعية لكل ملف | a6-3: a checkbox. |
+| `combineKeepForms` | Keep form fields | Form alanlarını koru | الاحتفاظ بحقول النماذج | a6-3: a checkbox; the board's "and signatures" goes (G159). |
+| `combineKeepFormsNote` | Signatures from the original files don’t carry over. | Özgün dosyalardaki imzalar yeni dosyaya geçmez. | لا تنتقل التواقيع من الملفات الأصلية. | a6-3: the note of the checkbox (G159). |
+| `combineAbout` | About {size} | Yaklaşık {size} | حوالى {size} | a6-3: the estimated size. |
+| `combineAction` | {count, plural, =1{Combine 1 file} other{Combine {formatted} files}} | {count, plural, =1{1 dosyayı birleştir} other{{formatted} dosyayı birleştir}} | {count, plural, =1{دمج ملف واحد} =2{دمج ملفين} few{دمج {formatted} ملفات} many{دمج {formatted} ملفًا} other{دمج {formatted} ملف}} | a6-3: the primary button. |
+| `combineResult` | {count, plural, =1{RESULT · 1 PAGE} other{RESULT · {formatted} PAGES}} | {count, plural, =1{SONUÇ · 1 SAYFA} other{SONUÇ · {formatted} SAYFA}} | {count, plural, =1{النتيجة · صفحة واحدة} =2{النتيجة · صفحتان} few{النتيجة · {formatted} صفحات} many{النتيجة · {formatted} صفحة} other{النتيجة · {formatted} صفحة}} | a6-3: the heading of the result grid. |
+| `combineResultPage` | Page {page}, from file {file} | Sayfa {page}, {file}. dosyadan | الصفحة {page}، من الملف {file} | a6-3: a page of the result for screen readers. |
+| `combineOutputExists` | “{name}” already exists. Choose another name. | “{name}” zaten var. Başka bir ad seçin. | “{name}” موجود بالفعل. اختر اسمًا آخر. | The toast when a new file's name is taken: a job never overwrites. |
+| `splitTitle` | Split “{name}” | “{name}” dosyasını böl | تقسيم “{name}” | a6-2: the title. |
+| `splitBy` | Split by | Bölme biçimi | طريقة التقسيم | a6-2: the radio group's name. |
+| `splitEvery` | Every few pages | Birkaç sayfada bir | كل بضع صفحات | a6-2: a mode. |
+| `splitEveryBody` | A new file every N pages. | Her N sayfada yeni bir dosya. | ملف جديد كل N صفحة. | a6-2: a mode's line. |
+| `splitBookmarks` | At top-level bookmarks | Üst düzey yer imlerinde | عند الإشارات المرجعية العليا | a6-2: a mode. |
+| `splitBookmarksBody` | {count, plural, =1{One file per chapter. 1 bookmark found.} other{One file per chapter. {formatted} bookmarks found.}} | {count, plural, =1{Her bölüm için bir dosya. 1 yer imi bulundu.} other{Her bölüm için bir dosya. {formatted} yer imi bulundu.}} | {count, plural, =1{ملف لكل فصل. عُثر على إشارة مرجعية واحدة.} =2{ملف لكل فصل. عُثر على إشارتين مرجعيتين.} few{ملف لكل فصل. عُثر على {formatted} إشارات مرجعية.} many{ملف لكل فصل. عُثر على {formatted} إشارة مرجعية.} other{ملف لكل فصل. عُثر على {formatted} إشارة مرجعية.}} | a6-2: a mode's line. |
+| `splitNoBookmarks` | This document has no bookmarks. | Bu belgede yer imi yok. | لا يحتوي هذا المستند على إشارات مرجعية. | a6-2: the mode when there are none. |
+| `splitSize` | By file size | Dosya boyutuna göre | حسب حجم الملف | a6-2: a mode. |
+| `splitSizeBody` | Files no larger than a size you choose, for e-mail limits. | E-posta sınırları için, seçtiğiniz boyutu aşmayan dosyalar. | ملفات لا تتجاوز حجمًا تختاره، لتناسب حدود البريد الإلكتروني. | a6-2: a mode's line. |
+| `splitBlank` | At blank pages | Boş sayfalarda | عند الصفحات الفارغة | a6-2: a mode. |
+| `splitBlankBody` | Blank separator pages are removed. | Ayırıcı boş sayfalar kaldırılır. | تُزال الصفحات الفارغة الفاصلة. | a6-2: a mode's line. |
+| `splitNoBlankPages` | No blank pages found. | Boş sayfa bulunamadı. | لم يُعثر على صفحات فارغة. | a6-2: the mode when there are none. |
+| `splitPagesPerFile` | Pages per file | Dosya başına sayfa | عدد الصفحات لكل ملف | a6-2: the amount of Every few pages. |
+| `splitLargest` | Largest file | En büyük dosya | أكبر ملف | a6-2: the amount of By file size. |
+| `splitFileNames` | File names | Dosya adları | أسماء الملفات | a6-2: the template field. |
+| `splitSaveTo` | Save to | Kaydetme yeri | الحفظ في | a6-2: the folder select. |
+| `splitSameFolder` | Same folder as the original | Özgün dosyayla aynı klasör | مجلد الملف الأصلي نفسه | a6-2: a choice. |
+| `splitChooseFolder` | Choose a folder… | Klasör seçin… | اختيار مجلد… | a6-2: a choice. |
+| `splitOverLimit` | One page alone is larger than this size. | Tek bir sayfa bile bu boyuttan büyük. | صفحة واحدة وحدها أكبر من هذا الحجم. | a6-2: a file over the size asked for. |
+| `splitNotProtected` | The new files won’t have this document’s password. | Yeni dosyalar bu belgenin parolasını taşımayacak. | لن تحمل الملفات الجديدة كلمة مرور هذا المستند. | a6-2: an encrypted document (M4 plan, question 6). |
+| `splitNotSigned` | The new files won’t carry its signatures. | Yeni dosyalar imzalarını taşımayacak. | لن تحمل الملفات الجديدة تواقيعه. | a6-2: a signed document (M4 plan, question 6). |
+| `splitAction` | {count, plural, =1{Split into 1 file} other{Split into {formatted} files}} | {count, plural, =1{1 dosyaya böl} other{{formatted} dosyaya böl}} | {count, plural, =1{تقسيم إلى ملف واحد} =2{تقسيم إلى ملفين} few{تقسيم إلى {formatted} ملفات} many{تقسيم إلى {formatted} ملفًا} other{تقسيم إلى {formatted} ملف}} | a6-2: the primary button. |
+| `createBlank` | Blank page | Boş sayfa | صفحة فارغة | Create PDF (B019, no board): a source. |
+| `createFromFiles` | From files… | Dosyalardan… | من ملفات… | Create PDF (B019, no board): a source. |
+| `createFromClipboard` | From the clipboard | Panodan | من الحافظة | Create PDF (B019, no board): a source, disabled (B176). |
+| `createDefaultName` | Untitled.pdf | Adsız.pdf | بلا عنوان.pdf | Create PDF: the new file's name to begin with. |
+| `jobSplittingTitle` | Splitting {name} | {name} bölünüyor | جارٍ تقسيم {name} | a11-6b: the title of a task that splits a document (G45). |
+| `jobSplitTitle` | Split {name} | {name} bölündü | تم تقسيم {name} | a11-6b: the title of the finished split. |
+| `jobSplitFailedTitle` | Couldn’t split {name} | {name} bölünemedi | تعذر تقسيم {name} | a11-6b: the title of a failed split. |
+| `jobCombiningTitle` | Combining into {name} | {name} içinde birleştiriliyor | جارٍ الدمج في {name} | a11-6b: the title of a task that combines files (G45). |
+| `jobCombinedTitle` | Combined into {name} | {name} içinde birleştirildi | تم الدمج في {name} | a11-6b: the title of the finished combine. |
+| `jobCombineFailedTitle` | Couldn’t combine into {name} | {name} içinde birleştirilemedi | تعذر الدمج في {name} | a11-6b: the title of a failed combine. |
+| `jobCreatingTitle` | Creating {name} | {name} oluşturuluyor | جارٍ إنشاء {name} | a11-6b: the title of a task that creates a PDF. |
+| `jobCreatedTitle` | Created {name} | {name} oluşturuldu | تم إنشاء {name} | a11-6b: the title of the finished Create PDF. |
+| `jobCreateFailedTitle` | Couldn’t create {name} | {name} oluşturulamadı | تعذر إنشاء {name} | a11-6b: the title of a failed Create PDF; also a toast. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

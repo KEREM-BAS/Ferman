@@ -3321,6 +3321,223 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String jobReplaceFailedTitle(String name) =>
       isolate(super.jobReplaceFailedTitle(name));
+
+  @override
+  String organizeFileCount(int count, String formatted) =>
+      isolate(super.organizeFileCount(count, formatted));
+
+  @override
+  String organizePageCount(int count, String formatted) =>
+      isolate(super.organizePageCount(count, formatted));
+
+  @override
+  String get combineAddFiles => isolate(super.combineAddFiles);
+
+  @override
+  String get combineFilter => isolate(super.combineFilter);
+
+  @override
+  String get combineEmptyTitle => isolate(super.combineEmptyTitle);
+
+  @override
+  String get combineEmptyBody => isolate(super.combineEmptyBody);
+
+  @override
+  String get combineDrag => isolate(super.combineDrag);
+
+  @override
+  String get combineMoveUp => isolate(super.combineMoveUp);
+
+  @override
+  String get combineMoveDown => isolate(super.combineMoveDown);
+
+  @override
+  String get combinePagesToInclude => isolate(super.combinePagesToInclude);
+
+  @override
+  String get combineAllPages => isolate(super.combineAllPages);
+
+  @override
+  String get combineRemoveFile => isolate(super.combineRemoveFile);
+
+  @override
+  String get combineMetaImage => isolate(super.combineMetaImage);
+
+  @override
+  String get combineMetaOffice => isolate(super.combineMetaOffice);
+
+  @override
+  String get combineNeedsPassword => isolate(super.combineNeedsPassword);
+
+  @override
+  String get combineWrongPassword => isolate(super.combineWrongPassword);
+
+  @override
+  String get combineOwnerPassword => isolate(super.combineOwnerPassword);
+
+  @override
+  String get combineUnreadable => isolate(super.combineUnreadable);
+
+  @override
+  String get combineBadRange => isolate(super.combineBadRange);
+
+  @override
+  String get combinePassword => isolate(super.combinePassword);
+
+  @override
+  String get combineUnlock => isolate(super.combineUnlock);
+
+  @override
+  String get combineNotProtected => isolate(super.combineNotProtected);
+
+  @override
+  String get combineNotSigned => isolate(super.combineNotSigned);
+
+  @override
+  String get combineNewFile => isolate(super.combineNewFile);
+
+  @override
+  String get combineDefaultName => isolate(super.combineDefaultName);
+
+  @override
+  String get combineBookmarks => isolate(super.combineBookmarks);
+
+  @override
+  String get combineKeepForms => isolate(super.combineKeepForms);
+
+  @override
+  String get combineKeepFormsNote => isolate(super.combineKeepFormsNote);
+
+  @override
+  String combineAbout(String size) => isolate(super.combineAbout(size));
+
+  @override
+  String combineAction(int count, String formatted) =>
+      isolate(super.combineAction(count, formatted));
+
+  @override
+  String combineResult(int count, String formatted) =>
+      isolate(super.combineResult(count, formatted));
+
+  @override
+  String combineResultPage(String page, String file) =>
+      isolate(super.combineResultPage(page, file));
+
+  @override
+  String combineOutputExists(String name) =>
+      isolate(super.combineOutputExists(name));
+
+  @override
+  String splitTitle(String name) => isolate(super.splitTitle(name));
+
+  @override
+  String get splitBy => isolate(super.splitBy);
+
+  @override
+  String get splitEvery => isolate(super.splitEvery);
+
+  @override
+  String get splitEveryBody => isolate(super.splitEveryBody);
+
+  @override
+  String get splitBookmarks => isolate(super.splitBookmarks);
+
+  @override
+  String splitBookmarksBody(int count, String formatted) =>
+      isolate(super.splitBookmarksBody(count, formatted));
+
+  @override
+  String get splitNoBookmarks => isolate(super.splitNoBookmarks);
+
+  @override
+  String get splitSize => isolate(super.splitSize);
+
+  @override
+  String get splitSizeBody => isolate(super.splitSizeBody);
+
+  @override
+  String get splitBlank => isolate(super.splitBlank);
+
+  @override
+  String get splitBlankBody => isolate(super.splitBlankBody);
+
+  @override
+  String get splitNoBlankPages => isolate(super.splitNoBlankPages);
+
+  @override
+  String get splitPagesPerFile => isolate(super.splitPagesPerFile);
+
+  @override
+  String get splitLargest => isolate(super.splitLargest);
+
+  @override
+  String get splitFileNames => isolate(super.splitFileNames);
+
+  @override
+  String get splitSaveTo => isolate(super.splitSaveTo);
+
+  @override
+  String get splitSameFolder => isolate(super.splitSameFolder);
+
+  @override
+  String get splitChooseFolder => isolate(super.splitChooseFolder);
+
+  @override
+  String get splitOverLimit => isolate(super.splitOverLimit);
+
+  @override
+  String get splitNotProtected => isolate(super.splitNotProtected);
+
+  @override
+  String get splitNotSigned => isolate(super.splitNotSigned);
+
+  @override
+  String splitAction(int count, String formatted) =>
+      isolate(super.splitAction(count, formatted));
+
+  @override
+  String get createBlank => isolate(super.createBlank);
+
+  @override
+  String get createFromFiles => isolate(super.createFromFiles);
+
+  @override
+  String get createFromClipboard => isolate(super.createFromClipboard);
+
+  @override
+  String get createDefaultName => isolate(super.createDefaultName);
+
+  @override
+  String jobSplittingTitle(String name) =>
+      isolate(super.jobSplittingTitle(name));
+
+  @override
+  String jobSplitTitle(String name) => isolate(super.jobSplitTitle(name));
+
+  @override
+  String jobSplitFailedTitle(String name) =>
+      isolate(super.jobSplitFailedTitle(name));
+
+  @override
+  String jobCombiningTitle(String name) =>
+      isolate(super.jobCombiningTitle(name));
+
+  @override
+  String jobCombinedTitle(String name) => isolate(super.jobCombinedTitle(name));
+
+  @override
+  String jobCombineFailedTitle(String name) =>
+      isolate(super.jobCombineFailedTitle(name));
+
+  @override
+  String jobCreatingTitle(String name) => isolate(super.jobCreatingTitle(name));
+
+  @override
+  String jobCreatedTitle(String name) => isolate(super.jobCreatedTitle(name));
+
+  @override
+  String jobCreateFailedTitle(String name) =>
+      isolate(super.jobCreateFailedTitle(name));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

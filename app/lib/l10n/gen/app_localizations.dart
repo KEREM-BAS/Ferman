@@ -6188,6 +6188,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t replace pages with {name}'**
   String jobReplaceFailedTitle(String name);
+
+  /// a6-2, a6-3: a count of files.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file} other{{formatted} files}}'**
+  String organizeFileCount(int count, String formatted);
+
+  /// a6-2, a6-3: a count of pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{formatted} pages}}'**
+  String organizePageCount(int count, String formatted);
+
+  /// a6-3: the button that adds files.
+  ///
+  /// In en, this message translates to:
+  /// **'Add files…'**
+  String get combineAddFiles;
+
+  /// a6-3: the file type in the open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'PDFs, images and Office files'**
+  String get combineFilter;
+
+  /// a6-3: the empty list (G29).
+  ///
+  /// In en, this message translates to:
+  /// **'No files yet'**
+  String get combineEmptyTitle;
+
+  /// a6-3: the empty list (G29).
+  ///
+  /// In en, this message translates to:
+  /// **'Add PDFs or images to combine them into one new file.'**
+  String get combineEmptyBody;
+
+  /// a6-3: the grip of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get combineDrag;
+
+  /// a6-3: a screen reader action on a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get combineMoveUp;
+
+  /// a6-3: a screen reader action on a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get combineMoveDown;
+
+  /// a6-3: the page range field of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages to include'**
+  String get combinePagesToInclude;
+
+  /// a6-3: the page range for every page.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get combineAllPages;
+
+  /// a6-3: the x of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove file'**
+  String get combineRemoveFile;
+
+  /// a6-3: an image row's second line.
+  ///
+  /// In en, this message translates to:
+  /// **'Image · converted to 1 page'**
+  String get combineMetaImage;
+
+  /// a6-3: the second line of a Word or Excel row, which cannot be combined yet (B175).
+  ///
+  /// In en, this message translates to:
+  /// **'Word or Excel'**
+  String get combineMetaOffice;
+
+  /// a6-3: a locked row (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Locked: enter its password to add it.'**
+  String get combineNeedsPassword;
+
+  /// a6-3: a locked row after a wrong password (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'That password doesn’t open it. Try again.'**
+  String get combineWrongPassword;
+
+  /// a6-3: a row that forbids assembling (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'This file forbids combining. Enter its owner password to add it.'**
+  String get combineOwnerPassword;
+
+  /// a6-3: a row neither a PDF nor an image Ferman can read, or a file that is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t read this file.'**
+  String get combineUnreadable;
+
+  /// a6-3: a row whose page range cannot be used.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn’t have those pages.'**
+  String get combineBadRange;
+
+  /// a6-3: the password field of a locked row.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get combinePassword;
+
+  /// a6-3: the button of a locked row.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get combineUnlock;
+
+  /// a6-3: a row opened with its password (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new file won’t have this file’s password.'**
+  String get combineNotProtected;
+
+  /// a6-3: a signed row (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Its signatures won’t carry over.'**
+  String get combineNotSigned;
+
+  /// a6-3: the output name field.
+  ///
+  /// In en, this message translates to:
+  /// **'New file'**
+  String get combineNewFile;
+
+  /// a6-3: the output name to begin with.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined.pdf'**
+  String get combineDefaultName;
+
+  /// a6-3: a checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bookmark for each file'**
+  String get combineBookmarks;
+
+  /// a6-3: a checkbox; the board's "and signatures" goes (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep form fields'**
+  String get combineKeepForms;
+
+  /// a6-3: the note of the checkbox (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Signatures from the original files don’t carry over.'**
+  String get combineKeepFormsNote;
+
+  /// a6-3: the estimated size.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size}'**
+  String combineAbout(String size);
+
+  /// a6-3: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Combine 1 file} other{Combine {formatted} files}}'**
+  String combineAction(int count, String formatted);
+
+  /// a6-3: the heading of the result grid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{RESULT · 1 PAGE} other{RESULT · {formatted} PAGES}}'**
+  String combineResult(int count, String formatted);
+
+  /// a6-3: a page of the result for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}, from file {file}'**
+  String combineResultPage(String page, String file);
+
+  /// The toast when a new file's name is taken: a job never overwrites.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” already exists. Choose another name.'**
+  String combineOutputExists(String name);
+
+  /// a6-2: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Split “{name}”'**
+  String splitTitle(String name);
+
+  /// a6-2: the radio group's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Split by'**
+  String get splitBy;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every few pages'**
+  String get splitEvery;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'A new file every N pages.'**
+  String get splitEveryBody;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'At top-level bookmarks'**
+  String get splitBookmarks;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One file per chapter. 1 bookmark found.} other{One file per chapter. {formatted} bookmarks found.}}'**
+  String splitBookmarksBody(int count, String formatted);
+
+  /// a6-2: the mode when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no bookmarks.'**
+  String get splitNoBookmarks;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'By file size'**
+  String get splitSize;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Files no larger than a size you choose, for e-mail limits.'**
+  String get splitSizeBody;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'At blank pages'**
+  String get splitBlank;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank separator pages are removed.'**
+  String get splitBlankBody;
+
+  /// a6-2: the mode when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No blank pages found.'**
+  String get splitNoBlankPages;
+
+  /// a6-2: the amount of Every few pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per file'**
+  String get splitPagesPerFile;
+
+  /// a6-2: the amount of By file size.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest file'**
+  String get splitLargest;
+
+  /// a6-2: the template field.
+  ///
+  /// In en, this message translates to:
+  /// **'File names'**
+  String get splitFileNames;
+
+  /// a6-2: the folder select.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to'**
+  String get splitSaveTo;
+
+  /// a6-2: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Same folder as the original'**
+  String get splitSameFolder;
+
+  /// a6-2: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder…'**
+  String get splitChooseFolder;
+
+  /// a6-2: a file over the size asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'One page alone is larger than this size.'**
+  String get splitOverLimit;
+
+  /// a6-2: an encrypted document (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new files won’t have this document’s password.'**
+  String get splitNotProtected;
+
+  /// a6-2: a signed document (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new files won’t carry its signatures.'**
+  String get splitNotSigned;
+
+  /// a6-2: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Split into 1 file} other{Split into {formatted} files}}'**
+  String splitAction(int count, String formatted);
+
+  /// Create PDF (B019, no board): a source.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get createBlank;
+
+  /// Create PDF (B019, no board): a source.
+  ///
+  /// In en, this message translates to:
+  /// **'From files…'**
+  String get createFromFiles;
+
+  /// Create PDF (B019, no board): a source, disabled (B176).
+  ///
+  /// In en, this message translates to:
+  /// **'From the clipboard'**
+  String get createFromClipboard;
+
+  /// Create PDF: the new file's name to begin with.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled.pdf'**
+  String get createDefaultName;
+
+  /// a11-6b: the title of a task that splits a document (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Splitting {name}'**
+  String jobSplittingTitle(String name);
+
+  /// a11-6b: the title of the finished split.
+  ///
+  /// In en, this message translates to:
+  /// **'Split {name}'**
+  String jobSplitTitle(String name);
+
+  /// a11-6b: the title of a failed split.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t split {name}'**
+  String jobSplitFailedTitle(String name);
+
+  /// a11-6b: the title of a task that combines files (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Combining into {name}'**
+  String jobCombiningTitle(String name);
+
+  /// a11-6b: the title of the finished combine.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined into {name}'**
+  String jobCombinedTitle(String name);
+
+  /// a11-6b: the title of a failed combine.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t combine into {name}'**
+  String jobCombineFailedTitle(String name);
+
+  /// a11-6b: the title of a task that creates a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating {name}'**
+  String jobCreatingTitle(String name);
+
+  /// a11-6b: the title of the finished Create PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {name}'**
+  String jobCreatedTitle(String name);
+
+  /// a11-6b: the title of a failed Create PDF; also a toast.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t create {name}'**
+  String jobCreateFailedTitle(String name);
 }
 
 class _AppLocalizationsDelegate

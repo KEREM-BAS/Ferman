@@ -584,6 +584,11 @@ void main() {
                 ? working[name] ?? futureVersion
                 : mode == FermanMode.organize && onSelection.contains(name)
                 ? 'Select pages first'
+                : name == 'Split'
+                // It waits for a shown document, not a version.
+                ? isNull
+                : name == 'Combine files' || name == 'Create PDF'
+                ? 'enabled'
                 : futureVersion,
             reason: '$mode $name',
           );

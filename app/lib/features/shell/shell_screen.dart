@@ -69,6 +69,8 @@ class FmWindow extends ConsumerWidget {
     // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
     // a1-9c: FmWindow with `mode=""` and `status={false}`).
     final bare = active?.bare ?? false;
+    // a6-3's tab: the mode bar, tool row and status bar, no side panels.
+    final combine = active?.combine ?? false;
     // Edit's Undo history takes the right panel's place (a3-10).
     final history =
         ref.watch(shellModeProvider) == FermanMode.edit &&
@@ -149,7 +151,7 @@ class FmWindow extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (shown.sidebar && !bare)
+                        if (shown.sidebar && !bare && !combine)
                           ShellRegion.sidebar.wrap(
                             resizable(
                               ShellSide.sidebar,
@@ -162,7 +164,7 @@ class FmWindow extends ConsumerWidget {
                           key: _canvasSlot,
                           child: ShellRegion.canvas.wrap(const ShellCanvas()),
                         ),
-                        if (shown.panel && !bare)
+                        if (shown.panel && !bare && !combine)
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,

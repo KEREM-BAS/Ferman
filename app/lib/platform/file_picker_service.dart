@@ -20,9 +20,15 @@ abstract interface class FilePickerService {
   /// before replacing a file.
   Future<String?> saveFile({required String suggestedName});
 
-  /// Shows the system folder panel (ADR 0018); the chosen folder, null when
-  /// cancelled.
-  Future<String?> openFolder();
+  /// Shows the system open panel for files Combine and Create PDF take, several
+  /// at once (a6-3), its filter named [filterLabel]; the chosen paths, none
+  /// when cancelled.
+  Future<List<String>> openFilesToCombine({required String filterLabel});
+
+  /// Shows the system folder panel at [initial] (a6-2's Save to); the chosen
+  /// folder, null when cancelled. Under the macOS sandbox it grants the
+  /// folder for the session (G143).
+  Future<String?> chooseFolder({String? initial});
 }
 
 /// The pickers of file_selector: NSOpenPanel on macOS, IFileOpenDialog on
@@ -50,7 +56,46 @@ final class NativeFilePickerService implements FilePickerService {
   }
 
   @override
-  Future<String?> openFolder() => getDirectoryPath();
+  Future<List<String>> openFilesToCombine({required String filterLabel}) async {
+    final files = await openFiles(
+      acceptedTypeGroups: [
+        XTypeGroup(
+          label: filterLabel,
+          extensions: const [
+            'pdf',
+            'png',
+            'jpg',
+            'jpeg',
+            'tif',
+            'tiff',
+            'webp',
+            'gif',
+            'doc',
+            'docx',
+            'odt',
+            'xls',
+            'xlsx',
+            'ods',
+          ],
+          uniformTypeIdentifiers: const [
+            'com.adobe.pdf',
+            'public.image',
+            'com.microsoft.word.doc',
+            'org.openxmlformats.wordprocessingml.document',
+            'org.oasis-open.opendocument.text',
+            'com.microsoft.excel.xls',
+            'org.openxmlformats.spreadsheetml.sheet',
+            'org.oasis-open.opendocument.spreadsheet',
+          ],
+        ),
+      ],
+    );
+    return [for (final file in files) file.path];
+  }
+
+  @override
+  Future<String?> chooseFolder({String? initial}) =>
+      getDirectoryPath(initialDirectory: initial);
 
   static XTypeGroup _pdf(String label) => XTypeGroup(
     label: label,

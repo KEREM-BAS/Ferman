@@ -5,9 +5,13 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/save/file_exists.dart';
+import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/l10n/region.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,7 +20,7 @@ part 'background_jobs.g.dart';
 
 /// What a job does, which names its row.
 enum BackgroundJobKind {
-  /// A copy of a document: the first job, until Compress and Split land.
+  /// A copy of a document: the first job, until Compress lands.
   copyDocument,
 
   /// Pages of a document written as new files (G45).
@@ -27,6 +31,15 @@ enum BackgroundJobKind {
 
   /// Pages of a file read for a replace (G45).
   replacePages,
+
+  /// A split of a document into new files (a6-2, G45).
+  split,
+
+  /// Files combined into a new file (a6-3, G45).
+  combine,
+
+  /// Create PDF (B019): a new file that opens once written.
+  create,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -85,6 +98,9 @@ final class BackgroundJob {
     BackgroundJobKind.extractPages => IconName.fileOutput,
     BackgroundJobKind.insertPages => IconName.filePlus2,
     BackgroundJobKind.replacePages => IconName.replace,
+    BackgroundJobKind.split => IconName.split,
+    BackgroundJobKind.combine => IconName.merge,
+    BackgroundJobKind.create => IconName.filePlus2,
   };
 
   /// The row's title in [state].
@@ -118,6 +134,25 @@ final class BackgroundJob {
       ),
       (BackgroundJobKind.replacePages, TaskState.error) =>
         l10n.jobReplaceFailedTitle(name),
+      (BackgroundJobKind.split, TaskState.running || TaskState.paused) =>
+        l10n.jobSplittingTitle(name),
+      (BackgroundJobKind.split, TaskState.done) => l10n.jobSplitTitle(name),
+      (BackgroundJobKind.split, TaskState.error) => l10n.jobSplitFailedTitle(
+        name,
+      ),
+      (BackgroundJobKind.combine, TaskState.running || TaskState.paused) =>
+        l10n.jobCombiningTitle(name),
+      (BackgroundJobKind.combine, TaskState.done) => l10n.jobCombinedTitle(
+        name,
+      ),
+      (BackgroundJobKind.combine, TaskState.error) =>
+        l10n.jobCombineFailedTitle(name),
+      (BackgroundJobKind.create, TaskState.running || TaskState.paused) =>
+        l10n.jobCreatingTitle(name),
+      (BackgroundJobKind.create, TaskState.done) => l10n.jobCreatedTitle(name),
+      (BackgroundJobKind.create, TaskState.error) => l10n.jobCreateFailedTitle(
+        name,
+      ),
     };
   }
 
@@ -132,6 +167,10 @@ final class BackgroundJob {
       };
     }
     if (state == TaskState.done) {
+      if (int.tryParse(params['files'] ?? '') case final files?
+          when kind == BackgroundJobKind.split) {
+        return l10n.organizeFileCount(files, format.integer(files));
+      }
       final file = output?.split(RegExp(r'[/\\]')).last;
       return file == null ? null : bidiIsolate(file);
     }
@@ -228,6 +267,9 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
 
   /// What follows each job that finishes, by row: the change it prepared.
   final Map<int, Future<EngineException?> Function(JobUpdate)> _thens = {};
+
+  /// The rows whose file opens once written: Create PDF.
+  final Set<int> _opens = {};
 
   @override
   BackgroundJobs build() {
@@ -373,6 +415,59 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
         ),
   );
 
+  /// Writes [files] to the new file [output] as a job: Combine and, as
+  /// [BackgroundJobKind.create], Create PDF, whose file then opens. A name that
+  /// is taken says so: a job never overwrites.
+  Future<void> combine(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required String output,
+    BackgroundJobKind kind = BackgroundJobKind.combine,
+  }) async {
+    final name = fileName(output);
+    if (await fileExists(output)) {
+      ref
+          .read(toastNoticesProvider.notifier)
+          .show(
+            tone: ToastTone.danger,
+            title: (l10n) => l10n.combineOutputExists(bidiIsolate(name)),
+          );
+      return;
+    }
+    final staging = await ref.read(fileAccessProvider).staging(output);
+    if (kind == BackgroundJobKind.create) _opens.add(_next);
+    _start(
+      kind,
+      name,
+      staging,
+      ref
+          .read(engineServiceProvider)
+          .combineJob(
+            files,
+            keepForms: keepForms,
+            paper: switch (ref.read(regionProvider).paperSize) {
+              PaperSize.a4 => ImagePaper.a4,
+              PaperSize.letter => ImagePaper.letter,
+            },
+            output: output,
+            staging: staging,
+          ),
+    );
+  }
+
+  /// Writes [files] of [document], named [name], into [folder] as a job. There
+  /// is no staging: under the macOS sandbox the folder panel granted [folder]
+  /// itself (G143), and a shared staging directory goes at the first swap.
+  void split(int document, String name, List<SplitFile> files, String folder) =>
+      _start(
+        BackgroundJobKind.split,
+        name,
+        null,
+        ref
+            .read(engineServiceProvider)
+            .splitJob(document, files, folder: folder),
+      );
+
   void _start(
     BackgroundJobKind kind,
     String name,
@@ -474,12 +569,18 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
         return;
       }
     }
+    if (_row(id) case final row?) {
+      _replace(row.copyWith(params: {'files': '${update.outputs.length}'}));
+    }
     await _end(
       id,
       output?.staged == null ? staging : null,
       output: output,
       error: await _thens[id]?.call(update),
     );
+    if (_opens.remove(id) && output != null) {
+      await ref.read(documentOpenerProvider.notifier).open([output.path]);
+    }
   }
 
   /// A row's end: a cancelled one goes, the others stay for an hour.
@@ -504,8 +605,18 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     }
     if (row == null) return;
     if (cancelled) {
+      _opens.remove(id);
       _remove(id);
     } else {
+      // The start screen has no status bar to lead to the drawer's row.
+      if (error != null && _opens.remove(id)) {
+        ref
+            .read(toastNoticesProvider.notifier)
+            .show(
+              tone: ToastTone.danger,
+              title: (l10n) => l10n.jobCreateFailedTitle(bidiIsolate(row.name)),
+            );
+      }
       _replace(
         row.copyWith(
           state: error == null ? TaskState.done : TaskState.error,

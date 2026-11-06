@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_saver.dart';
@@ -33,7 +34,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// View tools; Save with unsaved changes, Save as and Save a copy
 /// (`documentSaverProvider`), and undo and redo while the history has a
 /// step for them (`documentEditorProvider`). On the start
-/// screen ([home]) only Settings and Open work.
+/// screen ([home]) only Settings, Open and Create PDF work.
 /// Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
 /// Alt+F4, Ctrl+Q) are the window frame's, on every screen
@@ -65,10 +66,18 @@ class ShellCommandScope extends ConsumerWidget {
     VoidCallback? onOpenFiles,
     bool home = false,
   }) {
+    // Whatever lets files open lets a new one be made.
+    VoidCallback? createPdf;
+    if (onOpenFiles != null) {
+      createPdf = () => ref
+          .read(organizeDialogProvider.notifier)
+          .show(const CreatePdfDialog());
+    }
     if (home) {
       return {
         ShellCommand.settings: ?onOpenSettings,
         ShellCommand.open: ?onOpenFiles,
+        ShellCommand.createPdf: ?createPdf,
       };
     }
     final documents = ref.read(shellDocumentsProvider.notifier);
@@ -90,6 +99,7 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
       ShellCommand.settings: ?onOpenSettings,
       ShellCommand.open: ?onOpenFiles,
+      ShellCommand.createPdf: ?createPdf,
       if (active?.path case final path?)
         ShellCommand.closeDocument: () =>
             unawaited(ref.read(documentCloserProvider.notifier).close(path)),

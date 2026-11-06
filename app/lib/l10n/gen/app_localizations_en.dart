@@ -3864,4 +3864,289 @@ class AppLocalizationsEn extends AppLocalizations {
   String jobReplaceFailedTitle(String name) {
     return 'Couldn’t replace pages with $name';
   }
+
+  @override
+  String organizeFileCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted files',
+      one: '1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePageCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get combineAddFiles => 'Add files…';
+
+  @override
+  String get combineFilter => 'PDFs, images and Office files';
+
+  @override
+  String get combineEmptyTitle => 'No files yet';
+
+  @override
+  String get combineEmptyBody =>
+      'Add PDFs or images to combine them into one new file.';
+
+  @override
+  String get combineDrag => 'Drag to reorder';
+
+  @override
+  String get combineMoveUp => 'Move up';
+
+  @override
+  String get combineMoveDown => 'Move down';
+
+  @override
+  String get combinePagesToInclude => 'Pages to include';
+
+  @override
+  String get combineAllPages => 'All';
+
+  @override
+  String get combineRemoveFile => 'Remove file';
+
+  @override
+  String get combineMetaImage => 'Image · converted to 1 page';
+
+  @override
+  String get combineMetaOffice => 'Word or Excel';
+
+  @override
+  String get combineNeedsPassword => 'Locked: enter its password to add it.';
+
+  @override
+  String get combineWrongPassword =>
+      'That password doesn’t open it. Try again.';
+
+  @override
+  String get combineOwnerPassword =>
+      'This file forbids combining. Enter its owner password to add it.';
+
+  @override
+  String get combineUnreadable => 'Ferman can’t read this file.';
+
+  @override
+  String get combineBadRange => 'This file doesn’t have those pages.';
+
+  @override
+  String get combinePassword => 'Password';
+
+  @override
+  String get combineUnlock => 'Unlock';
+
+  @override
+  String get combineNotProtected =>
+      'The new file won’t have this file’s password.';
+
+  @override
+  String get combineNotSigned => 'Its signatures won’t carry over.';
+
+  @override
+  String get combineNewFile => 'New file';
+
+  @override
+  String get combineDefaultName => 'Combined.pdf';
+
+  @override
+  String get combineBookmarks => 'Add a bookmark for each file';
+
+  @override
+  String get combineKeepForms => 'Keep form fields';
+
+  @override
+  String get combineKeepFormsNote =>
+      'Signatures from the original files don’t carry over.';
+
+  @override
+  String combineAbout(String size) {
+    return 'About $size';
+  }
+
+  @override
+  String combineAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Combine $formatted files',
+      one: 'Combine 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResult(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'RESULT · $formatted PAGES',
+      one: 'RESULT · 1 PAGE',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResultPage(String page, String file) {
+    return 'Page $page, from file $file';
+  }
+
+  @override
+  String combineOutputExists(String name) {
+    return '“$name” already exists. Choose another name.';
+  }
+
+  @override
+  String splitTitle(String name) {
+    return 'Split “$name”';
+  }
+
+  @override
+  String get splitBy => 'Split by';
+
+  @override
+  String get splitEvery => 'Every few pages';
+
+  @override
+  String get splitEveryBody => 'A new file every N pages.';
+
+  @override
+  String get splitBookmarks => 'At top-level bookmarks';
+
+  @override
+  String splitBookmarksBody(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'One file per chapter. $formatted bookmarks found.',
+      one: 'One file per chapter. 1 bookmark found.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitNoBookmarks => 'This document has no bookmarks.';
+
+  @override
+  String get splitSize => 'By file size';
+
+  @override
+  String get splitSizeBody =>
+      'Files no larger than a size you choose, for e-mail limits.';
+
+  @override
+  String get splitBlank => 'At blank pages';
+
+  @override
+  String get splitBlankBody => 'Blank separator pages are removed.';
+
+  @override
+  String get splitNoBlankPages => 'No blank pages found.';
+
+  @override
+  String get splitPagesPerFile => 'Pages per file';
+
+  @override
+  String get splitLargest => 'Largest file';
+
+  @override
+  String get splitFileNames => 'File names';
+
+  @override
+  String get splitSaveTo => 'Save to';
+
+  @override
+  String get splitSameFolder => 'Same folder as the original';
+
+  @override
+  String get splitChooseFolder => 'Choose a folder…';
+
+  @override
+  String get splitOverLimit => 'One page alone is larger than this size.';
+
+  @override
+  String get splitNotProtected =>
+      'The new files won’t have this document’s password.';
+
+  @override
+  String get splitNotSigned => 'The new files won’t carry its signatures.';
+
+  @override
+  String splitAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Split into $formatted files',
+      one: 'Split into 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createBlank => 'Blank page';
+
+  @override
+  String get createFromFiles => 'From files…';
+
+  @override
+  String get createFromClipboard => 'From the clipboard';
+
+  @override
+  String get createDefaultName => 'Untitled.pdf';
+
+  @override
+  String jobSplittingTitle(String name) {
+    return 'Splitting $name';
+  }
+
+  @override
+  String jobSplitTitle(String name) {
+    return 'Split $name';
+  }
+
+  @override
+  String jobSplitFailedTitle(String name) {
+    return 'Couldn’t split $name';
+  }
+
+  @override
+  String jobCombiningTitle(String name) {
+    return 'Combining into $name';
+  }
+
+  @override
+  String jobCombinedTitle(String name) {
+    return 'Combined into $name';
+  }
+
+  @override
+  String jobCombineFailedTitle(String name) {
+    return 'Couldn’t combine into $name';
+  }
+
+  @override
+  String jobCreatingTitle(String name) {
+    return 'Creating $name';
+  }
+
+  @override
+  String jobCreatedTitle(String name) {
+    return 'Created $name';
+  }
+
+  @override
+  String jobCreateFailedTitle(String name) {
+    return 'Couldn’t create $name';
+  }
 }

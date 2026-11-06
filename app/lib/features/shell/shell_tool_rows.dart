@@ -6,6 +6,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/extract_pages_dialog.dart';
@@ -15,6 +16,7 @@ import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/organize/page_labels_dialog.dart';
 import 'package:ferman/features/organize/replace_pages_dialog.dart';
+import 'package:ferman/features/organize/split_dialog.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -894,6 +896,10 @@ class _OrganizeTools extends ConsumerWidget {
     // Extract only reads; the others change the document.
     final changes = document != null && document.readOnly == null;
     final crop = ref.watch(cropShowingProvider);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final combineTab = ref.watch(
+      shellDocumentsProvider.select((list) => list.active?.combine ?? false),
+    );
     return Toolbar(
       semanticLabel: l10n.shellOrganizeTools,
       overflowLabel: l10n.moreTools,
@@ -976,19 +982,24 @@ class _OrganizeTools extends ConsumerWidget {
               : () => unawaited(commands().delete()),
         ),
         const ToolbarSeparator(),
-        _future(
-          context,
-          feature: Feature.combineAndSplit,
+        ToolButton(
           icon: IconName.split,
           label: l10n.shellToolSplit,
           active: false,
+          disabled: !live,
+          onPressed: live
+              ? () => ref
+                    .read(organizeDialogProvider.notifier)
+                    .show(const SplitDialog())
+              : null,
         ),
-        _future(
-          context,
-          feature: Feature.combineAndSplit,
+        ToolButton(
           icon: IconName.merge,
           label: l10n.shellToolCombineFiles,
-          active: false,
+          active: combineTab,
+          onPressed: () => ref
+              .read(combineFilesProvider.notifier)
+              .showTab(l10n.shellToolCombineFiles),
         ),
         ToolButton(
           icon: IconName.crop,
@@ -1040,11 +1051,11 @@ class _OrganizeTools extends ConsumerWidget {
 
 /// Convert (FmWindow lines 123–137): Word, Excel, PowerPoint, Image, HTML,
 /// Text, Markdown | Create PDF, Scan, Recognize text (OCR).
-class _ConvertTools extends StatelessWidget {
+class _ConvertTools extends ConsumerWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     ToolButton tool(Feature feature, IconName icon, String label) => _future(
       context,
@@ -1077,7 +1088,14 @@ class _ConvertTools extends StatelessWidget {
         tool(Feature.convertFromPdf, IconName.fileText, l10n.shellConvertText),
         tool(Feature.convertFromPdf, IconName.hash, l10n.shellConvertMarkdown),
         const ToolbarSeparator(),
-        tool(Feature.createPdf, IconName.fileInput, l10n.shellToolCreatePdf),
+        ToolButton(
+          icon: IconName.fileInput,
+          label: l10n.shellToolCreatePdf,
+          active: false,
+          onPressed: () => ref
+              .read(organizeDialogProvider.notifier)
+              .show(const CreatePdfDialog()),
+        ),
         tool(Feature.scanToPdf, IconName.scan, l10n.shellToolScan),
         tool(Feature.ocr, IconName.scanText, l10n.shellToolRecognizeText),
       ],

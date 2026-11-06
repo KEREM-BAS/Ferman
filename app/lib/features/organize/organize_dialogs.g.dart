@@ -8,17 +8,20 @@ part of 'organize_dialogs.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The dialog Organize shows now (G45, a6-5), one at a time: each of its files
+/// The dialog Organize shows now (G45, a6-2, a6-5), one at a time, above every
+/// screen, since Create PDF also opens from the start screen: each of its files
 /// has the function that asks for it.
 
 @ProviderFor(OrganizeDialog)
 final organizeDialogProvider = OrganizeDialogProvider._();
 
-/// The dialog Organize shows now (G45, a6-5), one at a time: each of its files
+/// The dialog Organize shows now (G45, a6-2, a6-5), one at a time, above every
+/// screen, since Create PDF also opens from the start screen: each of its files
 /// has the function that asks for it.
 final class OrganizeDialogProvider
     extends $NotifierProvider<OrganizeDialog, Widget?> {
-  /// The dialog Organize shows now (G45, a6-5), one at a time: each of its files
+  /// The dialog Organize shows now (G45, a6-2, a6-5), one at a time, above every
+  /// screen, since Create PDF also opens from the start screen: each of its files
   /// has the function that asks for it.
   OrganizeDialogProvider._()
     : super(
@@ -49,7 +52,8 @@ final class OrganizeDialogProvider
 
 String _$organizeDialogHash() => r'202c78171b65f3765479c3e3744e41717e6f1485';
 
-/// The dialog Organize shows now (G45, a6-5), one at a time: each of its files
+/// The dialog Organize shows now (G45, a6-2, a6-5), one at a time, above every
+/// screen, since Create PDF also opens from the start screen: each of its files
 /// has the function that asks for it.
 
 abstract class _$OrganizeDialog extends $Notifier<Widget?> {

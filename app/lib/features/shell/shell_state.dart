@@ -9,7 +9,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'shell_state.g.dart';
@@ -25,7 +25,18 @@ class ShellMode extends _$ShellMode {
   bool _sidebarClosed = false;
 
   @override
-  FermanMode build() => FermanMode.view;
+  FermanMode build() {
+    // a6-3: the Combine tab belongs to Organize.
+    ref.listen(
+      shellDocumentsProvider.select((list) => list.active?.combine ?? false),
+      (_, combine) {
+        if (combine) state = FermanMode.organize;
+      },
+    );
+    return ref.read(shellDocumentsProvider).active?.combine ?? false
+        ? FermanMode.organize
+        : FermanMode.view;
+  }
 
   /// Shows [mode]; nothing happens when it is already shown. Organize shows a
   /// document without the sidebar, as a6-1 draws it: the grid has the pages.
@@ -478,6 +489,12 @@ final class ShellDocument {
 
   /// When the document was last saved on this device.
   final DateTime? savedAt;
+
+  /// The path that stands for a6-3's Combine tab, which is no file.
+  static const String combinePath = 'ferman:combine';
+
+  /// Whether this is the Combine tab (a6-3), with no sidebar, panel or pages.
+  bool get combine => path == combinePath;
 
   /// Whether its tab shows only the canvas, with no status bar (a1-8, a1-9b,
   /// a1-9c).

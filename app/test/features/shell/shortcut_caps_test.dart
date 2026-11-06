@@ -107,6 +107,7 @@ const Set<String> _waitForDocument = {
   'Replace',
   'Crop',
   'Page labels',
+  'Split',
   'Select',
   'Hand',
   'Marquee zoom',
@@ -453,7 +454,7 @@ void main() {
         final disabled = [
           for (final entry in entries)
             if (entry.disabled &&
-                (mode != FermanMode.view && mode != FermanMode.organize ||
+                ((mode != FermanMode.view && mode != FermanMode.organize) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

@@ -95,7 +95,7 @@ class _ExtractPagesDialogState extends ConsumerState<ExtractPagesDialog> {
     setState(() => _busy = true);
     try {
       if (_each) {
-        final folder = await picker.openFolder();
+        final folder = await picker.chooseFolder();
         if (folder == null) return;
         // One file a page, named free in the folder; the plan's numbers are
         // the page numbers.

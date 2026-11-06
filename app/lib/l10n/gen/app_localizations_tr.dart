@@ -3843,4 +3843,289 @@ class AppLocalizationsTr extends AppLocalizations {
   String jobReplaceFailedTitle(String name) {
     return 'Sayfalar $name ile değiştirilemedi';
   }
+
+  @override
+  String organizeFileCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted dosya',
+      one: '1 dosya',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePageCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfa',
+      one: '1 sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get combineAddFiles => 'Dosya ekle…';
+
+  @override
+  String get combineFilter => 'PDF’ler, görseller ve Office dosyaları';
+
+  @override
+  String get combineEmptyTitle => 'Henüz dosya yok';
+
+  @override
+  String get combineEmptyBody =>
+      'Tek bir yeni dosyada birleştirmek için PDF veya görsel ekleyin.';
+
+  @override
+  String get combineDrag => 'Sıralamak için sürükleyin';
+
+  @override
+  String get combineMoveUp => 'Yukarı taşı';
+
+  @override
+  String get combineMoveDown => 'Aşağı taşı';
+
+  @override
+  String get combinePagesToInclude => 'Alınacak sayfalar';
+
+  @override
+  String get combineAllPages => 'Tümü';
+
+  @override
+  String get combineRemoveFile => 'Dosyayı kaldır';
+
+  @override
+  String get combineMetaImage => 'Görsel · 1 sayfaya dönüştürülür';
+
+  @override
+  String get combineMetaOffice => 'Word veya Excel';
+
+  @override
+  String get combineNeedsPassword => 'Kilitli: eklemek için parolasını girin.';
+
+  @override
+  String get combineWrongPassword =>
+      'Bu parola dosyayı açmıyor. Yeniden deneyin.';
+
+  @override
+  String get combineOwnerPassword =>
+      'Bu dosya birleştirmeye izin vermiyor. Eklemek için sahip parolasını girin.';
+
+  @override
+  String get combineUnreadable => 'Ferman bu dosyayı okuyamıyor.';
+
+  @override
+  String get combineBadRange => 'Bu dosyada o sayfalar yok.';
+
+  @override
+  String get combinePassword => 'Parola';
+
+  @override
+  String get combineUnlock => 'Kilidi aç';
+
+  @override
+  String get combineNotProtected =>
+      'Yeni dosya bu dosyanın parolasını taşımayacak.';
+
+  @override
+  String get combineNotSigned => 'İmzaları yeni dosyaya geçmeyecek.';
+
+  @override
+  String get combineNewFile => 'Yeni dosya';
+
+  @override
+  String get combineDefaultName => 'Birleştirilmiş.pdf';
+
+  @override
+  String get combineBookmarks => 'Her dosya için yer imi ekle';
+
+  @override
+  String get combineKeepForms => 'Form alanlarını koru';
+
+  @override
+  String get combineKeepFormsNote =>
+      'Özgün dosyalardaki imzalar yeni dosyaya geçmez.';
+
+  @override
+  String combineAbout(String size) {
+    return 'Yaklaşık $size';
+  }
+
+  @override
+  String combineAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted dosyayı birleştir',
+      one: '1 dosyayı birleştir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResult(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'SONUÇ · $formatted SAYFA',
+      one: 'SONUÇ · 1 SAYFA',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResultPage(String page, String file) {
+    return 'Sayfa $page, $file. dosyadan';
+  }
+
+  @override
+  String combineOutputExists(String name) {
+    return '“$name” zaten var. Başka bir ad seçin.';
+  }
+
+  @override
+  String splitTitle(String name) {
+    return '“$name” dosyasını böl';
+  }
+
+  @override
+  String get splitBy => 'Bölme biçimi';
+
+  @override
+  String get splitEvery => 'Birkaç sayfada bir';
+
+  @override
+  String get splitEveryBody => 'Her N sayfada yeni bir dosya.';
+
+  @override
+  String get splitBookmarks => 'Üst düzey yer imlerinde';
+
+  @override
+  String splitBookmarksBody(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Her bölüm için bir dosya. $formatted yer imi bulundu.',
+      one: 'Her bölüm için bir dosya. 1 yer imi bulundu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitNoBookmarks => 'Bu belgede yer imi yok.';
+
+  @override
+  String get splitSize => 'Dosya boyutuna göre';
+
+  @override
+  String get splitSizeBody =>
+      'E-posta sınırları için, seçtiğiniz boyutu aşmayan dosyalar.';
+
+  @override
+  String get splitBlank => 'Boş sayfalarda';
+
+  @override
+  String get splitBlankBody => 'Ayırıcı boş sayfalar kaldırılır.';
+
+  @override
+  String get splitNoBlankPages => 'Boş sayfa bulunamadı.';
+
+  @override
+  String get splitPagesPerFile => 'Dosya başına sayfa';
+
+  @override
+  String get splitLargest => 'En büyük dosya';
+
+  @override
+  String get splitFileNames => 'Dosya adları';
+
+  @override
+  String get splitSaveTo => 'Kaydetme yeri';
+
+  @override
+  String get splitSameFolder => 'Özgün dosyayla aynı klasör';
+
+  @override
+  String get splitChooseFolder => 'Klasör seçin…';
+
+  @override
+  String get splitOverLimit => 'Tek bir sayfa bile bu boyuttan büyük.';
+
+  @override
+  String get splitNotProtected =>
+      'Yeni dosyalar bu belgenin parolasını taşımayacak.';
+
+  @override
+  String get splitNotSigned => 'Yeni dosyalar imzalarını taşımayacak.';
+
+  @override
+  String splitAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted dosyaya böl',
+      one: '1 dosyaya böl',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createBlank => 'Boş sayfa';
+
+  @override
+  String get createFromFiles => 'Dosyalardan…';
+
+  @override
+  String get createFromClipboard => 'Panodan';
+
+  @override
+  String get createDefaultName => 'Adsız.pdf';
+
+  @override
+  String jobSplittingTitle(String name) {
+    return '$name bölünüyor';
+  }
+
+  @override
+  String jobSplitTitle(String name) {
+    return '$name bölündü';
+  }
+
+  @override
+  String jobSplitFailedTitle(String name) {
+    return '$name bölünemedi';
+  }
+
+  @override
+  String jobCombiningTitle(String name) {
+    return '$name içinde birleştiriliyor';
+  }
+
+  @override
+  String jobCombinedTitle(String name) {
+    return '$name içinde birleştirildi';
+  }
+
+  @override
+  String jobCombineFailedTitle(String name) {
+    return '$name içinde birleştirilemedi';
+  }
+
+  @override
+  String jobCreatingTitle(String name) {
+    return '$name oluşturuluyor';
+  }
+
+  @override
+  String jobCreatedTitle(String name) {
+    return '$name oluşturuldu';
+  }
+
+  @override
+  String jobCreateFailedTitle(String name) {
+    return '$name oluşturulamadı';
+  }
 }

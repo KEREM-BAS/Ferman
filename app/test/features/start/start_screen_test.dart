@@ -47,18 +47,14 @@ void main() {
     expect(find.textContaining('Word'), findsNothing);
   });
 
-  testWidgets('every entry point but opening is disabled with the reason '
-      '(G10)', (tester) async {
+  testWidgets('what does not work yet is disabled with the reason (G10)', (
+    tester,
+  ) async {
     await pumpFermanApp(tester);
-    for (final label in [
-      'Create PDF. From a blank page, files or the clipboard',
-      'Combine files. Merge several files into one PDF',
+    final scan = find.bySemanticsLabel(
       'Scan to PDF. From a scanner or a phone camera',
-    ]) {
-      final card = find.bySemanticsLabel(label);
-      expect(card, findsOneWidget, reason: label);
-      expect(tester.getSemantics(card).hint, _future, reason: label);
-    }
+    );
+    expect(tester.getSemantics(scan).hint, _future);
     for (final label in [
       'Compress',
       'Convert',
@@ -66,7 +62,6 @@ void main() {
       'Recognize text (OCR)',
       'Protect',
       'Compare',
-      'New blank PDF',
     ]) {
       final button = find.ancestor(
         of: find.textContaining(label),
@@ -79,7 +74,8 @@ void main() {
     }
     final zone = tester.widget<DropZone>(find.byType(DropZone));
     expect(zone.disabledReason, isNull);
-    expect(zone.createDisabledReason, _future);
+    expect(zone.createDisabledReason, isNull);
+    expect(zone.onCreate, isNotNull);
     expect(zone.onOpen, isNotNull);
   });
 
@@ -265,11 +261,11 @@ void main() {
         tester.widget<DropZone>(find.byType(DropZone)).disabledReason,
         title,
       );
-      // Everything else still waits for its milestone.
+      // Without opening there is no making a new file either.
       final create = find.bySemanticsLabel(
         'Create PDF. From a blank page, files or the clipboard',
       );
-      expect(tester.getSemantics(create).hint, _future);
+      expect(tester.getSemantics(create).hint, title);
     });
 
     testWidgets('Copy technical details copies the facts', (tester) async {

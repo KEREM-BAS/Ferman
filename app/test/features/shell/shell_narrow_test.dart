@@ -588,7 +588,9 @@ void main() {
         };
         for (final entry in entries) {
           final works =
-              mode == FermanMode.edit && working.containsKey(entry.label);
+              (mode == FermanMode.edit && working.containsKey(entry.label)) ||
+              entry.label == 'Combine files' ||
+              entry.label == 'Create PDF';
           expect(
             entry.disabled,
             !works || working[entry.label] != null,
@@ -600,7 +602,10 @@ void main() {
             entry.disabledReason,
             mode == FermanMode.view && _viewing.contains(entry.label) ||
                     mode == FermanMode.organize &&
-                        _organizing.contains(entry.label)
+                        _organizing.contains(entry.label) ||
+                    entry.label == 'Split' ||
+                    entry.label == 'Combine files' ||
+                    entry.label == 'Create PDF'
                 ? isNull
                 : works
                 ? working[entry.label]

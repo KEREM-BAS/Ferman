@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// Files arrive through desktop_drop, which names them only once they are
 /// dropped (G117): the overlay shows no count and no row per file. a1-6's
-/// "Combine into one PDF" target is disabled until combining ships (B020),
+/// "Combine into one PDF" target is disabled until it ships (B191),
 /// so a drop opens tabs, but on Organize's page grid (B104, G105), which
 /// takes the files itself and shows where they go instead of the overlay
 /// ([PageGridDropSlot]).
@@ -100,7 +100,7 @@ class _FileDropState extends ConsumerState<FileDrop> {
 /// accent-subtle fill, 16 px inside the screen, with the upload tile, the
 /// headline and its line, and the two targets. "Open in tabs" keeps the
 /// accent ring, as the only target that works; "Combine into one PDF" is
-/// disabled, its line the future-version reason (G10, B020).
+/// disabled, its line the future-version reason (G10, B191).
 class _DropOverlay extends StatelessWidget {
   const new();
 
@@ -220,7 +220,7 @@ class _DropOverlay extends StatelessWidget {
                             context,
                             icon: IconName.merge,
                             title: l10n.dropOverlayCombine,
-                            line: Feature.combineAndSplit.disabledReason(
+                            line: Feature.combineDropped.disabledReason(
                               context,
                             ),
                             disabled: true,

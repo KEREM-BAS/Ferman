@@ -54,7 +54,7 @@ final class BackgroundJobsNotifierProvider
 }
 
 String _$backgroundJobsNotifierHash() =>
-    r'6edfdd5c10270272aaf56036dc38d979a1e69074';
+    r'a323a47884abbe1ea9ed6baf2dcbe0f8369ec03d';
 
 /// The background jobs and the task drawer, as `backgroundJobsProvider`
 /// (a11-6b, G49): a row for each job from its start until it is dismissed, an

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
@@ -5,6 +7,8 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_problem.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/features/organize/combine.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
@@ -90,32 +94,44 @@ class FmStart extends ConsumerWidget {
     final open = ShellCommand.open.caps(platform)!;
     final actions = [
       (
-        null,
+        onOpen,
         IconName.folderOpen,
         l10n.startOpenFile,
         l10n.startOpenFileDescription,
         open,
+        openReason,
       ),
       (
-        Feature.createPdf,
+        openReason == null
+            ? () => ref
+                  .read(organizeDialogProvider.notifier)
+                  .show(const CreatePdfDialog())
+            : null,
         IconName.filePlus2,
         l10n.startCreatePdf,
         l10n.startCreatePdfDescription,
         ShellCommand.createPdf.caps(platform),
+        openReason,
       ),
       (
-        Feature.combineAndSplit,
+        openReason == null
+            ? () => ref
+                  .read(combineFilesProvider.notifier)
+                  .showTab(l10n.shellToolCombineFiles)
+            : null,
         IconName.merge,
         l10n.startCombineFiles,
         l10n.startCombineFilesDescription,
         null,
+        openReason,
       ),
       (
-        Feature.scanToPdf,
+        null,
         IconName.scan,
         l10n.startScanToPdf,
         l10n.startScanToPdfDescription,
         null,
+        Feature.scanToPdf.disabledReason(context),
       ),
     ];
     final tools = [
@@ -138,17 +154,16 @@ class FmStart extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: theme.space.space4,
             children: [
-              for (final (feature, icon, title, description, keys) in actions)
+              for (final (onPressed, icon, title, description, keys, reason)
+                  in actions)
                 Expanded(
                   child: _ActionCard(
                     icon: icon,
                     title: title,
                     description: description,
                     shortcut: keys,
-                    onPressed: feature == null ? onOpen : null,
-                    disabledReason: feature == null
-                        ? openReason
-                        : feature.disabledReason(context),
+                    onPressed: onPressed,
+                    disabledReason: reason,
                   ),
                 ),
             ],
@@ -191,8 +206,10 @@ class FmStart extends ConsumerWidget {
             footnote: l10n.startDropFootnote,
             minHeight: dropMinHeight,
             onOpen: onOpen,
+            onCreate: openReason == null
+                ? () => unawaited(createBlankPdf(ref, l10n))
+                : null,
             disabledReason: openReason,
-            createDisabledReason: Feature.createPdf.disabledReason(context),
           ),
       ],
     );
@@ -438,7 +455,7 @@ class _PhoneHome extends ConsumerWidget {
       (Feature.phoneEditing, IconName.filePenLine, l10n.shellModeEdit),
       (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
       (Feature.compress, IconName.minimize2, l10n.startToolCompress),
-      (Feature.combineAndSplit, IconName.merge, l10n.startPhoneToolCombine),
+      (Feature.phoneCombine, IconName.merge, l10n.startPhoneToolCombine),
       (Feature.passwordProtection, IconName.shield, l10n.startToolProtect),
       (Feature.ocr, IconName.scanText, l10n.startPhoneToolOcr),
     ];
