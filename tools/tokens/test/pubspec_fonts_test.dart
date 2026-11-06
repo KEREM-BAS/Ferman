@@ -78,7 +78,7 @@ void main() {
       final problems = fontFamilyProblems(designModel, declared);
       expect(problems, hasLength(1));
       expect(problems.single, contains('"Noto Sans SC" is declared'));
-      expect(problems.single, contains('--font-hand-1'));
+      expect(problems.single, contains('--font-ui'));
     });
   });
 

@@ -274,6 +274,7 @@ impl Drop for JobFolder {
 
 /// Makes `dir` for this user alone: the output of an encrypted document is plain text there.
 fn create_private_dir(dir: &Path) -> io::Result<()> {
+    #[cfg_attr(not(unix), allow(unused_mut))]
     let mut builder = fs::DirBuilder::new();
     #[cfg(unix)]
     std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
