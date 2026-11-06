@@ -210,6 +210,8 @@ void main() {
       await pumpEventQueue();
       jobs.answerQuit(quit: true);
       expect(await yes, isTrue);
+      expect(engine.jobCalls, isEmpty, reason: 'the quit may still stop');
+      await jobs.cancelForQuit();
       expect(engine.jobCalls, ['cancel 1']);
       expect(container.read(backgroundJobsProvider).rows, isEmpty);
     });
@@ -401,15 +403,18 @@ void main() {
   group('the shell', () {
     Future<ProviderContainer> pumpShell(
       WidgetTester tester,
-      BackgroundJobs seeded,
-    ) async {
+      BackgroundJobs seeded, {
+      Size size = artboard,
+      Locale locale = const Locale('en'),
+    }) async {
       tester.view
-        ..physicalSize = artboard
+        ..physicalSize = size
         ..devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         shellHost(
           window: FakeDesktopWindow(WindowPlatform.linux),
+          locale: locale,
           overrides: [
             backgroundJobsProvider.overrideWith(() => _Seeded(seeded)),
             engineServiceProvider.overrideWithValue(FakeEngineService()),
@@ -431,6 +436,36 @@ void main() {
       expect(inBar(find.byType(TaskDrawerOpener)), findsNothing);
       expect(find.byType(TaskDrawer), findsNothing);
     });
+
+    for (final locale in const [Locale('en'), Locale('ar')]) {
+      testWidgets('a long file name ends in the slot, in $locale', (
+        tester,
+      ) async {
+        await pumpShell(
+          tester,
+          BackgroundJobs(
+            rows: [
+              BackgroundJob(
+                id: 1,
+                kind: BackgroundJobKind.copyDocument,
+                name: 'Yüksek lisans tezi ' * 8,
+                job: 1,
+                value: 0.22,
+              ),
+            ],
+          ),
+          size: const Size(1024, 768),
+          locale: locale,
+        );
+        expect(tester.takeException(), isNull);
+        final line = tester.getSize(inBar(find.byType(TaskDrawerOpener)));
+        expect(line.width, lessThanOrEqualTo(260));
+        final bar = tester.getRect(find.byType(ShellStatusBar));
+        final save = tester.getRect(inBar(find.byType(SaveIndicator)));
+        expect(save.left, greaterThanOrEqualTo(bar.left));
+        expect(save.right, lessThanOrEqualTo(bar.right));
+      });
+    }
 
     testWidgets('the status bar opens the drawer on the canvas', (
       tester,

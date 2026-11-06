@@ -98,12 +98,19 @@ pub fn load(bytes: &[u8], limits: &Limits) -> Result<Image, OpsError> {
 }
 
 /// A JPEG's pixels as gray or RGB samples, for what must see them, such as Compress. A CMYK JPEG
-/// comes out as RGB.
+/// with the Adobe marker comes out as RGB.
 ///
 /// # Errors
 ///
-/// As [`load`].
+/// As [`load`], and [`OpsError::UnreadableImage`] for a CMYK JPEG without the marker: the decoder
+/// takes every CMYK as Adobe's inverted kind, which would turn this one into its negative, and
+/// inverting its RGB afterwards is not the same conversion. Compress leaves such an image as it
+/// is (decision 26).
 pub fn decode_dct(bytes: &[u8], limits: &Limits) -> Result<Image, OpsError> {
+    let header = jpeg_header(bytes).ok_or(OpsError::UnreadableImage)?;
+    if header.colour == (Colour::Cmyk { inverted: false }) {
+        return Err(OpsError::UnreadableImage);
+    }
     decoded(
         ImageReader::with_format(Cursor::new(bytes), ImageFormat::Jpeg),
         limits,
@@ -445,6 +452,25 @@ mod tests {
         assert_eq!(decoded.colour, Colour::Rgb);
         assert_eq!(decoded.pixels, Pixels::Samples(decoded_samples(&decoded)));
         assert_eq!(decoded_samples(&decoded).len(), 8 * 8 * 3);
+    }
+
+    #[test]
+    fn only_an_adobe_cmyk_jpeg_decodes_to_rgb() {
+        let seed = |name: &str| {
+            std::fs::read(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../fuzz/seeds/images")
+                    .join(name),
+            )
+            .unwrap()
+        };
+        // Every sample 255: no ink with the marker, full ink without it.
+        let adobe = decode_dct(&seed("cmyk-adobe.jpg"), &Limits::default()).unwrap();
+        assert!(decoded_samples(&adobe).iter().all(|&sample| sample == 255));
+        assert!(matches!(
+            decode_dct(&seed("cmyk-plain.jpg"), &Limits::default()),
+            Err(OpsError::UnreadableImage)
+        ));
     }
 
     fn decoded_samples(image: &Image) -> Vec<u8> {

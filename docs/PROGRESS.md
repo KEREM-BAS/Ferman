@@ -564,6 +564,16 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     `image_layer`); the bundled handwriting and similar fonts; the corpus files.
     From W1 on, a `commit_change` passes `op` and `fields`; W3's fill passes the full field names,
     so that Keeps can apply.
+    W0's review fixed: a job's output is a new file, refused if one appeared since (`save_new_pdf`);
+    a refusal the user can answer keeps a job's change; `/Annots` is written as a direct array of
+    the page, never through a reference; an edit of a form always copies it (a number past the base
+    does not say who else draws it); `decode_dct` refuses a CMYK JPEG without the Adobe marker; the
+    status bar's task slot is 260 px; a revision keeps the reader's page and place; a quit cancels
+    its jobs only once the unsaved question has let it go.
+    **Goldens still to do:** the W0 goldens `task_drawer`, `task_drawer_empty`, `task_cancel`,
+    `task_quit` and `toast_stack` have no reference PNG. They are Linux only, so CI's golden step goes
+    red on the first push until the `goldens-linux` artifact is committed and a11-6b is compared with
+    `build/design-refs/`.
 - [ ] The owner approves M4
 
 ### M5 · Release pipeline

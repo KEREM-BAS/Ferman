@@ -240,9 +240,9 @@ impl RevisionStore {
         })
     }
 
-    /// Runs `change` on page `index`'s `/Annots` and writes them back when it says it changed
-    /// them: an indirect array that only this page names as itself, any other as a direct array
-    /// of the page, so another page's annotations stay.
+    /// Runs `change` on page `index`'s `/Annots` and writes them back, when it says it changed
+    /// them, as a direct array of the page. Never through a reference: in a damaged or hostile
+    /// file that names a font, the page tree's `/Kids` or another page's annotations.
     fn change_annots(
         &mut self,
         doc: &Document,
@@ -251,43 +251,19 @@ impl RevisionStore {
     ) -> Result<bool, CoreError> {
         let page = self.page_id(doc, index)?;
         let mut dict = self.dictionary(doc, page)?;
-        let (holder, mut items) = {
-            let scope = self.scope(doc);
-            let entry = dict.get(b"Annots").ok();
-            let holder = entry.and_then(|annots| annots.as_reference().ok());
-            let items = entry
-                .and_then(|annots| scope.resolve(annots))
-                .and_then(|annots| annots.as_array().ok())
-                .cloned()
-                .unwrap_or_default();
-            (holder, items)
-        };
+        let mut items = dict
+            .get(b"Annots")
+            .ok()
+            .and_then(|annots| self.scope(doc).resolve(annots))
+            .and_then(|annots| annots.as_array().ok())
+            .cloned()
+            .unwrap_or_default();
         if !change(&mut items) {
             return Ok(false);
         }
-        let array = Object::Array(items);
-        match holder.filter(|&id| !self.annots_shared(doc, page, id)) {
-            Some(id) => self.put(id, array)?,
-            None => {
-                dict.set("Annots", array);
-                self.put(page, Object::Dictionary(dict))?;
-            }
-        }
+        dict.set("Annots", Object::Array(items));
+        self.put(page, Object::Dictionary(dict))?;
         Ok(true)
-    }
-
-    /// Whether a page other than `page` names the array `id` as its `/Annots`.
-    fn annots_shared(&self, doc: &Document, page: ObjectId, id: ObjectId) -> bool {
-        let scope = self.scope(doc);
-        self.pages(doc)
-            .iter()
-            .filter(|other| other.id != page)
-            .filter_map(|other| scope.dictionary(other.id))
-            .any(|other| {
-                other
-                    .get(b"Annots")
-                    .is_ok_and(|annots| annots.as_reference().ok() == Some(id))
-            })
     }
 }
 
@@ -358,9 +334,9 @@ mod tests {
             store.append_annotation(&doc, page, note).unwrap();
             assert_eq!(annots(&store, &doc, page).last(), Some(&note.0));
         }
-        // The indirect array changes as itself; the page dictionary stays.
-        assert_eq!(store.lookup((901, 0)).unwrap().as_array().unwrap().len(), 2);
-        assert!(store.lookup(store.page_id(&doc, 2).unwrap()).is_none());
+        // The page takes a direct array; the object it named stays.
+        assert!(store.lookup((901, 0)).is_none());
+        assert_eq!(annots(&store, &doc, 2).len(), 2);
         for page in 0..3 {
             assert!(store.remove_annotation(&doc, page, note).unwrap());
             assert!(!store.remove_annotation(&doc, page, note).unwrap());
@@ -385,6 +361,30 @@ mod tests {
         store.append_annotation(&doc, 0, note).unwrap();
         assert_eq!(annots(&store, &doc, 0), [note.0]);
         assert!(annots(&store, &doc, 1).is_empty());
+    }
+
+    #[test]
+    fn annots_naming_another_object_leave_that_object_alone() {
+        for (name, target) in [
+            (
+                "a font",
+                Object::Dictionary(dictionary! { "Type" => "Font" }),
+            ),
+            (
+                "a /Kids array",
+                Object::Array(vec![Object::Reference((902, 0))]),
+            ),
+        ] {
+            let doc = opened(vec![dictionary! { "Annots" => (901, 0) }], |model| {
+                model.objects.insert((901, 0), target);
+            });
+            let mut store = RevisionStore::new(&doc);
+            store.begin().unwrap();
+            let note = store.add_object(&doc, Value::Null).unwrap();
+            store.append_annotation(&doc, 0, note).unwrap();
+            assert!(store.lookup((901, 0)).is_none(), "{name}");
+            assert_eq!(annots(&store, &doc, 0).last(), Some(&note.0), "{name}");
+        }
     }
 
     #[test]

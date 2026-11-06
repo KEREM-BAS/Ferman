@@ -531,8 +531,9 @@ impl RevisionStore {
     /// Replaces `splices` in page `index`'s content, in the open transaction. Each changed
     /// stream is written back as a new version compressed with Flate; a page stream that another
     /// page shares becomes a new object that only this page's `/Contents` names. A form is
-    /// copied for its placement in `placements`, which then draws the copy; a copy made earlier
-    /// changes in place. On an error the transaction stays as it was.
+    /// copied for its placement in `placements`, which then draws the copy, however new the form:
+    /// a number past the base does not say who else draws it. On an error the transaction stays as
+    /// it was.
     ///
     /// # Errors
     ///
@@ -585,11 +586,6 @@ impl RevisionStore {
             }
             let name = self.drawn_name(doc, page, stream, &placement.draw.range, form)?;
             let copy = Object::Stream(respliced(&self.stream(doc, form)?, &edits, doc)?);
-            // A copy this store made is drawn by this placement only, so it changes in place.
-            if form.0 >= self.base_size {
-                queued.push((form, copy));
-                continue;
-            }
             let copy = queue_new(&mut queued, &mut next, copy)?;
             let fresh = self.fresh_name(doc, page, &name, &names)?;
             let mut draw = Vec::new();
@@ -1835,7 +1831,7 @@ mod tests {
         assert_eq!(new[..show.range.start], old[..show.range.start]);
         assert_eq!(new[show.range.start + 11..], old[show.range.end..]);
 
-        // A second edit changes the copy in place; the page and its stream stay.
+        // A second edit copies again: what else draws the first copy keeps it.
         let redraw = Span {
             range: draw.range.start..draw.range.start + 9,
             ..draw.clone()
@@ -1852,15 +1848,14 @@ mod tests {
         };
         store.splice(&doc, 0, &[again], &[placement]).unwrap();
         store.commit().unwrap();
-        assert_eq!(
-            store.revisions()[1].ids().collect::<Vec<_>>(),
-            vec![copy],
-            "{changed:?}"
-        );
-        assert_eq!(
-            data(&saved(&doc, &store, &format!("{name}-again"), None), copy)[0],
-            b' '
-        );
+        let reopened = saved(&doc, &store, &format!("{name}-again"), None);
+        assert_eq!(data(&reopened, copy), new);
+        assert!(!store.revisions()[1].ids().any(|id| id == copy));
+        let second = store.revisions()[1]
+            .ids()
+            .find(|id| id.0 >= doc.xref().size && *id != copy)
+            .unwrap();
+        assert_eq!(data(&reopened, second)[0], b' ');
     }
 
     #[test]

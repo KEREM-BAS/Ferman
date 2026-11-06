@@ -378,8 +378,9 @@ impl JobRun {
         self.folder.file().map_err(temp_failure)
     }
 
-    /// Keeps `bytes`, a PDF, for `target`: written there through the safe write after the job's
-    /// last step (staged in `staging` under the macOS App Sandbox), and never if it stops first.
+    /// Keeps `bytes`, a PDF, for the new file `target`: written there through the safe write after
+    /// the job's last step (staged in `staging` under the macOS App Sandbox), and never if it stops
+    /// first. A file at `target` by then, which is not what the job read, fails the job and stays.
     ///
     /// # Errors
     ///
@@ -416,16 +417,9 @@ impl JobRun {
         let mut outputs = Vec::new();
         let mut created = Vec::new();
         for pending in std::mem::take(&mut self.pending) {
-            let existed = pending.target.try_exists().unwrap_or(true);
             match publish_one(&pending) {
                 Ok(output) => {
-                    // shortcut: a file that existed and was replaced before a later failure stays,
-                    // whole and new; stage every output first when a job replaces several.
-                    if let Some(staged) = &output.staged {
-                        created.push(staged.clone());
-                    } else if !existed {
-                        created.push(output.path.clone());
-                    }
+                    created.push(output.staged.clone().unwrap_or_else(|| output.path.clone()));
                     outputs.push(output);
                 }
                 Err(err) => {
@@ -443,19 +437,9 @@ impl JobRun {
 /// One waiting file through the safe write.
 fn publish_one(pending: &Pending) -> Result<JobOutput, ApiError> {
     let bytes = fs::read(&pending.temp).map_err(temp_failure)?;
-    let staged = match &pending.staging {
-        Some(staging) => {
-            let (staged, _) =
-                ferman_core::save::stage_pdf(&pending.target, staging, &bytes, None, None)
-                    .map_err(|err| ApiError::from(err).of_save())?;
-            Some(staged)
-        }
-        None => {
-            ferman_core::save::save_pdf(&pending.target, &bytes, None, None)
-                .map_err(|err| ApiError::from(err).of_save())?;
-            None
-        }
-    };
+    let staged =
+        ferman_core::save::save_new_pdf(&pending.target, pending.staging.as_deref(), &bytes)
+            .map_err(|err| ApiError::from(err).of_save())?;
     Ok(JobOutput {
         path: pending.target.clone(),
         staged,
@@ -523,6 +507,23 @@ impl JobManager {
                 .as_ref()
                 .is_none_or(|finished| now.saturating_duration_since(finished.at) < RESULT_KEPT)
         });
+    }
+
+    fn take_change(&self, job: JobId) -> Option<WaitingChange> {
+        self.jobs()
+            .get_mut(&job)
+            .and_then(|entry| entry.finished.as_mut())
+            .and_then(|finished| finished.change.take())
+    }
+
+    fn put_change_back(&self, job: JobId, waiting: WaitingChange) {
+        if let Some(finished) = self
+            .jobs()
+            .get_mut(&job)
+            .and_then(|entry| entry.finished.as_mut())
+        {
+            finished.change = Some(waiting);
+        }
     }
 
     fn ask(&self, job: JobId, wish: Wish) {
@@ -683,28 +684,35 @@ impl Engine {
     /// # Errors
     ///
     /// `InvalidInput` with [`JOB_STALE`] when the document's revision moved since the job read
-    /// it, which uses the change up; `NotFound` for a job with no change waiting or a document
-    /// that closed; and what any commit returns.
+    /// it, which uses the change up, as a write that fails does; `NotFound` for a job with no
+    /// change waiting or a document that closed; and what any commit returns. A refusal the user
+    /// can answer (`ConfirmationRequired`, `TransactionOpen`, `NotEditable`) keeps the change for
+    /// another try.
     pub async fn apply_job_change(&self, job: JobId) -> Result<RevisionInfo, ApiError> {
         guard_async(async move {
-            let waiting = self
+            let not_found = || ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL);
+            let document = self
                 .jobs
                 .jobs()
-                .get_mut(&job)
-                .and_then(|entry| entry.finished.as_mut())
-                .and_then(|finished| finished.change.take())
-                .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
-            let WaitingChange {
-                change,
-                document,
-                generation,
-            } = waiting;
+                .get(&job)
+                .and_then(|entry| entry.finished.as_ref())
+                .and_then(|finished| finished.change.as_ref())
+                .map(|waiting| waiting.document)
+                .ok_or_else(not_found)?;
+            let jobs = Arc::clone(&self.jobs);
             let (current, reload) = self
                 .ask(document, move |session| {
-                    if session.published_generation() != generation {
+                    // Taken on the actor: of two calls, one finds it.
+                    let waiting = jobs.take_change(job).ok_or_else(not_found)?;
+                    if session.published_generation() != waiting.generation {
                         return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                             .with_details(JOB_STALE));
                     }
+                    if let Err(refused) = session.may_change(waiting.change.op) {
+                        jobs.put_change_back(job, waiting);
+                        return Err(refused);
+                    }
+                    let change = waiting.change;
                     session.commit_change(
                         change.op,
                         &change.fields,
@@ -726,8 +734,9 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// `InvalidInput` when `output` exists, so a copy never replaces the document's own file;
-    /// `NotFound` for a document that is not open.
+    /// `InvalidInput` when `output` exists, so a copy never replaces the document's own file (a
+    /// file that appears there later fails the job, as [`JobRun::output_pdf`] says); `NotFound` for
+    /// a document that is not open.
     pub fn copy_document_job(
         &self,
         document: DocumentId,
@@ -1166,6 +1175,53 @@ mod tests {
         engine.models().unwrap().remove(&doc);
         let refused = block_on(engine.apply_job_change(job)).unwrap_err();
         assert_eq!(refused.kind, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn a_change_a_signed_document_stops_waits_for_the_confirmation() {
+        let engine = engine();
+        let source =
+            ferman_core::Source::read(&corpus().with_file_name("kira-tr-signed.pdf")).unwrap();
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        let doc = DocumentId::from_raw(9_005);
+        engine.models().unwrap().insert(
+            doc,
+            Arc::new(Model::new(document, corpus(), None, false, None)),
+        );
+        let (sink, events) = sink();
+        let read = engine.job_snapshot(doc).unwrap();
+        let job = engine
+            .start_job(Some(&read), sink, |_| Ok(Some(rotate())))
+            .unwrap();
+        last(&events);
+        let refused = block_on(engine.apply_job_change(job)).unwrap_err();
+        assert_eq!(refused.kind, ErrorKind::ConfirmationRequired);
+        block_on(engine.confirm_edit_signed(doc)).unwrap();
+        assert_eq!(block_on(engine.apply_job_change(job)).unwrap().current, 1);
+    }
+
+    #[test]
+    fn a_file_that_appears_while_a_copy_runs_is_not_replaced() {
+        let engine = engine();
+        let doc = open(&engine, 9_006);
+        let dir = folder("appears");
+        let target = dir.join("copy.pdf");
+        let (sink, events) = sink();
+        let read = engine.job_snapshot(doc).unwrap();
+        let newer = target.clone();
+        engine
+            .start_job(Some(&read), sink, move |run| {
+                run.output_pdf(newer.clone(), &pdf(), None)?;
+                // The user's Save As, or another app, while the job waits.
+                fs::write(&newer, b"newer").unwrap();
+                Ok(None)
+            })
+            .unwrap();
+        let JobResult::Failed(err) = last(&events) else {
+            panic!("not refused");
+        };
+        assert_eq!(err.kind, ErrorKind::FileChangedOnDisk);
+        assert_eq!(fs::read(&target).unwrap(), b"newer");
     }
 
     /// The environment variable that makes this test binary the job the crash test kills.

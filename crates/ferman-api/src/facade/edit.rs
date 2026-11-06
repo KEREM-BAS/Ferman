@@ -1111,6 +1111,15 @@ impl Session {
             .collect()
     }
 
+    /// Whether [`commit_change`](Self::commit_change) would let a change for `op` through, for a
+    /// caller whose change cannot run twice. Stricter on one point: a change that writes nothing
+    /// needs no confirmation there, and does here.
+    pub(super) fn may_change(&self, op: DocumentOp) -> Result<(), ApiError> {
+        self.closed()?;
+        self.permitted(op)?;
+        self.confirmed()
+    }
+
     /// Commits what `change` writes for `op`, on the form fields `fields`, as the step `name` of
     /// the history, which names `pages` (as the committed revisions leave them) and says `before`
     /// and `after`. A change that writes nothing adds no step; a failed one, one `op`'s permission

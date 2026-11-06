@@ -62,7 +62,7 @@ final class DocumentCloserProvider
   }
 }
 
-String _$documentCloserHash() => r'1447c9205c893e1040b467e062b5647e41e64775';
+String _$documentCloserHash() => r'e74f71bf2047805b5330342aea99a80c8ef50f39';
 
 /// Closing documents with unsaved changes and quitting, as
 /// `documentCloserProvider`: a tab asks a1-10b, and quitting asks once, a1-10b

@@ -132,7 +132,7 @@ class DocumentCloser extends _$DocumentCloser {
       return;
     }
     if (quitting) {
-      _endQuit(allowed: true);
+      await _quitNow();
       return;
     }
     if (tab.path case final path?) _opener.close(path);
@@ -146,7 +146,7 @@ class DocumentCloser extends _$DocumentCloser {
     if (_quit != null) {
       state = const CloseFlow();
       await _discard(tab);
-      _endQuit(allowed: true);
+      await _quitNow();
       return;
     }
     if (tab.path case final path?) _opener.close(path, discard: true);
@@ -183,7 +183,7 @@ class DocumentCloser extends _$DocumentCloser {
     switch (unsaved) {
       case []:
         state = const CloseFlow();
-        _endQuit(allowed: true);
+        await _quitNow();
       case [final tab]:
         state = CloseFlow(asking: tab);
       default:
@@ -206,7 +206,7 @@ class DocumentCloser extends _$DocumentCloser {
     for (final tab in listed) {
       if (!checked.contains(tab)) await _discard(tab);
     }
-    _endQuit(allowed: true);
+    await _quitNow();
   }
 
   /// a11-7e's "Quit without saving": discards everything and quits.
@@ -216,7 +216,7 @@ class DocumentCloser extends _$DocumentCloser {
     for (final tab in listed) {
       await _discard(tab);
     }
-    _endQuit(allowed: true);
+    await _quitNow();
   }
 
   /// Deletes the recovery files of [tab], whose window goes next.
@@ -237,6 +237,12 @@ class DocumentCloser extends _$DocumentCloser {
       ref.read(routerProvider).go(Routes.editor);
     }
     _endQuit(allowed: false);
+  }
+
+  /// Nothing stops the quit any more: the jobs go, then the app.
+  Future<void> _quitNow() async {
+    await ref.read(backgroundJobsProvider.notifier).cancelForQuit();
+    _endQuit(allowed: true);
   }
 
   void _endQuit({required bool allowed}) {

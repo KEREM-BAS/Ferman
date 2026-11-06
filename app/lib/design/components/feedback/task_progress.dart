@@ -105,6 +105,9 @@ class TaskProgress extends StatelessWidget {
   /// `TaskProgress.jsx` inline icon size.
   static const double inlineIconSize = 14;
 
+  /// The status bar's slot for the inline variant (FmWindow's hint size).
+  static const double inlineSlotWidth = 260;
+
   /// `.fm-task--inline .fm-progress` `width: 96px`.
   static const double inlineProgressWidth = 96;
 

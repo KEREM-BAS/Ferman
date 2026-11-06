@@ -149,6 +149,7 @@ pub fn save_pdf(
         bytes,
         staging: None,
         pdf: true,
+        new: false,
     };
     write(&request, &mut std::thread::sleep)?;
     Ok(FileStamp::of(bytes).settled(target))
@@ -174,11 +175,38 @@ pub fn stage_pdf(
         bytes,
         staging: Some(staging),
         pdf: true,
+        new: false,
     };
     let staged = write(&request, &mut std::thread::sleep)?.ok_or(CoreError::Internal {
         context: "a staged write without its temp file",
     })?;
     Ok((staged, FileStamp::of(bytes)))
+}
+
+/// Writes the document `bytes` as a new file at `target`, through the sequence of [`save_pdf`]; a
+/// file there, whenever it came, stops the write with [`SaveError::ChangedOnDisk`] and stays. With
+/// `staging`, as [`stage_pdf`]: the verified temp file's path is returned for the platform layer
+/// to swap in. The check runs last thing before the swap.
+///
+/// shortcut: a file that appears in the instant between that check and the swap (or, staged, the
+/// platform layer's swap) is replaced; use a no-replace rename if that is ever seen.
+///
+/// # Errors
+///
+/// As [`save_pdf`].
+pub fn save_new_pdf(
+    target: &Path,
+    staging: Option<&Path>,
+    bytes: &[u8],
+) -> Result<Option<PathBuf>, CoreError> {
+    let request = Request {
+        target,
+        bytes,
+        staging,
+        pdf: true,
+        new: true,
+    };
+    write(&request, &mut std::thread::sleep)
 }
 
 /// The checks of a document's save before anything is written.
@@ -221,6 +249,7 @@ pub fn safe_write(
         bytes,
         staging,
         pdf: false,
+        new: false,
     };
     write(&request, &mut std::thread::sleep)
 }
@@ -232,6 +261,8 @@ struct Request<'a> {
     staging: Option<&'a Path>,
     /// Whether the bytes are a PDF whose cross-reference data must parse.
     pdf: bool,
+    /// Whether no file may be at the target.
+    new: bool,
 }
 
 /// The steps of the sequence, where the fault seam can fail or stop a save in tests.
@@ -272,6 +303,9 @@ fn write(
         Err(err) if err.kind() == ErrorKind::NotFound => None,
         Err(err) => return Err(classify(Step::Inspect, &err)),
     };
+    if request.new && fs::symlink_metadata(&target).is_ok() {
+        return Err(CoreError::Save(SaveError::ChangedOnDisk));
+    }
     if let Some(metadata) = &existing {
         if !metadata.is_file() {
             return Err(io(ErrorKind::InvalidInput));
@@ -305,6 +339,11 @@ fn write(
     if let Err(err) = written {
         let _ = fs::remove_file(&temp);
         return Err(err);
+    }
+    // Writing takes long enough for a file to appear meanwhile.
+    if request.new && fs::symlink_metadata(&target).is_ok() {
+        let _ = fs::remove_file(&temp);
+        return Err(CoreError::Save(SaveError::ChangedOnDisk));
     }
     if request.staging.is_some() {
         return Ok(Some(temp));
@@ -841,6 +880,7 @@ mod tests {
             bytes: b"new",
             staging: None,
             pdf: false,
+            new: false,
         };
         let locked = || ErrorKind::ResourceBusy.into();
         let mut slept = Vec::new();
@@ -986,6 +1026,47 @@ mod tests {
             .unwrap();
         assert_eq!(out.stdout.trim_ascii(), b"kept");
         fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_new_file_never_replaces_one_that_came_first() {
+        let (old, new) = old_and_new();
+        let dir = temp_dir("new");
+        let staging = temp_dir("new-staging");
+        let target = dir.join("doc.pdf");
+        assert_eq!(save_new_pdf(&target, None, &new).unwrap(), None);
+        assert_eq!(fs::read(&target).unwrap(), new);
+
+        // There from the start, staged or not.
+        fs::write(&target, &old).unwrap();
+        for staged in [None, Some(staging.as_path())] {
+            let err = save_new_pdf(&target, staged, &new).unwrap_err();
+            assert!(matches!(err, CoreError::Save(SaveError::ChangedOnDisk)));
+        }
+        assert_eq!(fs::read(&target).unwrap(), old);
+
+        // It appears while the temp file is written.
+        for staged in [None, Some(staging.as_path())] {
+            fs::remove_file(&target).unwrap();
+            let appears = target.clone();
+            let body = old.clone();
+            let err = with_fault(
+                move |at| {
+                    if at == Step::Verify {
+                        fs::write(&appears, &body)?;
+                    }
+                    Ok(())
+                },
+                || save_new_pdf(&target, staged, &new),
+            )
+            .unwrap_err();
+            assert!(matches!(err, CoreError::Save(SaveError::ChangedOnDisk)));
+            assert_eq!(fs::read(&target).unwrap(), old);
+        }
+        assert_eq!(names(&dir), ["doc.pdf"]);
+        assert!(names(&staging).is_empty());
+        fs::remove_dir_all(dir).unwrap();
+        fs::remove_dir_all(staging).unwrap();
     }
 
     #[test]

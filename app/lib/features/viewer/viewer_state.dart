@@ -320,18 +320,48 @@ class Viewer extends _$Viewer {
   }
 
   /// [view] on [document], the same document after a revision: its pages may
-  /// have moved or changed size, so the fit and the scroll follow.
+  /// have moved or changed size, so the fit follows, and the reader stays at
+  /// the same place of the same page, or at the top of the nearest page left.
   ViewerState _withDocument(ViewerState view, OpenedDocument document) {
-    final turned = view.copyWith(document: document);
-    final next = turned.copyWith(
-      row: math.min(view.row, math.max(turned.placement.rows.length - 1, 0)),
-    );
+    var next = view.copyWith(document: document, row: 0);
     final fit = view.fit;
-    if (fit == null || view.viewport.isEmpty || next.pageSizes.isEmpty) {
-      return _clamped(next);
+    if (fit != null && !view.viewport.isEmpty && next.pageSizes.isNotEmpty) {
+      next = next.copyWith(
+        zoom: fitZoom(fit, next.pageSizes, view.layout, view.viewport),
+      );
     }
-    final zoom = fitZoom(fit, next.pageSizes, view.layout, view.viewport);
-    return _clamped(next.copyWith(zoom: zoom));
+    if (next.pageSizes.isEmpty) return _clamped(next);
+    final current = view.currentPage;
+    final page = document.pageIndexOf(view.document.pageHandle(current));
+    if (page == null) {
+      return _showing(next, _nearestLeft(view.document, document, current));
+    }
+    next = next.copyWith(row: next.placement.rowOf(page));
+    final before = view.placement.rects[current];
+    final after = next.placement.rects[page];
+    if (before == null || after == null) return _showing(next, page);
+    // Not recomputed when nothing moved, so an edit leaves the offset exact.
+    if (after == before) return _clamped(next.copyWith(offset: view.offset));
+    final local = (view.offset - before.topLeft) / view.scale;
+    return _clamped(next.copyWith(offset: after.topLeft + local * next.scale));
+  }
+
+  /// Where in [after] the page of [before] nearest to [gone] is, of those
+  /// left; the first page when none is.
+  static int _nearestLeft(
+    OpenedDocument before,
+    OpenedDocument after,
+    int gone,
+  ) {
+    for (var gap = 1; gap < before.pages.length; gap++) {
+      for (final page in [gone + gap, gone - gap]) {
+        if (page < 0 || page >= before.pages.length) continue;
+        if (after.pageIndexOf(before.pageHandle(page)) case final left?) {
+          return left;
+        }
+      }
+    }
+    return 0;
   }
 
   /// The canvas is [viewport] large; a fitted zoom follows it.

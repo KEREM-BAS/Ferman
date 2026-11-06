@@ -407,8 +407,9 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     if (job != null) await ref.read(engineServiceProvider).cancelJob(job);
   }
 
-  /// Whether a quit may go on: with jobs running it asks (decision 30), and
-  /// with a yes cancels them and waits for them, so they leave nothing.
+  /// Whether a quit may go on: with jobs running it asks (decision 30). The
+  /// jobs keep running until [cancelForQuit], since the question about unsaved
+  /// documents that comes next can still stop the quit.
   Future<bool> confirmQuit() async {
     final running = state.running;
     if (running.isEmpty) return true;
@@ -416,7 +417,14 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     state = state.copyWith(quitting: running);
     final yes = await answer.future;
     state = state.copyWith(quitting: const []);
-    if (!yes) return false;
+    return yes;
+  }
+
+  /// For a quit nothing stops any more: cancels the running jobs and waits for
+  /// them, so they leave nothing.
+  Future<void> cancelForQuit() async {
+    final running = state.running;
+    if (running.isEmpty) return;
     final ended = _ended = Completer<void>();
     final engine = ref.read(engineServiceProvider);
     for (final row in running) {
@@ -428,7 +436,6 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     await ended.future;
     patience.cancel();
     _ended = null;
-    return true;
   }
 
   /// The quit question's answer.

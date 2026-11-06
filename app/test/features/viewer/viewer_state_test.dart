@@ -44,6 +44,83 @@ void main() {
     viewer().resize(const Size(1000, 700));
   });
 
+  group('after a revision', () {
+    PageInfo a4(int handle) =>
+        PageInfo(width: 595, height: 842, handle: handle);
+    OpenedDocument pages(List<PageInfo> pages) =>
+        OpenedDocument(id: 7, pages: pages);
+    void show(OpenedDocument next) =>
+        container.read(openDocumentProvider.notifier).show(next);
+    double intoPage() =>
+        view().offset.dy - view().placement.rects[view().currentPage]!.top;
+
+    setUp(() => show(pages([for (var i = 0; i < 12; i++) a4(100 + i)])));
+
+    test('an edit leaves the offset as it was', () {
+      viewer().scrollBy(const Offset(0, 3000.5));
+      final offset = view().offset;
+      show(pages([for (var i = 0; i < 12; i++) a4(100 + i)]));
+      expect(view().offset, offset);
+    });
+
+    test('removing an earlier page keeps the same page and place', () {
+      viewer().goToPage(9);
+      viewer().scrollBy(const Offset(0, 120));
+      final into = intoPage();
+      show(pages([for (var i = 1; i < 12; i++) a4(100 + i)]));
+      expect(view().document.pageHandle(view().currentPage), 109);
+      expect(view().currentPage, 8);
+      expect(intoPage(), closeTo(into, 1e-6));
+    });
+
+    test('a page moved to the front takes the reader with it', () {
+      viewer().goToPage(5);
+      show(
+        pages([
+          a4(105),
+          for (var i = 0; i < 12; i++)
+            if (i != 5) a4(100 + i),
+        ]),
+      );
+      expect(view().currentPage, 0);
+    });
+
+    test('removing the widest page keeps the place through the new fit', () {
+      show(
+        pages([
+          const PageInfo(width: 1190, height: 842, handle: 99),
+          for (var i = 0; i < 12; i++) a4(100 + i),
+        ]),
+      );
+      viewer().goToPage(6);
+      viewer().scrollBy(const Offset(0, 90));
+      final zoom = view().zoom;
+      final into = intoPage();
+      show(pages([for (var i = 0; i < 12; i++) a4(100 + i)]));
+      expect(view().zoom, closeTo(zoom * 2, 1e-9));
+      expect(view().document.pageHandle(view().currentPage), 105);
+      expect(intoPage(), closeTo(into * 2, 1e-6));
+    });
+
+    test('with its page gone the reader goes to the nearest page left', () {
+      viewer().goToPage(4);
+      show(
+        pages([
+          for (var i = 0; i < 12; i++)
+            if (i != 4 && i != 5) a4(100 + i),
+        ]),
+      );
+      expect(view().document.pageHandle(view().currentPage), 103);
+    });
+
+    test('a paged layout follows the page to its new row', () {
+      viewer().setLayout(PageLayout.single);
+      viewer().goToPage(6);
+      show(pages([for (var i = 1; i < 12; i++) a4(100 + i)]));
+      expect(view().document.pageHandle(view().currentPage), 106);
+    });
+  });
+
   test('no document, no view', () {
     container.read(openDocumentProvider.notifier).show(null);
     expect(container.read(viewerProvider), isNull);
