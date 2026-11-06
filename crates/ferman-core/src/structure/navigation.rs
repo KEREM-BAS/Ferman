@@ -108,12 +108,12 @@ pub(crate) fn names<'a>(scope: &Scope<'a>, name: &[u8]) -> Vec<(&'a [u8], &'a Ob
 }
 
 /// Named destinations: the `/Dests` name tree and the older `/Dests` dictionary of the catalog.
-struct Named<'a> {
-    by_name: BTreeMap<&'a [u8], &'a Object>,
+pub(crate) struct Named<'a> {
+    pub(crate) by_name: BTreeMap<&'a [u8], &'a Object>,
 }
 
 impl<'a> Named<'a> {
-    fn new(scope: &Scope<'a>) -> Self {
+    pub(crate) fn new(scope: &Scope<'a>) -> Self {
         let mut by_name: BTreeMap<&[u8], &Object> = names(scope, b"Dests").into_iter().collect();
         if let Some(dests) = scope
             .catalog()
@@ -151,7 +151,7 @@ impl<'a> Named<'a> {
     }
 
     /// The page an outline item or link goes to: its `/Dest`, or a `/GoTo` action's `/D`.
-    fn target(&self, scope: &Scope<'a>, item: &'a Dictionary) -> Option<u32> {
+    pub(crate) fn target(&self, scope: &Scope<'a>, item: &'a Dictionary) -> Option<u32> {
         if let Ok(dest) = item.get(b"Dest") {
             return self.page(scope, dest, false);
         }

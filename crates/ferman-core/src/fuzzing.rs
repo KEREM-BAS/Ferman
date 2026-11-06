@@ -235,6 +235,90 @@ pub fn open_document(input: &[u8]) {
     }
 }
 
+/// The assembler's walk: the input as a file, and as objects from 10 on under a two-page file whose
+/// first page's resources, annotations, field and bookmark are those objects, so the walk starts in
+/// the input with no file to get past. Each page weighed and copied alone, then all of them; the
+/// new file opens with the pages it was given. Any cycle or depth must stop at a limit.
+pub fn assembler(input: &[u8]) {
+    const HEAD: &[u8] = b"%PDF-1.7\n\
+1 0 obj<</Type/Catalog/Pages 2 0 R/Outlines 10 0 R/AcroForm 11 0 R/OCProperties 12 0 R/Names 13 0 R>>endobj\n\
+2 0 obj<</Type/Pages/Count 2/Kids[3 0 R 4 0 R]>>endobj\n\
+3 0 obj<</Type/Page/Parent 2 0 R/Resources 14 0 R/Annots 15 0 R/Contents 16 0 R>>endobj\n\
+4 0 obj<</Type/Page/Parent 2 0 R/Annots[17 0 R]>>endobj\n";
+    let mut wrapped = HEAD.to_vec();
+    wrapped.extend_from_slice(input);
+    wrapped.extend_from_slice(b"\ntrailer<</Root 1 0 R>>\n");
+    for file in [input, &wrapped] {
+        let options = OpenOptions {
+            password: None,
+            limits: limits(),
+        };
+        let Ok(source) = open(&Source::from_bytes(file.into()), &options) else {
+            continue;
+        };
+        let revisions = RevisionStore::new(&source);
+        let count = revisions.pages(&source).len().min(16);
+        let all: Vec<usize> = (0..count).collect();
+        let parts = crate::assemble::ImportOptions {
+            keep_forms: true,
+            document_parts: true,
+        };
+        if count == 0 {
+            continue;
+        }
+        check_assembly(&source, &revisions, &all, parts);
+        check_assembly(&source, &revisions, &all[..1], parts);
+    }
+}
+
+fn check_assembly(
+    source: &Document,
+    revisions: &RevisionStore,
+    pages: &[usize],
+    options: crate::assemble::ImportOptions,
+) {
+    let run = || -> Result<Vec<u8>, CoreError> {
+        let mut weighing = crate::assemble::PageImport::new(source, revisions, pages, options)?;
+        for position in 0..pages.len() {
+            weighing.weigh(position)?;
+        }
+        weighing.weigh_attachments()?;
+
+        let doc = crate::assemble::new_document(&limits())?;
+        let mut store = RevisionStore::new(&doc);
+        store.begin()?;
+        let mut import = crate::assemble::PageImport::new(source, revisions, pages, options)?;
+        let targets = import.start(&mut store, &[])?;
+        for position in 0..pages.len() {
+            import.copy_page(&doc, &mut store, position)?;
+        }
+        import.finish(&doc, &mut store, Some("file"))?;
+        let order: Vec<crate::pages::PageSlot> = targets
+            .into_iter()
+            .map(crate::pages::PageSlot::New)
+            .collect();
+        store.arrange_pages(&doc, &order)?;
+        store.commit()?;
+        store.full_rewrite(&doc)
+    };
+    match run() {
+        Ok(bytes) => {
+            let options = OpenOptions {
+                password: None,
+                limits: limits(),
+            };
+            match open(&Source::from_bytes(bytes.into()), &options) {
+                Ok(out) => assert_eq!(out.page_count(), pages.len(), "pages of the new file"),
+                Err(err) => assert!(
+                    matches!(err, CoreError::ResourceLimit { .. }),
+                    "reopening: {err}"
+                ),
+            }
+        }
+        Err(err) => assert!(expected(&err), "assembling: {err}"),
+    }
+}
+
 /// The recovery journal's reader on `data` as it is, framed as one record (a checksum random bytes
 /// never pass) and as a record's objects, and the manifest parser: records stay inside the data,
 /// their objects parse or fail with an expected error, and a manifest it accepts reads back the

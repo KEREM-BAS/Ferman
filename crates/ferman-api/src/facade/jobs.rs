@@ -146,6 +146,30 @@ impl JobSnapshot {
     pub fn store(&self) -> &RevisionStore {
         &self.store
     }
+
+    /// The document's own file name, without its extension.
+    pub(super) fn file_stem(&self) -> String {
+        self.model
+            .path
+            .file_stem()
+            .map(|stem| stem.to_string_lossy().into_owned())
+            .unwrap_or_default()
+    }
+
+    /// Whether what the document allows, with the owner password if it was given, lets its pages
+    /// go elsewhere (question 6 of the M4 plan).
+    pub(super) fn may_assemble(&self) -> Result<(), ApiError> {
+        if self
+            .model
+            .security()
+            .is_some_and(|security| !security.owner && !security.permissions.assemble())
+        {
+            return Err(ApiError::not_editable(
+                ferman_text::NotEditableReason::Restricted,
+            ));
+        }
+        Ok(())
+    }
 }
 
 /// Why a job stopped before its end.
@@ -160,6 +184,12 @@ pub enum JobStop {
 impl From<ApiError> for JobStop {
     fn from(err: ApiError) -> Self {
         Self::Failed(err)
+    }
+}
+
+impl From<ferman_ops::OpsError> for JobStop {
+    fn from(err: ferman_ops::OpsError) -> Self {
+        Self::Failed(err.into())
     }
 }
 

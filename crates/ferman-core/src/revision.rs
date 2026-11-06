@@ -928,6 +928,29 @@ impl RevisionStore {
         Ok(())
     }
 
+    /// Counts `bytes` copied into the open transaction as stored, under the object `id`, or
+    /// fails past the size of a revision.
+    pub(crate) fn count_open(
+        &mut self,
+        doc: &Document,
+        id: ObjectId,
+        bytes: u64,
+    ) -> Result<(), CoreError> {
+        let max = doc.limits().max_revision_decoded;
+        let total = self
+            .open_decoded
+            .values()
+            .fold(bytes, |sum: u64, size| sum.saturating_add(*size));
+        if total > max {
+            return Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                max,
+            });
+        }
+        self.open_decoded.insert(id, bytes);
+        Ok(())
+    }
+
     /// Adds `object` as a new object in the open transaction (the splicer queues its own).
     #[cfg(any(test, feature = "fuzzing"))]
     pub(crate) fn add(&mut self, object: Object) -> Result<ObjectId, CoreError> {

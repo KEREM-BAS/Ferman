@@ -464,10 +464,139 @@ class FakeEngineService implements EngineService {
     String? staging,
   }) {
     copyJobs.add((document, output, staging));
+    return _waitingJob();
+  }
+
+  Stream<JobUpdate> _waitingJob() {
     final job = _nextJob++;
     final updates = _jobs[job] = StreamController<JobUpdate>()
       ..add(JobUpdate(job: job, state: JobState.running));
     return updates.stream;
+  }
+
+  /// What [combinePreview] answers.
+  CombinePreview combinePreviewFound = const CombinePreview();
+
+  /// What [splitPreview] answers.
+  SplitPreview splitPreviewFound = const SplitPreview();
+
+  /// The arguments of every job of Combine, Extract, Split, Insert and Replace,
+  /// oldest first, as "split 1 /folder".
+  final List<String> assembleJobs = [];
+
+  /// The changes waiting for [applyJobChange], by job.
+  final Map<int, RevisionInfo Function()> _waitingChanges = {};
+
+  /// How many pages [insertPagesJob]'s change adds, of 100 by 200 points.
+  int insertedPages = 1;
+
+  /// Starts a job whose [change] waits for [applyJobChange].
+  Stream<JobUpdate> _changeJob(RevisionInfo Function() change) {
+    _waitingChanges[_nextJob] = change;
+    return _waitingJob();
+  }
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) async {
+    final change = _waitingChanges.remove(job);
+    if (change == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      );
+    }
+    return change();
+  }
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async => combinePreviewFound;
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('combine ${files.length} $output');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('extract ${pages.length} $output');
+    return _waitingJob();
+  }
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async => splitPreviewFound;
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) {
+    assembleJobs.add('split ${files.length} $folder');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) {
+    assembleJobs.add('insert $path');
+    return _changeJob(
+      () => _pagesChanged(document, name, [?after], (all) {
+        final at = after == null
+            ? 0
+            : all.indexWhere((page) => page.handle == after) + 1;
+        return [
+          ...all.take(at),
+          for (var i = 0; i < insertedPages; i++) _newPage(100, 200, null),
+          ...all.skip(at),
+        ];
+      }),
+    );
+  }
+
+  /// The change keeps the first replaced pages' handles and removes the rest,
+  /// as one new page for each replaced page would.
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  }) {
+    assembleJobs.add('replace ${pages.length} $path');
+    return _changeJob(
+      () => _pagesChanged(document, name, pages, (all) => [...all]),
+    );
   }
 
   /// Sends [update] to its job's stream.

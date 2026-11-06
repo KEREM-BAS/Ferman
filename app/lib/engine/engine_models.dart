@@ -1044,6 +1044,194 @@ class JobOutputFile {
   final String? staged;
 }
 
+/// The paper of an image's own page (G152), from the region setting.
+enum ImagePaper {
+  /// 595.28 × 841.89 pt.
+  a4,
+
+  /// 612 × 792 pt.
+  letter,
+}
+
+/// One input of Combine or Create PDF.
+@immutable
+class CombineInput {
+  /// A PDF or image at [path], with [pages] by index in the order to take them,
+  /// null for all.
+  const new file(String this.path, {this.password, this.pages, this.bookmark})
+    : blankWidth = 0,
+      blankHeight = 0;
+
+  /// A blank page of [blankWidth] by [blankHeight] points.
+  const new blank(this.blankWidth, this.blankHeight, {this.bookmark})
+    : path = null,
+      password = null,
+      pages = null;
+
+  /// Where the file is; null for a blank page.
+  final String? path;
+
+  /// What opens it.
+  final String? password;
+
+  /// Its pages, null for all.
+  final List<int>? pages;
+
+  /// A blank page's width, in points.
+  final double blankWidth;
+
+  /// A blank page's height, in points.
+  final double blankHeight;
+
+  /// The title of a bookmark for its first page.
+  final String? bookmark;
+}
+
+/// Whether an input can be used, for its row in a6-3 (G45).
+enum CombineInputStatus {
+  /// It can.
+  ready,
+
+  /// It needs its password.
+  passwordRequired,
+
+  /// The password does not open it.
+  wrongPassword,
+
+  /// It forbids assembling, which only its owner password lifts.
+  ownerPasswordRequired,
+
+  /// Its page range names a page it does not have, or a page twice.
+  badRange,
+
+  /// Neither a PDF nor an image Ferman can read, or the file is gone.
+  unreadable,
+}
+
+/// One input's row in a6-3.
+@immutable
+class CombineFileInfo {
+  /// Creates a row.
+  const new({
+    required this.status,
+    this.image = false,
+    this.pages = 0,
+    this.selected = 0,
+    this.bytes = 0,
+    this.encrypted = false,
+    this.signed = false,
+  });
+
+  /// Whether it can be used; the numbers are zero if not.
+  final CombineInputStatus status;
+
+  /// Whether it is an image, "converted to 1 page".
+  final bool image;
+
+  /// Its pages in all.
+  final int pages;
+
+  /// How many of them it adds.
+  final int selected;
+
+  /// About what it adds to the output, in bytes.
+  final int bytes;
+
+  /// Whether it is encrypted: the output will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the output carries no signature.
+  final bool signed;
+}
+
+/// What a6-3 shows before anything is written.
+@immutable
+class CombinePreview {
+  /// Creates a preview.
+  const new({this.files = const [], this.pages = 0, this.bytes = 0});
+
+  /// A row per input, in order.
+  final List<CombineFileInfo> files;
+
+  /// The pages of the output.
+  final int pages;
+
+  /// About how large it comes out, in bytes.
+  final int bytes;
+}
+
+/// The ways to split a6-2 draws.
+enum SplitKind {
+  /// A new file every so many pages.
+  everyPages,
+
+  /// One file per top-level bookmark; the pages before the first are a file of
+  /// their own.
+  topBookmarks,
+
+  /// Files of at most so many bytes, as estimated.
+  size,
+
+  /// A new file at each blank page, which goes.
+  blankPages,
+}
+
+/// One file of a split: its plan, and what the job takes back.
+@immutable
+class SplitFile {
+  /// Creates a file.
+  const new({
+    required this.name,
+    required this.first,
+    required this.last,
+    this.bytes = 0,
+    this.overLimit = false,
+  });
+
+  /// Its name, with `.pdf`, safe in any folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  /// About how large it comes out, in bytes, at the high end.
+  final int bytes;
+
+  /// Whether one page alone is over the size asked for.
+  final bool overLimit;
+}
+
+/// What a6-2 shows before anything is written.
+@immutable
+class SplitPreview {
+  /// Creates a preview.
+  const new({
+    this.files = const [],
+    this.bookmarks = 0,
+    this.blankPages = 0,
+    this.encrypted = false,
+    this.signed = false,
+  });
+
+  /// The files.
+  final List<SplitFile> files;
+
+  /// How many top-level bookmarks go to a page.
+  final int bookmarks;
+
+  /// How many pages count as blank.
+  final int blankPages;
+
+  /// Whether the document is encrypted: the files will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the files carry no signature.
+  final bool signed;
+}
+
 /// What a running job reports. The first update has its handle, the last says
 /// how it ended.
 @immutable

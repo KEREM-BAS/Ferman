@@ -56,7 +56,7 @@ fn no_such_page() -> OpsError {
 }
 
 /// A new page's side that a reader can show.
-fn checked_side(side: f32) -> Result<f32, OpsError> {
+pub(crate) fn checked_side(side: f32) -> Result<f32, OpsError> {
     if side.is_finite() && (SMALLEST_SIDE..=LARGEST_SIDE).contains(&side) {
         Ok(side)
     } else {

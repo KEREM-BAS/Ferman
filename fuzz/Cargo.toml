@@ -193,6 +193,13 @@ doc = false
 bench = false
 
 [[bin]]
+name = "assembler"
+path = "fuzz_targets/assembler.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "image_layer"
 path = "fuzz_targets/image_layer.rs"
 test = false

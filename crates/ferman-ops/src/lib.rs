@@ -14,12 +14,13 @@
 //!
 //! # Planned modules
 //!
-//! Operations start in M4, one module per family; [`pages`] holds the page operations, and
-//! [`images`] what several of them need from an image file:
+//! Operations start in M4, one module per family; [`pages`] holds the page operations,
+//! [`combine`] and [`split`] what writes files from pages, and [`images`] what several of them
+//! need from an image file:
 //!
-//! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels;
-//!   extract and replace come with `combine`.
-//! - `combine`: combine and split.
+//! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels.
+//! - `combine`: combine, extract, insert from a file and replace.
+//! - `split`: split planning.
 //! - `annotations`: annotation types with appearance streams, replies and flattening.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
 //! - `signatures`: simple typed, drawn and image signatures.
@@ -27,8 +28,10 @@
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
 
+pub mod combine;
 pub mod images;
 pub mod pages;
+pub mod split;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

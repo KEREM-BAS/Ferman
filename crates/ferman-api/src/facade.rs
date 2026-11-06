@@ -14,6 +14,7 @@
 //! [`ApiError`] as a last resort (ADR 0010). [`debug_panic`] and [`debug_bytes`] exist for the
 //! bridge tests. Synchronous callers (ferman-cli, tests) await with [`block_on`].
 
+mod assemble;
 mod blocking;
 mod debug;
 mod document;
@@ -28,6 +29,10 @@ mod search;
 mod text;
 mod version;
 
+pub use assemble::{
+    CombineFile, CombineFileInfo, CombinePreview, CombineSource, InputStatus, SplitOutput,
+    SplitPreview,
+};
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{DocumentStructure, OpenedDocument, PageInfo, ReadOnly, Security};
@@ -57,7 +62,9 @@ pub use ferman_core::{
     DocumentOp, Method, Password, Permissions, Repair, RepairReport, XrefProblem,
 };
 pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
+pub use ferman_ops::images::Paper;
 pub use ferman_ops::pages::{Margins, PageFit};
+pub use ferman_ops::split::{SplitFile, SplitMode};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,

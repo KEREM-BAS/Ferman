@@ -8,7 +8,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/recovery_directory.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary, Uint64List;
+    show ExternalLibrary, Uint32List, Uint64List;
 import 'package:path_provider/path_provider.dart';
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
@@ -371,12 +371,16 @@ class FrbEngineService implements EngineService {
     int document,
     String output, {
     String? staging,
-  }) => bridge
-      .startCopyDocumentJob(
-        document: BigInt.from(document),
-        output: output,
-        staging: staging,
-      )
+  }) => _jobUpdates(
+    bridge.startCopyDocumentJob(
+      document: BigInt.from(document),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  /// [events] as the app gets them.
+  Stream<JobUpdate> _jobUpdates(Stream<bridge.JobEvent> events) => events
       .handleError(
         (Object error) => throw _exception(error as bridge.ApiError),
         test: (error) => error is bridge.ApiError,
@@ -405,6 +409,211 @@ class FrbEngineService implements EngineService {
           },
         ),
       );
+
+  static bridge.PaperSize _paper(ImagePaper paper) => switch (paper) {
+    ImagePaper.a4 => bridge.PaperSize.a4,
+    ImagePaper.letter => bridge.PaperSize.letter,
+  };
+
+  static bridge.CombineInput _combineInput(CombineInput input) =>
+      bridge.CombineInput(
+        path: input.path,
+        password: input.password,
+        pages: switch (input.pages) {
+          final pages? => Uint32List.fromList(pages),
+          null => null,
+        },
+        blankWidth: input.blankWidth,
+        blankHeight: input.blankHeight,
+        bookmark: input.bookmark,
+      );
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) =>
+      _revision(() => bridge.applyJobChange(job: BigInt.from(job)));
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async {
+    try {
+      final preview = await bridge.combinePreview(
+        files: [for (final file in files) _combineInput(file)],
+        keepForms: keepForms,
+      );
+      return CombinePreview(
+        files: [
+          for (final row in preview.files)
+            CombineFileInfo(
+              status: switch (row.status) {
+                bridge.InputStatus.ready => CombineInputStatus.ready,
+                bridge.InputStatus.passwordRequired =>
+                  CombineInputStatus.passwordRequired,
+                bridge.InputStatus.wrongPassword =>
+                  CombineInputStatus.wrongPassword,
+                bridge.InputStatus.ownerPasswordRequired =>
+                  CombineInputStatus.ownerPasswordRequired,
+                bridge.InputStatus.badRange => CombineInputStatus.badRange,
+                bridge.InputStatus.unreadable => CombineInputStatus.unreadable,
+              },
+              image: row.image,
+              pages: row.pages,
+              selected: row.selected,
+              bytes: row.bytes.toInt(),
+              encrypted: row.encrypted,
+              signed: row.signed,
+            ),
+        ],
+        pages: preview.pages,
+        bytes: preview.bytes.toInt(),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCombineJob(
+      files: [for (final file in files) _combineInput(file)],
+      keepForms: keepForms,
+      paper: _paper(paper),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startExtractPagesJob(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async {
+    try {
+      final preview = await bridge.splitPreview(
+        document: BigInt.from(document),
+        kind: switch (kind) {
+          SplitKind.everyPages => bridge.SplitKind.everyPages,
+          SplitKind.topBookmarks => bridge.SplitKind.topBookmarks,
+          SplitKind.size => bridge.SplitKind.size,
+          SplitKind.blankPages => bridge.SplitKind.blankPages,
+        },
+        amount: BigInt.from(amount),
+        template: template,
+        folder: folder,
+      );
+      return SplitPreview(
+        files: [
+          for (final file in preview.files)
+            SplitFile(
+              name: file.name,
+              first: file.first,
+              last: file.last,
+              bytes: file.bytes.toInt(),
+              overLimit: file.overLimit,
+            ),
+        ],
+        bookmarks: preview.bookmarks,
+        blankPages: preview.blankPages,
+        encrypted: preview.encrypted,
+        signed: preview.signed,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startSplitJob(
+      document: BigInt.from(document),
+      files: [
+        for (final file in files)
+          bridge.SplitOutput(
+            name: file.name,
+            first: file.first,
+            last: file.last,
+          ),
+      ],
+      folder: folder,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) => _jobUpdates(
+    bridge.startInsertPagesJob(
+      document: BigInt.from(document),
+      path: path,
+      password: password,
+      pages: switch (pages) {
+        final pages? => Uint32List.fromList(pages),
+        null => null,
+      },
+      after: after == null ? null : BigInt.from(after),
+      paper: _paper(paper),
+      name: name,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  }) => _jobUpdates(
+    bridge.startReplacePagesJob(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      path: path,
+      password: password,
+      sourcePages: switch (sourcePages) {
+        final pages? => Uint32List.fromList(pages),
+        null => null,
+      },
+      name: name,
+    ),
+  );
 
   @override
   Future<void> pauseJob(int job) async {

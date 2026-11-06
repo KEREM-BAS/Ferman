@@ -330,7 +330,7 @@ impl RevisionStore {
     }
 
     /// Fails with no open transaction, before anything is read for a change that may write nothing.
-    fn transaction_open(&self) -> Result<(), CoreError> {
+    pub(crate) fn transaction_open(&self) -> Result<(), CoreError> {
         if self.in_transaction() {
             Ok(())
         } else {

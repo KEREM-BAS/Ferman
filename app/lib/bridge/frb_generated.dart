@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -103260899;
+  int get rustContentHash => -921826719;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -86,6 +86,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt transaction,
     required String text,
   });
+
+  Future<RevisionInfo> crateFrbApplyJobChange({required BigInt job});
 
   Future<BigInt> crateFrbBeginEdit({
     required BigInt document,
@@ -132,6 +134,11 @@ abstract class FermanBridgeApi extends BaseApi {
   Future<Uint32List> crateFrbCollationOrder({
     required String locale,
     required List<String> texts,
+  });
+
+  Future<CombinePreview> crateFrbCombinePreview({
+    required List<CombineInput> files,
+    required bool keepForms,
   });
 
   Future<RevisionInfo> crateFrbCommitEdit({
@@ -367,13 +374,62 @@ abstract class FermanBridgeApi extends BaseApi {
     required List<bool> visible,
   });
 
+  Future<SplitPreview> crateFrbSplitPreview({
+    required BigInt document,
+    required SplitKind kind,
+    required BigInt amount,
+    required String template,
+    String? folder,
+  });
+
+  Stream<JobEvent> crateFrbStartCombineJob({
+    required List<CombineInput> files,
+    required bool keepForms,
+    required PaperSize paper,
+    required String output,
+    String? staging,
+  });
+
   Stream<JobEvent> crateFrbStartCopyDocumentJob({
     required BigInt document,
     required String output,
     String? staging,
   });
 
+  Stream<JobEvent> crateFrbStartExtractPagesJob({
+    required BigInt document,
+    required Uint64List pages,
+    required String output,
+    String? staging,
+  });
+
+  Stream<JobEvent> crateFrbStartInsertPagesJob({
+    required BigInt document,
+    required String path,
+    String? password,
+    Uint32List? pages,
+    BigInt? after,
+    required PaperSize paper,
+    required String name,
+  });
+
   Future<void> crateFrbStartRecovery({required String root});
+
+  Stream<JobEvent> crateFrbStartReplacePagesJob({
+    required BigInt document,
+    required Uint64List pages,
+    required String path,
+    String? password,
+    Uint32List? sourcePages,
+    required String name,
+  });
+
+  Stream<JobEvent> crateFrbStartSplitJob({
+    required BigInt document,
+    required List<SplitOutput> files,
+    required String folder,
+    String? staging,
+  });
 
   Future<PageBlocks> crateFrbTextBlocks({
     required BigInt document,
@@ -452,6 +508,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "apply_edit",
     argNames: ["transaction", "text"],
   );
+
+  @override
+  Future<RevisionInfo> crateFrbApplyJobChange({required BigInt job}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(job);
+          return wire.wire__crate__frb__apply_job_change(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbApplyJobChangeConstMeta,
+        argValues: [job],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbApplyJobChangeConstMeta =>
+      const TaskConstMeta(debugName: "apply_job_change", argNames: ["job"]);
 
   @override
   Future<BigInt> crateFrbBeginEdit({
@@ -728,6 +806,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbCollationOrderConstMeta => const TaskConstMeta(
     debugName: "collation_order",
     argNames: ["locale", "texts"],
+  );
+
+  @override
+  Future<CombinePreview> crateFrbCombinePreview({
+    required List<CombineInput> files,
+    required bool keepForms,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_list_combine_input(files);
+          var arg1 = cst_encode_bool(keepForms);
+          return wire.wire__crate__frb__combine_preview(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_combine_preview,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbCombinePreviewConstMeta,
+        argValues: [files, keepForms],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbCombinePreviewConstMeta => const TaskConstMeta(
+    debugName: "combine_preview",
+    argNames: ["files", "keepForms"],
   );
 
   @override
@@ -2188,6 +2294,94 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<SplitPreview> crateFrbSplitPreview({
+    required BigInt document,
+    required SplitKind kind,
+    required BigInt amount,
+    required String template,
+    String? folder,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_split_kind(kind);
+          var arg2 = cst_encode_u_64(amount);
+          var arg3 = cst_encode_String(template);
+          var arg4 = cst_encode_opt_String(folder);
+          return wire.wire__crate__frb__split_preview(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_split_preview,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSplitPreviewConstMeta,
+        argValues: [document, kind, amount, template, folder],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSplitPreviewConstMeta => const TaskConstMeta(
+    debugName: "split_preview",
+    argNames: ["document", "kind", "amount", "template", "folder"],
+  );
+
+  @override
+  Stream<JobEvent> crateFrbStartCombineJob({
+    required List<CombineInput> files,
+    required bool keepForms,
+    required PaperSize paper,
+    required String output,
+    String? staging,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_list_combine_input(files);
+            var arg1 = cst_encode_bool(keepForms);
+            var arg2 = cst_encode_paper_size(paper);
+            var arg3 = cst_encode_String(output);
+            var arg4 = cst_encode_opt_String(staging);
+            var arg5 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_combine_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartCombineJobConstMeta,
+          argValues: [files, keepForms, paper, output, staging, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartCombineJobConstMeta => const TaskConstMeta(
+    debugName: "start_combine_job",
+    argNames: ["files", "keepForms", "paper", "output", "staging", "sink"],
+  );
+
+  @override
   Stream<JobEvent> crateFrbStartCopyDocumentJob({
     required BigInt document,
     required String output,
@@ -2230,6 +2424,123 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       );
 
   @override
+  Stream<JobEvent> crateFrbStartExtractPagesJob({
+    required BigInt document,
+    required Uint64List pages,
+    required String output,
+    String? staging,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_list_prim_u_64_strict(pages);
+            var arg2 = cst_encode_String(output);
+            var arg3 = cst_encode_opt_String(staging);
+            var arg4 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_extract_pages_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartExtractPagesJobConstMeta,
+          argValues: [document, pages, output, staging, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartExtractPagesJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_extract_pages_job",
+        argNames: ["document", "pages", "output", "staging", "sink"],
+      );
+
+  @override
+  Stream<JobEvent> crateFrbStartInsertPagesJob({
+    required BigInt document,
+    required String path,
+    String? password,
+    Uint32List? pages,
+    BigInt? after,
+    required PaperSize paper,
+    required String name,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_String(path);
+            var arg2 = cst_encode_opt_String(password);
+            var arg3 = cst_encode_opt_list_prim_u_32_strict(pages);
+            var arg4 = cst_encode_opt_box_autoadd_u_64(after);
+            var arg5 = cst_encode_paper_size(paper);
+            var arg6 = cst_encode_String(name);
+            var arg7 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_insert_pages_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+              arg6,
+              arg7,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartInsertPagesJobConstMeta,
+          argValues: [
+            document,
+            path,
+            password,
+            pages,
+            after,
+            paper,
+            name,
+            sink,
+          ],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartInsertPagesJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_insert_pages_job",
+        argNames: [
+          "document",
+          "path",
+          "password",
+          "pages",
+          "after",
+          "paper",
+          "name",
+          "sink",
+        ],
+      );
+
+  @override
   Future<void> crateFrbStartRecovery({required String root}) {
     return handler.executeNormal(
       NormalTask(
@@ -2250,6 +2561,109 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbStartRecoveryConstMeta =>
       const TaskConstMeta(debugName: "start_recovery", argNames: ["root"]);
+
+  @override
+  Stream<JobEvent> crateFrbStartReplacePagesJob({
+    required BigInt document,
+    required Uint64List pages,
+    required String path,
+    String? password,
+    Uint32List? sourcePages,
+    required String name,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_list_prim_u_64_strict(pages);
+            var arg2 = cst_encode_String(path);
+            var arg3 = cst_encode_opt_String(password);
+            var arg4 = cst_encode_opt_list_prim_u_32_strict(sourcePages);
+            var arg5 = cst_encode_String(name);
+            var arg6 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_replace_pages_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+              arg6,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartReplacePagesJobConstMeta,
+          argValues: [document, pages, path, password, sourcePages, name, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartReplacePagesJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_replace_pages_job",
+        argNames: [
+          "document",
+          "pages",
+          "path",
+          "password",
+          "sourcePages",
+          "name",
+          "sink",
+        ],
+      );
+
+  @override
+  Stream<JobEvent> crateFrbStartSplitJob({
+    required BigInt document,
+    required List<SplitOutput> files,
+    required String folder,
+    String? staging,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_list_split_output(files);
+            var arg2 = cst_encode_String(folder);
+            var arg3 = cst_encode_opt_String(staging);
+            var arg4 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_split_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartSplitJobConstMeta,
+          argValues: [document, files, folder, staging, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartSplitJobConstMeta => const TaskConstMeta(
+    debugName: "start_split_job",
+    argNames: ["document", "files", "folder", "staging", "sink"],
+  );
 
   @override
   Future<PageBlocks> crateFrbTextBlocks({
@@ -2715,6 +3129,52 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  CombineFileInfo dco_decode_combine_file_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return CombineFileInfo(
+      status: dco_decode_input_status(arr[0]),
+      image: dco_decode_bool(arr[1]),
+      pages: dco_decode_u_32(arr[2]),
+      selected: dco_decode_u_32(arr[3]),
+      bytes: dco_decode_u_64(arr[4]),
+      encrypted: dco_decode_bool(arr[5]),
+      signed: dco_decode_bool(arr[6]),
+    );
+  }
+
+  @protected
+  CombineInput dco_decode_combine_input(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return CombineInput(
+      path: dco_decode_opt_String(arr[0]),
+      password: dco_decode_opt_String(arr[1]),
+      pages: dco_decode_opt_list_prim_u_32_strict(arr[2]),
+      blankWidth: dco_decode_f_32(arr[3]),
+      blankHeight: dco_decode_f_32(arr[4]),
+      bookmark: dco_decode_opt_String(arr[5]),
+    );
+  }
+
+  @protected
+  CombinePreview dco_decode_combine_preview(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return CombinePreview(
+      files: dco_decode_list_combine_file_info(arr[0]),
+      pages: dco_decode_u_32(arr[1]),
+      bytes: dco_decode_u_64(arr[2]),
+    );
+  }
+
+  @protected
   CrateVersion dco_decode_crate_version(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -3016,6 +3476,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  InputStatus dco_decode_input_status(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return InputStatus.values[raw as int];
+  }
+
+  @protected
   ItemKind dco_decode_item_kind(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return ItemKind.values[raw as int];
@@ -3126,6 +3592,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<bool> dco_decode_list_bool(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_bool).toList();
+  }
+
+  @protected
+  List<CombineFileInfo> dco_decode_list_combine_file_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_combine_file_info).toList();
+  }
+
+  @protected
+  List<CombineInput> dco_decode_list_combine_input(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_combine_input).toList();
   }
 
   @protected
@@ -3278,6 +3756,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<Signature> dco_decode_list_signature(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_signature).toList();
+  }
+
+  @protected
+  List<SplitFile> dco_decode_list_split_file(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_split_file).toList();
+  }
+
+  @protected
+  List<SplitOutput> dco_decode_list_split_output(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_split_output).toList();
   }
 
   @protected
@@ -3628,6 +4118,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  PaperSize dco_decode_paper_size(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return PaperSize.values[raw as int];
+  }
+
+  @protected
   PdfDate dco_decode_pdf_date(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -3852,6 +4348,55 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       signer: dco_decode_opt_String(arr[2]),
       signedAt: dco_decode_opt_box_autoadd_pdf_date(arr[3]),
       page: dco_decode_opt_box_autoadd_u_32(arr[4]),
+    );
+  }
+
+  @protected
+  SplitFile dco_decode_split_file(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return SplitFile(
+      name: dco_decode_String(arr[0]),
+      first: dco_decode_u_32(arr[1]),
+      last: dco_decode_u_32(arr[2]),
+      bytes: dco_decode_u_64(arr[3]),
+      overLimit: dco_decode_bool(arr[4]),
+    );
+  }
+
+  @protected
+  SplitKind dco_decode_split_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SplitKind.values[raw as int];
+  }
+
+  @protected
+  SplitOutput dco_decode_split_output(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return SplitOutput(
+      name: dco_decode_String(arr[0]),
+      first: dco_decode_u_32(arr[1]),
+      last: dco_decode_u_32(arr[2]),
+    );
+  }
+
+  @protected
+  SplitPreview dco_decode_split_preview(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return SplitPreview(
+      files: dco_decode_list_split_file(arr[0]),
+      bookmarks: dco_decode_u_32(arr[1]),
+      blankPages: dco_decode_u_32(arr[2]),
+      encrypted: dco_decode_bool(arr[3]),
+      signed: dco_decode_bool(arr[4]),
     );
   }
 
@@ -4338,6 +4883,55 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_status = sse_decode_input_status(deserializer);
+    var var_image = sse_decode_bool(deserializer);
+    var var_pages = sse_decode_u_32(deserializer);
+    var var_selected = sse_decode_u_32(deserializer);
+    var var_bytes = sse_decode_u_64(deserializer);
+    var var_encrypted = sse_decode_bool(deserializer);
+    var var_signed = sse_decode_bool(deserializer);
+    return CombineFileInfo(
+      status: var_status,
+      image: var_image,
+      pages: var_pages,
+      selected: var_selected,
+      bytes: var_bytes,
+      encrypted: var_encrypted,
+      signed: var_signed,
+    );
+  }
+
+  @protected
+  CombineInput sse_decode_combine_input(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_path = sse_decode_opt_String(deserializer);
+    var var_password = sse_decode_opt_String(deserializer);
+    var var_pages = sse_decode_opt_list_prim_u_32_strict(deserializer);
+    var var_blankWidth = sse_decode_f_32(deserializer);
+    var var_blankHeight = sse_decode_f_32(deserializer);
+    var var_bookmark = sse_decode_opt_String(deserializer);
+    return CombineInput(
+      path: var_path,
+      password: var_password,
+      pages: var_pages,
+      blankWidth: var_blankWidth,
+      blankHeight: var_blankHeight,
+      bookmark: var_bookmark,
+    );
+  }
+
+  @protected
+  CombinePreview sse_decode_combine_preview(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_files = sse_decode_list_combine_file_info(deserializer);
+    var var_pages = sse_decode_u_32(deserializer);
+    var var_bytes = sse_decode_u_64(deserializer);
+    return CombinePreview(files: var_files, pages: var_pages, bytes: var_bytes);
+  }
+
+  @protected
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_name = sse_decode_String(deserializer);
@@ -4677,6 +5271,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  InputStatus sse_decode_input_status(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return InputStatus.values[inner];
+  }
+
+  @protected
   ItemKind sse_decode_item_kind(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -4811,6 +5412,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <bool>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_bool(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<CombineFileInfo> sse_decode_list_combine_file_info(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <CombineFileInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_combine_file_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<CombineInput> sse_decode_list_combine_input(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <CombineInput>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_combine_input(deserializer));
     }
     return ans_;
   }
@@ -5114,6 +5743,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <Signature>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_signature(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<SplitFile> sse_decode_list_split_file(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SplitFile>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_split_file(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<SplitOutput> sse_decode_list_split_output(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SplitOutput>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_split_output(deserializer));
     }
     return ans_;
   }
@@ -5648,6 +6301,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  PaperSize sse_decode_paper_size(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return PaperSize.values[inner];
+  }
+
+  @protected
   PdfDate sse_decode_pdf_date(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_year = sse_decode_u_16(deserializer);
@@ -5894,6 +6554,56 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  SplitFile sse_decode_split_file(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_first = sse_decode_u_32(deserializer);
+    var var_last = sse_decode_u_32(deserializer);
+    var var_bytes = sse_decode_u_64(deserializer);
+    var var_overLimit = sse_decode_bool(deserializer);
+    return SplitFile(
+      name: var_name,
+      first: var_first,
+      last: var_last,
+      bytes: var_bytes,
+      overLimit: var_overLimit,
+    );
+  }
+
+  @protected
+  SplitKind sse_decode_split_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SplitKind.values[inner];
+  }
+
+  @protected
+  SplitOutput sse_decode_split_output(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_first = sse_decode_u_32(deserializer);
+    var var_last = sse_decode_u_32(deserializer);
+    return SplitOutput(name: var_name, first: var_first, last: var_last);
+  }
+
+  @protected
+  SplitPreview sse_decode_split_preview(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_files = sse_decode_list_split_file(deserializer);
+    var var_bookmarks = sse_decode_u_32(deserializer);
+    var var_blankPages = sse_decode_u_32(deserializer);
+    var var_encrypted = sse_decode_bool(deserializer);
+    var var_signed = sse_decode_bool(deserializer);
+    return SplitPreview(
+      files: var_files,
+      bookmarks: var_bookmarks,
+      blankPages: var_blankPages,
+      encrypted: var_encrypted,
+      signed: var_signed,
+    );
+  }
+
+  @protected
   SubstitutionKind sse_decode_substitution_kind(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -6096,6 +6806,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_input_status(InputStatus raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_item_kind(ItemKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -6144,6 +6860,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_paper_size(PaperSize raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_pdfium_state(PdfiumState raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -6169,6 +6891,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_split_kind(SplitKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -6614,6 +7342,43 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_combine_file_info(
+    CombineFileInfo self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_input_status(self.status, serializer);
+    sse_encode_bool(self.image, serializer);
+    sse_encode_u_32(self.pages, serializer);
+    sse_encode_u_32(self.selected, serializer);
+    sse_encode_u_64(self.bytes, serializer);
+    sse_encode_bool(self.encrypted, serializer);
+    sse_encode_bool(self.signed, serializer);
+  }
+
+  @protected
+  void sse_encode_combine_input(CombineInput self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_String(self.path, serializer);
+    sse_encode_opt_String(self.password, serializer);
+    sse_encode_opt_list_prim_u_32_strict(self.pages, serializer);
+    sse_encode_f_32(self.blankWidth, serializer);
+    sse_encode_f_32(self.blankHeight, serializer);
+    sse_encode_opt_String(self.bookmark, serializer);
+  }
+
+  @protected
+  void sse_encode_combine_preview(
+    CombinePreview self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_combine_file_info(self.files, serializer);
+    sse_encode_u_32(self.pages, serializer);
+    sse_encode_u_64(self.bytes, serializer);
+  }
+
+  @protected
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.name, serializer);
@@ -6855,6 +7620,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_input_status(InputStatus self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
@@ -6957,6 +7728,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_bool(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_combine_file_info(
+    List<CombineFileInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_combine_file_info(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_combine_input(
+    List<CombineInput> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_combine_input(item, serializer);
     }
   }
 
@@ -7248,6 +8043,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_signature(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_split_file(
+    List<SplitFile> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_split_file(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_split_output(
+    List<SplitOutput> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_split_output(item, serializer);
     }
   }
 
@@ -7707,6 +8526,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_paper_size(PaperSize self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_pdf_date(PdfDate self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_16(self.year, serializer);
@@ -7879,6 +8704,40 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.signer, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.signedAt, serializer);
     sse_encode_opt_box_autoadd_u_32(self.page, serializer);
+  }
+
+  @protected
+  void sse_encode_split_file(SplitFile self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_u_32(self.first, serializer);
+    sse_encode_u_32(self.last, serializer);
+    sse_encode_u_64(self.bytes, serializer);
+    sse_encode_bool(self.overLimit, serializer);
+  }
+
+  @protected
+  void sse_encode_split_kind(SplitKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_split_output(SplitOutput self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_u_32(self.first, serializer);
+    sse_encode_u_32(self.last, serializer);
+  }
+
+  @protected
+  void sse_encode_split_preview(SplitPreview self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_split_file(self.files, serializer);
+    sse_encode_u_32(self.bookmarks, serializer);
+    sse_encode_u_32(self.blankPages, serializer);
+    sse_encode_bool(self.encrypted, serializer);
+    sse_encode_bool(self.signed, serializer);
   }
 
   @protected

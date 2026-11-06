@@ -117,6 +117,82 @@ abstract interface class EngineService {
     String? staging,
   });
 
+  /// Commits the change a job prepared ([insertPagesJob], [replacePagesJob]) as
+  /// one step; refused if the document moved since the job read it.
+  Future<RevisionInfo> applyJobChange(int job);
+
+  /// What Combine would write for [files], with a row per input (a6-3).
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  });
+
+  /// Writes [files] as the new file [output] as a job: Combine, and Create PDF
+  /// from a blank page or files. An output is unencrypted and carries no
+  /// signature.
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  });
+
+  /// Writes [pages] of [document] as the new file [output] as a job, which
+  /// reports the revision it read.
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  });
+
+  /// The files a split of [document] would write (a6-2). [amount] is the pages
+  /// per file for [SplitKind.everyPages] and the bytes for [SplitKind.size].
+  /// [template] takes `{document}`, `{bookmark}` and `{n}`. With [folder],
+  /// names stay free in it.
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  });
+
+  /// Writes [files], as [splitPreview] planned them, into [folder] as a job,
+  /// which reports the revision it read.
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  });
+
+  /// Reads [pages] (null for all) of the PDF or image at [path] as a job; once
+  /// done, [applyJobChange] inserts them after the page [after], or first when
+  /// null, as one step.
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  });
+
+  /// Reads [sourcePages] (null for all) of the PDF at [path] as a job; once
+  /// done, [applyJobChange] puts them in the place of [pages] as one step, each
+  /// keeping a replaced page's handle, bookmarks and label.
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  });
+
   /// Parks a job at its next step.
   Future<void> pauseJob(int job);
 
@@ -582,6 +658,70 @@ class UnavailableEngineService implements EngineService {
     int document,
     String output, {
     String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) async => throw error;
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async => throw error;
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async => throw error;
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
   }) => Stream.error(error);
 
   @override

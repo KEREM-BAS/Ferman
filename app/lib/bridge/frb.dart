@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -278,6 +278,161 @@ Stream<JobEvent> startCopyDocumentJob({
   document: document,
   output: output,
   staging: staging,
+);
+
+/// Commits the change a job prepared, as one step of the document's history.
+///
+/// See [`facade::Engine::apply_job_change`].
+///
+/// # Errors
+///
+/// `InvalidInput` when the document moved since the job read it; `NotFound` for a job with no
+/// change waiting; and what any commit returns.
+Future<RevisionInfo> applyJobChange({required BigInt job}) =>
+    FermanBridge.instance.api.crateFrbApplyJobChange(job: job);
+
+/// What Combine would write for `files`, with a row per input.
+///
+/// # Errors
+///
+/// `Internal` when its thread does not start. A file that cannot be used says so in its row.
+Future<CombinePreview> combinePreview({
+  required List<CombineInput> files,
+  required bool keepForms,
+}) => FermanBridge.instance.api.crateFrbCombinePreview(
+  files: files,
+  keepForms: keepForms,
+);
+
+/// Writes `files` as the new file `output` as a background job: Combine, and Create PDF from a
+/// blank page or files. The stream's first event has the job's handle; its last says how it ended.
+///
+/// See [`facade::Engine::combine_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` for no input or an `output` that exists.
+Stream<JobEvent> startCombineJob({
+  required List<CombineInput> files,
+  required bool keepForms,
+  required PaperSize paper,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCombineJob(
+  files: files,
+  keepForms: keepForms,
+  paper: paper,
+  output: output,
+  staging: staging,
+);
+
+/// Writes `pages` of `document` as the new file `output` as a background job.
+///
+/// See [`facade::Engine::extract_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startExtractPagesJob({
+  required BigInt document,
+  required Uint64List pages,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartExtractPagesJob(
+  document: document,
+  pages: pages,
+  output: output,
+  staging: staging,
+);
+
+/// The files a split of `document` would write (a6-2).
+///
+/// See [`facade::Engine::split_preview`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable`, `NotFound`, and the render thread's errors.
+Future<SplitPreview> splitPreview({
+  required BigInt document,
+  required SplitKind kind,
+  required BigInt amount,
+  required String template,
+  String? folder,
+}) => FermanBridge.instance.api.crateFrbSplitPreview(
+  document: document,
+  kind: kind,
+  amount: amount,
+  template: template,
+  folder: folder,
+);
+
+/// Writes the files [`split_preview`] planned into `folder` as a background job.
+///
+/// See [`facade::Engine::split_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startSplitJob({
+  required BigInt document,
+  required List<SplitOutput> files,
+  required String folder,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartSplitJob(
+  document: document,
+  files: files,
+  folder: folder,
+  staging: staging,
+);
+
+/// Reads pages of a PDF or an image as a background job, whose change, for [`apply_job_change`],
+/// inserts them after the page `after`, or first when `None`.
+///
+/// See [`facade::Engine::insert_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startInsertPagesJob({
+  required BigInt document,
+  required String path,
+  String? password,
+  Uint32List? pages,
+  BigInt? after,
+  required PaperSize paper,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartInsertPagesJob(
+  document: document,
+  path: path,
+  password: password,
+  pages: pages,
+  after: after,
+  paper: paper,
+  name: name,
+);
+
+/// Reads pages of a PDF as a background job, whose change, for [`apply_job_change`], puts them in
+/// the place of `pages`.
+///
+/// See [`facade::Engine::replace_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startReplacePagesJob({
+  required BigInt document,
+  required Uint64List pages,
+  required String path,
+  String? password,
+  Uint32List? sourcePages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartReplacePagesJob(
+  document: document,
+  pages: pages,
+  path: path,
+  password: password,
+  sourcePages: sourcePages,
+  name: name,
 );
 
 /// Parks a job at its next checkpoint. A job that ended ignores it.
@@ -1366,6 +1521,144 @@ class Caret {
           rect == other.rect;
 }
 
+/// One input's row in a6-3.
+class CombineFileInfo {
+  /// Whether it can be used; the numbers below are zero if not.
+  final InputStatus status;
+
+  /// Whether it is an image, "converted to 1 page".
+  final bool image;
+
+  /// Its pages in all.
+  final int pages;
+
+  /// How many of them it adds.
+  final int selected;
+
+  /// About what it adds to the output, in bytes.
+  final BigInt bytes;
+
+  /// Whether it is encrypted: the output will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the output carries no signature.
+  final bool signed;
+
+  const CombineFileInfo({
+    required this.status,
+    required this.image,
+    required this.pages,
+    required this.selected,
+    required this.bytes,
+    required this.encrypted,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      status.hashCode ^
+      image.hashCode ^
+      pages.hashCode ^
+      selected.hashCode ^
+      bytes.hashCode ^
+      encrypted.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombineFileInfo &&
+          runtimeType == other.runtimeType &&
+          status == other.status &&
+          image == other.image &&
+          pages == other.pages &&
+          selected == other.selected &&
+          bytes == other.bytes &&
+          encrypted == other.encrypted &&
+          signed == other.signed;
+}
+
+/// One input of Combine or Create PDF.
+class CombineInput {
+  /// Where the PDF or image is; `None` for a blank page of `blank_width` by `blank_height`.
+  final String? path;
+
+  /// What opens it.
+  final String? password;
+
+  /// Its pages by index, in the order to take them; `None` for all.
+  final Uint32List? pages;
+
+  /// A blank page's width, in points.
+  final double blankWidth;
+
+  /// A blank page's height, in points.
+  final double blankHeight;
+
+  /// The title of a bookmark for its first page.
+  final String? bookmark;
+
+  const CombineInput({
+    this.path,
+    this.password,
+    this.pages,
+    required this.blankWidth,
+    required this.blankHeight,
+    this.bookmark,
+  });
+
+  @override
+  int get hashCode =>
+      path.hashCode ^
+      password.hashCode ^
+      pages.hashCode ^
+      blankWidth.hashCode ^
+      blankHeight.hashCode ^
+      bookmark.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombineInput &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          password == other.password &&
+          pages == other.pages &&
+          blankWidth == other.blankWidth &&
+          blankHeight == other.blankHeight &&
+          bookmark == other.bookmark;
+}
+
+/// What a6-3 shows before anything is written.
+class CombinePreview {
+  /// A row per input, in order.
+  final List<CombineFileInfo> files;
+
+  /// The pages of the output.
+  final int pages;
+
+  /// About how large it comes out, in bytes.
+  final BigInt bytes;
+
+  const CombinePreview({
+    required this.files,
+    required this.pages,
+    required this.bytes,
+  });
+
+  @override
+  int get hashCode => files.hashCode ^ pages.hashCode ^ bytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombinePreview &&
+          runtimeType == other.runtimeType &&
+          files == other.files &&
+          pages == other.pages &&
+          bytes == other.bytes;
+}
+
 /// One engine crate and its version.
 class CrateVersion {
   /// The crate name, such as `"ferman-core"`.
@@ -2218,6 +2511,27 @@ class HistoryStep {
           reverts == other.reverts;
 }
 
+/// Whether an input can be used, for its row in a6-3 (G45).
+enum InputStatus {
+  /// It can.
+  ready,
+
+  /// It needs its password.
+  passwordRequired,
+
+  /// The password does not open it.
+  wrongPassword,
+
+  /// It forbids assembling, which only its owner password lifts.
+  ownerPasswordRequired,
+
+  /// Its page range names a page it does not have, or a page twice.
+  badRange,
+
+  /// Neither a PDF nor an image Ferman can read, or the file is gone.
+  unreadable,
+}
+
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
 enum ItemKind {
   /// A 512-pixel tile of a page at a zoom bucket.
@@ -3049,6 +3363,15 @@ class PageRect {
           bottom == other.bottom;
 }
 
+/// The paper of an image's own page (G152), which the app picks from the region setting.
+enum PaperSize {
+  /// 595.28 × 841.89 pt.
+  a4,
+
+  /// 612 × 792 pt.
+  letter,
+}
+
 /// A date as the file writes it, without converting its time zone.
 class PdfDate {
   /// The year.
@@ -3649,6 +3972,141 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// One file of a split's plan.
+class SplitFile {
+  /// Its name, with `.pdf`, safe in any folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  /// About how large it comes out, in bytes, at the high end.
+  final BigInt bytes;
+
+  /// Whether one page alone is over the size asked for.
+  final bool overLimit;
+
+  const SplitFile({
+    required this.name,
+    required this.first,
+    required this.last,
+    required this.bytes,
+    required this.overLimit,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      first.hashCode ^
+      last.hashCode ^
+      bytes.hashCode ^
+      overLimit.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitFile &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          first == other.first &&
+          last == other.last &&
+          bytes == other.bytes &&
+          overLimit == other.overLimit;
+}
+
+/// The ways to split a6-2 draws.
+enum SplitKind {
+  /// A new file every `amount` pages.
+  everyPages,
+
+  /// One file per top-level bookmark.
+  topBookmarks,
+
+  /// Files of at most `amount` bytes, as estimated.
+  size,
+
+  /// A new file at each blank page, which goes.
+  blankPages,
+}
+
+/// One file of a split, as the plan names it.
+class SplitOutput {
+  /// Its name in the output folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  const SplitOutput({
+    required this.name,
+    required this.first,
+    required this.last,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ first.hashCode ^ last.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitOutput &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          first == other.first &&
+          last == other.last;
+}
+
+/// What a6-2 shows before anything is written.
+class SplitPreview {
+  /// The files.
+  final List<SplitFile> files;
+
+  /// How many top-level bookmarks go to a page.
+  final int bookmarks;
+
+  /// How many pages count as blank.
+  final int blankPages;
+
+  /// Whether the document is encrypted: the files will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the files carry no signature.
+  final bool signed;
+
+  const SplitPreview({
+    required this.files,
+    required this.bookmarks,
+    required this.blankPages,
+    required this.encrypted,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      files.hashCode ^
+      bookmarks.hashCode ^
+      blankPages.hashCode ^
+      encrypted.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitPreview &&
+          runtimeType == other.runtimeType &&
+          files == other.files &&
+          bookmarks == other.bookmarks &&
+          blankPages == other.blankPages &&
+          encrypted == other.encrypted &&
+          signed == other.signed;
 }
 
 /// Which missing-glyph step drew substituted characters.

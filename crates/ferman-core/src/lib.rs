@@ -34,6 +34,8 @@
 //! - [`write`](mod@write): what an operation above ferman-core writes with, without naming
 //!   lopdf: objects as plain [`Value`](write::Value)s, new object numbers, page entries and
 //!   `/Annots` (ADR 0003, question 11 of the M4 plan).
+//! - [`assemble`]: pages of one document copied into another, with their bookmarks, attachments,
+//!   form fields and layers (Insert, Replace, Extract, Split and Combine, M4 plan, W1).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
 //!   [`save_pdf`](save::save_pdf) writes a document through a temp file beside it, flushed,
 //!   verified, given the original's metadata and swapped in, with every failure of §7.8 a
@@ -66,6 +68,7 @@
 #![deny(unsafe_code)]
 
 mod appendix;
+pub mod assemble;
 mod content;
 pub mod document;
 pub mod filters;

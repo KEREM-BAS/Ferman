@@ -1552,6 +1552,270 @@ pub async fn start_copy_document_job(
         .map_err(api_error_dto)
 }
 
+/// Commits the change a job prepared, as one step of the document's history.
+///
+/// See [`facade::Engine::apply_job_change`].
+///
+/// # Errors
+///
+/// `InvalidInput` when the document moved since the job read it; `NotFound` for a job with no
+/// change waiting; and what any commit returns.
+pub async fn apply_job_change(job: u64) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .apply_job_change(facade::JobId::from_raw(job))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// What Combine would write for `files`, with a row per input.
+///
+/// # Errors
+///
+/// `Internal` when its thread does not start. A file that cannot be used says so in its row.
+pub async fn combine_preview(
+    files: Vec<CombineInput>,
+    keep_forms: bool,
+) -> Result<CombinePreview, ApiError> {
+    let sources = files
+        .into_iter()
+        .map(|file| combine_file(file).source)
+        .collect();
+    engine()?
+        .combine_preview(sources, keep_forms)
+        .await
+        .map(|preview| CombinePreview {
+            files: preview
+                .files
+                .into_iter()
+                .map(|row| CombineFileInfo {
+                    status: match row.status {
+                        facade::InputStatus::Ready => InputStatus::Ready,
+                        facade::InputStatus::PasswordRequired => InputStatus::PasswordRequired,
+                        facade::InputStatus::WrongPassword => InputStatus::WrongPassword,
+                        facade::InputStatus::OwnerPasswordRequired => {
+                            InputStatus::OwnerPasswordRequired
+                        }
+                        facade::InputStatus::BadRange => InputStatus::BadRange,
+                        facade::InputStatus::Unreadable => InputStatus::Unreadable,
+                    },
+                    image: row.image,
+                    pages: row.pages,
+                    selected: row.selected,
+                    bytes: row.bytes,
+                    encrypted: row.encrypted,
+                    signed: row.signed,
+                })
+                .collect(),
+            pages: preview.pages,
+            bytes: preview.bytes,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes `files` as the new file `output` as a background job: Combine, and Create PDF from a
+/// blank page or files. The stream's first event has the job's handle; its last says how it ended.
+///
+/// See [`facade::Engine::combine_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` for no input or an `output` that exists.
+pub async fn start_combine_job(
+    files: Vec<CombineInput>,
+    keep_forms: bool,
+    paper: PaperSize,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .combine_job(
+            files.into_iter().map(combine_file).collect(),
+            keep_forms,
+            paper_size(paper),
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Writes `pages` of `document` as the new file `output` as a background job.
+///
+/// See [`facade::Engine::extract_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_extract_pages_job(
+    document: u64,
+    pages: Vec<u64>,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .extract_pages_job(
+            facade::DocumentId::from_raw(document),
+            pages,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// The files a split of `document` would write (a6-2).
+///
+/// See [`facade::Engine::split_preview`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable`, `NotFound`, and the render thread's errors.
+pub async fn split_preview(
+    document: u64,
+    kind: SplitKind,
+    amount: u64,
+    template: String,
+    folder: Option<String>,
+) -> Result<SplitPreview, ApiError> {
+    let mode = match kind {
+        SplitKind::EveryPages => {
+            facade::SplitMode::EveryPages(u32::try_from(amount).unwrap_or(u32::MAX))
+        }
+        SplitKind::TopBookmarks => facade::SplitMode::TopBookmarks,
+        SplitKind::Size => facade::SplitMode::Size(amount),
+        SplitKind::BlankPages => facade::SplitMode::BlankPages,
+    };
+    engine()?
+        .split_preview(
+            facade::DocumentId::from_raw(document),
+            mode,
+            template,
+            folder.map(PathBuf::from),
+        )
+        .await
+        .map(|preview| SplitPreview {
+            files: preview
+                .files
+                .into_iter()
+                .map(|file| SplitFile {
+                    name: file.name,
+                    first: u32::try_from(file.first).unwrap_or(u32::MAX),
+                    last: u32::try_from(file.last).unwrap_or(u32::MAX),
+                    bytes: file.bytes,
+                    over_limit: file.over_limit,
+                })
+                .collect(),
+            bookmarks: preview.bookmarks,
+            blank_pages: preview.blank_pages,
+            encrypted: preview.encrypted,
+            signed: preview.signed,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes the files [`split_preview`] planned into `folder` as a background job.
+///
+/// See [`facade::Engine::split_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_split_job(
+    document: u64,
+    files: Vec<SplitOutput>,
+    folder: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .split_job(
+            facade::DocumentId::from_raw(document),
+            files
+                .into_iter()
+                .map(|file| facade::SplitOutput {
+                    name: file.name,
+                    first: file.first,
+                    last: file.last,
+                })
+                .collect(),
+            PathBuf::from(folder),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Reads pages of a PDF or an image as a background job, whose change, for [`apply_job_change`],
+/// inserts them after the page `after`, or first when `None`.
+///
+/// See [`facade::Engine::insert_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+#[allow(clippy::too_many_arguments)]
+pub async fn start_insert_pages_job(
+    document: u64,
+    path: String,
+    password: Option<String>,
+    pages: Option<Vec<u32>>,
+    after: Option<u64>,
+    paper: PaperSize,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .insert_pages_job(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            password.map(facade::Password::new),
+            pages,
+            after,
+            paper_size(paper),
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Reads pages of a PDF as a background job, whose change, for [`apply_job_change`], puts them in
+/// the place of `pages`.
+///
+/// See [`facade::Engine::replace_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_replace_pages_job(
+    document: u64,
+    pages: Vec<u64>,
+    path: String,
+    password: Option<String>,
+    source_pages: Option<Vec<u32>>,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .replace_pages_job(
+            facade::DocumentId::from_raw(document),
+            pages,
+            PathBuf::from(path),
+            password.map(facade::Password::new),
+            source_pages,
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
 /// Parks a job at its next checkpoint. A job that ended ignores it.
 ///
 /// # Errors
@@ -2020,6 +2284,133 @@ pub enum PageFit {
     Centre,
     /// Scaled to fit the new page, and centred on it.
     Scale,
+}
+
+/// The paper of an image's own page (G152), which the app picks from the region setting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PaperSize {
+    /// 595.28 × 841.89 pt.
+    A4,
+    /// 612 × 792 pt.
+    Letter,
+}
+
+/// One input of Combine or Create PDF.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CombineInput {
+    /// Where the PDF or image is; `None` for a blank page of `blank_width` by `blank_height`.
+    pub path: Option<String>,
+    /// What opens it.
+    pub password: Option<String>,
+    /// Its pages by index, in the order to take them; `None` for all.
+    pub pages: Option<Vec<u32>>,
+    /// A blank page's width, in points.
+    pub blank_width: f32,
+    /// A blank page's height, in points.
+    pub blank_height: f32,
+    /// The title of a bookmark for its first page.
+    pub bookmark: Option<String>,
+}
+
+/// Whether an input can be used, for its row in a6-3 (G45).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InputStatus {
+    /// It can.
+    Ready,
+    /// It needs its password.
+    PasswordRequired,
+    /// The password does not open it.
+    WrongPassword,
+    /// It forbids assembling, which only its owner password lifts.
+    OwnerPasswordRequired,
+    /// Its page range names a page it does not have, or a page twice.
+    BadRange,
+    /// Neither a PDF nor an image Ferman can read, or the file is gone.
+    Unreadable,
+}
+
+/// One input's row in a6-3.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CombineFileInfo {
+    /// Whether it can be used; the numbers below are zero if not.
+    pub status: InputStatus,
+    /// Whether it is an image, "converted to 1 page".
+    pub image: bool,
+    /// Its pages in all.
+    pub pages: u32,
+    /// How many of them it adds.
+    pub selected: u32,
+    /// About what it adds to the output, in bytes.
+    pub bytes: u64,
+    /// Whether it is encrypted: the output will not be.
+    pub encrypted: bool,
+    /// Whether it is signed: the output carries no signature.
+    pub signed: bool,
+}
+
+/// What a6-3 shows before anything is written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CombinePreview {
+    /// A row per input, in order.
+    pub files: Vec<CombineFileInfo>,
+    /// The pages of the output.
+    pub pages: u32,
+    /// About how large it comes out, in bytes.
+    pub bytes: u64,
+}
+
+/// The ways to split a6-2 draws.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SplitKind {
+    /// A new file every `amount` pages.
+    EveryPages,
+    /// One file per top-level bookmark.
+    TopBookmarks,
+    /// Files of at most `amount` bytes, as estimated.
+    Size,
+    /// A new file at each blank page, which goes.
+    BlankPages,
+}
+
+/// One file of a split's plan.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitFile {
+    /// Its name, with `.pdf`, safe in any folder.
+    pub name: String,
+    /// Its first page, as an index.
+    pub first: u32,
+    /// Its last page, as an index.
+    pub last: u32,
+    /// About how large it comes out, in bytes, at the high end.
+    pub bytes: u64,
+    /// Whether one page alone is over the size asked for.
+    pub over_limit: bool,
+}
+
+/// What a6-2 shows before anything is written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitPreview {
+    /// The files.
+    pub files: Vec<SplitFile>,
+    /// How many top-level bookmarks go to a page.
+    pub bookmarks: u32,
+    /// How many pages count as blank.
+    pub blank_pages: u32,
+    /// Whether the document is encrypted: the files will not be.
+    pub encrypted: bool,
+    /// Whether it is signed: the files carry no signature.
+    pub signed: bool,
+}
+
+/// One file of a split, as the plan names it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitOutput {
+    /// Its name in the output folder.
+    pub name: String,
+    /// Its first page, as an index.
+    pub first: u32,
+    /// Its last page, as an index.
+    pub last: u32,
 }
 
 /// How a page label range writes its numbers.
@@ -2731,6 +3122,27 @@ pub async fn save_as(
         .await
         .map(staged_dto)
         .map_err(api_error_dto)
+}
+
+fn paper_size(paper: PaperSize) -> facade::Paper {
+    match paper {
+        PaperSize::A4 => facade::Paper::A4,
+        PaperSize::Letter => facade::Paper::Letter,
+    }
+}
+
+fn combine_file(input: CombineInput) -> facade::CombineFile {
+    facade::CombineFile {
+        source: match input.path {
+            Some(path) => facade::CombineSource::File {
+                path: PathBuf::from(path),
+                password: input.password.map(facade::Password::new),
+                pages: input.pages,
+            },
+            None => facade::CombineSource::Blank(input.blank_width, input.blank_height),
+        },
+        bookmark: input.bookmark,
+    }
 }
 
 /// Hands a job's events to its Dart stream; a stream nobody reads does not stop the job.

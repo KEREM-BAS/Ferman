@@ -2,9 +2,9 @@
 //! to a PDF image XObject or a page of its own, inside the open transaction of a [`RevisionStore`].
 //!
 //! Bytes here are untrusted. A JPEG passes through as `DCTDecode` without re-encoding; everything
-//! else is decoded to 8-bit samples, written with Flate, its alpha as an `/SMask`.
-// shortcut: EXIF orientation is ignored, so a phone's JPEG stays as its sensor stored it, and
-// embedded ICC profiles are dropped for Device colour spaces; BACKLOG B187 upgrades both.
+//! else is decoded to 8-bit samples, written with Flate, its alpha as an `/SMask`. An image's own
+//! page turns it as its EXIF orientation says, through the page's matrix, and a profile fit for its
+//! colours goes along as an `/ICCBased` space (B187).
 // Values come from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -15,6 +15,7 @@ use ferman_core::Document;
 use ferman_core::limits::{LimitKind, Limits};
 use ferman_core::revision::RevisionStore;
 use ferman_core::write::{ObjectRef, Value};
+use image::metadata::Orientation;
 use image::{DynamicImage, ImageDecoder, ImageError, ImageFormat, ImageReader};
 
 use crate::OpsError;
@@ -55,6 +56,10 @@ pub struct Image {
     pub pixels: Pixels,
     /// One 8-bit alpha sample a pixel, `None` when the image has none or is wholly opaque.
     pub alpha: Option<Vec<u8>>,
+    /// How the stored pixels turn to show upright.
+    pub orientation: Orientation,
+    /// The ICC profile, when it describes [`colour`](Self::colour).
+    pub icc: Option<Vec<u8>>,
 }
 
 /// The paper of an image's own page, which the caller picks from the region setting (G152).
@@ -136,13 +141,42 @@ fn too_many_pixels(max: u64) -> OpsError {
 fn pass_through(bytes: &[u8], limits: &Limits) -> Result<Image, OpsError> {
     let header = jpeg_header(bytes).ok_or(OpsError::UnreadableImage)?;
     within(header.width, header.height, limits)?;
+    // Headers only; a file its decoder refuses is drawn as stored, by whoever can read it.
+    let (orientation, icc) = ImageReader::with_format(Cursor::new(bytes), ImageFormat::Jpeg)
+        .into_decoder()
+        .map_or((Orientation::NoTransforms, None), |mut decoder| {
+            metadata(&mut decoder)
+        });
     Ok(Image {
         width: header.width,
         height: header.height,
         colour: header.colour,
         pixels: Pixels::Dct(bytes.to_vec()),
         alpha: None,
+        orientation,
+        icc: icc.filter(|profile| describes(profile, header.colour)),
     })
+}
+
+/// A decoder's orientation and ICC profile. A file that says neither clearly says nothing.
+fn metadata(decoder: &mut impl ImageDecoder) -> (Orientation, Option<Vec<u8>>) {
+    (
+        decoder.orientation().unwrap_or(Orientation::NoTransforms),
+        decoder.icc_profile().ok().flatten(),
+    )
+}
+
+/// Whether an ICC `profile`'s header names `colour`'s space: a reader would misread it otherwise.
+fn describes(profile: &[u8], colour: Colour) -> bool {
+    /// Where an ICC header holds the data colour space.
+    const SPACE: std::ops::Range<usize> = 16..20;
+    const HEADER: usize = 128;
+    let wanted: &[u8] = match colour {
+        Colour::Gray => b"GRAY",
+        Colour::Rgb => b"RGB ",
+        Colour::Cmyk { .. } => b"CMYK",
+    };
+    profile.len() >= HEADER && profile.get(SPACE) == Some(wanted)
 }
 
 fn decoded(mut reader: ImageReader<Cursor<&[u8]>>, limits: &Limits) -> Result<Image, OpsError> {
@@ -157,7 +191,8 @@ fn decoded(mut reader: ImageReader<Cursor<&[u8]>>, limits: &Limits) -> Result<Im
         ImageError::Limits(_) => too_many_pixels(max),
         _ => OpsError::UnreadableImage,
     };
-    let decoder = reader.into_decoder().map_err(unreadable)?;
+    let mut decoder = reader.into_decoder().map_err(unreadable)?;
+    let (orientation, icc) = metadata(&mut decoder);
     let (width, height) = decoder.dimensions();
     if width == 0 || height == 0 {
         return Err(OpsError::UnreadableImage);
@@ -186,6 +221,8 @@ fn decoded(mut reader: ImageReader<Cursor<&[u8]>>, limits: &Limits) -> Result<Im
         colour,
         pixels: Pixels::Samples(samples),
         alpha,
+        orientation,
+        icc: icc.filter(|profile| describes(profile, colour)),
     })
 }
 
@@ -283,6 +320,26 @@ pub fn image_xobject(
         let decode = [1, 0, 1, 0, 1, 0, 1, 0].map(Value::Integer).to_vec();
         dict.push((b"Decode".to_vec(), Value::Array(decode)));
     }
+    if let Some(profile) = &image.icc {
+        let components = match image.colour {
+            Colour::Gray => 1,
+            Colour::Rgb => 3,
+            Colour::Cmyk { .. } => 4,
+        };
+        let profile = revisions.add_object(
+            document,
+            Value::Stream {
+                dict: vec![(b"N".to_vec(), Value::Integer(components))],
+                data: profile.clone(),
+            },
+        )?;
+        let space = Value::Array(vec![
+            Value::Name(b"ICCBased".to_vec()),
+            Value::Reference(profile),
+        ]);
+        dict.retain(|(key, _)| key != b"ColorSpace");
+        dict.push((b"ColorSpace".to_vec(), space));
+    }
     if let Some(alpha) = &image.alpha {
         let mask = Value::Stream {
             dict: frame(b"DeviceGray"),
@@ -350,15 +407,38 @@ pub fn image_page(
     Ok(revisions.add_object(document, page)?)
 }
 
-/// The content that draws `/Im0` as large as `paper` allows, keeping its shape, in the middle.
+/// The content that draws `/Im0` upright, as large as `paper` allows, keeping its shape, in the
+/// middle.
+#[allow(clippy::arithmetic_side_effects)] // Floats.
 fn placement(image: &Image, paper: Paper) -> String {
+    use Orientation::{
+        FlipHorizontal, FlipVertical, NoTransforms, Rotate90, Rotate90FlipH, Rotate180, Rotate270,
+        Rotate270FlipH,
+    };
     let (page_width, page_height) = paper.size();
     let (page_width, page_height) = (f64::from(page_width), f64::from(page_height));
-    let (width, height) = (f64::from(image.width), f64::from(image.height));
+    let (mut width, mut height) = (f64::from(image.width), f64::from(image.height));
+    if matches!(
+        image.orientation,
+        Rotate90 | Rotate270 | Rotate90FlipH | Rotate270FlipH
+    ) {
+        std::mem::swap(&mut width, &mut height);
+    }
     let scale = (page_width / width).min(page_height / height);
-    let (width, height) = (width * scale, height * scale);
-    let (x, y) = ((page_width - width) / 2.0, (page_height - height) / 2.0);
-    format!("q {width:.4} 0 0 {height:.4} {x:.4} {y:.4} cm /Im0 Do Q\n")
+    let (w, h) = (width * scale, height * scale);
+    let (x, y) = ((page_width - w) / 2.0, (page_height - h) / 2.0);
+    // The image space's unit square, top row at 1, to the box: `a b c d e f` of `cm`.
+    let [a, b, c, d, e, f] = match image.orientation {
+        NoTransforms => [w, 0.0, 0.0, h, x, y],
+        Rotate90 => [0.0, -h, w, 0.0, x, y + h],
+        Rotate180 => [-w, 0.0, 0.0, -h, x + w, y + h],
+        Rotate270 => [0.0, h, -w, 0.0, x + w, y],
+        FlipHorizontal => [-w, 0.0, 0.0, h, x + w, y],
+        FlipVertical => [w, 0.0, 0.0, -h, x, y + h],
+        Rotate90FlipH => [0.0, -h, -w, 0.0, x + w, y + h],
+        Rotate270FlipH => [0.0, h, w, 0.0, x, y],
+    };
+    format!("q {a:.4} {b:.4} {c:.4} {d:.4} {e:.4} {f:.4} cm /Im0 Do Q\n")
 }
 
 #[cfg(test)]
@@ -672,6 +752,92 @@ mod tests {
         assert_eq!(entry(&dict, b"SMask"), None);
     }
 
+    /// `jpeg` with `segment`, whole, right after its start.
+    fn with_segment(jpeg: &[u8], marker: u8, body: &[u8]) -> Vec<u8> {
+        let mut out = jpeg[..2].to_vec();
+        out.extend([0xFF, marker]);
+        out.extend(u16::try_from(body.len() + 2).unwrap().to_be_bytes());
+        out.extend(body);
+        out.extend(&jpeg[2..]);
+        out
+    }
+
+    /// An EXIF block with `orientation`, big-endian.
+    fn exif(orientation: u8) -> Vec<u8> {
+        let mut body = b"Exif\0\0MM\0*\0\0\0\x08\0\x01\x01\x12\0\x03\0\0\0\x01\0".to_vec();
+        body.extend([orientation, 0, 0, 0, 0, 0, 0]);
+        body
+    }
+
+    #[test]
+    fn a_jpeg_keeps_its_orientation_and_a_profile_of_its_colours() {
+        let jpeg = encoded(rgb(4, 2), ImageFormat::Jpeg);
+        let image = load(&with_segment(&jpeg, 0xE1, &exif(6)), &Limits::default()).unwrap();
+        assert_eq!(image.orientation, Orientation::Rotate90);
+        assert_eq!(image.width, 4);
+
+        let mut profile = vec![0u8; 128];
+        profile[16..20].copy_from_slice(b"RGB ");
+        let chunk = |profile: &[u8]| {
+            let mut body = b"ICC_PROFILE\0\x01\x01".to_vec();
+            body.extend(profile);
+            body
+        };
+        let image = load(
+            &with_segment(&jpeg, 0xE2, &chunk(&profile)),
+            &Limits::default(),
+        )
+        .unwrap();
+        assert_eq!(image.icc.as_deref(), Some(&profile[..]));
+        let doc = kira();
+        let mut store = RevisionStore::new(&doc);
+        store.begin().unwrap();
+        let object = image_xobject(&doc, &mut store, &image).unwrap();
+        let Some(Value::Encoded { dict, .. }) = store.object(&doc, object).unwrap() else {
+            panic!("not a passed-through stream");
+        };
+        assert!(matches!(
+            entry(&dict, b"ColorSpace"),
+            Some(Value::Array(space)) if space[0] == Value::Name(b"ICCBased".to_vec())
+        ));
+
+        // One that names other colours is left out.
+        profile[16..20].copy_from_slice(b"CMYK");
+        let image = load(
+            &with_segment(&jpeg, 0xE2, &chunk(&profile)),
+            &Limits::default(),
+        )
+        .unwrap();
+        assert_eq!(image.icc, None);
+    }
+
+    #[test]
+    fn a_turned_image_fits_its_page_as_it_shows() {
+        let image = Image {
+            width: 200,
+            height: 100,
+            colour: Colour::Gray,
+            pixels: Pixels::Samples(vec![0; 20_000]),
+            alpha: None,
+            orientation: Orientation::Rotate90,
+            icc: None,
+        };
+        // Shown 100 by 200, so it grows to the page's height; the stored top row runs down the
+        // right side.
+        assert_eq!(
+            placement(&image, Paper::Letter),
+            "q 0.0000 -792.0000 396.0000 0.0000 108.0000 792.0000 cm /Im0 Do Q\n"
+        );
+        let turned = Image {
+            orientation: Orientation::Rotate270,
+            ..image.clone()
+        };
+        assert_eq!(
+            placement(&turned, Paper::Letter),
+            "q 0.0000 792.0000 -396.0000 0.0000 504.0000 0.0000 cm /Im0 Do Q\n"
+        );
+    }
+
     #[test]
     fn a_page_has_its_paper_and_the_image_fits_in_the_middle() {
         let wide = Image {
@@ -680,10 +846,12 @@ mod tests {
             colour: Colour::Gray,
             pixels: Pixels::Samples(vec![0; 20_000]),
             alpha: None,
+            orientation: Orientation::NoTransforms,
+            icc: None,
         };
         assert_eq!(
             placement(&wide, Paper::Letter),
-            "q 612.0000 0 0 306.0000 0.0000 243.0000 cm /Im0 Do Q\n"
+            "q 612.0000 0.0000 0.0000 306.0000 0.0000 243.0000 cm /Im0 Do Q\n"
         );
         let tall = Image {
             width: 1,
@@ -694,7 +862,7 @@ mod tests {
         // Small images grow to fit too.
         assert_eq!(
             placement(&tall, Paper::Letter),
-            "q 396.0000 0 0 792.0000 108.0000 0.0000 cm /Im0 Do Q\n"
+            "q 396.0000 0.0000 0.0000 792.0000 108.0000 0.0000 cm /Im0 Do Q\n"
         );
 
         let doc = kira();

@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-148 entries: 125 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is.
+149 entries: 126 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -220,6 +220,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G156](#g156) | conflict | M4 | Settings: fonts | a11-1d's sample gives Plex Sans Arabic a TR chip it does not cover | Decided |
 | [G157](#g157) | ambiguity | M4 | Command palette | a11-2 folds Turkish case; the document's own text in another UI language needs it too | Decided |
 | [G158](#g158) | conflict | M4 | Fill & Sign: typed signature | Homemade Apple has no İ Ğ ğ Ş ş, though the inventory read the design as saying every style covers them | Decided |
+| [G159](#g159) | conflict | M4 | Organize: combine | a6-3's "Keep form fields and signatures" says signatures travel, and question 6 of the M4 plan removes them | Decided |
 
 ## Entries
 
@@ -2180,3 +2181,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The font ships unchanged. a5-3's note decides the tile: a style that cannot draw every letter of the typed name does not show for that name. W3 builds it from the font's own coverage; the tile is never drawn with a fallback glyph.
 - **Status:** Decided.
 - **Evidence:** `tools/fonts/README.md` ("Turkish"); `design/05a Fill.dc.html` line 106 (a5-3's note).
+
+<a id="g159"></a>
+
+### G159 · Combine: "Keep form fields and signatures"
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: combine
+- **Artboards:** `a6-3`
+- **Gap or conflict:** a6-3's checkbox "Keep form fields and signatures" says "Signatures from the original files will show as no longer covering the whole document". The owner's answer to question 6 of the M4 plan removes carried signatures, since they would read as signed but invalid.
+- **Decision:** The answer wins. The checkbox keeps form fields, and an empty signature field stays as a field; a signature's value and its appearance do not travel, and a row whose input is signed says so before anything is written (`CombineFileInfo.signed`). The label and note change with the Combine tab (commit 11 of the M4 plan).
+- **Status:** Decided.
+- **Evidence:** `design/06 Organize.dc.html` line 79; [PROGRESS.md](PROGRESS.md#questions-for-the-owner-with-the-m4-plan), question 6.

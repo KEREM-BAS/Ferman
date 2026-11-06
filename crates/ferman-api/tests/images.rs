@@ -89,4 +89,21 @@ fn pdfium_draws_each_kind_of_image_page() {
     assert!(grid[0].iter().all(|&value| value < 30), "{grid:?}");
     assert!(grid[1].iter().all(|&value| value > 150), "{grid:?}");
     assert!(grid[2].iter().all(|&value| value > 240), "{grid:?}");
+
+    // A phone's picture: the same photo, stored sideways with EXIF saying to turn it a quarter
+    // clockwise, shows upright. What it has at its stored top left shows at the page's top right.
+    let photo = std::fs::read(root().join("tests/corpus/generated/combine-photo.jpg")).unwrap();
+    let mut turned = photo[..2].to_vec();
+    turned.extend_from_slice(
+        b"\xFF\xE1\0\x22Exif\0\0MM\0*\0\0\0\x08\0\x01\x01\x12\0\x03\0\0\0\x01\0\x06\0\0\0\0\0\0",
+    );
+    turned.extend_from_slice(&photo[2..]);
+    // 640 by 480 on Letter: stored it fills the width, turned it fills the height.
+    let stored = colours(&render, with_image_page(&photo), &[(8, 174), (306, 80)]);
+    let shown = colours(&render, with_image_page(&turned), &[(595, 8), (3, 396)]);
+    assert_eq!(stored[1], [255, 255, 255]);
+    assert_eq!(shown[1], [255, 255, 255]);
+    for (a, b) in stored[0].iter().zip(&shown[0]) {
+        assert!(a.abs_diff(*b) < 48, "{stored:?} {shown:?}");
+    }
 }
