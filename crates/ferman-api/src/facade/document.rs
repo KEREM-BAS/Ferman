@@ -57,8 +57,7 @@ pub struct OpenedDocument {
     /// Optional content groups (layers), in the order the document gives them.
     pub layers: Vec<Layer>,
     /// Whether [`Engine::show_layers`] can show and hide them: it has layers, was not repaired
-    /// (its rebuilt table cannot place objects inside object streams) and did not need a
-    /// password (PDFium needs it again to reload, and the engine does not keep it, Q22).
+    /// (its rebuilt table cannot place objects inside object streams).
     pub layers_switchable: bool,
     /// Signature fields, shown neutrally until checking arrives (G31).
     pub signatures: Vec<Signature>,
@@ -130,9 +129,8 @@ pub(super) struct Model {
     pub(super) revised: Mutex<Revised>,
     /// The file the document saves to, until Save as names another (`edit`).
     pub(super) path: PathBuf,
-    /// The serial of the last revision sent to the render thread, so an older one never follows
-    /// a newer one (`edit`).
-    pub(super) rendered: Mutex<u64>,
+    /// What the render thread last got (`edit`).
+    pub(super) rendered: Mutex<Rendered>,
     /// The file at `path` as it was opened, which a save checks (`edit`); for a restored
     /// document, as its recovery manifest recorded it.
     pub(super) stamp: FileStamp,
@@ -140,6 +138,16 @@ pub(super) struct Model {
     pub(super) recovery: Mutex<Option<DocumentRecovery>>,
     /// The structure the app last heard of; `None` for the open result's.
     pub(super) shown: Mutex<Option<RevisedStructure>>,
+}
+
+/// What the render thread last got.
+#[derive(Debug)]
+pub(super) struct Rendered {
+    /// The serial of the last reload, so an older one never follows a newer one.
+    pub(super) serial: u64,
+    /// The revisions it shows, which the next reload compares against to find the pages that
+    /// changed; `None` when the next reload is for every page.
+    pub(super) store: Option<Arc<RevisionStore>>,
 }
 
 /// The document as the actor last published it: a snapshot of its committed revisions that
@@ -154,6 +162,9 @@ pub(super) struct Revised {
     pub(super) blocks: HashMap<u64, Arc<ferman_text::PageText>>,
     /// The text of each page once read, by page handle, for searches after the first.
     pub(super) texts: HashMap<u64, Arc<PageText>>,
+    /// The layers [`Engine::show_layers`] last showed, which every reload keeps; `None` until it
+    /// is first called.
+    pub(super) layers: Option<Vec<bool>>,
 }
 
 impl Model {
@@ -173,16 +184,21 @@ impl Model {
             .zip(first)
             .into_iter()
             .collect();
+        let store = Arc::new(RevisionStore::new(&document));
         Self {
             read_only,
             revised: Mutex::new(Revised {
-                store: Arc::new(RevisionStore::new(&document)),
+                store: Arc::clone(&store),
                 generation: 0,
                 blocks: HashMap::new(),
                 texts,
+                layers: None,
             }),
             path,
-            rendered: Mutex::new(0),
+            rendered: Mutex::new(Rendered {
+                serial: 0,
+                store: Some(store),
+            }),
             stamp: document.source().stamp(),
             recovery: Mutex::new(None),
             shown: Mutex::new(None),
@@ -296,8 +312,9 @@ impl Engine {
     ///
     /// An encrypted document opened without its password fails with
     /// [`ErrorKind::PasswordRequired`](super::ErrorKind::PasswordRequired); the UI asks for it and
-    /// opens again (a1-8). The password is wiped when the open ends; PDFium keeps its own copy
-    /// while the document is open (docs/QUESTIONS.md, Q22).
+    /// opens again (a1-8). The render thread keeps a copy to reload the document, wiped when the
+    /// document closes, and PDFium keeps its own while the document is open (docs/QUESTIONS.md,
+    /// Q22).
     ///
     /// # Errors
     ///
@@ -365,11 +382,7 @@ impl Engine {
                     }
                 })
                 .collect();
-            let layers_switchable = !structure.layers.is_empty()
-                && model.repair().is_none()
-                && !model
-                    .encryption()
-                    .is_some_and(|encryption| encryption.user_password_required);
+            let layers_switchable = !structure.layers.is_empty() && model.repair().is_none();
             let mut opened = OpenedDocument {
                 id: rendered.id,
                 read_only,
@@ -436,27 +449,32 @@ impl Engine {
         visible: Vec<bool>,
     ) -> Result<u64, ApiError> {
         guard_async(async move {
-            let appendix = {
+            {
                 let models = self.models()?;
                 let model = models
                     .get(&document)
                     .filter(|model| model.layers_switchable)
-                    // shortcut: the appendix is built from the file as opened, so it would hide
-                    // the edits; build it over the revisions when the Layers tab needs both.
-                    .filter(|model| model.revised().store.current() == 0)
-                    .map(|model| &model.document)
                     .ok_or_else(|| {
                         ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
                             .with_details("no layers to switch")
                     })?;
-                if visible.len() != model.structure().layers.len() {
+                if visible.len() != model.document.structure().layers.len() {
                     return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                         .with_details("one visibility per layer"));
                 }
-                // A few kilobytes of catalog and table, so it is built here.
-                model.layer_appendix(&visible)?
-            };
-            Ok(self.render()?.reload(document, Arc::from(appendix)).await?)
+            }
+            // The actor builds it over the revisions; a commit that reached the render thread
+            // first has it build again, so the reload shown is the newest.
+            loop {
+                self.render()?;
+                let shown = visible.clone();
+                let reload = self
+                    .ask(document, move |session| session.show_layers(shown))
+                    .await?;
+                if let Some((key, _)) = self.send_reload(document, reload, true).await {
+                    return Ok(key?);
+                }
+            }
         })
         .await
     }

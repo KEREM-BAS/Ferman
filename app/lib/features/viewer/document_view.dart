@@ -108,10 +108,10 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   final Map<RenderItem, ui.Image> _images = {};
   int _bytes = 0;
 
-  /// Bitmaps drawn before the layers last changed, and the render key of
-  /// that change.
+  /// Bitmaps drawn before their page last changed, and the render key each
+  /// page must have now.
   final Set<RenderItem> _stale = {};
-  int _renderKey = 0;
+  final CurrentKeys _keys = CurrentKeys();
 
   /// Pages that failed to render, until Try again.
   final Set<int> _failed = {};
@@ -163,12 +163,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
-    _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
+    _keys.raise(ref.read(layerVisibilityProvider)?.renderKey ?? 0);
     ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
       _,
       key,
     ) {
-      _renderKey = key;
+      _keys.raise(key);
       _stale.addAll(_images.keys);
       _request(force: true);
     });
@@ -179,8 +179,13 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       key,
     ) {
       if (key == null) return;
-      _renderKey = math.max(_renderKey, key);
-      _stale.addAll(_images.keys);
+      final pages = ref.read(documentEditorProvider).changedPages;
+      _keys.raise(key, pages: pages);
+      _stale.addAll(
+        _images.keys.where(
+          (item) => pages == null || pages.contains(item.page),
+        ),
+      );
       _blocks.clear();
       _asked.clear();
       _request(force: true);
@@ -261,9 +266,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     switch (update) {
       case FailedItem(:final item):
         setState(() => _failed.add(item.page));
-      // A bitmap from before the layers last changed is not shown again.
+      // A bitmap from before its page last changed is not shown again.
       case RenderedItem(:final item, :final renderKey)
-          when renderKey >= _renderKey:
+          when _keys.isCurrent(item.page, renderKey):
         ui.decodeImageFromPixels(
           update.pixels,
           update.width,
@@ -282,8 +287,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
               }
               _images[item] = image;
               _bytes += _sizeOf(image);
-              // The layers may have changed while it decoded.
-              if (renderKey < _renderKey) {
+              // The page may have changed while it decoded.
+              if (!_keys.isCurrent(item.page, renderKey)) {
                 _stale.add(item);
               } else {
                 _stale.remove(item);
@@ -294,7 +299,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
           rowBytes: update.stride,
         );
       case RenderedItem():
-      // From before the layers last changed: asked for again already.
+      // From before its page last changed: asked for again already.
     }
   }
 

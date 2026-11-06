@@ -13,6 +13,7 @@ use std::sync::OnceLock;
 
 use ferman_api::facade::{
     Engine, EngineConfig, ErrorKind, MessageKey, PageBlocks, Password, PdfiumLibrary, block_on,
+    compare,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -200,6 +201,42 @@ fn a_damaged_document_is_not_editable() {
     assert_eq!(err.kind, ErrorKind::NotEditable);
     assert_eq!(err.message_key, MessageKey::EDIT_DAMAGED);
     block_on(engine().close(damaged.id)).unwrap();
+}
+
+/// A document opened with its password shows an edit on the canvas after the commit (Q22).
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_password_document_shows_its_edit_after_the_commit() {
+    let user = Some(Password::new("Eylül2026maaşı".to_owned()));
+    let opened = block_on(engine().open(corpus("payslip-aes256"), user)).unwrap();
+    let doc = opened.id;
+    block_on(engine().unlock_owner(doc, Password::new("bordro-yonetim-2026".to_owned()))).unwrap();
+    let size = opened.pages[0].size;
+    let before = block_on(engine().render_page(doc, 0, size, 96)).unwrap();
+
+    let page = block_on(engine().text_blocks(doc, 0)).unwrap();
+    let block = page
+        .blocks
+        .iter()
+        .find(|block| block.lines.iter().any(|line| line.text.contains("0187")))
+        .unwrap();
+    let text = block
+        .lines
+        .iter()
+        .map(|line| line.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    let tx = block_on(engine().begin_edit(doc, 0, block.id)).unwrap();
+    block_on(engine().apply(tx, text.replace("0187", "0188"))).unwrap();
+    let committed = block_on(engine().commit(tx, "Edited text".to_owned())).unwrap();
+    assert!(committed.render_key.is_some(), "PDFium reloaded");
+
+    let after = block_on(engine().render_page(doc, 0, size, 96)).unwrap();
+    assert!(
+        compare(&before, &after, None, 0).is_some_and(|diff| diff.differing > 0),
+        "the canvas shows the edit"
+    );
+    block_on(engine().close(doc)).unwrap();
 }
 
 /// E24 (ROADMAP §7): an encrypted document edited after the owner password unlocked it, saved

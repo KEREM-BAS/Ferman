@@ -211,8 +211,7 @@ pub struct OpenedDocument {
     pub attachments: Vec<Attachment>,
     /// Layers, in the order the document gives them.
     pub layers: Vec<Layer>,
-    /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
-    /// needed a password (Q22).
+    /// Whether [`show_layers`] can show and hide them: not for a repaired document.
     pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
@@ -1034,8 +1033,11 @@ pub struct DocumentStructure {
 pub struct RevisionInfo {
     /// How many steps apply: 0 is the document as opened.
     pub current: u32,
-    /// The pages' new render key when the render thread reloaded the document.
+    /// The new render key of `changed_pages` when the render thread reloaded the document.
     pub render_key: Option<u64>,
+    /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+    /// means every page.
+    pub changed_pages: Option<Vec<u32>>,
     /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
     pub substitutions: Vec<FontSubstitution>,
     /// The pages, outline and attachments, when this changed them.
@@ -2431,6 +2433,7 @@ fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
     RevisionInfo {
         current: info.current,
         render_key: info.render_key,
+        changed_pages: info.changed_pages,
         substitutions: info
             .substitutions
             .into_iter()

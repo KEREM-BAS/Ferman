@@ -1728,6 +1728,7 @@ class RevisionInfo {
   const new({
     required this.current,
     this.renderKey,
+    this.changedPages,
     this.substitutions = const [],
     this.structure,
   });
@@ -1735,10 +1736,14 @@ class RevisionInfo {
   /// How many steps of the history apply: 0 is the document as opened.
   final int current;
 
-  /// Every page's new render key when the engine reloaded the document;
-  /// bitmaps with an older one show the revision before. Null when nothing
-  /// shown changed.
+  /// The new render key of [changedPages] when the engine reloaded the
+  /// document; their bitmaps with an older one show the revision before. Null
+  /// when nothing shown changed.
   final int? renderKey;
+
+  /// The pages that got [renderKey], by index; the others keep their key and
+  /// bitmaps. Null means every page.
+  final List<int>? changedPages;
 
   /// The substitutions a commit made, for the "Font substituted" toast
   /// (a11-6); empty after anything else.

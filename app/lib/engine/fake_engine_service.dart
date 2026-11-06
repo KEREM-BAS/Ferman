@@ -178,6 +178,9 @@ class FakeEngineService implements EngineService {
   final Map<int, int> _renderKeys = {};
   int _lastRenderKey = 0;
 
+  /// Each document's pages with a key of their own, newer than the document's.
+  final Map<int, Map<int, int>> _pageKeys = {};
+
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
 
@@ -367,6 +370,7 @@ class FakeEngineService implements EngineService {
   @override
   Future<int> showLayers(int document, List<bool> visible) async {
     layerRequests.add(visible);
+    _pageKeys.remove(document);
     return _renderKeys[document] = ++_lastRenderKey;
   }
 
@@ -746,7 +750,10 @@ class FakeEngineService implements EngineService {
   /// what a change to the document's structure hands the app.
   DocumentStructure? nextStructure;
 
-  /// A new render key for every page of [document], as a reload gives.
+  /// The pages the next commit, undo or redo reaches; null means every page.
+  List<int>? nextChangedPages;
+
+  /// A new render key for [nextChangedPages] of [document], as a reload gives.
   RevisionInfo _reloaded(int document) {
     final structure = nextStructure;
     nextStructure = null;
@@ -757,9 +764,22 @@ class FakeEngineService implements EngineService {
         }
       }
     }
+    final key = ++_lastRenderKey;
+    final changed = nextChangedPages;
+    nextChangedPages = null;
+    if (changed == null) {
+      _renderKeys[document] = key;
+      _pageKeys.remove(document);
+    } else {
+      final pages = _pageKeys[document] ??= {};
+      for (final page in changed) {
+        pages[page] = key;
+      }
+    }
     return RevisionInfo(
       current: _history(document).current,
-      renderKey: _renderKeys[document] = ++_lastRenderKey,
+      renderKey: key,
+      changedPages: changed,
       structure: structure,
     );
   }
@@ -851,6 +871,7 @@ class FakeEngineService implements EngineService {
     return RevisionInfo(
       current: reloaded.current,
       renderKey: reloaded.renderKey,
+      changedPages: reloaded.changedPages,
       substitutions: told,
       structure: reloaded.structure,
     );
@@ -1482,7 +1503,7 @@ class FakeEngineService implements EngineService {
         RenderedItem(
           item: item,
           generation: generation,
-          renderKey: _renderKeys[owner] ?? 0,
+          renderKey: _pageKeys[owner]?[item.page] ?? _renderKeys[owner] ?? 0,
           x: item is TileItem ? item.column * 512 : 0,
           y: item is TileItem ? item.row * 512 : 0,
           width: width,

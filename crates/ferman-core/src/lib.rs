@@ -51,8 +51,9 @@
 //!   (ADR 0010).
 //! - `content` (private): the content-stream lexer, operators with their operands and byte spans,
 //!   read leniently, with inline images (§6.1).
-//! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
-//!   renders and nobody saves: [`Document::layer_appendix`] shows and hides layers (ADR 0009).
+//! - `appendix` (private): render-only bytes after a document's that PDFium renders and nobody
+//!   saves: [`revision::RevisionStore::render_appendix`] gives the revisions with layers shown and
+//!   hidden (ADR 0009), and `pages_changed_since` the pages a new one draws differently.
 //!
 //! # Planned modules
 //!

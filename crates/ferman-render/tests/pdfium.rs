@@ -609,6 +609,45 @@ fn cached_bitmaps_are_the_rendered_ones() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_reload_gives_only_the_named_pages_a_new_key() {
+    let _serial = serial();
+    let render = start(config());
+    let document = block_on(render.open_document(corpus("kira-tr"), None)).unwrap();
+    let mut view = View::open(&render, document.id);
+    let items = [
+        Item::Thumbnail(ThumbnailRequest { page: 0, size: 180 }),
+        Item::Thumbnail(ThumbnailRequest { page: 1, size: 180 }),
+    ];
+    view.render(&render, &items);
+    let key = block_on(render.reload(document.id, Arc::from([]), Some(vec![1]))).unwrap();
+    let after = view.render(&render, &items);
+    assert_eq!((after[0].render_key, after[1].render_key), (0, key));
+    let every = block_on(render.reload(document.id, Arc::from([]), None)).unwrap();
+    assert!(every > key);
+    let after = view.render(&render, &items);
+    assert_eq!((after[0].render_key, after[1].render_key), (every, every));
+    block_on(render.close_document(document.id)).unwrap();
+}
+
+/// The render thread keeps the document's password for a reload, until the document closes.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_document_reloads_with_its_password_until_it_closes() {
+    let _serial = serial();
+    let render = start(config());
+    let password = Password::new("bordro2026".to_owned());
+    let document =
+        block_on(render.open_document(corpus("payslip-aes128"), Some(password))).unwrap();
+    block_on(render.reload(document.id, Arc::from([]), None)).unwrap();
+    block_on(render.close_document(document.id)).unwrap();
+    assert!(matches!(
+        block_on(render.reload(document.id, Arc::from([]), None)),
+        Err(RenderError::NotFound { .. })
+    ));
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn closing_a_document_ends_its_views() {
     let _serial = serial();
     let render = start(config());

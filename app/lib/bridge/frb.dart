@@ -2211,8 +2211,7 @@ class OpenedDocument {
   /// Layers, in the order the document gives them.
   final List<Layer> layers;
 
-  /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
-  /// needed a password (Q22).
+  /// Whether [`show_layers`] can show and hide them: not for a repaired document.
   final bool layersSwitchable;
 
   /// Signature fields.
@@ -2835,8 +2834,12 @@ class RevisionInfo {
   /// How many steps apply: 0 is the document as opened.
   final int current;
 
-  /// The pages' new render key when the render thread reloaded the document.
+  /// The new render key of `changed_pages` when the render thread reloaded the document.
   final BigInt? renderKey;
+
+  /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+  /// means every page.
+  final Uint32List? changedPages;
 
   /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
   final List<FontSubstitution> substitutions;
@@ -2847,6 +2850,7 @@ class RevisionInfo {
   const RevisionInfo({
     required this.current,
     this.renderKey,
+    this.changedPages,
     required this.substitutions,
     this.structure,
   });
@@ -2855,6 +2859,7 @@ class RevisionInfo {
   int get hashCode =>
       current.hashCode ^
       renderKey.hashCode ^
+      changedPages.hashCode ^
       substitutions.hashCode ^
       structure.hashCode;
 
@@ -2865,6 +2870,7 @@ class RevisionInfo {
           runtimeType == other.runtimeType &&
           current == other.current &&
           renderKey == other.renderKey &&
+          changedPages == other.changedPages &&
           substitutions == other.substitutions &&
           structure == other.structure;
 }

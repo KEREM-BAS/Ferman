@@ -28,7 +28,7 @@
 // Section: imports
 
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -3150,6 +3150,17 @@ impl SseDecode for Option<crate::frb::ViewItem> {
     }
 }
 
+impl SseDecode for Option<Vec<u32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<u32>>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for crate::frb::OutlineEntry {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3406,11 +3417,13 @@ impl SseDecode for crate::frb::RevisionInfo {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_current = <u32>::sse_decode(deserializer);
         let mut var_renderKey = <Option<u64>>::sse_decode(deserializer);
+        let mut var_changedPages = <Option<Vec<u32>>>::sse_decode(deserializer);
         let mut var_substitutions = <Vec<crate::frb::FontSubstitution>>::sse_decode(deserializer);
         let mut var_structure = <Option<crate::frb::DocumentStructure>>::sse_decode(deserializer);
         return crate::frb::RevisionInfo {
             current: var_current,
             render_key: var_renderKey,
+            changed_pages: var_changedPages,
             substitutions: var_substitutions,
             structure: var_structure,
         };
@@ -4835,6 +4848,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::RevisionInfo {
         [
             self.current.into_into_dart().into_dart(),
             self.render_key.into_into_dart().into_dart(),
+            self.changed_pages.into_into_dart().into_dart(),
             self.substitutions.into_into_dart().into_dart(),
             self.structure.into_into_dart().into_dart(),
         ]
@@ -6193,6 +6207,16 @@ impl SseEncode for Option<crate::frb::ViewItem> {
     }
 }
 
+impl SseEncode for Option<Vec<u32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<u32>>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for crate::frb::OutlineEntry {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6403,6 +6427,7 @@ impl SseEncode for crate::frb::RevisionInfo {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u32>::sse_encode(self.current, serializer);
         <Option<u64>>::sse_encode(self.render_key, serializer);
+        <Option<Vec<u32>>>::sse_encode(self.changed_pages, serializer);
         <Vec<crate::frb::FontSubstitution>>::sse_encode(self.substitutions, serializer);
         <Option<crate::frb::DocumentStructure>>::sse_encode(self.structure, serializer);
     }
@@ -6634,7 +6659,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
@@ -7592,6 +7617,7 @@ mod io {
             crate::frb::RevisionInfo {
                 current: self.current.cst_decode(),
                 render_key: self.render_key.cst_decode(),
+                changed_pages: self.changed_pages.cst_decode(),
                 substitutions: self.substitutions.cst_decode(),
                 structure: self.structure.cst_decode(),
             }
@@ -8370,6 +8396,7 @@ mod io {
             Self {
                 current: Default::default(),
                 render_key: core::ptr::null_mut(),
+                changed_pages: core::ptr::null_mut(),
                 substitutions: core::ptr::null_mut(),
                 structure: core::ptr::null_mut(),
             }
@@ -8545,8 +8572,8 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_wire__crate__frb__api_version(
-    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__api_version()
+    -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__frb__api_version_impl()
     }
 
@@ -9025,24 +9052,24 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_block_style_info(
-    ) -> *mut wire_cst_block_style_info {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_block_style_info()
+    -> *mut wire_cst_block_style_info {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_block_style_info::new_with_null_ptr(),
         )
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_document_structure(
-    ) -> *mut wire_cst_document_structure {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_document_structure()
+    -> *mut wire_cst_document_structure {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_document_structure::new_with_null_ptr(),
         )
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_extend_blocked(
-    ) -> *mut wire_cst_extend_blocked {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_extend_blocked()
+    -> *mut wire_cst_extend_blocked {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_extend_blocked::new_with_null_ptr(),
         )
@@ -9064,16 +9091,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_font_settings(
-    ) -> *mut wire_cst_font_settings {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_font_settings()
+    -> *mut wire_cst_font_settings {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_font_settings::new_with_null_ptr(),
         )
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_glyphs(
-    ) -> *mut wire_cst_missing_glyphs {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_glyphs()
+    -> *mut wire_cst_missing_glyphs {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_missing_glyphs::new_with_null_ptr(),
         )
@@ -9092,8 +9119,8 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_overflow_plan(
-    ) -> *mut wire_cst_overflow_plan {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_overflow_plan()
+    -> *mut wire_cst_overflow_plan {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_overflow_plan::new_with_null_ptr(),
         )
@@ -9122,8 +9149,8 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_search_options(
-    ) -> *mut wire_cst_search_options {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_search_options()
+    -> *mut wire_cst_search_options {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_search_options::new_with_null_ptr(),
         )
@@ -9135,8 +9162,8 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_text_position(
-    ) -> *mut wire_cst_text_position {
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_text_position()
+    -> *mut wire_cst_text_position {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_text_position::new_with_null_ptr(),
         )
@@ -10014,6 +10041,7 @@ mod io {
     pub struct wire_cst_revision_info {
         current: u32,
         render_key: *mut u64,
+        changed_pages: *mut wire_cst_list_prim_u_32_strict,
         substitutions: *mut wire_cst_list_font_substitution,
         structure: *mut wire_cst_document_structure,
     }
@@ -10128,7 +10156,7 @@ mod web {
     };
     use flutter_rust_bridge::for_generated::wasm_bindgen;
     use flutter_rust_bridge::for_generated::wasm_bindgen::prelude::*;
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
@@ -11110,6 +11138,12 @@ mod web {
             self.map(CstDecode::cst_decode)
         }
     }
+    impl CstDecode<Option<Vec<u32>>> for Option<Box<[u32]>> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Option<Vec<u32>> {
+            self.map(CstDecode::cst_decode)
+        }
+    }
     impl CstDecode<crate::frb::OutlineEntry>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -11373,15 +11407,16 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                4,
-                "Expected 4 elements, got {}",
+                5,
+                "Expected 5 elements, got {}",
                 self_.length()
             );
             crate::frb::RevisionInfo {
                 current: self_.get(0).cst_decode(),
                 render_key: self_.get(1).cst_decode(),
-                substitutions: self_.get(2).cst_decode(),
-                structure: self_.get(3).cst_decode(),
+                changed_pages: self_.get(2).cst_decode(),
+                substitutions: self_.get(3).cst_decode(),
+                structure: self_.get(4).cst_decode(),
             }
         }
     }
@@ -11895,8 +11930,8 @@ mod web {
     }
 
     #[wasm_bindgen]
-    pub fn wire__crate__frb__api_version(
-    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    pub fn wire__crate__frb__api_version()
+    -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__frb__api_version_impl()
     }
 

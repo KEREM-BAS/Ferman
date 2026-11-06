@@ -130,6 +130,7 @@ final class EditorState {
     this.active,
     this.history = const EditHistory(),
     this.renderKey,
+    this.changedPages,
     this.preview,
     this.settled = false,
     this.hidden = const [],
@@ -211,9 +212,12 @@ final class EditorState {
   /// The document's committed steps.
   final EditHistory history;
 
-  /// Every page's render key after the last commit, undo or redo; null
-  /// before any. Bitmaps with an older one show an older revision.
+  /// The render key of [changedPages] after the last commit, undo or redo;
+  /// null before any. Their bitmaps with an older one show an older revision.
   final int? renderKey;
+
+  /// The pages that got [renderKey]; null means every page.
+  final List<int>? changedPages;
 
   /// Whether ⌘Z or Ctrl+Z has something to undo: a step, or the typing
   /// open in a block, which commits first.
@@ -229,6 +233,7 @@ final class EditorState {
     bool clearActive = false,
     EditHistory? history,
     int? renderKey,
+    List<int>? changedPages,
     EditPreview? preview,
     bool clearPreview = false,
     bool? settled,
@@ -245,6 +250,7 @@ final class EditorState {
     active: clearActive ? null : active ?? this.active,
     history: history ?? this.history,
     renderKey: renderKey ?? this.renderKey,
+    changedPages: renderKey != null ? changedPages : this.changedPages,
     preview: clearPreview ? null : preview ?? this.preview,
     settled: settled ?? (!clearPreview && this.settled),
     hidden: hidden ?? this.hidden,
@@ -1338,6 +1344,7 @@ class DocumentEditor extends _$DocumentEditor {
       state = state.copy(
         history: history,
         renderKey: info?.renderKey,
+        changedPages: info?.changedPages,
         hidden: _hidden(history),
         edited: _edited(history),
       );

@@ -144,6 +144,7 @@ enum Message {
     Reload {
         document: DocumentId,
         appendix: Arc<[u8]>,
+        pages: Option<Vec<u32>>,
         reply: oneshot::Sender<Result<u64, RenderError>>,
     },
     PageFonts {
@@ -215,7 +216,7 @@ impl RenderThread {
 
     /// Loads a document into PDFium from `bytes`, which it reads in place for as long as the
     /// document is open, and reads its page sizes. An encrypted document needs `password`, which
-    /// is wiped from Ferman's memory once PDFium has it; what PDFium keeps is Q22.
+    /// the render thread keeps to reload the document, and wipes when it closes (Q22).
     ///
     /// # Errors
     ///
@@ -252,26 +253,29 @@ impl RenderThread {
         async move { flatten(reply?.await) }
     }
 
-    /// Loads `document` again from the bytes it was opened from with a render-only `appendix` after
-    /// them (ADR 0009), such as ferman-core's layer appendix, and swaps it in under the same id
-    /// and views. Every page gets a new render key, which the future returns: bitmaps with an
-    /// older key show the document as it was. An empty appendix goes back to the bytes alone.
+    /// Loads `document` again from the bytes it was opened from, with its password and a
+    /// render-only `appendix` after them (ADR 0009), such as ferman-core's revisions, and swaps it
+    /// in under the same id and views. `pages` get a new render key, which the future returns, and
+    /// lose their cached bitmaps: bitmaps with an older key show the document as it was. The
+    /// others keep their key and bitmaps. `None` means every page. An empty appendix goes back to
+    /// the bytes alone.
     ///
     /// # Errors
     ///
     /// The future resolves to [`RenderError::NotFound`] for a document that is not open,
-    /// [`RenderError::PasswordRequired`] for one that needed a password (the reload has none,
-    /// Q22), [`RenderError::Damaged`] when PDFium cannot read the result, and
+    /// [`RenderError::Damaged`] when PDFium cannot read the result, and
     /// [`RenderError::ThreadStopped`] if the thread is no longer running. The document stays as it
     /// was on an error.
     pub fn reload(
         &self,
         document: DocumentId,
         appendix: Arc<[u8]>,
+        pages: Option<Vec<u32>>,
     ) -> impl Future<Output = Result<u64, RenderError>> + Send + 'static {
         let reply = self.ask(|reply| Message::Reload {
             document,
             appendix,
+            pages,
             reply,
         });
         async move { flatten(reply?.await) }
@@ -482,7 +486,7 @@ impl<'p> State<'p> {
                 password,
                 reply,
             } => {
-                let opened = self.open(bytes, password.as_ref());
+                let opened = self.open(bytes, password);
                 if let Err(Ok(unclaimed)) = reply.send(opened) {
                     // Nobody will ever know its id, so nobody could close it.
                     self.close(unclaimed.id);
@@ -500,9 +504,10 @@ impl<'p> State<'p> {
             Message::Reload {
                 document,
                 appendix,
+                pages,
                 reply,
             } => {
-                let _ = reply.send(self.reload(document, appendix));
+                let _ = reply.send(self.reload(document, appendix, pages.as_deref()));
             }
             Message::PageFonts {
                 document,
@@ -552,7 +557,7 @@ impl<'p> State<'p> {
     fn open(
         &mut self,
         bytes: Arc<[u8]>,
-        password: Option<&Password>,
+        password: Option<Password>,
     ) -> Result<OpenedDocument, RenderError> {
         let pdfium = self.pdfium.ok_or_else(|| RenderError::PdfiumUnavailable {
             reason: match &self.status {
@@ -568,19 +573,28 @@ impl<'p> State<'p> {
         Ok(OpenedDocument { id, pages })
     }
 
-    fn reload(&mut self, document: DocumentId, appendix: Arc<[u8]>) -> Result<u64, RenderError> {
+    fn reload(
+        &mut self,
+        document: DocumentId,
+        appendix: Arc<[u8]>,
+        pages: Option<&[u32]>,
+    ) -> Result<u64, RenderError> {
+        let key = self.next_id();
         let (Some(pdfium), Some(loaded)) = (self.pdfium, self.documents.get(&document)) else {
             return Err(RenderError::NotFound { what: "document" });
         };
         let bytes = Arc::clone(loaded.bytes());
-        let mut reloaded = LoadedDocument::load(pdfium, bytes, appendix, None, self.loaded_pages)?;
-        let key = self.next_id();
-        reloaded.set_render_keys(key);
+        let password = loaded.password().cloned();
+        let mut reloaded =
+            LoadedDocument::load(pdfium, bytes, appendix, password, self.loaded_pages)?;
+        reloaded.set_render_keys(loaded, pages, key);
+        self.tiles
+            .keep_current(document, |page| reloaded.render_key(page));
+        self.thumbnails
+            .keep_current(document, |page| reloaded.render_key(page));
         // The old one's pages close first, then the document, in LoadedDocument's drop; its
-        // bitmaps cannot be asked for again.
+        // bitmaps of pages that changed cannot be asked for again.
         self.documents.insert(document, reloaded);
-        self.tiles.retain(|cached| cached.document != document);
-        self.thumbnails.retain(|cached| cached.document != document);
         Ok(key)
     }
 

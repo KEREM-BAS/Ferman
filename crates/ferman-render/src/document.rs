@@ -69,6 +69,8 @@ pub(crate) struct LoadedDocument<'p> {
     render_keys: Vec<u64>,
     /// The bytes it was opened from, without an appendix, for a reload.
     bytes: Arc<[u8]>,
+    /// The password it was opened with, for a reload: wiped when the document closes (Q22).
+    password: Option<Password>,
 }
 
 impl Drop for LoadedDocument<'_> {
@@ -84,10 +86,11 @@ impl<'p> LoadedDocument<'p> {
         pdfium: &'p Pdfium,
         bytes: Arc<[u8]>,
         appendix: Arc<[u8]>,
-        password: Option<&Password>,
+        password: Option<Password>,
         loaded_pages: NonZeroUsize,
     ) -> Result<Self, RenderError> {
-        let password = password
+        let text = password
+            .as_ref()
             .map(Password::as_str)
             .filter(|password| !password.is_empty());
         let reader = Appended {
@@ -96,8 +99,8 @@ impl<'p> LoadedDocument<'p> {
             position: 0,
         };
         let document = pdfium
-            .load_pdf_from_reader(reader, password)
-            .map_err(|err| open_error(err, password.is_some()))?;
+            .load_pdf_from_reader(reader, text)
+            .map_err(|err| open_error(err, text.is_some()))?;
         let pages = document.pages();
         let count = pages.len();
         let mut sizes = Vec::new();
@@ -122,6 +125,7 @@ impl<'p> LoadedDocument<'p> {
             sizes,
             render_keys,
             bytes,
+            password,
         })
     }
 
@@ -130,11 +134,25 @@ impl<'p> LoadedDocument<'p> {
         &self.bytes
     }
 
-    /// Gives every page the render key `key`.
-    // shortcut: every page gets a new key, also those that do not use the layer (ADR 0009 wants
-    // only those); find the users with the content interpreter of M3.
-    pub(crate) fn set_render_keys(&mut self, key: u64) {
-        self.render_keys.fill(key);
+    /// The password it was opened with.
+    pub(crate) fn password(&self) -> Option<&Password> {
+        self.password.as_ref()
+    }
+
+    /// Gives `pages` the render key `key`, and the others the keys they have in `previous`: their
+    /// bitmaps stay valid. Without `pages`, or with another number of pages, every page gets it.
+    pub(crate) fn set_render_keys(&mut self, previous: &Self, pages: Option<&[u32]>, key: u64) {
+        let Some(pages) = pages.filter(|_| self.sizes.len() == previous.sizes.len()) else {
+            self.render_keys.fill(key);
+            return;
+        };
+        self.render_keys.clone_from(&previous.render_keys);
+        for page in pages {
+            let index = usize::try_from(*page).ok();
+            if let Some(page) = index.and_then(|index| self.render_keys.get_mut(index)) {
+                *page = key;
+            }
+        }
     }
 
     /// The size of every page, in points as displayed.

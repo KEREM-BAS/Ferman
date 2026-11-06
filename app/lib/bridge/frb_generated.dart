@@ -2810,6 +2810,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_list_prim_u_32_strict(raw);
+  }
+
+  @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -3005,13 +3011,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   RevisionInfo dco_decode_revision_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return RevisionInfo(
       current: dco_decode_u_32(arr[0]),
       renderKey: dco_decode_opt_box_autoadd_u_64(arr[1]),
-      substitutions: dco_decode_list_font_substitution(arr[2]),
-      structure: dco_decode_opt_box_autoadd_document_structure(arr[3]),
+      changedPages: dco_decode_opt_list_prim_u_32_strict(arr[2]),
+      substitutions: dco_decode_list_font_substitution(arr[3]),
+      structure: dco_decode_opt_box_autoadd_document_structure(arr[4]),
     );
   }
 
@@ -4586,6 +4593,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  Uint32List? sse_decode_opt_list_prim_u_32_strict(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_prim_u_32_strict(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_title = sse_decode_String(deserializer);
@@ -4792,6 +4812,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_current = sse_decode_u_32(deserializer);
     var var_renderKey = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_changedPages = sse_decode_opt_list_prim_u_32_strict(deserializer);
     var var_substitutions = sse_decode_list_font_substitution(deserializer);
     var var_structure = sse_decode_opt_box_autoadd_document_structure(
       deserializer,
@@ -4799,6 +4820,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     return RevisionInfo(
       current: var_current,
       renderKey: var_renderKey,
+      changedPages: var_changedPages,
       substitutions: var_substitutions,
       structure: var_structure,
     );
@@ -6424,6 +6446,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_list_prim_u_32_strict(
+    Uint32List? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_prim_u_32_strict(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.title, serializer);
@@ -6575,6 +6610,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_32(self.current, serializer);
     sse_encode_opt_box_autoadd_u_64(self.renderKey, serializer);
+    sse_encode_opt_list_prim_u_32_strict(self.changedPages, serializer);
     sse_encode_list_font_substitution(self.substitutions, serializer);
     sse_encode_opt_box_autoadd_document_structure(self.structure, serializer);
   }

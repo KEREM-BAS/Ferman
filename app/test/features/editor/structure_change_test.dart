@@ -77,6 +77,33 @@ void main() {
     await pumps(tester);
   }
 
+  testWidgets('a commit on one page asks again only for that page', (
+    tester,
+  ) async {
+    await pump(tester);
+    await pumps(tester);
+    Set<RenderItem> asked() => {
+      for (final set in engine.requests)
+        for (final entry in set) entry.item,
+    };
+    final drawn = asked();
+    // Bitmaps decode outside the test's clock.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    expect(drawn.map((item) => item.page), containsAll(<int>[0, 1]));
+    engine.requests.clear();
+    engine.nextChangedPages = [1];
+    await editSecondPage(tester);
+    final again = asked().intersection(drawn);
+    expect(again, isNotEmpty);
+    expect(again.map((item) => item.page).toSet(), {
+      1,
+    }, reason: "page 0's bitmaps stay");
+    expect(containerOf(tester).read(documentEditorProvider).changedPages, [1]);
+  });
+
   testWidgets('a revision that changes the pages reaches the tab, the canvas '
       'and a running search, and a step keeps its page by handle', (
     tester,

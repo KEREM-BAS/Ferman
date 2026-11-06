@@ -22,7 +22,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 use md5::{Digest as _, Md5};
 use rc4::{Rc4, StreamCipher};
 use sha2::{Sha256, Sha384, Sha512};
-use zeroize::Zeroizing;
+use zeroize::{ZeroizeOnDrop, Zeroizing};
 
 use crate::limits::Limits;
 use crate::text_string;
@@ -80,6 +80,9 @@ impl Password {
         self.0.is_empty()
     }
 }
+
+// What a holder of a password relies on: dropping it wipes it.
+impl ZeroizeOnDrop for Password {}
 
 impl fmt::Debug for Password {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

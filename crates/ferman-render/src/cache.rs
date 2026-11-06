@@ -2,7 +2,8 @@
 //! least recently used first (docs/ARCHITECTURE.md §4.7).
 //!
 //! A key holds the page's render key, so a new revision of a page makes its old bitmaps
-//! unreachable; they age out. Closing a document drops its entries at once.
+//! unreachable. A reload drops those and keeps the bitmaps of pages that kept their key; closing a
+//! document drops its entries at once.
 
 use std::hash::Hash;
 
@@ -32,6 +33,15 @@ pub(crate) struct BitmapCache<K: Hash + Eq = BitmapKey> {
     entries: LruCache<K, Bitmap>,
     bytes: usize,
     cap: usize,
+}
+
+impl BitmapCache {
+    /// Drops `document`'s bitmaps whose page no longer has their render key.
+    pub(crate) fn keep_current(&mut self, document: DocumentId, key_of: impl Fn(u32) -> u64) {
+        self.retain(|cached| {
+            cached.document != document || cached.render_key == key_of(cached.item.page())
+        });
+    }
 }
 
 impl<K: Hash + Eq + Copy> BitmapCache<K> {
@@ -153,6 +163,24 @@ mod tests {
         cache.insert(1, bitmap(200, 2));
         assert_eq!(cache.bytes(), 200);
         assert_eq!(cache.get(&1).map(|b| b.pixels[0]), Some(2));
+    }
+
+    #[test]
+    fn a_reload_keeps_the_bitmaps_of_pages_that_kept_their_key() {
+        let key = |document, page, render_key| BitmapKey {
+            document: DocumentId(document),
+            render_key,
+            item: Item::Thumbnail(crate::ThumbnailRequest { page, size: 180 }),
+        };
+        let mut cache = BitmapCache::new(1000);
+        cache.insert(key(1, 0, 0), bitmap(10, 1));
+        cache.insert(key(1, 1, 0), bitmap(10, 2));
+        cache.insert(key(2, 1, 0), bitmap(10, 3));
+        cache.keep_current(DocumentId(1), |page| if page == 1 { 7 } else { 0 });
+        assert!(cache.get(&key(1, 0, 0)).is_some());
+        assert!(cache.get(&key(1, 1, 0)).is_none());
+        assert!(cache.get(&key(2, 1, 0)).is_some(), "another document's");
+        assert_eq!(cache.len(), 2);
     }
 
     #[test]

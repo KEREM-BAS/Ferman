@@ -843,6 +843,7 @@ class FrbEngineService implements EngineService {
         current: info.current,
         // A render key is a 64-bit value: wrapped, not clamped.
         renderKey: info.renderKey?.toSigned(64).toInt(),
+        changedPages: info.changedPages?.toList(),
         substitutions: [
           for (final substitution in info.substitutions)
             _substitution(substitution),

@@ -49,9 +49,9 @@
 //!
 //! Only `library`, `document` and `thread` name pdfium-render.
 //!
-//! [`RenderThread::reload`] loads a document again with a render-only appendix after its bytes
-//! (layer visibility since M2, ADR 0009) and gives every page a new render key. Planned: reloading
-//! a revised document with new keys only for the pages that changed (M3).
+//! [`RenderThread::reload`] loads a document again, with its password, and a render-only appendix
+//! after its bytes (its revisions and layer visibility, ADR 0009), and gives the pages that changed
+//! a new render key; the others keep their key and their cached bitmaps (since M4).
 #![forbid(unsafe_code)]
 
 mod cache;

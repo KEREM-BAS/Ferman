@@ -74,7 +74,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
   /// The pages whose bitmap was drawn before the layers last changed, and
   /// the render key of that change; each stays until its new one arrives.
   final Set<int> _stale = {};
-  int _renderKey = 0;
+  final CurrentKeys _keys = CurrentKeys();
 
   late final ScrollController _scroll;
 
@@ -82,12 +82,12 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
   void initState() {
     super.initState();
     _scroll = _rememberedScroll(ref, SidebarTab.pages);
-    _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
+    _keys.raise(ref.read(layerVisibilityProvider)?.renderKey ?? 0);
     ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
       _,
       key,
     ) {
-      _renderKey = key;
+      _keys.raise(key);
       _stale.addAll(_images.keys);
       _scheduleRequest();
     });
@@ -96,9 +96,12 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
       _,
       key,
     ) {
-      if (key == null || key <= _renderKey) return;
-      _renderKey = key;
-      _stale.addAll(_images.keys);
+      if (key == null) return;
+      final pages = ref.read(documentEditorProvider).changedPages;
+      _keys.raise(key, pages: pages);
+      _stale.addAll(
+        _images.keys.where((page) => pages == null || pages.contains(page)),
+      );
       _scheduleRequest();
     });
     unawaited(_open());
@@ -143,7 +146,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
       item: ThumbnailItem(:final page),
       :final renderKey,
     )) {
-      if (!_shown.contains(page) || renderKey < _renderKey) return;
+      if (!_shown.contains(page) || !_keys.isCurrent(page, renderKey)) return;
       ui.decodeImageFromPixels(
         update.pixels,
         update.width,
@@ -157,7 +160,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
           setState(() {
             _images[page]?.dispose();
             _images[page] = image;
-            if (renderKey < _renderKey) {
+            if (!_keys.isCurrent(page, renderKey)) {
               _stale.add(page);
             } else {
               _stale.remove(page);
@@ -694,7 +697,6 @@ class SidebarAttachments extends ConsumerWidget {
 
 /// The Layers tab (a2-3c): each layer as the document shows it by
 /// default, dimmed when hidden, with a lock when the document locks it.
-/// Showing and hiding come in W2's commit 11 (B111).
 class SidebarLayers extends ConsumerWidget {
   /// The layers of `viewerProvider`'s document.
   const new({super.key});

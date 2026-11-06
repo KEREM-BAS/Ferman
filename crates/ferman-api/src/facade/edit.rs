@@ -7,7 +7,7 @@
 //! transaction. After each commit, undo and redo it publishes the committed store in the model
 //! ([`Model::revised`]), which [`Engine::text_blocks`] lays out, and the engine hands the render
 //! thread the revised bytes (the incremental update the save would write), so PDFium reloads the
-//! document and every page gets a new render key.
+//! document and the pages the change reaches get a new render key.
 //!
 //! A change that is not a block's ([`Session::commit_change`], [`Engine::rotate_page`]) is one
 //! commit: its operation writes into a transaction of a copy of the committed revisions, and the
@@ -77,7 +77,7 @@ use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
 use ferman_core::{CoreError, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
-use ferman_render::DocumentId;
+use ferman_render::{DocumentId, RenderError};
 use ferman_text::extract::CharBox;
 use ferman_text::{
     BlockId, BlockStyle, BlockStyleInfo, Choice, EditContext, Editability, FontCandidate,
@@ -297,9 +297,13 @@ impl ConfirmationToken {
 pub struct RevisionInfo {
     /// How many steps of the history apply: 0 is the document as opened.
     pub current: u32,
-    /// The pages' new render key when the render thread reloaded the revised document; `None`
-    /// when nothing it shows changed, or it could not reload.
+    /// The new render key of [`changed_pages`](Self::changed_pages) when the render thread
+    /// reloaded the revised document; `None` when nothing it shows changed, or it could not
+    /// reload.
     pub render_key: Option<u64>,
+    /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+    /// means every page.
+    pub changed_pages: Option<Vec<u32>>,
     /// The substitutions the commit made, for the "Font substituted" toast (a11-6); empty after
     /// anything else.
     pub substitutions: Vec<FontSubstitution>,
@@ -410,9 +414,9 @@ fn same_file(a: &Path, b: &Path) -> bool {
     resolve(a) == resolve(b)
 }
 
-/// The revised bytes for the render thread: the serial of the publish and what follows the
-/// original bytes.
-type Reload = Option<(u64, Arc<[u8]>)>;
+/// The revised bytes for the render thread: the serial of the publish, what follows the original
+/// bytes, and the revisions they show.
+type Reload = Option<(u64, Arc<[u8]>, Arc<RevisionStore>)>;
 
 /// The transaction ids handed out; 0 is never one.
 static NEXT_TRANSACTION: AtomicU64 = AtomicU64::new(1);
@@ -1611,7 +1615,7 @@ impl Session {
     /// Publishes the committed revisions for the readers and returns the revised bytes for the
     /// render thread, or `None` when they cannot be written (logged).
     pub(super) fn publish(&self) -> Reload {
-        let serial = {
+        let (serial, layers) = {
             let mut revised = self.model.revised();
             revised.store = Arc::clone(&self.committed);
             revised.generation = revised.generation.saturating_add(1);
@@ -1619,20 +1623,36 @@ impl Session {
             // shortcut: an edit of one page makes the next search read every page again; keep
             // the text of pages it did not touch if a search after an edit proves slow.
             revised.texts.clear();
-            revised.generation
+            (revised.generation, revised.layers.clone())
         };
         // shortcut: the whole file is built to cut off its update; build the update alone when
         // large files make edits slow.
-        match self.bytes() {
-            Ok(bytes) => {
-                let original = self.model.document.source().len();
-                Some((serial, Arc::from(bytes.get(original..).unwrap_or_default())))
-            }
+        match self
+            .committed
+            .render_appendix(&self.model.document, layers.as_deref())
+        {
+            Ok(appendix) => Some((serial, Arc::from(appendix), Arc::clone(&self.committed))),
             Err(err) => {
                 tracing::warn!(error = %err, "the revised bytes could not be built");
                 None
             }
         }
+    }
+
+    /// Makes `visible` the layers every reload shows, and returns the bytes that show them over
+    /// the committed revisions.
+    pub(super) fn show_layers(&self, visible: Vec<bool>) -> Result<Reload, ApiError> {
+        let appendix = self
+            .committed
+            .render_appendix(&self.model.document, Some(&visible))?;
+        let mut revised = self.model.revised();
+        revised.layers = Some(visible);
+        revised.generation = revised.generation.saturating_add(1);
+        Ok(Some((
+            revised.generation,
+            Arc::from(appendix),
+            Arc::clone(&self.committed),
+        )))
     }
 }
 
@@ -1967,6 +1987,7 @@ impl Engine {
             Ok(RevisionInfo {
                 current,
                 render_key: None,
+                changed_pages: None,
                 substitutions: Vec::new(),
                 structure: None,
             })
@@ -2425,39 +2446,68 @@ impl Engine {
             .remove(&transaction);
     }
 
+    /// Hands the render thread the revised bytes and awaits the new render key, with the pages
+    /// that got it (`None`: every page). `None` when a newer revision was handed already.
+    pub(super) async fn send_reload(
+        &self,
+        document: DocumentId,
+        reload: Reload,
+        every_page: bool,
+    ) -> Option<(Result<u64, RenderError>, Option<Vec<u32>>)> {
+        let (reply, pages) = {
+            let (serial, appendix, store) = reload?;
+            let model = self.models().ok()?.get(&document).cloned()?;
+            let mut rendered = model
+                .rendered
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            if serial <= rendered.serial {
+                return None;
+            }
+            let pages = rendered
+                .store
+                .as_ref()
+                .filter(|_| !every_page)
+                .and_then(|before| store.pages_changed_since(&model.document, before));
+            rendered.serial = serial;
+            rendered.store = Some(store);
+            // Sent under the lock, so reloads reach the render thread in the actor's order.
+            let reply = self
+                .render()
+                .ok()?
+                .reload(document, appendix, pages.clone());
+            (reply, pages)
+        };
+        Some((reply.await, pages))
+    }
+
     /// Hands the render thread the revised bytes, unless a newer revision was handed already,
-    /// and awaits the new render key.
+    /// and says where the history stands.
     pub(super) async fn revision_info(
         &self,
         document: DocumentId,
         current: u32,
         reload: Reload,
     ) -> RevisionInfo {
-        let reply = (|| {
-            let (serial, appendix) = reload?;
-            let model = self.models().ok()?.get(&document).cloned()?;
-            let mut rendered = model
-                .rendered
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner);
-            if serial <= *rendered {
-                return None;
-            }
-            *rendered = serial;
-            // Sent under the lock, so reloads reach the render thread in the actor's order.
-            Some(self.render().ok()?.reload(document, appendix))
-        })();
-        let render_key = match reply {
-            Some(reply) => match reply.await {
-                Ok(key) => Some(key),
-                Err(err) => {
-                    // shortcut: PDFium reloads without the password (Q22), so a document that
-                    // needs one keeps showing the revision it opened with.
-                    tracing::warn!(error = %err, "the render thread did not reload the revision");
-                    None
+        let (render_key, changed_pages) = match self.send_reload(document, reload, false).await {
+            Some((Ok(key), pages)) => (Some(key), pages),
+            Some((Err(err), _)) => {
+                tracing::warn!(error = %err, "the render thread did not reload the revision");
+                // It still shows what it showed: the next reload does not know what changed.
+                if let Some(model) = self
+                    .models()
+                    .ok()
+                    .and_then(|models| models.get(&document).cloned())
+                {
+                    model
+                        .rendered
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .store = None;
                 }
-            },
-            None => None,
+                (None, None)
+            }
+            None => (None, None),
         };
         let structure = self
             .models()
@@ -2467,6 +2517,7 @@ impl Engine {
         RevisionInfo {
             current,
             render_key,
+            changed_pages,
             substitutions: Vec::new(),
             structure,
         }
@@ -2654,7 +2705,7 @@ mod tests {
         );
         let (current, reload) = edit(&mut session, "Monday", "Friday", "Edited text");
         assert_eq!(current, 1);
-        let (serial, appendix) = reload.unwrap();
+        let (serial, appendix, _) = reload.unwrap();
         assert_eq!(serial, 1);
         assert!(!appendix.is_empty());
         // The readers see the new text, laid out again.

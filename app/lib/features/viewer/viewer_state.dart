@@ -77,6 +77,28 @@ final class SidebarMemory {
   final Map<SidebarTab, double> offsets = {};
 }
 
+/// The oldest render key a view takes for each page: a bitmap with an older
+/// one shows the page as it was.
+final class CurrentKeys {
+  int _every = 0;
+  final Map<int, int> _pages = {};
+
+  /// Whether a bitmap of [page] with render key [key] shows it as it is.
+  bool isCurrent(int page, int key) =>
+      key >= math.max(_every, _pages[page] ?? 0);
+
+  /// [pages] got render key [key]; null means every page.
+  void raise(int key, {List<int>? pages}) {
+    if (pages == null) {
+      _every = math.max(_every, key);
+    } else {
+      for (final page in pages) {
+        _pages[page] = math.max(_pages[page] ?? 0, key);
+      }
+    }
+  }
+}
+
 /// Which layers of the open document show, and the render key showing them
 /// gave every page, as `layerVisibilityProvider`.
 @immutable

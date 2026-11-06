@@ -8,12 +8,22 @@
 #![allow(clippy::panic, clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock, mpsc};
+use std::time::Duration;
 
 use ferman_api::facade::{
-    DocumentId, Engine, EngineConfig, ErrorKind, OpenedDocument, PageBlocks, PdfiumLibrary,
-    RESOLUTIONS, SearchEvent, SearchOptions, SearchSink, block_on, compare,
+    DocumentId, Engine, EngineConfig, ErrorKind, Item, MAX_THUMBNAIL_SIZE, OpenedDocument,
+    PageBlocks, PageRaster, PdfiumLibrary, Priority, RESOLUTIONS, SearchEvent, SearchOptions,
+    SearchSink, ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on, compare,
 };
+
+struct Sink(mpsc::Sender<ViewEvent>);
+
+impl ViewSink for Sink {
+    fn deliver(&mut self, event: ViewEvent) -> bool {
+        self.0.send(event).is_ok()
+    }
+}
 
 fn engine() -> &'static Engine {
     static ENGINE: OnceLock<Engine> = OnceLock::new();
@@ -80,6 +90,75 @@ fn keep(name: &str, file: &Path) {
         std::fs::create_dir_all(&out).unwrap();
         std::fs::copy(file, out.join(format!("{name}.pdf"))).unwrap();
     }
+}
+
+/// ARCHITECTURE §4.3: a commit changes the render key of the pages it reaches, and no other.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_commit_keeps_the_key_of_the_pages_it_does_not_reach() {
+    let opened = block_on(engine().open(corpus("kira-tr"), None)).unwrap();
+    let doc = opened.id;
+    let (events, received) = mpsc::channel();
+    let view = block_on(engine().open_view(doc, Box::new(Sink(events)))).unwrap();
+    let mut generation = 0;
+    let mut key = |page: u32| -> u64 {
+        generation += 1;
+        let wanted = vec![Wanted {
+            item: Item::Thumbnail(ThumbnailRequest {
+                page,
+                size: MAX_THUMBNAIL_SIZE,
+            }),
+            priority: Priority::VisibleThumbnail,
+        }];
+        engine().request(view, generation, wanted).unwrap();
+        match received.recv_timeout(Duration::from_secs(30)).unwrap() {
+            ViewEvent::Rendered(rendered) => rendered.render_key,
+            ViewEvent::Failed(failed) => panic!("{failed:?}"),
+        }
+    };
+    assert_eq!((key(0), key(1)), (0, 0));
+
+    let turned = block_on(engine().rotate_page(doc, 1, 1, "Rotated".to_owned())).unwrap();
+    let new = turned.render_key.unwrap();
+    assert_eq!(turned.changed_pages.as_deref(), Some(&[1][..]));
+    assert_eq!((key(0), key(1)), (0, new));
+
+    let undone = block_on(engine().undo(doc)).unwrap();
+    assert_eq!(undone.changed_pages.as_deref(), Some(&[1][..]));
+    assert_eq!((key(0), key(1)), (0, undone.render_key.unwrap()));
+    block_on(engine().close(doc)).unwrap();
+}
+
+/// The layers shown stay shown over later commits, and show over earlier ones (W2's appendix).
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn layers_and_revisions_show_together() {
+    let opened = block_on(engine().open(corpus("ocg-plan"), None)).unwrap();
+    let doc = opened.id;
+    let size = opened.pages[0].size;
+    let draw = || block_on(engine().render_page(doc, 0, size, 96)).unwrap();
+    fn same(a: &PageRaster, b: &PageRaster) -> bool {
+        compare(a, b, None, 0).is_some_and(|diff| diff.differing == 0)
+    }
+    let defaults: Vec<bool> = opened.layers.iter().map(|layer| layer.visible).collect();
+    let first = draw();
+    block_on(engine().show_layers(doc, vec![true; defaults.len()])).unwrap();
+    let all = draw();
+    assert!(!same(&first, &all), "showing Tesisat draws its lines");
+
+    // A later commit keeps them; the size of the rotated page is the same drawing turned.
+    let turned = block_on(engine().rotate_page(doc, 0, 2, "Rotated".to_owned())).unwrap();
+    assert!(turned.render_key.is_some());
+    block_on(engine().rotate_page(doc, 0, 2, "Back".to_owned())).unwrap();
+    assert!(
+        same(&all, &draw()),
+        "the layers stayed shown over the commit"
+    );
+
+    // Layers change after a revision applies.
+    block_on(engine().show_layers(doc, defaults)).unwrap();
+    assert!(same(&first, &draw()), "the revisions and the defaults");
+    block_on(engine().close(doc)).unwrap();
 }
 
 #[test]

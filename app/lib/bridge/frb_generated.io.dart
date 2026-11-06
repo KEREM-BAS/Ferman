@@ -383,6 +383,9 @@ abstract class FermanBridgeApiImplPlatform
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
 
   @protected
+  Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
+
+  @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
 
   @protected
@@ -921,6 +924,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
+
+  @protected
+  Uint32List? sse_decode_opt_list_prim_u_32_strict(
+    SseDeserializer deserializer,
+  );
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
@@ -1754,6 +1762,13 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_prim_u_32_strict>
+  cst_encode_opt_list_prim_u_32_strict(Uint32List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_prim_u_32_strict(raw);
+  }
+
+  @protected
   int cst_encode_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.toSigned(64).toInt();
@@ -2395,6 +2410,9 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     wireObj.current = cst_encode_u_32(apiObj.current);
     wireObj.render_key = cst_encode_opt_box_autoadd_u_64(apiObj.renderKey);
+    wireObj.changed_pages = cst_encode_opt_list_prim_u_32_strict(
+      apiObj.changedPages,
+    );
     wireObj.substitutions = cst_encode_list_font_substitution(
       apiObj.substitutions,
     );
@@ -3169,6 +3187,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_view_item(
     ViewItem? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_prim_u_32_strict(
+    Uint32List? self,
     SseSerializer serializer,
   );
 
@@ -6003,6 +6027,8 @@ final class wire_cst_revision_info extends ffi.Struct {
   external int current;
 
   external ffi.Pointer<ffi.Uint64> render_key;
+
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> changed_pages;
 
   external ffi.Pointer<wire_cst_list_font_substitution> substitutions;
 

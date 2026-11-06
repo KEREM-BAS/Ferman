@@ -21,6 +21,19 @@ const OpenedDocument document = OpenedDocument(
 );
 
 void main() {
+  test('a render key counts for the pages that got it', () {
+    final keys = CurrentKeys()..raise(3);
+    expect(keys.isCurrent(0, 2), isFalse);
+    expect(keys.isCurrent(0, 3), isTrue);
+    keys.raise(5, pages: [1]);
+    expect(keys.isCurrent(0, 3), isTrue, reason: 'it kept its key');
+    expect(keys.isCurrent(1, 3), isFalse);
+    expect(keys.isCurrent(1, 5), isTrue);
+    keys.raise(7);
+    expect(keys.isCurrent(1, 5), isFalse);
+    expect(keys.isCurrent(0, 7), isTrue);
+  });
+
   late ProviderContainer container;
   ViewerState view() => container.read(viewerProvider)!;
   Viewer viewer() => container.read(viewerProvider.notifier);

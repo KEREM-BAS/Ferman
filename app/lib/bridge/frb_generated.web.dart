@@ -385,6 +385,9 @@ abstract class FermanBridgeApiImplPlatform
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
 
   @protected
+  Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
+
+  @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
 
   @protected
@@ -923,6 +926,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
+
+  @protected
+  Uint32List? sse_decode_opt_list_prim_u_32_strict(
+    SseDeserializer deserializer,
+  );
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
@@ -1851,6 +1859,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny? cst_encode_opt_list_prim_u_32_strict(Uint32List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_list_prim_u_32_strict(raw);
+  }
+
+  @protected
   JSAny cst_encode_outline_entry(OutlineEntry raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -1982,6 +1996,7 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_u_32(raw.current),
       cst_encode_opt_box_autoadd_u_64(raw.renderKey),
+      cst_encode_opt_list_prim_u_32_strict(raw.changedPages),
       cst_encode_list_font_substitution(raw.substitutions),
       cst_encode_opt_box_autoadd_document_structure(raw.structure),
     ].jsify()!;
@@ -2749,6 +2764,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_view_item(
     ViewItem? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_prim_u_32_strict(
+    Uint32List? self,
     SseSerializer serializer,
   );
 

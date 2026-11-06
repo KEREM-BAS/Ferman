@@ -296,6 +296,14 @@ impl Engine {
                         .unwrap_or_else(PoisonError::into_inner) = adopted;
                 }
             }
+            // Its one render key stands for every page.
+            if let Some(model) = self.models()?.get(&id) {
+                model
+                    .rendered
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .store = None;
+            }
             let (current, reload) = self
                 .ask(id, |session| Ok((session.current(), session.publish())))
                 .await?;
