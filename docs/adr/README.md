@@ -57,23 +57,23 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 |---|---|---|
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted (brief) |
 | [0002](0002-rust-engine-flutter-ui-frb.md) | Rust engine and one Flutter UI, connected by flutter_rust_bridge v2 | Accepted (brief) |
-| [0003](0003-crate-layout-and-api-boundary.md) | Crate layout and the ferman-api boundary | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
+| [0003](0003-crate-layout-and-api-boundary.md) | Crate layout and the ferman-api boundary | Accepted (brief); its Proposed detail approved (owner, 2026-10-16); where operations live amended (owner, M4 plan, 2026-11-06) |
 | [0004](0004-lopdf-model-pdfium-renderer.md) | lopdf as the document model, PDFium as a read-only rasteriser | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
 | [0005](0005-block-scoped-text-editing.md) | Block-scoped text editing | Accepted (brief) |
 | [0006](0006-font-pipeline-and-missing-glyphs.md) | Font pipeline and the missing-glyph policy | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
 | [0007](0007-harfrust-instead-of-rustybuzz.md) | harfrust instead of rustybuzz for shaping | Accepted (owner, [Q04](../QUESTIONS.md#q04), 2026-10-15) |
-| [0008](0008-file-safety-and-saving.md) | File safety and saving | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
-| [0009](0009-threading-and-jobs.md) | Threading model and jobs | Accepted (owner, 2026-10-16) |
+| [0008](0008-file-safety-and-saving.md) | File safety and saving | Accepted (brief); its Proposed detail approved (owner, 2026-10-16); where versions live decided (owner, M4 plan, 2026-11-06) |
+| [0009](0009-threading-and-jobs.md) | Threading model and jobs | Accepted (owner, 2026-10-16); jobs amended (owner, M4 plan, 2026-11-06) |
 | [0010](0010-error-handling-no-panics.md) | Error handling without panics | Accepted (brief) |
 | [0011](0011-flutter-state-navigation-components.md) | Flutter state, navigation and components | Accepted (brief) |
 | [0012](0012-design-token-pipeline.md) | Design token pipeline | Accepted (brief) |
 | [0013](0013-fonts-and-icons.md) | Fonts and icons | Accepted: brief parts, plus Plex Sans Hebrew and Devanagari (owner, [Q08](../QUESTIONS.md#q08), 2026-10-15) |
 | [0014](0014-localization-and-rtl.md) | Localization and right-to-left support | Accepted (brief) |
-| [0015](0015-privacy-and-network.md) | Privacy and network use | Accepted (brief); a fifth network use, revocation lookups, added (owner, [Q06](../QUESTIONS.md#q06), 2026-10-16) |
+| [0015](0015-privacy-and-network.md) | Privacy and network use | Accepted (brief); a fifth network use, revocation lookups, added (owner, [Q06](../QUESTIONS.md#q06), 2026-10-16); strace closed (owner, M4 plan, 2026-11-06) |
 | [0016](0016-dependency-licence-policy.md) | Dependency licence policy | Accepted (brief); three licence exceptions approved (owner, [Q17](../QUESTIONS.md#q17), 2026-10-15); the reading of "GPL-compatible" confirmed (2026-10-16) |
 | [0017](0017-testing-and-ci.md) | Testing and continuous integration | Accepted (brief) |
 | [0018](0018-native-file-pickers.md) | OS-native file pickers | Accepted (owner, [Q07](../QUESTIONS.md#q07), 2026-10-16) |
-| [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16): the direction, then the details |
+| [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16): the direction, then the details; amended (owner, M4 plan, 2026-11-06) |
 | [0020](0020-test-corpus.md) | Test corpus and its generators | Accepted (owner, with the M2 plan, 2026-10-17) |
 | [0021](0021-open-from-the-os.md) | Opening files from the operating system | Accepted (owner, with the M2 plan, 2026-10-17) |
 

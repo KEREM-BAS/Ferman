@@ -3,7 +3,8 @@
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
 - **Approval:** brief §3. The CI crate-edge check below, Proposed in M0, was approved by the owner
-  on 2026-10-16.
+  on 2026-10-16. Where operations live was amended by the owner on 2026-11-06 (question 11 of the
+  [M4 plan](../PROGRESS.md#m4-plan)); `ferman-mcp` follows question 1 of the same plan.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -63,7 +64,9 @@ ferman-fonts ───► no Ferman crate (works on font program bytes; PDF-agno
 
 - ferman-api has two layers:
   - **facade**: plain Rust, always built. The `Engine`, handles, data types, `ApiError`, document
-    actors, the job manager and, from M5, the network gateway ([ADR 0015](0015-privacy-and-network.md)).
+    actors, the job manager, from M4 `facade::mcp` behind its own feature
+    ([ADR 0019](0019-ai-clients-through-mcp.md)) and, from M5, the network gateway
+    ([ADR 0015](0015-privacy-and-network.md)).
   - **frb**: behind the `frb` feature, on in the app build. Thin wrappers that expose facade functions to
     Dart, plus stream sinks. Nothing else lives there. FRB codegen scans only this module.
 - Only ferman-api depends on flutter_rust_bridge. The Flutter app imports only the generated bindings
@@ -95,6 +98,26 @@ new crate sits at the ferman-ops level of the graph and is reached only through 
 recorded in [ARCHITECTURE.md](../ARCHITECTURE.md). It needs no owner approval because the brief
 allows it, but it must not move responsibilities between the other six crates. Moving those is an
 architectural change and needs a Proposed ADR.
+
+### Where operations live
+
+**Approved by the owner on 2026-11-06** (question 11 of the M4 plan). The brief gives the operations
+to ferman-ops, but a `ChangeSet` can be built only inside ferman-core and only ferman-core may name
+lopdf, a rule that has held since M1. So:
+
+- ferman-core holds the primitives that read and change pages, annotations and forms, like the
+  splicer for text blocks.
+- ferman-ops sits above them with planning and appearance generation, and names no lopdf type.
+- A commit that is not a text block's reuses the actor's signed confirmation, recovery, history step
+  and reload.
+
+No snapshot type exists. An operation works through the revision store.
+
+### `ferman-mcp`
+
+M4 W7 adds a small binary, `ferman-mcp`, beside the seven crates: a byte pump with no PDF code that
+depends on no Ferman crate ([ADR 0019](0019-ai-clients-through-mcp.md)). The `crate_graph` check gets
+its row in that change. The server logic stays in ferman-api, so the door stays one.
 
 ### Outside crates/
 
@@ -140,6 +163,8 @@ architectural change and needs a Proposed ADR.
   the engine.
 - **CLI through FFI or a separate service.** Adds a layer with no benefit; the facade is already plain
   Rust.
+- **lopdf types leaving ferman-core, with the primitives in ferman-ops.** Follows the brief's wording,
+  but weakens the single door of `crate_graph`; rejected on 2026-11-06.
 - **FRB opaque handles for documents.** Convenient, but closing a document must be an explicit user
   action, not garbage collection. Integer handles keep that control.
 

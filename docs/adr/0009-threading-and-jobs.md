@@ -5,7 +5,9 @@
 - **Approval:** the owner, on 2026-10-16, with the other Proposed items of M1; the order of the
   tile-transfer options through [Q19](../QUESTIONS.md#q19). The details marked **Proposed** below
   (the tile format and the render-only appendix) are part of the
-  [M2 plan](../PROGRESS.md#m2-plan) and wait for the owner's approval of it.
+  [M2 plan](../PROGRESS.md#m2-plan) and were approved with it on 2026-10-17. On 2026-11-06 the owner
+  amended jobs with the [M4 plan](../PROGRESS.md#m4-plan) (question 11 and decision 1): a plain
+  thread per job, with rayon only if a measurement needs it.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -32,7 +34,7 @@ Constraints:
 ## Decision
 
 The engine uses message-passing actors, immutable revisions, one render thread and a
-job pool.
+thread per job.
 
 ### Threads
 
@@ -42,10 +44,12 @@ job pool.
 | FRB workers | FRB's pool | nothing | work longer than about 1 ms; they validate, send a message and await the reply |
 | Document actor | 1 per open document, parked when idle | the working model, revision stack, open transaction | render, touch PDFium |
 | Render thread | 1 per process | the PDFium library and one PDFium document per open document | parse with lopdf, write files |
-| Job pool | a dedicated rayon pool, cores − 2, at least 1 | nothing shared; jobs hold snapshots | mutate a document directly |
+| Job thread | 1 per running job (M4); rayon only if a measurement needs it | nothing shared; a job holds an immutable copy of the base and the store | mutate a document directly |
 
 Messages travel over crossbeam channels. No async runtime (such as tokio) is added to the engine unless a
-later need is shown; the network gateway in M5 is decided with its own dependency entry.
+later need is shown; the network gateway in M5 is decided with its own dependency entry. The first
+shown need is M4's `facade::mcp` ([ADR 0019](0019-ai-clients-through-mcp.md)), which brings tokio behind
+its own feature, off for the CLI and the web; the rest of the engine stays on threads and channels.
 
 ### One actor per document
 
@@ -99,15 +103,21 @@ later need is shown; the network gateway in M5 is decided with its own dependenc
 - The UI keeps the newest render key per page and ignores older tiles, so a page never flips back to an
   old revision. While a sharp tile is missing it draws the best cached lower bucket or the thumbnail.
 
-### Job pool with progress streams
+### Jobs with progress streams
 
-- A job runs on the dedicated pool with its own snapshot and a cancel token (running, paused, cancelled)
-  checked at page granularity and inside long loops. Pause parks it between steps (a11-6b).
+- A job runs on a plain thread of its own with a cancel token (running, paused, cancelled) checked at
+  page granularity and inside long loops. Pause parks it between steps (a11-6b). rayon comes only if a
+  measurement needs it, such as parallel images.
+- **What a job reads (decision 1 of the M4 plan).** An immutable copy of the base and the store, taken
+  when it starts, so the user keeps editing. A job that writes a new file (Compress, Split, Extract,
+  Combine) reports the revision it read. A change set for the open document (Flatten's copy aside) is
+  refused if the revision moved.
 - Progress streams to Dart as events with a value (or none when unknown) and a message key with
-  parameters, throttled to 10 per second.
+  parameters, throttled to 10 per second. A result stays available for an hour.
 - A job never mutates a document. It produces a file in a temp location or a change set that the actor
   commits. Cancelling never leaves partial output.
-- Order: user-started work (search, save) before open indexing before background work.
+- Search stays outside jobs: since M2 it has its own thread, cancel flag and result stream, and it
+  keeps them. Saves run on the actor.
 
 ### Caches
 
@@ -153,7 +163,7 @@ Only the brief's rule applied: nothing heavy on the UI thread. M1 needed little 
 - M2: actors, snapshots, render keys, the tile queue, thumbnails, indexing jobs, measurements against the
   budgets.
 - M3: edit transactions on the actor, reload-per-edit measurement.
-- M4: background task drawer with pause and cancel.
+- M4: the job manager in W0, with the background task drawer, pause and cancel.
 
 ### Implementation notes (M2)
 
@@ -304,6 +314,9 @@ fail on R1 and R2.
   fallback.
 - **Work in Dart isolates.** The UI must never touch PDF internals ([brief §3](../BRIEF.md)); the engine
   is Rust.
+- **A dedicated rayon pool for jobs,** this ADR's first choice. Nothing needs a pool yet: one job at a
+  time per user action fits a thread, and search keeps its own. Replaced on 2026-11-06, and it comes
+  back only on a measurement.
 - **An async runtime with futures throughout the engine.** Adds a large dependency and colours every
   function. Most engine work is CPU-bound, which threads and channels handle directly.
 

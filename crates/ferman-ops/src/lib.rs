@@ -1,15 +1,16 @@
 //! Ferman document operations.
 //!
-//! ferman-ops holds the operations beyond text editing: organize pages (insert, delete, rotate,
-//! move, extract, replace), combine and split, annotations, form filling with appearance streams,
-//! simple (non-cryptographic) signatures, compress, flatten and version-history snapshots, then in
-//! phase 2 watermark, header and footer, Bates numbering, redaction with verification and removal
-//! of hidden information (docs/ARCHITECTURE.md §2.3).
+//! ferman-ops plans the operations beyond text editing and generates their appearances: organize
+//! pages (insert, delete, rotate, move, extract, replace), combine and split, annotations, form
+//! filling with appearance streams, simple (non-cryptographic) signatures, compress, flatten and
+//! version-history snapshots, then in phase 2 watermark, header and footer, Bates numbering,
+//! redaction with verification and removal of hidden information (docs/ARCHITECTURE.md §2.3).
 //!
-//! Each operation is a function from a snapshot and its parameters to a `ChangeSet` that the
-//! document actor in ferman-api commits. Long operations run as cancellable jobs. Operations that
-//! need pixels get them from ferman-api, never from PDFium directly. As the brief says, the crate
-//! splits into more crates as it grows (signing, OCR, conversion, PDF/A, ADR 0003).
+//! Each operation sits above ferman-core's primitives, which alone name lopdf and build a
+//! `ChangeSet` (ADR 0003, question 11 of the M4 plan); the document actor in ferman-api commits
+//! it. Long operations run as cancellable jobs. Operations that need pixels get them from
+//! ferman-api, never from PDFium directly. As the brief says, the crate splits into more crates
+//! as it grows (signing, OCR, conversion, PDF/A, ADR 0003).
 //!
 //! # Planned modules
 //!

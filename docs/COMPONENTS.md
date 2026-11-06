@@ -227,7 +227,7 @@ built; the ones that need a design answer are also listed for the lead to record
     prop, so the spec adds the Flutter-only `loading` parameter (`ds: null`, as in decision 14).
 18. **Turkish matching in the command palette.** The bundle lowercases with the Turkish locale
     whatever the UI language; Flutter matches with the casing rules of the app locale
-    (ARCHITECTURE §11.2).
+    (ARCHITECTURE §11.2), and folds the document's own text in Turkish too ([G157](DESIGN_GAPS.md#g157)).
 19. **Icons are painted, not loaded.** The bundle injects SVG markup. The SVG packages for Flutter
     depend on `http`, which the network deny list forbids, so `tools/icons` also generates
     `app/lib/design/icons/icon_data.g.dart`: every glyph as const instances of the sealed

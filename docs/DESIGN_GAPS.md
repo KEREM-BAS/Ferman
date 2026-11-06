@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-128 entries: 105 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods.
+147 entries: 124 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 16 | 11 | 1 | 1 | 2 | 1 | 2 |
+| Entries | 59 | 35 | 17 | 29 | 1 | 1 | 2 | 1 | 2 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -104,7 +104,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G30](#g30) | missing state | M2 | Rendering / zoom | Tile loading, zoom and Go to page states not drawn | Decided; partly resolved (`a2-13`) |
 | [G31](#g31) | missing state | M2 | Signatures sidebar | Signatures shown as valid before validation exists | Resolved (`a2-14`, `a1-4-m2`) |
 | [G32](#g32) | ambiguity | M2 | RTL documents: spread/book/organize order | Page order for right-to-left documents undefined | Decided; partly resolved (`a2-15`) |
-| [G33](#g33) | ambiguity | M2 | Roadmap mapping | Drawn features with no milestone in the brief's roadmap | Decided ([Q10](QUESTIONS.md#q10)) |
+| [G33](#g33) | ambiguity | M4 | Roadmap mapping | Drawn features with no milestone in the brief's roadmap | Decided ([Q10](QUESTIONS.md#q10)) |
 | [G34](#g34) | conflict | M2 | Locale formatting in English UI | Dates and numbers mix four locale styles | Resolved (`a12-0`) |
 | [G35](#g35) | missing screen | M3 | Edit: signed-document warning | No warning before editing a signed document | Resolved (`a3-16a`, `a3-16b`, `a3-12`) |
 | [G36](#g36) | ambiguity (resolved) | M3 | Edit: missing glyph | Missing glyph: the design substitutes a similar font by default | Resolved (`a3-3a`, `a3-17`) |
@@ -182,7 +182,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G108](#g108) | conflict | M1 | Settings | M1 build boards draw the M2 controls of General and every pane enabled | Decided |
 | [G109](#g109) | missing state | M2 | Start / recent files | No placeholder for a recent file that needs a password | Decided |
 | [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
-| [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
+| [G111](#g111) | conflict | M4 | Saving | a1-11b draws "Optimized for web" enabled; it needs a linearizing writer (P2) | Decided |
 | [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
 | [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
 | [G114](#g114) | gap | M2 | Open / damaged file | a1-9b's "Expected about 2.4 MB" is known only when the file declares its size | Decided |
@@ -201,7 +201,24 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G127](#g127) | missing state | M3 | Edit: overflow choices, dependent table cells | a3-4 clips a frame the field grows past and draws the choices in FmEditPanel; a3-9's table panel needs table geometry the engine does not give | Decided |
 | [G128](#g128) | missing state | M3 | Edit: missing glyphs, the font picker, the substitution toast, input methods | a3-3a draws the font field's warning and a frame label with the size in FmEditPanel; a3-3b previews every candidate in its own font, names the current font and offers a scope and "Also use it for N other blocks"; a11-6's toast offers Review; no board says what leaving the editor without an answer does | Decided |
 | [G140](#g140) | conflict | M3 | Edit: the text panel | a3-2 draws Underline enabled, Before and After with values and a block language; a PDF stores none of them | Decided |
+| [G141](#g141) | conflict | M3 | Edit: the floating format bar | a3-1c acts on the selection, the engine styles whole blocks, and ⌘B and ⌘K clash | Decided |
 | [G129](#g129) | missing state | P5 | Web build on a phone | Two phone variants and no browser one; no width where the phone layout starts; the desktop tooltip has no touch | Decided |
+| [G142](#g142) | conflict | M4 | Organize: split | ROADMAP says page ranges, size or outline level; a6-2 draws every N pages, top-level bookmarks, size and blank pages | Decided |
+| [G143](#g143) | conflict | M4 | Organize: split | a6-2's "Same folder as the original" under the macOS sandbox, which grants only the file | Decided |
+| [G144](#g144) | conflict | M4 | Links: keyboard | a3-6, a3-1c and a11-3 put Add link on ⌘K, which stays the command palette | Decided |
+| [G145](#g145) | missing state | M4 | Links: following them | a3-6 says Ferman asks before opening a link, and draws no prompt or rule per kind of link | Decided |
+| [G146](#g146) | missing state | M4 | Comment: flatten | a4-5b's copy fails nowhere and its "aren't affected" reads as true of a signature's validity | Decided |
+| [G147](#g147) | ambiguity | M4 | Fill: validation | a5-2 and a5-2b validate formats and ranges a PDF declares only as script calls, and scripts never run | Decided |
+| [G148](#g148) | ambiguity | M4 | Sign: simple signatures | No board says what a simple signature on a signature field is in the file | Decided |
+| [G149](#g149) | missing state | M4 | Sign: typed signature | a5-3 hides styles that lack a letter, and draws no state where all three are hidden | Decided |
+| [G150](#g150) | conflict | M4 | Organize: combine | a6-3 says 9 pages; its own list adds up to 8 | Decided |
+| [G151](#g151) | conflict | M4 | Organize: page labels | a6-5's sample ranges run to page 66 of a 64-page document | Decided |
+| [G152](#g152) | missing state | M4 | Organize: combine | a6-3 converts an image to one page, with no page size | Decided |
+| [G153](#g153) | missing state | M4 | Comment: stamps | a4-3b says custom stamps can be exported, with no control drawn | Decided |
+| [G154](#g154) | ambiguity | M4 | Comment: stamps | a4-3 fills dates in "the document's date format", and a PDF has none | Decided |
+| [G155](#g155) | conflict | M4 | Comment: flatten | a4-5b's note says undo works until the file is saved; undo works after a save | Decided |
+| [G156](#g156) | conflict | M4 | Settings: fonts | a11-1d's sample gives Plex Sans Arabic a TR chip it does not cover | Decided |
+| [G157](#g157) | ambiguity | M4 | Command palette | a11-2 folds Turkish case; the document's own text in another UI language needs it too | Decided |
 
 ## Entries
 
@@ -384,8 +401,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** About / licences
 - **Artboards:** `a11-5`, `a13-15`
 - **Gap or conflict:** a11-5 About has a "Licences" button and a one-line credit, and the iOS settings board a13-15 has an "About and licence" row. Neither leads to a drawn view. No board shows the Apache-2.0 text or a list of third-party components: the PDF engine, Flutter, fonts under OFL (including the typed-signature faces), Noto, the OCR engine and its language data, Lucide under ISC. Desktop Settings has no About or Licences entry at all.
-- **Decision:** Build a Licences view from design-system components, opened by the "Licences" button in a11-5 (and by the a13-15 row in the mobile phase). It shows Ferman's licence (Apache-2.0) in full and a searchable list of every bundled component with its licence text: Rust crates, Dart packages (Flutter's `LicenseRegistry`), PDFium (the archive's `licenses/` folder, where PDFium's own BSD-3-Clause and Apache-2.0 text is `licenses/pdfium.txt`, and the packager's MIT `LICENSE`), fonts and icons ([ADR 0016](adr/0016-dependency-licence-policy.md)). The view is asked for in the re-export ([Q11](QUESTIONS.md#q11)).
-- **Status:** Decided
+- **Decision:** Build a Licences view from design-system components, opened by the "Licences" button in a11-5 (and by the a13-15 row in the mobile phase). It shows Ferman's licence (Apache-2.0) in full and a searchable list of every bundled component with its licence text: Rust crates, Dart packages (Flutter's `LicenseRegistry`), PDFium (the archive's `licenses/` folder, where PDFium's own BSD-3-Clause and Apache-2.0 text is `licenses/pdfium.txt`, and the packager's MIT `LICENSE`), fonts and icons ([ADR 0016](adr/0016-dependency-licence-policy.md)). The view is asked for in the re-export ([Q11](QUESTIONS.md#q11)). With the M4 plan (owner, 2026-11-06): in M4 the view is reached from the command palette and a new last row in Settings, with no board moved, so M4 keeps its 36 boards. a11-5 stays in M5, and its button joins them then; the a13-15 row follows in the mobile phase (B169).
+- **Status:** Decided. Amended with the M4 plan on 2026-11-06 (question 7).
 - **Evidence:** 11b App.dc.html lines 67–68 (a11-5). The FmSettings navigation (General to Advanced) has no About pane. 13b line 264 (a13-15).
 
 <a id="g15"></a>
@@ -627,12 +644,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 ### G33 · Drawn features with no milestone
 
 - **Type:** ambiguity
-- **Milestone:** M2
+- **Milestone:** M4
 - **Area:** Roadmap mapping
 - **Artboards:** `a2-3c`, `a2-5a`, `a2-5b`, `a2-6`, `a2-8a`, `a2-8b`, `a2-9`, `a4-1c`, `a9-7`, `a9-6`, `a9-6b`, `a9-6c`, `a9-6d`, `a13-4d`, `a14-1c`
 - **Gap or conflict:** The design maps no board to any milestone: the Index marks every board "ready" and none "planned", and there are no milestone tags. The brief's roadmap does not name these drawn features: presentation mode (a2-5a), reading mode (a2-5b), read aloud (a2-6), split view (a2-8a, a2-8b), inverted dark reading (a2-9), the layers tab (a2-3c), measure (a4-1c, a9-7), basic print with booklet, poster and production preview (a9-6, a9-6b, a9-6c, a9-6d), plus mobile night mode and read aloud (a13-4d) and iPad split view (a14-1c).
-- **Decision:** The mapping the owner accepted on 2026-10-16 ([Q10](QUESTIONS.md#q10)): layers tab → M2 (rendering); basic system print → M4; presentation, reading mode, split view and inverted dark reading → P2; read aloud and measure → P4; booklet, poster and separations (a9-6b, a9-6c, a9-6d) → P5; mobile night mode and read aloud, and iPad split view → P5 with the mobile and tablet apps. Until a feature ships, its entry points stay visible, disabled with "Available in a future version", and listed in [BACKLOG.md](BACKLOG.md) ([ROADMAP.md](ROADMAP.md), "Not scheduled yet").
-- **Status:** Decided. The owner accepted the proposed mapping on 2026-10-16 ([Q10](QUESTIONS.md#q10)). Was Needs owner.
+- **Decision:** The mapping the owner accepted on 2026-10-16 ([Q10](QUESTIONS.md#q10)): layers tab → M2 (rendering); basic system print → M4; presentation, reading mode, split view and inverted dark reading → P2; read aloud and measure → P4; booklet, poster and separations (a9-6b, a9-6c, a9-6d) → P5; mobile night mode and read aloud, and iPad split view → P5 with the mobile and tablet apps. Until a feature ships, its entry points stay visible, disabled with "Available in a future version", and listed in [BACKLOG.md](BACKLOG.md) ([ROADMAP.md](ROADMAP.md), "Not scheduled yet"). With the M4 plan (owner, 2026-11-06): a9-6 ships with preview, Pages, Scale and Include working; Layout stays on Pages; Printer, Copies and Both sides are disabled because the system dialog sets them; the primary button opens the OS dialog, and "Use system dialog…" stays one click away. No printers are listed by Ferman.
+- **Status:** Decided. The owner accepted the proposed mapping on 2026-10-16 ([Q10](QUESTIONS.md#q10)). Was Needs owner. The milestone moved from M2 to M4 on 2026-11-06, since what is left is basic print.
 - **Evidence:** Index.dc.html: `const R='ready', P='planned'`, with no use of P. No board carries an M1 to M5 or P2 to P5 tag.
 
 <a id="g34"></a>
@@ -670,7 +687,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Edit: missing glyph
 - **Artboards:** `a3-3a`, `a3-3b`, `f2`, `a11-1c`, `a13-5c`; resolved by the `a3-3a` note and `a3-17` (export 519d42a)
 - **Gap or conflict:** The design is not silent. It says so once (FmEditPanel and f2: "This font has no ‘ğ’. Ferman will use a similar font for this character."), marks the glyph with an amber wavy underline and a page warning badge, and offers "Choose a font…", "Keep as is" and the a3-3b picker. a11-1c also offers "Ask each time" and "Keep the original font and mark the character". The open point: the default (a11-1c "Use a similar font and say so", the FmEditPanel and f2 copy, a13-5c and flow A) applies a similar font at once and skips the brief's middle step, taking the glyph from the same font installed on the system and re-subsetting it. That step is only implied by the f2 note (the `warning` prop "is reserved for fonts that are not installed") and is never drawn; the a3-3b installed group shows only other families.
-- **Decision:** Three steps in the brief's order ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)): (1) use the embedded glyph if it is present; (2) if the same font is installed, take the glyph from it, re-subset, embed it as a new font resource for the edited runs, and say so once; (3) otherwise follow the design's flow as drawn: the a11-1c default "Use a similar font and say so", marked once, with "Choose a font…" and "Keep as is", and "Ask each time" available in Settings. Nothing is ever substituted silently. The owner confirmed this default on 2026-10-16 ([Q09](QUESTIONS.md#q09)).
+- **Decision:** Three steps in the brief's order ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)): (1) use the embedded glyph if it is present; (2) if the same font is installed, take the glyph from it, re-subset, embed it as a new font resource for the edited runs, and say so once; (3) otherwise follow the design's flow as drawn: the a11-1c default "Use a similar font and say so", marked once, with "Choose a font…" and "Keep as is", and "Ask each time" available in Settings. Nothing is ever substituted silently. The owner confirmed this default on 2026-10-16 ([Q09](QUESTIONS.md#q09)). With the M4 plan (owner, 2026-11-06): a form field whose font lacks a character (`form-aks1-tr`'s WinAnsi `/Helv` cannot hold Ş or İ) takes bundled Plex, Serif for a serif field, embedded into `/DR` under a11-1c's policy: the default says so once in the form panel, Ask each time asks once when the field commits, Keep marks the field.
 - **Status:** Resolved on 2026-10-17 by export 519d42a: the a3-3a note now says a3-3a is step 3 (the embedded glyph is missing and the same font isn't installed), and a3-17 draws step 2: "Character added from this computer", "Ferman took ‘ğ’ from Garamond Premier Pro installed on this computer and added it to the document's font.", with the three steps in the brief's order in its note. Was Decided; the owner confirmed the default, "Use a similar font and say so", and the `fsType` detail of ADR 0006 on 2026-10-16 ([Q09](QUESTIONS.md#q09)). Was Needs owner before that. Since M3 W3 the engine runs the three steps (ferman-text `fallback`, [ARCHITECTURE §6.7](ARCHITECTURE.md#67-missing-glyphs)): step 3 draws the closest candidate provisionally, and the commit waits for "Choose a font…" or "Keep as is"; "Ask each time" applies nothing until the choice. "Keep the original font and mark the character" and the "Whole block" scope are not built yet.
 - **Evidence:** FmEditPanel.dc.html line 44; 00 Fixes lines 45–53; FmSettings.dc.html line 44 (the a11-1c radios, first one checked); 15 Flows line 54; 03a lines 163–174 (the a3-3b groups). In 519d42a: `design/03a Edit text.dc.html` lines 83 (the a3-3a note) and 174–176 (a3-17 and its note).
 
@@ -775,7 +792,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Keyboard shortcuts
 - **Artboards:** `a1-11`, `a11-2`, `a11-3`, `a11-1j`; resolved by the changed `a11-1j`, `a11-2` and `a11-3` and FmWindow (export 519d42a)
 - **Gap or conflict:** ⌥⌘S is bound to "Save a copy" (the a1-11 note), "Add signature" (the a11-2 palette and the a11-3 Fill & Sign group) and "Sidebar" (the a11-3 Window group, and the FmWindow sidebar tooltip, ⌥⌘S or Ctrl+Alt+S, on every editor board). The a11-3 cheat sheet lists it twice. a11-1j draws the clash as a reassignment in progress (warning text: ⌥⌘S is already "Show or hide sidebar"), which treats Sidebar as the owner, while a11-2 and a11-3 present Add signature on ⌥⌘S as already assigned. The shortcut data is copied in both 11a Settings and 11b App.
-- **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets ⇧S on every system, active only in Fill & Sign, beside ⇧D for today's date (a11-3). On Windows and Linux the sidebar keeps Ctrl+Alt+S, as FmWindow draws it, so Save a copy has no key there (a1-11 also offers it as a checkbox in Save as). All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets ⇧S on every system, active only in Fill & Sign, beside ⇧D for today's date (a11-3). On Windows and Linux the sidebar keeps Ctrl+Alt+S, as FmWindow draws it, so Save a copy has no key there (a1-11 also offers it as a checkbox in Save as). All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). With the M4 plan (owner, 2026-11-06): bare keys on a5-4 and a4-1 are live only with their panel or menu open and never in a text field. In rebinding, direct `.caps` access is removed, so the compiler finds every site; taking a key from another command leaves it with none, shown as such; keys owned by components and the system are refused.
 - **Status:** Resolved on 2026-10-17 by export 519d42a: FmWindow's sidebar tooltip is ⌃⌘S (Ctrl+Alt+S on Windows); the a11-2 palette gives Add signature ⇧S; the a11-3 cheat sheet lists Save a copy ⌥⌘S, Sidebar ⌃⌘S and Add signature ⇧S once each; a11-1j draws recording ⌥⌘S for Add signature with the warning "⌥⌘S is already “Save a copy”. Press Enter to reassign it, Esc to keep ⇧S.", and its note repeats this decision, the Windows and Linux keys and the duplicate test included. Was Decided; on 2026-10-16 the keys were filled in: ⇧S for Add signature, and on Windows and Linux Ctrl+Alt+S stays the sidebar, so Save a copy has no key there.
 - **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141. Implemented in `app/lib/features/shell/shortcuts.dart` (`saveCopy` lines 222–224, `toggleSidebar` lines 300–305, `addSignature` lines 572–577) and checked in `app/test/features/shell/shortcuts_test.dart` lines 143–163 (M1 phase H5). In 519d42a: `design/FmWindow.dc.html` line 203 (`sidebar`: ⌃⌘S, Ctrl+Alt+S); `design/11b App.dc.html` lines 28 and 36 (the a11-2 and a11-3 notes) and 183–190 (the cheat-sheet groups); `design/FmSettings.dc.html` line 162 (the a11-1j recording row); `design/11a Settings.dc.html` line 41 (the a11-1j note).
 
@@ -801,7 +818,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Comments and annotations
 - **Artboards:** `a4-1`, `a4-1d`, `a4-2`, `a4-3`, `a13-7`, `a13-15`, `a1-1`, `a1-2c`
 - **Gap or conflict:** Not drawn: a setting for the commenter's name (no desktop Settings pane, no a13-15 row and no onboarding step from a1-1 to a1-2c asks for it, yet a4-2 shows authors and a4-3's dynamic stamps "fill in your name"); an annotation context menu; an empty comments panel and a filter with no match; deleting a comment with undo; Comment mode on a signed or permission-restricted document; and editing of Text (X) and Callout (C) annotations. Annotation properties are partly drawn: a4-1 has a floating "Rectangle style" bar with Colour, Stroke width, Opacity, Open comment and Delete, and a13-7 has a colour and width palette on mobile.
-- **Decision:** The first comment asks once for the name to show on comments, prefilled from the OS account name, editable and allowed to stay empty; it is stored as "Your name for comments" in Settings › General. A context menu offers the style bar's actions. The comments panel uses EmptyState for empty and no-match ([G29](#g29)). Delete shows the undo toast (the a11-6 pattern). Signed and restricted documents get the notices from [G35](#g35) and [G27](#g27). Text and Callout editing reuses Edit mode's text-box editing.
+- **Decision:** The first comment asks once for the name to show on comments, prefilled from the OS account name, editable and allowed to stay empty; it is stored as "Your name for comments" in Settings › General. A context menu offers the style bar's actions. The comments panel uses EmptyState for empty and no-match ([G29](#g29)). Delete shows the undo toast (the a11-6 pattern). Signed and restricted documents get the notices from [G35](#g35) and [G27](#g27). Text and Callout editing reuses Edit mode's text-box editing. With the M4 plan (owner, 2026-11-06): Text and Callout are built on a text annotation's own editor in M4, so this entry no longer waits for Edit mode's text boxes (B042, P2).
 - **Status:** Decided
 - **Evidence:** The FmSettings General pane (lines 24–31) has no name field. FmComments props have no empty state. FmWindow.dc.html line 235 lists Text (X) and Callout (C).
 
@@ -827,7 +844,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Compress / version history
 - **Artboards:** `a9-1`, `a9-5`, `a9-8`, `a11-6`, `a11-6b`, `a11-1c`
 - **Gap or conflict:** a9-1 Compress shows presets, an estimated before-and-after bar (Now 24,6 MB, After ≈ 6,8 MB) and "Compress and save as…". It does not draw progress, cancel, the final result in context or the signed-file warning; the warning is only in the a9-1 note and is drawn only for Batch (a9-5, "If a file is signed"). a11-6 has no compress toast; the only result is the a11-6b drawer row "Compressed İmar planı… 24,6 MB → 6,9 MB". a9-8 Version history has no restore confirmation, no empty state for a document with no saved versions and no storage-failure state; its footer does point to the retention setting ("Change in Settings › Editing", a11-1c). Both tools live in the Tools mode ([G09](#g09)).
-- **Decision:** Compress runs as a background task with progress and Cancel, and ends with a result: the size before and after, Open, and Show in Finder or Show in Explorer. Before it starts on a signed file, it warns with the a9-5 wording. Version history gets a restore confirmation, an empty state and a storage-failure message. Both stay in the Tools row as drawn, and Compress is also a Start quick tool from M4.
+- **Decision:** Compress runs as a background task with progress and Cancel, and ends with a result: the size before and after, Open, and Show in Finder or Show in Explorer. Before it starts on a signed file, it warns with the a9-5 wording. Version history gets a restore confirmation, an empty state and a storage-failure message. Both stay in the Tools row as drawn, and Compress is also a Start quick tool from M4. With the M4 plan (owner, 2026-11-06): Compress on a signed file writes through `without_signatures` after the warning and the signed original stays; a larger result keeps the original and says so. Images Compress cannot read (JPX, JBIG2, CCITT), masks and images reached only through patterns are left untouched and counted so, and the estimate samples by image bytes, not pages.
 - **Status:** Decided
 - **Evidence:** 09a Tools lines 27–41 (a9-1); 09b lines 42 and 111–124; 11b lines 87 and 159–163.
 
@@ -840,7 +857,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Command palette / toasts / background tasks
 - **Artboards:** `a11-2`, `a11-6`, `a11-6b`, `a6-1b`, `a12-1ar`, `a14-1d`, `a13-16c`, `f4`
 - **Gap or conflict:** a11-2 shows only a populated query ("imza"): no empty-query state, no drawn no-match state (its note says Enter then searches the document text) and no disabled future-feature items; a14-1d only lists the palette shortcut. Toasts are drawn only in isolation (a11-6, light and dark columns without a window, and one toast in the f4 table): there is no placement or stacking inside a window, no right-to-left toast (a12-1ar has none) and none next to the status bar; the a6-1b note mentions an Undo toast that is not drawn. The a11-6b drawer shows running, paused, done and error rows only, with no empty drawer and no cancel confirmation; mobile a13-16c has none either.
-- **Decision:** The palette shows recent commands for an empty query, a no-match row that searches the document text on Enter (the a11-2 note), and unshipped commands disabled with the future-version hint. Toasts stack at the bottom end of the window, above the status bar, at most three at a time, and mirror in right-to-left layouts. The task drawer gets an empty state (EmptyState, [G29](#g29)) and a confirmation before a running task is cancelled.
+- **Decision:** The palette shows recent commands for an empty query, a no-match row that searches the document text on Enter (the a11-2 note), and unshipped commands disabled with the future-version hint. Toasts stack at the bottom end of the window, above the status bar, at most three at a time, and mirror in right-to-left layouts. The task drawer gets an empty state (EmptyState, [G29](#g29)) and a confirmation before a running task is cancelled. With the M4 plan (owner, 2026-11-06): Quit lists running jobs and asks, and cancelling leaves no partial file. The drawer also opens from the palette, which gives its empty state a way in. Toasts stack above the drawer when it is open, so they never overlap. The cheat sheet has fewer columns below 1100 px and lists every shortcut in the table, with the changed mark its note asks for.
 - **Status:** Decided
 - **Evidence:** CommandPalette appears only in a11-2 (11b line 34, `default-query="imza"`). No FmWindow board contains a toast. a11-6b sets `on-cancel={{ noop }}`.
 
@@ -853,7 +870,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Full settings
 - **Artboards:** `a11-1`, `a11-1b`, `a11-1g`, `a11-1h`, `a11-1k`, `a11-1w`, `a12-2c`, `a12-2d`, `a13-15b`, `a10-2`
 - **Gap or conflict:** Desktop Settings (a11-1 and a11-1b to a11-1k) exist only in light, on macOS and in English, plus Windows General (a11-1w), Arabic right-to-left Language (a12-2c) and German Windows Language (a12-2d). There is no dark desktop version (only mobile a13-15b is dark), no Turkish version (FmSettings supports en, de and ar) and no Linux version. Not drawn: settings search results and no-match, the network activity log behind "Show network activity…" (a11-1h), and the reset confirmation and import error behind "Reset settings…" and "Import settings…" (a11-1k). AI key entry is partly drawn in a10-2 (a provider picker and a disabled API key field); the entered, checking and failed states, and key entry from Settings › AI assistant (a11-1g), are missing.
-- **Decision:** Dark, Turkish and Linux Settings follow the same rules as [G17](#g17), [G19](#g19) and [G15](#g15). Settings search uses EmptyState when nothing matches ([G29](#g29)). The network activity log is a list of the connections Ferman made, kept on the device. Reset and import get a confirmation and a plain error. The AI key states arrive with the assistant in P4.
+- **Decision:** Dark, Turkish and Linux Settings follow the same rules as [G17](#g17), [G19](#g19) and [G15](#g15). Settings search uses EmptyState when nothing matches ([G29](#g29)). The network activity log is a list of the connections Ferman made, kept on the device. Reset and import get a confirmation and a plain error. The AI key states arrive with the assistant in P4. With the M4 plan (owner, 2026-11-06): settings import is a trust boundary: validated, with `lastDocuments` left out of export.
 - **Status:** Decided
 - **Evidence:** FmSettings: lang enum `[en, de, ar]`, platform enum `[mac, win]`, no theme prop; lines 73 and 83 hold buttons with no follow-up board.
 
@@ -1269,7 +1286,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Keyboard shortcuts
 - **Artboards:** `a2-3a`, `a3-1c`, `a1-10b`, `a2-7`, and every board that shows the Outline tab
 - **Gap or conflict:** ⌘B has two meanings. FmSidebar puts ⌘B (Ctrl+B) on Add bookmark, and the a2-3a note says "⌘B adds a bookmark at the current view". The edit box uses ⌘B for Bold, with ⌘I and ⌘U (FmEditPanel, a3-1c). a3-1c also puts ⌘K on Add link, which is the command palette's key in FmWindow. Dialogs bring keys of their own: in a1-10b ⌘D is "Don't save", while ⌘D is Duplicate in Organize. The a2-7 note opens with "⌘D.", the way other notes open with their command's key (a1-11 "⇧⌘S.", a2-4a "⌘F.", a2-5a "⌘L."), so Document properties takes ⌘D as well: a third meaning beside Duplicate in Organize and "Don't save" in a1-10b.
-- **Decision:** The shell's one table holds the commands of the window and its modes. In M1 it keeps ⌘B for Add bookmark and ⌘K for the command palette in every mode, as FmSidebar and FmWindow draw them. The edit box's formatting keys (⌘B, ⌘I, ⌘U, and ⌘K for Add link) and dialog accelerators such as a1-10b's ⌘D are not in the table. They belong to those components, and their clash with the table is settled when the edit box is built in M3 (Add link in P2). The table has no Document properties command yet; a2-7's ⌘D, which clashes with Duplicate in Organize, is settled when that dialog is built in M2.
+- **Decision:** The shell's one table holds the commands of the window and its modes. In M1 it keeps ⌘B for Add bookmark and ⌘K for the command palette in every mode, as FmSidebar and FmWindow draw them. The edit box's formatting keys (⌘B, ⌘I, ⌘U, and ⌘K for Add link) and dialog accelerators such as a1-10b's ⌘D are not in the table. They belong to those components, and their clash with the table is settled when the edit box is built in M3 (Add link in M4, on ⇧⌘K, [G144](#g144)). The table has no Document properties command yet; a2-7's ⌘D, which clashes with Duplicate in Organize, is settled when that dialog is built in M2.
 - **Status:** Decided
 - **Evidence:** `design/FmSidebar.dc.html` lines 20 (Add bookmark with `kBookmark`) and 171 (`kBookmark`: ⌘B, Ctrl+B); `design/02 View.dc.html` lines 90 (the a2-3a note), 120 and 140 (the a2-4a and a2-5a notes, "⌘F." and "⌘L.") and 180 (the a2-7 note, "⌘D."); `design/FmEditPanel.dc.html` line 71 (⌘B, ⌘I, ⌘U); `design/03a Edit text.dc.html` lines 50 (a3-1c, Add link with `kK`) and 159 (`kB`, `kI`, `kU`, `kK`); `design/FmWindow.dc.html` lines 30 (Search with `k.palette`) and 202 (`palette`: ⌘K); `design/01 First run and files.dc.html` lines 188 (the a1-10b note) and 211 (the a1-11 note, "⇧⌘S."); `design/11b App.dc.html` line 145 (Duplicate ⌘D). Implemented in `app/lib/features/shell/shortcuts.dart` lines 175–178 (the rule), 180–184 (`commandPalette`), 394–398 (`addBookmark`, every mode) and 593–598 (`duplicatePages`, Organize only) (M1 phase H5).
 
@@ -1672,11 +1689,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 ### G111 · Save as: "Optimized for web" drawn enabled
 
 - **Type:** conflict
-- **Milestone:** M3
+- **Milestone:** M4
 - **Area:** Saving
 - **Artboards:** `a1-11`, `a1-11b`
 - **Gap or conflict:** a1-11 and a1-11b (export 519d42a) draw Save as with three formats: "PDF", "PDF/A-2b, for archiving" and "Optimized for web" ("The first page opens before the whole file downloads. Images are compressed to 150 ppi."). a1-11b draws only PDF/A-2b disabled, which reads as "Optimized for web" being available when Save as ships in M3. ROADMAP §7 step 8 keeps both disabled. Writing a linearized file with downsampled images needs the image pipeline that arrives with Compress in M4, beyond M3's writer (incremental update and the full rewrite).
-- **Decision:** "Optimized for web" stays visible and disabled with "Available in a future version" until M4, when Compress brings the image pipeline; PDF/A-2b stays disabled until P4. The decision is looked at again when M3 is planned: if linearizing without image changes fits M3, the format could ship then with its description shortened to the first sentence.
+- **Decision:** "Optimized for web" stays visible and disabled with "Available in a future version" until M4, when Compress brings the image pipeline; PDF/A-2b stays disabled until P4. The decision is looked at again when M3 is planned: if linearizing without image changes fits M3, the format could ship then with its description shortened to the first sentence. With the M4 plan (owner, 2026-11-06): "Optimized for web" stays disabled and moves to P2 with its own row (B186): it needs a linearizing writer with hint tables on the file-safety path, and no M4 criterion asks for it. Include comments and Remove edit history ship in M4 W4 (B138), which is why the milestone moved from M3 to M4.
 - **Status:** Decided. Built in M3 (W4): both formats are disabled with the reason in place of their description, as a1-11b draws PDF/A-2b (`Feature.pdfAAndPreflight`, `Feature.compress`). The sheet's two options are disabled too (`Feature.saveAsOptions`, B138), each showing what Save as does: comments are kept (checked) and the edit history stays in the file as an incremental update (unchecked), without the line about version history kept next to the file, which does not exist yet.
 - **Evidence:** `design/01 First run and files.dc.html` line 266 (a1-11's three format radios) and line 297 (a1-11b: only PDF/A-2b carries `disabled`); [ROADMAP.md §7](ROADMAP.md) step 8.
 
@@ -1939,3 +1956,211 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Dialogs, lists and notices at phone width:** A modal dialog takes the card of `a13-16c`, the only dialog the phone boards draw: larger corners, a plain 24 px glyph above a 22 px title, and the buttons wrapping at the end, with `footerStart` above them. It keeps three things of its own: the 16 px margin of the scrim (the board's 24 px would cost a 320 px phone 16 px of text), its Close button (the board has none, but a scrim is not something people find), and the head scrolling with the body, for a long title on a short screen. A `Select` opens the bottom sheet of `a13-8c`: grabber, title, 56 px rows with the check at the end, and a search field above more than 8 options, folding case in the UI language and in the root casing, so "ist" finds İstanbul and "ita" finds Italiano in Turkish, without taking focus (a keyboard would hide half the list). The board's search note ("“ist” matches İstanbul") is a sample, not copy, so it is left out. A drag down on the grabber or title closes the sheet; it does not follow the finger, which no board asks of a list. Menu rows, the check row and a banner's Dismiss grow to the touch minimum, and a tooltip wraps. A `Select` with a `menu` (the zoom menu, in the shell only) keeps its popover, and the Toast needs no change: it is narrower when its parent is.
 - **Status:** Decided.
 - **Evidence:** `design/FmPhone.dc.html`, `design/FmMHome.dc.html`, `design/13a Mobile core.dc.html`, `design/13b Mobile tasks.dc.html`. Implemented in `app/lib/design/window_metrics.dart`, `app/lib/app/app.dart`, `app/lib/app/router.dart`, `app/lib/design/components/core/tooltip.dart`, `app/lib/design/components/overlays/dialog.dart`, `app/lib/design/components/forms/select.dart`, `app/lib/features/phone/fm_phone.dart`, `app/lib/features/onboarding/`, `app/lib/features/start/start_screen.dart` (`_PhoneHome`), `app/lib/features/start/recent_files_view.dart` (`_phoneContent`) and `app/lib/features/settings/phone_settings.dart`; tests in `app/test/features/phone/phone_foundation_test.dart`, `app/test/features/phone/phone_overlays_test.dart`, `app/test/features/onboarding/onboarding_phone_test.dart`, `app/test/features/start/phone_start_test.dart` and `app/test/features/settings/phone_settings_test.dart`; goldens declared in `app/test/goldens/first_run_phone_golden_test.dart`, `phone_start_golden_test.dart` and `phone_settings_golden_test.dart`.
+
+<a id="g142"></a>
+
+### G142 · Split: the board's four modes against ROADMAP's three
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: split
+- **Artboards:** `a6-2`
+- **Gap or conflict:** ROADMAP §8 said to split "by page ranges, size or outline level". a6-2 draws four other choices: every few pages, top-level bookmarks, file size and blank separator pages. No page ranges and no choice of outline level.
+- **Decision:** The board's four modes. Page ranges are Extract's job. Pages before the first bookmark become a file of their own, named by the template. ROADMAP §8 is corrected.
+- **Status:** Decided (owner, M4 plan, decision 4, 2026-11-06).
+- **Evidence:** `design/06 Organize.dc.html` lines 60 and 66.
+
+<a id="g143"></a>
+
+### G143 · Split: "Same folder as the original" under the sandbox
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: split
+- **Artboards:** `a6-2`
+- **Gap or conflict:** a6-2 offers "Same folder as the original" as the default place for its output. The macOS sandbox grants only the opened file, so Ferman cannot write beside it without asking (B139, [ADR 0008](adr/0008-file-safety-and-saving.md)).
+- **Decision:** Under the sandbox, this choice asks for the folder through the picker once ([ADR 0018](adr/0018-native-file-pickers.md)). Elsewhere it works as drawn.
+- **Status:** Decided (owner, M4 plan, decision 5, 2026-11-06).
+- **Evidence:** `design/06 Organize.dc.html` line 141.
+
+<a id="g144"></a>
+
+### G144 · Add link's key
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Links: keyboard
+- **Artboards:** `a3-6`, `a3-1c`, `a11-3`
+- **Gap or conflict:** a3-6, a3-1c and a11-3's note put Add link on ⌘K. [G141](#g141) keeps ⌘K the command palette in every mode, even while text is selected.
+- **Decision:** Add link takes ⇧⌘K (Ctrl+Shift+K), which the shortcut table leaves free. Where a board shows ⌘K beside Add link, the app shows ⇧⌘K. [G82](#g82) is corrected: Add link is M4, not P2.
+- **Status:** Decided (owner, M4 plan, decision 8, 2026-11-06).
+- **Evidence:** `design/03b Edit content.dc.html` lines 106 and 252; `design/03a Edit text.dc.html` line 50; `design/11b App.dc.html` line 36; `app/lib/features/shell/shortcuts.dart` line 180.
+
+<a id="g145"></a>
+
+### G145 · Following a link: the prompt is only a sentence
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Links: following them
+- **Artboards:** `a3-6`
+- **Gap or conflict:** a3-6's panel says "Ferman asks before opening a web link or a file from a PDF" and draws no prompt. It says nothing about `/Launch` or `javascript:`. A link's target is text from an untrusted document.
+- **Decision:** `/Launch` never runs. `javascript:` is refused. Web, file and GoToR links ask first, with new copy that shows the target. They open through the OS, so Ferman itself connects to nothing. Links inside the document just go.
+- **Status:** Decided (owner, M4 plan, decision 13, 2026-11-06).
+- **Evidence:** `design/03b Edit content.dc.html` line 103; [Q13](QUESTIONS.md#q13).
+
+<a id="g146"></a>
+
+### G146 · Flatten: the copy that cannot be written, and "aren't affected"
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Comment: flatten
+- **Artboards:** `a4-5b`
+- **Gap or conflict:** a4-5b keeps a commented copy by default and draws no state for a copy that cannot be written. Its "Form fields and signatures aren't affected" is true of how they look, and false of a signature's validity: flattening changes page content.
+- **Decision:** The copy is written first, through the safe path; if that fails, nothing changes. Flatten always goes through the signed check, and the line gets new copy about appearance, not validity.
+- **Status:** Decided (owner, M4 plan, decision 15, 2026-11-06).
+- **Evidence:** `design/04 Comment.dc.html` lines 149, 155 and 156.
+
+<a id="g147"></a>
+
+### G147 · Declared formats and ranges live in script calls
+
+- **Type:** ambiguity
+- **Milestone:** M4
+- **Area:** Fill: validation
+- **Artboards:** `a5-2`, `a5-2b`
+- **Gap or conflict:** a5-2 opens a date picker in the field's own format and fails a number out of range. A PDF declares both only as JavaScript actions (`AFDate_*`, `AFNumber_*`, `AFRange_Validate`), and scripts never run ([Q13](QUESTIONS.md#q13), [G100](#g100)). a5-2b draws other checks too.
+- **Decision:** Ferman reads the literal arguments of AFDate, AFNumber, AFRange and AFPercent as declared format and range, through a fuzzed reader. Nothing runs, `AFSimple_Calculate` included. a5-2b's other checks show only when the file declares them.
+- **Status:** Decided (owner, M4 plan, decision 17, 2026-11-06).
+- **Evidence:** `design/05a Fill.dc.html` lines 46 and 53.
+
+<a id="g148"></a>
+
+### G148 · What a simple signature is in the file
+
+- **Type:** ambiguity
+- **Milestone:** M4
+- **Area:** Sign: simple signatures
+- **Artboards:** `a5-3`, `a5-3b`, `a5-3c`, `a5-3d`
+- **Gap or conflict:** The boards place a typed, drawn or image signature, on a signature field or anywhere, and do not say what it becomes. `/V` on a signature field would make the file read as digitally signed.
+- **Decision:** A stamp annotation with a private key naming the field, never `/V` on a signature field, so `signed()` stays honest and a later certificate signature stays possible. Rotation works. It counts as filling a required signature field and reopens through that key.
+- **Status:** Decided (owner, M4 plan, decisions 20 and 21, 2026-11-06).
+- **Evidence:** [ARCHITECTURE.md §5.8](ARCHITECTURE.md#58-pages-annotations-and-forms-m4).
+
+<a id="g149"></a>
+
+### G149 · No handwriting style can draw the name
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Sign: typed signature
+- **Artboards:** `a5-3`
+- **Gap or conflict:** a5-3 hides styles that cannot draw every letter of the name, and draws no state where all three are hidden, as for an Arabic or CJK name.
+- **Decision:** Draw and Image stay, and a line says why no style is shown.
+- **Status:** Decided (owner, M4 plan, decision 23, 2026-11-06).
+- **Evidence:** `design/05a Fill.dc.html` line 106.
+
+<a id="g150"></a>
+
+### G150 · Combine: "9 pages" against its own 8
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: combine
+- **Artboards:** `a6-3`
+- **Gap or conflict:** a6-3's head says "5 files · 9 pages" and its result "RESULT · 9 PAGES", but its ranges and `combPages` give 8 pages.
+- **Decision:** The app counts the pages it will write. The board's list is the sample, so a golden from it says 8. Internal to the design's sample data.
+- **Status:** Decided.
+- **Evidence:** `design/06 Organize.dc.html` lines 74, 81 and 150.
+
+<a id="g151"></a>
+
+### G151 · Page labels: ranges past the last page
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: page labels
+- **Artboards:** `a6-5`
+- **Gap or conflict:** a6-5's sample has a range "65–66" on a document drawn with 64 pages.
+- **Decision:** A range holds to the document's page count, and one past the last page is an error in the row. The board's three styles stay the sample, with the third range kept inside the sample document's pages.
+- **Status:** Decided.
+- **Evidence:** `design/06 Organize.dc.html` lines 104 and 154.
+
+<a id="g152"></a>
+
+### G152 · Combine: an image with no page size
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: combine
+- **Artboards:** `a6-3`
+- **Gap or conflict:** a6-3 lists an image as "converted to 1 page", with no page size or resolution drawn.
+- **Decision:** A4 or Letter by region, with the image scaled to fit.
+- **Status:** Decided.
+- **Evidence:** `design/06 Organize.dc.html` line 147.
+
+<a id="g153"></a>
+
+### G153 · Custom stamps: export has no control
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Comment: stamps
+- **Artboards:** `a4-3`, `a4-3b`
+- **Gap or conflict:** a4-3b's note says custom stamps "can be exported to share with colleagues", and no board draws a control for it.
+- **Decision:** Export sits in the stamp's menu in the library.
+- **Status:** Decided.
+- **Evidence:** `design/04 Comment.dc.html` line 103.
+
+<a id="g154"></a>
+
+### G154 · Dynamic stamps: "the document's date format"
+
+- **Type:** ambiguity
+- **Milestone:** M4
+- **Area:** Comment: stamps
+- **Artboards:** `a4-3`
+- **Gap or conflict:** a4-3's note fills dynamic stamps in "the document's date format". A PDF has no date format.
+- **Decision:** The region's format. The name and date are filled at placement (M4 plan, decision 10).
+- **Status:** Decided.
+- **Evidence:** `design/04 Comment.dc.html` line 91.
+
+<a id="g155"></a>
+
+### G155 · Flatten: "Undo works until the file is saved"
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Comment: flatten
+- **Artboards:** `a4-5b`
+- **Gap or conflict:** a4-5b's note limits undo to before a save. The engine's history lives until the document closes, and an undo past a save works ([ARCHITECTURE.md §3.6](ARCHITECTURE.md#36-edit-transactions-and-undo), a3-10).
+- **Decision:** A flatten is one more history step: undo works after a save too, until the document closes. The sentence is a board note, not copy, so nothing in the app says otherwise.
+- **Status:** Decided.
+- **Evidence:** `design/04 Comment.dc.html` line 149; `crates/ferman-api/src/facade/edit.rs` line 3393.
+
+<a id="g156"></a>
+
+### G156 · Fonts pane: a sample chip the font does not cover
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Settings: fonts
+- **Artboards:** `a11-1d`
+- **Gap or conflict:** FmSettings gives IBM Plex Sans Arabic the chips TR, LX and AR, but that font carries no Turkish letters.
+- **Decision:** Real coverage wins: chips are read from the font files, as the board's note says, so the app shows no TR chip on it and a golden differs from the board there.
+- **Status:** Decided.
+- **Evidence:** `design/FmSettings.dc.html` line 142; `.claude/rules/flutter.md` line 61.
+
+<a id="g157"></a>
+
+### G157 · Palette: Turkish case folding in any language
+
+- **Type:** ambiguity
+- **Milestone:** M4
+- **Area:** Command palette
+- **Artboards:** `a11-2`
+- **Gap or conflict:** a11-2's note says matching folds Turkish case, so "imza" finds "İmzalar". COMPONENTS decision 18 uses the app locale's casing rules, so in an English UI a heading in the document might not match.
+- **Decision:** The query and keywords follow the UI language's rules, and the document's own text (page and outline titles, file names) is folded in Turkish too, whatever the UI language.
+- **Status:** Decided.
+- **Evidence:** `design/11b App.dc.html` lines 28 and 178; [COMPONENTS.md](COMPONENTS.md), decision 18.
