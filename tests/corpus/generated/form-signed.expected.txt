@@ -1,0 +1,7 @@
+Taahhütname
+Ad ve kimlik numarası imzayla kilitlenmiştir; adres ve ikinci imza açıktır.
+Adı soyadı
+T.C. Kimlik No
+Adres
+Birinci imza
+İkinci imza

@@ -24,8 +24,8 @@ use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use ferman_core::Document;
 use ferman_core::revision::RevisionStore;
+use ferman_core::{Document, DocumentOp};
 use ferman_render::DocumentId;
 
 use super::document::Model;
@@ -168,6 +168,10 @@ type ChangeWriter = Box<dyn FnOnce(&Document, &mut RevisionStore) -> Result<(), 
 
 /// A change for the open document that a job prepared.
 pub struct JobChange {
+    /// The operation it is, which the document's permissions and signatures gate.
+    pub op: DocumentOp,
+    /// The full names of the form fields a [`DocumentOp::Fill`] fills.
+    pub fields: Vec<String>,
     /// Its history step's name.
     pub name: String,
     /// The pages it changes, as the revisions read leave them.
@@ -701,7 +705,14 @@ impl Engine {
                         return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                             .with_details(JOB_STALE));
                     }
-                    session.commit_change(change.name, &change.pages, change.summary, change.write)
+                    session.commit_change(
+                        change.op,
+                        &change.fields,
+                        change.name,
+                        &change.pages,
+                        change.summary,
+                        change.write,
+                    )
                 })
                 .await?;
             Ok(self.revision_info(document, current, reload).await)
@@ -1102,6 +1113,8 @@ mod tests {
     /// A change that rotates the first page.
     fn rotate() -> JobChange {
         JobChange {
+            op: DocumentOp::Organize,
+            fields: Vec::new(),
             name: "Rotated".to_owned(),
             pages: vec![0],
             summary: (String::new(), String::new()),

@@ -1,12 +1,16 @@
 //! The generators of the first wave (ADR 0020) and what they share: a [`Doc`] that loads faces
 //! once and makes the font resources a producer would, and helpers for page decorations.
 
+mod annotations;
+mod combine;
 mod contracts;
 mod damaged;
 mod edits;
 mod encodings;
 mod files;
+mod form_cases;
 mod forms;
+mod images;
 mod invoice;
 mod kira;
 mod letter;
@@ -79,7 +83,20 @@ pub const GENERATORS: &[Generator] = &[
     edits::EDIT_E17_KERNED_STANDIN,
     edits::EDIT_E18_COLUMNS_STANDIN,
     paragraphs::JA_PARA,
+    annotations::ANNOTS_OTHER_PRODUCER,
+    form_cases::CERT_P1,
+    form_cases::CERT_P2,
+    form_cases::CERT_P3,
+    form_cases::FORM_SIGNED,
+    form_cases::FORM_HYBRID_XFA,
+    form_cases::FORM_NEED_APPEARANCES,
+    form_cases::FORM_SCRIPT,
+    form_cases::FORM_LISTS_COMB,
+    combine::COMBINE_OUTLINE,
+    images::IMAGES_COMPRESS,
 ];
+
+pub use images::PROBES;
 
 /// The `/Producer` of every generated file.
 pub const PRODUCER: &str = "Ferman tools/corpus";
@@ -349,6 +366,7 @@ pub fn generated(pdf: Vec<u8>, expected: impl Into<Expected>) -> Generated {
         pdf,
         expected_text: text,
         blocks,
+        extras: Vec::new(),
     }
 }
 
@@ -552,6 +570,241 @@ mod tests {
         let doc = load(&edits::EDIT_E20_FORM_TWICE);
         let content = doc.get_page_content(doc.get_pages()[&1]);
         assert_eq!(content.windows(7).filter(|w| *w == b"/Fm1 Do").count(), 2);
+    }
+
+    /// The subtypes of `page`'s annotations, direct or not.
+    fn annotation_types(doc: &lopdf::Document, page: ObjectId) -> Vec<String> {
+        doc.get_dictionary(page)
+            .unwrap()
+            .get(b"Annots")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|annot| {
+                let dict = match annot {
+                    Object::Reference(id) => doc.get_dictionary(*id).unwrap(),
+                    other => other.as_dict().unwrap(),
+                };
+                let subtype = dict.get(b"Subtype").unwrap().as_name().unwrap();
+                String::from_utf8_lossy(subtype).into_owned()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn the_other_producers_file_has_every_type_with_and_without_appearances() {
+        let pdf = make(&annotations::ANNOTS_OTHER_PRODUCER);
+        let doc = lopdf::Document::load_mem(&pdf).unwrap();
+        let pages = doc.get_pages();
+        let types = annotation_types(&doc, pages[&1]);
+        for subtype in [
+            "Highlight",
+            "Underline",
+            "StrikeOut",
+            "Squiggly",
+            "Text",
+            "Popup",
+            "FreeText",
+            "Ink",
+            "Square",
+            "Circle",
+            "Line",
+            "Polygon",
+            "Stamp",
+            "Caret",
+            "ACME_Mark",
+        ] {
+            assert!(types.iter().any(|t| t == subtype), "{subtype}: {types:?}");
+        }
+        let second = doc.get_dictionary(pages[&2]).unwrap();
+        assert_eq!(second.get(b"Rotate").unwrap().as_i64().unwrap(), 90);
+        let has = |needle: &[u8]| pdf.windows(needle.len()).any(|w| w == needle);
+        assert!(has(b"/RC") && has(b"/IRT") && has(b"/State") && has(b"/ACME_Data"));
+        // Both with and without an appearance.
+        let dicts: Vec<&Dictionary> = doc
+            .objects
+            .values()
+            .filter_map(|object| object.as_dict().ok())
+            .filter(|dict| dict.has(b"NM"))
+            .collect();
+        assert!(dicts.iter().any(|dict| dict.has(b"AP")));
+        assert!(dicts.iter().any(|dict| !dict.has(b"AP")));
+    }
+
+    #[test]
+    fn the_certified_files_declare_their_levels() {
+        for (generator, level) in [
+            (&form_cases::CERT_P1, 1),
+            (&form_cases::CERT_P2, 2),
+            (&form_cases::CERT_P3, 3),
+        ] {
+            let doc = lopdf::Document::load_mem(&make(generator)).unwrap();
+            let perms = doc.catalog().unwrap().get(b"Perms").unwrap();
+            let value = perms.as_dict().unwrap().get(b"DocMDP").unwrap();
+            let value = doc.get_dictionary(value.as_reference().unwrap()).unwrap();
+            let reference = value.get(b"Reference").unwrap().as_array().unwrap();
+            let params = reference[0]
+                .as_dict()
+                .unwrap()
+                .get(b"TransformParams")
+                .unwrap()
+                .as_dict()
+                .unwrap();
+            assert_eq!(params.get(b"P").unwrap().as_i64().unwrap(), level);
+        }
+    }
+
+    /// A form's `/AcroForm`, as a dictionary of the loaded document.
+    fn acro_form(doc: &lopdf::Document) -> &Dictionary {
+        doc.catalog()
+            .unwrap()
+            .get(b"AcroForm")
+            .unwrap()
+            .as_dict()
+            .unwrap()
+    }
+
+    #[test]
+    fn the_signed_form_locks_two_fields_through_field_mdp() {
+        let pdf = make(&form_cases::FORM_SIGNED);
+        let doc = lopdf::Document::load_mem(&pdf).unwrap();
+        let root = doc.trailer.get(b"Root").unwrap().as_reference().unwrap();
+        let value = doc
+            .objects
+            .values()
+            .filter_map(|object| object.as_dict().ok())
+            .find(|dict| dict.has(b"ByteRange"))
+            .unwrap();
+        let reference = value.get(b"Reference").unwrap().as_array().unwrap();
+        let reference = reference[0].as_dict().unwrap();
+        assert_eq!(
+            reference
+                .get(b"TransformMethod")
+                .unwrap()
+                .as_name()
+                .unwrap(),
+            b"FieldMDP"
+        );
+        assert_eq!(
+            reference.get(b"Data").unwrap().as_reference().unwrap(),
+            root
+        );
+        let flags = acro_form(&doc).get(b"SigFlags").unwrap();
+        assert_eq!(flags.as_i64().unwrap(), 3);
+    }
+
+    #[test]
+    fn the_form_cases_have_what_they_are_for() {
+        let doc = lopdf::Document::load_mem(&make(&form_cases::FORM_HYBRID_XFA)).unwrap();
+        assert!(acro_form(&doc).has(b"XFA"));
+        assert!(
+            !acro_form(&doc)
+                .get(b"Fields")
+                .unwrap()
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
+        assert!(!doc.catalog().unwrap().has(b"NeedsRendering"));
+
+        let doc = lopdf::Document::load_mem(&make(&form_cases::FORM_NEED_APPEARANCES)).unwrap();
+        assert_eq!(
+            acro_form(&doc).get(b"NeedAppearances").unwrap(),
+            &Object::Boolean(true)
+        );
+        let pages = doc.get_pages();
+        let page = doc.get_dictionary(pages[&1]).unwrap();
+        for widget in page.get(b"Annots").unwrap().as_array().unwrap() {
+            let widget = doc.get_dictionary(widget.as_reference().unwrap()).unwrap();
+            assert!(!widget.has(b"AP"));
+        }
+
+        let pdf = make(&form_cases::FORM_SCRIPT);
+        for script in [&b"/AA"[..], b"AFSimple_Calculate", b"/CO", b"/JavaScript"] {
+            assert!(pdf.windows(script.len()).any(|w| w == script));
+        }
+
+        let pdf = make(&form_cases::FORM_LISTS_COMB);
+        let doc = lopdf::Document::load_mem(&pdf).unwrap();
+        let flags: Vec<i64> = doc
+            .objects
+            .values()
+            .filter_map(|object| object.as_dict().ok())
+            .filter_map(|dict| dict.get(b"Ff").ok())
+            .filter_map(|flags| flags.as_i64().ok())
+            .collect();
+        assert!(flags.contains(&(1 << 21)), "a multiple-selection list");
+        assert!(flags.contains(&(1 << 24)), "a comb field");
+    }
+
+    #[test]
+    fn the_combine_fixture_has_two_pages_an_outline_and_a_jpeg() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let outputs = combine::COMBINE_OUTLINE
+            .outputs(&Sources::new(&root))
+            .unwrap();
+        let doc = lopdf::Document::load_mem(&outputs[0].1).unwrap();
+        assert_eq!(doc.get_pages().len(), 2);
+        assert!(doc.catalog().unwrap().has(b"Outlines"));
+        let (name, jpeg) = outputs.last().unwrap();
+        assert_eq!(name, "generated/combine-photo.jpg");
+        assert_eq!(&jpeg[..2], &[0xFF, 0xD8]);
+    }
+
+    #[test]
+    fn the_image_file_has_every_kind_of_image() {
+        let pdf = make(&images::IMAGES_COMPRESS);
+        let has = |needle: &[u8]| pdf.windows(needle.len()).any(|w| w == needle);
+        for key in [
+            &b"/DCTDecode"[..],
+            b"/FlateDecode",
+            b"/JPXDecode",
+            b"/DeviceCMYK",
+            b"/SMask",
+            b"/ImageMask",
+            b"/Indexed",
+            b"/Pattern",
+        ] {
+            assert!(has(key), "{}", String::from_utf8_lossy(key));
+        }
+    }
+
+    /// The object a top-level outline item points at, as a page number from 0.
+    fn top_level_pages(doc: &lopdf::Document) -> Vec<usize> {
+        let order: Vec<ObjectId> = doc.get_pages().into_values().collect();
+        let outlines = doc.catalog().unwrap().get(b"Outlines").unwrap();
+        let outlines = doc
+            .get_dictionary(outlines.as_reference().unwrap())
+            .unwrap();
+        let mut item = outlines.get(b"First").ok().cloned();
+        let mut pages = Vec::new();
+        while let Some(Object::Reference(id)) = item {
+            let dict = doc.get_dictionary(id).unwrap();
+            let dest = dict.get(b"Dest").unwrap().as_array().unwrap();
+            let page = dest[0].as_reference().unwrap();
+            pages.push(order.iter().position(|id| *id == page).unwrap());
+            item = dict.get(b"Next").ok().cloned();
+        }
+        pages
+    }
+
+    #[test]
+    fn splitting_the_thesis_by_chapter_adds_up_to_its_pages() {
+        // Decision 4: pages before the first top-level bookmark are a file of their own.
+        let doc = lopdf::Document::load_mem(&make(&tez::TEZ_TR)).unwrap();
+        let starts = top_level_pages(&doc);
+        assert_eq!(starts[0], 2, "the cover and KABUL VE ONAY have no entry");
+        assert!(
+            starts.windows(2).all(|pair| pair[0] < pair[1]),
+            "{starts:?}"
+        );
+        let mut bounds = vec![0];
+        bounds.extend(&starts);
+        bounds.push(64);
+        let sizes: Vec<usize> = bounds.windows(2).map(|pair| pair[1] - pair[0]).collect();
+        assert_eq!(sizes.iter().sum::<usize>(), 64);
+        assert!(sizes.iter().all(|size| *size > 0), "{sizes:?}");
     }
 
     #[test]

@@ -1,0 +1,3 @@
+Ek A: Teslim tutanağı
+Kiracı, dairenin anahtarlarını ve sayaç okumalarını bu tutanakla teslim almıştır.Ek B: Demirbaş listesi
+Dairede bulunan demirbaşlar, teslim tarihindeki durumlarıyla bu listede yer alır.

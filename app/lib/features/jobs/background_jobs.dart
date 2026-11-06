@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/engine/engine_providers.dart';
@@ -207,8 +208,10 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
       state = state.copyWith(open: true, cancelling: state.cancelling);
 
   /// Hides the drawer; the jobs go on.
-  void closeDrawer() =>
-      state = state.copyWith(open: false, cancelling: state.cancelling);
+  void closeDrawer() {
+    state = state.copyWith(open: false, cancelling: state.cancelling);
+    ref.read(taskDrawerHeightProvider.notifier).set(0);
+  }
 
   /// The status bar's task.
   void toggleDrawer() => state.open ? closeDrawer() : openDrawer();

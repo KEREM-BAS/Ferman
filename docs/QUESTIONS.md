@@ -847,7 +847,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Status:** Answered on 2026-11-06, with the M4 plan
 - **Related:** [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules),
   [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), ROADMAP §6 step 2
-- **Answer:** The owner, 2026-11-06: (a), and the engine keeps its own wiped copy until the document closes, so a password-opened document reloads with it (M4 W0; this also fixes B111 and M3's stale canvas there).
+- **Answer:** The owner, 2026-11-06: (a), and the engine keeps its own wiped copy until the document closes, so a password-opened document reloads with it (M4 W0; this also fixes B111 for those documents and M3's stale canvas there). Built: the render thread holds the password by value in `LoadedDocument` until close; `Engine::open`'s parse copy is still wiped when the open ends.
 
 ### Q23 · Open documents without an IndexedStack
 

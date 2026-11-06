@@ -1,0 +1,9 @@
+Üyelik formu
+Bu formun alanlarının görünüm akışı yoktur; değerler yine de doludur.
+Adı soyadı
+Telefon
+Bültene abone
+Üyelik: bireysel
+Üyelik: kurumsal
+Şehir
+Şube

@@ -58,6 +58,14 @@ each file covers.
 | `fa-zwnj`, `he-para`, `zh-hans`, `zh-hant`, `ko-para` | `docs/paragraphs.rs` | One-page notices in Persian with ZWNJ, Hebrew, Simplified and Traditional Chinese and Korean (E10 to E12) |
 | `edit-e04-differences`, `edit-e05-fstype`, `edit-e15-helvetica`, `edit-e16-type3`, `edit-macroman`, `edit-90ms-rksj`, `edit-cff-cid` | `docs/encodings.rs` | The font and encoding cases: a glyph outside the encoding, a restricted `fsType`, standard 14 Helvetica, Type3, MacRoman, a predefined CMap, a CID-keyed CFF font |
 | `edit-e19-rotate`, `edit-e20-form-twice`, `edit-e21-actualtext`, `edit-e22-split-contents`, `edit-e23-shared-contents`, `edit-e26-inline-image` | `docs/edits.rs` | The structure cases: a turned page, a Form XObject placed twice, `/ActualText`, split and shared content streams, an inline image |
+| `annots-other-producer` | `docs/annotations.rs` | A contract review with every annotation type `a4-1` draws, as another program writes them |
+| `cert-p1`, `cert-p2`, `cert-p3`, `form-signed`, `form-hybrid-xfa`, `form-need-appearances`, `form-script`, `form-lists-comb` | `docs/form_cases.rs` | Certified at each DocMDP level; a signed form with FieldMDP; AcroForm with XFA; no `/AP`; scripts that would change values; list boxes and comb fields |
+| `combine-outline` | `docs/combine.rs` | The Combine fixture: a 2-page PDF with an outline, and `combine-photo.jpg`, a standalone JPEG (an extra, with its own row) |
+| `images-compress` | `docs/images.rs` | The Compress fixture: every kind of image, one per slot |
+| `annots-other-producer` | `docs/annotations.rs` | A contract review with every annotation type `a4-1` draws, as another program writes them |
+| `cert-p1`, `cert-p2`, `cert-p3`, `form-signed`, `form-hybrid-xfa`, `form-need-appearances`, `form-script`, `form-lists-comb` | `docs/form_cases.rs` | Certified at each DocMDP level; a signed form with FieldMDP; AcroForm with XFA; no `/AP`; scripts that would change values; list boxes and comb fields |
+| `combine-outline` | `docs/combine.rs` | The Combine fixture: a 2-page PDF with an outline, and `combine-photo.jpg`, a standalone JPEG (an extra, with its own row) |
+| `images-compress` | `docs/images.rs` | The Compress fixture: every kind of image, one per slot |
 
 The generators share a small PDF writer:
 
@@ -78,8 +86,8 @@ The generators share a small PDF writer:
 - **`raster.rs`:** the scanner: glyph outlines and rectangles filled into a greyscale bitmap, the
   page turned slightly, and the image written greyscale with PNG predictors or at one bit per pixel.
 - **`crypt.rs`:** the standard security handler, with seeded initialisation vectors and salts.
-- **`docs/files.rs`:** the attachments: a stored zip for the spreadsheet, and greyscale JPEGs coded
-  with DC coefficients only.
+- **`docs/files.rs`:** the attachments: a stored zip for the spreadsheet, and JPEGs (grey, YCbCr or
+  CMYK) coded with DC coefficients only.
 
 ## The fonts
 
@@ -94,7 +102,7 @@ CI caches the folder by the hash of `fonts.lock`.
 
 ## What a generator makes
 
-Each generator writes two or three files to `tests/corpus/generated/`:
+Each generator writes two or three files to `tests/corpus/generated/`, and a fixture may add a file of another kind with a README row of its own (`combine-photo.jpg`):
 
 - **`<name>.pdf`:** the document.
 - **`<name>.expected.txt`:** the text a reader should extract, one page per form feed (U+000C), in
@@ -112,7 +120,7 @@ Each generator writes two or three files to `tests/corpus/generated/`:
   justified, at most `BLOCK_PITCH` ems below at an even leading, nothing between), and a generator
   groups the lines it draws one by one (`PageText::group`), marks table cells (`PageText::cell`)
   and reorders blocks it draws out of reading order (a running head drawn last). `form-aks1-tr`,
-  `form-aks1-flat`, `ocg-plan` and `truncated` have none yet; the test skips `disagree-pages`,
+  `form-aks1-flat`, `ocg-plan`, `truncated` and M4's forms, annotations, combine and image files have none yet; the test skips `disagree-pages`,
   whose page count depends on the reader, and the files too large to commit.
 
 The output is the same bytes on every run and every system:
@@ -158,6 +166,10 @@ reader independent of lopdf:
   of numbers and orders vertical columns its own way.
 - **An encrypted file** does not open without its password.
 - **A file that should not open** (`truncated`) does not.
+
+It also renders `images-compress` and holds the centre of every image to its colour, so JPX, CMYK and the masks are known to paint.
+
+A second test renders `images-compress` and holds the centre of every image to its colour, so JPX, CMYK and the masks are known to paint.
 
 `FERMAN_CORPUS_ONLY=<name>` limits a run to one generator. The unit tests in `src/docs/mod.rs`
 check the damage itself with lopdf: `disagree-pages` has two pages for lopdf, `truncated` stops

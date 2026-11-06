@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
@@ -62,87 +63,115 @@ class TaskDrawer extends ConsumerWidget {
     final jobs = ref.read(backgroundJobsProvider.notifier);
     return Align(
       alignment: AlignmentDirectional.bottomEnd,
-      child: Semantics(
-        container: true,
-        label: l10n.tasksTitle,
-        child: Container(
-          width: width,
-          decoration: BoxDecoration(
-            color: theme.colors.surfaceRaised,
-            borderRadius: BorderRadius.all(
-              Radius.circular(theme.radius.radiusLg),
+      child: _ReportsHeight(
+        child: Semantics(
+          container: true,
+          label: l10n.tasksTitle,
+          child: Container(
+            width: width,
+            decoration: BoxDecoration(
+              color: theme.colors.surfaceRaised,
+              borderRadius: BorderRadius.all(
+                Radius.circular(theme.radius.radiusLg),
+              ),
+              boxShadow: theme.elevation.shadowPopover,
             ),
-            boxShadow: theme.elevation.shadowPopover,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                padding: EdgeInsetsDirectional.symmetric(
-                  horizontal: theme.space.space3,
-                  vertical: theme.space.space2_5,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: theme.colors.borderSubtle,
-                      width: theme.border.borderWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: EdgeInsetsDirectional.symmetric(
+                    horizontal: theme.space.space3,
+                    vertical: theme.space.space2_5,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: theme.colors.borderSubtle,
+                        width: theme.border.borderWidth,
+                      ),
                     ),
                   ),
-                ),
-                child: Row(
-                  spacing: theme.space.space2,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l10n.tasksTitle,
-                        style: theme.typography.panelTitle.copyWith(
-                          color: theme.colors.textPrimary,
+                  child: Row(
+                    spacing: theme.space.space2,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.tasksTitle,
+                          style: theme.typography.panelTitle.copyWith(
+                            color: theme.colors.textPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: IconName.chevronDown,
-                      label: l10n.tasksClose,
-                      size: IconButtonSize.xs,
-                      onPressed: jobs.closeDrawer,
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: rows.isEmpty
-                    ? Padding(
-                        padding: EdgeInsetsDirectional.only(
-                          bottom: theme.space.space6,
-                        ),
-                        child: EmptyState(
-                          icon: IconName.listChecks,
-                          title: l10n.tasksEmptyTitle,
-                          body: l10n.tasksEmptyBody,
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        padding: EdgeInsetsDirectional.all(
-                          theme.space.space2_5,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: theme.space.space2,
-                          children: [
-                            for (final row in rows)
-                              taskProgressOf(row, l10n, format, jobs),
-                          ],
-                        ),
+                      IconButton(
+                        icon: IconName.chevronDown,
+                        label: l10n.tasksClose,
+                        size: IconButtonSize.xs,
+                        onPressed: jobs.closeDrawer,
                       ),
-              ),
-            ],
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: rows.isEmpty
+                      ? Padding(
+                          padding: EdgeInsetsDirectional.only(
+                            bottom: theme.space.space6,
+                          ),
+                          child: EmptyState(
+                            icon: IconName.listChecks,
+                            title: l10n.tasksEmptyTitle,
+                            body: l10n.tasksEmptyBody,
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          padding: EdgeInsetsDirectional.all(
+                            theme.space.space2_5,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            spacing: theme.space.space2,
+                            children: [
+                              for (final row in rows)
+                                taskProgressOf(row, l10n, format, jobs),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// Keeps `taskDrawerHeightProvider` at the height of the open drawer and the
+/// gap below it, so toasts stack above it (G49). `closeDrawer` resets it.
+class _ReportsHeight extends ConsumerStatefulWidget {
+  const new({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_ReportsHeight> createState() => _ReportsHeightState();
+}
+
+class _ReportsHeightState extends ConsumerState<_ReportsHeight> {
+  @override
+  Widget build(BuildContext context) {
+    final gap = context.ferman.space.space2;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = context.findRenderObject();
+      if (box is RenderBox) {
+        ref.read(taskDrawerHeightProvider.notifier).set(box.size.height + gap);
+      }
+    });
+    return widget.child;
   }
 }
 

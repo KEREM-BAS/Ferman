@@ -1821,8 +1821,8 @@ rows say "keys only".
   ARCHITECTURE.md §9.1: nesting, decoded size per stream, filter chain, `/Prev` chain, operators per
   page, form XObject depth, `q` nesting, `usecmap` depth, decoded size per revision and font program
   size (`crates/ferman-core/src/interpret.rs` tests, `ferman_fonts::type1` tests); Type3 and pattern
-  recursion and time per page came with M3; image pixels wait for their code
-  ([B131](BACKLOG.md#open)).
+  recursion and time per page came with M3; image pixels with M4 W0, in `ferman_ops::images`
+  ([B131](BACKLOG.md#done)).
 
 #### Step 3. API, tiles and the viewer
 
@@ -1904,8 +1904,8 @@ rows say "keys only".
   hide; hiding a layer re-renders without it (`a2-3c`). Open: it works for most documents
   (`crates/ferman-api/tests/open.rs` `showing_and_hiding_a_layer_renders_the_page_again`;
   `app/test/features/shell/shell_sidebar_tabs_test.dart` `the eye buttons show and hide layers, and
-  every view asks for its pixels again`), but not in a repaired document or one opened with its
-  password, whose eye buttons stay disabled ([B111](BACKLOG.md#open), [Q22](QUESTIONS.md#q22)).
+  every view asks for its pixels again`), but not in a repaired document, whose eye buttons stay
+  disabled ([B111](BACKLOG.md#open)); a password-opened one since M4 W0 ([Q22](QUESTIONS.md#q22)).
 - [x] Signatures: each signature in the neutral state `a2-14` draws: the signer's name as written in
   the file, the page, no green and no check, and the line that checking comes in a future version
   ([G31](DESIGN_GAPS.md#g31)). Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart`

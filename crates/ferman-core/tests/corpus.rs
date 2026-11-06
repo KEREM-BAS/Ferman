@@ -62,6 +62,17 @@ fn healthy_files_open_fully() {
         ("ocg-plan", 1),
         ("xfa-visa", 1),
         ("tez-tr", 64),
+        ("annots-other-producer", 2),
+        ("cert-p1", 1),
+        ("cert-p2", 1),
+        ("cert-p3", 1),
+        ("form-signed", 1),
+        ("form-hybrid-xfa", 1),
+        ("form-need-appearances", 1),
+        ("form-script", 1),
+        ("form-lists-comb", 1),
+        ("combine-outline", 2),
+        ("images-compress", 4),
         // lopdf requires /Type /Page, so the page without it is not one (G102).
         ("disagree-pages", 2),
     ] {
@@ -220,6 +231,27 @@ fn the_restricted_contract_opens_with_its_restrictions() {
     );
     assert_eq!(document.access(), Access::Owner);
     assert!(document.permissions().all());
+}
+
+#[test]
+fn the_structure_scan_reads_the_certified_and_signed_forms() {
+    for (name, level) in [("cert-p1", 1), ("cert-p2", 2), ("cert-p3", 3)] {
+        let structure = healthy(name, 1);
+        let structure = structure.structure();
+        assert_eq!(structure.certification, Some(level), "{name}");
+        assert!(structure.signed(), "{name}");
+    }
+    let signed = healthy("form-signed", 1);
+    let signed = signed.structure();
+    assert_eq!(signed.certification, None);
+    let states: Vec<bool> = signed.signatures.iter().map(|sig| sig.signed).collect();
+    assert_eq!(states, [true, false]);
+    let hybrid = healthy("form-hybrid-xfa", 1);
+    assert!(hybrid.structure().forms.has_xfa);
+    assert!(!hybrid.structure().forms.xfa_only);
+    let scripts = healthy("form-script", 1).structure().scripts;
+    assert_eq!(scripts.document, 2);
+    assert!(scripts.annotations >= 7, "{scripts:?}");
 }
 
 #[test]

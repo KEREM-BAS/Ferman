@@ -1,0 +1,1 @@
+Flate imagesDCT imagesMasked imagesJPX, CMYK, Indexed, form and pattern images

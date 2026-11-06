@@ -1,3 +1,4 @@
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
@@ -356,6 +357,25 @@ void main() {
       expect(box.left, area.left);
       expect(box.bottom, area.bottom);
       expect(box.width, TaskDrawer.width);
+    });
+
+    testWidgets('gives its height to the toasts while open', (tester) async {
+      final container = await pumpDrawer(tester, _seeded);
+      await tester.pump();
+      final box = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(TaskDrawer),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(
+        container.read(taskDrawerHeightProvider),
+        greaterThanOrEqualTo(box.height),
+      );
+      container.read(backgroundJobsProvider.notifier).closeDrawer();
+      expect(container.read(taskDrawerHeightProvider), 0);
     });
 
     testWidgets('scrolls many rows in a short canvas', (tester) async {

@@ -85,6 +85,13 @@ its own feature, off for the CLI and the web; the rest of the engine stays on th
   ends in a cross-reference stream that names every object, not a section with `/Prev`, so it
   reads the same after every kind of table. A repaired document and one opened with its password
   keep their layers for now (BACKLOG B111).
+  **Since M4 W0** there is no such stream and no decrypted catalog: the layers are a throwaway
+  revision through the incremental writer, on top of the document's revisions, and a
+  password-opened document reloads with the password the render thread holds until it closes
+  ([Q22](../QUESTIONS.md#q22)). Only a repaired document keeps its layers (B111). A commit gives new
+  render keys only to the pages it changed; `show_layers` still gives every page one.
+- **Since M4 W0, jobs' temp files:** `<system temp>/ferman-job-<pid>-<id>`, mode 0700, with a lock
+  file; `Engine::start` sweeps the folders no running process holds.
 
 ### Prioritised, cancellable tile queue
 
