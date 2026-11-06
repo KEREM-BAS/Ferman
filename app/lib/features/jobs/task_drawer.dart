@@ -8,6 +8,7 @@ import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,9 +45,10 @@ TaskProgress taskProgressOf(
       : (label: l10n.taskDismiss, onPressed: () => jobs.dismiss(row.id)),
 );
 
-/// The background task drawer (a11-6b), 400 px wide at the canvas's bottom
-/// end: its header with the close button, then a row per job, or the empty
-/// state G49 asks for. The canvas places it, and leaves it out while closed.
+/// The background task drawer (a11-6b), 400 px wide, or as wide as a narrower
+/// canvas lets it, at the canvas's bottom end: its header with the close
+/// button, then a row per job, or the empty state G49 asks for. The canvas
+/// places it, and leaves it out while closed.
 class TaskDrawer extends ConsumerWidget {
   /// The drawer.
   const new({super.key});
@@ -61,9 +63,12 @@ class TaskDrawer extends ConsumerWidget {
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final rows = ref.watch(backgroundJobsProvider.select((jobs) => jobs.rows));
     final jobs = ref.read(backgroundJobsProvider.notifier);
+    final gap = theme.space.space2;
     return Align(
       alignment: AlignmentDirectional.bottomEnd,
       child: _ReportsHeight(
+        onHeight: (height) =>
+            ref.read(taskDrawerHeightProvider.notifier).set(height + gap),
         child: Semantics(
           container: true,
           label: l10n.tasksTitle,
@@ -149,29 +154,49 @@ class TaskDrawer extends ConsumerWidget {
   }
 }
 
-/// Keeps `taskDrawerHeightProvider` at the height of the open drawer and the
-/// gap below it, so toasts stack above it (G49). `closeDrawer` resets it.
-class _ReportsHeight extends ConsumerStatefulWidget {
-  const new({required this.child});
+/// Tells [onHeight] the height of [child] after each layout that changes it,
+/// so toasts stack above the drawer (G49). A window's resize lays it out
+/// without building it.
+class _ReportsHeight extends SingleChildRenderObjectWidget {
+  const new({required this.onHeight, required super.child});
 
-  final Widget child;
+  final ValueChanged<double> onHeight;
 
   @override
-  ConsumerState<_ReportsHeight> createState() => _ReportsHeightState();
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderReportsHeight(onHeight);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderReportsHeight renderObject,
+  ) => renderObject.onHeight = onHeight;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      ObjectFlagProperty<ValueChanged<double>>.has('onHeight', onHeight),
+    );
+  }
 }
 
-class _ReportsHeightState extends ConsumerState<_ReportsHeight> {
+class _RenderReportsHeight extends RenderProxyBox {
+  new(this.onHeight);
+
+  ValueChanged<double> onHeight;
+  double? _reported;
+
   @override
-  Widget build(BuildContext context) {
-    final gap = context.ferman.space.space2;
+  void performLayout() {
+    super.performLayout();
+    final height = size.height;
+    if (height == _reported) return;
+    _reported = height;
+    // Riverpod forbids changing a provider during layout.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final box = context.findRenderObject();
-      if (box is RenderBox) {
-        ref.read(taskDrawerHeightProvider.notifier).set(box.size.height + gap);
-      }
+      if (attached && height == _reported) onHeight(height);
     });
-    return widget.child;
   }
 }
 

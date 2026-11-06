@@ -10,6 +10,7 @@ import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/l10n/format.dart';
+import 'package:ferman/l10n/gen/app_localizations_ar.dart';
 import 'package:ferman/l10n/gen/app_localizations_en.dart';
 import 'package:ferman/l10n/gen/app_localizations_tr.dart';
 import 'package:ferman/l10n/region.dart';
@@ -124,6 +125,28 @@ void main() {
       expect(container.read(backgroundJobsProvider).cancelling, isNull);
     });
 
+    test('a job that ends takes its cancel question with it', () async {
+      final jobs = await _started(container);
+      jobs.askCancel(_row(container));
+      engine.endJob(_done);
+      await pumpEventQueue();
+      expect(_row(container).state, TaskState.done);
+      expect(container.read(backgroundJobsProvider).cancelling, isNull);
+    });
+
+    test('another job ending leaves the cancel question', () async {
+      final jobs = await _started(container);
+      await jobs.copyDocument(7, 'Fatura.pdf', _output);
+      await pumpEventQueue();
+      jobs.askCancel(container.read(backgroundJobsProvider).rows.last);
+      engine.endJob(_done);
+      await pumpEventQueue();
+      expect(
+        container.read(backgroundJobsProvider).cancelling?.name,
+        'Fatura.pdf',
+      );
+    });
+
     test('a failed job stays as a row with its error', () async {
       await _started(container);
       engine.endJob(
@@ -216,6 +239,26 @@ void main() {
       expect(container.read(backgroundJobsProvider).rows, isEmpty);
     });
 
+    test('the quit question follows the jobs and ends with the last', () async {
+      final jobs = await _started(container);
+      await jobs.copyDocument(7, 'Fatura.pdf', _output);
+      await pumpEventQueue();
+      final quit = jobs.confirmQuit();
+      await pumpEventQueue();
+      expect(container.read(backgroundJobsProvider).quitting, hasLength(2));
+
+      engine.endJob(_done);
+      await pumpEventQueue();
+      expect(
+        container.read(backgroundJobsProvider).quitting.single.name,
+        'Fatura.pdf',
+      );
+
+      engine.endJob(const JobUpdate(job: 2, state: JobState.cancelled));
+      expect(await quit, isTrue);
+      expect(container.read(backgroundJobsProvider).quitting, isEmpty);
+    });
+
     test('quitting goes through the question', () async {
       await _started(container);
       final closer = container.read(documentCloserProvider.notifier);
@@ -223,6 +266,22 @@ void main() {
       await pumpEventQueue();
       container.read(backgroundJobsProvider.notifier).answerQuit(quit: false);
       expect(await quit, isFalse);
+    });
+
+    test('Arabic counts tasks in each plural form', () {
+      final ar = AppLocalizationsAr();
+      final forms = [
+        for (final count in [1, 2, 3, 11, 100])
+          ar.tasksRunning(count, '$count'),
+      ];
+      expect(forms.toSet(), hasLength(5));
+      expect(forms.first, isNot(contains('1')));
+      expect(forms[2], contains('مهام'));
+      final titles = [
+        for (final count in [1, 2, 3, 11, 100])
+          ar.tasksQuitTitle(count, '$count'),
+      ];
+      expect(titles.toSet(), hasLength(5));
     });
 
     test('the place reads in the region and the language', () {
@@ -380,6 +439,35 @@ void main() {
       expect(container.read(taskDrawerHeightProvider), 0);
     });
 
+    testWidgets('follows the height a window resize gives it', (tester) async {
+      final seeded = BackgroundJobs(
+        open: true,
+        rows: [
+          for (var id = 1; id < 20; id++)
+            BackgroundJob(
+              id: id,
+              kind: BackgroundJobKind.copyDocument,
+              name: 'Kira.pdf',
+            ),
+        ],
+      );
+      final container = await pumpDrawer(tester, seeded);
+      await tester.pump();
+      expect(container.read(taskDrawerHeightProvider), greaterThan(590));
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: componentHost(
+            const SizedBox(width: 500, height: 300, child: TaskDrawer()),
+          ),
+        ),
+      );
+      await tester.pump();
+      final height = container.read(taskDrawerHeightProvider);
+      expect(height, greaterThan(300));
+      expect(height, lessThan(320));
+    });
+
     testWidgets('scrolls many rows in a short canvas', (tester) async {
       await pumpDrawer(
         tester,
@@ -490,6 +578,27 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('the drawer stays on a phone-width canvas', (tester) async {
+      await pumpShell(
+        tester,
+        const BackgroundJobs(open: true, rows: [_running]),
+        size: const Size(375, 812),
+      );
+      // The desktop shell's tab strip and status bar overflow at this width;
+      // what this test holds is the drawer.
+      tester.takeException();
+      final drawer = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(TaskDrawer),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(drawer.left, greaterThanOrEqualTo(0));
+      expect(drawer.right, lessThanOrEqualTo(375));
     });
 
     testWidgets('several jobs share the one line', (tester) async {

@@ -906,7 +906,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `tasksOpen` | Show or hide background tasks | Arka plan görevlerini göster veya gizle | إظهار المهام في الخلفية أو إخفاؤها | Status bar: screen-reader name of the task line, which opens the drawer. |
 | `tasksEmptyTitle` | No background tasks | Arka plan görevi yok | لا توجد مهام في الخلفية | G49: the empty drawer. |
 | `tasksEmptyBody` | Long work, such as compressing a file, runs here while you keep working. | Dosya sıkıştırma gibi uzun işler, siz çalışmaya devam ederken burada yürür. | تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك. | G49: the empty drawer. |
-| `tasksRunning` | {count, plural, =1{1 task running} other{{formatted} tasks running}} | {count, plural, other{{formatted} görev sürüyor}} | {count, plural, other{{formatted} مهام قيد التنفيذ}} | Status bar: several background tasks in the one task line. |
+| `tasksRunning` | {count, plural, =1{1 task running} other{{formatted} tasks running}} | {count, plural, other{{formatted} görev sürüyor}} | {count, plural, =1{مهمة واحدة قيد التنفيذ} =2{مهمتان قيد التنفيذ} few{{formatted} مهام قيد التنفيذ} many{{formatted} مهمةً قيد التنفيذ} other{{formatted} مهمة قيد التنفيذ}} | Status bar: several background tasks in the one task line. |
 | `taskPause` | Pause | Duraklat | إيقاف مؤقت | a11-6b: pauses a task. |
 | `taskResume` | Resume | Sürdür | متابعة | a11-6b: resumes a paused task. |
 | `taskShow` | Show | Göster | إظهار | a11-6b: shows a finished task's file in the file manager. |
@@ -915,7 +915,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `taskCancelBody` | Its work so far is discarded, and no file is left behind. | Şimdiye kadarki işi silinir ve geride dosya kalmaz. | يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف. | G49: the question before a running task is cancelled. |
 | `taskKeepRunning` | Keep running | Sürmeye devam etsin | متابعة التنفيذ | G49: leaves the task running. |
 | `taskCancelConfirm` | Cancel task | Görevi iptal et | إلغاء المهمة | G49: cancels the task. |
-| `tasksQuitTitle` | {count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}} | {count, plural, other{{formatted} arka plan görevi hâlâ sürüyor}} | {count, plural, other{لا تزال {formatted} من المهام قيد التنفيذ في الخلفية}} | Quitting with background tasks running: the question. |
+| `tasksQuitTitle` | {count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}} | {count, plural, other{{formatted} arka plan görevi hâlâ sürüyor}} | {count, plural, =1{لا تزال مهمة واحدة قيد التنفيذ في الخلفية} =2{لا تزال مهمتان قيد التنفيذ في الخلفية} few{لا تزال {formatted} مهام قيد التنفيذ في الخلفية} many{لا تزال {formatted} مهمةً قيد التنفيذ في الخلفية} other{لا تزال {formatted} مهمة قيد التنفيذ في الخلفية}} | Quitting with background tasks running: the question. |
 | `tasksQuitBody` | Quitting cancels them, and they leave no partial files. | Çıkmak onları iptal eder; geride yarım dosya kalmaz. | يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة. | Quitting with background tasks running. |
 | `tasksQuitKeep` | Keep working | Çalışmaya devam et | مواصلة العمل | Quitting with background tasks running: stays in the app. |
 | `tasksQuitConfirm` | Cancel tasks and quit | Görevleri iptal et ve çık | إلغاء المهام والإنهاء | Quitting with background tasks running: goes on. |

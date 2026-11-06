@@ -266,7 +266,10 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
       for (final other in state.rows)
         if (other.id == row.id) row else other,
     ],
-    cancelling: state.cancelling?.id == row.id ? row : state.cancelling,
+    // A job that ended has nothing left to cancel.
+    cancelling: state.cancelling?.id == row.id
+        ? (row.active ? row : null)
+        : state.cancelling,
   );
 
   Future<void> _update(int id, String? staging, JobUpdate update) async {
@@ -356,6 +359,15 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     }
     if (state.running.isEmpty && !(_ended?.isCompleted ?? true)) {
       _ended?.complete();
+    }
+    if (state.quitting.isNotEmpty) {
+      // The quit question lists what still runs, and has nothing to ask once
+      // nothing does.
+      state = state.copyWith(
+        quitting: state.running,
+        cancelling: state.cancelling,
+      );
+      if (state.quitting.isEmpty) answerQuit(quit: true);
     }
   }
 

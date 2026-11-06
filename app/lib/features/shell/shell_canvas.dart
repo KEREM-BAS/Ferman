@@ -138,6 +138,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
         ? PositionedDirectional(
             top: theme.space.space2,
             bottom: theme.space.space2,
+            start: theme.space.space3,
             end: theme.space.space3,
             child: const TaskDrawer(),
           )

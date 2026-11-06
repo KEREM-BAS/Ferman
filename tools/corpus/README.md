@@ -62,10 +62,6 @@ each file covers.
 | `cert-p1`, `cert-p2`, `cert-p3`, `form-signed`, `form-hybrid-xfa`, `form-need-appearances`, `form-script`, `form-lists-comb` | `docs/form_cases.rs` | Certified at each DocMDP level; a signed form with FieldMDP; AcroForm with XFA; no `/AP`; scripts that would change values; list boxes and comb fields |
 | `combine-outline` | `docs/combine.rs` | The Combine fixture: a 2-page PDF with an outline, and `combine-photo.jpg`, a standalone JPEG (an extra, with its own row) |
 | `images-compress` | `docs/images.rs` | The Compress fixture: every kind of image, one per slot |
-| `annots-other-producer` | `docs/annotations.rs` | A contract review with every annotation type `a4-1` draws, as another program writes them |
-| `cert-p1`, `cert-p2`, `cert-p3`, `form-signed`, `form-hybrid-xfa`, `form-need-appearances`, `form-script`, `form-lists-comb` | `docs/form_cases.rs` | Certified at each DocMDP level; a signed form with FieldMDP; AcroForm with XFA; no `/AP`; scripts that would change values; list boxes and comb fields |
-| `combine-outline` | `docs/combine.rs` | The Combine fixture: a 2-page PDF with an outline, and `combine-photo.jpg`, a standalone JPEG (an extra, with its own row) |
-| `images-compress` | `docs/images.rs` | The Compress fixture: every kind of image, one per slot |
 
 The generators share a small PDF writer:
 
@@ -168,8 +164,6 @@ reader independent of lopdf:
 - **A file that should not open** (`truncated`) does not.
 
 It also renders `images-compress` and holds the centre of every image to its colour, so JPX, CMYK and the masks are known to paint.
-
-A second test renders `images-compress` and holds the centre of every image to its colour, so JPX, CMYK and the masks are known to paint.
 
 `FERMAN_CORPUS_ONLY=<name>` limits a run to one generator. The unit tests in `src/docs/mod.rs`
 check the damage itself with lopdf: `disagree-pages` has two pages for lopdf, `truncated` stops

@@ -188,6 +188,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       );
       _blocks.clear();
       _asked.clear();
+      // Every page changed, and they may have moved: what is kept by page
+      // number names another page now.
+      if (pages == null) {
+        setState(_failed.clear);
+        _clearText();
+      }
       _request(force: true);
     });
     // The owner password lifts Restricted: ask the engine for the blocks
@@ -656,6 +662,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   void _clearText() {
     _anchor = null;
     _selecting = false;
+    _selectRequest++;
     _hover = null;
     ContextMenuController.removeAny();
     // Riverpod forbids changing a provider while the tree builds.

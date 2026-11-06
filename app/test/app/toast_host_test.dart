@@ -2,6 +2,7 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/app_settings.dart';
@@ -200,9 +201,16 @@ void main() {
       final bar = tester.getRect(find.byType(ShellStatusBar));
       expect(tester.getRect(find.byType(Toast)).bottom, bar.top - 12);
 
+      // A height left behind counts for nothing with the drawer closed.
       container.read(taskDrawerHeightProvider.notifier).set(200);
       await _frames(tester);
-      expect(tester.getRect(find.byType(Toast)).bottom, bar.top - 212);
+      expect(tester.getRect(find.byType(Toast)).bottom, bar.top - 12);
+
+      container.read(backgroundJobsProvider.notifier).openDrawer();
+      await _frames(tester);
+      final height = container.read(taskDrawerHeightProvider);
+      expect(height, isNot(200));
+      expect(tester.getRect(find.byType(Toast)).bottom, bar.top - 12 - height);
       container.read(toastNoticesProvider.notifier).dismiss(id);
     });
 

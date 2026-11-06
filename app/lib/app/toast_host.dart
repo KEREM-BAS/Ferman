@@ -5,6 +5,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_callouts.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
@@ -169,6 +170,10 @@ class ToastHost extends ConsumerWidget {
     ];
     final bare = ref.watch(shellDocumentsProvider).active?.bare ?? false;
     final statusBar = path == Routes.editor && !bare;
+    // The canvas holds the drawer, and the height stays when it unmounts.
+    final drawer =
+        path == Routes.editor &&
+        ref.watch(backgroundJobsProvider.select((jobs) => jobs.open));
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -183,7 +188,7 @@ class ToastHost extends ConsumerWidget {
               theme.space.space4,
               theme.space.space3 +
                   (statusBar ? theme.density.statusbarH : 0) +
-                  ref.watch(taskDrawerHeightProvider),
+                  (drawer ? ref.watch(taskDrawerHeightProvider) : 0),
             ),
             child: Align(
               alignment: AlignmentDirectional.bottomEnd,

@@ -57,13 +57,24 @@ impl ChangeSet {
     }
 
     /// Whether it changes streams only: no page dictionary, so no resource a later edit of the
-    /// page could use.
+    /// page could use. An attached file's stream does not count, since its dictionary is part of
+    /// the structure.
     #[must_use]
     pub fn streams_only(&self) -> bool {
-        self.objects
-            .values()
-            .all(|object| matches!(object, Object::Stream(_)))
+        self.objects.values().all(plain_stream)
     }
+}
+
+/// Whether `object` is a stream whose change leaves the structure as it is: not an attachment's
+/// file, whose `/Params /Size` and `/Subtype` the attachments list reads.
+// shortcut: a file stream with neither `/Type /EmbeddedFile` nor `/Params` counts as plain; ask the
+// structure's attachment ids when an edit can write such a stream.
+fn plain_stream(object: &Object) -> bool {
+    let Object::Stream(stream) = object else {
+        return false;
+    };
+    let kind = stream.dict.get(b"Type").and_then(Object::as_name);
+    !stream.dict.has(b"Params") && !matches!(kind, Ok(b"EmbeddedFile"))
 }
 
 /// One replacement in a content stream: `range` of the decoded data of `source`, as the
@@ -859,15 +870,15 @@ impl RevisionStore {
 
     /// Puts `object` as the new version of `id` in the open transaction.
     pub(crate) fn put(&mut self, id: ObjectId, object: Object) -> Result<(), CoreError> {
-        let open = self
-            .open
-            .as_mut()
-            .ok_or(CoreError::Write(WriteError::NoTransaction))?;
-        // A change of streams only leaves the structure as it is.
-        if !matches!(object, Object::Stream(_)) {
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        // A stream replacing a stream leaves the structure as it is; an object with no version
+        // here may be anything in the document, and reading the structure again costs only that.
+        if !plain_stream(&object) || !self.lookup(id).is_some_and(plain_stream) {
             self.structure = OnceLock::new();
         }
-        open.objects.insert(id, object);
+        self.open.get_or_insert_default().objects.insert(id, object);
         Ok(())
     }
 
@@ -2151,6 +2162,56 @@ mod tests {
         assert_eq!(rotation(&store, &doc, 1), 0);
         store.redo().unwrap();
         assert_eq!(rotation(&store, &doc, 1), 90);
+    }
+
+    #[test]
+    fn the_structure_follows_a_change_of_an_attached_file() {
+        use lopdf::dictionary;
+
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let file = store.attachments(&doc)[0].file.unwrap();
+        let resized = Object::Stream(Stream::new(
+            dictionary! {
+                "Type" => "EmbeddedFile",
+                "Params" => dictionary! { "Size" => 3 },
+            },
+            b"new".to_vec(),
+        ));
+        store.begin().unwrap();
+        store.put(file, resized).unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.attachments(&doc)[0].size, Some(3));
+        assert!(!store.revisions()[0].streams_only());
+        store.undo().unwrap();
+        assert_ne!(store.attachments(&doc)[0].size, Some(3));
+        store.redo().unwrap();
+        assert_eq!(store.attachments(&doc)[0].size, Some(3));
+    }
+
+    #[test]
+    fn a_stream_over_what_was_no_stream_resets_the_structure() {
+        use lopdf::dictionary;
+
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let file = store.attachments(&doc)[0].file.unwrap();
+        store.begin().unwrap();
+        store.put(file, Object::Null).unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.attachments(&doc)[0].media_type, None);
+
+        let back = Object::Stream(Stream::new(
+            dictionary! { "Subtype" => "text/plain" },
+            b"new".to_vec(),
+        ));
+        store.begin().unwrap();
+        store.put(file, back).unwrap();
+        store.commit().unwrap();
+        assert_eq!(
+            store.attachments(&doc)[0].media_type.as_deref(),
+            Some("text/plain")
+        );
     }
 
     #[test]

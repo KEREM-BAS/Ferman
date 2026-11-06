@@ -3211,7 +3211,11 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$formatted مهام قيد التنفيذ',
+      other: '$formatted مهمة قيد التنفيذ',
+      many: '$formatted مهمةً قيد التنفيذ',
+      few: '$formatted مهام قيد التنفيذ',
+      two: 'مهمتان قيد التنفيذ',
+      one: 'مهمة واحدة قيد التنفيذ',
     );
     return '$_temp0';
   }
@@ -3248,7 +3252,11 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'لا تزال $formatted من المهام قيد التنفيذ في الخلفية',
+      other: 'لا تزال $formatted مهمة قيد التنفيذ في الخلفية',
+      many: 'لا تزال $formatted مهمةً قيد التنفيذ في الخلفية',
+      few: 'لا تزال $formatted مهام قيد التنفيذ في الخلفية',
+      two: 'لا تزال مهمتان قيد التنفيذ في الخلفية',
+      one: 'لا تزال مهمة واحدة قيد التنفيذ في الخلفية',
     );
     return '$_temp0';
   }

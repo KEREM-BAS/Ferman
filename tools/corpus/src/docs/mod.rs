@@ -801,7 +801,7 @@ mod tests {
         );
         let mut bounds = vec![0];
         bounds.extend(&starts);
-        bounds.push(64);
+        bounds.push(doc.get_pages().len());
         let sizes: Vec<usize> = bounds.windows(2).map(|pair| pair[1] - pair[0]).collect();
         assert_eq!(sizes.iter().sum::<usize>(), 64);
         assert!(sizes.iter().all(|size| *size > 0), "{sizes:?}");

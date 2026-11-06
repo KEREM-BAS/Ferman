@@ -401,7 +401,9 @@ licence or maintenance detail worth knowing.
 | moxcms 0.8.1, pxfm 0.1.30 | image (always, even with default features off) | BSD-3-Clause OR Apache-2.0 | Colour management; Ferman calls none of it. |
 | zune-jpeg 0.5.15, zune-core | image, tiff | MIT OR Apache-2.0 OR Zlib | The JPEG decoder. |
 | fax 0.2.7, tiff 0.11.3 | image (`tiff`) | MIT | |
-| png, gif, image-webp, fdeflate, color_quant, byteorder-lite, quick-error | image | MIT, or MIT OR Apache-2.0 | `cargo deny check` read each on 2026-11-06. |
+| png, gif, image-webp, fdeflate, color_quant, quick-error | image | MIT, or MIT OR Apache-2.0 | `cargo deny check` read each on 2026-11-06. |
+| byteorder-lite | image | Unlicense OR MIT | Taken under MIT, as memchr and byteorder are. |
+| weezl 0.1.12 | gif, tiff (through image) | MIT OR Apache-2.0 | An older copy beside the 0.2.1 ferman-core and lopdf use. |
 | encoding_rs | lopdf | (Apache-2.0 OR MIT) AND BSD-3-Clause | |
 | slotmap | fontdb | Zlib | |
 | nix 0.31 | atomic-write-file | MIT | |

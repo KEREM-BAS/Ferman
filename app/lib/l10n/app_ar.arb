@@ -850,7 +850,7 @@
   "tasksOpen": "إظهار المهام في الخلفية أو إخفاؤها",
   "tasksEmptyTitle": "لا توجد مهام في الخلفية",
   "tasksEmptyBody": "تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك.",
-  "tasksRunning": "{count, plural, other{{formatted} مهام قيد التنفيذ}}",
+  "tasksRunning": "{count, plural, =1{مهمة واحدة قيد التنفيذ} =2{مهمتان قيد التنفيذ} few{{formatted} مهام قيد التنفيذ} many{{formatted} مهمةً قيد التنفيذ} other{{formatted} مهمة قيد التنفيذ}}",
   "taskPause": "إيقاف مؤقت",
   "taskResume": "متابعة",
   "taskShow": "إظهار",
@@ -859,7 +859,7 @@
   "taskCancelBody": "يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف.",
   "taskKeepRunning": "متابعة التنفيذ",
   "taskCancelConfirm": "إلغاء المهمة",
-  "tasksQuitTitle": "{count, plural, other{لا تزال {formatted} من المهام قيد التنفيذ في الخلفية}}",
+  "tasksQuitTitle": "{count, plural, =1{لا تزال مهمة واحدة قيد التنفيذ في الخلفية} =2{لا تزال مهمتان قيد التنفيذ في الخلفية} few{لا تزال {formatted} مهام قيد التنفيذ في الخلفية} many{لا تزال {formatted} مهمةً قيد التنفيذ في الخلفية} other{لا تزال {formatted} مهمة قيد التنفيذ في الخلفية}}",
   "tasksQuitBody": "يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة.",
   "tasksQuitKeep": "مواصلة العمل",
   "tasksQuitConfirm": "إلغاء المهام والإنهاء"
