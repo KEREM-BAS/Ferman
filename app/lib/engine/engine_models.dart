@@ -251,6 +251,79 @@ class PageInfo {
   final int? handle;
 }
 
+/// What each side of a page gives up, in displayed points.
+@immutable
+class PageMargins {
+  /// Creates the margins.
+  const new({this.top = 0, this.bottom = 0, this.left = 0, this.right = 0});
+
+  /// The top side.
+  final double top;
+
+  /// The bottom side.
+  final double bottom;
+
+  /// The left side.
+  final double left;
+
+  /// The right side.
+  final double right;
+}
+
+/// What a new page size does to the content (a6-4).
+enum PageFit {
+  /// Stays at its size, in the middle of the new page.
+  centre,
+
+  /// Scaled to fit the new page, and centred on it.
+  scale,
+}
+
+/// How a page label range writes its numbers (a6-5).
+enum PageLabelStyle {
+  /// No number: the prefix alone.
+  none,
+
+  /// 1, 2, 3.
+  decimal,
+
+  /// I, II, III.
+  romanUpper,
+
+  /// i, ii, iii.
+  romanLower,
+
+  /// A, B, C.
+  lettersUpper,
+
+  /// a, b, c.
+  lettersLower,
+}
+
+/// One range of a document's page labels (a6-5).
+@immutable
+class PageLabelRange {
+  /// Creates a range.
+  const new({
+    required this.start,
+    this.style = PageLabelStyle.decimal,
+    this.prefix = '',
+    this.first = 1,
+  });
+
+  /// The index of its first page, from 0.
+  final int start;
+
+  /// How it writes its numbers.
+  final PageLabelStyle style;
+
+  /// What comes before each number.
+  final String prefix;
+
+  /// The number of its first page, from 1.
+  final int first;
+}
+
 /// What a commit, undo or redo changed of a document's lists.
 @immutable
 class DocumentStructure {

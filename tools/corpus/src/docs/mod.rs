@@ -15,6 +15,7 @@ mod invoice;
 mod kira;
 mod letter;
 mod long;
+mod pages_tree;
 mod paragraphs;
 mod payslip;
 mod plan;
@@ -94,6 +95,7 @@ pub const GENERATORS: &[Generator] = &[
     form_cases::FORM_LISTS_COMB,
     combine::COMBINE_OUTLINE,
     images::IMAGES_COMPRESS,
+    pages_tree::PAGES_TREE,
 ];
 
 pub use images::PROBES;
@@ -750,6 +752,23 @@ mod tests {
         let (name, jpeg) = outputs.last().unwrap();
         assert_eq!(name, "generated/combine-photo.jpg");
         assert_eq!(&jpeg[..2], &[0xFF, 0xD8]);
+    }
+
+    #[test]
+    fn the_page_tree_file_leaves_its_attributes_to_its_nodes() {
+        let doc = lopdf::Document::load_mem(&make(&pages_tree::PAGES_TREE)).unwrap();
+        let pages = doc.get_pages();
+        assert_eq!(pages.len(), 6);
+        let page = doc.get_dictionary(pages[&1]).unwrap();
+        for key in [&b"MediaBox"[..], b"CropBox", b"Resources", b"Rotate"] {
+            assert!(!page.has(key));
+        }
+        let Ok(parent) = page.get(b"Parent").and_then(lopdf::Object::as_reference) else {
+            panic!("a page without its parent");
+        };
+        assert!(doc.get_dictionary(parent).unwrap().has(b"Rotate"));
+        assert!(doc.get_dictionary(pages[&6]).unwrap().has(b"MediaBox"));
+        assert!(doc.catalog().unwrap().has(b"PageLabels"));
     }
 
     #[test]

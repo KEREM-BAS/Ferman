@@ -98,6 +98,12 @@ fn child(dir: &Path) -> ! {
         .id;
     block_on(engine().rotate_page(doc, 2, 1, "Rotated".to_owned())).unwrap();
     edit(doc, "18.500", "19.500");
+    let arranged = block_on(engine().open(dir.join("arranged.pdf"), None)).unwrap();
+    let pages: Vec<u64> = arranged.pages.iter().map(|page| page.handle).collect();
+    let doc = arranged.id;
+    block_on(engine().move_pages(doc, vec![pages[3]], Some(pages[0]), "Moved".to_owned())).unwrap();
+    block_on(engine().delete_pages(doc, vec![pages[1]], "Deleted".to_owned())).unwrap();
+    block_on(engine().duplicate_pages(doc, vec![pages[5]], "Duplicated".to_owned())).unwrap();
     // Past the one-second sync of the actor's tick.
     std::thread::sleep(Duration::from_millis(2500));
     std::fs::write(dir.join("ready"), b"").unwrap();
@@ -124,6 +130,8 @@ fn a_killed_instance_is_restored_from_its_journal() {
     std::fs::write(dir.join("changed.pdf"), &original).unwrap();
     std::fs::write(dir.join("nobase.pdf"), &original).unwrap();
     std::fs::write(dir.join("rotated.pdf"), &original).unwrap();
+    let tree = std::fs::read(corpus("pages-tree")).unwrap();
+    std::fs::write(dir.join("arranged.pdf"), &tree).unwrap();
 
     let mut child = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--ignored", "--exact", TEST, "--test-threads", "1"])
@@ -149,7 +157,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let root = dir.join("Recovery");
     block_on(engine().start_recovery(root.clone())).unwrap();
     let listed = block_on(engine().list_recoverable()).unwrap();
-    assert_eq!(listed.len(), 5, "{listed:?}");
+    assert_eq!(listed.len(), 6, "{listed:?}");
     let named = |name: &str| {
         listed
             .iter()
@@ -274,6 +282,38 @@ fn a_killed_instance_is_restored_from_its_journal() {
     assert!(text(&block_on(engine().text_blocks(rotated_doc, 0)).unwrap()).contains("19.500"));
     block_on(engine().close(handles.id)).unwrap();
     block_on(engine().close_discarding(rotated_doc)).unwrap();
+
+    // Page operations replay too: the tree, the order and the copy come back, and undo takes
+    // them all at once.
+    let arranged = named("arranged.pdf");
+    let handles = block_on(engine().open(corpus("pages-tree"), None)).unwrap();
+    let ids: Vec<u64> = handles.pages.iter().map(|page| page.handle).collect();
+    let restored = block_on(engine().restore_recovered(
+        arranged.session.clone(),
+        arranged.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap();
+    let pages: Vec<u64> = restored
+        .opened
+        .pages
+        .iter()
+        .map(|page| page.handle)
+        .collect();
+    assert_eq!(pages.len(), 6);
+    assert_eq!(pages[..5], [ids[3], ids[0], ids[2], ids[4], ids[5]]);
+    assert!(!ids.contains(&pages[5]));
+    assert_eq!(restored.opened.pages[3].label, handles.pages[4].label);
+    let arranged_doc = restored.opened.id;
+    let back = block_on(engine().undo(arranged_doc))
+        .unwrap()
+        .structure
+        .unwrap();
+    let back: Vec<u64> = back.pages.iter().map(|page| page.handle).collect();
+    assert_eq!(back, ids);
+    block_on(engine().close(handles.id)).unwrap();
+    block_on(engine().close_discarding(arranged_doc)).unwrap();
 
     // A document too large for a base copy opens from its original, while that is unchanged.
     let nobase = named("nobase.pdf");

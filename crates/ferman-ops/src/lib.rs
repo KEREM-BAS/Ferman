@@ -14,10 +14,11 @@
 //!
 //! # Planned modules
 //!
-//! Operations start in M4, one module per family; [`pages`] has rotate so far, and [`images`] holds
-//! what several of them need from an image file:
+//! Operations start in M4, one module per family; [`pages`] holds the page operations, and
+//! [`images`] what several of them need from an image file:
 //!
-//! - `pages`: insert, delete, move, duplicate, extract, replace, crop and page labels.
+//! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels;
+//!   extract and replace come with `combine`.
 //! - `combine`: combine and split.
 //! - `annotations`: annotation types with appearance streams, replies and flattening.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.

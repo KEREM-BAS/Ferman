@@ -14,7 +14,7 @@ use crate::{CoreError, Document, Unsupported};
 
 /// An object's number and generation, opaque above ferman-core.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct ObjectRef(ObjectId);
+pub struct ObjectRef(pub(crate) ObjectId);
 
 /// A PDF object as plain data.
 #[derive(Debug, Clone, PartialEq)]
@@ -57,7 +57,7 @@ pub enum Value {
 
 impl Value {
     /// The model's object for this value.
-    fn into_object(self) -> Result<Object, CoreError> {
+    pub(crate) fn into_object(self) -> Result<Object, CoreError> {
         Ok(match self {
             Self::Null => Object::Null,
             Self::Boolean(value) => Object::Boolean(value),
@@ -198,9 +198,47 @@ impl RevisionStore {
         value: Value,
     ) -> Result<(), CoreError> {
         let page = self.page_id(doc, index)?;
-        let mut dict = self.dictionary(doc, page)?;
+        self.set_entry(doc, ObjectRef(page), key, value)
+    }
+
+    /// The objects of pages `indices`, which stay the same as the pages change: a change of many
+    /// pages takes them first, since each change reads the page list anew.
+    ///
+    /// # Errors
+    ///
+    /// [`crate::WriteError::NoSuchPage`].
+    pub fn page_refs(
+        &self,
+        doc: &Document,
+        indices: &[usize],
+    ) -> Result<Vec<ObjectRef>, CoreError> {
+        let pages = self.pages(doc);
+        indices
+            .iter()
+            .map(|index| {
+                let page = pages
+                    .get(*index)
+                    .ok_or(CoreError::Write(crate::WriteError::NoSuchPage))?;
+                Ok(ObjectRef(page.id))
+            })
+            .collect()
+    }
+
+    /// [`set_page_entry`](Self::set_page_entry) on a page's object.
+    ///
+    /// # Errors
+    ///
+    /// As [`set_page_entry`](Self::set_page_entry).
+    pub fn set_entry(
+        &mut self,
+        doc: &Document,
+        page: ObjectRef,
+        key: &[u8],
+        value: Value,
+    ) -> Result<(), CoreError> {
+        let mut dict = self.dictionary(doc, page.0)?;
         dict.set(key.to_vec(), value.into_object()?);
-        self.put(page, Object::Dictionary(dict))
+        self.put(page.0, Object::Dictionary(dict))
     }
 
     /// Adds `annotation` to the end of page `index`'s `/Annots` in the open transaction.

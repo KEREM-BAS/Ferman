@@ -1095,12 +1095,299 @@ class FakeEngineService implements EngineService {
     }
   }
 
+  /// What [whiteMargins] finds on every page; null for a page with no content.
+  PageMargins? whiteMarginsFound = const PageMargins(
+    top: 20,
+    bottom: 30,
+    left: 25,
+    right: 25,
+  );
+
+  /// The label ranges [setPageLabels] set, by document.
+  final Map<int, List<PageLabelRange>> _labelRanges = {};
+
+  /// The last handle a page made here got; past any page's index.
+  int _lastPageHandle = 1 << 32;
+
+  OpenedDocument _openedById(int document) =>
+      documents.values.firstWhere((opened) => opened.id == document);
+
+  /// [opened]'s pages, each with its handle.
+  List<PageInfo> _handled(OpenedDocument opened) => [
+    for (final (index, page) in opened.pages.indexed)
+      PageInfo(
+        width: page.width,
+        height: page.height,
+        label: page.label,
+        handle: page.handle ?? index,
+      ),
+  ];
+
+  /// Commits the page list [change] makes of the document's, as the step
+  /// [name] on the [touched] pages. shortcut: the blocks stay by page index,
+  /// so a page's text does not follow it when it moves; follow it when a test
+  /// reads blocks after a move.
+  RevisionInfo _pagesChanged(
+    int document,
+    String name,
+    List<int> touched,
+    List<PageInfo> Function(List<PageInfo> pages) change,
+  ) {
+    _closed(document, can: true);
+    final opened = _openedById(document);
+    final pages = _handled(opened);
+    if (touched.any((page) => pages.every((p) => p.handle != page))) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final after = change(pages);
+    if (after.isEmpty) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    _confirmed(document);
+    final history = _history(document);
+    final blocks = _blocks(document, 0);
+    final next = DocumentStructure(
+      pages: after,
+      outline: opened.outline,
+      attachments: opened.attachments,
+    );
+    _histories[document] = (
+      steps: [
+        ...history.steps.take(history.current),
+        _FakeStep(
+          HistoryStep(name: name, time: now(), pages: touched),
+          0,
+          blocks,
+          blocks,
+          block: -1,
+          structureBefore: DocumentStructure(
+            pages: pages,
+            outline: opened.outline,
+            attachments: opened.attachments,
+          ),
+          structureAfter: next,
+        ),
+      ],
+      current: history.current + 1,
+    );
+    nextStructure = next;
+    return _reloaded(document);
+  }
+
+  PageInfo _resized(PageInfo page, double width, double height) => PageInfo(
+    width: width,
+    height: height,
+    label: page.label,
+    handle: page.handle,
+  );
+
+  PageInfo _newPage(double width, double height, String? label) => PageInfo(
+    width: width,
+    height: height,
+    label: label,
+    handle: ++_lastPageHandle,
+  );
+
+  @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) async => _pagesChanged(
+    document,
+    name,
+    pages,
+    (all) => [
+      for (final page in all)
+        if (pages.contains(page.handle) && quarterTurns.isOdd)
+          _resized(page, page.height, page.width)
+        else
+          page,
+    ],
+  );
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => _pagesChanged(
+    document,
+    name,
+    pages,
+    (all) => [
+      for (final page in all)
+        if (!pages.contains(page.handle)) page,
+    ],
+  );
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) async => _pagesChanged(document, name, pages, (all) {
+    final moving = [
+      for (final page in all)
+        if (pages.contains(page.handle)) page,
+    ];
+    final rest = [
+      for (final page in all)
+        if (!pages.contains(page.handle)) page,
+    ];
+    final from = all.indexWhere((page) => page.handle == before);
+    final at = from < 0
+        ? rest.length
+        : rest.indexed
+                  .where((entry) => all.indexOf(entry.$2) >= from)
+                  .map((entry) => entry.$1)
+                  .firstOrNull ??
+              rest.length;
+    return [...rest.take(at), ...moving, ...rest.skip(at)];
+  });
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => _pagesChanged(document, name, pages, (all) {
+    final out = <PageInfo>[];
+    final run = <PageInfo>[];
+    for (final (index, page) in all.indexed) {
+      out.add(page);
+      if (pages.contains(page.handle)) {
+        run.add(_newPage(page.width, page.height, page.label));
+      }
+      final next = all.elementAtOrNull(index + 1);
+      if (next == null || !pages.contains(next.handle)) {
+        out.addAll(run);
+        run.clear();
+      }
+    }
+    return out;
+  });
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) async => _pagesChanged(document, name, [?after], (all) {
+    final at = after == null
+        ? 0
+        : all.indexWhere((page) => page.handle == after) + 1;
+    return [
+      ...all.take(at),
+      for (var i = 0; i < count; i++) _newPage(width, height, null),
+      ...all.skip(at),
+    ];
+  });
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) async => _pagesChanged(
+    document,
+    name,
+    pages,
+    (all) => [
+      for (final page in all)
+        if (pages.contains(page.handle))
+          _resized(page, width, height)
+        else
+          page,
+    ],
+  );
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) async => _pagesChanged(
+    document,
+    name,
+    crops.keys.toList(),
+    (all) => [
+      for (final page in all)
+        switch (crops[page.handle]) {
+          null => page,
+          final margins => _resized(
+            page,
+            page.width - margins.left - margins.right,
+            page.height - margins.top - margins.bottom,
+          ),
+        },
+    ],
+  );
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(
+    int document,
+    List<int> pages,
+  ) async => [for (final _ in pages) whiteMarginsFound];
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async =>
+      _labelRanges[document] ?? const [];
+
+  /// shortcut: every numbered style is written in decimal; write them out when
+  /// a test reads a roman label.
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  ) async {
+    _labelRanges[document] = ranges;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => [
+        for (final (index, page) in all.indexed)
+          PageInfo(
+            width: page.width,
+            height: page.height,
+            handle: page.handle,
+            label: switch (ranges
+                .where((range) => range.start <= index)
+                .lastOrNull) {
+              null => null,
+              final range when range.style == PageLabelStyle.none =>
+                range.prefix,
+              final range =>
+                '${range.prefix}${range.first + index - range.start}',
+            },
+          ),
+      ],
+    );
+  }
+
   @override
   Future<RevisionInfo> undo(int document) async {
     final history = _history(document);
     _closed(document, can: history.current > 0);
     final step = history.steps[history.current - 1];
     _edited[(document, step.page)] = step.before;
+    nextStructure = step.structureBefore ?? nextStructure;
     _histories[document] = (steps: history.steps, current: history.current - 1);
     return _reloaded(document);
   }
@@ -1111,6 +1398,7 @@ class FakeEngineService implements EngineService {
     _closed(document, can: history.current < history.steps.length);
     final step = history.steps[history.current];
     _edited[(document, step.page)] = step.after;
+    nextStructure = step.structureAfter ?? nextStructure;
     _histories[document] = (steps: history.steps, current: history.current + 1);
     return _reloaded(document);
   }
@@ -1162,6 +1450,12 @@ class FakeEngineService implements EngineService {
     );
     _push(document, name, set, asked.page, current, after);
     _edited[(document, asked.page)] = after;
+    nextStructure =
+        set
+            .map((index) => history.steps[index].structureBefore)
+            .nonNulls
+            .firstOrNull ??
+        nextStructure;
     return Reverted(
       reverted: true,
       dependents: dependents,
@@ -1170,7 +1464,8 @@ class FakeEngineService implements EngineService {
   }
 
   /// shortcut: the step remembers one page, so Undo after a revert of edits on
-  /// several pages brings back only the first; tests revert on one page.
+  /// several pages brings back only the first, and its page list stays as the
+  /// revert left it; tests revert on one page.
   @override
   Future<RevisionInfo> revertAll(int document, String name) async {
     final history = _history(document);
@@ -1186,6 +1481,12 @@ class FakeEngineService implements EngineService {
       _edited[(document, step.page)] = step.before;
     }
     _push(document, name, live, first.page, current, first.before);
+    nextStructure =
+        live
+            .map((index) => history.steps[index].structureBefore)
+            .nonNulls
+            .firstOrNull ??
+        nextStructure;
     return _reloaded(document);
   }
 
@@ -1651,6 +1952,8 @@ final class _FakeStep {
     this.before,
     this.after, {
     required this.block,
+    this.structureBefore,
+    this.structureAfter,
   });
 
   final HistoryStep step;
@@ -1658,4 +1961,8 @@ final class _FakeStep {
   final int block;
   final PageBlocks before;
   final PageBlocks after;
+
+  /// A page operation's lists on either side of it.
+  final DocumentStructure? structureBefore;
+  final DocumentStructure? structureAfter;
 }

@@ -1128,7 +1128,7 @@ mod tests {
             name: "Rotated".to_owned(),
             pages: vec![0],
             summary: (String::new(), String::new()),
-            write: Box::new(|doc, working| Ok(ferman_ops::pages::rotate(doc, working, 0, 1)?)),
+            write: Box::new(|doc, working| Ok(ferman_ops::pages::rotate(doc, working, &[0], 1)?)),
         }
     }
 

@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -685114643;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -103260899;
 
 // Section: executor
 
@@ -417,6 +417,35 @@ fn wire__crate__frb__confirm_edit_signed_impl(
         },
     )
 }
+fn wire__crate__frb__crop_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    crops: impl CstDecode<Vec<crate::frb::PageCrop>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "crop_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_crops = crops.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::crop_pages(api_document, api_crops, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__debug_bytes_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     len: impl CstDecode<u32>,
@@ -461,6 +490,35 @@ fn wire__crate__frb__debug_panic_impl(port_: flutter_rust_bridge::for_generated:
         },
     )
 }
+fn wire__crate__frb__delete_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "delete_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::delete_pages(api_document, api_pages, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__discard_recovery_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     session: impl CstDecode<String>,
@@ -480,6 +538,35 @@ fn wire__crate__frb__discard_recovery_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::discard_recovery(api_session, api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__duplicate_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "duplicate_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::duplicate_pages(api_document, api_pages, api_name).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -585,6 +672,48 @@ fn wire__crate__frb__history_impl(
         },
     )
 }
+fn wire__crate__frb__insert_blank_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    after: impl CstDecode<Option<u64>>,
+    count: impl CstDecode<u32>,
+    width: impl CstDecode<f32>,
+    height: impl CstDecode<f32>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "insert_blank_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_after = after.cst_decode();
+            let api_count = count.cst_decode();
+            let api_width = width.cst_decode();
+            let api_height = height.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::insert_blank_pages(
+                            api_document,
+                            api_after,
+                            api_count,
+                            api_width,
+                            api_height,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__keep_as_is_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     transaction: impl CstDecode<u64>,
@@ -650,6 +779,38 @@ fn wire__crate__frb__move_block_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::move_block(api_transaction, api_dx, api_dy).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__move_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+    before: impl CstDecode<Option<u64>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "move_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            let api_before = before.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::move_pages(api_document, api_pages, api_before, api_name)
+                                .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -760,6 +921,30 @@ fn wire__crate__frb__optimize_and_clean_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::optimize_and_clean(api_document, api_staging).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__page_label_ranges_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "page_label_ranges",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::page_label_ranges(api_document).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1037,6 +1222,42 @@ fn wire__crate__frb__rollback_edit_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::rollback_edit(api_transaction).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__rotate_pages_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+    quarter_turns: impl CstDecode<i32>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "rotate_pages",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            let api_quarter_turns = quarter_turns.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::rotate_pages(
+                            api_document,
+                            api_pages,
+                            api_quarter_turns,
+                            api_name,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1431,6 +1652,77 @@ fn wire__crate__frb__set_font_settings_impl(
         },
     )
 }
+fn wire__crate__frb__set_page_labels_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    ranges: impl CstDecode<Vec<crate::frb::LabelRange>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_page_labels",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_ranges = ranges.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::set_page_labels(api_document, api_ranges, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__set_page_size_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+    width: impl CstDecode<f32>,
+    height: impl CstDecode<f32>,
+    fit: impl CstDecode<crate::frb::PageFit>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_page_size",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            let api_width = width.cst_decode();
+            let api_height = height.cst_decode();
+            let api_fit = fit.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_page_size(
+                            api_document,
+                            api_pages,
+                            api_width,
+                            api_height,
+                            api_fit,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__set_recovery_enabled_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     enabled: impl CstDecode<bool>,
@@ -1610,6 +1902,32 @@ fn wire__crate__frb__unlock_owner_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::unlock_owner(api_document, api_password).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__white_margins_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    pages: impl CstDecode<Vec<u64>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "white_margins",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_pages = pages.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::white_margins(api_document, api_pages).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1834,6 +2152,20 @@ impl CstDecode<crate::frb::JobState> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::LabelStyle> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::LabelStyle {
+        match self {
+            0 => crate::frb::LabelStyle::None,
+            1 => crate::frb::LabelStyle::Decimal,
+            2 => crate::frb::LabelStyle::RomanUpper,
+            3 => crate::frb::LabelStyle::RomanLower,
+            4 => crate::frb::LabelStyle::LettersUpper,
+            5 => crate::frb::LabelStyle::LettersLower,
+            _ => unreachable!("Invalid variant for LabelStyle: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::MissingReasonKind> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::MissingReasonKind {
@@ -1885,6 +2217,16 @@ impl CstDecode<crate::frb::OverflowChoice> for i32 {
             1 => crate::frb::OverflowChoice::Tighten,
             2 => crate::frb::OverflowChoice::Keep,
             _ => unreachable!("Invalid variant for OverflowChoice: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::PageFit> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::PageFit {
+        match self {
+            0 => crate::frb::PageFit::Centre,
+            1 => crate::frb::PageFit::Scale,
+            _ => unreachable!("Invalid variant for PageFit: {}", self),
         }
     }
 }
@@ -2722,6 +3064,38 @@ impl SseDecode for crate::frb::JobState {
     }
 }
 
+impl SseDecode for crate::frb::LabelRange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_start = <u32>::sse_decode(deserializer);
+        let mut var_style = <crate::frb::LabelStyle>::sse_decode(deserializer);
+        let mut var_prefix = <String>::sse_decode(deserializer);
+        let mut var_first = <u32>::sse_decode(deserializer);
+        return crate::frb::LabelRange {
+            start: var_start,
+            style: var_style,
+            prefix: var_prefix,
+            first: var_first,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LabelStyle {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::LabelStyle::None,
+            1 => crate::frb::LabelStyle::Decimal,
+            2 => crate::frb::LabelStyle::RomanUpper,
+            3 => crate::frb::LabelStyle::RomanLower,
+            4 => crate::frb::LabelStyle::LettersUpper,
+            5 => crate::frb::LabelStyle::LettersLower,
+            _ => unreachable!("Invalid variant for LabelStyle: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::Layer {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2896,6 +3270,18 @@ impl SseDecode for Vec<crate::frb::JobOutput> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::LabelRange> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::LabelRange>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::Layer> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2932,6 +3318,18 @@ impl SseDecode for Vec<crate::frb::MissingChar> {
     }
 }
 
+impl SseDecode for Vec<Option<crate::frb::PageMargins>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<Option<crate::frb::PageMargins>>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::OutlineEntry> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2939,6 +3337,18 @@ impl SseDecode for Vec<crate::frb::OutlineEntry> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::OutlineEntry>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::PageCrop> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::PageCrop>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3371,6 +3781,17 @@ impl SseDecode for Option<crate::frb::OverflowPlan> {
     }
 }
 
+impl SseDecode for Option<crate::frb::PageMargins> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::PageMargins>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::PdfDate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3520,6 +3941,30 @@ impl SseDecode for crate::frb::PageBlocks {
     }
 }
 
+impl SseDecode for crate::frb::PageCrop {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_page = <u64>::sse_decode(deserializer);
+        let mut var_margins = <crate::frb::PageMargins>::sse_decode(deserializer);
+        return crate::frb::PageCrop {
+            page: var_page,
+            margins: var_margins,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::PageFit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::PageFit::Centre,
+            1 => crate::frb::PageFit::Scale,
+            _ => unreachable!("Invalid variant for PageFit: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::PageInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3532,6 +3977,22 @@ impl SseDecode for crate::frb::PageInfo {
             height: var_height,
             label: var_label,
             handle: var_handle,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::PageMargins {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_top = <f32>::sse_decode(deserializer);
+        let mut var_bottom = <f32>::sse_decode(deserializer);
+        let mut var_left = <f32>::sse_decode(deserializer);
+        let mut var_right = <f32>::sse_decode(deserializer);
+        return crate::frb::PageMargins {
+            top: var_top,
+            bottom: var_bottom,
+            left: var_left,
+            right: var_right,
         };
     }
 }
@@ -4760,6 +5221,44 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::JobState> for crate::frb::Job
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LabelRange {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.start.into_into_dart().into_dart(),
+            self.style.into_into_dart().into_dart(),
+            self.prefix.into_into_dart().into_dart(),
+            self.first.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LabelRange {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LabelRange> for crate::frb::LabelRange {
+    fn into_into_dart(self) -> crate::frb::LabelRange {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LabelStyle {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::None => 0.into_dart(),
+            Self::Decimal => 1.into_dart(),
+            Self::RomanUpper => 2.into_dart(),
+            Self::RomanLower => 3.into_dart(),
+            Self::LettersUpper => 4.into_dart(),
+            Self::LettersLower => 5.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LabelStyle {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LabelStyle> for crate::frb::LabelStyle {
+    fn into_into_dart(self) -> crate::frb::LabelStyle {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::Layer {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5007,6 +5506,38 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::PageBlocks> for crate::frb::P
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::PageCrop {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.page.into_into_dart().into_dart(),
+            self.margins.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::PageCrop {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::PageCrop> for crate::frb::PageCrop {
+    fn into_into_dart(self) -> crate::frb::PageCrop {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::PageFit {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Centre => 0.into_dart(),
+            Self::Scale => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::PageFit {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::PageFit> for crate::frb::PageFit {
+    fn into_into_dart(self) -> crate::frb::PageFit {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::PageInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5021,6 +5552,24 @@ impl flutter_rust_bridge::IntoDart for crate::frb::PageInfo {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::PageInfo {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::PageInfo> for crate::frb::PageInfo {
     fn into_into_dart(self) -> crate::frb::PageInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::PageMargins {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.top.into_into_dart().into_dart(),
+            self.bottom.into_into_dart().into_dart(),
+            self.left.into_into_dart().into_dart(),
+            self.right.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::PageMargins {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::PageMargins> for crate::frb::PageMargins {
+    fn into_into_dart(self) -> crate::frb::PageMargins {
         self
     }
 }
@@ -6111,6 +6660,36 @@ impl SseEncode for crate::frb::JobState {
     }
 }
 
+impl SseEncode for crate::frb::LabelRange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.start, serializer);
+        <crate::frb::LabelStyle>::sse_encode(self.style, serializer);
+        <String>::sse_encode(self.prefix, serializer);
+        <u32>::sse_encode(self.first, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::LabelStyle {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::LabelStyle::None => 0,
+                crate::frb::LabelStyle::Decimal => 1,
+                crate::frb::LabelStyle::RomanUpper => 2,
+                crate::frb::LabelStyle::RomanLower => 3,
+                crate::frb::LabelStyle::LettersUpper => 4,
+                crate::frb::LabelStyle::LettersLower => 5,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::Layer {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6250,6 +6829,16 @@ impl SseEncode for Vec<crate::frb::JobOutput> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::LabelRange> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::LabelRange>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::Layer> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6280,12 +6869,32 @@ impl SseEncode for Vec<crate::frb::MissingChar> {
     }
 }
 
+impl SseEncode for Vec<Option<crate::frb::PageMargins>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <Option<crate::frb::PageMargins>>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::OutlineEntry> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::OutlineEntry>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::PageCrop> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::PageCrop>::sse_encode(item, serializer);
         }
     }
 }
@@ -6653,6 +7262,16 @@ impl SseEncode for Option<crate::frb::OverflowPlan> {
     }
 }
 
+impl SseEncode for Option<crate::frb::PageMargins> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::PageMargins>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::PdfDate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6780,6 +7399,30 @@ impl SseEncode for crate::frb::PageBlocks {
     }
 }
 
+impl SseEncode for crate::frb::PageCrop {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.page, serializer);
+        <crate::frb::PageMargins>::sse_encode(self.margins, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::PageFit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::PageFit::Centre => 0,
+                crate::frb::PageFit::Scale => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::PageInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6787,6 +7430,16 @@ impl SseEncode for crate::frb::PageInfo {
         <f32>::sse_encode(self.height, serializer);
         <Option<String>>::sse_encode(self.label, serializer);
         <u64>::sse_encode(self.handle, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::PageMargins {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <f32>::sse_encode(self.top, serializer);
+        <f32>::sse_encode(self.bottom, serializer);
+        <f32>::sse_encode(self.left, serializer);
+        <f32>::sse_encode(self.right, serializer);
     }
 }
 
@@ -7435,6 +8088,13 @@ mod io {
             CstDecode::<crate::frb::OverflowPlan>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::frb::PageMargins> for *mut wire_cst_page_margins {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageMargins {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::PageMargins>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::frb::PagePoint> for *mut wire_cst_page_point {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::PagePoint {
@@ -7726,6 +8386,17 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::LabelRange> for wire_cst_label_range {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LabelRange {
+            crate::frb::LabelRange {
+                start: self.start.cst_decode(),
+                style: self.style.cst_decode(),
+                prefix: self.prefix.cst_decode(),
+                first: self.first.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::Layer> for wire_cst_layer {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::Layer {
@@ -7867,6 +8538,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::LabelRange>> for *mut wire_cst_list_label_range {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::LabelRange> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::Layer>> for *mut wire_cst_list_layer {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::Layer> {
@@ -7897,9 +8578,31 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<Option<crate::frb::PageMargins>>>
+        for *mut wire_cst_list_opt_box_autoadd_page_margins
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Option<crate::frb::PageMargins>> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::OutlineEntry>> for *mut wire_cst_list_outline_entry {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::OutlineEntry> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::PageCrop>> for *mut wire_cst_list_page_crop {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::PageCrop> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -8102,6 +8805,15 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::PageCrop> for wire_cst_page_crop {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageCrop {
+            crate::frb::PageCrop {
+                page: self.page.cst_decode(),
+                margins: self.margins.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::PageInfo> for wire_cst_page_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::PageInfo {
@@ -8110,6 +8822,17 @@ mod io {
                 height: self.height.cst_decode(),
                 label: self.label.cst_decode(),
                 handle: self.handle.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::PageMargins> for wire_cst_page_margins {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageMargins {
+            crate::frb::PageMargins {
+                top: self.top.cst_decode(),
+                bottom: self.bottom.cst_decode(),
+                left: self.left.cst_decode(),
+                right: self.right.cst_decode(),
             }
         }
     }
@@ -8743,6 +9466,21 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_label_range {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                start: Default::default(),
+                style: Default::default(),
+                prefix: core::ptr::null_mut(),
+                first: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_label_range {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_layer {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -8884,6 +9622,19 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_page_crop {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                page: Default::default(),
+                margins: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_page_crop {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_page_info {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -8895,6 +9646,21 @@ mod io {
         }
     }
     impl Default for wire_cst_page_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_page_margins {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                top: Default::default(),
+                bottom: Default::default(),
+                left: Default::default(),
+                right: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_page_margins {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -9329,6 +10095,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__crop_pages(
+        port_: i64,
+        document: u64,
+        crops: *mut wire_cst_list_page_crop,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__crop_pages_impl(port_, document, crops, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__debug_bytes(port_: i64, len: u32) {
         wire__crate__frb__debug_bytes_impl(port_, len)
     }
@@ -9339,12 +10115,32 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__delete_pages(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__delete_pages_impl(port_, document, pages, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__discard_recovery(
         port_: i64,
         session: *mut wire_cst_list_prim_u_8_strict,
         document: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__discard_recovery_impl(port_, session, document)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__duplicate_pages(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__duplicate_pages_impl(port_, document, pages, name)
     }
 
     #[unsafe(no_mangle)]
@@ -9376,6 +10172,21 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__insert_blank_pages(
+        port_: i64,
+        document: u64,
+        after: *mut u64,
+        count: u32,
+        width: f32,
+        height: f32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__insert_blank_pages_impl(
+            port_, document, after, count, width, height, name,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__keep_as_is(port_: i64, transaction: u64) {
         wire__crate__frb__keep_as_is_impl(port_, transaction)
     }
@@ -9393,6 +10204,17 @@ mod io {
         dy: f32,
     ) {
         wire__crate__frb__move_block_impl(port_, transaction, dx, dy)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__move_pages(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+        before: *mut u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__move_pages_impl(port_, document, pages, before, name)
     }
 
     #[unsafe(no_mangle)]
@@ -9430,6 +10252,11 @@ mod io {
         staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__optimize_and_clean_impl(port_, document, staging)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__page_label_ranges(port_: i64, document: u64) {
+        wire__crate__frb__page_label_ranges_impl(port_, document)
     }
 
     #[unsafe(no_mangle)]
@@ -9509,6 +10336,17 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__rollback_edit(port_: i64, transaction: u64) {
         wire__crate__frb__rollback_edit_impl(port_, transaction)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__rotate_pages(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+        quarter_turns: i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__rotate_pages_impl(port_, document, pages, quarter_turns, name)
     }
 
     #[unsafe(no_mangle)]
@@ -9640,6 +10478,29 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_page_labels(
+        port_: i64,
+        document: u64,
+        ranges: *mut wire_cst_list_label_range,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__set_page_labels_impl(port_, document, ranges, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_page_size(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+        width: f32,
+        height: f32,
+        fit: i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__set_page_size_impl(port_, document, pages, width, height, fit, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__set_recovery_enabled(
         port_: i64,
         enabled: bool,
@@ -9696,6 +10557,15 @@ mod io {
         password: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__unlock_owner_impl(port_, document, password)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__white_margins(
+        port_: i64,
+        document: u64,
+        pages: *mut wire_cst_list_prim_u_64_strict,
+    ) {
+        wire__crate__frb__white_margins_impl(port_, document, pages)
     }
 
     #[unsafe(no_mangle)]
@@ -9802,6 +10672,14 @@ mod io {
     -> *mut wire_cst_overflow_plan {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_overflow_plan::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_page_margins() -> *mut wire_cst_page_margins
+    {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_page_margins::new_with_null_ptr(),
         )
     }
 
@@ -10030,6 +10908,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_label_range(
+        len: i32,
+    ) -> *mut wire_cst_list_label_range {
+        let wrap = wire_cst_list_label_range {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_label_range>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_layer(len: i32) -> *mut wire_cst_list_layer {
         let wrap = wire_cst_list_layer {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
@@ -10070,12 +10962,37 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_opt_box_autoadd_page_margins(
+        len: i32,
+    ) -> *mut wire_cst_list_opt_box_autoadd_page_margins {
+        let wrap = wire_cst_list_opt_box_autoadd_page_margins {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(core::ptr::null_mut(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_outline_entry(
         len: i32,
     ) -> *mut wire_cst_list_outline_entry {
         let wrap = wire_cst_list_outline_entry {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_outline_entry>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_page_crop(
+        len: i32,
+    ) -> *mut wire_cst_list_page_crop {
+        let wrap = wire_cst_list_page_crop {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_page_crop>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -10459,6 +11376,14 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_label_range {
+        start: u32,
+        style: i32,
+        prefix: *mut wire_cst_list_prim_u_8_strict,
+        first: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_layer {
         name: *mut wire_cst_list_prim_u_8_strict,
         visible: bool,
@@ -10546,6 +11471,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_label_range {
+        ptr: *mut wire_cst_label_range,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_layer {
         ptr: *mut wire_cst_layer,
         len: i32,
@@ -10564,8 +11495,20 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_opt_box_autoadd_page_margins {
+        ptr: *mut *mut wire_cst_page_margins,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_outline_entry {
         ptr: *mut wire_cst_outline_entry,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_page_crop {
+        ptr: *mut wire_cst_page_crop,
         len: i32,
     }
     #[repr(C)]
@@ -10706,11 +11649,25 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_page_crop {
+        page: u64,
+        margins: wire_cst_page_margins,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_page_info {
         width: f32,
         height: f32,
         label: *mut wire_cst_list_prim_u_8_strict,
         handle: u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_page_margins {
+        top: f32,
+        bottom: f32,
+        left: f32,
+        right: f32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -11525,6 +12482,28 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::LabelRange>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LabelRange {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::frb::LabelRange {
+                start: self_.get(0).cst_decode(),
+                style: self_.get(1).cst_decode(),
+                prefix: self_.get(2).cst_decode(),
+                first: self_.get(3).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::Layer> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::Layer {
@@ -11704,6 +12683,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::LabelRange>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::LabelRange> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::Layer>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -11740,11 +12731,35 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<Option<crate::frb::PageMargins>>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<Option<crate::frb::PageMargins>> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::OutlineEntry>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::OutlineEntry> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::PageCrop>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::PageCrop> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -12032,6 +13047,24 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::PageCrop> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageCrop {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::PageCrop {
+                page: self_.get(0).cst_decode(),
+                margins: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::PageInfo> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::PageInfo {
@@ -12049,6 +13082,28 @@ mod web {
                 height: self_.get(1).cst_decode(),
                 label: self_.get(2).cst_decode(),
                 handle: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::PageMargins>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageMargins {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::frb::PageMargins {
+                top: self_.get(0).cst_decode(),
+                bottom: self_.get(1).cst_decode(),
+                left: self_.get(2).cst_decode(),
+                right: self_.get(3).cst_decode(),
             }
         }
     }
@@ -12654,6 +13709,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::LabelStyle>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LabelStyle {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<Vec<u32>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<u32> {
@@ -12707,6 +13770,12 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::OverflowChoice {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::PageFit> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PageFit {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -12923,6 +13992,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__crop_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        crops: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__crop_pages_impl(port_, document, crops, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__debug_bytes(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         len: u32,
@@ -12936,12 +14015,32 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__delete_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+        name: String,
+    ) {
+        wire__crate__frb__delete_pages_impl(port_, document, pages, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__discard_recovery(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         session: String,
         document: Option<String>,
     ) {
         wire__crate__frb__discard_recovery_impl(port_, session, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__duplicate_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+        name: String,
+    ) {
+        wire__crate__frb__duplicate_pages_impl(port_, document, pages, name)
     }
 
     #[wasm_bindgen]
@@ -12976,6 +14075,21 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__insert_blank_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        after: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        count: u32,
+        width: f32,
+        height: f32,
+        name: String,
+    ) {
+        wire__crate__frb__insert_blank_pages_impl(
+            port_, document, after, count, width, height, name,
+        )
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__keep_as_is(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -12998,6 +14112,17 @@ mod web {
         dy: f32,
     ) {
         wire__crate__frb__move_block_impl(port_, transaction, dx, dy)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__move_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+        before: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__move_pages_impl(port_, document, pages, before, name)
     }
 
     #[wasm_bindgen]
@@ -13035,6 +14160,14 @@ mod web {
         staging: Option<String>,
     ) {
         wire__crate__frb__optimize_and_clean_impl(port_, document, staging)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__page_label_ranges(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__page_label_ranges_impl(port_, document)
     }
 
     #[wasm_bindgen]
@@ -13126,6 +14259,17 @@ mod web {
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__rollback_edit_impl(port_, transaction)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__rotate_pages(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+        quarter_turns: i32,
+        name: String,
+    ) {
+        wire__crate__frb__rotate_pages_impl(port_, document, pages, quarter_turns, name)
     }
 
     #[wasm_bindgen]
@@ -13257,6 +14401,29 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__set_page_labels(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        ranges: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__set_page_labels_impl(port_, document, ranges, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__set_page_size(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+        width: f32,
+        height: f32,
+        fit: i32,
+        name: String,
+    ) {
+        wire__crate__frb__set_page_size_impl(port_, document, pages, width, height, fit, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__set_recovery_enabled(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         enabled: bool,
@@ -13316,6 +14483,15 @@ mod web {
         password: String,
     ) {
         wire__crate__frb__unlock_owner_impl(port_, document, password)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__white_margins(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        pages: Box<[u64]>,
+    ) {
+        wire__crate__frb__white_margins_impl(port_, document, pages)
     }
 
     #[wasm_bindgen]

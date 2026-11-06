@@ -34,7 +34,7 @@ pub use interactive::{FieldLock, Forms, Layer, OpGate, Scripts, Signature};
 pub use navigation::{Attachment, OutlineItem};
 
 /// US Letter, PDFium's page size when `/MediaBox` is missing or empty.
-const LETTER: Rect = Rect {
+pub(crate) const LETTER: Rect = Rect {
     left: 0.0,
     bottom: 0.0,
     right: 612.0,
@@ -524,11 +524,20 @@ pub(crate) fn inherited<'a>(
     page: &'a Dictionary,
     key: &[u8],
 ) -> Option<&'a Object> {
+    scope.resolve(inherited_entry(scope, page, key)?)
+}
+
+/// The entry [`inherited`] finds, its reference not followed.
+pub(crate) fn inherited_entry<'a>(
+    scope: &Scope<'a>,
+    page: &'a Dictionary,
+    key: &[u8],
+) -> Option<&'a Object> {
     let mut node = page;
     let mut seen = BTreeSet::new();
     for _ in 0..=scope.limits.max_nesting {
         if let Ok(value) = node.get(key) {
-            return scope.resolve(value);
+            return Some(value);
         }
         let parent = node.get(b"Parent").ok()?;
         let id = parent.as_reference().ok()?;
@@ -777,35 +786,100 @@ pub(crate) fn marked_content_languages(
     out
 }
 
-/// The labels of `count` pages from `/PageLabels` (ISO 32000-2 §12.4.2), or none.
-fn labels(scope: &Scope<'_>, count: usize) -> Vec<Option<String>> {
+/// How a page label range writes its numbers (ISO 32000-2 §12.4.2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LabelStyle {
+    /// No number: the prefix alone.
+    None,
+    /// 1, 2, 3.
+    Decimal,
+    /// I, II, III.
+    RomanUpper,
+    /// i, ii, iii.
+    RomanLower,
+    /// A, B, C.
+    LettersUpper,
+    /// a, b, c.
+    LettersLower,
+}
+
+impl LabelStyle {
+    /// The name `/S` holds for this style.
+    pub(crate) fn name(self) -> Option<&'static [u8]> {
+        match self {
+            Self::None => None,
+            Self::Decimal => Some(b"D"),
+            Self::RomanUpper => Some(b"R"),
+            Self::RomanLower => Some(b"r"),
+            Self::LettersUpper => Some(b"A"),
+            Self::LettersLower => Some(b"a"),
+        }
+    }
+}
+
+/// One range of a document's page labels.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LabelRange {
+    /// The index of its first page, from 0.
+    pub start: u32,
+    /// How it writes its numbers.
+    pub style: LabelStyle,
+    /// What comes before each number.
+    pub prefix: String,
+    /// The number of its first page, from 1.
+    pub first: u32,
+}
+
+/// The ranges of `/PageLabels` in page order, or none.
+pub(crate) fn label_ranges(scope: &Scope<'_>) -> Vec<LabelRange> {
     let Some(root) = scope
         .catalog()
         .and_then(|catalog| scope.get_dict(catalog, b"PageLabels"))
     else {
         return Vec::new();
     };
-    let mut ranges: Vec<(i64, &Dictionary)> = navigation::number_tree(scope, root)
+    let mut ranges: Vec<LabelRange> = navigation::number_tree(scope, root)
         .into_iter()
-        .filter_map(|(start, value)| Some((start, scope.dict(value)?)))
+        .filter_map(|(start, value)| {
+            let range = scope.dict(value)?;
+            Some(LabelRange {
+                start: u32::try_from(start.max(0)).unwrap_or(u32::MAX),
+                style: match scope.get_name(range, b"S") {
+                    Some(b"D") => LabelStyle::Decimal,
+                    Some(b"R") => LabelStyle::RomanUpper,
+                    Some(b"r") => LabelStyle::RomanLower,
+                    Some(b"A") => LabelStyle::LettersUpper,
+                    Some(b"a") => LabelStyle::LettersLower,
+                    _ => LabelStyle::None,
+                },
+                prefix: scope.get_text(range, b"P").unwrap_or_default(),
+                first: u32::try_from(scope.get_int(range, b"St").unwrap_or(1).max(1))
+                    .unwrap_or(u32::MAX),
+            })
+        })
         .collect();
-    ranges.sort_by_key(|(start, _)| *start);
+    ranges.sort_by_key(|range| range.start);
+    ranges
+}
+
+/// The labels of `count` pages from `/PageLabels` (ISO 32000-2 §12.4.2), or none.
+fn labels(scope: &Scope<'_>, count: usize) -> Vec<Option<String>> {
+    let ranges = label_ranges(scope);
     (0..count)
         .map(|index| {
-            let index = i64::try_from(index).ok()?;
-            let (start, range) = ranges.iter().rev().find(|(start, _)| *start <= index)?;
-            let prefix = scope.get_text(range, b"P").unwrap_or_default();
-            let first = scope.get_int(range, b"St").unwrap_or(1).max(1);
-            let value = first.checked_add(index.checked_sub(*start)?)?;
-            let number = match scope.get_name(range, b"S") {
-                Some(b"D") => value.to_string(),
-                Some(b"R") => roman(value).to_uppercase(),
-                Some(b"r") => roman(value),
-                Some(b"A") => letters(value).to_uppercase(),
-                Some(b"a") => letters(value),
-                _ => String::new(),
+            let index = u32::try_from(index).ok()?;
+            let range = ranges.iter().rev().find(|range| range.start <= index)?;
+            let value =
+                i64::from(range.first).checked_add(i64::from(index.saturating_sub(range.start)))?;
+            let number = match range.style {
+                LabelStyle::Decimal => value.to_string(),
+                LabelStyle::RomanUpper => roman(value).to_uppercase(),
+                LabelStyle::RomanLower => roman(value),
+                LabelStyle::LettersUpper => letters(value).to_uppercase(),
+                LabelStyle::LettersLower => letters(value),
+                LabelStyle::None => String::new(),
             };
-            Some(format!("{prefix}{number}"))
+            Some(format!("{}{number}", range.prefix))
         })
         .collect()
 }

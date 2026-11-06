@@ -252,6 +252,91 @@ abstract interface class EngineService {
   /// The fonts the text panel's font field offers for [block], best first.
   Future<List<FontCandidate>> blockFonts(int document, int page, int block);
 
+  /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
+  /// quarter turns, clockwise when positive, as the one step [name] of its
+  /// history. Throws an [EngineException] with [EngineErrorKind.notEditable]
+  /// when the document's permissions forbid assembling (ask [opGate] with
+  /// [DocumentOp.organize]), [EngineErrorKind.confirmationRequired] for a
+  /// signed document before [confirmEditSigned], and
+  /// [EngineErrorKind.invalidInput] for a page it does not have or while a
+  /// transaction is open. So do the other page operations.
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  );
+
+  /// Deletes [pages] as one step: they stay in the file until Remove edit
+  /// history or Optimize and clean, and what referred to them no longer does.
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] when no
+  /// page would be left.
+  Future<RevisionInfo> deletePages(int document, List<int> pages, String name);
+
+  /// Moves [pages], together and in document order, before the page [before],
+  /// or to the end when null, as one step. Labels travel with their pages.
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  );
+
+  /// Copies [pages] as one step: the copies of pages next to each other
+  /// follow the last of them.
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  );
+
+  /// Inserts [count] blank pages of [width] by [height] points after the page
+  /// [after], or first when null, as one step.
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  });
+
+  /// Gives [pages] the displayed size [width] by [height] points as one step,
+  /// with the content as [fit] says (a6-4).
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  });
+
+  /// Crops each page of [crops], by handle, by its margins as one step:
+  /// negative margins give back up to the media box. What is outside stays in
+  /// the file, hidden (G57); undo is the way back.
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  );
+
+  /// The white around the content of each of [pages], for "Remove white
+  /// margins" (a6-4): null for a page with no content.
+  Future<List<PageMargins?>> whiteMargins(int document, List<int> pages);
+
+  /// The page label ranges of [document], in page order (a6-5).
+  Future<List<PageLabelRange>> pageLabelRanges(int document);
+
+  /// Makes [ranges] the page labels of [document] as one step; none removes
+  /// them. Throws an [EngineException] with [EngineErrorKind.invalidInput] for
+  /// ranges out of order, past the last page or numbered from 0.
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  );
+
   /// Steps [document] back one step of its history.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
@@ -589,6 +674,80 @@ class UnavailableEngineService implements EngineService {
     int document,
     int page,
     int block,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(
+    int document,
+    List<int> pages,
+  ) async => throw error;
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async =>
+      throw error;
+
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
   ) async => throw error;
 
   @override

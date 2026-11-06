@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -582,6 +582,184 @@ Future<RevisionInfo> commitEdit({
 /// `NotFound` for a transaction that is not open.
 Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
+
+/// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
+///
+/// See [`facade::Engine::rotate_pages`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` and `NotFound`; so do the other page
+/// operations.
+Future<RevisionInfo> rotatePages({
+  required BigInt document,
+  required Uint64List pages,
+  required int quarterTurns,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbRotatePages(
+  document: document,
+  pages: pages,
+  quarterTurns: quarterTurns,
+  name: name,
+);
+
+/// Deletes `pages` as one history step.
+///
+/// See [`facade::Engine::delete_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> deletePages({
+  required BigInt document,
+  required Uint64List pages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeletePages(
+  document: document,
+  pages: pages,
+  name: name,
+);
+
+/// Moves `pages` before the page `before`, or to the end when `None`, as one history step.
+///
+/// See [`facade::Engine::move_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> movePages({
+  required BigInt document,
+  required Uint64List pages,
+  BigInt? before,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbMovePages(
+  document: document,
+  pages: pages,
+  before: before,
+  name: name,
+);
+
+/// Copies `pages` as one history step.
+///
+/// See [`facade::Engine::duplicate_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> duplicatePages({
+  required BigInt document,
+  required Uint64List pages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDuplicatePages(
+  document: document,
+  pages: pages,
+  name: name,
+);
+
+/// Inserts `count` blank pages after the page `after`, or first when `None`, as one history step.
+///
+/// See [`facade::Engine::insert_blank_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> insertBlankPages({
+  required BigInt document,
+  BigInt? after,
+  required int count,
+  required double width,
+  required double height,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbInsertBlankPages(
+  document: document,
+  after: after,
+  count: count,
+  width: width,
+  height: height,
+  name: name,
+);
+
+/// Gives `pages` a new displayed size as one history step.
+///
+/// See [`facade::Engine::set_page_size`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> setPageSize({
+  required BigInt document,
+  required Uint64List pages,
+  required double width,
+  required double height,
+  required PageFit fit,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetPageSize(
+  document: document,
+  pages: pages,
+  width: width,
+  height: height,
+  fit: fit,
+  name: name,
+);
+
+/// Crops each page of `crops` as one history step.
+///
+/// See [`facade::Engine::crop_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> cropPages({
+  required BigInt document,
+  required List<PageCrop> crops,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbCropPages(
+  document: document,
+  crops: crops,
+  name: name,
+);
+
+/// The white around the content of each of `pages`, `None` for a page with no content.
+///
+/// See [`facade::Engine::white_margins`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotFound` and the render thread's errors.
+Future<List<PageMargins?>> whiteMargins({
+  required BigInt document,
+  required Uint64List pages,
+}) => FermanBridge.instance.api.crateFrbWhiteMargins(
+  document: document,
+  pages: pages,
+);
+
+/// The document's page label ranges, in page order.
+///
+/// See [`facade::Engine::page_label_ranges`].
+///
+/// # Errors
+///
+/// `NotFound` for a closed document.
+Future<List<LabelRange>> pageLabelRanges({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbPageLabelRanges(document: document);
+
+/// Makes `ranges` the document's page labels as one history step; none removes them.
+///
+/// See [`facade::Engine::set_page_labels`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> setPageLabels({
+  required BigInt document,
+  required List<LabelRange> ranges,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetPageLabels(
+  document: document,
+  ranges: ranges,
+  name: name,
+);
 
 /// Steps `document` back one step of its history.
 ///
@@ -2152,6 +2330,63 @@ enum JobState {
   cancelled,
 }
 
+/// One range of a document's page labels (a6-5).
+class LabelRange {
+  /// The index of its first page, from 0.
+  final int start;
+
+  /// How it writes its numbers.
+  final LabelStyle style;
+
+  /// What comes before each number.
+  final String prefix;
+
+  /// The number of its first page, from 1.
+  final int first;
+
+  const LabelRange({
+    required this.start,
+    required this.style,
+    required this.prefix,
+    required this.first,
+  });
+
+  @override
+  int get hashCode =>
+      start.hashCode ^ style.hashCode ^ prefix.hashCode ^ first.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LabelRange &&
+          runtimeType == other.runtimeType &&
+          start == other.start &&
+          style == other.style &&
+          prefix == other.prefix &&
+          first == other.first;
+}
+
+/// How a page label range writes its numbers.
+enum LabelStyle {
+  /// No number: the prefix alone.
+  none,
+
+  /// 1, 2, 3.
+  decimal,
+
+  /// I, II, III.
+  romanUpper,
+
+  /// i, ii, iii.
+  romanLower,
+
+  /// A, B, C.
+  lettersUpper,
+
+  /// a, b, c.
+  lettersLower,
+}
+
 /// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
 class Layer {
   /// Its name.
@@ -2653,6 +2888,37 @@ class PageBlocks {
           empty == other.empty;
 }
 
+/// One page of a crop.
+class PageCrop {
+  /// The page, by [`PageInfo::handle`].
+  final BigInt page;
+
+  /// What it gives up.
+  final PageMargins margins;
+
+  const PageCrop({required this.page, required this.margins});
+
+  @override
+  int get hashCode => page.hashCode ^ margins.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageCrop &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          margins == other.margins;
+}
+
+/// What a new page size does to the content (a6-4).
+enum PageFit {
+  /// Stays at its size, in the middle of the new page.
+  centre,
+
+  /// Scaled to fit the new page, and centred on it.
+  scale,
+}
+
 /// One page of an [`OpenedDocument`], in points as displayed.
 class PageInfo {
   /// The width, after the crop box and `/Rotate`.
@@ -2687,6 +2953,42 @@ class PageInfo {
           height == other.height &&
           label == other.label &&
           handle == other.handle;
+}
+
+/// What each side of a page gives up, in displayed points.
+class PageMargins {
+  /// The top side.
+  final double top;
+
+  /// The bottom side.
+  final double bottom;
+
+  /// The left side.
+  final double left;
+
+  /// The right side.
+  final double right;
+
+  const PageMargins({
+    required this.top,
+    required this.bottom,
+    required this.left,
+    required this.right,
+  });
+
+  @override
+  int get hashCode =>
+      top.hashCode ^ bottom.hashCode ^ left.hashCode ^ right.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageMargins &&
+          runtimeType == other.runtimeType &&
+          top == other.top &&
+          bottom == other.bottom &&
+          left == other.left &&
+          right == other.right;
 }
 
 /// A point on a page in displayed points, y down.

@@ -8,7 +8,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/recovery_directory.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
+    show ExternalLibrary, Uint64List;
 import 'package:path_provider/path_provider.dart';
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
@@ -894,6 +894,206 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) => _revision(
+    () => bridge.rotatePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      quarterTurns: quarterTurns,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) => _revision(
+    () => bridge.deletePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) => _revision(
+    () => bridge.movePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      before: before == null ? null : BigInt.from(before),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) => _revision(
+    () => bridge.duplicatePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) => _revision(
+    () => bridge.insertBlankPages(
+      document: BigInt.from(document),
+      after: after == null ? null : BigInt.from(after),
+      count: count,
+      width: width,
+      height: height,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) => _revision(
+    () => bridge.setPageSize(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      width: width,
+      height: height,
+      fit: switch (fit) {
+        PageFit.centre => bridge.PageFit.centre,
+        PageFit.scale => bridge.PageFit.scale,
+      },
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) => _revision(
+    () => bridge.cropPages(
+      document: BigInt.from(document),
+      crops: [
+        for (final MapEntry(key: page, value: margins) in crops.entries)
+          bridge.PageCrop(
+            page: BigInt.from(page),
+            margins: bridge.PageMargins(
+              top: margins.top,
+              bottom: margins.bottom,
+              left: margins.left,
+              right: margins.right,
+            ),
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(int document, List<int> pages) async {
+    try {
+      final margins = await bridge.whiteMargins(
+        document: BigInt.from(document),
+        pages: _handles(pages),
+      );
+      return [
+        for (final page in margins)
+          switch (page) {
+            null => null,
+            final page => PageMargins(
+              top: page.top,
+              bottom: page.bottom,
+              left: page.left,
+              right: page.right,
+            ),
+          },
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async {
+    try {
+      final ranges = await bridge.pageLabelRanges(
+        document: BigInt.from(document),
+      );
+      return [
+        for (final range in ranges)
+          PageLabelRange(
+            start: range.start,
+            style: switch (range.style) {
+              bridge.LabelStyle.none => PageLabelStyle.none,
+              bridge.LabelStyle.decimal => PageLabelStyle.decimal,
+              bridge.LabelStyle.romanUpper => PageLabelStyle.romanUpper,
+              bridge.LabelStyle.romanLower => PageLabelStyle.romanLower,
+              bridge.LabelStyle.lettersUpper => PageLabelStyle.lettersUpper,
+              bridge.LabelStyle.lettersLower => PageLabelStyle.lettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  ) => _revision(
+    () => bridge.setPageLabels(
+      document: BigInt.from(document),
+      ranges: [
+        for (final range in ranges)
+          bridge.LabelRange(
+            start: range.start,
+            style: switch (range.style) {
+              PageLabelStyle.none => bridge.LabelStyle.none,
+              PageLabelStyle.decimal => bridge.LabelStyle.decimal,
+              PageLabelStyle.romanUpper => bridge.LabelStyle.romanUpper,
+              PageLabelStyle.romanLower => bridge.LabelStyle.romanLower,
+              PageLabelStyle.lettersUpper => bridge.LabelStyle.lettersUpper,
+              PageLabelStyle.lettersLower => bridge.LabelStyle.lettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
   Future<RevisionInfo> undo(int document) =>
       _revision(() => bridge.undo(document: BigInt.from(document)));
 
@@ -1405,6 +1605,15 @@ String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
 
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+/// Page handles as the bridge takes them.
+Uint64List _handles(List<int> pages) {
+  final handles = Uint64List(pages.length);
+  for (var i = 0; i < pages.length; i++) {
+    handles[i] = BigInt.from(pages[i]);
+  }
+  return handles;
+}
 
 /// The engine's pages as the app's.
 List<PageInfo> _pages(List<bridge.PageInfo> pages) => [

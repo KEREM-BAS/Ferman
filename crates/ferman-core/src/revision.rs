@@ -20,7 +20,7 @@
 // Ranges come from the caller and lengths from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write as _;
 use std::ops::Range;
 use std::sync::{Arc, OnceLock};
@@ -835,6 +835,15 @@ impl RevisionStore {
         objects
     }
 
+    /// The objects the current revisions and the open transaction change or add.
+    pub(crate) fn changed_ids(&self) -> BTreeSet<ObjectId> {
+        self.open
+            .iter()
+            .chain(self.revisions.get(..self.current).unwrap_or_default())
+            .flat_map(ChangeSet::ids)
+            .collect()
+    }
+
     /// A store for `doc` whose one revision holds `objects`: a document restored from its
     /// recovery files (`recovery`), every change unsaved. Without `unsaved` it has no revision.
     pub(crate) fn restored(
@@ -977,7 +986,7 @@ impl RevisionStore {
     }
 
     /// The streams of page `id`'s `/Contents`.
-    fn contents(&self, doc: &Document, id: ObjectId) -> Vec<ObjectId> {
+    pub(crate) fn contents(&self, doc: &Document, id: ObjectId) -> Vec<ObjectId> {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return Vec::new();

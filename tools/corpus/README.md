@@ -61,6 +61,7 @@ each file covers.
 | `annots-other-producer` | `docs/annotations.rs` | A contract review with every annotation type `a4-1` draws, as another program writes them |
 | `cert-p1`, `cert-p2`, `cert-p3`, `form-signed`, `form-hybrid-xfa`, `form-need-appearances`, `form-script`, `form-lists-comb` | `docs/form_cases.rs` | Certified at each DocMDP level; a signed form with FieldMDP; AcroForm with XFA; no `/AP`; scripts that would change values; list boxes and comb fields |
 | `combine-outline` | `docs/combine.rs` | The Combine fixture: a 2-page PDF with an outline, and `combine-photo.jpg`, a standalone JPEG (an extra, with its own row) |
+| `pages-tree` | `docs/pages_tree.rs` | A three-level page tree with inherited attributes, labels and an integer destination, for Organize |
 | `images-compress` | `docs/images.rs` | The Compress fixture: every kind of image, one per slot |
 
 The generators share a small PDF writer:

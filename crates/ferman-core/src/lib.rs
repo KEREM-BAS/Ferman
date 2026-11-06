@@ -75,6 +75,7 @@ pub mod fuzzing;
 mod incremental;
 pub mod interpret;
 pub mod limits;
+pub mod pages;
 #[allow(unsafe_code)]
 mod platform;
 pub mod recovery;
@@ -285,6 +286,9 @@ pub enum WriteError {
     Repaired,
     /// The system's random number generator failed.
     Random,
+    /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
+    /// out of range, label ranges out of order.
+    PagePlan,
 }
 
 impl std::fmt::Display for WriteError {
@@ -304,6 +308,7 @@ impl std::fmt::Display for WriteError {
             Self::Font => f.write_str("a font copy that does not fit the page"),
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
+            Self::PagePlan => f.write_str("a page operation that cannot apply"),
         }
     }
 }

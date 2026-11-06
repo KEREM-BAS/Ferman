@@ -66,6 +66,7 @@
 //! ([`Engine::op_gate`] says [`OpGate::KeepsSignatures`]) asks the same, because G35 tells the
 //! user before the first change whatever it does; its notice only says something else.
 
+use std::collections::HashMap;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -77,10 +78,11 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
-use ferman_core::structure::OpGate;
+use ferman_core::structure::{LabelRange, OpGate};
 use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
-use ferman_render::{DocumentId, RenderError};
+use ferman_ops::pages::{Margins, PageFit};
+use ferman_render::{DocumentId, PageSize, RenderError};
 use ferman_text::extract::CharBox;
 use ferman_text::{
     BlockId, BlockStyle, BlockStyleInfo, Choice, EditContext, Editability, FontCandidate,
@@ -584,6 +586,27 @@ impl Session {
                 ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                     .with_details("no such page")
             })
+    }
+
+    /// Where the pages `handles` are in the committed revisions, in the same order.
+    fn page_indices(&self, handles: &[u64]) -> Result<Vec<usize>, ApiError> {
+        let at: HashMap<u64, usize> = self
+            .committed
+            .pages(&self.model.document)
+            .iter()
+            .enumerate()
+            .rev()
+            .map(|(index, page)| (page.handle(), index))
+            .collect();
+        handles
+            .iter()
+            .map(|handle| {
+                at.get(handle).copied().ok_or_else(|| {
+                    ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                        .with_details("no such page")
+                })
+            })
+            .collect()
     }
 
     /// Fails for a document that `op` may not touch, with the reason. Printing changes nothing,
@@ -2077,7 +2100,7 @@ impl Engine {
                             Ok(ferman_ops::pages::rotate(
                                 doc,
                                 working,
-                                index,
+                                &[index],
                                 quarter_turns,
                             )?)
                         },
@@ -2085,6 +2108,265 @@ impl Engine {
                 })
                 .await?;
             Ok(self.revision_info(document, current, reload).await)
+        })
+        .await
+    }
+
+    /// Commits what `write` writes, given where `pages` are now, as the Organize step `name` that
+    /// names those pages.
+    async fn organize(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+        write: impl FnOnce(
+            &ferman_core::Document,
+            &mut RevisionStore,
+            &[usize],
+        ) -> Result<(), ferman_ops::OpsError>
+        + Send
+        + 'static,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| {
+                    let indices = session.page_indices(&pages)?;
+                    session.commit_change(
+                        DocumentOp::Organize,
+                        &[],
+                        name,
+                        &indices,
+                        (String::new(), String::new()),
+                        |doc, working| Ok(write(doc, working, &indices)?),
+                    )
+                })
+                .await?;
+            Ok(self.revision_info(document, current, reload).await)
+        })
+        .await
+    }
+
+    /// Turns `pages` (by [`PageInfo::handle`](super::PageInfo::handle)) by `quarter_turns` quarter
+    /// turns, clockwise when positive, as one step `name` of the history.
+    ///
+    /// # Errors
+    ///
+    /// `NotEditable` with the reason for a document whose permissions forbid assembling or that
+    /// cannot be changed, `ConfirmationRequired` for a signed document before its confirmation,
+    /// `InvalidInput` for a page it does not have or while a transaction is open, and `NotFound`
+    /// for a document that is not open. So do the other page operations.
+    pub async fn rotate_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        quarter_turns: i32,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            ferman_ops::pages::rotate(doc, working, indices, quarter_turns)
+        })
+        .await
+    }
+
+    /// Deletes `pages` as one step `name`. Their objects stay in the file until a full rewrite;
+    /// bookmarks, links and other references to them become null.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` when no page would be left.
+    pub async fn delete_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, |doc, working, indices| {
+            ferman_ops::pages::delete(doc, working, indices)
+        })
+        .await
+    }
+
+    /// Moves `pages`, together and in document order, before the page `before`, or to the end
+    /// when `None`, as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages).
+    pub async fn move_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        before: Option<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            let before = before
+                .map(|before| {
+                    working
+                        .page_index(doc, before)
+                        .ok_or(CoreError::Write(WriteError::NoSuchPage))
+                })
+                .transpose()?;
+            ferman_ops::pages::move_before(doc, working, indices, before)
+        })
+        .await
+    }
+
+    /// Copies `pages` as one step `name`: the copies of pages next to each other follow the last
+    /// of them.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages).
+    pub async fn duplicate_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, |doc, working, indices| {
+            ferman_ops::pages::duplicate(doc, working, indices)
+        })
+        .await
+    }
+
+    /// Inserts `count` blank pages of `width` by `height` points after the page `after`, or first
+    /// when `None`, as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for a count or size out of range.
+    pub async fn insert_blank_pages(
+        &self,
+        document: DocumentId,
+        after: Option<u64>,
+        count: u32,
+        (width, height): (f32, f32),
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        let anchor = after.into_iter().collect();
+        self.organize(document, anchor, name, move |doc, working, indices| {
+            let after = indices.first().copied();
+            ferman_ops::pages::insert_blank(doc, working, after, count, (width, height))
+        })
+        .await
+    }
+
+    /// Gives `pages` the displayed size `width` by `height` points as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for a size out of range.
+    pub async fn set_page_size(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        (width, height): (f32, f32),
+        fit: PageFit,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            ferman_ops::pages::set_size(doc, working, indices, (width, height), fit)
+        })
+        .await
+    }
+
+    /// Crops each page of `crops` by its margins as one step `name`, through its crop box: what
+    /// is outside stays in the file, hidden (G57); undo is the way back.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` when less than a point would be
+    /// left of a page.
+    pub async fn crop_pages(
+        &self,
+        document: DocumentId,
+        crops: Vec<(u64, Margins)>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        let (pages, margins): (Vec<u64>, Vec<Margins>) = crops.into_iter().unzip();
+        self.organize(document, pages, name, move |doc, working, indices| {
+            let crops: Vec<(usize, Margins)> = indices.iter().copied().zip(margins).collect();
+            ferman_ops::pages::crop(doc, working, &crops)
+        })
+        .await
+    }
+
+    /// The white around the content of each of `pages` as it shows, for "Remove white margins"
+    /// (a6-4): `None` for a page with no content. Renders on the render thread, page by page.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` for a page it does not have, `NotFound` for a document that is not open, and
+    /// the render thread's errors.
+    pub async fn white_margins(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+    ) -> Result<Vec<Option<Margins>>, ApiError> {
+        /// One pixel a point: a margin comes out at most a point short, and never cuts a mark.
+        const DPI: u32 = 72;
+        guard_async(async move {
+            let sizes = self
+                .ask(document, move |session| {
+                    let indices = session.page_indices(&pages)?;
+                    let all = session.committed.pages(&session.model.document);
+                    Ok(indices
+                        .into_iter()
+                        .filter_map(|index| {
+                            let (width, height) = all.get(index)?.size;
+                            Some((u32::try_from(index).ok()?, PageSize { width, height }))
+                        })
+                        .collect::<Vec<_>>())
+                })
+                .await?;
+            let mut margins = Vec::with_capacity(sizes.len());
+            for (page, size) in sizes {
+                let raster =
+                    ferman_render::render_page(self.render()?, document, page, size, DPI).await?;
+                margins.push(ferman_ops::pages::white_margins(
+                    &raster.pixels,
+                    raster.width,
+                    raster.scale,
+                ));
+            }
+            Ok(margins)
+        })
+        .await
+    }
+
+    /// The document's page label ranges, in page order (a6-5).
+    ///
+    /// # Errors
+    ///
+    /// `NotFound` for a document that is not open.
+    pub async fn page_label_ranges(
+        &self,
+        document: DocumentId,
+    ) -> Result<Vec<LabelRange>, ApiError> {
+        guard_async(async move {
+            self.ask(document, |session| {
+                Ok(session.committed.label_ranges(&session.model.document))
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Makes `ranges` the document's page labels as one step `name`; none removes them.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for ranges out of order, past the
+    /// last page or numbered from 0.
+    pub async fn set_page_labels(
+        &self,
+        document: DocumentId,
+        ranges: Vec<LabelRange>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, Vec::new(), name, move |doc, working, _| {
+            ferman_ops::pages::set_labels(doc, working, &ranges)
         })
         .await
     }
@@ -3628,7 +3910,7 @@ mod tests {
             "Turned".to_owned(),
             &[0],
             (String::new(), String::new()),
-            |doc, working| Ok(ferman_ops::pages::rotate(doc, working, 0, 1)?),
+            |doc, working| Ok(ferman_ops::pages::rotate(doc, working, &[0], 1)?),
         )
     }
 

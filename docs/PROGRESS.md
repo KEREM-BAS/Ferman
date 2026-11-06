@@ -574,6 +574,13 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     `task_quit` and `toast_stack` have no reference PNG. They are Linux only, so CI's golden step goes
     red on the first push until the `goldens-linux` artifact is committed and a11-6b is compared with
     `build/design-refs/`.
+  - W1, page operations (commit 8, 2026-11-06): rotate, delete, move, duplicate, blank pages, page
+    size with Centre or Scale, crop, Remove white margins and label ranges, in `ferman_core::pages`,
+    `ferman_ops::pages`, the facade, the bridge, `FrbEngineService` and `FakeEngineService`; each
+    one undoable step, gated by Organize (assemble) with G35's confirmation, replayed by recovery.
+    New corpus file `pages-tree` (three-level tree with inherited attributes); acceptance in
+    `crates/ferman-api/tests/pages.rs`. No CLI subcommands: each would need its own arguments. The
+    app's controls come with the page grid (commit 10), so `organizingPages` stays in the registry.
 - [ ] The owner approves M4
 
 ### M5 · Release pipeline

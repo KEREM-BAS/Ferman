@@ -77,6 +77,20 @@ pub(crate) fn decode(bytes: &[u8]) -> String {
     bytes.iter().map(|&byte| pdf_doc_char(byte)).collect()
 }
 
+/// `text` as a text string's bytes: PDFDocEncoding when it holds them all, else UTF-16BE with a
+/// byte order mark.
+pub(crate) fn encode(text: &str) -> Vec<u8> {
+    text.chars()
+        .map(pdf_doc_byte)
+        .collect::<Option<_>>()
+        .unwrap_or_else(|| {
+            [0xFE, 0xFF]
+                .into_iter()
+                .chain(text.encode_utf16().flat_map(u16::to_be_bytes))
+                .collect()
+        })
+}
+
 #[cfg(test)]
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
@@ -94,6 +108,14 @@ mod tests {
             0xFE, 0xFF, 0x00, 0x1B, 0x00, 0x74, 0x00, 0x72, 0x00, 0x1B, 0x00, 0x41,
         ];
         assert_eq!(decode(&tagged), "A");
+    }
+
+    #[test]
+    fn encoded_text_decodes_to_itself() {
+        assert_eq!(encode("Ek-"), b"Ek-");
+        for text in ["Ek-", "Şubat ", "Café ı", "ملحق", "😀"] {
+            assert_eq!(decode(&encode(text)), text);
+        }
     }
 
     #[test]

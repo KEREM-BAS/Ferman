@@ -1991,6 +1991,347 @@ pub async fn rollback_edit(transaction: u64) -> Result<RevisionInfo, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// What each side of a page gives up, in displayed points.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageMargins {
+    /// The top side.
+    pub top: f32,
+    /// The bottom side.
+    pub bottom: f32,
+    /// The left side.
+    pub left: f32,
+    /// The right side.
+    pub right: f32,
+}
+
+/// One page of a crop.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageCrop {
+    /// The page, by [`PageInfo::handle`].
+    pub page: u64,
+    /// What it gives up.
+    pub margins: PageMargins,
+}
+
+/// What a new page size does to the content (a6-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PageFit {
+    /// Stays at its size, in the middle of the new page.
+    Centre,
+    /// Scaled to fit the new page, and centred on it.
+    Scale,
+}
+
+/// How a page label range writes its numbers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LabelStyle {
+    /// No number: the prefix alone.
+    None,
+    /// 1, 2, 3.
+    Decimal,
+    /// I, II, III.
+    RomanUpper,
+    /// i, ii, iii.
+    RomanLower,
+    /// A, B, C.
+    LettersUpper,
+    /// a, b, c.
+    LettersLower,
+}
+
+/// One range of a document's page labels (a6-5).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LabelRange {
+    /// The index of its first page, from 0.
+    pub start: u32,
+    /// How it writes its numbers.
+    pub style: LabelStyle,
+    /// What comes before each number.
+    pub prefix: String,
+    /// The number of its first page, from 1.
+    pub first: u32,
+}
+
+/// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
+///
+/// See [`facade::Engine::rotate_pages`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` and `NotFound`; so do the other page
+/// operations.
+pub async fn rotate_pages(
+    document: u64,
+    pages: Vec<u64>,
+    quarter_turns: i32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .rotate_pages(
+            facade::DocumentId::from_raw(document),
+            pages,
+            quarter_turns,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes `pages` as one history step.
+///
+/// See [`facade::Engine::delete_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn delete_pages(
+    document: u64,
+    pages: Vec<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_pages(facade::DocumentId::from_raw(document), pages, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Moves `pages` before the page `before`, or to the end when `None`, as one history step.
+///
+/// See [`facade::Engine::move_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn move_pages(
+    document: u64,
+    pages: Vec<u64>,
+    before: Option<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .move_pages(facade::DocumentId::from_raw(document), pages, before, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Copies `pages` as one history step.
+///
+/// See [`facade::Engine::duplicate_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn duplicate_pages(
+    document: u64,
+    pages: Vec<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .duplicate_pages(facade::DocumentId::from_raw(document), pages, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Inserts `count` blank pages after the page `after`, or first when `None`, as one history step.
+///
+/// See [`facade::Engine::insert_blank_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn insert_blank_pages(
+    document: u64,
+    after: Option<u64>,
+    count: u32,
+    width: f32,
+    height: f32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .insert_blank_pages(
+            facade::DocumentId::from_raw(document),
+            after,
+            count,
+            (width, height),
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives `pages` a new displayed size as one history step.
+///
+/// See [`facade::Engine::set_page_size`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn set_page_size(
+    document: u64,
+    pages: Vec<u64>,
+    width: f32,
+    height: f32,
+    fit: PageFit,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let fit = match fit {
+        PageFit::Centre => facade::PageFit::Centre,
+        PageFit::Scale => facade::PageFit::Scale,
+    };
+    engine()?
+        .set_page_size(
+            facade::DocumentId::from_raw(document),
+            pages,
+            (width, height),
+            fit,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Crops each page of `crops` as one history step.
+///
+/// See [`facade::Engine::crop_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn crop_pages(
+    document: u64,
+    crops: Vec<PageCrop>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let crops = crops
+        .into_iter()
+        .map(|crop| {
+            let PageMargins {
+                top,
+                bottom,
+                left,
+                right,
+            } = crop.margins;
+            (
+                crop.page,
+                facade::Margins {
+                    top,
+                    bottom,
+                    left,
+                    right,
+                },
+            )
+        })
+        .collect();
+    engine()?
+        .crop_pages(facade::DocumentId::from_raw(document), crops, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The white around the content of each of `pages`, `None` for a page with no content.
+///
+/// See [`facade::Engine::white_margins`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotFound` and the render thread's errors.
+pub async fn white_margins(
+    document: u64,
+    pages: Vec<u64>,
+) -> Result<Vec<Option<PageMargins>>, ApiError> {
+    engine()?
+        .white_margins(facade::DocumentId::from_raw(document), pages)
+        .await
+        .map(|margins| {
+            margins
+                .into_iter()
+                .map(|margins| {
+                    margins.map(|margins| PageMargins {
+                        top: margins.top,
+                        bottom: margins.bottom,
+                        left: margins.left,
+                        right: margins.right,
+                    })
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// The document's page label ranges, in page order.
+///
+/// See [`facade::Engine::page_label_ranges`].
+///
+/// # Errors
+///
+/// `NotFound` for a closed document.
+pub async fn page_label_ranges(document: u64) -> Result<Vec<LabelRange>, ApiError> {
+    engine()?
+        .page_label_ranges(facade::DocumentId::from_raw(document))
+        .await
+        .map(|ranges| {
+            ranges
+                .into_iter()
+                .map(|range| LabelRange {
+                    start: range.start,
+                    style: match range.style {
+                        facade::LabelStyle::None => LabelStyle::None,
+                        facade::LabelStyle::Decimal => LabelStyle::Decimal,
+                        facade::LabelStyle::RomanUpper => LabelStyle::RomanUpper,
+                        facade::LabelStyle::RomanLower => LabelStyle::RomanLower,
+                        facade::LabelStyle::LettersUpper => LabelStyle::LettersUpper,
+                        facade::LabelStyle::LettersLower => LabelStyle::LettersLower,
+                    },
+                    prefix: range.prefix,
+                    first: range.first,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Makes `ranges` the document's page labels as one history step; none removes them.
+///
+/// See [`facade::Engine::set_page_labels`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn set_page_labels(
+    document: u64,
+    ranges: Vec<LabelRange>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let ranges = ranges
+        .into_iter()
+        .map(|range| facade::LabelRange {
+            start: range.start,
+            style: match range.style {
+                LabelStyle::None => facade::LabelStyle::None,
+                LabelStyle::Decimal => facade::LabelStyle::Decimal,
+                LabelStyle::RomanUpper => facade::LabelStyle::RomanUpper,
+                LabelStyle::RomanLower => facade::LabelStyle::RomanLower,
+                LabelStyle::LettersUpper => facade::LabelStyle::LettersUpper,
+                LabelStyle::LettersLower => facade::LabelStyle::LettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+        })
+        .collect();
+    engine()?
+        .set_page_labels(facade::DocumentId::from_raw(document), ranges, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
