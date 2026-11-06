@@ -334,7 +334,7 @@ class Viewer extends _$Viewer {
     final current = view.currentPage;
     final page = document.pageIndexOf(view.document.pageHandle(current));
     if (page == null) {
-      return _showing(next, _nearestLeft(view.document, document, current));
+      return _showing(next, nearestLeft(view.document, document, current));
     }
     next = next.copyWith(row: next.placement.rowOf(page));
     final before = view.placement.rects[current];
@@ -348,7 +348,7 @@ class Viewer extends _$Viewer {
 
   /// Where in [after] the page of [before] nearest to [gone] is, of those
   /// left; the first page when none is.
-  static int _nearestLeft(
+  static int nearestLeft(
     OpenedDocument before,
     OpenedDocument after,
     int gone,

@@ -341,7 +341,7 @@ final class ViewerProvider extends $NotifierProvider<Viewer, ViewerState?> {
   }
 }
 
-String _$viewerHash() => r'cc7386ae3a97358204457f3d570291458d6955ef';
+String _$viewerHash() => r'8027332c40f3473624676995a4ed46894bac4760';
 
 /// The canvas's view of the open document, as `viewerProvider`: null when
 /// no document is open. The View row, the status bar and the canvas read

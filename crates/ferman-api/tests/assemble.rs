@@ -285,7 +285,7 @@ fn splitting_a_thesis_by_chapter_adds_up_to_its_64_pages_with_each_chapter_as_it
         let written = u64::try_from(std::fs::read(&output.path).unwrap().len()).unwrap();
         // The estimate is at the high end, and not far off.
         assert!(
-            plan.bytes * 10 >= written * 9,
+            plan.bytes >= written,
             "{}: {} vs {written}",
             plan.name,
             plan.bytes
@@ -568,6 +568,36 @@ fn a_replaced_page_keeps_its_place_and_what_went_to_it_and_undo_brings_it_back()
         block_on(engine().close(opened.id)).unwrap();
     }
     let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_replaced_page_draws_as_its_source_under_a_node_that_rotates_or_crops() {
+    let annex = open(&pdf("combine-outline"));
+    for target in [0, 3] {
+        let tree = open(&pdf("pages-tree"));
+        let (events_sink, events) = sink();
+        let job = engine()
+            .replace_pages_job(
+                tree.id,
+                vec![tree.pages[target].handle],
+                pdf("combine-outline"),
+                None,
+                Some(vec![0]),
+                "Replaced".to_owned(),
+                events_sink,
+            )
+            .unwrap();
+        done(&events);
+        let after = block_on(engine().apply_job_change(job)).unwrap();
+        let mut current = tree.clone();
+        current.pages.clone_from(&after.structure.unwrap().pages);
+        assert_eq!(current.pages[target].rotation, annex.pages[0].rotation);
+        assert_eq!(current.pages[target].size, annex.pages[0].size);
+        assert!(same_page(&annex, 0, &current, target), "page {target}");
+        block_on(engine().close(tree.id)).unwrap();
+    }
+    block_on(engine().close(annex.id)).unwrap();
 }
 
 #[test]

@@ -16,6 +16,7 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_tool_rows.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/viewer/document_view.dart';
+import 'package:ferman/features/viewer/find_bar.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/region.dart';
@@ -307,6 +308,116 @@ void main() {
       expect(container.read(toastNoticesProvider), isEmpty);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+    testWidgets('⌥-Ctrl-arrows reach the commands from a page with focus', (
+      tester,
+    ) async {
+      final container = await _open(tester, _engine(pages: 5));
+      await tester.tap(_page(3), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      Future<void> press(LogicalKeyboardKey arrow) async {
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+        await tester.sendKeyEvent(arrow);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.pumpAndSettle();
+      }
+
+      await press(LogicalKeyboardKey.arrowUp);
+      expect(_order(container), [100, 102, 101, 103, 104]);
+      await press(LogicalKeyboardKey.arrowDown);
+      expect(_order(container), [100, 101, 102, 103, 104]);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('moving every page up does nothing, and so on one page', (
+      tester,
+    ) async {
+      final container = await _open(tester, _engine(pages: 1));
+      container.read(pageSelectionProvider.notifier).only(100);
+      await container.read(pageCommandsProvider.notifier).moveUp();
+      await tester.pumpAndSettle();
+      expect(_order(container), [100]);
+      expect(container.read(documentEditorProvider).history.current, 0);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('after a keyboard delete focus stays in the grid', (
+      tester,
+    ) async {
+      final container = await _open(tester, _engine(pages: 5));
+      await tester.tap(_page(3), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.delete);
+      await tester.pumpAndSettle();
+      expect(_order(container), [100, 101, 103, 104]);
+      // The page that took its place.
+      expect(FocusManager.instance.primaryFocus?.debugLabel, 'Page 103');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(FocusManager.instance.primaryFocus?.debugLabel, 'Page 104');
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('Ctrl+A in the find field selects its text, not the pages', (
+      tester,
+    ) async {
+      final container = await _open(tester, _engine());
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyF);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(FindBar),
+          matching: find.byType(EditableText),
+        ),
+        'kira',
+      );
+      await tester.pump();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyA);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pump();
+      expect(_selected(container), isEmpty);
+      final field = tester.widget<EditableText>(
+        find.descendant(
+          of: find.byType(FindBar),
+          matching: find.byType(EditableText),
+        ),
+      );
+      expect(field.controller.selection.textInside('kira'), 'kira');
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('the panel draws a dash only for pages side by side', (
+      tester,
+    ) async {
+      final engine = FakeEngineService(
+        documents: {
+          _path: OpenedDocument(
+            id: 9,
+            pages: [
+              for (var i = 0; i < 5; i++)
+                PageInfo(
+                  width: 595,
+                  height: 842,
+                  handle: 100 + i,
+                  label: 'l$i',
+                ),
+            ],
+          ),
+        },
+      );
+      final container = await _open(tester, engine);
+      container.read(pageSelectionProvider.notifier)
+        ..only(100)
+        ..toggle(103);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('l0, l3'), findsOne);
+      container.read(pageSelectionProvider.notifier)
+        ..only(100)
+        ..toggle(101);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('l0–l1'), findsOne);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
     testWidgets(
       '⌥-Ctrl-arrows move the selection, gathered, a page at a time',
       (tester) async {
@@ -468,6 +579,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(_tool(tester, 'Crop').onPressed, isNull);
       expect(_tool(tester, 'Replace').onPressed, isNull);
+      const reason = 'The author’s permissions don’t allow editing';
+      for (final label in ['Insert', 'Replace', 'Crop', 'Page labels']) {
+        expect(_tool(tester, label).disabledReason, reason, reason: label);
+      }
       expect(_tool(tester, 'Extract').onPressed, isNotNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

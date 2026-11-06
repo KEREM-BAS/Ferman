@@ -168,7 +168,7 @@ final class BackgroundJob {
     }
     if (state == TaskState.done) {
       if (int.tryParse(params['files'] ?? '') case final files?
-          when kind == BackgroundJobKind.split) {
+          when kind == BackgroundJobKind.split || files > 1) {
         return l10n.organizeFileCount(files, format.integer(files));
       }
       final file = output?.split(RegExp(r'[/\\]')).last;
@@ -380,20 +380,34 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     then: _deleting(document, pages, deleteName),
   );
 
+  /// The delete after an extract, whose file is written whatever becomes of it:
+  /// a refusal says so on its own and leaves the row done.
   Future<EngineException?> Function(JobUpdate)? _deleting(
     int document,
     List<int> pages,
     String? name,
   ) => name == null
       ? null
-      : (_) => ref
-            .read(documentEditorProvider.notifier)
-            .pageChange(
-              document,
-              () => ref
-                  .read(engineServiceProvider)
-                  .deletePages(document, pages, name),
-            );
+      : (_) async {
+          final failure = await ref
+              .read(documentEditorProvider.notifier)
+              .pageChange(
+                document,
+                () => ref
+                    .read(engineServiceProvider)
+                    .deletePages(document, pages, name),
+              );
+          if (failure != null) {
+            ref
+                .read(toastNoticesProvider.notifier)
+                .show(
+                  tone: ToastTone.danger,
+                  title: (l10n) => l10n.organizeFailed,
+                  message: (l10n) => engineMessage(l10n, failure, name),
+                );
+          }
+          return null;
+        };
 
   /// Reads the file [name] through [updates] as a job of [kind], then commits
   /// the change it prepared to [document] as one step.

@@ -2223,7 +2223,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Organize: page grid
 - **Artboards:** `a6-1`, `a6-1b`, `a1-6`
 - **Gap or conflict:** No board draws files dragged over the grid. a6-1 has no sidebar, though the other modes have one, and no board draws its status bar at phone width.
-- **Decision:** Files over the grid show a6-1b's marker and a status line instead of a1-6's overlay ([G105](#g105), [G117](#g117)), and a drop inserts at the marker. Organize closes the sidebar and gives it back on leaving. Below phone width the status bar hides the zoom.
+- **Decision:** Files over the grid show a6-1b's marker and a status line instead of a1-6's overlay ([G105](#g105), [G117](#g117)), and a drop inserts at the marker. Organize closes the sidebar and gives it back on leaving; the Combine tab, which a6-3 puts in Organize, does the same, and the mode bar stays on Organize while it shows. Below phone width the status bar hides the zoom.
 - **Status:** Decided.
 - **Evidence:** `app/lib/features/organize/page_grid.dart`, `app/lib/features/shell/file_drop.dart`, `app/lib/features/shell/shell_status_bar.dart`.
 

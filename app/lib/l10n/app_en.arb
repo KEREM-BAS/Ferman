@@ -4629,10 +4629,6 @@
   "@organizeCancel": {
     "description": "Organize's dialogs and crop panel: closes without changing anything."
   },
-  "organizeUndo": "Undo",
-  "@organizeUndo": {
-    "description": "a11-6: the action of the toast after a crop."
-  },
   "organizeFailedTitle": "Couldn’t change the pages",
   "@organizeFailedTitle": {
     "description": "Toast title: the engine refused a page operation."

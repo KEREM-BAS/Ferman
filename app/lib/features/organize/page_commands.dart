@@ -214,7 +214,9 @@ class PageCommands extends _$PageCommands {
     if (toast != null) ref.read(toastNoticesProvider.notifier).dismiss(toast);
   }
 
-  void _offerUndo(ToastText title, ToastText message) {
+  /// Shows [title] and [message] with an Undo of the last [steps] steps of the
+  /// document shown, for as long as they are its newest.
+  void offerUndo(ToastText title, ToastText message, {int steps = 1}) {
     _withdrawUndo();
     final editor = ref.read(documentEditorProvider.notifier);
     _undoAt = ref.read(documentEditorProvider).history.current;
@@ -225,7 +227,11 @@ class PageCommands extends _$PageCommands {
           message: message,
           action: (
             label: (l10n) => l10n.shellUndo,
-            onPressed: () => unawaited(editor.undo()),
+            onPressed: () => unawaited(() async {
+              for (var step = 0; step < steps; step++) {
+                await editor.undo();
+              }
+            }()),
           ),
         );
   }
@@ -243,7 +249,7 @@ class PageCommands extends _$PageCommands {
         .pageChange(
           document,
           () => change(document),
-          committed: () => _offerUndo(title, message),
+          committed: () => offerUndo(title, message),
         );
     if (failure == null) return;
     final tab = ref.read(shellDocumentsProvider).active;
@@ -343,7 +349,7 @@ class PageCommands extends _$PageCommands {
   Future<void> moveUp() async {
     final pages = ref.read(selectedPagesProvider);
     final order = _order;
-    if (pages.isEmpty) return;
+    if (pages.isEmpty || pages.length == order.length) return;
     final first = order.indexOf(pages.first);
     if (first == 0) {
       // Pages apart gather at the start; pages already there stay.
@@ -406,7 +412,7 @@ class PageCommands extends _$PageCommands {
         if (failure != null) throw failure;
         final added = (_document?.pages.length ?? before) - before;
         final count = _format.integer(added);
-        _offerUndo(
+        offerUndo(
           (l10n) => l10n.organizeToastInserted(added, count),
           (_) => shown,
         );

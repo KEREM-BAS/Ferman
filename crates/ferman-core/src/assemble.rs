@@ -25,6 +25,7 @@ use lopdf::{Dictionary, Object, ObjectId, StringFormat, dictionary};
 
 use crate::appendix::indirect;
 use crate::limits::{LimitKind, Limits};
+use crate::pages::{PageSlot, page_default, widgets_leave_form};
 use crate::revision::{RevisionStore, free};
 use crate::structure::navigation::{Named, name_tree, names};
 use crate::structure::{Scope, inherited_entry};
@@ -62,6 +63,10 @@ const MOST_COPIES: u32 = 1000;
 
 /// What a written object costs beyond itself: its cross-reference entry.
 const XREF_ENTRY: u64 = 20;
+
+/// The most a compressed stream grows by, before its data's own growth: `/Filter /FlateDecode` and
+/// the zlib wrapper.
+const COMPRESS_COST: u64 = 40;
 
 /// What goes with the copied pages.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -125,6 +130,54 @@ pub fn new_document(limits: &Limits) -> Result<Document, CoreError> {
     )
 }
 
+/// The most a new file of `pages` of `source` comes to, in bytes, with no other input: it is
+/// assembled as it would be, with stream data counted and not copied, so bookmarks, form parts and
+/// the page tree are all in the figure. A stream with no filter counts as stored, though the full
+/// rewrite compresses it.
+///
+/// # Errors
+///
+/// Those of assembling, but not the limit on a revision's size: a job refuses that.
+pub fn assembled_size(
+    source: &Document,
+    revisions: &RevisionStore,
+    pages: &[usize],
+    options: ImportOptions,
+) -> Result<u64, CoreError> {
+    let doc = new_document(source.limits())?;
+    let mut store = RevisionStore::new(&doc);
+    store.begin()?;
+    let mut import = PageImport::new(source, revisions, pages, options)?;
+    let targets = import.start(&mut store, &[])?;
+    import.weighing = true;
+    for position in 0..import.page_count() {
+        import.copy_page(&doc, &mut store, position)?;
+    }
+    import.finish_parts(&doc, &mut store, None)?;
+    let order: Vec<PageSlot> = targets.into_iter().map(PageSlot::New).collect();
+    store.arrange_pages(&doc, &order)?;
+    store.commit()?;
+    let file = store.full_rewrite(&doc)?;
+    // The data's bytes also lengthen the number after `startxref`, to at most this.
+    Ok(u64::try_from(file.len())
+        .unwrap_or(u64::MAX)
+        .saturating_add(import.stream_bytes)
+        .saturating_add(XREF_ENTRY))
+}
+
+/// What `stream` adds to a written file beyond a copy of its dictionary with `/Length 0`: its data,
+/// the rest of the length's digits, and when it has no filter what compressing it can add.
+fn stored_cost(stream: &lopdf::Stream) -> u64 {
+    let stored = u64::try_from(stream.content.len()).unwrap_or(u64::MAX);
+    let mut cost = stored.saturating_add(u64::from(stored.checked_ilog10().unwrap_or(0)));
+    if !stream.dict.has(b"Filter") {
+        cost = cost
+            .saturating_add(COMPRESS_COST)
+            .saturating_add(stored / 1000);
+    }
+    cost
+}
+
 /// `depth` one deeper, or the nesting limit's error.
 fn deeper(depth: u32, limits: &Limits) -> Result<u32, CoreError> {
     if depth > limits.max_nesting {
@@ -163,6 +216,8 @@ pub struct PageImport<'s> {
     weighing: bool,
     /// The stored bytes of the streams of the last walk.
     stored: u64,
+    /// What every stream reached so far costs in a written file, at most.
+    stream_bytes: u64,
 }
 
 impl<'s> PageImport<'s> {
@@ -214,6 +269,7 @@ impl<'s> PageImport<'s> {
             next: 1,
             weighing: true,
             stored: 0,
+            stream_bytes: 0,
         };
         import.plan_stops(&unique);
         Ok(import)
@@ -390,6 +446,7 @@ impl<'s> PageImport<'s> {
                 let dict = self.dictionary(&stream.dict, &[&b"Length"[..]], depth)?;
                 let stored = u64::try_from(stream.content.len()).unwrap_or(u64::MAX);
                 self.stored = self.stored.saturating_add(stored);
+                self.stream_bytes = self.stream_bytes.saturating_add(stored_cost(stream));
                 let content = if self.weighing {
                     Vec::new()
                 } else {
@@ -514,8 +571,8 @@ impl<'s> PageImport<'s> {
     }
 
     /// What the page at `position` adds, in bytes, to a file already holding what was weighed
-    /// since [`reset_weights`](Self::reset_weights). Stream data counts as stored; the full
-    /// rewrite compresses what has no filter, so the estimate is at the high end.
+    /// since [`reset_weights`](Self::reset_weights). Stream data counts as stored. A rough figure:
+    /// the file's bookmarks, form and page tree are left out, which [`assembled_size`] counts.
     ///
     /// # Errors
     ///
@@ -598,17 +655,37 @@ impl<'s> PageImport<'s> {
         self.next = store.next_number();
         self.stored = 0;
         let mut written = self.walk(position)?;
+        let mut form = BTreeMap::new();
         if let Some((target, Object::Dictionary(page))) = written.first_mut() {
-            let parent = store
-                .scope(doc)
+            let scope = store.scope(doc);
+            let parent = scope
                 .dictionary(*target)
                 .and_then(|old| old.get(b"Parent").ok().cloned());
             if let Some(parent) = parent {
                 page.set("Parent", parent);
+                // It draws as it did in its source, whatever its new ancestors hold.
+                for key in INHERITED {
+                    if !page.has(key) && inherited_entry(&scope, page, key).is_some() {
+                        let default = page_default(page, key);
+                        page.set(key.to_vec(), default);
+                    }
+                }
+                let others: Vec<ObjectId> = store
+                    .pages(doc)
+                    .iter()
+                    .map(|other| other.id)
+                    .filter(|other| other != target)
+                    .collect();
+                widgets_leave_form(doc, &scope, &[*target], &others, &mut form);
             }
         }
-        if let Some((target, _)) = written.first() {
+        if let Some((target, _)) = written.first()
+            && !self.weighing
+        {
             store.count_open(doc, *target, self.stored)?;
+        }
+        for (id, object) in form {
+            store.put(id, object)?;
         }
         for (id, object) in written {
             store.put(id, object)?;
@@ -805,6 +882,16 @@ impl<'s> PageImport<'s> {
     /// [`CoreError::ResourceLimit`] past the nesting limit.
     pub fn finish(
         mut self,
+        doc: &Document,
+        store: &mut RevisionStore,
+        bookmark: Option<&str>,
+    ) -> Result<(), CoreError> {
+        self.finish_parts(doc, store, bookmark)
+    }
+
+    /// What [`finish`](Self::finish) does.
+    fn finish_parts(
+        &mut self,
         doc: &Document,
         store: &mut RevisionStore,
         bookmark: Option<&str>,
@@ -1210,26 +1297,29 @@ fn merge_form(
     }
     // The new fields are not in the XFA packet (question 12 of the M4 plan).
     form.remove(b"XFA");
-    if let Some(Object::Dictionary(resources)) = parts.resources {
+    if let Some(resources) = parts.resources {
         // shortcut: a resource name both forms use keeps the first; the /AP streams carry their own
         // resources, so this only touches an appearance regenerated later (W3).
+        // The source's /DR or a category of it may be its own object, written by now.
         let scope = store.scope(doc);
         let mut merged = scope.get_dict(&form, b"DR").cloned().unwrap_or_default();
-        for (category, entries) in resources {
-            let Object::Dictionary(entries) = entries else {
-                merged.set(category, entries);
+        for (category, entries) in scope.dict(&resources).into_iter().flatten() {
+            let Some(entries) = scope.dict(entries) else {
+                if !merged.has(category) {
+                    merged.set(category.clone(), entries.clone());
+                }
                 continue;
             };
             let mut held = scope
-                .get_dict(&merged, &category)
+                .get_dict(&merged, category)
                 .cloned()
                 .unwrap_or_default();
             for (key, value) in entries {
-                if !held.has(&key) {
-                    held.set(key, value);
+                if !held.has(key) {
+                    held.set(key.clone(), value.clone());
                 }
             }
-            merged.set(category, held);
+            merged.set(category.clone(), held);
         }
         form.set("DR", merged);
     }
@@ -1377,6 +1467,15 @@ mod tests {
 
     fn contains(bytes: &[u8], needle: &[u8]) -> bool {
         bytes.windows(needle.len()).any(|window| window == needle)
+    }
+
+    /// Whether `bytes` hold the string `text`, which the writer puts down in hexadecimal.
+    fn holds_string(bytes: &[u8], text: &[u8]) -> bool {
+        let needle: Vec<u8> = text
+            .iter()
+            .flat_map(|byte| format!("{byte:02X}").into_bytes())
+            .collect();
+        contains(bytes, &needle)
     }
 
     #[test]
@@ -1548,6 +1647,186 @@ mod tests {
         )
     }
 
+    /// A target with /Helv in its form, and a source whose /DR is held in objects of their own.
+    #[test]
+    fn a_source_with_indirect_form_resources_adds_to_what_the_target_has() {
+        let helv = dictionary! { "Type" => "Font", "BaseFont" => "Helvetica" };
+        let other = dictionary! { "Type" => "Font", "BaseFont" => "Courier" };
+        let widget = |page: ObjectId| {
+            Object::Dictionary(dictionary! {
+                "Subtype" => "Widget", "FT" => "Tx", "P" => page,
+                "T" => Object::String(b"field".to_vec(), StringFormat::Literal),
+            })
+        };
+        let annots = dictionary! { "Annots" => vec![Object::Reference((10, 0))] };
+        let target = source(
+            annots.clone(),
+            dictionary! { "AcroForm" => dictionary! {
+                "Fields" => vec![Object::Reference((10, 0))],
+                "DR" => dictionary! { "Font" => dictionary! { "Helv" => (41, 0) } },
+            }},
+            vec![
+                ((10, 0), widget((3, 0))),
+                ((41, 0), Object::Dictionary(helv)),
+            ],
+        );
+        // Both ways of holding it: the whole /DR, or only its /Font.
+        for (dr, extra) in [
+            (
+                Object::Reference((30, 0)),
+                (
+                    (30, 0),
+                    Object::Dictionary(dictionary! {
+                        "Font" => dictionary! { "Other" => (55, 0) },
+                    }),
+                ),
+            ),
+            (
+                Object::Dictionary(dictionary! { "Font" => (30, 0) }),
+                (
+                    (30, 0),
+                    Object::Dictionary(dictionary! { "Other" => (55, 0) }),
+                ),
+            ),
+        ] {
+            let from = source(
+                annots.clone(),
+                dictionary! { "AcroForm" => dictionary! {
+                    "Fields" => vec![Object::Reference((10, 0))],
+                    "DR" => dr,
+                }},
+                vec![
+                    ((10, 0), widget((3, 0))),
+                    ((55, 0), Object::Dictionary(other.clone())),
+                    extra,
+                ],
+            );
+            let revisions = RevisionStore::new(&from);
+            let mut store = RevisionStore::new(&target);
+            store.begin().unwrap();
+            let mut import = PageImport::new(&from, &revisions, &[0], ALL).unwrap();
+            import.start(&mut store, &[]).unwrap();
+            import.copy_page(&target, &mut store, 0).unwrap();
+            import.finish(&target, &mut store, None).unwrap();
+            store.commit().unwrap();
+            let scope = store.scope(&target);
+            let form = scope
+                .get_dict(scope.catalog().unwrap(), b"AcroForm")
+                .unwrap();
+            let resources = scope.get_dict(form, b"DR").unwrap();
+            let fonts = scope.get_dict(resources, b"Font").unwrap();
+            assert!(fonts.has(b"Helv"), "the target keeps its own font");
+            assert!(fonts.has(b"Other"), "the source's font comes along");
+        }
+    }
+
+    /// A page taking over an object under a /Pages node that rotates and crops draws as in its
+    /// source, and the widgets of the page it replaced leave the form with their values.
+    #[test]
+    fn a_replacing_page_takes_nothing_from_its_new_parent_and_the_old_widgets_go() {
+        let mut model = lopdf::Document::with_version("1.7");
+        model.objects.insert(
+            (1, 0),
+            Object::Dictionary(dictionary! {
+                "Type" => "Catalog", "Pages" => (2, 0),
+                "AcroForm" => dictionary! { "Fields" => vec![Object::Reference((10, 0))] },
+            }),
+        );
+        model.objects.insert(
+            (2, 0),
+            Object::Dictionary(dictionary! {
+                "Type" => "Pages", "Count" => 1, "Kids" => vec![Object::Reference((3, 0))],
+                "Rotate" => 90,
+                "MediaBox" => vec![0.into(), 0.into(), 100.into(), 100.into()],
+                "CropBox" => vec![0.into(), 0.into(), 50.into(), 50.into()],
+            }),
+        );
+        model.objects.insert(
+            (3, 0),
+            Object::Dictionary(dictionary! {
+                "Type" => "Page", "Parent" => (2, 0),
+                "Annots" => vec![Object::Reference((10, 0))],
+            }),
+        );
+        model.objects.insert(
+            (10, 0),
+            Object::Dictionary(dictionary! {
+                "Subtype" => "Widget", "FT" => "Tx", "P" => (3, 0),
+                "T" => Object::String(b"old".to_vec(), StringFormat::Literal),
+                "V" => Object::String(b"SECRET-VALUE".to_vec(), StringFormat::Literal),
+            }),
+        );
+        model.max_id = 20;
+        let target = opened(&mut model);
+
+        let mut model = lopdf::Document::with_version("1.7");
+        model.objects.insert(
+            (1, 0),
+            Object::Dictionary(dictionary! { "Type" => "Catalog", "Pages" => (2, 0) }),
+        );
+        model.objects.insert(
+            (2, 0),
+            Object::Dictionary(dictionary! {
+                "Type" => "Pages", "Count" => 1, "Kids" => vec![Object::Reference((3, 0))],
+            }),
+        );
+        model.objects.insert(
+            (3, 0),
+            Object::Dictionary(dictionary! {
+                "Type" => "Page", "Parent" => (2, 0),
+                "MediaBox" => vec![0.into(), 0.into(), 200.into(), 300.into()],
+            }),
+        );
+        model.max_id = 3;
+        let from = opened(&mut model);
+
+        let revisions = RevisionStore::new(&from);
+        let mut store = RevisionStore::new(&target);
+        store.begin().unwrap();
+        let refs = store.page_refs(&target, &[0]).unwrap();
+        let mut import = PageImport::new(&from, &revisions, &[0], ALL).unwrap();
+        import.start(&mut store, &refs).unwrap();
+        import.copy_page(&target, &mut store, 0).unwrap();
+        import.finish(&target, &mut store, None).unwrap();
+        store
+            .arrange_pages(&target, &[crate::pages::PageSlot::Page(0)])
+            .unwrap();
+        store.commit().unwrap();
+        let page = &store.pages(&target)[0];
+        assert_eq!(page.rotation, 0);
+        assert_eq!(page.size, (200.0, 300.0));
+        let bytes = store.full_rewrite(&target).unwrap();
+        assert!(!holds_string(&bytes, b"SECRET-VALUE"));
+        store.undo().unwrap();
+        assert_eq!(store.pages(&target)[0].rotation, 90);
+        assert!(holds_string(
+            &store.full_rewrite(&target).unwrap(),
+            b"SECRET-VALUE"
+        ));
+    }
+
+    /// What the file's size says holds on what has no filter too, tiny or not.
+    #[test]
+    fn the_assembled_size_is_never_below_the_file() {
+        let plain = |text: &[u8]| Object::Stream(Stream::new(Dictionary::new(), text.to_vec()));
+        let from = source(
+            dictionary! { "Contents" => vec![
+                Object::Reference((20, 0)),
+                Object::Reference((5, 0)),
+                Object::Reference((21, 0)),
+            ] },
+            Dictionary::new(),
+            vec![((20, 0), plain(b"q")), ((21, 0), plain(&[b'Q'; 3000]))],
+        );
+        let revisions = RevisionStore::new(&from);
+        for pages in [&[0usize][..], &[1], &[0, 1]] {
+            let size = assembled_size(&from, &revisions, pages, ALL).unwrap();
+            let real = assembled(&from, pages, ALL).len() as u64;
+            assert!(size >= real, "{pages:?}: {size} against {real}");
+            assert!(size <= real * 2 + 4096, "{pages:?}: {size} against {real}");
+        }
+    }
+
     fn field_names(doc: &Document) -> Vec<String> {
         let store = RevisionStore::new(doc);
         let scope = store.scope(doc);
@@ -1566,7 +1845,7 @@ mod tests {
     fn a_field_keeps_only_the_widgets_of_the_copied_pages_and_a_signature_goes() {
         let from = with_form();
         let bytes = assembled(&from, &[0], ALL);
-        assert!(!contains(&bytes, b"on the other page"));
+        assert!(!holds_string(&bytes, b"on the other page"));
         let out = reopened(bytes);
         assert_eq!(field_names(&out), ["shared", "sig"]);
         assert!(!out.structure().signed());

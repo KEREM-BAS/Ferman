@@ -137,6 +137,34 @@ void main() {
     expect(find.byType(SearchReplaceBar), findsNothing);
   });
 
+  testWidgets('pages that changed while another document showed search again', (
+    tester,
+  ) async {
+    final engine = await pumpDocument(tester);
+    final container = containerOf(tester);
+    final documents = container.read(openDocumentProvider.notifier);
+    final find_ = container.read(findProvider.notifier);
+    await controlF(tester);
+    find_.setQuery('kira');
+    await settle(tester);
+    expect(findState(tester).matches, hasLength(2));
+
+    const other = OpenedDocument(
+      id: 10,
+      pages: [PageInfo(width: 1, height: 1)],
+    );
+    documents.show(other);
+    await settle(tester);
+    engine.searchResults['kira'] = [
+      [hit(0)],
+    ];
+    find_.pagesChangedElsewhere(document.id);
+    documents.show(document);
+    await settle(tester);
+    expect(findState(tester).matches, hasLength(1));
+    expect(findState(tester).stale, isFalse);
+  });
+
   testWidgets('Alt+Enter shows every result in the sidebar, grouped by '
       'page; a click goes to one, and the arrow keys move from it', (
     tester,

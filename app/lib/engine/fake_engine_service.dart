@@ -1354,20 +1354,26 @@ class FakeEngineService implements EngineService {
     ],
   );
 
+  /// Refuses the next deletes when set.
+  EngineException? deleteFailure;
+
   @override
   Future<RevisionInfo> deletePages(
     int document,
     List<int> pages,
     String name,
-  ) async => _pagesChanged(
-    document,
-    name,
-    pages,
-    (all) => [
-      for (final page in all)
-        if (!pages.contains(page.handle)) page,
-    ],
-  );
+  ) async {
+    if (deleteFailure case final failure?) throw failure;
+    return _pagesChanged(
+      document,
+      name,
+      pages,
+      (all) => [
+        for (final page in all)
+          if (!pages.contains(page.handle)) page,
+      ],
+    );
+  }
 
   @override
   Future<RevisionInfo> movePages(

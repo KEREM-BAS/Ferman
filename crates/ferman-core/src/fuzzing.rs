@@ -267,7 +267,9 @@ pub fn assembler(input: &[u8]) {
             continue;
         }
         check_assembly(&source, &revisions, &all, parts);
-        check_assembly(&source, &revisions, &all[..1], parts);
+        for page in &all {
+            check_assembly(&source, &revisions, std::slice::from_ref(page), parts);
+        }
     }
 }
 
@@ -283,6 +285,7 @@ fn check_assembly(
             weighing.weigh(position)?;
         }
         weighing.weigh_attachments()?;
+        crate::assemble::assembled_size(source, revisions, pages, options)?;
 
         let doc = crate::assemble::new_document(&limits())?;
         let mut store = RevisionStore::new(&doc);

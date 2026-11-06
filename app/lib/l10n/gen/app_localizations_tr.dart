@@ -3421,9 +3421,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get organizeCancel => 'İptal';
 
   @override
-  String get organizeUndo => 'Geri al';
-
-  @override
   String get organizeFailedTitle => 'Sayfalar değiştirilemedi';
 
   @override

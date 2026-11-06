@@ -7,6 +7,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/organize/page_range.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -151,6 +152,8 @@ class _ExtractPagesDialogState extends ConsumerState<ExtractPagesDialog> {
     final pages = parsePageRange(_pages.text, count);
     final valid = pages != null && pages.isNotEmpty;
     final all = pages?.length == count;
+    // Extract only reads, so it runs on a document that cannot change.
+    final refusal = ref.watch(organizeRefusalProvider)?.call(l10n);
     return Dialog(
       title: l10n.extractTitle,
       onClose: dialog.close,
@@ -205,8 +208,8 @@ class _ExtractPagesDialogState extends ConsumerState<ExtractPagesDialog> {
             checked: _delete,
             label: l10n.extractDelete,
             // A document keeps a page: the engine refuses to delete them all.
-            disabled: all,
-            disabledReason: all ? l10n.extractDeleteAll : null,
+            disabled: all || refusal != null,
+            disabledReason: refusal ?? (all ? l10n.extractDeleteAll : null),
             onChanged: (value) => setState(() => _delete = value),
           ),
         ],

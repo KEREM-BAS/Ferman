@@ -3545,9 +3545,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get organizeCancel => 'إلغاء';
 
   @override
-  String get organizeUndo => 'تراجع';
-
-  @override
   String get organizeFailedTitle => 'تعذّر تغيير الصفحات';
 
   @override

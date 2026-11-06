@@ -6,6 +6,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/organize/page_range.dart';
 import 'package:ferman/features/organize/page_size_fields.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -198,14 +199,15 @@ class OrganizeCrop extends _$OrganizeCrop {
   @override
   CropSession? build() => null;
 
-  /// Opens the tool on [document], for [pages] (indices) when there are several
-  /// and for every page as a6-4 draws it otherwise.
+  /// Opens the tool on [document], for [pages] (indices) when the grid has a
+  /// selection and for every page as a6-4 draws it otherwise.
   void start(OpenedDocument document, List<int> pages, RegionFormat format) {
     final first = document.pages.elementAtOrNull(pages.firstOrNull ?? 0);
+    final selected = ref.read(selectedPagesProvider).isNotEmpty;
     state = CropSession(
       document: document.id,
-      scope: pages.length > 1 ? CropScope.pages : CropScope.all,
-      range: pages.length > 1 ? formatPageRange(pages, format) : '',
+      scope: selected ? CropScope.pages : CropScope.all,
+      range: selected ? formatPageRange(pages, format) : '',
       custom: first == null ? Size.zero : Size(first.width, first.height),
     );
   }
@@ -238,8 +240,8 @@ class OrganizeCrop extends _$OrganizeCrop {
   }
 
   /// Applies the tool to [pages] (indices) of [document] and closes it: the
-  /// crop and the new size are a step each, and the crop's toast offers Undo
-  /// and says what happened to the content (G57).
+  /// crop and the new size are a step each, and the crop's toast says what
+  /// happened to the content (G57) and offers Undo of both.
   Future<void> apply(
     OpenedDocument document,
     List<int> pages, {
@@ -256,25 +258,32 @@ class OrganizeCrop extends _$OrganizeCrop {
     final toasts = ref.read(toastNoticesProvider.notifier);
     final id = document.id;
     final handles = [for (final page in pages) document.pageHandle(page)];
+    // The toast goes with the newest step; its Undo takes back all this did.
+    var steps = 0;
+    void committed() {
+      steps++;
+      if (ref.read(openDocumentProvider)?.id != id) return;
+      ref
+          .read(pageCommandsProvider.notifier)
+          .offerUndo(
+            (l10n) =>
+                l10n.cropDone(handles.length, format.integer(handles.length)),
+            (l10n) => l10n.cropDoneHidden,
+            steps: steps,
+          );
+    }
+
     if (session.crops) {
       final crops = {for (final h in handles) h: session.marginsOf(h)};
       final error = await editor.pageChange(
         id,
         () => engine.cropPages(id, crops, cropStep),
+        committed: committed,
       );
       if (error != null) {
         showPageChangeFailure(toasts, error, name);
         return;
       }
-      toasts.show(
-        title: (l10n) =>
-            l10n.cropDone(handles.length, format.integer(handles.length)),
-        message: (l10n) => l10n.cropDoneHidden,
-        action: (
-          label: (l10n) => l10n.organizeUndo,
-          onPressed: () => unawaited(editor.undo()),
-        ),
-      );
     }
     if (session.newSize case final size?) {
       final error = await editor.pageChange(
@@ -287,6 +296,7 @@ class OrganizeCrop extends _$OrganizeCrop {
           fit: session.fit,
           name: sizeStep,
         ),
+        committed: session.crops ? committed : null,
       );
       if (error != null) showPageChangeFailure(toasts, error, name);
     }

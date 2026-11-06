@@ -1397,8 +1397,11 @@ class DocumentEditor extends _$DocumentEditor {
         );
       }
     }
+    final find = ref.read(findProvider.notifier);
     if (document == _document) {
-      ref.read(findProvider.notifier).pagesChanged();
+      find.pagesChanged();
+    } else {
+      find.pagesChangedElsewhere(document);
     }
   }
 

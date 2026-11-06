@@ -284,9 +284,12 @@ class OrganizePanel extends ConsumerWidget {
                                 : l10n.organizePanelPagesLabels(
                                     numbers,
                                     bidiIsolate(
-                                      labels.length == 1
-                                          ? labels.single
-                                          : '${labels.first}–${labels.last}',
+                                      // A dash only says the pages between.
+                                      labels.length > 1 &&
+                                              indices.last - indices.first ==
+                                                  indices.length - 1
+                                          ? '${labels.first}–${labels.last}'
+                                          : labels.join(', '),
                                     ),
                                   ),
                           ),

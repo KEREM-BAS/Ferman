@@ -1,12 +1,15 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/organize/crop_overlay.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/organize/page_labels_dialog.dart';
+import 'package:ferman/features/organize/page_size_fields.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:flutter/services.dart';
@@ -230,6 +233,66 @@ void main() {
     expect(delete.disabled, isTrue);
   });
 
+  testWidgets('Extract offers no delete on a document that cannot change', (
+    tester,
+  ) async {
+    await open(tester);
+    engine.opGates[(1, DocumentOp.organize)] = OpGate.forbidden;
+    containerOf(tester).invalidate(organizeGateProvider);
+    await settle(tester);
+    await tester.tap(tool('Extract'));
+    await settle(tester);
+    final delete = tester.widget<Checkbox>(
+      find.widgetWithText(Checkbox, 'Delete these pages afterwards'),
+    );
+    expect(delete.disabled, isTrue);
+    expect(
+      delete.disabledReason,
+      'The author’s permissions don’t allow editing',
+    );
+  });
+
+  testWidgets('a refused delete after an extract leaves its row done', (
+    tester,
+  ) async {
+    final container = await open(tester);
+    engine.deleteFailure = const EngineException(messageKey: 'errorInternal');
+    await container
+        .read(backgroundJobsProvider.notifier)
+        .extractPages(1, 'Tez.pdf', [1], output: '/P.pdf', deleteName: 'Sil');
+    await tester.pump();
+    engine.endJob(
+      const JobUpdate(
+        job: 1,
+        state: JobState.done,
+        outputs: [JobOutputFile(path: '/P.pdf')],
+      ),
+    );
+    await settle(tester);
+    final row = container.read(backgroundJobsProvider).rows.single;
+    expect(row.state, TaskState.done);
+    expect(row.output, '/P.pdf');
+    expect(find.text('The pages weren’t changed'), findsOneWidget);
+  });
+
+  testWidgets('Page labels fits a phone, each range on two lines', (
+    tester,
+  ) async {
+    final container = await open(tester);
+    await tester.tap(tool('Page labels'));
+    await settle(tester);
+    tester.view.physicalSize = const Size(375, 812);
+    addTearDown(tester.view.reset);
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+    expect(container.read(organizeDialogProvider), isNotNull);
+    expect(find.byType(PageLabelsDialog), findsOneWidget);
+    // Back on a wide window the table has its columns again.
+    tester.view.reset();
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Page labels loads, previews and applies', (tester) async {
     final container = await open(tester);
     await tester.tap(tool('Page labels'));
@@ -317,6 +380,63 @@ void main() {
       expect(find.text('3 pages cropped'), findsOneWidget);
       expect(find.textContaining('hidden, not removed'), findsOneWidget);
       expect(container.read(organizeCropProvider), isNull);
+    });
+
+    testWidgets('Undo takes back the crop and the size together', (
+      tester,
+    ) async {
+      final container = await open(tester);
+      await tester.tap(tool('Crop'));
+      await settle(tester);
+      container
+          .read(organizeCropProvider.notifier)
+          .change(
+            container
+                .read(organizeCropProvider)!
+                .copyWith(
+                  margins: const PageMargins(top: 10),
+                  size: PageSizeChoice.a4,
+                ),
+          );
+      await settle(tester);
+      await tester.tap(find.text('Crop 3 pages'));
+      await settle(tester);
+      expect(container.read(documentEditorProvider).history.current, 2);
+      expect(find.text('3 pages cropped'), findsOneWidget);
+      await tester.tap(find.text('Undo'));
+      await settle(tester);
+      expect(container.read(documentEditorProvider).history.current, 0);
+    });
+
+    testWidgets('its toast goes with the step it would take back', (
+      tester,
+    ) async {
+      final container = await open(tester);
+      await tester.tap(tool('Crop'));
+      await settle(tester);
+      await tester.tap(find.text('Remove white margins'));
+      await settle(tester);
+      await tester.tap(find.text('Crop 3 pages'));
+      await settle(tester);
+      expect(find.text('3 pages cropped'), findsOneWidget);
+      container.read(pageSelectionProvider.notifier).only(1);
+      await container.read(pageCommandsProvider.notifier).rotate(1);
+      await settle(tester);
+      expect(find.text('3 pages cropped'), findsNothing);
+    });
+
+    testWidgets('a selected page is what it crops, one or several', (
+      tester,
+    ) async {
+      final container = await open(tester);
+      container.read(pageSelectionProvider.notifier).only(2);
+      await settle(tester);
+      await tester.tap(tool('Crop'));
+      await settle(tester);
+      final session = container.read(organizeCropProvider)!;
+      expect(session.scope, CropScope.pages);
+      expect(session.range, '2');
+      expect(find.text('Crop 1 page'), findsOneWidget);
     });
 
     testWidgets('no content says so and crops nothing', (tester) async {

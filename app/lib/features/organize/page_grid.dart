@@ -203,14 +203,22 @@ class _PageGridState extends ConsumerState<PageGrid>
     _dragCount = ref.read(pagesDraggedProvider.notifier);
     _slotHolder = ref.read(pageGridDropSlotProvider)..target = this;
     ref.listenManual(viewerProvider.select((view) => view?.document), (
-      _,
+      before,
       document,
     ) {
       final focused = _focused;
       if (document == null || focused == null) return;
       if (!(_nodes[focused]?.hasFocus ?? false)) return;
       final index = document.pageIndexOf(focused);
-      if (index != null) _reveal(index);
+      if (index != null) {
+        _reveal(index);
+      } else if (before?.id == document.id) {
+        // Its page went: focus stays in the grid, on the nearest page left.
+        final gone = before!.pageIndexOf(focused);
+        if (gone != null) {
+          _focusPage(document, Viewer.nearestLeft(before, document, gone));
+        }
+      }
     });
   }
 
@@ -291,16 +299,22 @@ class _PageGridState extends ConsumerState<PageGrid>
     final forward = (key == LogicalKeyboardKey.arrowRight) != _rtl;
     final order = _order;
     final target = index + (forward ? 1 : -1);
-    if (target >= 0 && target < order.length) {
-      _reveal(target);
-      // After the frame: a page scrolled to may only now be built.
-      final node = _node(order[target]);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) node.requestFocus();
-      });
-      WidgetsBinding.instance.scheduleFrame();
+    final document = _document;
+    if (document != null && target >= 0 && target < order.length) {
+      _focusPage(document, target);
     }
     return KeyEventResult.handled;
+  }
+
+  /// Moves focus to the page at [index] of [document].
+  void _focusPage(OpenedDocument document, int index) {
+    _reveal(index);
+    // After the frame: a page scrolled to may only now be built.
+    final node = _node(document.pageHandle(index));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) node.requestFocus();
+    });
+    WidgetsBinding.instance.scheduleFrame();
   }
 
   void _showMenu(BuildContext context, int handle, Offset position) {

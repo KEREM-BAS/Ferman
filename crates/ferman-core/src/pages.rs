@@ -706,22 +706,138 @@ impl Tree {
             if let Some(value) = inherited_entry(scope, original, key) {
                 dict.set(key.to_vec(), value.clone());
             } else if self.chain_has(scope, node, key) {
-                let letter = || {
-                    let values = [LETTER.left, LETTER.bottom, LETTER.right, LETTER.top];
-                    Object::Array(values.into_iter().map(Object::Real).collect())
-                };
-                let default = match key {
-                    b"Rotate" => Object::Integer(0),
-                    b"Resources" => Object::Dictionary(Dictionary::new()),
-                    b"CropBox" => dict.get(b"MediaBox").cloned().unwrap_or_else(|_| letter()),
-                    _ => letter(),
-                };
+                let default = page_default(&dict, key);
                 dict.set(key.to_vec(), default);
             }
         }
         dict.set("Parent", node);
         Ok(dict)
     }
+}
+
+/// What `page`, with neither its own `key` nor an ancestor's, reads as: what overrides a new
+/// parent's `key` so it draws as it did. The media box goes first, for the crop box that follows it.
+pub(crate) fn page_default(page: &Dictionary, key: &[u8]) -> Object {
+    let letter = || {
+        let values = [LETTER.left, LETTER.bottom, LETTER.right, LETTER.top];
+        Object::Array(values.into_iter().map(Object::Real).collect())
+    };
+    match key {
+        b"Rotate" => Object::Integer(0),
+        b"Resources" => Object::Dictionary(Dictionary::new()),
+        b"CropBox" => page.get(b"MediaBox").cloned().unwrap_or_else(|_| letter()),
+        _ => letter(),
+    }
+}
+
+/// Queues what takes the widgets of the `gone` pages out of the form, unless a `kept` page lists
+/// them too: a field left with no kid goes as well, up to `/Fields`. A deleted page is then
+/// out of a rewrite with its values (question 5 of the M4 plan), and undo brings them back.
+pub(crate) fn widgets_leave_form(
+    doc: &Document,
+    scope: &Scope<'_>,
+    gone: &[ObjectId],
+    kept: &[ObjectId],
+    queued: &mut BTreeMap<ObjectId, Object>,
+) {
+    let listed = |pages: &[ObjectId]| -> BTreeSet<ObjectId> {
+        pages
+            .iter()
+            .filter_map(|page| scope.get_array(scope.dictionary(*page)?, b"Annots"))
+            .flatten()
+            .filter_map(|item| item.as_reference().ok())
+            .collect()
+    };
+    let staying = listed(kept);
+    let mut left: BTreeSet<ObjectId> = listed(gone)
+        .into_iter()
+        .filter(|id| !staying.contains(id))
+        .filter(|id| {
+            scope
+                .dictionary(*id)
+                .and_then(|annotation| scope.get_name(annotation, b"Subtype"))
+                == Some(b"Widget")
+        })
+        .collect();
+    if left.is_empty() {
+        return;
+    }
+    let mut level = left.clone();
+    for _ in 0..scope.limits.max_nesting {
+        let parents: BTreeSet<ObjectId> = level
+            .iter()
+            .filter_map(|id| {
+                scope
+                    .dictionary(*id)?
+                    .get(b"Parent")
+                    .ok()?
+                    .as_reference()
+                    .ok()
+            })
+            .collect();
+        level = BTreeSet::new();
+        for parent in parents {
+            let Some(field) = scope.dictionary(parent) else {
+                continue;
+            };
+            let Some(kids) = scope.get_array(field, b"Kids") else {
+                continue;
+            };
+            if matches!(field.get_type(), Ok(b"Pages")) {
+                continue;
+            }
+            let remaining = without(kids, &left);
+            if remaining.len() == kids.len() {
+                continue;
+            }
+            if remaining.is_empty() {
+                level.insert(parent);
+            }
+            let mut field = field.clone();
+            field.set("Kids", remaining);
+            queued.insert(parent, Object::Dictionary(field));
+        }
+        if level.is_empty() {
+            break;
+        }
+        left.extend(level.iter().copied());
+    }
+    let Some(root) = catalog_id(doc) else {
+        return;
+    };
+    let catalog = match queued.get(&root) {
+        Some(Object::Dictionary(catalog)) => Some(catalog),
+        _ => scope.dictionary(root),
+    };
+    let Some(mut catalog) = catalog.cloned() else {
+        return;
+    };
+    let entry = catalog.get(b"AcroForm").ok().cloned();
+    let Some(form) = entry.as_ref().and_then(|entry| scope.dict(entry)) else {
+        return;
+    };
+    let mut form = form.clone();
+    for key in [&b"Fields"[..], b"CO"] {
+        if let Some(items) = scope.get_array(&form, key) {
+            let items = without(items, &left);
+            form.set(key.to_vec(), items);
+        }
+    }
+    if let Some(Object::Reference(id)) = entry {
+        queued.insert(id, Object::Dictionary(form));
+    } else {
+        catalog.set("AcroForm", form);
+        queued.insert(root, Object::Dictionary(catalog));
+    }
+}
+
+/// `items`, with the references to `left` taken out.
+fn without(items: &[Object], left: &BTreeSet<ObjectId>) -> Vec<Object> {
+    items
+        .iter()
+        .filter(|item| !item.as_reference().is_ok_and(|id| left.contains(&id)))
+        .cloned()
+        .collect()
 }
 
 /// What a page's references become: integer destinations follow their page, and destinations and
@@ -806,9 +922,8 @@ impl Followed {
     }
 }
 
-/// Queues every object whose references must follow the new order, over what is queued already.
-// shortcut: a deleted page's widgets stay in /AcroForm /Fields, with no page; W3's form reader takes
-// them out of the required count when it reads fields page by page.
+/// Queues every object whose references must follow the new order, over what is queued already,
+/// and takes the widgets of the deleted pages out of the form.
 fn follow(
     store: &RevisionStore,
     doc: &Document,
@@ -827,12 +942,14 @@ fn follow(
             *entry = i64::try_from(position).ok();
         }
     }
+    let deleted: Vec<ObjectId> = ids
+        .iter()
+        .copied()
+        .filter(|id| !kept.contains(id))
+        .collect();
+    widgets_leave_form(doc, scope, &deleted, wanted, queued);
     let followed = Followed {
-        deleted: ids
-            .iter()
-            .copied()
-            .filter(|id| !kept.contains(id))
-            .collect(),
+        deleted: deleted.into_iter().collect(),
         moved,
         nesting: scope.limits.max_nesting,
     };
@@ -1082,6 +1199,97 @@ mod tests {
         let saved = store.incremental_update(&doc).unwrap();
         let again = open(&Source::from_bytes(saved.into()), &OpenOptions::default()).unwrap();
         assert_eq!(again.page_count(), 2);
+    }
+
+    /// Page 12 holds the field's only widget, page 11 one of two: what a rewrite keeps follows.
+    fn with_widgets(form_in_object: bool) -> lopdf::Document {
+        let mut model = nested();
+        let text = |bytes: &[u8]| Object::String(bytes.to_vec(), StringFormat::Literal);
+        for (page, widget) in [(11, 21), (12, 22), (13, 23)] {
+            let dict = model.objects.get_mut(&(page, 0)).unwrap();
+            let annots = vec![Object::Reference((widget, 0))];
+            dict.as_dict_mut().unwrap().set("Annots", annots);
+        }
+        for (widget, page, parent) in [(21, 11, 31), (22, 12, 32), (23, 13, 31)] {
+            model.objects.insert(
+                (widget, 0),
+                Object::Dictionary(dictionary! {
+                    "Subtype" => "Widget", "P" => (page, 0), "Parent" => (parent, 0),
+                }),
+            );
+        }
+        model.objects.insert(
+            (31, 0),
+            Object::Dictionary(dictionary! {
+                "FT" => "Tx", "T" => text(b"kept"), "V" => text(b"KEPT-VALUE"),
+                "Kids" => vec![Object::Reference((21, 0)), Object::Reference((23, 0))],
+            }),
+        );
+        model.objects.insert(
+            (32, 0),
+            Object::Dictionary(dictionary! {
+                "FT" => "Tx", "T" => text(b"gone"), "V" => text(b"SECRET-VALUE"),
+                "Parent" => (33, 0),
+                "Kids" => vec![Object::Reference((22, 0))],
+            }),
+        );
+        model.objects.insert(
+            (33, 0),
+            Object::Dictionary(dictionary! {
+                "T" => text(b"group"), "Kids" => vec![Object::Reference((32, 0))],
+            }),
+        );
+        let form = dictionary! {
+            "Fields" => vec![Object::Reference((31, 0)), Object::Reference((33, 0))],
+            "CO" => vec![Object::Reference((32, 0))],
+        };
+        let form = if form_in_object {
+            model.objects.insert((34, 0), Object::Dictionary(form));
+            Object::Reference((34, 0))
+        } else {
+            Object::Dictionary(form)
+        };
+        let catalog = model.objects.get_mut(&(1, 0)).unwrap();
+        catalog.as_dict_mut().unwrap().set("AcroForm", form);
+        model.max_id = 40;
+        model
+    }
+
+    /// Whether `bytes` hold the string `text`, which the writer puts down in hexadecimal.
+    fn holds(bytes: &[u8], text: &[u8]) -> bool {
+        let needle: Vec<u8> = text
+            .iter()
+            .flat_map(|byte| format!("{byte:02X}").into_bytes())
+            .collect();
+        bytes.windows(needle.len()).any(|window| window == needle)
+    }
+
+    #[test]
+    fn a_deleted_pages_only_widget_takes_its_field_out_of_a_rewrite_and_undo_brings_it_back() {
+        for in_object in [false, true] {
+            let doc = opened(&mut with_widgets(in_object));
+            let mut store = RevisionStore::new(&doc);
+            arrange(&mut store, &doc, &[0, 1, 3]);
+            let bytes = store.full_rewrite(&doc).unwrap();
+            assert!(!holds(&bytes, b"SECRET-VALUE"));
+            assert!(holds(&bytes, b"KEPT-VALUE"));
+            let again = open(&Source::from_bytes(bytes.into()), &OpenOptions::default()).unwrap();
+            assert_eq!(again.page_count(), 3);
+            store.undo().unwrap();
+            let bytes = store.full_rewrite(&doc).unwrap();
+            assert!(holds(&bytes, b"SECRET-VALUE"));
+        }
+    }
+
+    #[test]
+    fn a_field_keeps_its_value_while_another_page_has_a_widget_of_it() {
+        let doc = opened(&mut with_widgets(false));
+        let mut store = RevisionStore::new(&doc);
+        arrange(&mut store, &doc, &[0, 2, 3]);
+        assert!(holds(&store.full_rewrite(&doc).unwrap(), b"KEPT-VALUE"));
+        let scope = store.scope(&doc);
+        let field = scope.dictionary((31, 0)).unwrap();
+        assert_eq!(scope.get_array(field, b"Kids").unwrap().len(), 1);
     }
 
     #[test]

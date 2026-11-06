@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/l10n/format.dart';
@@ -204,6 +205,16 @@ class _CombineTabState extends ConsumerState<CombineTab> {
       ),
     );
 
+    // The list over the result where they cannot sit side by side.
+    if (WindowMetrics.isPhone(context)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(flex: 2, child: list),
+          Expanded(child: _Result(files)),
+        ],
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) => Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -330,6 +341,24 @@ class _FileRowState extends ConsumerState<_FileRow> {
       text: _row.range ?? l10n.combineAllPages,
     );
     final caption = theme.typography.caption;
+    // Where the columns cannot fit, the range has a line of its own.
+    final phone = WindowMetrics.isPhone(context);
+    final rangeField = TextField(
+      size: FieldSize.sm,
+      semanticLabel: l10n.combinePagesToInclude,
+      controller: range,
+      disabled: _row.office || (info?.image ?? false),
+      disabledReason: _row.office
+          ? Feature.officeInputs.disabledReason(context)
+          : null,
+      onChanged: (text) {
+        final typed = text.trim();
+        _notifier.setRange(
+          _row.id,
+          typed.isEmpty || typed == l10n.combineAllPages ? null : typed,
+        );
+      },
+    );
     return Container(
       padding: EdgeInsetsDirectional.all(theme.space.space2_5),
       decoration: BoxDecoration(
@@ -387,27 +416,8 @@ class _FileRowState extends ConsumerState<_FileRow> {
                   ],
                 ),
               ),
-              SizedBox(
-                width: _FileRow.rangeWidth,
-                child: TextField(
-                  size: FieldSize.sm,
-                  semanticLabel: l10n.combinePagesToInclude,
-                  controller: range,
-                  disabled: _row.office || (info?.image ?? false),
-                  disabledReason: _row.office
-                      ? Feature.officeInputs.disabledReason(context)
-                      : null,
-                  onChanged: (text) {
-                    final typed = text.trim();
-                    _notifier.setRange(
-                      _row.id,
-                      typed.isEmpty || typed == l10n.combineAllPages
-                          ? null
-                          : typed,
-                    );
-                  },
-                ),
-              ),
+              if (!phone)
+                SizedBox(width: _FileRow.rangeWidth, child: rangeField),
               IconButton(
                 icon: IconName.x,
                 label: l10n.combineRemoveFile,
@@ -416,6 +426,7 @@ class _FileRowState extends ConsumerState<_FileRow> {
               ),
             ],
           ),
+          if (phone) rangeField,
           if (problem != null)
             Text(problem, style: caption.copyWith(color: theme.colors.danger)),
           if (_locked)

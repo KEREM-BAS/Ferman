@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
@@ -322,6 +323,79 @@ class _PageLabelsDialogState extends ConsumerState<PageLabelsDialog> {
       maxLines: 1,
       style: theme.typography.label.copyWith(color: theme.colors.textTertiary),
     );
+    // Where the columns cannot fit, a range takes two lines and each field its
+    // own heading.
+    final phone = WindowMetrics.isPhone(context);
+    Widget headed(String text, Widget field) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      spacing: theme.space.space1,
+      children: [head(text), field],
+    );
+    Widget pagesField(_Row row) => TextField(
+      size: FieldSize.sm,
+      semanticLabel: l10n.labelsColumnPages,
+      controller: row.pages,
+      onChanged: (_) => setState(() {}),
+    );
+    Widget styleField(_Row row) => Select<PageLabelStyle>(
+      size: FieldSize.sm,
+      semanticLabel: l10n.labelsColumnStyle,
+      value: row.style,
+      options: [
+        SelectOption(
+          value: PageLabelStyle.romanLower,
+          label: l10n.labelsStyleRomanLower,
+        ),
+        SelectOption(
+          value: PageLabelStyle.romanUpper,
+          label: l10n.labelsStyleRomanUpper,
+        ),
+        SelectOption(
+          value: PageLabelStyle.decimal,
+          label: l10n.labelsStyleDecimal,
+        ),
+        SelectOption(
+          value: PageLabelStyle.lettersLower,
+          label: l10n.labelsStyleLettersLower,
+        ),
+        // Not on the board; PDF has it, and a document's own
+        // labels must survive this dialog.
+        SelectOption(
+          value: PageLabelStyle.lettersUpper,
+          label: l10n.labelsStyleLettersUpper,
+        ),
+        SelectOption(value: PageLabelStyle.none, label: l10n.labelsStyleNone),
+      ],
+      onChanged: (value) => setState(() => row.style = value),
+    );
+    Widget prefixField(_Row row) => TextField(
+      size: FieldSize.sm,
+      semanticLabel: l10n.labelsColumnPrefix,
+      controller: row.prefix,
+      placeholder: l10n.labelsPrefixNone,
+      onChanged: (_) => setState(() {}),
+    );
+    Widget startField(_Row row) => FmNumber(
+      region: region,
+      semanticLabel: l10n.labelsColumnStart,
+      value: row.first.toDouble(),
+      precision: 0,
+      unit: null,
+      width: PageLabelsDialog.startWidth,
+      min: 1,
+      max: PageLabelsDialog.largestStart,
+      onChanged: (value) => setState(() => row.first = value.round()),
+    );
+    Widget removeButton(_Row row) => IconButton(
+      icon: IconName.trash2,
+      label: l10n.labelsRemoveRange,
+      size: IconButtonSize.sm,
+      onPressed: () => setState(() {
+        _rows.remove(row);
+        row.dispose();
+      }),
+    );
     return Dialog(
       size: DialogSize.lg,
       title: l10n.labelsTitle,
@@ -345,30 +419,31 @@ class _PageLabelsDialogState extends ConsumerState<PageLabelsDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: gap,
         children: [
-          Padding(
-            padding: EdgeInsetsDirectional.symmetric(
-              horizontal: theme.space.space1,
+          if (!phone)
+            Padding(
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: theme.space.space1,
+              ),
+              child: Row(
+                spacing: gap,
+                children: [
+                  SizedBox(
+                    width: PageLabelsDialog.pagesWidth,
+                    child: head(l10n.labelsColumnPages),
+                  ),
+                  Expanded(child: head(l10n.labelsColumnStyle)),
+                  SizedBox(
+                    width: PageLabelsDialog.prefixWidth,
+                    child: head(l10n.labelsColumnPrefix),
+                  ),
+                  SizedBox(
+                    width: PageLabelsDialog.startWidth,
+                    child: head(l10n.labelsColumnStart),
+                  ),
+                  const SizedBox(width: PageLabelsDialog.removeWidth),
+                ],
+              ),
             ),
-            child: Row(
-              spacing: gap,
-              children: [
-                SizedBox(
-                  width: PageLabelsDialog.pagesWidth,
-                  child: head(l10n.labelsColumnPages),
-                ),
-                Expanded(child: head(l10n.labelsColumnStyle)),
-                SizedBox(
-                  width: PageLabelsDialog.prefixWidth,
-                  child: head(l10n.labelsColumnPrefix),
-                ),
-                SizedBox(
-                  width: PageLabelsDialog.startWidth,
-                  child: head(l10n.labelsColumnStart),
-                ),
-                const SizedBox(width: PageLabelsDialog.removeWidth),
-              ],
-            ),
-          ),
           for (final row in _rows)
             DecoratedBox(
               key: ObjectKey(row),
@@ -385,87 +460,61 @@ class _PageLabelsDialogState extends ConsumerState<PageLabelsDialog> {
                   vertical: theme.space.space2,
                   horizontal: theme.space.space1,
                 ),
-                child: Row(
-                  spacing: gap,
-                  children: [
-                    SizedBox(
-                      width: PageLabelsDialog.pagesWidth,
-                      child: TextField(
-                        size: FieldSize.sm,
-                        semanticLabel: l10n.labelsColumnPages,
-                        controller: row.pages,
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                    Expanded(
-                      child: Select<PageLabelStyle>(
-                        size: FieldSize.sm,
-                        semanticLabel: l10n.labelsColumnStyle,
-                        value: row.style,
-                        options: [
-                          SelectOption(
-                            value: PageLabelStyle.romanLower,
-                            label: l10n.labelsStyleRomanLower,
+                child: phone
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: gap,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: gap,
+                            children: [
+                              Expanded(
+                                child: headed(
+                                  l10n.labelsColumnPages,
+                                  pagesField(row),
+                                ),
+                              ),
+                              Expanded(
+                                child: headed(
+                                  l10n.labelsColumnPrefix,
+                                  prefixField(row),
+                                ),
+                              ),
+                              removeButton(row),
+                            ],
                           ),
-                          SelectOption(
-                            value: PageLabelStyle.romanUpper,
-                            label: l10n.labelsStyleRomanUpper,
-                          ),
-                          SelectOption(
-                            value: PageLabelStyle.decimal,
-                            label: l10n.labelsStyleDecimal,
-                          ),
-                          SelectOption(
-                            value: PageLabelStyle.lettersLower,
-                            label: l10n.labelsStyleLettersLower,
-                          ),
-                          // Not on the board; PDF has it, and a document's own
-                          // labels must survive this dialog.
-                          SelectOption(
-                            value: PageLabelStyle.lettersUpper,
-                            label: l10n.labelsStyleLettersUpper,
-                          ),
-                          SelectOption(
-                            value: PageLabelStyle.none,
-                            label: l10n.labelsStyleNone,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: gap,
+                            children: [
+                              Expanded(
+                                child: headed(
+                                  l10n.labelsColumnStyle,
+                                  styleField(row),
+                                ),
+                              ),
+                              headed(l10n.labelsColumnStart, startField(row)),
+                            ],
                           ),
                         ],
-                        onChanged: (value) => setState(() => row.style = value),
+                      )
+                    : Row(
+                        spacing: gap,
+                        children: [
+                          SizedBox(
+                            width: PageLabelsDialog.pagesWidth,
+                            child: pagesField(row),
+                          ),
+                          Expanded(child: styleField(row)),
+                          SizedBox(
+                            width: PageLabelsDialog.prefixWidth,
+                            child: prefixField(row),
+                          ),
+                          startField(row),
+                          removeButton(row),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                      width: PageLabelsDialog.prefixWidth,
-                      child: TextField(
-                        size: FieldSize.sm,
-                        semanticLabel: l10n.labelsColumnPrefix,
-                        controller: row.prefix,
-                        placeholder: l10n.labelsPrefixNone,
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                    FmNumber(
-                      region: region,
-                      semanticLabel: l10n.labelsColumnStart,
-                      value: row.first.toDouble(),
-                      precision: 0,
-                      unit: null,
-                      width: PageLabelsDialog.startWidth,
-                      min: 1,
-                      max: PageLabelsDialog.largestStart,
-                      onChanged: (value) =>
-                          setState(() => row.first = value.round()),
-                    ),
-                    IconButton(
-                      icon: IconName.trash2,
-                      label: l10n.labelsRemoveRange,
-                      size: IconButtonSize.sm,
-                      onPressed: () => setState(() {
-                        _rows.remove(row);
-                        row.dispose();
-                      }),
-                    ),
-                  ],
-                ),
               ),
             ),
           Align(

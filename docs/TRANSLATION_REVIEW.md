@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1082 messages in `app_en.arb`; translated: Turkish 1082, Arabic 1082.
+1081 messages in `app_en.arb`; translated: Turkish 1081, Arabic 1081.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -961,7 +961,6 @@ The table below is generated from the ARB files by `tools/l10n`
 | `jobInsertedTitle` | Inserted pages from {name} | {name} dosyasından sayfalar eklendi | أُدرجت الصفحات من {name} | a11-6b: an insert finished, from a dialog or a drop. |
 | `organizeSelectFirst` | Select pages first | Önce sayfaları seçin | حدد الصفحات أولًا | Organize tool row: why a command on the selection is disabled while none is selected; not drawn. |
 | `organizeCancel` | Cancel | İptal | إلغاء | Organize's dialogs and crop panel: closes without changing anything. |
-| `organizeUndo` | Undo | Geri al | تراجع | a11-6: the action of the toast after a crop. |
 | `organizeFailedTitle` | Couldn’t change the pages | Sayfalar değiştirilemedi | تعذّر تغيير الصفحات | Toast title: the engine refused a page operation. |
 | `organizeBadRange` | Write pages like 1–3, 5, up to page {last}. | Sayfaları 1–3, 5 gibi yazın; en çok {last}. sayfaya kadar. | اكتب الصفحات بهذا الشكل: 1–3، 5، حتى الصفحة {last}. | Error under a page range field. {last} is the last page's number. |
 | `organizeSizeA4` | A4 · {size} | A4 · {size} | A4 · {size} | a6-4 and G45: a page size option. {size} is formatted for the region. |

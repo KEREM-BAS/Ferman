@@ -146,7 +146,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'8efc800108417749a85a71e5890b35e26191ffd0';
+String _$documentEditorHash() => r'c1658175f34c9d57c668abce1bc83ef28262b7fe';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).

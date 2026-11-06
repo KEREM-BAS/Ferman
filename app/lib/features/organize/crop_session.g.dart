@@ -95,7 +95,7 @@ final class OrganizeCropProvider
   }
 }
 
-String _$organizeCropHash() => r'565a50c6a71943ddae431cca909acd27c4245565';
+String _$organizeCropHash() => r'6d3c97b59ef629abb8c7b14dd48e6c856911cdd8';
 
 /// The crop tool, as `organizeCropProvider`: null while it is closed. It works
 /// on the reader's page in the canvas, with its panel in the right panel's

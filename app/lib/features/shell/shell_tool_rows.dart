@@ -830,10 +830,13 @@ void _insertChosen(WidgetRef ref, MenuItem item) {
 
 /// a6-1's Insert button with its menu.
 class _InsertTool extends ConsumerStatefulWidget {
-  const new({required this.live});
+  const new({required this.live, this.disabledReason});
 
   /// Whether the document can change.
   final bool live;
+
+  /// Why it cannot, when it says.
+  final String? disabledReason;
 
   @override
   ConsumerState<_InsertTool> createState() => _InsertToolState();
@@ -856,6 +859,7 @@ class _InsertToolState extends ConsumerState<_InsertTool> {
         label: l10n.shellToolInsert,
         hasMenu: true,
         disabled: !widget.live,
+        disabledReason: widget.disabledReason,
         onPressed: widget.live ? () => setState(() => _open = !_open) : null,
       ),
       child: Menu(
@@ -913,7 +917,7 @@ class _OrganizeTools extends ConsumerWidget {
             submenu: _insertItems(context, l10n),
           ),
           onMenuSelected: (item) => _insertChosen(ref, item),
-          child: _InsertTool(live: changes),
+          child: _InsertTool(live: changes, disabledReason: refusal),
         ),
         ToolButton(
           icon: IconName.rotateCcw,
@@ -963,6 +967,7 @@ class _OrganizeTools extends ConsumerWidget {
           icon: IconName.replace,
           label: l10n.shellToolReplace,
           disabled: !changes,
+          disabledReason: refusal,
           onPressed: changes
               ? () => showReplacePagesDialog(
                   ref,
@@ -1006,6 +1011,7 @@ class _OrganizeTools extends ConsumerWidget {
           label: l10n.shellToolCrop,
           active: crop,
           disabled: !changes,
+          disabledReason: refusal,
           onPressed: changes
               ? () => crop
                     ? ref.read(organizeCropProvider.notifier).cancel()
@@ -1017,6 +1023,7 @@ class _OrganizeTools extends ConsumerWidget {
           label: l10n.shellToolPageLabels,
           active: false,
           disabled: !changes,
+          disabledReason: refusal,
           onPressed: changes ? () => showPageLabelsDialog(ref, document) : null,
         ),
         const ToolbarSpacer(),

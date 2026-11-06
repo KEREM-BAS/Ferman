@@ -2976,9 +2976,6 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get organizeCancel => isolate(super.organizeCancel);
 
   @override
-  String get organizeUndo => isolate(super.organizeUndo);
-
-  @override
   String get organizeFailedTitle => isolate(super.organizeFailedTitle);
 
   @override

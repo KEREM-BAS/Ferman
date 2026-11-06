@@ -5535,12 +5535,6 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get organizeCancel;
 
-  /// a11-6: the action of the toast after a crop.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get organizeUndo;
-
   /// Toast title: the engine refused a page operation.
   ///
   /// In en, this message translates to:

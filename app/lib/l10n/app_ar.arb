@@ -905,7 +905,6 @@
   "jobInsertedTitle": "أُدرجت الصفحات من {name}",
   "organizeSelectFirst": "حدد الصفحات أولًا",
   "organizeCancel": "إلغاء",
-  "organizeUndo": "تراجع",
   "organizeFailedTitle": "تعذّر تغيير الصفحات",
   "organizeBadRange": "اكتب الصفحات بهذا الشكل: 1–3، 5، حتى الصفحة {last}.",
   "organizeSizeA4": "A4 · {size}",

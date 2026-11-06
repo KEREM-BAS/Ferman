@@ -3442,9 +3442,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get organizeCancel => 'Cancel';
 
   @override
-  String get organizeUndo => 'Undo';
-
-  @override
   String get organizeFailedTitle => 'Couldn’t change the pages';
 
   @override

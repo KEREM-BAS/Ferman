@@ -905,7 +905,6 @@
   "jobInsertedTitle": "{name} dosyasından sayfalar eklendi",
   "organizeSelectFirst": "Önce sayfaları seçin",
   "organizeCancel": "İptal",
-  "organizeUndo": "Geri al",
   "organizeFailedTitle": "Sayfalar değiştirilemedi",
   "organizeBadRange": "Sayfaları 1–3, 5 gibi yazın; en çok {last}. sayfaya kadar.",
   "organizeSizeA4": "A4 · {size}",

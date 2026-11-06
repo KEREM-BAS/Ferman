@@ -3,14 +3,17 @@
 
 use std::collections::BTreeSet;
 
-use ferman_core::assemble::{ImportOptions, PageImport};
+use ferman_core::assemble::{ImportOptions, PageImport, assembled_size};
 use ferman_core::revision::RevisionStore;
 use ferman_core::{CoreError, Document, WriteError};
 
 use crate::OpsError;
 
-/// What a file with nothing in it costs: header, catalog, page tree and trailer.
-const FILE_OVERHEAD: u64 = 256;
+/// What Split keeps of a document: form fields, but not what belongs to no page.
+const PAGES_ONLY: ImportOptions = ImportOptions {
+    keep_forms: true,
+    document_parts: false,
+};
 
 /// The longest file name before its extension, in bytes: file systems stop at 255.
 const LONGEST_STEM: usize = 200;
@@ -29,7 +32,7 @@ pub enum SplitMode {
     EveryPages(u32),
     /// One file per top-level bookmark; the pages before the first are a file of their own.
     TopBookmarks,
-    /// Files of at most so many bytes, as estimated; a single page over that is a file of its own.
+    /// Files of at most so many bytes; a single page over that is a file of its own.
     Size(u64),
     /// A new file at each blank page, which goes.
     BlankPages,
@@ -44,9 +47,10 @@ pub struct SplitFile {
     pub first: usize,
     /// Its last page, as an index.
     pub last: usize,
-    /// About how large it comes out, in bytes, at the high end.
+    /// The most it comes to, in bytes: stream data with no filter counts as stored, though the
+    /// file compresses it.
     pub bytes: u64,
-    /// Whether one page alone is over the size asked for.
+    /// Whether it is one page that alone is over the size asked for.
     pub over_limit: bool,
 }
 
@@ -145,26 +149,44 @@ fn between_blanks(pages: usize, blank: &[usize]) -> Vec<Span> {
     spans
 }
 
-/// Spans as large as `limit` allows, as `weighing` estimates.
-fn by_size(weighing: &mut PageImport<'_>, pages: usize, limit: u64) -> Result<Vec<Span>, OpsError> {
+/// What the file of the pages `first..=last` comes to.
+fn file_bytes(
+    document: &Document,
+    revisions: &RevisionStore,
+    first: usize,
+    last: usize,
+) -> Result<u64, OpsError> {
+    let pages: Vec<usize> = (first..=last).collect();
+    Ok(assembled_size(document, revisions, &pages, PAGES_ONLY)?)
+}
+
+/// Spans as large as `limit` allows. Weights leave out what a whole file adds, so they say how far
+/// a file can reach, and what it really comes to takes pages back off.
+fn by_size(
+    weighing: &mut PageImport<'_>,
+    document: &Document,
+    revisions: &RevisionStore,
+    pages: usize,
+    limit: u64,
+) -> Result<Vec<Span>, OpsError> {
     let mut spans = Vec::new();
     let mut first = 0;
-    let mut bytes = FILE_OVERHEAD;
-    weighing.reset_weights();
-    for page in 0..pages {
-        let more = weighing.weigh(page)?;
-        if page > first && bytes.saturating_add(more) > limit {
-            spans.push((first, page - 1, None));
-            first = page;
-            // The shared objects this page reached belong to the file it now starts.
-            weighing.reset_weights();
-            bytes = FILE_OVERHEAD.saturating_add(weighing.weigh(page)?);
-        } else {
-            bytes = bytes.saturating_add(more);
+    while first < pages {
+        weighing.reset_weights();
+        let mut bytes = 0u64;
+        let mut last = first;
+        for page in first..pages {
+            bytes = bytes.saturating_add(weighing.weigh(page)?);
+            if page > first && bytes > limit {
+                break;
+            }
+            last = page;
         }
-    }
-    if pages > 0 {
-        spans.push((first, pages - 1, None));
+        while last > first && file_bytes(document, revisions, first, last)? > limit {
+            last -= 1;
+        }
+        spans.push((first, last, None));
+        first = last + 1;
     }
     Ok(spans)
 }
@@ -264,30 +286,18 @@ pub fn plan(
     let listed = revisions.pages(document);
     let pages = listed.len();
     let indices: Vec<usize> = (0..pages).collect();
-    let mut weighing = PageImport::new(
-        document,
-        revisions,
-        &indices,
-        ImportOptions {
-            keep_forms: true,
-            document_parts: false,
-        },
-    )?;
+    let mut weighing = PageImport::new(document, revisions, &indices, PAGES_ONLY)?;
     let spans = match mode {
         SplitMode::EveryPages(0) | SplitMode::Size(0) => return Err(plan_error()),
         SplitMode::EveryPages(count) => every(pages, count),
         SplitMode::TopBookmarks => at_bookmarks(document, revisions, pages),
-        SplitMode::Size(limit) => by_size(&mut weighing, pages, limit)?,
+        SplitMode::Size(limit) => by_size(&mut weighing, document, revisions, pages, limit)?,
         SplitMode::BlankPages => between_blanks(pages, blank),
     };
     let mut files = Vec::with_capacity(spans.len());
     let mut used = Vec::with_capacity(spans.len());
     for (index, (first, last, bookmark)) in spans.into_iter().enumerate() {
-        weighing.reset_weights();
-        let mut bytes = FILE_OVERHEAD;
-        for page in first..=last {
-            bytes = bytes.saturating_add(weighing.weigh(page)?);
-        }
+        let bytes = file_bytes(document, revisions, first, last)?;
         let label = |page: usize| {
             listed
                 .get(page)
@@ -307,7 +317,7 @@ pub fn plan(
             &mut used,
             taken,
         );
-        let over_limit = matches!(mode, SplitMode::Size(limit) if bytes > limit);
+        let over_limit = first == last && matches!(mode, SplitMode::Size(limit) if bytes > limit);
         files.push(SplitFile {
             name,
             first,
@@ -336,6 +346,7 @@ mod tests {
     use ferman_core::{OpenOptions, Source, open};
 
     use super::*;
+    use crate::combine::Assembly;
 
     fn corpus(name: &str) -> Document {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -407,14 +418,68 @@ mod tests {
         let plan = planned("tez-tr", SplitMode::Size(limit), &[]);
         assert!(plan.files.len() >= 3);
         assert_eq!(page_total(&plan), 64);
-        assert!(
-            plan.files
-                .iter()
-                .all(|file| file.bytes <= limit || file.over_limit)
-        );
+        for file in &plan.files {
+            assert!(file.bytes <= limit || file.first == file.last);
+            assert_eq!(file.over_limit, file.bytes > limit);
+        }
         let tiny = planned("tez-tr", SplitMode::Size(10), &[]);
         assert_eq!(tiny.files.len(), 64);
         assert!(tiny.files.iter().all(|file| file.over_limit));
+    }
+
+    /// The planned files, written as the job writes them, are within what the plan says.
+    #[test]
+    fn no_file_comes_out_larger_than_planned_or_than_the_size_asked_for() {
+        for name in [
+            "tez-tr",
+            "pages-tree",
+            "kira-tr",
+            "combine-outline",
+            "form-aks1-tr",
+        ] {
+            let document = corpus(name);
+            let revisions = RevisionStore::new(&document);
+            let whole = file_bytes(
+                &document,
+                &revisions,
+                0,
+                revisions.pages(&document).len() - 1,
+            )
+            .unwrap();
+            let limit = whole / 3 + 1;
+            let plan = plan(
+                &document,
+                &revisions,
+                SplitMode::Size(limit),
+                &[],
+                NAMING,
+                &|_| false,
+            )
+            .unwrap();
+            for file in &plan.files {
+                let pages: Vec<usize> = (file.first..=file.last).collect();
+                let mut assembly = Assembly::new(&ferman_core::limits::Limits::default()).unwrap();
+                assembly
+                    .add_pages::<OpsError>(
+                        &document,
+                        &revisions,
+                        &pages,
+                        PAGES_ONLY,
+                        None,
+                        &mut || Ok(()),
+                    )
+                    .unwrap();
+                let written = assembly.finish().unwrap().len() as u64;
+                assert!(
+                    written <= file.bytes,
+                    "{name} {file:?}: wrote {written} over the plan"
+                );
+                assert!(
+                    written <= limit || file.first == file.last,
+                    "{name} {file:?}: wrote {written} over {limit}"
+                );
+            }
+        }
     }
 
     #[test]

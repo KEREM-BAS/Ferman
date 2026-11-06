@@ -608,15 +608,15 @@ impl RevisionStore {
 
         let mut dict = self.dictionary(doc, page)?;
         let mut page_changed = !names.is_empty();
+        let other_pages = self.other_pages(doc, page);
         for (stream, edits) in streams {
             if !on_page.contains(&stream) {
                 return Err(CoreError::Write(WriteError::NotOnPage));
             }
             let new = Object::Stream(respliced(&self.stream(doc, stream)?, &edits, doc)?);
-            let shared = self
-                .pages(doc)
+            let shared = other_pages
                 .iter()
-                .any(|other| other.id != page && self.contents(doc, other.id).contains(&stream));
+                .any(|other| self.contents(doc, *other).contains(&stream));
             if shared {
                 let id = queue_new(&mut queued, &mut next, new)?;
                 let contents = match dict.get(b"Contents") {
@@ -655,6 +655,27 @@ impl RevisionStore {
             queued.push((page, Object::Dictionary(dict)));
         }
         self.put_counted(doc, queued)
+    }
+
+    /// Every page object but `page`, in the page tree or not: a deleted page stays in the file and
+    /// a revert can bring it back, so it must keep drawing what it drew.
+    fn other_pages(&self, doc: &Document, page: ObjectId) -> BTreeSet<ObjectId> {
+        let scope = self.scope(doc);
+        let mut others: BTreeSet<ObjectId> = doc
+            .model()
+            .objects
+            .keys()
+            .copied()
+            .chain(self.changed_ids())
+            .filter(|id| {
+                scope
+                    .dictionary(*id)
+                    .is_some_and(|dict| matches!(dict.get_type(), Ok(b"Page")))
+            })
+            .collect();
+        others.extend(self.pages(doc).iter().map(|other| other.id));
+        others.remove(&page);
+        others
     }
 
     /// A name for a copy of the font page `index` names `base` that its `/Font` resources and
@@ -1740,6 +1761,47 @@ mod tests {
             );
             assert_eq!(new[span.range.start + bytes.len()..], old[span.range.end..]);
         }
+    }
+
+    #[test]
+    fn a_deleted_page_that_shared_a_stream_comes_back_as_it_was_after_a_later_edit() {
+        let name = "edit-e23-shared-contents";
+        let doc = open_bytes(
+            &std::fs::read(corpus(&format!("{name}.pdf"))).unwrap(),
+            None,
+        )
+        .unwrap();
+        let (first, second) = (doc.structure().pages[0].id, doc.structure().pages[1].id);
+        let mut store = RevisionStore::new(&doc);
+        let shared = store.contents(&doc, first);
+        assert_eq!(shared, store.contents(&doc, second));
+        let order: Vec<crate::pages::PageSlot> = (0..doc.page_count())
+            .filter(|page| *page != 1)
+            .map(crate::pages::PageSlot::Page)
+            .collect();
+        store.begin().unwrap();
+        store.arrange_pages(&doc, &order).unwrap();
+        store.commit().unwrap();
+        let (page, span) = first_show(&doc).unwrap();
+        assert_eq!(page, 0);
+        store.begin().unwrap();
+        let splice = Splice {
+            source: span.source,
+            range: span.range.clone(),
+            bytes: b"(Ferman) Tj".to_vec(),
+        };
+        store.splice(&doc, 0, &[splice], &[]).unwrap();
+        store.commit().unwrap();
+        // The edited page draws from a stream of its own, so the delete's revert restores a page
+        // that draws what it drew.
+        store.begin().unwrap();
+        assert!(store.revert_revision(&doc, 0).unwrap());
+        store.commit().unwrap();
+        assert_eq!(store.pages(&doc).len(), doc.page_count());
+        assert_eq!(store.contents(&doc, second), shared);
+        assert_ne!(store.contents(&doc, first), shared);
+        let stream = store.stream(&doc, shared[0]).unwrap();
+        assert_eq!(decoded(&stream, &doc).unwrap(), data(&doc, shared[0]));
     }
 
     #[test]

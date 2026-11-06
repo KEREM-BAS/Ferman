@@ -236,6 +236,28 @@ void main() {
         ).detail(l10n, format),
         '6 files',
       );
+      expect(
+        const BackgroundJob(
+          id: 1,
+          kind: BackgroundJobKind.extractPages,
+          name: 'x',
+          state: TaskState.done,
+          output: '/a.pdf',
+          params: {'files': '5'},
+        ).detail(l10n, format),
+        '5 files',
+      );
+      expect(
+        const BackgroundJob(
+          id: 1,
+          kind: BackgroundJobKind.extractPages,
+          name: 'x',
+          state: TaskState.done,
+          output: '/a.pdf',
+          params: {'files': '1'},
+        ).detail(l10n, format),
+        contains('a.pdf'),
+      );
     });
 
     test('a split counts its files', () async {
@@ -344,6 +366,31 @@ void main() {
       expect(find.text('Unlock'), findsOneWidget);
     });
 
+    testWidgets('fits a phone: the list over the result, the range below', (
+      tester,
+    ) async {
+      const phone = Size(375, 812);
+      tester.view
+        ..physicalSize = phone
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final s = _setUp();
+      addTearDown(s.container.dispose);
+      s.container.read(combineFilesProvider.notifier).add(['/a.pdf']);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: s.container,
+          child: componentHost(
+            const SizedBox(width: 375, height: 812, child: CombineTab()),
+            size: phone,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(TextField), findsWidgets);
+    });
+
     testWidgets('a Word row is disabled with the future-version reason', (
       tester,
     ) async {
@@ -435,6 +482,31 @@ void main() {
       await tester.pumpAndSettle();
       expect(container.read(combineFilesProvider).rows, isEmpty);
       expect(find.byType(FmStart), findsOneWidget);
+    });
+
+    testWidgets('the tab closes the sidebar like Organize, and keeps to it', (
+      tester,
+    ) async {
+      final s = _setUp();
+      final container = await app(tester, s, open: true);
+      final mode = container.read(shellModeProvider.notifier)
+        ..select(FermanMode.convert);
+      await tester.pumpAndSettle();
+      expect(container.read(shellSidebarOpenProvider), isTrue);
+
+      container.read(combineFilesProvider.notifier).showTab('Combine files');
+      await tester.pumpAndSettle();
+      expect(container.read(shellModeProvider), FermanMode.organize);
+      expect(container.read(shellSidebarOpenProvider), isFalse);
+      mode.select(FermanMode.view);
+      expect(container.read(shellModeProvider), FermanMode.organize);
+
+      container.read(shellDocumentsProvider.notifier).activate(0);
+      await tester.pumpAndSettle();
+      expect(container.read(shellSidebarOpenProvider), isFalse);
+      mode.select(FermanMode.view);
+      expect(container.read(shellModeProvider), FermanMode.view);
+      expect(container.read(shellSidebarOpenProvider), isTrue);
     });
 
     testWidgets('a created file opens once written', (tester) async {

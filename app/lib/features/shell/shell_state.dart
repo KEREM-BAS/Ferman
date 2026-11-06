@@ -30,7 +30,7 @@ class ShellMode extends _$ShellMode {
     ref.listen(
       shellDocumentsProvider.select((list) => list.active?.combine ?? false),
       (_, combine) {
-        if (combine) state = FermanMode.organize;
+        if (combine) select(FermanMode.organize);
       },
     );
     return ref.read(shellDocumentsProvider).active?.combine ?? false
@@ -42,11 +42,14 @@ class ShellMode extends _$ShellMode {
   /// document without the sidebar, as a6-1 draws it: the grid has the pages.
   void select(FermanMode mode) {
     if (mode == state) return;
+    final active = ref.read(shellDocumentsProvider).active;
+    // The Combine tab keeps to Organize (a6-3).
+    if ((active?.combine ?? false) && mode != FermanMode.organize) return;
     final sidebar = ref.read(shellSidebarOpenProvider.notifier);
     if (mode == FermanMode.organize) {
       _sidebarClosed =
           ref.read(shellSidebarOpenProvider) &&
-          ref.read(shellDocumentsProvider).active?.document != null;
+          (active?.document != null || (active?.combine ?? false));
       if (_sidebarClosed) sidebar.close();
     } else if (_sidebarClosed) {
       _sidebarClosed = false;

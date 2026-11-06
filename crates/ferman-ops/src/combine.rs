@@ -282,6 +282,36 @@ mod tests {
     }
 
     #[test]
+    fn a_replaced_page_shows_as_its_source_under_a_node_that_rotates_or_crops() {
+        let document = corpus("pages-tree");
+        let source = corpus("combine-outline");
+        let source_revisions = RevisionStore::new(&source);
+        let wanted = &source_revisions.pages(&source)[0];
+        for replaced in [0, 3] {
+            let mut revisions = RevisionStore::new(&document);
+            revisions.begin().unwrap();
+            let refs = revisions.page_refs(&document, &[replaced]).unwrap();
+            let new = copy_pages(
+                &document,
+                &mut revisions,
+                &source,
+                &source_revisions,
+                &[0],
+                ALL,
+                None,
+                &refs,
+                &mut no_step(),
+            )
+            .unwrap();
+            place_replacing(&document, &mut revisions, &[replaced], &new).unwrap();
+            revisions.commit().unwrap();
+            let page = &revisions.pages(&document)[replaced];
+            assert_eq!(page.rotation, wanted.rotation, "page {replaced}");
+            assert_eq!(page.size, wanted.size, "page {replaced}");
+        }
+    }
+
+    #[test]
     fn an_insert_goes_after_its_page_and_first_without_one() {
         let document = corpus("pages-tree");
         let source = corpus("combine-outline");
