@@ -827,6 +827,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsPaneAi => 'Yapay zekâ yardımcısı';
 
   @override
+  String get settingsPhoneGroupDocuments => 'Belgeler';
+
+  @override
+  String get settingsPhoneGroupApp => 'Uygulama';
+
+  @override
+  String get settingsPhoneGroupRegion => 'Bölge';
+
+  @override
+  String get settingsPhonePrivacyValue => 'Veri toplanmaz';
+
+  @override
+  String get settingsPhoneAbout => 'Hakkında ve lisans';
+
+  @override
   String get settingsPanePrivacy => 'Gizlilik';
 
   @override

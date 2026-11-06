@@ -53,6 +53,9 @@ enum Feature {
 
   /// Editing on the phone: the phone home's quick tool Edit.
   phoneEditing('B144'),
+  /// About and the licences: the phone's Settings › About and licence
+  /// (a13-15).
+  aboutAndLicence('B139'),
 
   /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
   /// Convert › Create PDF.

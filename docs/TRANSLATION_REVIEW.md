@@ -54,6 +54,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 586 messages in `app_en.arb`; translated: Turkish 586, Arabic 586.
 597 messages in `app_en.arb`; translated: Turkish 597, Arabic 597.
+590 messages in `app_en.arb`; translated: Turkish 590, Arabic 590.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -311,6 +312,11 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsPaneSignatures` | Signatures and certificates | İmzalar ve sertifikalar | التوقيعات والشهادات | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneOcr` | Text recognition (OCR) | Metin tanıma (OCR) | التعرّف على النص (OCR) | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). OCR is optical character recognition. |
 | `settingsPaneAi` | AI assistant | Yapay zekâ yardımcısı | المساعد الذكي | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
+| `settingsPhoneGroupDocuments` | Documents | Belgeler | المستندات | Phone Settings: a group of the list (a13-15, shown in capitals) and a heading of Language and region (a13-15b). |
+| `settingsPhoneGroupApp` | App | Uygulama | التطبيق | Phone Settings › Language and region: the heading over the app language (a13-15b). |
+| `settingsPhoneGroupRegion` | Region | Bölge | المنطقة | Phone Settings › Language and region: the heading over the region formats (a13-15b). |
+| `settingsPhonePrivacyValue` | No data collected | Veri toplanmaz | لا تُجمع أي بيانات | Phone Settings: the value of the Privacy row, which states the fact (a13-15). Keep it short. |
+| `settingsPhoneAbout` | About and licence | Hakkında ve lisans | حول التطبيق والترخيص | Phone Settings: the row of About and the licences (a13-15). |
 | `settingsPanePrivacy` | Privacy | Gizlilik | الخصوصية | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneUpdates` | Updates | Güncellemeler | التحديثات | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneShortcuts` | Keyboard shortcuts | Klavye kısayolları | اختصارات لوحة المفاتيح | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |

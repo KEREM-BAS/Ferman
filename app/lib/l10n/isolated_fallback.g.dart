@@ -867,6 +867,24 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get settingsPaneAi => isolate(super.settingsPaneAi);
 
   @override
+  String get settingsPhoneGroupDocuments =>
+      isolate(super.settingsPhoneGroupDocuments);
+
+  @override
+  String get settingsPhoneGroupApp => isolate(super.settingsPhoneGroupApp);
+
+  @override
+  String get settingsPhoneGroupRegion =>
+      isolate(super.settingsPhoneGroupRegion);
+
+  @override
+  String get settingsPhonePrivacyValue =>
+      isolate(super.settingsPhonePrivacyValue);
+
+  @override
+  String get settingsPhoneAbout => isolate(super.settingsPhoneAbout);
+
+  @override
   String get settingsPanePrivacy => isolate(super.settingsPanePrivacy);
 
   @override

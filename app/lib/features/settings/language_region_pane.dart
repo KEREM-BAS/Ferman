@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/casing.dart';
@@ -40,6 +42,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// A change that cannot be stored still applies; Settings says so
 /// (`settingsSaveFailedProvider`).
+///
+/// At phone width (a13-15b, G129) the pane is one column under the board's
+/// headings App, Documents and Region, its controls stacked at full width.
 class LanguageRegionPane extends ConsumerWidget {
   /// The pane.
   const new({super.key});
@@ -86,6 +91,7 @@ class LanguageRegionPane extends ConsumerWidget {
     final region = regionSettings.region;
     final systemRegion = Region.fromLocale(ref.watch(systemLocaleProvider));
     final hint = typography.caption.copyWith(color: colors.textSecondary);
+    final phone = WindowMetrics.isPhone(context);
 
     // App language.
     final appLanguage = ConstrainedBox(
@@ -183,6 +189,63 @@ class LanguageRegionPane extends ConsumerWidget {
           regionSettings.firstDayOfWeek == FirstDayOfWeek.friday)
         (FirstDayOfWeek.friday, l10n.regionFriday),
     ];
+    Widget band(Widget control) =>
+        phone ? PhoneHitTarget(child: control) : control;
+    final paper = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space.space1_5,
+      children: [
+        Field.labelOf(context, l10n.regionPaperSize),
+        band(
+          SegmentedControl<PaperSize>(
+            semanticLabel: l10n.regionPaperSize,
+            value: regionSettings.paperSize,
+            options: [
+              SegmentOption(value: PaperSize.a4, label: l10n.regionPaperA4),
+              SegmentOption(
+                value: PaperSize.letter,
+                label: l10n.regionPaperLetter,
+              ),
+            ],
+            onChanged: (size) => unawaited(
+              _change(
+                ref,
+                (settings) => settings.copyWith(
+                  paperSize: () =>
+                      size == region.defaultPaperSize ? null : size,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+    final units = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space.space1_5,
+      children: [
+        Field.labelOf(context, l10n.regionUnits),
+        band(
+          SegmentedControl<LengthUnit>(
+            semanticLabel: l10n.regionUnits,
+            value: regionSettings.lengthUnit,
+            options: [
+              for (final unit in LengthUnit.values)
+                SegmentOption(value: unit, label: unit.symbol),
+            ],
+            onChanged: (unit) => unawaited(
+              _change(
+                ref,
+                (settings) => settings.copyWith(
+                  lengthUnit: () =>
+                      unit == region.defaultLengthUnit ? null : unit,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
     final formats = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space.space3,
@@ -201,70 +264,18 @@ class LanguageRegionPane extends ConsumerWidget {
             ),
           ),
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: theme.space.space3,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: theme.space.space1_5,
-                children: [
-                  Field.labelOf(context, l10n.regionPaperSize),
-                  SegmentedControl<PaperSize>(
-                    semanticLabel: l10n.regionPaperSize,
-                    value: regionSettings.paperSize,
-                    options: [
-                      SegmentOption(
-                        value: PaperSize.a4,
-                        label: l10n.regionPaperA4,
-                      ),
-                      SegmentOption(
-                        value: PaperSize.letter,
-                        label: l10n.regionPaperLetter,
-                      ),
-                    ],
-                    onChanged: (size) => unawaited(
-                      _change(
-                        ref,
-                        (settings) => settings.copyWith(
-                          paperSize: () =>
-                              size == region.defaultPaperSize ? null : size,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: theme.space.space1_5,
-                children: [
-                  Field.labelOf(context, l10n.regionUnits),
-                  SegmentedControl<LengthUnit>(
-                    semanticLabel: l10n.regionUnits,
-                    value: regionSettings.lengthUnit,
-                    options: [
-                      for (final unit in LengthUnit.values)
-                        SegmentOption(value: unit, label: unit.symbol),
-                    ],
-                    onChanged: (unit) => unawaited(
-                      _change(
-                        ref,
-                        (settings) => settings.copyWith(
-                          lengthUnit: () =>
-                              unit == region.defaultLengthUnit ? null : unit,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        if (phone) ...[
+          paper,
+          units,
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: theme.space.space3,
+            children: [
+              Expanded(child: paper),
+              Expanded(child: units),
+            ],
+          ),
         Select<FirstDayOfWeek>(
           label: l10n.regionFirstDay,
           size: FieldSize.sm,
@@ -285,6 +296,22 @@ class LanguageRegionPane extends ConsumerWidget {
         ),
       ],
     );
+
+    if (phone) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: sectionGap,
+        children: [
+          PhoneSettingsHead(l10n.settingsPhoneGroupApp),
+          appLanguage,
+          PhoneSettingsHead(l10n.settingsPhoneGroupDocuments),
+          documents,
+          PhoneSettingsHead(l10n.settingsPhoneGroupRegion),
+          formats,
+          RegionExamples(format: regionSettings.format),
+        ],
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

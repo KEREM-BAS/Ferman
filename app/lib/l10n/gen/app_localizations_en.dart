@@ -821,6 +821,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPaneAi => 'AI assistant';
 
   @override
+  String get settingsPhoneGroupDocuments => 'Documents';
+
+  @override
+  String get settingsPhoneGroupApp => 'App';
+
+  @override
+  String get settingsPhoneGroupRegion => 'Region';
+
+  @override
+  String get settingsPhonePrivacyValue => 'No data collected';
+
+  @override
+  String get settingsPhoneAbout => 'About and licence';
+
+  @override
   String get settingsPanePrivacy => 'Privacy';
 
   @override

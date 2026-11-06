@@ -188,6 +188,7 @@ and Shift for ⇧.
 | B142 | The phone's menus | `a13-2c`, `a13-3b` | Phone home › app bar › More, and a recent file's More | P5 | A recent file's More opens a13-3b's details and actions sheet, where pinning lives on a phone. No board draws the app bar's menu ([G129](DESIGN_GAPS.md#g129)). |
 | B143 | The phone home's places to open from | `a13-2`, `a13-2c`, `a13-2e` | Phone home › Open from › Downloads, Google Drive, OneDrive, Files | P5 | Native apps reach these through the system's document providers; a browser has only its file chooser, and these chips would open nothing until the engine runs on the web ([G129](DESIGN_GAPS.md#g129)). |
 | B144 | Editing on the phone | `a13-2`, `a13-5` | Phone home › quick tool Edit | P5 | The tool asks for a file and opens straight into editing, so it waits for the phone reader and editor. |
+| B139 | About and the licences on a phone | `a13-15`, `a11-5` | Phone Settings › About and licence | M5, with About (`a11-5`) | The row `a13-15` draws, disabled until the screen exists; the desktop's Settings has no entry for it yet ([G14](DESIGN_GAPS.md#g14)). |
 
 ## Done
 

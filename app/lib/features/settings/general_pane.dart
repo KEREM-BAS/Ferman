@@ -4,6 +4,8 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -38,6 +40,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// A theme that cannot be stored still applies; Settings says so
 /// (`settingsSaveFailedProvider`).
+///
+/// At phone width (G129) everything stacks in one column, with touch bands
+/// on the small controls; the default-app row goes, since no phone board
+/// draws it and a browser cannot make itself the PDF app.
 class GeneralPane extends ConsumerWidget {
   /// The pane.
   const new({super.key});
@@ -52,6 +58,54 @@ class GeneralPane extends ConsumerWidget {
     final handler = ref.watch(pdfHandlerProvider).value;
     final settings = ref.watch(settingsProvider);
     final feature = defaultAppFeature;
+    final phone = WindowMetrics.isPhone(context);
+    Widget band(Widget control) =>
+        phone ? PhoneHitTarget(child: control) : control;
+
+    final layout = Select<NewDocumentLayout>(
+      label: l10n.settingsPageLayout,
+      size: FieldSize.sm,
+      value: settings.pageLayout,
+      options: [
+        SelectOption(
+          value: NewDocumentLayout.scroll,
+          label: l10n.settingsPageLayoutScroll,
+        ),
+        SelectOption(
+          value: NewDocumentLayout.single,
+          label: l10n.settingsPageLayoutSingle,
+        ),
+        SelectOption(
+          value: NewDocumentLayout.spread,
+          label: l10n.settingsPageLayoutSpread,
+        ),
+      ],
+      onChanged: (layout) => unawaited(
+        changeSetting(ref, (current) => current.copyWith(pageLayout: layout)),
+      ),
+    );
+    final zoom = Select<NewDocumentZoom>(
+      label: l10n.settingsZoom,
+      size: FieldSize.sm,
+      value: settings.zoom,
+      options: [
+        SelectOption(
+          value: NewDocumentZoom.fitWidth,
+          label: l10n.settingsZoomFitWidth,
+        ),
+        SelectOption(
+          value: NewDocumentZoom.fitPage,
+          label: l10n.settingsZoomFitPage,
+        ),
+        SelectOption(
+          value: NewDocumentZoom.actual,
+          label: bidiIsolate(format.percent(100)),
+        ),
+      ],
+      onChanged: (zoom) => unawaited(
+        changeSetting(ref, (current) => current.copyWith(zoom: zoom)),
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,32 +117,34 @@ class GeneralPane extends ConsumerWidget {
           spacing: theme.space.space2,
           children: [
             Field.labelOf(context, l10n.settingsTheme),
-            SegmentedControl<AppThemeMode>(
-              semanticLabel: l10n.settingsTheme,
-              value: mode,
-              options: [
-                SegmentOption(
-                  value: AppThemeMode.system,
-                  label: l10n.settingsThemeSystem,
-                ),
-                SegmentOption(
-                  value: AppThemeMode.light,
-                  label: l10n.settingsThemeLight,
-                ),
-                SegmentOption(
-                  value: AppThemeMode.dark,
-                  label: l10n.settingsThemeDark,
-                ),
-              ],
-              onChanged: (mode) {
-                final failure = ref.read(settingsSaveFailedProvider.notifier);
-                unawaited(
-                  ref
-                      .read(themeModeProvider.notifier)
-                      .select(mode)
-                      .then((stored) => failure.record(stored: stored)),
-                );
-              },
+            band(
+              SegmentedControl<AppThemeMode>(
+                semanticLabel: l10n.settingsTheme,
+                value: mode,
+                options: [
+                  SegmentOption(
+                    value: AppThemeMode.system,
+                    label: l10n.settingsThemeSystem,
+                  ),
+                  SegmentOption(
+                    value: AppThemeMode.light,
+                    label: l10n.settingsThemeLight,
+                  ),
+                  SegmentOption(
+                    value: AppThemeMode.dark,
+                    label: l10n.settingsThemeDark,
+                  ),
+                ],
+                onChanged: (mode) {
+                  final failure = ref.read(settingsSaveFailedProvider.notifier);
+                  unawaited(
+                    ref
+                        .read(themeModeProvider.notifier)
+                        .select(mode)
+                        .then((stored) => failure.record(stored: stored)),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -109,135 +165,100 @@ class GeneralPane extends ConsumerWidget {
                 l10n.settingsPageDimmedDescription,
               ),
             ])
+              band(
+                Radio<PageLook?>(
+                  value: value,
+                  groupValue: settings.pageLook,
+                  label: label,
+                  description: description,
+                  onChanged: (look) => unawaited(
+                    changeSetting(
+                      ref,
+                      (current) => current.copyWith(pageLook: look),
+                    ),
+                  ),
+                ),
+              ),
+            band(
               Radio<PageLook?>(
-                value: value,
+                value: null,
                 groupValue: settings.pageLook,
-                label: label,
-                description: description,
-                onChanged: (look) => unawaited(
-                  changeSetting(
-                    ref,
-                    (current) => current.copyWith(pageLook: look),
-                  ),
-                ),
-              ),
-            Radio<PageLook?>(
-              value: null,
-              groupValue: settings.pageLook,
-              label: l10n.settingsPageDark,
-              description: l10n.settingsPageDarkDescription,
-              disabled: true,
-              disabledReason: Feature.darkReadingMode.disabledReason(context),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: theme.space.space3,
-          children: [
-            Expanded(
-              child: Select<NewDocumentLayout>(
-                label: l10n.settingsPageLayout,
-                size: FieldSize.sm,
-                value: settings.pageLayout,
-                options: [
-                  SelectOption(
-                    value: NewDocumentLayout.scroll,
-                    label: l10n.settingsPageLayoutScroll,
-                  ),
-                  SelectOption(
-                    value: NewDocumentLayout.single,
-                    label: l10n.settingsPageLayoutSingle,
-                  ),
-                  SelectOption(
-                    value: NewDocumentLayout.spread,
-                    label: l10n.settingsPageLayoutSpread,
-                  ),
-                ],
-                onChanged: (layout) => unawaited(
-                  changeSetting(
-                    ref,
-                    (current) => current.copyWith(pageLayout: layout),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Select<NewDocumentZoom>(
-                label: l10n.settingsZoom,
-                size: FieldSize.sm,
-                value: settings.zoom,
-                options: [
-                  SelectOption(
-                    value: NewDocumentZoom.fitWidth,
-                    label: l10n.settingsZoomFitWidth,
-                  ),
-                  SelectOption(
-                    value: NewDocumentZoom.fitPage,
-                    label: l10n.settingsZoomFitPage,
-                  ),
-                  SelectOption(
-                    value: NewDocumentZoom.actual,
-                    label: bidiIsolate(format.percent(100)),
-                  ),
-                ],
-                onChanged: (zoom) => unawaited(
-                  changeSetting(ref, (current) => current.copyWith(zoom: zoom)),
-                ),
+                label: l10n.settingsPageDark,
+                description: l10n.settingsPageDarkDescription,
+                disabled: true,
+                disabledReason: Feature.darkReadingMode.disabledReason(context),
               ),
             ),
           ],
         ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Switch(
-            label: l10n.settingsReopen,
-            value: ref.watch(
-              settingsProvider.select((settings) => settings.reopenDocuments),
-            ),
-            onChanged: (reopen) => unawaited(
-              changeSetting(
-                ref,
-                (settings) => settings.copyWith(reopenDocuments: reopen),
-              ),
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: _calloutPaddingX,
-            vertical: _calloutPaddingY,
-          ),
-          decoration: BoxDecoration(
-            color: colors.surfaceSunken,
-            borderRadius: BorderRadius.all(
-              Radius.circular(theme.radius.radiusMd),
-            ),
-          ),
-          child: Row(
+        if (phone)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: theme.space.space3,
+            children: [layout, zoom],
+          )
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: theme.space.space3,
             children: [
-              Expanded(
-                child: Text(switch (handler) {
-                  PdfHandler(ferman: true) => l10n.settingsDefaultAppFerman,
-                  PdfHandler(:final name) => l10n.settingsDefaultAppOther(
-                    bidiIsolate(name),
-                  ),
-                  null => defaultAppText(l10n),
-                }, style: theme.typography.body),
-              ),
-              if (handler?.ferman != true)
-                Button(
-                  size: ButtonSize.sm,
-                  onPressed: feature == null
-                      ? () => unawaited(makeFermanDefault(ref))
-                      : null,
-                  disabledReason: feature?.disabledReason(context),
-                  child: Text(l10n.settingsMakeDefault),
-                ),
+              Expanded(child: layout),
+              Expanded(child: zoom),
             ],
           ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: band(
+            Switch(
+              label: l10n.settingsReopen,
+              value: ref.watch(
+                settingsProvider.select((settings) => settings.reopenDocuments),
+              ),
+              onChanged: (reopen) => unawaited(
+                changeSetting(
+                  ref,
+                  (settings) => settings.copyWith(reopenDocuments: reopen),
+                ),
+              ),
+            ),
+          ),
         ),
+        if (!phone)
+          Container(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: _calloutPaddingX,
+              vertical: _calloutPaddingY,
+            ),
+            decoration: BoxDecoration(
+              color: colors.surfaceSunken,
+              borderRadius: BorderRadius.all(
+                Radius.circular(theme.radius.radiusMd),
+              ),
+            ),
+            child: Row(
+              spacing: theme.space.space3,
+              children: [
+                Expanded(
+                  child: Text(switch (handler) {
+                    PdfHandler(ferman: true) => l10n.settingsDefaultAppFerman,
+                    PdfHandler(:final name) => l10n.settingsDefaultAppOther(
+                      bidiIsolate(name),
+                    ),
+                    null => defaultAppText(l10n),
+                  }, style: theme.typography.body),
+                ),
+                if (handler?.ferman != true)
+                  Button(
+                    size: ButtonSize.sm,
+                    onPressed: feature == null
+                        ? () => unawaited(makeFermanDefault(ref))
+                        : null,
+                    disabledReason: feature?.disabledReason(context),
+                    child: Text(l10n.settingsMakeDefault),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
   }
