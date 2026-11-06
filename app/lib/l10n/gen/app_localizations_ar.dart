@@ -1391,6 +1391,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startDropStripSubtitle => 'تُفتح ملفات PDF في علامات تبويب.';
 
   @override
+  String get startPhoneSearch => 'البحث في المستندات';
+
+  @override
+  String get startPhoneToolCombine => 'دمج';
+
+  @override
+  String get startPhoneToolOcr => 'OCR';
+
+  @override
+  String get startPhoneEmptyTitle => 'لا توجد مستندات بعد';
+
+  @override
+  String get startPhoneEmptySubtitle =>
+      'افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا.';
+
+  @override
+  String get startPhoneOpen => 'فتح ملف';
+
+  @override
+  String get startPhoneScan => 'مسح مستند';
+
+  @override
+  String get startPhoneSeeAll => 'عرض الكل';
+
+  @override
+  String get startPhoneOpenFrom => 'فتح من';
+
+  @override
+  String get startPhoneSourceDownloads => 'التنزيلات';
+
+  @override
+  String get startPhoneSourceGoogleDrive => 'Google Drive';
+
+  @override
+  String get startPhoneSourceOneDrive => 'OneDrive';
+
+  @override
   String get startPinned => 'المثبّتة';
 
   @override

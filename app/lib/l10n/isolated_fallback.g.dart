@@ -1371,6 +1371,45 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get startDropStripSubtitle => isolate(super.startDropStripSubtitle);
 
   @override
+  String get startPhoneSearch => isolate(super.startPhoneSearch);
+
+  @override
+  String get startPhoneToolCombine => isolate(super.startPhoneToolCombine);
+
+  @override
+  String get startPhoneToolOcr => isolate(super.startPhoneToolOcr);
+
+  @override
+  String get startPhoneEmptyTitle => isolate(super.startPhoneEmptyTitle);
+
+  @override
+  String get startPhoneEmptySubtitle => isolate(super.startPhoneEmptySubtitle);
+
+  @override
+  String get startPhoneOpen => isolate(super.startPhoneOpen);
+
+  @override
+  String get startPhoneScan => isolate(super.startPhoneScan);
+
+  @override
+  String get startPhoneSeeAll => isolate(super.startPhoneSeeAll);
+
+  @override
+  String get startPhoneOpenFrom => isolate(super.startPhoneOpenFrom);
+
+  @override
+  String get startPhoneSourceDownloads =>
+      isolate(super.startPhoneSourceDownloads);
+
+  @override
+  String get startPhoneSourceGoogleDrive =>
+      isolate(super.startPhoneSourceGoogleDrive);
+
+  @override
+  String get startPhoneSourceOneDrive =>
+      isolate(super.startPhoneSourceOneDrive);
+
+  @override
   String get startPinned => isolate(super.startPinned);
 
   @override

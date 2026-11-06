@@ -42,6 +42,18 @@ enum Feature {
   /// The phone's file browser: the navigation bar's Files.
   phoneFiles('B138'),
 
+  /// The phone home's search: its field and the app bar's Search.
+  phoneSearch('B141'),
+
+  /// The phone's menus: the app bar's More and a recent file's More.
+  phoneMoreMenus('B142'),
+
+  /// The phone home's places to open from.
+  phoneOpenFrom('B143'),
+
+  /// Editing on the phone: the phone home's quick tool Edit.
+  phoneEditing('B144'),
+
   /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
   /// Convert › Create PDF.
   createPdf('B019'),

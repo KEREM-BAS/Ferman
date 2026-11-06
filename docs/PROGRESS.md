@@ -519,7 +519,7 @@ The web build's phone layout of the existing screens: first run, the start scree
 
 - [x] Foundation: `WindowMetrics.isPhone` (under 768 px, by width), touch density at that width, `FmPhone`, the touch reason of a disabled control, `/editor` with no document, and `phoneGoldenTest` with `<screen>_phone_<theme>_<lang>`.
 - [ ] First run: the language picker in one column, and the welcome steps stacked.
-- [ ] Start screen: home inside `FmPhone`, the way to Settings.
+- [x] Start screen: home inside `FmPhone`, the way to Settings (the navigation bar).
 - [ ] Settings: the pane list and each pane inside `FmPhone`.
 - [ ] Goldens from CI's Linux run, in light and dark × en, tr, ar.
 

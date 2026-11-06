@@ -50,8 +50,6 @@ void main() {
           final theme = tester.element(find.byType(FmStart)).ferman;
           expect(theme.density.hitMin, touch ? 44 : 24);
         });
-        // The start screen's phone layout is its own step.
-        tester.takeException();
       });
     }
   });
@@ -118,7 +116,6 @@ void main() {
   group('the frame on the web', () {
     testWidgets('has no title bar at phone width', (tester) async {
       await pumpFermanApp(tester, size: goldenPhoneSize);
-      tester.takeException();
       expect(find.byType(WindowFrame), findsOneWidget);
       expect(find.byType(TitleBar), findsNothing);
     });
@@ -127,10 +124,8 @@ void main() {
   group('/editor with no document', () {
     Future<void> goToEditor(WidgetTester tester, Size size) async {
       await pumpFermanApp(tester, size: size);
-      tester.takeException();
       GoRouter.of(tester.element(find.byType(FmStart))).go(Routes.editor);
       await tester.pumpAndSettle();
-      tester.takeException();
     }
 
     testWidgets('goes to the start screen at phone width', (tester) async {

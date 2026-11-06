@@ -35,6 +35,9 @@ final class ArbParityCheck implements Check {
   /// key only when the text is the same in Turkish.
   static const Map<String, String> repositorySameInTurkish = {
     'appName': 'the product name, never translated',
+    'startPhoneSourceGoogleDrive': 'a product name, never translated',
+    'startPhoneSourceOneDrive': 'a product name, never translated',
+    'startPhoneToolOcr': 'the international abbreviation, as the board has it',
     'shellMoreDocumentsBadge': 'a plus sign and a count ("+3")',
     'shellToolEimza': 'e-imza, the Turkish name of the electronic signature',
     'shellConvertWord': 'a file format named after its product',

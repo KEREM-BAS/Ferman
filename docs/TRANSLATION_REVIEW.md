@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-585 messages in `app_en.arb`; translated: Turkish 585, Arabic 585.
+597 messages in `app_en.arb`; translated: Turkish 597, Arabic 597.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -465,6 +465,18 @@ The table below is generated from the ARB files by `tools/l10n`
 | `dropOverlayCombine` | Combine into one PDF | Tek bir PDF’de birleştir | دمج في ملف PDF واحد | Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104). |
 | `startDropStripTitle` | Drop files anywhere in this window | Dosyaları bu pencerede herhangi bir yere bırakın | أفلت الملفات في أي مكان في هذه النافذة | Title of the drop strip above the recent files (a1-4-m2, FmStart drop). |
 | `startDropStripSubtitle` | PDF files open in tabs. | PDF dosyaları sekmelerde açılır. | تُفتح ملفات PDF في علامات تبويب. | Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11). |
+| `startPhoneSearch` | Search documents | Belgelerde ara | البحث في المستندات | Phone home: the search field's placeholder (FmMHome t.search). |
+| `startPhoneToolCombine` | Combine | Birleştir | دمج | Phone home: a quick tool, one short word under its icon (FmMHome tools). |
+| `startPhoneToolOcr` | OCR | OCR | OCR | Phone home: the text recognition quick tool, the short form under its icon (FmMHome tools). |
+| `startPhoneEmptyTitle` | No documents yet | Henüz belge yok | لا توجد مستندات بعد | Phone home with no files: the title (FmMHome t.emptyTitle). |
+| `startPhoneEmptySubtitle` | Open a PDF from your phone or a cloud drive, or scan a paper document. | Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın. | افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا. | Phone home with no files: the line under the title (FmMHome t.emptySub). |
+| `startPhoneOpen` | Open a file | Dosya aç | فتح ملف | Phone home with no files: the first action, a button (FmMHome t.open). |
+| `startPhoneScan` | Scan a document | Belge tara | مسح مستند | Phone home with no files: the second action, a button (FmMHome t.scan). |
+| `startPhoneSeeAll` | See all | Tümü | عرض الكل | Phone home: the link beside Recent to every file (FmMHome t.all). |
+| `startPhoneOpenFrom` | Open from | Şuradan aç | فتح من | Phone home: the label over the places to open from, shown in capitals through the locale's casing (FmMHome t.import). |
+| `startPhoneSourceDownloads` | Downloads | İndirilenler | التنزيلات | Phone home: a place to open from, the phone's downloads folder (FmMHome sources). |
+| `startPhoneSourceGoogleDrive` | Google Drive | Google Drive | Google Drive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
+| `startPhoneSourceOneDrive` | OneDrive | OneDrive | OneDrive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
 | `startPinned` | Pinned | Sabitlenenler | المثبّتة | Heading of the pinned files on the start screen (a1-4, FmStart pinned). |
 | `startPin` | Pin | Sabitle | تثبيت | Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118). |
 | `startUnpin` | Unpin | Sabitlemeyi kaldır | إلغاء التثبيت | Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin). |

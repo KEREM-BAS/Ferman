@@ -2559,6 +2559,78 @@ abstract class AppLocalizations {
   /// **'PDF files open in tabs.'**
   String get startDropStripSubtitle;
 
+  /// Phone home: the search field's placeholder (FmMHome t.search).
+  ///
+  /// In en, this message translates to:
+  /// **'Search documents'**
+  String get startPhoneSearch;
+
+  /// Phone home: a quick tool, one short word under its icon (FmMHome tools).
+  ///
+  /// In en, this message translates to:
+  /// **'Combine'**
+  String get startPhoneToolCombine;
+
+  /// Phone home: the text recognition quick tool, the short form under its icon (FmMHome tools).
+  ///
+  /// In en, this message translates to:
+  /// **'OCR'**
+  String get startPhoneToolOcr;
+
+  /// Phone home with no files: the title (FmMHome t.emptyTitle).
+  ///
+  /// In en, this message translates to:
+  /// **'No documents yet'**
+  String get startPhoneEmptyTitle;
+
+  /// Phone home with no files: the line under the title (FmMHome t.emptySub).
+  ///
+  /// In en, this message translates to:
+  /// **'Open a PDF from your phone or a cloud drive, or scan a paper document.'**
+  String get startPhoneEmptySubtitle;
+
+  /// Phone home with no files: the first action, a button (FmMHome t.open).
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file'**
+  String get startPhoneOpen;
+
+  /// Phone home with no files: the second action, a button (FmMHome t.scan).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a document'**
+  String get startPhoneScan;
+
+  /// Phone home: the link beside Recent to every file (FmMHome t.all).
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get startPhoneSeeAll;
+
+  /// Phone home: the label over the places to open from, shown in capitals through the locale's casing (FmMHome t.import).
+  ///
+  /// In en, this message translates to:
+  /// **'Open from'**
+  String get startPhoneOpenFrom;
+
+  /// Phone home: a place to open from, the phone's downloads folder (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get startPhoneSourceDownloads;
+
+  /// Phone home: a place to open from, a product name that stays as it is (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get startPhoneSourceGoogleDrive;
+
+  /// Phone home: a place to open from, a product name that stays as it is (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'OneDrive'**
+  String get startPhoneSourceOneDrive;
+
   /// Heading of the pinned files on the start screen (a1-4, FmStart pinned).
   ///
   /// In en, this message translates to:
