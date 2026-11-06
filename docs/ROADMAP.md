@@ -103,7 +103,7 @@ generated is the Proposed [ADR 0020](adr/0020-test-corpus.md), part of the M2 pl
 | M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete (approved 2026-10-16) | 18 | M0 approval (given 2026-10-15) |
 | M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Complete (approved 2026-11-04) | 43 | M1 (approved 2026-10-16); the [M2 plan](PROGRESS.md#m2-plan), approved by the owner on 2026-10-17. [ADR 0009](adr/0009-threading-and-jobs.md) is Accepted and [Q07](QUESTIONS.md#q07), [Q13](QUESTIONS.md#q13), [Q18](QUESTIONS.md#q18) and [Q19](QUESTIONS.md#q19) are answered (2026-10-16) |
 | M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Built, waiting for the owner's review | 41 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4 and [Q09](QUESTIONS.md#q09) are answered (2026-10-16) |
-| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
+| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Plan approved 2026-11-06, code not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
 | M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; the owner's signing accounts and certificates; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging) and [Q15](QUESTIONS.md#q15) are answered (2026-10-16) |
 | P2 | Phase 2 | Add text and images, find and replace, page marks, redaction, hidden information | Not started | 18 | M5 |
 | P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; the OCR engine, chosen at the start of phase 3 ([Q16](QUESTIONS.md#q16)); [Q06](QUESTIONS.md#q06) is answered (2026-10-16) |
@@ -2538,7 +2538,7 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** Not started. **Needs first:** M3 accepted. The owner's answers M4 needs came on
+**Status:** The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06; code not started. **Needs first:** M3 accepted. The owner's answers M4 needs came on
 2026-10-16: [Q08](QUESTIONS.md#q08) group 3, the handwriting fonts for typed signatures (Caveat,
 Dancing Script and Homemade Apple, bundled); [Q06](QUESTIONS.md#q06), revocation lookups allowed,
 off until first use, so the drawn "Signature checks" row in Settings → Privacy stays visible but

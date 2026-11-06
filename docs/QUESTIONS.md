@@ -11,7 +11,7 @@ versions ([Q03](#q03)). The others came up during discovery and planning. The ow
 first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
 [Q19](#q19) after the M1 bridge benchmark. The owner answered every remaining question on
 2026-10-16, when M1 was merged. [Q21](#q21) came up while planning M2 and [Q22](#q22) with the
-open path (M2 W1), and [Q23](#q23) with the per-document tab state; all three are open.
+open path (M2 W1), and [Q23](#q23) with the per-document tab state; Q21 and Q23 are open; Q22 was answered on 2026-11-06.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -88,9 +88,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Answered 2026-10-16: the Dco codec first, then the pointer view, then textures |
 | [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered 2026-10-16: after M3, live in the running app, set up from Settings; details as proposed |
 | [Q21](#q21) | Memory-mapping the private snapshot of a file over 256 MB (an `unsafe` exception) | M2 step 2 | Open |
-| [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Open |
+| [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Answered 2026-11-06: (a), with the engine's own wiped copy until the document closes |
 | [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
-| [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Open |
+| [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Answered 2026-11-06: (a) |
 | [Q25](#q25) | Right-to-left lines drawn in an order the bidi algorithm does not give: M3 instead of M2 | the M2 review | Open |
 
 ## Questions
@@ -844,10 +844,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   does not keep it, so those eye buttons stay disabled. Option (b) needs no password; with (a), the
   engine could keep its own wiped copy until the document closes, as PDFium keeps its unwiped one.
 - **Needed by:** the M2 review.
-- **Status:** Open
+- **Status:** Answered on 2026-11-06, with the M4 plan
 - **Related:** [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules),
   [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), ROADMAP §6 step 2
-- **Answer:** none yet
+- **Answer:** The owner, 2026-11-06: (a), and the engine keeps its own wiped copy until the document closes, so a password-opened document reloads with it (M4 W0; this also fixes B111 and M3's stale canvas there).
 
 ### Q23 · Open documents without an IndexedStack
 
@@ -891,9 +891,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** (a).
 - **Meanwhile:** (a): Page text and Bookmarks work, the other two stay disabled.
 - **Needed by:** the M2 review.
-- **Status:** Open
+- **Status:** Answered on 2026-11-06, with the M4 plan
 - **Related:** ROADMAP §6 step 5, BACKLOG B114 and B128, [G115](DESIGN_GAPS.md#g115)
-- **Answer:** none yet
+- **Answer:** The owner, 2026-11-06: (a). Comments and Form fields in M4 with B050 and B052.
 
 <a id="q25"></a>
 
