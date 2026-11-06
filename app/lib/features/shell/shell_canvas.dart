@@ -1,16 +1,11 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/features/editor/edit_callouts.dart';
-import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
-import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
-import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/open_files.dart';
-import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -138,34 +133,6 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     });
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final active = ref.watch(shellDocumentsProvider).active;
-    // a1-9f: where the toast of a file that got no tab shows.
-    final problem = ref.watch(documentOpenerProvider);
-    // B110: an attachment that was not saved, in the same place.
-    final unsaved = ref.watch(attachmentSaverProvider);
-    // a11-6: the "Font substituted" toast of an edit's commit.
-    final substituted = ref.watch(
-      documentEditorProvider.select((s) => s.toast),
-    );
-    // f4: a save that failed, once its dialog closed.
-    final saveFailure = ref.watch(
-      documentSaverProvider.select((s) => s.toast ? s.failure : null),
-    );
-    final toastChild = problem != null
-        ? OpenProblemToast(problem)
-        : saveFailure != null
-        ? SaveFailureToast(saveFailure)
-        : unsaved != null
-        ? AttachmentSaveToast(unsaved)
-        : substituted != null
-        ? FontSubstitutedToast(substituted)
-        : null;
-    final problemToast = toastChild == null
-        ? null
-        : PositionedDirectional(
-            bottom: theme.space.space4,
-            end: theme.space.space4,
-            child: SizedBox(width: Toast.width, child: toastChild),
-          );
     // a11-6b: below the dialogs, at the canvas's bottom end.
     final taskDrawer = ref.watch(backgroundJobsProvider.select((s) => s.open))
         ? PositionedDirectional(
@@ -240,7 +207,6 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                     : OpenErrorTab(active),
                               ),
                               ?taskDrawer,
-                              ?problemToast,
                             ],
                           ),
                         )
@@ -263,7 +229,6 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                 ),
                               ),
                               ?taskDrawer,
-                              ?problemToast,
                             ],
                           ),
                         )
@@ -333,7 +298,6 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                 ),
                               ?taskDrawer,
                               const Positioned.fill(child: SaveOverlays()),
-                              ?problemToast,
                             ],
                           ),
                         )

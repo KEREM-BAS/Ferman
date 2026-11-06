@@ -1,3 +1,4 @@
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/gallery/gallery_screen.dart';
@@ -102,7 +103,10 @@ GoRouter router(Ref ref) {
             Routes.start || Routes.editor => true,
             _ => false,
           },
-          child: ClosingOverlays(child: child),
+          child: ToastHost(
+            path: state.uri.path,
+            child: ClosingOverlays(child: child),
+          ),
         ),
         routes: [
           GoRoute(

@@ -38,8 +38,7 @@ typedef ToastAction = ({String label, VoidCallback onPressed});
 ///
 /// The toast stack (bottom end, above the status bar, `.fm-toast-region`)
 /// and the timing (errors stay until dismissed, the rest leave after six
-/// seconds unless hovered or focused, `a11-6`) belong to the screen that
-/// shows toasts.
+/// seconds unless hovered or focused, `a11-6`) belong to `ToastHost`.
 ///
 /// For screen readers its label is the title and the message. A danger
 /// toast is an alert, announced assertively when it appears (`Toast.jsx`

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/router.dart';
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/engine/engine_providers.dart';
@@ -303,7 +304,7 @@ Future<void> _hover(WidgetTester tester, Offset point) async {
 Future<void> _cleanUp(WidgetTester tester) async {
   await _mouse?.removePointer();
   _mouse = null;
-  await tester.pump(DocumentEditor.toastTime);
+  await tester.pump(ToastHost.lifetime);
 }
 
 /// An M3 screen of the golden matrix: its golden name, the board it is

@@ -63,7 +63,7 @@ class OpenProblemBanner extends ConsumerWidget {
   }
 }
 
-/// a1-9f's toast at the bottom end of the editor's canvas: the file that
+/// a1-9f's toast, shown by `ToastHost`: the file that
 /// ran out of memory or past a limit while opening, Try again (opens it
 /// again) and Dismiss; it stays, as errors do (a11-6).
 class OpenProblemToast extends ConsumerWidget {

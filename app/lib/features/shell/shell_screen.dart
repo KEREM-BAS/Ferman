@@ -64,7 +64,7 @@ class FmWindow extends ConsumerWidget {
     final active = ref.watch(shellDocumentsProvider).active;
     // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
     // a1-9c: FmWindow with `mode=""` and `status={false}`).
-    final bare = active != null && (active.locked || active.error != null);
+    final bare = active?.bare ?? false;
     // Edit's Undo history takes the right panel's place (a3-10).
     final history =
         ref.watch(shellModeProvider) == FermanMode.edit &&

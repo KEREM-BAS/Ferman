@@ -465,6 +465,10 @@ final class ShellDocument {
   /// When the document was last saved on this device.
   final DateTime? savedAt;
 
+  /// Whether its tab shows only the canvas, with no status bar (a1-8, a1-9b,
+  /// a1-9c).
+  bool get bare => locked || error != null;
+
   /// The number of pages, or null while it is unknown (opening, locked).
   final int? pageCount;
 

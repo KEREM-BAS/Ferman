@@ -1,4 +1,6 @@
 import 'package:ferman/app/router.dart';
+import 'package:ferman/app/toast_host.dart';
+import 'package:ferman/design/components/feedback/toast.dart';
 import 'package:ferman/features/onboarding/edit_step.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
@@ -79,12 +81,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _finish() async {
     if (_finishing) return;
     _finishing = true;
+    final notices = ref.read(toastNoticesProvider.notifier);
     try {
       await ref
           .read(settingsProvider.notifier)
           .change((settings) => settings.copyWith(onboardingCompleted: true));
     } on SettingsStoreException {
       // Done for this session; first run shows again at the next launch.
+      notices.show(
+        tone: ToastTone.warning,
+        title: (l10n) => l10n.settingsSaveFailedTitle,
+        message: (l10n) => l10n.settingsSaveFailedMessage,
+      );
     }
     // Files the system sent during first run (ADR 0021) show at once.
     if (mounted) {

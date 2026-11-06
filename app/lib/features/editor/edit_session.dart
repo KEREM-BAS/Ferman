@@ -331,20 +331,10 @@ class DocumentEditor extends _$DocumentEditor {
   /// [idleMs] as a duration.
   static const Duration idle = Duration(milliseconds: idleMs);
 
-  /// How long the "Font substituted" toast stays (a11-6: "the rest leave
-  /// after six seconds").
-  // shortcut: hovering or focusing the toast does not hold it yet; a
-  // toast region with that rule comes with the next toast that needs it.
-  static const int toastMs = 6000;
-
-  /// [toastMs] as a duration: not motion, so not a token.
-  static const Duration toastTime = Duration(milliseconds: toastMs);
-
   Future<void> _queue = Future.value();
 
   /// Whether the open transaction marks the block's language.
   bool _languageSet = false;
-  Timer? _toastTimer;
   int? _document;
   int? _transaction;
   String _name = '';
@@ -391,7 +381,6 @@ class DocumentEditor extends _$DocumentEditor {
     ref
       ..onDispose(() {
         _idle?.cancel();
-        _toastTimer?.cancel();
         panelFocus.dispose();
       })
       ..listen(
@@ -852,14 +841,11 @@ class DocumentEditor extends _$DocumentEditor {
         .where((s) => s.kind == SubstitutionKind.similar && !s.announced)
         .firstOrNull;
     if (next == null) return;
-    _toastTimer?.cancel();
-    _toastTimer = Timer(toastTime, dismissToast);
     state = state.copy(toast: next);
   }
 
   /// Hides the "Font substituted" toast.
   void dismissToast() {
-    _toastTimer?.cancel();
     if (state.toast != null) state = state.copy(clearToast: true);
   }
 
