@@ -40,23 +40,23 @@ enum Feature {
   openFilesOnWeb('B116'),
 
   /// The phone's file browser: the navigation bar's Files.
-  phoneFiles('B138'),
+  phoneFiles('B168'),
 
   /// The phone home's search: its field and the app bar's Search.
-  phoneSearch('B141'),
+  phoneSearch('B170'),
 
   /// The phone's menus: the app bar's More and a recent file's More.
-  phoneMoreMenus('B142'),
+  phoneMoreMenus('B171'),
 
   /// The phone home's places to open from.
-  phoneOpenFrom('B143'),
+  phoneOpenFrom('B172'),
 
   /// Editing on the phone: the phone home's quick tool Edit.
-  phoneEditing('B144'),
+  phoneEditing('B173'),
 
   /// About and the licences: the phone's Settings › About and licence
   /// (a13-15).
-  aboutAndLicence('B139'),
+  aboutAndLicence('B169'),
 
   /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
   /// Convert › Create PDF.
