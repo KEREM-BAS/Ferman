@@ -210,7 +210,9 @@ class Banner extends StatelessWidget {
                 IconButton(
                   icon: IconName.x,
                   label: dismissLabel ?? '',
-                  size: IconButtonSize.xs,
+                  size: identical(theme.density, FermanDensityTokens.touch)
+                      ? IconButtonSize.sm
+                      : IconButtonSize.xs,
                   showTooltip: false,
                   onPressed: onDismiss,
                 ),

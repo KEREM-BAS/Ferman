@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/tooltip.dart';
@@ -562,7 +564,7 @@ class _SelectRow extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: disabled ? null : onPressed,
             child: Container(
-              height: Select.rowHeight,
+              height: math.max(Select.rowHeight, theme.density.hitMin),
               padding: EdgeInsetsDirectional.symmetric(
                 horizontal: theme.space.space2,
               ),

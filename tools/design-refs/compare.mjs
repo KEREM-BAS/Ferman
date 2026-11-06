@@ -24,6 +24,7 @@ export const GOLDEN_SCREENS = [
   'settings_general',
   'settings_language',
   'settings_privacy',
+  'settings_list',
   'shell_view',
   'shell_edit',
   'shell_comment',

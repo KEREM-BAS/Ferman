@@ -1618,6 +1618,36 @@ abstract class AppLocalizations {
   /// **'AI assistant'**
   String get settingsPaneAi;
 
+  /// Phone Settings: a group of the list (a13-15, shown in capitals) and a heading of Language and region (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get settingsPhoneGroupDocuments;
+
+  /// Phone Settings › Language and region: the heading over the app language (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsPhoneGroupApp;
+
+  /// Phone Settings › Language and region: the heading over the region formats (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get settingsPhoneGroupRegion;
+
+  /// Phone Settings: the value of the Privacy row, which states the fact (a13-15). Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'No data collected'**
+  String get settingsPhonePrivacyValue;
+
+  /// Phone Settings: the row of About and the licences (a13-15).
+  ///
+  /// In en, this message translates to:
+  /// **'About and licence'**
+  String get settingsPhoneAbout;
+
   /// A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav).
   ///
   /// In en, this message translates to:

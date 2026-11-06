@@ -1089,6 +1089,26 @@
   "@settingsPaneAi": {
     "description": "A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav)."
   },
+  "settingsPhoneGroupDocuments": "Documents",
+  "@settingsPhoneGroupDocuments": {
+    "description": "Phone Settings: a group of the list (a13-15, shown in capitals) and a heading of Language and region (a13-15b)."
+  },
+  "settingsPhoneGroupApp": "App",
+  "@settingsPhoneGroupApp": {
+    "description": "Phone Settings › Language and region: the heading over the app language (a13-15b)."
+  },
+  "settingsPhoneGroupRegion": "Region",
+  "@settingsPhoneGroupRegion": {
+    "description": "Phone Settings › Language and region: the heading over the region formats (a13-15b)."
+  },
+  "settingsPhonePrivacyValue": "No data collected",
+  "@settingsPhonePrivacyValue": {
+    "description": "Phone Settings: the value of the Privacy row, which states the fact (a13-15). Keep it short."
+  },
+  "settingsPhoneAbout": "About and licence",
+  "@settingsPhoneAbout": {
+    "description": "Phone Settings: the row of About and the licences (a13-15)."
+  },
   "settingsPanePrivacy": "Privacy",
   "@settingsPanePrivacy": {
     "description": "A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav)."

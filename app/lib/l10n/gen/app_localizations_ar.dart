@@ -818,6 +818,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPaneAi => 'المساعد الذكي';
 
   @override
+  String get settingsPhoneGroupDocuments => 'المستندات';
+
+  @override
+  String get settingsPhoneGroupApp => 'التطبيق';
+
+  @override
+  String get settingsPhoneGroupRegion => 'المنطقة';
+
+  @override
+  String get settingsPhonePrivacyValue => 'لا تُجمع أي بيانات';
+
+  @override
+  String get settingsPhoneAbout => 'حول التطبيق والترخيص';
+
+  @override
   String get settingsPanePrivacy => 'الخصوصية';
 
   @override
