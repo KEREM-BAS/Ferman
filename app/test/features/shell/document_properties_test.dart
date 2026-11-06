@@ -110,9 +110,7 @@ String badgeBeside(WidgetTester tester, String row) {
 
 void main() {
   testWidgets("Edit mode's panel shows a3-1a's tips and, with edits, their "
-      'number and Review; the tips leave no File section', (
-    tester,
-  ) async {
+      'number and Review; the tips leave no File section', (tester) async {
     final container = await open(tester, {'/home/mert/kira.pdf': kira});
     container.read(shellModeProvider.notifier).select(FermanMode.edit);
     await tester.pumpAndSettle();

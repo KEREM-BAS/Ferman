@@ -211,6 +211,14 @@ pub fn subset_at(
         .maxp()
         .map(|maxp| maxp.num_glyphs())
         .map_err(|_| FontError::Malformed { context: "maxp" })?;
+    // subsetter adds a name record's offset and length in u16, which overflows on a hostile font.
+    if font.name().is_ok_and(|name| {
+        name.name_record().iter().any(|record| {
+            record.string_offset().to_u32() + u32::from(record.length()) > u32::from(u16::MAX)
+        })
+    }) {
+        return Err(FontError::Subsetting);
+    }
     let location = instance.map(|instance| instance.location(&font));
     let location = location
         .as_ref()
@@ -615,6 +623,14 @@ mod tests {
         let upem = f32::from(program.units_per_em());
         let expected = program.advance_width(wanted[0].0).unwrap() * 1000.0 / upem;
         assert!((subset.glyphs[usize::from(new)].width - expected).abs() < 1e-3);
+    }
+
+    #[test]
+    fn a_name_record_past_u16_is_refused_not_a_panic() {
+        // Found by the font_program fuzz target on 2026-11-06.
+        let data =
+            include_bytes!("../../../tests/corpus/fuzz-font-program-name-overflow.otf").as_slice();
+        assert!(matches!(subset(data, 0, &[]), Err(FontError::Subsetting)));
     }
 
     #[test]

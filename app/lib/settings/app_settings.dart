@@ -190,6 +190,7 @@ final class AppSettings {
   /// Settings → Editing → Let paragraphs reflow inside their frame while
   /// typing (a11-1c). Off, only a line feed ends a line.
   final bool reflow;
+
   /// Edit row and Settings → Editing → Mark edited text (a11-1c, f3): the
   /// marks on the canvas, which never reach the file.
   final bool markEdited;

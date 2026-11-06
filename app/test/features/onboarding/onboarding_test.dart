@@ -657,10 +657,7 @@ void main() {
         find.bySemanticsLabel('3 interface languages. Included'),
         findsOneWidget,
       );
-      expect(
-        find.bySemanticsLabel('Edit text. Included'),
-        findsOneWidget,
-      );
+      expect(find.bySemanticsLabel('Edit text. Included'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp(r'\. Available in a future version$')),
         findsNWidgets(WelcomeFeature.values.length - 2),
