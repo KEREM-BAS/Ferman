@@ -5,6 +5,8 @@ import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/organize_panel.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
@@ -73,6 +75,10 @@ class FmWindow extends ConsumerWidget {
     final review =
         ref.watch(shellModeProvider) == FermanMode.edit &&
         ref.watch(reviewListProvider.select((list) => list.open));
+    // a6-1: Organize's panel is about the selection, once there is one.
+    final organizing =
+        ref.watch(shellModeProvider) == FermanMode.organize &&
+        ref.watch(selectedPagesProvider).isNotEmpty;
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -172,6 +178,8 @@ class FmWindow extends ConsumerWidget {
                                     )
                                   : history
                                   ? EditHistoryPanel(width: widths.panel)
+                                  : organizing
+                                  ? OrganizePanel(width: widths.panel)
                                   : FmDocPanel(width: widths.panel),
                             ),
                           ),

@@ -2784,6 +2784,7 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     wireObj.width = cst_encode_f_32(apiObj.width);
     wireObj.height = cst_encode_f_32(apiObj.height);
+    wireObj.rotation = cst_encode_u_16(apiObj.rotation);
     wireObj.label = cst_encode_opt_String(apiObj.label);
     wireObj.handle = cst_encode_u_64(apiObj.handle);
   }
@@ -7076,6 +7077,9 @@ final class wire_cst_page_info extends ffi.Struct {
 
   @ffi.Float()
   external double height;
+
+  @ffi.Uint16()
+  external int rotation;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> label;
 

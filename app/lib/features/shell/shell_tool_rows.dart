@@ -6,6 +6,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -792,7 +793,8 @@ class _SignTools extends ConsumerWidget {
 
 /// Organize (FmWindow lines 105–122): Insert, rotate left and right
 /// (icon-only), Duplicate, Extract, Replace, Delete | Split, Combine files,
-/// Crop, Page labels … the drag hint.
+/// Crop, Page labels … the hint, which counts the selection (a6-1) and the
+/// pages a drag moves (a6-1b). The commands act on the selection.
 class _OrganizeTools extends ConsumerWidget {
   const new();
 
@@ -801,57 +803,77 @@ class _OrganizeTools extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
+    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final selected = ref.watch(selectedPagesProvider).length;
+    final total = ref.watch(openDocumentProvider)?.pages.length ?? 0;
+    final moving = ref.watch(pagesDraggedProvider);
+    PageCommands commands() => ref.read(pageCommandsProvider.notifier);
+    final refusal = ref.watch(organizeRefusalProvider)?.call(l10n);
+    final reason = refusal ?? (selected == 0 ? l10n.organizeSelectFirst : null);
+    final deleteRefusal = ref.watch(deleteRefusalProvider)?.call(l10n);
     return Toolbar(
       semanticLabel: l10n.shellOrganizeTools,
       overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
-          feature: Feature.organizingPages,
+          feature: Feature.organizeDialogs,
           icon: IconName.filePlus2,
           label: l10n.shellToolInsert,
           hasMenu: true,
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.rotateCcw,
           label: l10n.shellToolRotateLeft,
           showLabel: false,
           shortcut: ShellCommand.rotateLeft.caps(platform),
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().rotate(-1)),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.rotateCw,
           label: l10n.shellToolRotateRight,
           showLabel: false,
           shortcut: ShellCommand.rotateRight.caps(platform),
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().rotate(1)),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.copy,
           label: l10n.shellToolDuplicate,
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().duplicate()),
         ),
         _future(
           context,
-          feature: Feature.organizingPages,
+          feature: Feature.organizeDialogs,
           icon: IconName.fileOutput,
           label: l10n.shellToolExtract,
         ),
         _future(
           context,
-          feature: Feature.organizingPages,
+          feature: Feature.organizeDialogs,
           icon: IconName.replace,
           label: l10n.shellToolReplace,
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.trash2,
           label: l10n.shellToolDelete,
           shortcut: ShellCommand.deletePages.caps(platform),
+          disabled: reason != null || deleteRefusal != null,
+          disabledReason: reason ?? deleteRefusal,
+          onPressed: reason != null || deleteRefusal != null
+              ? null
+              : () => unawaited(commands().delete()),
         ),
         const ToolbarSeparator(),
         _future(
@@ -870,14 +892,14 @@ class _OrganizeTools extends ConsumerWidget {
         ),
         _future(
           context,
-          feature: Feature.organizingPages,
+          feature: Feature.organizeDialogs,
           icon: IconName.crop,
           label: l10n.shellToolCrop,
           active: false,
         ),
         _future(
           context,
-          feature: Feature.organizingPages,
+          feature: Feature.organizeDialogs,
           icon: IconName.hash,
           label: l10n.shellToolPageLabels,
           active: false,
@@ -888,7 +910,18 @@ class _OrganizeTools extends ConsumerWidget {
             horizontal: theme.space.space2,
           ),
           child: Text(
-            l10n.shellOrganizeHint,
+            switch ((moving, selected)) {
+              (final count?, _) => l10n.organizeHintMoving(
+                count,
+                format.integer(count),
+              ),
+              (null, 0) => l10n.shellOrganizeHint,
+              (null, final count) => l10n.organizeHintSelected(
+                total,
+                format.integer(count),
+                format.integer(total),
+              ),
+            },
             maxLines: 1,
             softWrap: false,
             style: theme.typography.caption.copyWith(

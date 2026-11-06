@@ -3178,4 +3178,242 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get tasksQuitConfirm => 'Görevleri iptal et ve çık';
+
+  @override
+  String get organizeGridLabel => 'Sayfalar';
+
+  @override
+  String get organizePanelLabel => 'Seçim';
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$selected/$pages sayfa seçili',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeHintMoving(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa taşınıyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePanelTitle(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa seçili',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizePanelPages => 'Sayfalar';
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) {
+    return '$pages (etiketler $labels)';
+  }
+
+  @override
+  String get organizePanelSize => 'Boyut';
+
+  @override
+  String get organizePanelRotation => 'Döndürme';
+
+  @override
+  String get organizePanelMixed => 'Karışık';
+
+  @override
+  String get organizePanelCommands => 'Komutlar';
+
+  @override
+  String get organizePanelExtract => 'Ayıkla…';
+
+  @override
+  String get organizePanelReplace => 'Değiştir…';
+
+  @override
+  String organizePanelInsertAfter(String page) {
+    return '$page. sayfadan sonra ekle';
+  }
+
+  @override
+  String get organizePanelBlankPage => 'Boş sayfa';
+
+  @override
+  String get organizePanelFromFile => 'Dosyadan sayfalar…';
+
+  @override
+  String get organizePanelFromScanner => 'Tarayıcıdan veya kameradan…';
+
+  @override
+  String organizePagesCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeMenuExtract => 'Yeni PDF olarak ayıkla…';
+
+  @override
+  String get organizeMenuInsertBlank => 'Sonrasına boş sayfa ekle';
+
+  @override
+  String get organizeMenuInsertFile => 'Dosyadan sayfa ekle…';
+
+  @override
+  String get organizeMenuReplace => 'Dosyadaki sayfalarla değiştir…';
+
+  @override
+  String organizeMenuDelete(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfayı sil',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeDeleteAllReason => 'Belgede en az bir sayfa kalmalı';
+
+  @override
+  String organizeToastDeleted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa silindi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastRotated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa döndürüldü',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDuplicated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa çoğaltıldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastMoved(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa taşındı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastInserted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sayfa eklendi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sayfalar $pages',
+      one: 'Sayfa $pages',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. Optimize et ve temizle’yi seçene kadar dosyada kalır.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeStepInsert(String name) {
+    return '$name ekle';
+  }
+
+  @override
+  String get organizeFailed => 'Sayfalar değiştirilmedi';
+
+  @override
+  String organizeInsertFailed(String name) {
+    return '$name eklenemedi';
+  }
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. sayfaları $before. sayfanın önüne taşımak için bırakın',
+      one: '$pages. sayfayı $before. sayfanın önüne taşımak için bırakın',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. sayfaları sona taşımak için bırakın',
+      one: '$pages. sayfayı sona taşımak için bırakın',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropFilesBefore(String before) {
+    return '$before. sayfanın önüne eklemek için bırakın';
+  }
+
+  @override
+  String get organizeDropFilesEnd => 'Sona eklemek için bırakın';
+
+  @override
+  String jobInsertingTitle(String name) {
+    return '$name okunuyor';
+  }
+
+  @override
+  String jobInsertedTitle(String name) {
+    return '$name eklendi';
+  }
+
+  @override
+  String get organizeSelectFirst => 'Önce sayfaları seçin';
 }

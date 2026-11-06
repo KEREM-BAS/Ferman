@@ -232,6 +232,7 @@ class PageInfo {
   const new({
     required this.width,
     required this.height,
+    this.rotation = 0,
     this.label,
     this.handle,
   });
@@ -241,6 +242,9 @@ class PageInfo {
 
   /// The height, after the crop box and the page's rotation.
   final double height;
+
+  /// The page's rotation in degrees clockwise: 0, 90, 180 or 270.
+  final int rotation;
 
   /// The page label, such as "iv", when the document has labels.
   final String? label;

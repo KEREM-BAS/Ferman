@@ -141,6 +141,16 @@ fn organize(test: &str, name: &str, dpi: u32) {
     let step3 =
         block_on(engine().rotate_pages(doc, vec![turned], 1, "Rotated".to_owned())).unwrap();
     let after_rotate = Listing::after(&step3);
+    let rotation = |pages: &[PageInfo]| {
+        pages
+            .iter()
+            .find(|page| page.handle == turned)
+            .map(|page| page.rotation)
+    };
+    assert_eq!(
+        rotation(&after_rotate.pages),
+        rotation(&after_delete.pages).map(|degrees| (degrees + 90) % 360)
+    );
     let step4 =
         block_on(engine().duplicate_pages(doc, vec![copied], "Duplicated".to_owned())).unwrap();
     let last_step = Listing::after(&step4);

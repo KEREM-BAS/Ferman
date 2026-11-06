@@ -21,12 +21,26 @@ part 'shell_state.g.dart';
 /// A document opens in View, the first mode.
 @riverpod
 class ShellMode extends _$ShellMode {
+  /// Whether Organize closed the sidebar, which leaving it opens again.
+  bool _sidebarClosed = false;
+
   @override
   FermanMode build() => FermanMode.view;
 
-  /// Shows [mode]; nothing happens when it is already shown.
+  /// Shows [mode]; nothing happens when it is already shown. Organize shows a
+  /// document without the sidebar, as a6-1 draws it: the grid has the pages.
   void select(FermanMode mode) {
     if (mode == state) return;
+    final sidebar = ref.read(shellSidebarOpenProvider.notifier);
+    if (mode == FermanMode.organize) {
+      _sidebarClosed =
+          ref.read(shellSidebarOpenProvider) &&
+          ref.read(shellDocumentsProvider).active?.document != null;
+      if (_sidebarClosed) sidebar.close();
+    } else if (_sidebarClosed) {
+      _sidebarClosed = false;
+      sidebar.open();
+    }
     state = mode;
   }
 }

@@ -186,6 +186,8 @@ pub struct PageInfo {
     pub width: f32,
     /// The height, after the crop box and `/Rotate`.
     pub height: f32,
+    /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+    pub rotation: u16,
     /// The page label, such as "iv", when the document has labels.
     pub label: Option<String>,
     /// What names the page while the document is open, whatever moves around it.
@@ -3410,6 +3412,7 @@ fn pages_dto(pages: Vec<facade::PageInfo>) -> Vec<PageInfo> {
         .map(|page| PageInfo {
             width: page.size.width,
             height: page.size.height,
+            rotation: page.rotation,
             label: page.label,
             handle: page.handle,
         })

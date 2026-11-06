@@ -3188,4 +3188,253 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksQuitConfirm => 'Cancel tasks and quit';
+
+  @override
+  String get organizeGridLabel => 'Pages';
+
+  @override
+  String get organizePanelLabel => 'Selection';
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$selected of $pages pages selected',
+      one: '$selected of $pages page selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeHintMoving(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Moving $n pages',
+      one: 'Moving $n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePanelTitle(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages selected',
+      one: '$n page selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizePanelPages => 'Pages';
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) {
+    return '$pages (labels $labels)';
+  }
+
+  @override
+  String get organizePanelSize => 'Size';
+
+  @override
+  String get organizePanelRotation => 'Rotation';
+
+  @override
+  String get organizePanelMixed => 'Mixed';
+
+  @override
+  String get organizePanelCommands => 'Commands';
+
+  @override
+  String get organizePanelExtract => 'Extract…';
+
+  @override
+  String get organizePanelReplace => 'Replace…';
+
+  @override
+  String organizePanelInsertAfter(String page) {
+    return 'Insert after page $page';
+  }
+
+  @override
+  String get organizePanelBlankPage => 'Blank page';
+
+  @override
+  String get organizePanelFromFile => 'Pages from a file…';
+
+  @override
+  String get organizePanelFromScanner => 'From scanner or camera…';
+
+  @override
+  String organizePagesCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages',
+      one: '$n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeMenuExtract => 'Extract as new PDF…';
+
+  @override
+  String get organizeMenuInsertBlank => 'Insert blank page after';
+
+  @override
+  String get organizeMenuInsertFile => 'Insert pages from file…';
+
+  @override
+  String get organizeMenuReplace => 'Replace with pages from file…';
+
+  @override
+  String organizeMenuDelete(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $n pages',
+      one: 'Delete $n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeDeleteAllReason => 'A document keeps at least one page';
+
+  @override
+  String organizeToastDeleted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages deleted',
+      one: '$n page deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastRotated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages rotated',
+      one: '$n page rotated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDuplicated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages duplicated',
+      one: '$n page duplicated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastMoved(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages moved',
+      one: '$n page moved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastInserted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages inserted',
+      one: '$n page inserted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pages $pages',
+      one: 'Page $pages',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. They stay in the file until you run Optimize and clean.',
+      one: '$pages. It stays in the file until you run Optimize and clean.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeStepInsert(String name) {
+    return 'Insert $name';
+  }
+
+  @override
+  String get organizeFailed => 'The pages weren’t changed';
+
+  @override
+  String organizeInsertFailed(String name) {
+    return 'Couldn’t insert $name';
+  }
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Drop to move pages $pages before page $before',
+      one: 'Drop to move page $pages before page $before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Drop to move pages $pages to the end',
+      one: 'Drop to move page $pages to the end',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropFilesBefore(String before) {
+    return 'Drop to insert before page $before';
+  }
+
+  @override
+  String get organizeDropFilesEnd => 'Drop to insert at the end';
+
+  @override
+  String jobInsertingTitle(String name) {
+    return 'Reading $name';
+  }
+
+  @override
+  String jobInsertedTitle(String name) {
+    return 'Inserted $name';
+  }
+
+  @override
+  String get organizeSelectFirst => 'Select pages first';
 }

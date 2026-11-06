@@ -585,13 +585,22 @@ void main() {
             !works || working[entry.label] != null,
             reason: entry.label,
           );
-          // View's viewing tools wait for a shown document, not a version.
+          // View's viewing tools wait for a shown document, not a version;
+          // Organize's commands for a selection.
           expect(
             entry.disabledReason,
             mode == FermanMode.view && _viewing.contains(entry.label)
                 ? isNull
                 : works
                 ? working[entry.label]
+                : mode == FermanMode.organize &&
+                      const {
+                        'Rotate left',
+                        'Rotate right',
+                        'Duplicate',
+                        'Delete',
+                      }.contains(entry.label)
+                ? 'Select pages first'
                 : futureVersion,
             reason: entry.label,
           );

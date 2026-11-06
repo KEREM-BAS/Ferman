@@ -133,7 +133,12 @@ final class DocumentFacts {
   /// is no paper size.
   String get pageSize {
     if (document.pages.isEmpty) return l10n.propertiesNone;
-    final page = document.pages.first;
+    return sizeOf(document.pages.first);
+  }
+
+  /// The size of [page]: "A4 · 210 × 297 mm", or only the size when it is no
+  /// paper size.
+  String sizeOf(PageInfo page) {
     for (final paper in PaperSize.values) {
       final portrait =
           (page.width - paper.widthPoints).abs() <= _paperTolerance &&

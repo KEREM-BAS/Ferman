@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/feature_registry.dart';
+import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/open_files.dart';
@@ -120,6 +122,9 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),
         if (edits.canUndo) ShellCommand.undo: () => unawaited(editor.undo()),
         if (edits.canRedo) ShellCommand.redo: () => unawaited(editor.redo()),
+        if (ref.read(shellModeProvider) == FermanMode.organize &&
+            ref.read(organizeRefusalProvider) == null)
+          ..._organizeHandlers(ref),
       },
       // Typing not yet committed counts too: Save commits it first.
       if (active?.document != null && (active!.unsaved || edits.active != null))
@@ -127,6 +132,30 @@ class ShellCommandScope extends ConsumerWidget {
       if (active?.document != null) ...{
         ShellCommand.saveAs: saver.openSheet,
         ShellCommand.saveCopy: () => saver.openSheet(copy: true),
+      },
+    };
+  }
+
+  /// Organize's keys on the selection (a6-1, a14-1d).
+  static Map<ShellCommand, VoidCallback> _organizeHandlers(WidgetRef ref) {
+    final document = ref.read(openDocumentProvider);
+    final selected = ref.read(selectedPagesProvider);
+    final commands = ref.read(pageCommandsProvider.notifier);
+    return {
+      if (document != null)
+        ShellCommand.selectAllPages: () =>
+            ref.read(pageSelectionProvider.notifier).all([
+              for (var i = 0; i < document.pages.length; i++)
+                document.pageHandle(i),
+            ]),
+      if (selected.isNotEmpty) ...{
+        ShellCommand.rotateLeft: () => unawaited(commands.rotate(-1)),
+        ShellCommand.rotateRight: () => unawaited(commands.rotate(1)),
+        ShellCommand.duplicatePages: () => unawaited(commands.duplicate()),
+        ShellCommand.movePagesUp: () => unawaited(commands.moveUp()),
+        ShellCommand.movePagesDown: () => unawaited(commands.moveDown()),
+        if (ref.read(deleteRefusalProvider) == null)
+          ShellCommand.deletePages: () => unawaited(commands.delete()),
       },
     };
   }
@@ -142,6 +171,11 @@ class ShellCommandScope extends ConsumerWidget {
         ..watch(shellPanelsProvider)
         ..watch(viewerProvider.select((view) => view != null))
         ..watch(documentEditorProvider);
+      if (mode == FermanMode.organize) {
+        ref
+          ..watch(selectedPagesProvider)
+          ..watch(organizeRefusalProvider);
+      }
     }
     return Actions(
       actions: {

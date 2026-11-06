@@ -2293,6 +2293,7 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_f_32(raw.width),
       cst_encode_f_32(raw.height),
+      cst_encode_u_16(raw.rotation),
       cst_encode_opt_String(raw.label),
       cst_encode_u_64(raw.handle),
     ].jsify()!;

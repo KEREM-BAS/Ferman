@@ -266,6 +266,8 @@ impl Model {
 pub struct PageInfo {
     /// Its size in points as displayed, after the crop box and `/Rotate`.
     pub size: PageSize,
+    /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+    pub rotation: u16,
     /// Its label (`/PageLabels`), such as "iv", when the document has labels.
     pub label: Option<String>,
     /// What names it while the document is open, whatever moves around it.
@@ -279,6 +281,7 @@ fn page_info(page: &Page) -> PageInfo {
             width: page.size.0,
             height: page.size.1,
         },
+        rotation: page.rotation,
         label: page.label.clone(),
         handle: page.handle(),
     }
@@ -376,6 +379,7 @@ impl Engine {
                     let page = structure.pages.get(index);
                     PageInfo {
                         size,
+                        rotation: page.map_or(0, |page| page.rotation),
                         label: page.and_then(|page| page.label.clone()),
                         // Past the file's own pages only when the parsers disagree: read-only.
                         handle: page.map_or(0, Page::handle),

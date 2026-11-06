@@ -2827,6 +2827,150 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get tasksQuitConfirm => isolate(super.tasksQuitConfirm);
+
+  @override
+  String get organizeGridLabel => isolate(super.organizeGridLabel);
+
+  @override
+  String get organizePanelLabel => isolate(super.organizePanelLabel);
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) =>
+      isolate(super.organizeHintSelected(total, selected, pages));
+
+  @override
+  String organizeHintMoving(int count, String n) =>
+      isolate(super.organizeHintMoving(count, n));
+
+  @override
+  String organizePanelTitle(int count, String n) =>
+      isolate(super.organizePanelTitle(count, n));
+
+  @override
+  String get organizePanelPages => isolate(super.organizePanelPages);
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) =>
+      isolate(super.organizePanelPagesLabels(pages, labels));
+
+  @override
+  String get organizePanelSize => isolate(super.organizePanelSize);
+
+  @override
+  String get organizePanelRotation => isolate(super.organizePanelRotation);
+
+  @override
+  String get organizePanelMixed => isolate(super.organizePanelMixed);
+
+  @override
+  String get organizePanelCommands => isolate(super.organizePanelCommands);
+
+  @override
+  String get organizePanelExtract => isolate(super.organizePanelExtract);
+
+  @override
+  String get organizePanelReplace => isolate(super.organizePanelReplace);
+
+  @override
+  String organizePanelInsertAfter(String page) =>
+      isolate(super.organizePanelInsertAfter(page));
+
+  @override
+  String get organizePanelBlankPage => isolate(super.organizePanelBlankPage);
+
+  @override
+  String get organizePanelFromFile => isolate(super.organizePanelFromFile);
+
+  @override
+  String get organizePanelFromScanner =>
+      isolate(super.organizePanelFromScanner);
+
+  @override
+  String organizePagesCount(int count, String n) =>
+      isolate(super.organizePagesCount(count, n));
+
+  @override
+  String get organizeMenuExtract => isolate(super.organizeMenuExtract);
+
+  @override
+  String get organizeMenuInsertBlank => isolate(super.organizeMenuInsertBlank);
+
+  @override
+  String get organizeMenuInsertFile => isolate(super.organizeMenuInsertFile);
+
+  @override
+  String get organizeMenuReplace => isolate(super.organizeMenuReplace);
+
+  @override
+  String organizeMenuDelete(int count, String n) =>
+      isolate(super.organizeMenuDelete(count, n));
+
+  @override
+  String get organizeDeleteAllReason => isolate(super.organizeDeleteAllReason);
+
+  @override
+  String organizeToastDeleted(int count, String n) =>
+      isolate(super.organizeToastDeleted(count, n));
+
+  @override
+  String organizeToastRotated(int count, String n) =>
+      isolate(super.organizeToastRotated(count, n));
+
+  @override
+  String organizeToastDuplicated(int count, String n) =>
+      isolate(super.organizeToastDuplicated(count, n));
+
+  @override
+  String organizeToastMoved(int count, String n) =>
+      isolate(super.organizeToastMoved(count, n));
+
+  @override
+  String organizeToastInserted(int count, String n) =>
+      isolate(super.organizeToastInserted(count, n));
+
+  @override
+  String organizeToastPages(int count, String pages) =>
+      isolate(super.organizeToastPages(count, pages));
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) =>
+      isolate(super.organizeToastDeletedNote(count, pages));
+
+  @override
+  String organizeStepInsert(String name) =>
+      isolate(super.organizeStepInsert(name));
+
+  @override
+  String get organizeFailed => isolate(super.organizeFailed);
+
+  @override
+  String organizeInsertFailed(String name) =>
+      isolate(super.organizeInsertFailed(name));
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) =>
+      isolate(super.organizeDropMoveBefore(count, pages, before));
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) =>
+      isolate(super.organizeDropMoveEnd(count, pages));
+
+  @override
+  String organizeDropFilesBefore(String before) =>
+      isolate(super.organizeDropFilesBefore(before));
+
+  @override
+  String get organizeDropFilesEnd => isolate(super.organizeDropFilesEnd);
+
+  @override
+  String jobInsertingTitle(String name) =>
+      isolate(super.jobInsertingTitle(name));
+
+  @override
+  String jobInsertedTitle(String name) => isolate(super.jobInsertedTitle(name));
+
+  @override
+  String get organizeSelectFirst => isolate(super.organizeSelectFirst);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -2,6 +2,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
+import 'package:ferman/features/organize/page_grid.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
@@ -256,15 +257,31 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                       child: Stack(
                                         children: [
                                           Positioned.fill(
-                                            child: Directionality(
-                                              textDirection: TextDirection.ltr,
-                                              child: DocumentView(
-                                                key: ValueKey(view.document.id),
-                                                uiDirection: uiDirection,
-                                                tools: mode == FermanMode.view,
-                                                edit: mode == FermanMode.edit,
-                                              ),
-                                            ),
+                                            child: mode == FermanMode.organize
+                                                // G32: the grid follows the
+                                                // UI's direction, its pages
+                                                // never mirror.
+                                                ? PageGrid(
+                                                    key: ValueKey(
+                                                      view.document.id,
+                                                    ),
+                                                  )
+                                                : Directionality(
+                                                    textDirection:
+                                                        TextDirection.ltr,
+                                                    child: DocumentView(
+                                                      key: ValueKey(
+                                                        view.document.id,
+                                                      ),
+                                                      uiDirection: uiDirection,
+                                                      tools:
+                                                          mode ==
+                                                          FermanMode.view,
+                                                      edit:
+                                                          mode ==
+                                                          FermanMode.edit,
+                                                    ),
+                                                  ),
                                           ),
                                           PositionedDirectional(
                                             top: theme.space.space3,

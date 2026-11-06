@@ -5282,6 +5282,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel tasks and quit'**
   String get tasksQuitConfirm;
+
+  /// Organize (a6-1): the screen-reader name of the page grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get organizeGridLabel;
+
+  /// Organize (a6-1): the screen-reader name of the right panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection'**
+  String get organizePanelLabel;
+
+  /// Organize tool row (a6-1): the hint with a selection. {selected} and {pages} are written for the region; {total} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =1{{selected} of {pages} page selected} other{{selected} of {pages} pages selected}}'**
+  String organizeHintSelected(int total, String selected, String pages);
+
+  /// Organize tool row (a6-1b): the hint during a drag.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Moving {n} page} other{Moving {n} pages}}'**
+  String organizeHintMoving(int count, String n);
+
+  /// Organize panel (a6-1): the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page selected} other{{n} pages selected}}'**
+  String organizePanelTitle(int count, String n);
+
+  /// Organize panel (a6-1): the section, and its first row's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get organizePanelPages;
+
+  /// Organize panel (a6-1): the selected pages' numbers and their page labels.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages} (labels {labels})'**
+  String organizePanelPagesLabels(String pages, String labels);
+
+  /// Organize panel (a6-1): the row with the pages' size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get organizePanelSize;
+
+  /// Organize panel (a6-1): the row with the pages' rotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation'**
+  String get organizePanelRotation;
+
+  /// Organize panel: pages of the selection differ in this value; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get organizePanelMixed;
+
+  /// Organize panel (a6-1): the section of commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands'**
+  String get organizePanelCommands;
+
+  /// Organize panel (a6-1): opens Extract.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract…'**
+  String get organizePanelExtract;
+
+  /// Organize panel (a6-1): opens Replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace…'**
+  String get organizePanelReplace;
+
+  /// Organize panel (a6-1): the section. {page} is the last selected page's number.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert after page {page}'**
+  String organizePanelInsertAfter(String page);
+
+  /// Organize panel (a6-1): inserts a blank page.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get organizePanelBlankPage;
+
+  /// Organize panel (a6-1): inserts pages from a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages from a file…'**
+  String get organizePanelFromFile;
+
+  /// Organize panel (a6-1): inserts pages from a scanner or camera.
+  ///
+  /// In en, this message translates to:
+  /// **'From scanner or camera…'**
+  String get organizePanelFromScanner;
+
+  /// Organize's page menu (a6-1): its heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page} other{{n} pages}}'**
+  String organizePagesCount(int count, String n);
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Extract as new PDF…'**
+  String get organizeMenuExtract;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert blank page after'**
+  String get organizeMenuInsertBlank;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert pages from file…'**
+  String get organizeMenuInsertFile;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with pages from file…'**
+  String get organizeMenuReplace;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete {n} page} other{Delete {n} pages}}'**
+  String organizeMenuDelete(int count, String n);
+
+  /// Organize: why Delete is disabled with every page selected; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'A document keeps at least one page'**
+  String get organizeDeleteAllReason;
+
+  /// Toast (a11-6) and history step: after deleting pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page deleted} other{{n} pages deleted}}'**
+  String organizeToastDeleted(int count, String n);
+
+  /// Toast and history step: after rotating pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page rotated} other{{n} pages rotated}}'**
+  String organizeToastRotated(int count, String n);
+
+  /// Toast and history step: after duplicating pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page duplicated} other{{n} pages duplicated}}'**
+  String organizeToastDuplicated(int count, String n);
+
+  /// Toast (a6-1b) and history step: after moving pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page moved} other{{n} pages moved}}'**
+  String organizeToastMoved(int count, String n);
+
+  /// Toast: after a drop on the page grid inserted a file's pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page inserted} other{{n} pages inserted}}'**
+  String organizeToastInserted(int count, String n);
+
+  /// Toast (a11-6): the pages a command acted on, such as 4–6.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Page {pages}} other{Pages {pages}}}'**
+  String organizeToastPages(int count, String pages);
+
+  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}'**
+  String organizeToastDeletedNote(int count, String pages);
+
+  /// History step: inserted the file {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert {name}'**
+  String organizeStepInsert(String name);
+
+  /// Toast: a page command failed; the document is as it was.
+  ///
+  /// In en, this message translates to:
+  /// **'The pages weren’t changed'**
+  String get organizeFailed;
+
+  /// Toast and task drawer: a dropped file's pages could not go in.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t insert {name}'**
+  String organizeInsertFailed(String name);
+
+  /// Page grid (a6-1b): what a drop does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Drop to move page {pages} before page {before}} other{Drop to move pages {pages} before page {before}}}'**
+  String organizeDropMoveBefore(int count, String pages, String before);
+
+  /// Page grid (a6-1b): what a drop past the last page does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Drop to move page {pages} to the end} other{Drop to move pages {pages} to the end}}'**
+  String organizeDropMoveEnd(int count, String pages);
+
+  /// Page grid: files over the grid (G105), what a drop does.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to insert before page {before}'**
+  String organizeDropFilesBefore(String before);
+
+  /// Page grid: files over the grid past the last page (G105).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to insert at the end'**
+  String get organizeDropFilesEnd;
+
+  /// Task drawer: a dropped file's pages being read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading {name}'**
+  String jobInsertingTitle(String name);
+
+  /// Task drawer: a dropped file's pages are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Inserted {name}'**
+  String jobInsertedTitle(String name);
+
+  /// Organize tool row: why a command on the selection is disabled while none is selected; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Select pages first'**
+  String get organizeSelectFirst;
 }
 
 class _AppLocalizationsDelegate

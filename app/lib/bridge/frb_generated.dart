@@ -4070,13 +4070,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   PageInfo dco_decode_page_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return PageInfo(
       width: dco_decode_f_32(arr[0]),
       height: dco_decode_f_32(arr[1]),
-      label: dco_decode_opt_String(arr[2]),
-      handle: dco_decode_u_64(arr[3]),
+      rotation: dco_decode_u_16(arr[2]),
+      label: dco_decode_opt_String(arr[3]),
+      handle: dco_decode_u_64(arr[4]),
     );
   }
 
@@ -6252,11 +6253,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_width = sse_decode_f_32(deserializer);
     var var_height = sse_decode_f_32(deserializer);
+    var var_rotation = sse_decode_u_16(deserializer);
     var var_label = sse_decode_opt_String(deserializer);
     var var_handle = sse_decode_u_64(deserializer);
     return PageInfo(
       width: var_width,
       height: var_height,
+      rotation: var_rotation,
       label: var_label,
       handle: var_handle,
     );
@@ -8496,6 +8499,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_f_32(self.width, serializer);
     sse_encode_f_32(self.height, serializer);
+    sse_encode_u_16(self.rotation, serializer);
     sse_encode_opt_String(self.label, serializer);
     sse_encode_u_64(self.handle, serializer);
   }

@@ -3241,6 +3241,9 @@ class PageInfo {
   /// The height, after the crop box and `/Rotate`.
   final double height;
 
+  /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+  final int rotation;
+
   /// The page label, such as "iv", when the document has labels.
   final String? label;
 
@@ -3250,13 +3253,18 @@ class PageInfo {
   const PageInfo({
     required this.width,
     required this.height,
+    required this.rotation,
     this.label,
     required this.handle,
   });
 
   @override
   int get hashCode =>
-      width.hashCode ^ height.hashCode ^ label.hashCode ^ handle.hashCode;
+      width.hashCode ^
+      height.hashCode ^
+      rotation.hashCode ^
+      label.hashCode ^
+      handle.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3265,6 +3273,7 @@ class PageInfo {
           runtimeType == other.runtimeType &&
           width == other.width &&
           height == other.height &&
+          rotation == other.rotation &&
           label == other.label &&
           handle == other.handle;
 }

@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
@@ -192,31 +193,35 @@ class ShellStatusBar extends ConsumerWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: theme.space.space0_5,
-                children: [
-                  button(
-                    IconName.minus,
-                    l10n.shellZoomOut,
-                    ShellCommand.zoomOut,
-                    view == null ? null : viewer.zoomOut,
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minWidth: zoomTextWidth),
-                    child: Text(
-                      bidiIsolate(format.percent(view?.zoom ?? 100)),
-                      textAlign: TextAlign.center,
+              // A phone-wide window has no room for it, and pinches instead.
+              if (!WindowMetrics.isPhoneWidth(MediaQuery.sizeOf(context).width))
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: theme.space.space0_5,
+                  children: [
+                    button(
+                      IconName.minus,
+                      l10n.shellZoomOut,
+                      ShellCommand.zoomOut,
+                      view == null ? null : viewer.zoomOut,
                     ),
-                  ),
-                  button(
-                    IconName.plus,
-                    l10n.shellZoomIn,
-                    ShellCommand.zoomIn,
-                    view == null ? null : viewer.zoomIn,
-                  ),
-                ],
-              ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: zoomTextWidth,
+                      ),
+                      child: Text(
+                        bidiIsolate(format.percent(view?.zoom ?? 100)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    button(
+                      IconName.plus,
+                      l10n.shellZoomIn,
+                      ShellCommand.zoomIn,
+                      view == null ? null : viewer.zoomIn,
+                    ),
+                  ],
+                ),
             ],
             if (language != null)
               Row(

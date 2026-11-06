@@ -531,6 +531,13 @@ void main() {
         'segments:Fit',
         'segments:Page layout',
       };
+      // Organize's commands on the selection, which is empty here.
+      const onSelection = {
+        'icon:Rotate left',
+        'icon:Rotate right',
+        'Duplicate',
+        'Delete',
+      };
       // Edit's tools that work since M3: Edit text, Edit history, Review edits
       // (the row's one button), and undo and redo with nothing to undo or redo
       // yet.
@@ -566,6 +573,8 @@ void main() {
                 ? isNull
                 : mode == FermanMode.edit
                 ? working[name] ?? futureVersion
+                : mode == FermanMode.organize && onSelection.contains(name)
+                ? 'Select pages first'
                 : futureVersion,
             reason: '$mode $name',
           );

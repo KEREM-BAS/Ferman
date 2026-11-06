@@ -17,6 +17,9 @@ part 'background_jobs.g.dart';
 enum BackgroundJobKind {
   /// A copy of a document: the first job, until Compress and Split land.
   copyDocument,
+
+  /// The pages of a file read to go into a document (B104).
+  insertPages,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -72,6 +75,7 @@ final class BackgroundJob {
   /// The row's icon while it works (FmWindow's task).
   IconName get icon => switch (kind) {
     BackgroundJobKind.copyDocument => IconName.copy,
+    BackgroundJobKind.insertPages => IconName.filePlus2,
   };
 
   /// The row's title in [state].
@@ -85,6 +89,13 @@ final class BackgroundJob {
       ),
       (BackgroundJobKind.copyDocument, TaskState.error) =>
         l10n.jobCopyFailedTitle(name),
+      (BackgroundJobKind.insertPages, TaskState.running || TaskState.paused) =>
+        l10n.jobInsertingTitle(name),
+      (BackgroundJobKind.insertPages, TaskState.done) => l10n.jobInsertedTitle(
+        name,
+      ),
+      (BackgroundJobKind.insertPages, TaskState.error) =>
+        l10n.organizeInsertFailed(name),
     };
   }
 
@@ -185,6 +196,9 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
   int _next = 1;
   final Map<int, StreamSubscription<JobUpdate>> _subscriptions = {};
   final Map<int, Timer> _expiries = {};
+
+  /// What waits for a row's end ([insertPages]), by row.
+  final Map<int, Completer<int?>> _waiting = {};
   Completer<bool>? _quit;
 
   /// Completes when no row works any more, while a quit waits.
@@ -228,6 +242,36 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
           .read(engineServiceProvider)
           .copyDocumentJob(document, output, staging: staging),
     );
+  }
+
+  /// Reads the pages of the file at [path], named [name], to go into [document]
+  /// as a job. Its result is the job, whose change `applyJobChange` commits, or
+  /// null when it was cancelled; throws its [EngineException].
+  Future<int?> insertPages(
+    int document,
+    String name, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String stepName,
+  }) {
+    final done = Completer<int?>();
+    _waiting[_next] = done;
+    _start(
+      BackgroundJobKind.insertPages,
+      name,
+      null,
+      ref
+          .read(engineServiceProvider)
+          .insertPagesJob(
+            document,
+            path: path,
+            after: after,
+            paper: paper,
+            name: stepName,
+          ),
+    );
+    return done.future;
   }
 
   void _start(
@@ -299,6 +343,7 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
               const EngineException(messageKey: 'errorInternal'),
         );
       case JobState.done:
+        _replace(row.copyWith(job: update.job));
         await _finish(id, staging, update);
     }
   }
@@ -344,6 +389,12 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
       await ref.read(fileAccessProvider).discardStaging(staging);
     }
     final row = _row(id);
+    final waiting = _waiting.remove(id);
+    if (error != null) {
+      waiting?.completeError(error);
+    } else {
+      waiting?.complete(cancelled ? null : row?.job);
+    }
     if (row == null) return;
     if (cancelled) {
       _remove(id);

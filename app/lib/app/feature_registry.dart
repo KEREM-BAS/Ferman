@@ -69,10 +69,6 @@ enum Feature {
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
 
-  /// Combining dropped files: "Combine into one PDF" while files are
-  /// dragged over the window (a1-6).
-  combineDropped('B104'),
-
   /// The Save as sheet's options "Include comments and markup" and "Remove
   /// edit history from the file" (a1-11).
   saveAsOptions('B138'),
@@ -174,9 +170,9 @@ enum Feature {
 
   // Pages.
 
-  /// Organizing pages: the Organize row's Insert, rotations, Duplicate,
-  /// Extract, Replace, Delete, Crop and Page labels.
-  organizingPages('B056'),
+  /// Organize's dialogs: Insert, Extract, Replace, Crop and Page labels, from
+  /// the tool row, the page menu and the selection panel.
+  organizeDialogs('B190'),
 
   // Convert.
 

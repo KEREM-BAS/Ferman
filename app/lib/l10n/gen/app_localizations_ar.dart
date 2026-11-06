@@ -3270,4 +3270,274 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasksQuitConfirm => 'إلغاء المهام والإنهاء';
+
+  @override
+  String get organizeGridLabel => 'الصفحات';
+
+  @override
+  String get organizePanelLabel => 'التحديد';
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$selected من $pages صفحة محددة',
+      few: '$selected من $pages صفحات محددة',
+      two: '$selected من صفحتين محددة',
+      one: '$selected من صفحة واحدة محددة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeHintMoving(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'جارٍ نقل $n صفحة',
+      few: 'جارٍ نقل $n صفحات',
+      two: 'جارٍ نقل صفحتين',
+      one: 'جارٍ نقل صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePanelTitle(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n صفحة محددة',
+      few: '$n صفحات محددة',
+      two: 'صفحتان محددتان',
+      one: 'صفحة واحدة محددة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizePanelPages => 'الصفحات';
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) {
+    return '$pages (التسميات $labels)';
+  }
+
+  @override
+  String get organizePanelSize => 'الحجم';
+
+  @override
+  String get organizePanelRotation => 'التدوير';
+
+  @override
+  String get organizePanelMixed => 'متنوع';
+
+  @override
+  String get organizePanelCommands => 'الأوامر';
+
+  @override
+  String get organizePanelExtract => 'استخراج…';
+
+  @override
+  String get organizePanelReplace => 'استبدال…';
+
+  @override
+  String organizePanelInsertAfter(String page) {
+    return 'إدراج بعد الصفحة $page';
+  }
+
+  @override
+  String get organizePanelBlankPage => 'صفحة فارغة';
+
+  @override
+  String get organizePanelFromFile => 'صفحات من ملف…';
+
+  @override
+  String get organizePanelFromScanner => 'من ماسح ضوئي أو كاميرا…';
+
+  @override
+  String organizePagesCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n صفحة',
+      few: '$n صفحات',
+      two: 'صفحتان',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeMenuExtract => 'استخراج كملف PDF جديد…';
+
+  @override
+  String get organizeMenuInsertBlank => 'إدراج صفحة فارغة بعدها';
+
+  @override
+  String get organizeMenuInsertFile => 'إدراج صفحات من ملف…';
+
+  @override
+  String get organizeMenuReplace => 'استبدال بصفحات من ملف…';
+
+  @override
+  String organizeMenuDelete(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حذف $n صفحة',
+      few: 'حذف $n صفحات',
+      two: 'حذف صفحتين',
+      one: 'حذف صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeDeleteAllReason =>
+      'يجب أن يحتفظ المستند بصفحة واحدة على الأقل';
+
+  @override
+  String organizeToastDeleted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حُذفت $n صفحة',
+      few: 'حُذفت $n صفحات',
+      two: 'حُذفت صفحتان',
+      one: 'حُذفت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastRotated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دُوّرت $n صفحة',
+      few: 'دُوّرت $n صفحات',
+      two: 'دُوّرت صفحتان',
+      one: 'دُوّرت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDuplicated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كُررت $n صفحة',
+      few: 'كُررت $n صفحات',
+      two: 'كُررت صفحتان',
+      one: 'كُررت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastMoved(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'نُقلت $n صفحة',
+      few: 'نُقلت $n صفحات',
+      two: 'نُقلت صفحتان',
+      one: 'نُقلت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastInserted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُدرجت $n صفحة',
+      few: 'أُدرجت $n صفحات',
+      two: 'أُدرجت صفحتان',
+      one: 'أُدرجت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات $pages',
+      one: 'الصفحة $pages',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
+      one: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeStepInsert(String name) {
+    return 'إدراج $name';
+  }
+
+  @override
+  String get organizeFailed => 'لم تتغير الصفحات';
+
+  @override
+  String organizeInsertFailed(String name) {
+    return 'تعذّر إدراج $name';
+  }
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أفلت لنقل الصفحات $pages قبل الصفحة $before',
+      one: 'أفلت لنقل الصفحة $pages قبل الصفحة $before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أفلت لنقل الصفحات $pages إلى النهاية',
+      one: 'أفلت لنقل الصفحة $pages إلى النهاية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropFilesBefore(String before) {
+    return 'أفلت للإدراج قبل الصفحة $before';
+  }
+
+  @override
+  String get organizeDropFilesEnd => 'أفلت للإدراج في النهاية';
+
+  @override
+  String jobInsertingTitle(String name) {
+    return 'جارٍ قراءة $name';
+  }
+
+  @override
+  String jobInsertedTitle(String name) {
+    return 'أُدرج $name';
+  }
+
+  @override
+  String get organizeSelectFirst => 'حدد الصفحات أولًا';
 }

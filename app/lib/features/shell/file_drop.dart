@@ -4,6 +4,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -17,8 +18,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// Files arrive through desktop_drop, which names them only once they are
 /// dropped (G117): the overlay shows no count and no row per file. a1-6's
-/// "Combine into one PDF" target is disabled until combining ships (B104),
-/// so a drop anywhere opens tabs.
+/// "Combine into one PDF" target is disabled until combining ships (B020),
+/// so a drop opens tabs, but on Organize's page grid (B104, G105), which
+/// takes the files itself and shows where they go instead of the overlay
+/// ([PageGridDropSlot]).
 ///
 /// Nothing is taken where [enabled] is false (first run, Settings) or while
 /// opening is disabled ([openFilesDisabledReason]: the engine's problem,
@@ -49,6 +52,14 @@ class FileDrop extends ConsumerStatefulWidget {
 class _FileDropState extends ConsumerState<FileDrop> {
   bool _over = false;
 
+  /// The page grid under the pointer, if one takes files.
+  PageGridDropTarget? get _grid => ref.read(pageGridDropSlotProvider).target;
+
+  void _hover(DropEventDetails details) {
+    final over = !(_grid?.hover(details.globalPosition) ?? false);
+    if (over != _over) setState(() => _over = over);
+  }
+
   @override
   Widget build(BuildContext context) {
     final enabled =
@@ -60,13 +71,18 @@ class _FileDropState extends ConsumerState<FileDrop> {
     final bar = widget.titleBar;
     return DropTarget(
       enable: enabled,
-      onDragEntered: (_) => setState(() => _over = true),
-      onDragExited: (_) => setState(() => _over = false),
-      onDragDone: (details) => unawaited(
-        ref.read(documentOpenerProvider.notifier).open([
-          for (final file in details.files) file.path,
-        ]),
-      ),
+      onDragEntered: _hover,
+      onDragUpdated: _hover,
+      onDragExited: (_) {
+        _grid?.hover(null);
+        setState(() => _over = false);
+      },
+      onDragDone: (details) {
+        final paths = [for (final file in details.files) file.path];
+        if (!(_grid?.drop(paths, details.globalPosition) ?? false)) {
+          unawaited(ref.read(documentOpenerProvider.notifier).open(paths));
+        }
+      },
       child: bar == null
           ? content
           : Column(
@@ -84,7 +100,7 @@ class _FileDropState extends ConsumerState<FileDrop> {
 /// accent-subtle fill, 16 px inside the screen, with the upload tile, the
 /// headline and its line, and the two targets. "Open in tabs" keeps the
 /// accent ring, as the only target that works; "Combine into one PDF" is
-/// disabled, its line the future-version reason (G10, B104).
+/// disabled, its line the future-version reason (G10, B020).
 class _DropOverlay extends StatelessWidget {
   const new();
 
@@ -204,7 +220,7 @@ class _DropOverlay extends StatelessWidget {
                             context,
                             icon: IconName.merge,
                             title: l10n.dropOverlayCombine,
-                            line: Feature.combineDropped.disabledReason(
+                            line: Feature.combineAndSplit.disabledReason(
                               context,
                             ),
                             disabled: true,

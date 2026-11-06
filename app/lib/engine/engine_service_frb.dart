@@ -1830,6 +1830,7 @@ List<PageInfo> _pages(List<bridge.PageInfo> pages) => [
     PageInfo(
       width: page.width,
       height: page.height,
+      rotation: page.rotation,
       label: page.label,
       handle: page.handle.toInt(),
     ),

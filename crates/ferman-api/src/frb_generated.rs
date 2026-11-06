@@ -4429,11 +4429,13 @@ impl SseDecode for crate::frb::PageInfo {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_width = <f32>::sse_decode(deserializer);
         let mut var_height = <f32>::sse_decode(deserializer);
+        let mut var_rotation = <u16>::sse_decode(deserializer);
         let mut var_label = <Option<String>>::sse_decode(deserializer);
         let mut var_handle = <u64>::sse_decode(deserializer);
         return crate::frb::PageInfo {
             width: var_width,
             height: var_height,
+            rotation: var_rotation,
             label: var_label,
             handle: var_handle,
         };
@@ -6158,6 +6160,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::PageInfo {
         [
             self.width.into_into_dart().into_dart(),
             self.height.into_into_dart().into_dart(),
+            self.rotation.into_into_dart().into_dart(),
             self.label.into_into_dart().into_dart(),
             self.handle.into_into_dart().into_dart(),
         ]
@@ -8226,6 +8229,7 @@ impl SseEncode for crate::frb::PageInfo {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <f32>::sse_encode(self.width, serializer);
         <f32>::sse_encode(self.height, serializer);
+        <u16>::sse_encode(self.rotation, serializer);
         <Option<String>>::sse_encode(self.label, serializer);
         <u64>::sse_encode(self.handle, serializer);
     }
@@ -9760,6 +9764,7 @@ mod io {
             crate::frb::PageInfo {
                 width: self.width.cst_decode(),
                 height: self.height.cst_decode(),
+                rotation: self.rotation.cst_decode(),
                 label: self.label.cst_decode(),
                 handle: self.handle.cst_decode(),
             }
@@ -10663,6 +10668,7 @@ mod io {
             Self {
                 width: Default::default(),
                 height: Default::default(),
+                rotation: Default::default(),
                 label: core::ptr::null_mut(),
                 handle: Default::default(),
             }
@@ -12942,6 +12948,7 @@ mod io {
     pub struct wire_cst_page_info {
         width: f32,
         height: f32,
+        rotation: u16,
         label: *mut wire_cst_list_prim_u_8_strict,
         handle: u64,
     }
@@ -14500,15 +14507,16 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                4,
-                "Expected 4 elements, got {}",
+                5,
+                "Expected 5 elements, got {}",
                 self_.length()
             );
             crate::frb::PageInfo {
                 width: self_.get(0).cst_decode(),
                 height: self_.get(1).cst_decode(),
-                label: self_.get(2).cst_decode(),
-                handle: self_.get(3).cst_decode(),
+                rotation: self_.get(2).cst_decode(),
+                label: self_.get(3).cst_decode(),
+                handle: self_.get(4).cst_decode(),
             }
         }
     }

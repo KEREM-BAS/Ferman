@@ -1247,6 +1247,7 @@ class FakeEngineService implements EngineService {
       PageInfo(
         width: page.width,
         height: page.height,
+        rotation: page.rotation,
         label: page.label,
         handle: page.handle ?? index,
       ),
@@ -1309,9 +1310,15 @@ class FakeEngineService implements EngineService {
     return _reloaded(document);
   }
 
-  PageInfo _resized(PageInfo page, double width, double height) => PageInfo(
+  PageInfo _resized(
+    PageInfo page,
+    double width,
+    double height, {
+    int? rotation,
+  }) => PageInfo(
     width: width,
     height: height,
+    rotation: rotation ?? page.rotation,
     label: page.label,
     handle: page.handle,
   );
@@ -1335,8 +1342,13 @@ class FakeEngineService implements EngineService {
     pages,
     (all) => [
       for (final page in all)
-        if (pages.contains(page.handle) && quarterTurns.isOdd)
-          _resized(page, page.height, page.width)
+        if (pages.contains(page.handle))
+          _resized(
+            page,
+            quarterTurns.isOdd ? page.height : page.width,
+            quarterTurns.isOdd ? page.width : page.height,
+            rotation: (page.rotation + quarterTurns * 90) % 360,
+          )
         else
           page,
     ],

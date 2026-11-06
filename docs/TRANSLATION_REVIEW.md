@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-863 messages in `app_en.arb`; translated: Turkish 863, Arabic 863.
+904 messages in `app_en.arb`; translated: Turkish 904, Arabic 904.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -919,5 +919,46 @@ The table below is generated from the ARB files by `tools/l10n`
 | `tasksQuitBody` | Quitting cancels them, and they leave no partial files. | Çıkmak onları iptal eder; geride yarım dosya kalmaz. | يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة. | Quitting with background tasks running. |
 | `tasksQuitKeep` | Keep working | Çalışmaya devam et | مواصلة العمل | Quitting with background tasks running: stays in the app. |
 | `tasksQuitConfirm` | Cancel tasks and quit | Görevleri iptal et ve çık | إلغاء المهام والإنهاء | Quitting with background tasks running: goes on. |
+| `organizeGridLabel` | Pages | Sayfalar | الصفحات | Organize (a6-1): the screen-reader name of the page grid. |
+| `organizePanelLabel` | Selection | Seçim | التحديد | Organize (a6-1): the screen-reader name of the right panel. |
+| `organizeHintSelected` | {total, plural, =1{{selected} of {pages} page selected} other{{selected} of {pages} pages selected}} | {total, plural, other{{selected}/{pages} sayfa seçili}} | {total, plural, =1{{selected} من صفحة واحدة محددة} =2{{selected} من صفحتين محددة} few{{selected} من {pages} صفحات محددة} other{{selected} من {pages} صفحة محددة}} | Organize tool row (a6-1): the hint with a selection. {selected} and {pages} are written for the region; {total} picks the plural form. |
+| `organizeHintMoving` | {count, plural, =1{Moving {n} page} other{Moving {n} pages}} | {count, plural, other{{n} sayfa taşınıyor}} | {count, plural, =1{جارٍ نقل صفحة واحدة} =2{جارٍ نقل صفحتين} few{جارٍ نقل {n} صفحات} other{جارٍ نقل {n} صفحة}} | Organize tool row (a6-1b): the hint during a drag. |
+| `organizePanelTitle` | {count, plural, =1{{n} page selected} other{{n} pages selected}} | {count, plural, other{{n} sayfa seçili}} | {count, plural, =1{صفحة واحدة محددة} =2{صفحتان محددتان} few{{n} صفحات محددة} other{{n} صفحة محددة}} | Organize panel (a6-1): the heading. |
+| `organizePanelPages` | Pages | Sayfalar | الصفحات | Organize panel (a6-1): the section, and its first row's name. |
+| `organizePanelPagesLabels` | {pages} (labels {labels}) | {pages} (etiketler {labels}) | {pages} (التسميات {labels}) | Organize panel (a6-1): the selected pages' numbers and their page labels. |
+| `organizePanelSize` | Size | Boyut | الحجم | Organize panel (a6-1): the row with the pages' size. |
+| `organizePanelRotation` | Rotation | Döndürme | التدوير | Organize panel (a6-1): the row with the pages' rotation. |
+| `organizePanelMixed` | Mixed | Karışık | متنوع | Organize panel: pages of the selection differ in this value; not drawn. |
+| `organizePanelCommands` | Commands | Komutlar | الأوامر | Organize panel (a6-1): the section of commands. |
+| `organizePanelExtract` | Extract… | Ayıkla… | استخراج… | Organize panel (a6-1): opens Extract. |
+| `organizePanelReplace` | Replace… | Değiştir… | استبدال… | Organize panel (a6-1): opens Replace. |
+| `organizePanelInsertAfter` | Insert after page {page} | {page}. sayfadan sonra ekle | إدراج بعد الصفحة {page} | Organize panel (a6-1): the section. {page} is the last selected page's number. |
+| `organizePanelBlankPage` | Blank page | Boş sayfa | صفحة فارغة | Organize panel (a6-1): inserts a blank page. |
+| `organizePanelFromFile` | Pages from a file… | Dosyadan sayfalar… | صفحات من ملف… | Organize panel (a6-1): inserts pages from a file. |
+| `organizePanelFromScanner` | From scanner or camera… | Tarayıcıdan veya kameradan… | من ماسح ضوئي أو كاميرا… | Organize panel (a6-1): inserts pages from a scanner or camera. |
+| `organizePagesCount` | {count, plural, =1{{n} page} other{{n} pages}} | {count, plural, other{{n} sayfa}} | {count, plural, =1{صفحة واحدة} =2{صفحتان} few{{n} صفحات} other{{n} صفحة}} | Organize's page menu (a6-1): its heading. |
+| `organizeMenuExtract` | Extract as new PDF… | Yeni PDF olarak ayıkla… | استخراج كملف PDF جديد… | Organize's page menu (a6-1). |
+| `organizeMenuInsertBlank` | Insert blank page after | Sonrasına boş sayfa ekle | إدراج صفحة فارغة بعدها | Organize's page menu (a6-1). |
+| `organizeMenuInsertFile` | Insert pages from file… | Dosyadan sayfa ekle… | إدراج صفحات من ملف… | Organize's page menu (a6-1). |
+| `organizeMenuReplace` | Replace with pages from file… | Dosyadaki sayfalarla değiştir… | استبدال بصفحات من ملف… | Organize's page menu (a6-1). |
+| `organizeMenuDelete` | {count, plural, =1{Delete {n} page} other{Delete {n} pages}} | {count, plural, other{{n} sayfayı sil}} | {count, plural, =1{حذف صفحة واحدة} =2{حذف صفحتين} few{حذف {n} صفحات} other{حذف {n} صفحة}} | Organize's page menu (a6-1). |
+| `organizeDeleteAllReason` | A document keeps at least one page | Belgede en az bir sayfa kalmalı | يجب أن يحتفظ المستند بصفحة واحدة على الأقل | Organize: why Delete is disabled with every page selected; not drawn. |
+| `organizeToastDeleted` | {count, plural, =1{{n} page deleted} other{{n} pages deleted}} | {count, plural, other{{n} sayfa silindi}} | {count, plural, =1{حُذفت صفحة واحدة} =2{حُذفت صفحتان} few{حُذفت {n} صفحات} other{حُذفت {n} صفحة}} | Toast (a11-6) and history step: after deleting pages. |
+| `organizeToastRotated` | {count, plural, =1{{n} page rotated} other{{n} pages rotated}} | {count, plural, other{{n} sayfa döndürüldü}} | {count, plural, =1{دُوّرت صفحة واحدة} =2{دُوّرت صفحتان} few{دُوّرت {n} صفحات} other{دُوّرت {n} صفحة}} | Toast and history step: after rotating pages. |
+| `organizeToastDuplicated` | {count, plural, =1{{n} page duplicated} other{{n} pages duplicated}} | {count, plural, other{{n} sayfa çoğaltıldı}} | {count, plural, =1{كُررت صفحة واحدة} =2{كُررت صفحتان} few{كُررت {n} صفحات} other{كُررت {n} صفحة}} | Toast and history step: after duplicating pages. |
+| `organizeToastMoved` | {count, plural, =1{{n} page moved} other{{n} pages moved}} | {count, plural, other{{n} sayfa taşındı}} | {count, plural, =1{نُقلت صفحة واحدة} =2{نُقلت صفحتان} few{نُقلت {n} صفحات} other{نُقلت {n} صفحة}} | Toast (a6-1b) and history step: after moving pages. |
+| `organizeToastInserted` | {count, plural, =1{{n} page inserted} other{{n} pages inserted}} | {count, plural, other{{n} sayfa eklendi}} | {count, plural, =1{أُدرجت صفحة واحدة} =2{أُدرجت صفحتان} few{أُدرجت {n} صفحات} other{أُدرجت {n} صفحة}} | Toast: after a drop on the page grid inserted a file's pages. |
+| `organizeToastPages` | {count, plural, =1{Page {pages}} other{Pages {pages}}} | {count, plural, =1{Sayfa {pages}} other{Sayfalar {pages}}} | {count, plural, =1{الصفحة {pages}} other{الصفحات {pages}}} | Toast (a11-6): the pages a command acted on, such as 4–6. |
+| `organizeToastDeletedNote` | {count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}} | {count, plural, other{{pages}. Optimize et ve temizle’yi seçene kadar dosyada kalır.}} | {count, plural, =1{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».} other{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».}} | Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command. |
+| `organizeStepInsert` | Insert {name} | {name} ekle | إدراج {name} | History step: inserted the file {name}. |
+| `organizeFailed` | The pages weren’t changed | Sayfalar değiştirilmedi | لم تتغير الصفحات | Toast: a page command failed; the document is as it was. |
+| `organizeInsertFailed` | Couldn’t insert {name} | {name} eklenemedi | تعذّر إدراج {name} | Toast and task drawer: a dropped file's pages could not go in. |
+| `organizeDropMoveBefore` | {count, plural, =1{Drop to move page {pages} before page {before}} other{Drop to move pages {pages} before page {before}}} | {count, plural, =1{{pages}. sayfayı {before}. sayfanın önüne taşımak için bırakın} other{{pages}. sayfaları {before}. sayfanın önüne taşımak için bırakın}} | {count, plural, =1{أفلت لنقل الصفحة {pages} قبل الصفحة {before}} other{أفلت لنقل الصفحات {pages} قبل الصفحة {before}}} | Page grid (a6-1b): what a drop does. |
+| `organizeDropMoveEnd` | {count, plural, =1{Drop to move page {pages} to the end} other{Drop to move pages {pages} to the end}} | {count, plural, =1{{pages}. sayfayı sona taşımak için bırakın} other{{pages}. sayfaları sona taşımak için bırakın}} | {count, plural, =1{أفلت لنقل الصفحة {pages} إلى النهاية} other{أفلت لنقل الصفحات {pages} إلى النهاية}} | Page grid (a6-1b): what a drop past the last page does. |
+| `organizeDropFilesBefore` | Drop to insert before page {before} | {before}. sayfanın önüne eklemek için bırakın | أفلت للإدراج قبل الصفحة {before} | Page grid: files over the grid (G105), what a drop does. |
+| `organizeDropFilesEnd` | Drop to insert at the end | Sona eklemek için bırakın | أفلت للإدراج في النهاية | Page grid: files over the grid past the last page (G105). |
+| `jobInsertingTitle` | Reading {name} | {name} okunuyor | جارٍ قراءة {name} | Task drawer: a dropped file's pages being read. |
+| `jobInsertedTitle` | Inserted {name} | {name} eklendi | أُدرج {name} | Task drawer: a dropped file's pages are read. |
+| `organizeSelectFirst` | Select pages first | Önce sayfaları seçin | حدد الصفحات أولًا | Organize tool row: why a command on the selection is disabled while none is selected; not drawn. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

@@ -4304,5 +4304,325 @@
   "tasksQuitConfirm": "Cancel tasks and quit",
   "@tasksQuitConfirm": {
     "description": "Quitting with background tasks running: goes on."
+  },
+  "organizeGridLabel": "Pages",
+  "@organizeGridLabel": {
+    "description": "Organize (a6-1): the screen-reader name of the page grid."
+  },
+  "organizePanelLabel": "Selection",
+  "@organizePanelLabel": {
+    "description": "Organize (a6-1): the screen-reader name of the right panel."
+  },
+  "organizeHintSelected": "{total, plural, =1{{selected} of {pages} page selected} other{{selected} of {pages} pages selected}}",
+  "@organizeHintSelected": {
+    "description": "Organize tool row (a6-1): the hint with a selection. {selected} and {pages} are written for the region; {total} picks the plural form.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "selected": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeHintMoving": "{count, plural, =1{Moving {n} page} other{Moving {n} pages}}",
+  "@organizeHintMoving": {
+    "description": "Organize tool row (a6-1b): the hint during a drag.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizePanelTitle": "{count, plural, =1{{n} page selected} other{{n} pages selected}}",
+  "@organizePanelTitle": {
+    "description": "Organize panel (a6-1): the heading.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizePanelPages": "Pages",
+  "@organizePanelPages": {
+    "description": "Organize panel (a6-1): the section, and its first row's name."
+  },
+  "organizePanelPagesLabels": "{pages} (labels {labels})",
+  "@organizePanelPagesLabels": {
+    "description": "Organize panel (a6-1): the selected pages' numbers and their page labels.",
+    "placeholders": {
+      "pages": {
+        "type": "String"
+      },
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "organizePanelSize": "Size",
+  "@organizePanelSize": {
+    "description": "Organize panel (a6-1): the row with the pages' size."
+  },
+  "organizePanelRotation": "Rotation",
+  "@organizePanelRotation": {
+    "description": "Organize panel (a6-1): the row with the pages' rotation."
+  },
+  "organizePanelMixed": "Mixed",
+  "@organizePanelMixed": {
+    "description": "Organize panel: pages of the selection differ in this value; not drawn."
+  },
+  "organizePanelCommands": "Commands",
+  "@organizePanelCommands": {
+    "description": "Organize panel (a6-1): the section of commands."
+  },
+  "organizePanelExtract": "Extract…",
+  "@organizePanelExtract": {
+    "description": "Organize panel (a6-1): opens Extract."
+  },
+  "organizePanelReplace": "Replace…",
+  "@organizePanelReplace": {
+    "description": "Organize panel (a6-1): opens Replace."
+  },
+  "organizePanelInsertAfter": "Insert after page {page}",
+  "@organizePanelInsertAfter": {
+    "description": "Organize panel (a6-1): the section. {page} is the last selected page's number.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "organizePanelBlankPage": "Blank page",
+  "@organizePanelBlankPage": {
+    "description": "Organize panel (a6-1): inserts a blank page."
+  },
+  "organizePanelFromFile": "Pages from a file…",
+  "@organizePanelFromFile": {
+    "description": "Organize panel (a6-1): inserts pages from a file."
+  },
+  "organizePanelFromScanner": "From scanner or camera…",
+  "@organizePanelFromScanner": {
+    "description": "Organize panel (a6-1): inserts pages from a scanner or camera."
+  },
+  "organizePagesCount": "{count, plural, =1{{n} page} other{{n} pages}}",
+  "@organizePagesCount": {
+    "description": "Organize's page menu (a6-1): its heading.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeMenuExtract": "Extract as new PDF…",
+  "@organizeMenuExtract": {
+    "description": "Organize's page menu (a6-1)."
+  },
+  "organizeMenuInsertBlank": "Insert blank page after",
+  "@organizeMenuInsertBlank": {
+    "description": "Organize's page menu (a6-1)."
+  },
+  "organizeMenuInsertFile": "Insert pages from file…",
+  "@organizeMenuInsertFile": {
+    "description": "Organize's page menu (a6-1)."
+  },
+  "organizeMenuReplace": "Replace with pages from file…",
+  "@organizeMenuReplace": {
+    "description": "Organize's page menu (a6-1)."
+  },
+  "organizeMenuDelete": "{count, plural, =1{Delete {n} page} other{Delete {n} pages}}",
+  "@organizeMenuDelete": {
+    "description": "Organize's page menu (a6-1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeDeleteAllReason": "A document keeps at least one page",
+  "@organizeDeleteAllReason": {
+    "description": "Organize: why Delete is disabled with every page selected; not drawn."
+  },
+  "organizeToastDeleted": "{count, plural, =1{{n} page deleted} other{{n} pages deleted}}",
+  "@organizeToastDeleted": {
+    "description": "Toast (a11-6) and history step: after deleting pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastRotated": "{count, plural, =1{{n} page rotated} other{{n} pages rotated}}",
+  "@organizeToastRotated": {
+    "description": "Toast and history step: after rotating pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastDuplicated": "{count, plural, =1{{n} page duplicated} other{{n} pages duplicated}}",
+  "@organizeToastDuplicated": {
+    "description": "Toast and history step: after duplicating pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastMoved": "{count, plural, =1{{n} page moved} other{{n} pages moved}}",
+  "@organizeToastMoved": {
+    "description": "Toast (a6-1b) and history step: after moving pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastInserted": "{count, plural, =1{{n} page inserted} other{{n} pages inserted}}",
+  "@organizeToastInserted": {
+    "description": "Toast: after a drop on the page grid inserted a file's pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastPages": "{count, plural, =1{Page {pages}} other{Pages {pages}}}",
+  "@organizeToastPages": {
+    "description": "Toast (a11-6): the pages a command acted on, such as 4–6.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeToastDeletedNote": "{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}",
+  "@organizeToastDeletedNote": {
+    "description": "Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeStepInsert": "Insert {name}",
+  "@organizeStepInsert": {
+    "description": "History step: inserted the file {name}.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeFailed": "The pages weren’t changed",
+  "@organizeFailed": {
+    "description": "Toast: a page command failed; the document is as it was."
+  },
+  "organizeInsertFailed": "Couldn’t insert {name}",
+  "@organizeInsertFailed": {
+    "description": "Toast and task drawer: a dropped file's pages could not go in.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeDropMoveBefore": "{count, plural, =1{Drop to move page {pages} before page {before}} other{Drop to move pages {pages} before page {before}}}",
+  "@organizeDropMoveBefore": {
+    "description": "Page grid (a6-1b): what a drop does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeDropMoveEnd": "{count, plural, =1{Drop to move page {pages} to the end} other{Drop to move pages {pages} to the end}}",
+  "@organizeDropMoveEnd": {
+    "description": "Page grid (a6-1b): what a drop past the last page does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeDropFilesBefore": "Drop to insert before page {before}",
+  "@organizeDropFilesBefore": {
+    "description": "Page grid: files over the grid (G105), what a drop does.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeDropFilesEnd": "Drop to insert at the end",
+  "@organizeDropFilesEnd": {
+    "description": "Page grid: files over the grid past the last page (G105)."
+  },
+  "jobInsertingTitle": "Reading {name}",
+  "@jobInsertingTitle": {
+    "description": "Task drawer: a dropped file's pages being read.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobInsertedTitle": "Inserted {name}",
+  "@jobInsertedTitle": {
+    "description": "Task drawer: a dropped file's pages are read.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeSelectFirst": "Select pages first",
+  "@organizeSelectFirst": {
+    "description": "Organize tool row: why a command on the selection is disabled while none is selected; not drawn."
   }
 }

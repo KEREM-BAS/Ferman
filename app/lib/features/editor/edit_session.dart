@@ -1114,6 +1114,27 @@ class DocumentEditor extends _$DocumentEditor {
     });
   }
 
+  /// Takes [change], of the shown document's pages, as a step of its history,
+  /// after committing the typing (Organize). The engine's error, or null when
+  /// it took it or no document shows; the history is then as it was.
+  Future<EngineException?> pageChange(
+    Future<RevisionInfo> Function(int document) change,
+  ) async {
+    _idle?.cancel();
+    EngineException? failure;
+    await _run(() async {
+      await _close();
+      final document = _document;
+      if (document == null) return;
+      try {
+        await _reverted(document, await change(document));
+      } on EngineException catch (error) {
+        failure = error;
+      }
+    });
+    return failure;
+  }
+
   /// A revert's step has no block, and the redo branch went with it.
   Future<void> _reverted(int document, RevisionInfo info) async {
     _targets = _targets.take(state.history.current).toList();
