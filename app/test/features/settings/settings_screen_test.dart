@@ -422,6 +422,9 @@ void main() {
       final navStart = tester.getCenter(find.text('Settings')).dx;
       await tester.tap(_languageSelect);
       await tester.pumpAndSettle();
+      // The test platform is Android, whose touch-sized rows scroll it away.
+      await tester.ensureVisible(find.text('العربية').last);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('العربية').last);
       await tester.pumpAndSettle();
       expect(directionOf(tester, find.byType(FmSettings)), TextDirection.rtl);

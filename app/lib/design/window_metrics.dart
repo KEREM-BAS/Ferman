@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/widgets.dart';
 
 /// Window sizes from the design: desktop artboards are 1440 × 900, and the
 /// narrowest supported window is 1024 px wide (ROADMAP §5 step 8, approved
@@ -39,6 +39,22 @@ abstract final class WindowMetrics {
 
   /// The widest the right panel gets when it is dragged wider (B094).
   static const double panelMaxWidth = 400;
+
+  /// Below this width the phone layout replaces the desktop one (G129): the
+  /// phone boards are 393 and 412 px wide, and 768 px is where the desktop
+  /// screens stop overflowing, measured on first run, the start screen and
+  /// Settings. Desktop windows do not get this narrow on macOS and Windows
+  /// ([minimumWidth]); on Linux the minimum is a hint that a tiling window
+  /// manager can ignore, and such a window takes the phone layout (G129).
+  static const double phoneMaxWidth = 768;
+
+  /// Whether a [width] takes the phone layout.
+  static bool isPhoneWidth(double width) => width < phoneMaxWidth;
+
+  /// Whether the window around [context] takes the phone layout. It goes by
+  /// width, never by platform, and rebuilds [context] when the width changes.
+  static bool isPhone(BuildContext context) =>
+      isPhoneWidth(MediaQuery.sizeOf(context).width);
 
   /// The window title used by the operating system (task switcher, dock).
   static const String title = 'Ferman';

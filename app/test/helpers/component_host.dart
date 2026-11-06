@@ -13,7 +13,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// tooltips and popovers.
 ///
 /// [forcedStates] wraps the child in a [FermanForcedStates]. The child is
-/// centred, so it takes its own size.
+/// centred, so it takes its own size. [touch] gives it the touch density,
+/// overlays included; [viewInsets] is the on-screen keyboard.
 Widget componentHost(
   Widget child, {
   Brightness brightness = Brightness.light,
@@ -22,6 +23,8 @@ Widget componentHost(
   bool disableAnimations = false,
   Set<WidgetState>? forcedStates,
   Size size = const Size(800, 600),
+  bool touch = false,
+  EdgeInsets viewInsets = EdgeInsets.zero,
 }) {
   final direction =
       textDirection ??
@@ -31,7 +34,11 @@ Widget componentHost(
     content = FermanForcedStates(states: forcedStates, child: content);
   }
   return MediaQuery(
-    data: MediaQueryData(size: size, disableAnimations: disableAnimations),
+    data: MediaQueryData(
+      size: size,
+      disableAnimations: disableAnimations,
+      viewInsets: viewInsets,
+    ),
     child: Localizations(
       locale: locale,
       delegates: AppLocalizations.localizationsDelegates,
@@ -41,7 +48,10 @@ Widget componentHost(
             : FermanMaterialTheme.light,
         child: Directionality(
           textDirection: direction,
-          child: FermanThemeScope(child: Overlay.wrap(child: content)),
+          child: FermanThemeScope(
+            touch: touch,
+            child: Overlay.wrap(child: content),
+          ),
         ),
       ),
     ),

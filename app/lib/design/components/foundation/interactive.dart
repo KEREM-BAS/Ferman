@@ -33,7 +33,8 @@ import 'package:flutter/widgets.dart';
 /// **Disabled with a reason (G10).** When the control is disabled and
 /// [disabledReason] is set, the reason shows as the tooltip and the
 /// semantics hint, and the control stays focusable, so keyboard and
-/// screen-reader users can read why; activating it does nothing.
+/// screen-reader users can read why; activating it does nothing. A touch
+/// opens the tooltip at once, since a phone has no hover (G129).
 /// Unshipped features pass the localized "Available in a future version"
 /// (`futureVersionReason`). Without a reason a disabled control is skipped
 /// by focus traversal.
@@ -377,6 +378,7 @@ class _FermanInteractiveState extends State<FermanInteractive> {
         // A hover only the platform sees opens the tooltip too.
         hovered: enabled && widget.extraStates.contains(WidgetState.hovered),
         excludeFromSemantics: true,
+        opensOnTouch: _showsReason,
         child: result,
       );
     }

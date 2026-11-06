@@ -205,6 +205,14 @@ void _expectLayout(
         find.text(l10n.onboardingLanguageMissing),
         'footer icon, text',
       );
+    case M1Screen.editStep:
+      final step = tester.widget<WelcomeStep>(find.byType(WelcomeStep));
+      before(find.text(step.title), find.byWidget(step.aside), 'columns');
+      before(
+        find.text(l10n.onboardingSkip),
+        find.text(step.nextLabel),
+        'Skip, Next',
+      );
     case M1Screen.privacyStep || M1Screen.freeStep:
       final step = tester.widget<WelcomeStep>(find.byType(WelcomeStep));
       before(find.text(step.title), find.byWidget(step.aside), 'columns');
@@ -379,6 +387,8 @@ void main() {
             for (final MapEntry(key: name, value: rect) in ltr.entries) {
               final other = rtl[name];
               if (other == null) continue;
+              // The first-run specimen is a page, and a page never mirrors.
+              if (name.startsWith('IBM Plex Serif')) continue;
               compared.add(name);
               final expectedCentre = width - rect.center.dx;
               if ((other.center.dx - expectedCentre).abs() > 1 ||

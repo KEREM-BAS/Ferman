@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:ferman/design/components/core/kbd.dart';
 import 'package:ferman/design/components/foundation/anchored_layout.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -64,7 +66,11 @@ class Tooltip extends StatefulWidget {
     this.focused = false,
     this.delay = defaultDelay,
     this.excludeFromSemantics = false,
+    this.opensOnTouch = false,
   });
+
+  /// How long a bubble opened by touch stays after the finger lifts.
+  static const Duration touchHold = Duration(milliseconds: 2500);
 
   /// The design-system default delay (450 ms).
   static const Duration defaultDelay = Duration(milliseconds: 450);
@@ -110,6 +116,11 @@ class Tooltip extends StatefulWidget {
   /// design-system prop.
   final bool excludeFromSemantics;
 
+  /// Whether a touch opens the bubble at once, for [touchHold] after the
+  /// finger lifts: a disabled control's reason, which a phone has no hover
+  /// to show (`FermanInteractive`, G129). Not a design-system prop.
+  final bool opensOnTouch;
+
   @override
   State<Tooltip> createState() => _TooltipState();
 
@@ -147,9 +158,29 @@ class _TooltipState extends State<Tooltip> {
   bool _hovered = false;
   bool _focused = false;
   bool _shown = false;
+  bool _touched = false;
+  Timer? _touchTimer;
 
   bool get _wanted =>
-      widget.open ?? (_hovered || widget.hovered || _focused || widget.focused);
+      widget.open ??
+      (_hovered || widget.hovered || _focused || widget.focused || _touched);
+
+  void _onTouchDown(PointerDownEvent event) {
+    if (!widget.opensOnTouch || event.kind != PointerDeviceKind.touch) return;
+    _touchTimer?.cancel();
+    _touched = true;
+    _timer?.cancel();
+    _show();
+  }
+
+  void _onTouchEnd(PointerEvent event) {
+    if (!_touched || event.kind != PointerDeviceKind.touch) return;
+    _touchTimer?.cancel();
+    _touchTimer = Timer(Tooltip.touchHold, () {
+      _touched = false;
+      _update();
+    });
+  }
 
   @override
   void initState() {
@@ -183,6 +214,7 @@ class _TooltipState extends State<Tooltip> {
   @override
   void dispose() {
     _timer?.cancel();
+    _touchTimer?.cancel();
     HardwareKeyboard.instance.removeHandler(_onKey);
     super.dispose();
   }
@@ -270,7 +302,15 @@ class _TooltipState extends State<Tooltip> {
             // tab bar and its tabs.
             includeSemantics: false,
             onFocusChange: _onFocusChange,
-            child: widget.child,
+            child: Listener(
+              // A text field's hover region reports no hit to its parents,
+              // and this must hear the touch all the same.
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: _onTouchDown,
+              onPointerUp: _onTouchEnd,
+              onPointerCancel: _onTouchEnd,
+              child: widget.child,
+            ),
           ),
         ),
       ),
@@ -289,6 +329,9 @@ class _TooltipBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final keys = shortcut;
+    final style = theme.typography.caption.copyWith(
+      color: theme.colors.textInverse,
+    );
     final bubble = Container(
       padding: EdgeInsetsDirectional.symmetric(
         horizontal: theme.space.space2,
@@ -303,13 +346,11 @@ class _TooltipBubble extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: Tooltip.contentGap,
         children: [
-          Text(
-            message,
-            softWrap: false,
-            style: theme.typography.caption.copyWith(
-              color: theme.colors.textInverse,
-            ),
-          ),
+          if (WindowMetrics.isPhone(context))
+            // A phone is narrow enough for a long reason to need two lines.
+            Flexible(child: Text(message, style: style))
+          else
+            Text(message, softWrap: false, style: style),
           if (keys != null && keys.isNotEmpty) Kbd(keys, tone: KbdTone.inverse),
         ],
       ),

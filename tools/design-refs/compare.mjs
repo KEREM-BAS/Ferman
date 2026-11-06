@@ -24,6 +24,7 @@ export const GOLDEN_SCREENS = [
   'settings_general',
   'settings_language',
   'settings_privacy',
+  'settings_list',
   'shell_view',
   'shell_edit',
   'shell_comment',
@@ -92,7 +93,7 @@ export const GOLDEN_SCREENS = [
 ];
 
 /** A golden's file name: `<screen>_<chrome>_<theme>_<lang>.png`. */
-export const GOLDEN_NAME = new RegExp(`^(${GOLDEN_SCREENS.join('|')})_(mac|win)_(light|dark)_(en|tr|ar|de|ja)\\.png$`);
+export const GOLDEN_NAME = new RegExp(`^(${GOLDEN_SCREENS.join('|')})_(mac|win|phone)_(light|dark)_(en|tr|ar|de|ja)\\.png$`);
 
 /** pixelmatch's own default: the YIQ colour distance, from 0 to 1, a pixel may differ by unseen. */
 export const DEFAULT_THRESHOLD = 0.1;
@@ -166,6 +167,9 @@ export function validateMap(data, { boardIds, boardLangs = new Map() }) {
   const goldenSize = data.goldenSize;
   const sizeProblems = rectProblems({ x: 0, y: 0, ...goldenSize }, 'goldenSize');
   problems.push(...sizeProblems);
+  // A phone golden is a screen of its own size; the map names it only with a phone pair.
+  const phoneGoldenSize = data.phoneGoldenSize;
+  if (phoneGoldenSize !== undefined) problems.push(...rectProblems({ x: 0, y: 0, ...phoneGoldenSize }, 'phoneGoldenSize'));
   if (!Array.isArray(data.pairs) || data.pairs.length === 0) problems.push('"pairs" must be a non-empty array');
   const pairs = [];
   const ids = new Set();
@@ -201,7 +205,7 @@ export function validateMap(data, { boardIds, boardLangs = new Map() }) {
     }
     const goldenMatch = typeof raw.golden === 'string' ? GOLDEN_NAME.exec(raw.golden) : null;
     if (goldenMatch === null) {
-      problems.push(`${where}: golden ${JSON.stringify(raw.golden)} is not <screen>_<mac|win>_<light|dark>_<en|tr|ar|de|ja>.png`);
+      problems.push(`${where}: golden ${JSON.stringify(raw.golden)} is not <screen>_<mac|win|phone>_<light|dark>_<en|tr|ar|de|ja>.png`);
     } else if (langs.length > 0 && goldenMatch[4] !== (raw.lang ?? 'en')) {
       problems.push(`${where}: the golden is in ${goldenMatch[4]} but the reference ${refName(pair)} is in ${raw.lang ?? 'en'}`);
     }
@@ -216,15 +220,21 @@ export function validateMap(data, { boardIds, boardLangs = new Map() }) {
     if (raw.crop !== undefined && (typeof raw.cropSource !== 'string' || raw.cropSource.trim() === '')) {
       problems.push(`${where}: a crop needs "cropSource", how the rectangle was found`);
     }
+    const wholeGolden = goldenMatch?.[2] === 'phone' ? phoneGoldenSize : goldenSize;
+    if (wholeGolden === undefined) {
+      problems.push(`${where}: a phone golden needs "phoneGoldenSize"`);
+      pairs.push(pair);
+      continue;
+    }
     // The frame both images are compared in: the golden's crop, or the whole golden.
-    const frame = raw.goldenCrop ?? goldenSize;
+    const frame = raw.goldenCrop ?? wholeGolden;
     const frameOk = raw.goldenCrop === undefined ? sizeProblems.length === 0 : valid.goldenCrop;
     if (valid.crop && frameOk && !sameSize(raw.crop, frame)) {
       problems.push(`${where}: the crop is ${size(raw.crop)} but the golden${raw.goldenCrop ? "'s crop" : ''} is ${size(frame)}`);
     }
     if (valid.goldenCrop && sizeProblems.length === 0) {
       const g = raw.goldenCrop;
-      if (g.x + g.width > goldenSize.width || g.y + g.height > goldenSize.height) problems.push(`${where}: goldenCrop lies outside the ${size(goldenSize)} golden`);
+      if (g.x + g.width > wholeGolden.width || g.y + g.height > wholeGolden.height) problems.push(`${where}: goldenCrop lies outside the ${size(wholeGolden)} golden`);
     }
     if (!Array.isArray(pair.masks)) {
       problems.push(`${where}: "masks" must be an array`);
@@ -241,7 +251,7 @@ export function validateMap(data, { boardIds, boardLangs = new Map() }) {
     pairs.push(pair);
   }
   if (problems.length > 0) throw new InputError(problems.join('\n'));
-  return { goldenSize: { width: goldenSize.width, height: goldenSize.height }, pairs };
+  return { goldenSize: { width: goldenSize.width, height: goldenSize.height }, ...(phoneGoldenSize && { phoneGoldenSize }), pairs };
 }
 
 /**
@@ -528,8 +538,9 @@ export async function runComparison(map, { refsDir, goldensDir, outDir, threshol
     try {
       let ref = await load(refFile).catch((e) => Promise.reject(new Error(`reference ${refName(pair)}: ${e.message}`)));
       let golden = await load(goldenFile).catch((e) => Promise.reject(new Error(`golden: ${e.message}`)));
-      if (!pair.goldenCrop && !sameSize(golden, map.goldenSize)) {
-        throw new Error(`the golden is ${size(golden)}, not ${size(map.goldenSize)}`);
+      const wholeGolden = GOLDEN_NAME.exec(pair.golden)?.[2] === 'phone' ? map.phoneGoldenSize : map.goldenSize;
+      if (!pair.goldenCrop && !sameSize(golden, wholeGolden)) {
+        throw new Error(`the golden is ${size(golden)}, not ${size(wholeGolden)}`);
       }
       ref = pair.crop ? cropImage(ref, pair.crop) : ref;
       golden = pair.goldenCrop ? cropImage(golden, pair.goldenCrop) : golden;

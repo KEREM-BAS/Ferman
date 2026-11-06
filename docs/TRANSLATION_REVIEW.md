@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-812 messages in `app_en.arb`; translated: Turkish 812, Arabic 812.
+839 messages in `app_en.arb`; translated: Turkish 839, Arabic 839.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -226,6 +226,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `onboardingLanguageSubtitleSystem` | {language} is selected because it’s your system language. You can change it any time in Settings › Language and region. | {language} sistem diliniz olduğu için seçildi. Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz. | اختيرت {language} لأنها لغة نظامك. يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة. | Text under the heading of the first-run language picker (a1-1) while the selected language is the operating system's. {language} is the language's own name, such as English or Türkçe. Settings › Language and region names the settings pane; keep the › separator. |
 | `onboardingLanguageSubtitle` | You can change it any time in Settings › Language and region. | Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz. | يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة. | Text under the heading of the first-run language picker (a1-1) once a language other than the system's is selected. Settings › Language and region names the settings pane; keep the › separator. |
 | `onboardingLanguageSearchPlaceholder` | Search languages · Dil ara · Sprache suchen · ابحث عن لغة | Dil ara · Search languages · Sprache suchen · ابحث عن لغة | ابحث عن لغة · Search languages · Dil ara · Sprache suchen | Placeholder of the search field of the first-run language picker (a1-1). It asks in several languages on purpose, so people who don't read the interface language can still find theirs: keep the other languages and put this language's phrase first. |
+| `onboardingLanguageSearchPlaceholderPhone` | Search · Ara · Suchen · بحث | Ara · Search · Suchen · بحث | بحث · Search · Ara · Suchen | Placeholder of the language search field at phone width (board a13-1b): the shorter form that fits one line. It shows the word in several languages on purpose, this language first. |
 | `onboardingLanguageSearchLabel` | Search languages | Dil ara | ابحث عن لغة | Screen-reader name of the search field of the first-run language picker (a1-1). |
 | `onboardingLanguageNoMatch` | No language matches “{query}”. | “{query}” ile eşleşen dil yok. | لا توجد لغة تطابق «{query}». | Shown in the first-run language picker (a1-1) when the search finds no language. {query} is what the person typed. |
 | `onboardingLanguageNoMatchBody` | Search by the language’s own name, its English name or its code. | Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın. | ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها. | The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState). |
@@ -312,6 +313,11 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsPaneSignatures` | Signatures and certificates | İmzalar ve sertifikalar | التوقيعات والشهادات | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneOcr` | Text recognition (OCR) | Metin tanıma (OCR) | التعرّف على النص (OCR) | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). OCR is optical character recognition. |
 | `settingsPaneAi` | AI assistant | Yapay zekâ yardımcısı | المساعد الذكي | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
+| `settingsPhoneGroupDocuments` | Documents | Belgeler | المستندات | Phone Settings: a group of the list (a13-15, shown in capitals) and a heading of Language and region (a13-15b). |
+| `settingsPhoneGroupApp` | App | Uygulama | التطبيق | Phone Settings › Language and region: the heading over the app language (a13-15b). |
+| `settingsPhoneGroupRegion` | Region | Bölge | المنطقة | Phone Settings › Language and region: the heading over the region formats (a13-15b). |
+| `settingsPhonePrivacyValue` | No data collected | Veri toplanmaz | لا تُجمع أي بيانات | Phone Settings: the value of the Privacy row, which states the fact (a13-15). Keep it short. |
+| `settingsPhoneAbout` | About and licence | Hakkında ve lisans | حول التطبيق والترخيص | Phone Settings: the row of About and the licences (a13-15). |
 | `settingsPanePrivacy` | Privacy | Gizlilik | الخصوصية | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneUpdates` | Updates | Güncellemeler | التحديثات | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
 | `settingsPaneShortcuts` | Keyboard shortcuts | Klavye kısayolları | اختصارات لوحة المفاتيح | A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav). |
@@ -468,6 +474,19 @@ The table below is generated from the ARB files by `tools/l10n`
 | `dropOverlayCombine` | Combine into one PDF | Tek bir PDF’de birleştir | دمج في ملف PDF واحد | Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104). |
 | `startDropStripTitle` | Drop files anywhere in this window | Dosyaları bu pencerede herhangi bir yere bırakın | أفلت الملفات في أي مكان في هذه النافذة | Title of the drop strip above the recent files (a1-4-m2, FmStart drop). |
 | `startDropStripSubtitle` | PDF files open in tabs. | PDF dosyaları sekmelerde açılır. | تُفتح ملفات PDF في علامات تبويب. | Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11). |
+| `startPhoneSearch` | Search documents | Belgelerde ara | البحث في المستندات | Phone home: the search field's placeholder (FmMHome t.search). |
+| `startPhoneToolCombine` | Combine | Birleştir | دمج | Phone home: a quick tool, one short word under its icon (FmMHome tools). |
+| `startPhoneToolOcr` | OCR | OCR | OCR | Phone home: the text recognition quick tool, the short form under its icon (FmMHome tools). |
+| `startPhoneEmptyTitle` | No documents yet | Henüz belge yok | لا توجد مستندات بعد | Phone home with no files: the title (FmMHome t.emptyTitle). |
+| `startPhoneEmptySubtitle` | Open a PDF from your phone or a cloud drive, or scan a paper document. | Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın. | افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا. | Phone home with no files: the line under the title (FmMHome t.emptySub). |
+| `startPhoneOpen` | Open a file | Dosya aç | فتح ملف | Phone home with no files: the first action, a button (FmMHome t.open). |
+| `startPhoneScan` | Scan a document | Belge tara | مسح مستند | Phone home with no files: the second action, a button (FmMHome t.scan). |
+| `startPhoneSeeAll` | See all | Tümü | عرض الكل | Phone home: the link beside Recent to every file (FmMHome t.all). |
+| `startPhoneOpenFrom` | Open from | Şuradan aç | فتح من | Phone home: the label over the places to open from, shown in capitals through the locale's casing (FmMHome t.import). |
+| `startPhoneSourceDownloads` | Downloads | İndirilenler | التنزيلات | Phone home: a place to open from, the phone's downloads folder (FmMHome sources). |
+| `startPhoneSourceGoogleDrive` | Google Drive | Google Drive | Google Drive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
+| `startPhoneSourceOneDrive` | OneDrive | OneDrive | OneDrive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
+| `startPhoneRecent` | Recent | Son açılanlar | الأخيرة | Phone home: heading of the recent files (FmMHome recent). |
 | `startPinned` | Pinned | Sabitlenenler | المثبّتة | Heading of the pinned files on the start screen (a1-4, FmStart pinned). |
 | `startPin` | Pin | Sabitle | تثبيت | Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118). |
 | `startUnpin` | Unpin | Sabitlemeyi kaldır | إلغاء التثبيت | Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin). |
@@ -497,6 +516,9 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startMissingRemove` | Remove from list | Listeden kaldır | إزالة من القائمة | Button of a1-9e that takes the missing file off the recent files (a1-9e, remove). |
 | `startMissingLocate` | Locate… | Bul… | تحديد الموقع… | Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate). |
 | `startMissingClose` | Close | Kapat | إغلاق | Accessible name of a1-9e’s close button, which keeps the file in the list (G118). |
+| `selectSheetSearch` | Search | Ara | بحث | Phone: the search field over a long list in a bottom sheet (a13-8c, G129). |
+| `selectSheetNoMatch` | No matches | Eşleşme yok | لا توجد نتائج | Phone: shown when the search finds nothing in a bottom sheet's list (a13-8c). |
+| `selectSheetClose` | Close | Kapat | إغلاق | Phone: accessible name of the scrim behind a bottom sheet, which closes it. |
 | `errorInternal` | Something went wrong inside Ferman. Copy the technical details to report it. | Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın. | حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه. | The line of an error tab (a1-9b) for a bug in Ferman. |
 | `errorFileNotFound` | The file isn’t there any more. It may have been moved, renamed or deleted. | Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir. | لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف. | The line of an error tab (a1-9b) for a file that is gone. |
 | `errorFilePermissionDenied` | This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours. | Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın. | لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك. | The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119). |
@@ -868,5 +890,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `editStepStyle` | Changed text style · page {page} | Metin stili değiştirildi · sayfa {page} | تغيير نمط النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
 | `editStepMoved` | Moved text block · page {page} | Metin bloğu taşındı · sayfa {page} | نقل كتلة النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
 | `editStepResized` | Resized text block · page {page} | Metin bloğu boyutlandırıldı · sayfa {page} | تغيير حجم كتلة النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
+| `phoneSections` | Sections | Bölümler | الأقسام | Phone navigation bar: its name for screen readers (FmPhone, tabsLabel). |
+| `phoneTabHome` | Home | Ana sayfa | الرئيسية | Phone navigation bar: the start screen (FmPhone). |
+| `phoneTabFiles` | Files | Dosyalar | الملفات | Phone navigation bar: the file browser (FmPhone). |
+| `phoneTabScan` | Scan | Tara | مسح | Phone navigation bar: Scan to PDF (FmPhone). |
+| `phoneTabSettings` | Settings | Ayarlar | الإعدادات | Phone navigation bar: Settings (FmPhone). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

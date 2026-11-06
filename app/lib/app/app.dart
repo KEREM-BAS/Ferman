@@ -5,6 +5,7 @@ import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_recovery.dart';
 import 'package:ferman/features/shell/open_files.dart';
@@ -43,8 +44,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Theme: the light and dark [FermanMaterialTheme]s, switched by
 /// `themeModeProvider` (match system, light, dark) while the app runs. One
 /// [FermanThemeScope] below the localizations resolves the Ferman theme for
-/// the UI locale, the platform's density (touch on iOS and Android, desktop
-/// elsewhere) and reduced motion. When the system
+/// the UI locale, the density (touch on iOS and Android and at phone width,
+/// G129; desktop elsewhere) and reduced motion. When the system
 /// asks for reduced motion (`MediaQuery.disableAnimationsOf`), the theme
 /// switch is instant and every token duration is zero; otherwise the switch
 /// takes the base duration with the ease-out curve.
@@ -178,7 +179,9 @@ class _FermanAppState extends ConsumerState<FermanApp> {
       builder: (context, child) => Directionality(
         textDirection: direction,
         child: FermanThemeScope(
-          touch: FermanThemeScope.isTouchPlatform(Theme.of(context).platform),
+          touch:
+              FermanThemeScope.isTouchPlatform(Theme.of(context).platform) ||
+              WindowMetrics.isPhone(context),
           // Dimmed applies to the dark theme only (a11-1, B078).
           pageDim:
               Theme.of(context).brightness == Brightness.dark &&

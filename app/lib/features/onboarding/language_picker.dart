@@ -4,7 +4,9 @@ import 'dart:ui' show SemanticsRole;
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
+import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -41,6 +43,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// filters by the own name, the English name or the language tag, in any
 /// script. A click selects without moving focus or showing the focus ring
 /// (G22), as `FermanInteractive` does.
+///
+/// At phone width it is board a13-1b instead: the app bar's title, the search
+/// field, one column of radio rows that scrolls and Continue pinned below
+/// (G129). The search field then waits for a tap, so the on-screen keyboard
+/// does not open over the list.
 class LanguagePicker extends ConsumerStatefulWidget {
   /// The picker; [onContinue] leaves it for the welcome steps.
   const new({required this.onContinue, super.key});
@@ -72,6 +79,27 @@ class LanguagePicker extends ConsumerStatefulWidget {
   /// The gap between the two columns (`gap: 2px 12px`).
   static const double columnGap = 12;
 
+  /// A row's least height on a phone (a13-1b `min-height: 56px`).
+  static const double phoneRowHeight = 56;
+
+  /// The radio circle on a phone (a13-1b `width: 20px; height: 20px`).
+  static const double phoneRadioSize = 20;
+
+  /// The circle's inset ring (`0 0 0 2px`) …
+  static const double phoneRadioRing = 2;
+
+  /// … and the selected circle's (`0 0 0 6px`).
+  static const double phoneRadioRingSelected = 6;
+
+  /// The own name's size on a phone (`font: 400 16px/22px`).
+  static const double phoneNameSize = 16;
+
+  /// The own name's line height on a phone.
+  static const double phoneNameHeight = 22 / 16;
+
+  /// The English name's size on a phone (`font: 400 13px/1`).
+  static const double phoneEnglishSize = 13;
+
   @override
   ConsumerState<LanguagePicker> createState() => _LanguagePickerState();
 }
@@ -95,7 +123,7 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
     // Esc fallback of the welcome steps), so focus moves here once that has
     // settled.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _search.requestFocus();
+      if (mounted && !WindowMetrics.isPhone(context)) _search.requestFocus();
     });
   }
 
@@ -178,6 +206,35 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
       onMove: (step) => _move(visible, language, step),
     );
 
+    final noMatch = Semantics(
+      liveRegion: true,
+      child: EmptyState(
+        icon: IconName.search,
+        title: l10n.onboardingLanguageNoMatch(_query.text.trim()),
+        body: l10n.onboardingLanguageNoMatchBody,
+      ),
+    );
+    final phone = WindowMetrics.isPhone(context);
+    final search = TextField(
+      controller: _query,
+      focusNode: _search,
+      icon: IconName.search,
+      placeholder: phone
+          ? l10n.onboardingLanguageSearchPlaceholderPhone
+          : l10n.onboardingLanguageSearchPlaceholder,
+      semanticLabel: l10n.onboardingLanguageSearchLabel,
+      // A new filter moves the Tab stop back to the selected language, or
+      // the first match.
+      onChanged: (_) => setState(() => _stop = null),
+      onSubmitted: (_) => widget.onContinue(),
+    );
+
+    if (phone) {
+      return _phoneLayout(context, search, noMatch, [
+        for (final language in visible) row(language),
+      ]);
+    }
+
     final columns = [
       visible.take(LanguagePicker.rowsPerColumn).toList(),
       visible.skip(LanguagePicker.rowsPerColumn).toList(),
@@ -188,17 +245,7 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
     final list = SizedBox(
       height: listHeight,
       child: visible.isEmpty
-          ? Align(
-              alignment: AlignmentDirectional.topCenter,
-              child: Semantics(
-                liveRegion: true,
-                child: EmptyState(
-                  icon: IconName.search,
-                  title: l10n.onboardingLanguageNoMatch(_query.text.trim()),
-                  body: l10n.onboardingLanguageNoMatchBody,
-                ),
-              ),
-            )
+          ? Align(alignment: AlignmentDirectional.topCenter, child: noMatch)
           : Semantics(
               container: true,
               explicitChildNodes: true,
@@ -270,17 +317,7 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
               ),
             ],
           ),
-          TextField(
-            controller: _query,
-            focusNode: _search,
-            icon: IconName.search,
-            placeholder: l10n.onboardingLanguageSearchPlaceholder,
-            semanticLabel: l10n.onboardingLanguageSearchLabel,
-            // A new filter moves the Tab stop back to the selected
-            // language, or the first match.
-            onChanged: (_) => setState(() => _stop = null),
-            onSubmitted: (_) => widget.onContinue(),
-          ),
+          search,
           FocusTraversalGroup(child: list),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -336,6 +373,79 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
               child: card,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Board a13-1b. A browser's on-screen keyboard reports itself as an inset
+  /// on some phones and shrinks the page on others; either way Continue stays
+  /// above it.
+  Widget _phoneLayout(
+    BuildContext context,
+    Widget search,
+    Widget noMatch,
+    List<Widget> rows,
+  ) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    final space = theme.space;
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: FmPhone(
+        title: l10n.onboardingLanguageTitle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(
+                space.space4,
+                space.space1,
+                space.space4,
+                space.space3,
+              ),
+              child: search,
+            ),
+            Expanded(
+              child: FocusTraversalGroup(
+                child: SingleChildScrollView(
+                  child: rows.isEmpty
+                      ? noMatch
+                      : Semantics(
+                          container: true,
+                          explicitChildNodes: true,
+                          role: SemanticsRole.radioGroup,
+                          label: l10n.languageAppLanguage,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: rows,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: space.space4,
+                vertical: space.space3,
+              ),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: theme.colors.borderSubtle,
+                    width: theme.border.borderWidth,
+                  ),
+                ),
+              ),
+              child: Button(
+                variant: ButtonVariant.primary,
+                size: ButtonSize.lg,
+                fullWidth: true,
+                onPressed: widget.onContinue,
+                child: Text(l10n.onboardingContinue),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -428,69 +538,74 @@ class _LanguageRowState extends State<_LanguageRow> {
     final state = language.translated ? null : l10n.languageNotTranslated;
     final radius = BorderRadius.all(Radius.circular(theme.radius.radiusSm));
 
-    final content = Container(
-      height: LanguagePicker.rowHeight,
-      padding: EdgeInsetsDirectional.symmetric(
-        horizontal: theme.space.space2_5,
-      ),
-      decoration: BoxDecoration(
-        color: widget.selected
-            ? colors.surfaceSelected
-            : _hovered
-            ? colors.surfaceHover
-            : null,
-        borderRadius: radius,
-      ),
-      child: Row(
-        spacing: theme.space.space2_5,
-        children: [
-          SizedBox(
-            width: Icon.defaultSize,
-            child: widget.selected
-                ? Icon(
-                    IconName.check,
-                    color: colors.textAccent,
-                    strokeWidth: _checkStroke,
-                  )
-                : null,
-          ),
-          Text(
-            language.endonym,
-            textDirection: language.textDirection,
-            style: typography.prose.copyWith(
-              fontWeight: theme.typeScale.weightMedium,
-              color: widget.selected ? colors.textAccent : colors.textPrimary,
-              locale: language.locale,
+    final phone = WindowMetrics.isPhone(context);
+    final content = phone
+        ? _phoneContent(context, trailing, state)
+        : Container(
+            height: LanguagePicker.rowHeight,
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: theme.space.space2_5,
             ),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
+            decoration: BoxDecoration(
+              color: widget.selected
+                  ? colors.surfaceSelected
+                  : _hovered
+                  ? colors.surfaceHover
+                  : null,
+              borderRadius: radius,
+            ),
+            child: Row(
+              spacing: theme.space.space2_5,
               children: [
-                Text(
-                  trailing,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: widget.isSystem
-                      ? caption
-                      : caption.copyWith(locale: english),
+                SizedBox(
+                  width: Icon.defaultSize,
+                  child: widget.selected
+                      ? Icon(
+                          IconName.check,
+                          color: colors.textAccent,
+                          strokeWidth: _checkStroke,
+                        )
+                      : null,
                 ),
-                if (state != null)
-                  Text(
-                    state,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                    style: caption,
+                Text(
+                  language.endonym,
+                  textDirection: language.textDirection,
+                  style: typography.prose.copyWith(
+                    fontWeight: theme.typeScale.weightMedium,
+                    color: widget.selected
+                        ? colors.textAccent
+                        : colors.textPrimary,
+                    locale: language.locale,
                   ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        trailing,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: widget.isSystem
+                            ? caption
+                            : caption.copyWith(locale: english),
+                      ),
+                      if (state != null)
+                        Text(
+                          state,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style: caption,
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
 
     return Semantics(
       container: true,
@@ -512,10 +627,83 @@ class _LanguageRowState extends State<_LanguageRow> {
           child: FocusRing(
             visible: _focusVisible,
             style: FocusRingStyle.inset,
-            borderRadius: radius,
+            borderRadius: phone ? BorderRadius.zero : radius,
             child: ExcludeSemantics(child: content),
           ),
         ),
+      ),
+    );
+  }
+
+  /// A row of a13-1b: the radio circle, the own name, which may wrap, and the
+  /// English name or "System language" with "Not translated yet" under it.
+  Widget _phoneContent(BuildContext context, String trailing, String? state) {
+    final theme = context.ferman;
+    final colors = theme.colors;
+    final language = widget.language;
+    final selected = widget.selected;
+    final caption = theme.typography.caption.copyWith(
+      fontSize: LanguagePicker.phoneEnglishSize,
+      color: colors.textTertiary,
+    );
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: LanguagePicker.phoneRowHeight,
+      ),
+      padding: EdgeInsetsDirectional.symmetric(
+        horizontal: theme.space.space5,
+        vertical: theme.space.space1,
+      ),
+      color: selected
+          ? colors.accentSubtle
+          : _hovered
+          ? colors.surfaceHover
+          : null,
+      child: Row(
+        spacing: theme.space.space4,
+        children: [
+          Container(
+            width: LanguagePicker.phoneRadioSize,
+            height: LanguagePicker.phoneRadioSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected ? colors.accent : colors.borderStrong,
+                width: selected
+                    ? LanguagePicker.phoneRadioRingSelected
+                    : LanguagePicker.phoneRadioRing,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              language.endonym,
+              textDirection: language.textDirection,
+              style: theme.typography.prose.copyWith(
+                fontSize: LanguagePicker.phoneNameSize,
+                height: LanguagePicker.phoneNameHeight,
+                color: colors.textPrimary,
+                locale: language.locale,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                trailing,
+                style: widget.isSystem
+                    ? caption
+                    : caption.copyWith(
+                        locale: Locale.fromSubtags(
+                          languageCode: AppLanguage.english.locale.languageCode,
+                        ),
+                      ),
+              ),
+              if (state != null) Text(state, style: caption),
+            ],
+          ),
+        ],
       ),
     );
   }

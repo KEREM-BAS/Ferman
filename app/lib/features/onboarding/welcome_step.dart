@@ -1,5 +1,7 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -14,6 +16,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// minmax(0,440px) minmax(0,520px); gap: 80px; padding: 0 80px`); they
 /// shrink together in a narrower window, and the page scrolls when the
 /// window is too low. Numbers in the counter follow the region (G34).
+///
+/// At phone width everything is one column in a13-1's language (G129): Back
+/// and Skip on top, the text and then [aside], which scroll, and the dots and
+/// the main button pinned below.
 class WelcomeStep extends ConsumerWidget {
   /// Step [step] of [count] (counted from 1).
   const new({
@@ -95,6 +101,25 @@ class WelcomeStep extends ConsumerWidget {
   /// The gap in the start column (`gap: 18px`).
   static const double startGap = 18;
 
+  /// Skip's size on a phone (a13-1 `font: 400 17px/1`).
+  static const double phoneSkipSize = 17;
+
+  /// The side padding on a phone (a13-1 `padding: 12px 24px`).
+  static const double phonePaddingX = 24;
+
+  /// The headline's size on a phone (`font: 700 30px/36px`, in semibold: no
+  /// bold Plex is bundled).
+  static const double phoneTitleSize = 30;
+
+  /// The headline's line height on a phone.
+  static const double phoneTitleHeight = 36 / 30;
+
+  /// The paragraphs' line height on a phone (`font: 400 17px/24px`).
+  static const double phoneProseHeight = 24 / 17;
+
+  /// The gap between the text and the aside on a phone (`gap: 28px`).
+  static const double phoneAsideGap = 28;
+
   /// The style of the paragraphs.
   static TextStyle proseStyle(BuildContext context) {
     final theme = context.ferman;
@@ -125,6 +150,17 @@ class WelcomeStep extends ConsumerWidget {
     final format = ref.watch(regionProvider).format;
     final stepText = format.integer(step);
     final countText = format.integer(count);
+
+    if (WindowMetrics.isPhone(context)) {
+      return _phoneLayout(
+        context,
+        _StepDots(
+          step: step,
+          count: count,
+          label: l10n.onboardingStepLabel(stepText, countText),
+        ),
+      );
+    }
 
     final start = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,6 +280,132 @@ class WelcomeStep extends ConsumerWidget {
         Expanded(child: body),
         footer,
       ],
+    );
+  }
+
+  Widget _phoneLayout(BuildContext context, Widget dots) {
+    final theme = context.ferman;
+    final space = theme.space;
+    final scale = theme.typeScale;
+    final l10n = AppLocalizations.of(context);
+    return FmPhone(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              phonePaddingX,
+              space.space3,
+              phonePaddingX,
+              space.space1,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (onBack case final back?)
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    onPressed: back,
+                    child: Text(l10n.onboardingBack),
+                  )
+                else
+                  const SizedBox.shrink(),
+                if (onSkip case final skip?)
+                  FermanInteractive(
+                    onPressed: skip,
+                    semanticLabel: l10n.onboardingSkip,
+                    builder: (context, states, _) => FocusRing(
+                      visible: states.contains(WidgetState.focused),
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minWidth: theme.density.hitMin,
+                          minHeight: theme.density.hitMin,
+                        ),
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: ExcludeSemantics(
+                          child: Text(
+                            l10n.onboardingSkip,
+                            style: theme.typography.body.copyWith(
+                              fontSize: phoneSkipSize,
+                              color: theme.colors.textAccent,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: phonePaddingX,
+                vertical: space.space3,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: phoneAsideGap,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: space.space3,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          title,
+                          style: theme.typography.headline.copyWith(
+                            fontSize: phoneTitleSize,
+                            height: phoneTitleHeight,
+                            fontWeight: scale.weightSemibold,
+                            letterSpacing: scale.trackingTight * phoneTitleSize,
+                          ),
+                        ),
+                      ),
+                      for (final paragraph in paragraphs)
+                        Text(
+                          paragraph,
+                          style: proseStyle(context)
+                              .copyWith(height: phoneProseHeight),
+                        ),
+                      ?note,
+                    ],
+                  ),
+                  aside,
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: phonePaddingX,
+              vertical: space.space4,
+            ),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: theme.colors.borderSubtle,
+                  width: theme.border.borderWidth,
+                ),
+              ),
+            ),
+            child: Column(
+              spacing: startGap,
+              children: [
+                dots,
+                Button(
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: onNext,
+                  child: Text(nextLabel),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

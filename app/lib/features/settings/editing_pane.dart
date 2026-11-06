@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -72,6 +74,27 @@ class EditingPane extends ConsumerWidget {
     final caption = typography.caption.copyWith(color: colors.textSecondary);
     final folder = ref.watch(engineServiceProvider).recoveryRoot;
     final radius = BorderRadius.all(Radius.circular(theme.radius.radiusSm));
+    final phone = WindowMetrics.isPhone(context);
+    Widget target(Widget control) =>
+        phone ? PhoneHitTarget(child: control) : control;
+    final fontForNewText = Select<String>(
+      label: l10n.settingsFontForNewText,
+      size: FieldSize.sm,
+      value: 'match',
+      options: [
+        SelectOption(value: 'match', label: l10n.settingsFontForNewTextMatch),
+      ],
+      disabled: true,
+      disabledReason: Feature.addingTextBoxes.disabledReason(context),
+    );
+    final keepVersions = Select<String>(
+      label: l10n.settingsKeepVersions,
+      size: FieldSize.sm,
+      value: '30',
+      options: [SelectOption(value: '30', label: l10n.settingsKeepVersions30)],
+      disabled: true,
+      disabledReason: Feature.versionHistory.disabledReason(context),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -81,13 +104,15 @@ class EditingPane extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space.space2,
           children: [
-            Switch(
-              value: settings.markEdited,
-              label: l10n.settingsEditMarks,
-              onChanged: (value) => unawaited(
-                changeSetting(
-                  ref,
-                  (current) => current.copyWith(markEdited: value),
+            target(
+              Switch(
+                value: settings.markEdited,
+                label: l10n.settingsEditMarks,
+                onChanged: (value) => unawaited(
+                  changeSetting(
+                    ref,
+                    (current) => current.copyWith(markEdited: value),
+                  ),
                 ),
               ),
             ),
@@ -164,66 +189,57 @@ class EditingPane extends ConsumerWidget {
               (MissingGlyphPolicy.ask, l10n.settingsMissingGlyphsAsk),
               (MissingGlyphPolicy.mark, l10n.settingsMissingGlyphsMark),
             ])
-              Radio<MissingGlyphPolicy>(
-                value: value,
-                groupValue: settings.missingGlyphs,
-                label: label,
-                onChanged: (policy) => unawaited(
-                  changeSetting(
-                    ref,
-                    (current) => current.copyWith(missingGlyphs: policy),
+              target(
+                Radio<MissingGlyphPolicy>(
+                  value: value,
+                  groupValue: settings.missingGlyphs,
+                  label: label,
+                  onChanged: (policy) => unawaited(
+                    changeSetting(
+                      ref,
+                      (current) => current.copyWith(missingGlyphs: policy),
+                    ),
                   ),
                 ),
               ),
           ],
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: theme.space.space3,
-          children: [
-            Expanded(
-              child: Select<String>(
-                label: l10n.settingsFontForNewText,
-                size: FieldSize.sm,
-                value: 'match',
-                options: [
-                  SelectOption(
-                    value: 'match',
-                    label: l10n.settingsFontForNewTextMatch,
-                  ),
-                ],
-                disabled: true,
-                disabledReason: Feature.addingTextBoxes.disabledReason(context),
+        if (phone)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: theme.space.space3,
+            children: [fontForNewText, keepVersions],
+          )
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: theme.space.space3,
+            children: [
+              Expanded(child: fontForNewText),
+              Expanded(child: keepVersions),
+            ],
+          ),
+        target(
+          Switch(
+            value: settings.reflow,
+            label: l10n.settingsReflow,
+            onChanged: (enabled) => unawaited(
+              changeSetting(
+                ref,
+                (current) => current.copyWith(reflow: enabled),
               ),
             ),
-            Expanded(
-              child: Select<String>(
-                label: l10n.settingsKeepVersions,
-                size: FieldSize.sm,
-                value: '30',
-                options: [
-                  SelectOption(value: '30', label: l10n.settingsKeepVersions30),
-                ],
-                disabled: true,
-                disabledReason: Feature.versionHistory.disabledReason(context),
-              ),
-            ),
-          ],
-        ),
-        Switch(
-          value: settings.reflow,
-          label: l10n.settingsReflow,
-          onChanged: (enabled) => unawaited(
-            changeSetting(ref, (current) => current.copyWith(reflow: enabled)),
           ),
         ),
-        Switch(
-          value: settings.recoveryCopies,
-          label: l10n.settingsRecoveryCopies,
-          onChanged: (enabled) => unawaited(
-            changeSetting(
-              ref,
-              (current) => current.copyWith(recoveryCopies: enabled),
+        target(
+          Switch(
+            value: settings.recoveryCopies,
+            label: l10n.settingsRecoveryCopies,
+            onChanged: (enabled) => unawaited(
+              changeSetting(
+                ref,
+                (current) => current.copyWith(recoveryCopies: enabled),
+              ),
             ),
           ),
         ),

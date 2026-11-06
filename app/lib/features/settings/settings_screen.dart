@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/features/settings/editing_pane.dart';
 import 'package:ferman/features/settings/general_pane.dart';
 import 'package:ferman/features/settings/language_region_pane.dart';
+import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/privacy_pane.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
@@ -41,12 +46,23 @@ import 'package:go_router/go_router.dart';
 /// through the pane, each column as one group in reading order. When a
 /// change cannot be stored, a warning Banner at the top of the pane says
 /// that it lasts only until Ferman closes (`settingsSaveFailedProvider`).
+///
+/// At phone width (G129) `/settings` is the list of a13-15 and
+/// `/settings/<pane>` the pane alone, in one column in `FmPhone`, whose back
+/// arrow, like Esc and ⌘W, goes back one level. The pane list's search is not
+/// on the phone boards, so it is left out there.
 class FmSettings extends ConsumerStatefulWidget {
   /// Settings on [initialPane].
-  const new({super.key, this.initialPane = SettingsPane.general});
+  const new({super.key, this.initialPane, this.aboveList = false});
 
-  /// The pane shown first.
-  final SettingsPane initialPane;
+  /// The pane shown first: General when null, or at phone width the list of
+  /// panes.
+  final SettingsPane? initialPane;
+
+  /// Whether this pane's route was pushed from the phone's list. When the
+  /// window widens, the two routes draw the same desktop Settings, so closing
+  /// it leaves them both.
+  final bool aboveList;
 
   /// The pane list's width (`width: 240px`).
   static const double navWidth = 240;
@@ -82,18 +98,56 @@ class FmSettings extends ConsumerStatefulWidget {
     }
   }
 
+  /// A phone pane's back: to the screen below it, or to the list when the
+  /// pane was opened directly.
+  static void closePane(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(Routes.settings);
+    }
+  }
+
   @override
   ConsumerState<FmSettings> createState() => _FmSettingsState();
 }
 
 class _FmSettingsState extends ConsumerState<FmSettings> {
-  late SettingsPane _pane = widget.initialPane;
+  late SettingsPane _pane = widget.initialPane ?? SettingsPane.general;
+  final FocusNode _focus = FocusNode(debugLabel: 'FmSettings');
+  bool? _wasPhone;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final phone = WindowMetrics.isPhone(context);
+    if (_wasPhone != null && _wasPhone != phone) {
+      // Crossing the phone width rebuilds the screen below, and its autofocus
+      // takes the focus off this route, so Esc would stop working here. The
+      // manager applies that autofocus in a microtask of its own, queued
+      // during the build, so this one, queued after the frame, comes last.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => scheduleMicrotask(() {
+          if (mounted && (ModalRoute.isCurrentOf(context) ?? false)) {
+            _focus.requestFocus();
+          }
+        }),
+      );
+    }
+    _wasPhone = phone;
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(FmSettings oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialPane != widget.initialPane) {
-      _pane = widget.initialPane;
+      _pane = widget.initialPane ?? SettingsPane.general;
     }
   }
 
@@ -104,7 +158,65 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final saveFailed = ref.watch(settingsSaveFailedProvider);
-    void close() => FmSettings.close(context);
+    final phone = WindowMetrics.isPhone(context);
+    // A pane route stays on the pane chosen in the side list while it was
+    // wide, so narrowing the window does not go back to the first one.
+    final phonePane = widget.initialPane == null ? null : _pane;
+    void close() {
+      if (phone && phonePane != null) {
+        FmSettings.closePane(context);
+        return;
+      }
+      if (!phone && widget.aboveList && context.canPop()) context.pop();
+      FmSettings.close(context);
+    }
+
+    Widget framed(Widget child) => CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): close,
+        for (final binding in ShellCommand.closeDocument.bindingsFor(platform))
+          binding.activator: close,
+      },
+      child: FocusTraversalGroup(
+        child: Focus(
+          focusNode: _focus,
+          autofocus: true,
+          // Holds focus when Settings opens, so Esc works at once, but is no
+          // Tab stop of its own.
+          skipTraversal: true,
+          child: child,
+        ),
+      ),
+    );
+    final banner = saveFailed
+        ? Banner(
+            tone: BannerTone.warning,
+            title: l10n.settingsSaveFailedTitle,
+            dismissLabel: l10n.settingsSaveFailedDismiss,
+            onDismiss: ref.read(settingsSaveFailedProvider.notifier).dismiss,
+            child: Text(l10n.settingsSaveFailedMessage),
+          )
+        : null;
+
+    if (phone) {
+      return framed(
+        FmPhone(
+          title: phonePane?.label(l10n) ?? l10n.settingsTitle,
+          onBack: close,
+          tab: PhoneTab.settings,
+          child: phonePane == null
+              ? const PhoneSettingsList()
+              : SingleChildScrollView(
+                  padding: EdgeInsets.all(theme.space.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: FmSettings.paneGap,
+                    children: [?banner, _paneBody(phonePane)],
+                  ),
+                ),
+        ),
+      );
+    }
 
     final nav = Container(
       width: FmSettings.navWidth,
@@ -175,12 +287,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
       ),
     );
 
-    final body = switch (_pane) {
-      SettingsPane.language => const LanguageRegionPane(),
-      SettingsPane.editing => const EditingPane(),
-      SettingsPane.privacy => const PrivacyPane(),
-      _ => const GeneralPane(),
-    };
+    final body = _paneBody(_pane);
 
     final main = ColoredBox(
       color: colors.surfaceRaised,
@@ -205,16 +312,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: FmSettings.paneGap,
                       children: [
-                        if (saveFailed)
-                          Banner(
-                            tone: BannerTone.warning,
-                            title: l10n.settingsSaveFailedTitle,
-                            dismissLabel: l10n.settingsSaveFailedDismiss,
-                            onDismiss: ref
-                                .read(settingsSaveFailedProvider.notifier)
-                                .dismiss,
-                            child: Text(l10n.settingsSaveFailedMessage),
-                          ),
+                        ?banner,
                         Semantics(
                           header: true,
                           child: Text(
@@ -244,32 +342,26 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
       ),
     );
 
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.escape): close,
-        for (final binding in ShellCommand.closeDocument.bindingsFor(platform))
-          binding.activator: close,
-      },
-      child: FocusTraversalGroup(
-        child: Focus(
-          autofocus: true,
-          // Holds focus when Settings opens, so Esc works at once, but is no
-          // Tab stop of its own.
-          skipTraversal: true,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // One group per column, so Tab finishes the pane list before
-              // the pane instead of zigzagging between rows that share a
-              // band.
-              FocusTraversalGroup(child: nav),
-              Expanded(child: FocusTraversalGroup(child: main)),
-            ],
-          ),
-        ),
+    return framed(
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // One group per column, so Tab finishes the pane list before
+          // the pane instead of zigzagging between rows that share a
+          // band.
+          FocusTraversalGroup(child: nav),
+          Expanded(child: FocusTraversalGroup(child: main)),
+        ],
       ),
     );
   }
+
+  Widget _paneBody(SettingsPane pane) => switch (pane) {
+    SettingsPane.language => const LanguageRegionPane(),
+    SettingsPane.editing => const EditingPane(),
+    SettingsPane.privacy => const PrivacyPane(),
+    _ => const GeneralPane(),
+  };
 }
 
 /// A row of the pane list: the pane's icon and name; the current pane on

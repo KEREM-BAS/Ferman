@@ -179,8 +179,44 @@ Future<void> windowGoldenTest({
   bool muteTickers = true,
   Future<void> Function(WidgetTester tester)? cleanUp,
   int layoutPortals = 0,
+}) => appGoldenTest(
+  fileName: goldenFileName(screen, chrome, theme, language),
+  size: goldenWindowSize,
+  platform: chrome.window,
+  targetPlatform: chrome.targetPlatform,
+  shortcuts: chrome.shortcuts,
+  language: language,
+  settings: settings,
+  board: board,
+  initialLocation: initialLocation,
+  open: open,
+  overrides: overrides,
+  engine: engine,
+  muteTickers: muteTickers,
+  cleanUp: cleanUp,
+  layoutPortals: layoutPortals,
+);
+
+/// The body of [windowGoldenTest] and `phoneGoldenTest`: the whole app at
+/// [size], with Ferman's title bar for [platform] (null: none, as on the
+/// web), written to `goldens/linux/<fileName>.png`.
+Future<void> appGoldenTest({
+  required String fileName,
+  required Size size,
+  required WindowPlatform? platform,
+  required TargetPlatform targetPlatform,
+  required ShortcutPlatform shortcuts,
+  required GoldenLanguage language,
+  required AppSettings settings,
+  String? board,
+  String? initialLocation,
+  Future<void> Function(WidgetTester tester)? open,
+  List<Override> overrides = const [],
+  EngineService? engine,
+  bool muteTickers = true,
+  Future<void> Function(WidgetTester tester)? cleanUp,
+  int layoutPortals = 0,
 }) {
-  final fileName = goldenFileName(screen, chrome, theme, language);
   late ValueNotifier<bool> tickers;
   late GoldenDesktopWindow window;
   return AlchemistConfig.runWithConfig(
@@ -191,7 +227,7 @@ Future<void> windowGoldenTest({
       skip: !isGoldenHost,
       builder: () {
         tickers = ValueNotifier(true);
-        window = GoldenDesktopWindow(chrome.window);
+        window = GoldenDesktopWindow(platform);
         // A container of the test's own (disposed after it), as the app's
         // root scope.
         final Widget app = UncontrolledProviderScope(
@@ -205,7 +241,7 @@ Future<void> windowGoldenTest({
               ),
               initialSettingsProvider.overrideWithValue(settings),
               desktopWindowProvider.overrideWithValue(window),
-              shortcutPlatformProvider.overrideWithValue(chrome.shortcuts),
+              shortcutPlatformProvider.overrideWithValue(shortcuts),
               ...overrides,
             ],
           ),
@@ -216,8 +252,8 @@ Future<void> windowGoldenTest({
           builder: (context, enabled, child) =>
               TickerMode(enabled: enabled, child: child!),
           child: SizedBox.fromSize(
-            size: goldenWindowSize,
-            child: chrome == GoldenChrome.mac
+            size: size,
+            child: platform == WindowPlatform.mac
                 ? SimulatedTrafficLights(layout: window.layout, child: app)
                 : app,
           ),
@@ -230,16 +266,16 @@ Future<void> windowGoldenTest({
         });
         addTearDown(_resetDebugValues);
         tester.view
-          ..physicalSize = goldenWindowSize
+          ..physicalSize = size
           ..devicePixelRatio = 1;
-        await tester.binding.setSurfaceSize(goldenWindowSize);
+        await tester.binding.setSurfaceSize(size);
         tester.platformDispatcher.localesTestValue = [language.systemLocale];
         addTearDown(tester.platformDispatcher.clearLocalesTestValue);
         if (initialLocation != null) {
           tester.platformDispatcher.defaultRouteNameTestValue = initialLocation;
           addTearDown(tester.platformDispatcher.clearDefaultRouteNameTestValue);
         }
-        debugDefaultTargetPlatformOverride = chrome.targetPlatform;
+        debugDefaultTargetPlatformOverride = targetPlatform;
         EditableText.debugDeterministicCursor = true;
         await tester.pumpWidget(widget);
       },
@@ -263,7 +299,7 @@ Future<void> windowGoldenTest({
           reason: 'every ticker is stopped before the capture',
         );
         _expectSystemFallbackFonts(tester, fileName);
-        if (chrome == GoldenChrome.mac) {
+        if (platform == WindowPlatform.mac) {
           expect(
             window.layout.value,
             isNotNull,
@@ -282,7 +318,7 @@ Future<void> windowGoldenTest({
 }
 
 /// [fermanAlchemistConfig] without the 8 px inset around the scenario: a
-/// window golden is exactly [goldenWindowSize].
+/// window golden is exactly its window's size.
 final AlchemistConfig fermanWindowAlchemistConfig = fermanAlchemistConfig
     .copyWith(
       goldenTestTheme: GoldenTestTheme(

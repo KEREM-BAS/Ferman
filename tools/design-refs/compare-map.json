@@ -1,6 +1,7 @@
 {
-  "$comment": "Golden-versus-reference pairs for `node tools/design-refs compare` (ROADMAP §5 step 11). Each pair names a board of boards.json (its render is <refs>/<board>.png; with `lang`, the language variant <refs>/<board>.<lang>.png of a board with the board-language switch, and the golden in that language) and a golden of the M1 matrix (<goldens>/<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png, a whole 1440 × 900 window at 1x), or says why the board is not compared. `crop` cuts the board render, `goldenCrop` the golden; both must give the same size. `masks` are rectangles in the compared frame (after cropping) that neither score counts. Rectangles are whole pixels: x, y, width, height. README.md explains the fields and the scores.",
+  "$comment": "Golden-versus-reference pairs for `node tools/design-refs compare` (ROADMAP §5 step 11). Each pair names a board of boards.json (its render is <refs>/<board>.png; with `lang`, the language variant <refs>/<board>.<lang>.png of a board with the board-language switch, and the golden in that language) and a golden of the M1 matrix (<goldens>/<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png, a whole 1440 × 900 window at 1x; or <goldens>/<screen>_phone_<light|dark>_<en|tr|ar>.png, a whole phoneGoldenSize screen at 1x), or says why the board is not compared. `crop` cuts the board render, `goldenCrop` the golden; both must give the same size. `masks` are rectangles in the compared frame (after cropping) that neither score counts. Rectangles are whole pixels: x, y, width, height. README.md explains the fields and the scores.",
   "goldenSize": { "width": 1440, "height": 900 },
+  "phoneGoldenSize": { "width": 393, "height": 852 },
   "pairs": [
     {
       "id": "f6-mac",
@@ -558,6 +559,27 @@
     {
       "board": "a11-7d",
       "notCompared": "A spec sheet of panels and dialogs side by side, not a window, so no whole-window golden lines up with it. The goldens save_permission, save_locked, save_replace_failed and save_volume_gone draw its states; a reviewer compares them by eye (M3, G37, G38, G40, G42)."
+    },
+    {
+      "board": "a13-1b",
+      "golden": "language_picker_phone_light_en.png",
+      "crop": { "x": 12, "y": 48, "width": 393, "height": 852 },
+      "cropSource": "FmPhone's source, not measured on a render: 12 px of bezel and the Android status bar's 36 px above the screen. The board's phone is 412 × 915, the golden 393 × 852, so its right and bottom edges are left out.",
+      "note": "First run on a phone (B135). The board is 19 px wider and draws the Android app bar; expect the columns to differ by that."
+    },
+    {
+      "board": "a13-2e",
+      "golden": "start_phone_light_en.png",
+      "crop": { "x": 12, "y": 48, "width": 393, "height": 852 },
+      "cropSource": "FmPhone's source, not measured on a render: 12 px of bezel and the Android status bar's 36 px above the screen. The board's phone is 412 × 915, the golden 393 × 852, so its right and bottom edges are left out.",
+      "note": "The empty home on a phone (B135), which the web build always is."
+    },
+    {
+      "board": "a13-15b",
+      "golden": "settings_language_phone_dark_en.png",
+      "crop": { "x": 12, "y": 48, "width": 393, "height": 852 },
+      "cropSource": "FmPhone's source, not measured on a render: 12 px of bezel and the Android status bar's 36 px above the screen. The board's phone is 412 × 915, the golden 393 × 852, so its right and bottom edges are left out.",
+      "note": "Settings › Language and region on a phone, dark (B135)."
     }
   ]
 }

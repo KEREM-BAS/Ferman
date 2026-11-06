@@ -537,6 +537,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'ابحث عن لغة · Search languages · Dil ara · Sprache suchen';
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      'بحث · Search · Ara · Suchen';
+
+  @override
   String get onboardingLanguageSearchLabel => 'ابحث عن لغة';
 
   @override
@@ -827,6 +831,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsPaneAi => 'المساعد الذكي';
+
+  @override
+  String get settingsPhoneGroupDocuments => 'المستندات';
+
+  @override
+  String get settingsPhoneGroupApp => 'التطبيق';
+
+  @override
+  String get settingsPhoneGroupRegion => 'المنطقة';
+
+  @override
+  String get settingsPhonePrivacyValue => 'لا تُجمع أي بيانات';
+
+  @override
+  String get settingsPhoneAbout => 'حول التطبيق والترخيص';
 
   @override
   String get settingsPanePrivacy => 'الخصوصية';
@@ -1402,6 +1421,46 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startDropStripSubtitle => 'تُفتح ملفات PDF في علامات تبويب.';
 
   @override
+  String get startPhoneSearch => 'البحث في المستندات';
+
+  @override
+  String get startPhoneToolCombine => 'دمج';
+
+  @override
+  String get startPhoneToolOcr => 'OCR';
+
+  @override
+  String get startPhoneEmptyTitle => 'لا توجد مستندات بعد';
+
+  @override
+  String get startPhoneEmptySubtitle =>
+      'افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا.';
+
+  @override
+  String get startPhoneOpen => 'فتح ملف';
+
+  @override
+  String get startPhoneScan => 'مسح مستند';
+
+  @override
+  String get startPhoneSeeAll => 'عرض الكل';
+
+  @override
+  String get startPhoneOpenFrom => 'فتح من';
+
+  @override
+  String get startPhoneSourceDownloads => 'التنزيلات';
+
+  @override
+  String get startPhoneSourceGoogleDrive => 'Google Drive';
+
+  @override
+  String get startPhoneSourceOneDrive => 'OneDrive';
+
+  @override
+  String get startPhoneRecent => 'الأخيرة';
+
+  @override
   String get startPinned => 'المثبّتة';
 
   @override
@@ -1504,6 +1563,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get startMissingClose => 'إغلاق';
+
+  @override
+  String get selectSheetSearch => 'بحث';
+
+  @override
+  String get selectSheetNoMatch => 'لا توجد نتائج';
+
+  @override
+  String get selectSheetClose => 'إغلاق';
 
   @override
   String get errorInternal =>
@@ -3077,4 +3145,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String editStepResized(String page) {
     return 'تغيير حجم كتلة النص · الصفحة $page';
   }
+
+  @override
+  String get phoneSections => 'الأقسام';
+
+  @override
+  String get phoneTabHome => 'الرئيسية';
+
+  @override
+  String get phoneTabFiles => 'الملفات';
+
+  @override
+  String get phoneTabScan => 'مسح';
+
+  @override
+  String get phoneTabSettings => 'الإعدادات';
 }

@@ -1,6 +1,8 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
@@ -70,6 +72,14 @@ class PrivacyPane extends StatelessWidget {
       ),
     ];
 
+    Widget networkSwitch(Feature feature, String title, String description) =>
+        Switch(
+          value: false,
+          semanticLabel: '$title. $description',
+          disabled: true,
+          disabledReason: feature.disabledReason(context),
+        );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space.space4,
@@ -123,12 +133,12 @@ class PrivacyPane extends StatelessWidget {
                   ),
                 ),
               ),
-              Switch(
-                value: false,
-                semanticLabel: '$title. $description',
-                disabled: true,
-                disabledReason: feature.disabledReason(context),
-              ),
+              if (WindowMetrics.isPhone(context))
+                PhoneHitTarget(
+                  child: networkSwitch(feature, title, description),
+                )
+              else
+                networkSwitch(feature, title, description),
             ],
           ),
         Align(

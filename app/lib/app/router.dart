@@ -1,13 +1,16 @@
 import 'package:ferman/app/window_frame.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/gallery/gallery_screen.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/save/closing_dialogs.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_title_bar.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/settings_providers.dart';
+import 'package:flutter/widgets.dart' show MediaQuery;
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -55,6 +58,22 @@ GoRouter router(Ref ref) {
       return switch (state.matchedLocation) {
         Routes.start when !completed => Routes.welcome,
         Routes.welcome when completed => Routes.start,
+        // The shell has no phone layout, and with no document it has nothing
+        // to show (G129). The width is read without depending on it: a
+        // dependency would parse the route again at every resize.
+        // shortcut: a browser narrowed while on /editor stays there; revisit
+        // with the phone reader (P5).
+        Routes.editor
+            when WindowMetrics.isPhoneWidth(
+                  context
+                          .getInheritedWidgetOfExactType<MediaQuery>()
+                          ?.data
+                          .size
+                          .width ??
+                      WindowMetrics.phoneMaxWidth,
+                ) &&
+                ref.read(shellDocumentsProvider).documents.isEmpty =>
+          Routes.start,
         _ => null,
       };
     },
@@ -111,6 +130,7 @@ GoRouter router(Ref ref) {
             path: '${Routes.settings}/:pane',
             builder: (context, state) => FmSettings(
               initialPane: SettingsPane.fromPath(state.pathParameters['pane']),
+              aboveList: state.extra == true,
             ),
           ),
         ],

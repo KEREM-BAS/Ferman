@@ -538,6 +538,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Dil ara · Search languages · Sprache suchen · ابحث عن لغة';
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      'Ara · Search · Suchen · بحث';
+
+  @override
   String get onboardingLanguageSearchLabel => 'Dil ara';
 
   @override
@@ -832,6 +836,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsPaneAi => 'Yapay zekâ yardımcısı';
+
+  @override
+  String get settingsPhoneGroupDocuments => 'Belgeler';
+
+  @override
+  String get settingsPhoneGroupApp => 'Uygulama';
+
+  @override
+  String get settingsPhoneGroupRegion => 'Bölge';
+
+  @override
+  String get settingsPhonePrivacyValue => 'Veri toplanmaz';
+
+  @override
+  String get settingsPhoneAbout => 'Hakkında ve lisans';
 
   @override
   String get settingsPanePrivacy => 'Gizlilik';
@@ -1402,6 +1421,46 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startDropStripSubtitle => 'PDF dosyaları sekmelerde açılır.';
 
   @override
+  String get startPhoneSearch => 'Belgelerde ara';
+
+  @override
+  String get startPhoneToolCombine => 'Birleştir';
+
+  @override
+  String get startPhoneToolOcr => 'OCR';
+
+  @override
+  String get startPhoneEmptyTitle => 'Henüz belge yok';
+
+  @override
+  String get startPhoneEmptySubtitle =>
+      'Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın.';
+
+  @override
+  String get startPhoneOpen => 'Dosya aç';
+
+  @override
+  String get startPhoneScan => 'Belge tara';
+
+  @override
+  String get startPhoneSeeAll => 'Tümü';
+
+  @override
+  String get startPhoneOpenFrom => 'Şuradan aç';
+
+  @override
+  String get startPhoneSourceDownloads => 'İndirilenler';
+
+  @override
+  String get startPhoneSourceGoogleDrive => 'Google Drive';
+
+  @override
+  String get startPhoneSourceOneDrive => 'OneDrive';
+
+  @override
+  String get startPhoneRecent => 'Son açılanlar';
+
+  @override
   String get startPinned => 'Sabitlenenler';
 
   @override
@@ -1505,6 +1564,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get startMissingClose => 'Kapat';
+
+  @override
+  String get selectSheetSearch => 'Ara';
+
+  @override
+  String get selectSheetNoMatch => 'Eşleşme yok';
+
+  @override
+  String get selectSheetClose => 'Kapat';
 
   @override
   String get errorInternal =>
@@ -2994,4 +3062,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String editStepResized(String page) {
     return 'Metin bloğu boyutlandırıldı · sayfa $page';
   }
+
+  @override
+  String get phoneSections => 'Bölümler';
+
+  @override
+  String get phoneTabHome => 'Ana sayfa';
+
+  @override
+  String get phoneTabFiles => 'Dosyalar';
+
+  @override
+  String get phoneTabScan => 'Tara';
+
+  @override
+  String get phoneTabSettings => 'Ayarlar';
 }

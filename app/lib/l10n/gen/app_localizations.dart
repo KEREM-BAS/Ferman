@@ -1120,6 +1120,12 @@ abstract class AppLocalizations {
   /// **'Search languages · Dil ara · Sprache suchen · ابحث عن لغة'**
   String get onboardingLanguageSearchPlaceholder;
 
+  /// Placeholder of the language search field at phone width (board a13-1b): the shorter form that fits one line. It shows the word in several languages on purpose, this language first.
+  ///
+  /// In en, this message translates to:
+  /// **'Search · Ara · Suchen · بحث'**
+  String get onboardingLanguageSearchPlaceholderPhone;
+
   /// Screen-reader name of the search field of the first-run language picker (a1-1).
   ///
   /// In en, this message translates to:
@@ -1635,6 +1641,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI assistant'**
   String get settingsPaneAi;
+
+  /// Phone Settings: a group of the list (a13-15, shown in capitals) and a heading of Language and region (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get settingsPhoneGroupDocuments;
+
+  /// Phone Settings › Language and region: the heading over the app language (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsPhoneGroupApp;
+
+  /// Phone Settings › Language and region: the heading over the region formats (a13-15b).
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get settingsPhoneGroupRegion;
+
+  /// Phone Settings: the value of the Privacy row, which states the fact (a13-15). Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'No data collected'**
+  String get settingsPhonePrivacyValue;
+
+  /// Phone Settings: the row of About and the licences (a13-15).
+  ///
+  /// In en, this message translates to:
+  /// **'About and licence'**
+  String get settingsPhoneAbout;
 
   /// A settings pane: its row in the pane list and its heading (a11-1, FmSettings t.nav).
   ///
@@ -2577,6 +2613,84 @@ abstract class AppLocalizations {
   /// **'PDF files open in tabs.'**
   String get startDropStripSubtitle;
 
+  /// Phone home: the search field's placeholder (FmMHome t.search).
+  ///
+  /// In en, this message translates to:
+  /// **'Search documents'**
+  String get startPhoneSearch;
+
+  /// Phone home: a quick tool, one short word under its icon (FmMHome tools).
+  ///
+  /// In en, this message translates to:
+  /// **'Combine'**
+  String get startPhoneToolCombine;
+
+  /// Phone home: the text recognition quick tool, the short form under its icon (FmMHome tools).
+  ///
+  /// In en, this message translates to:
+  /// **'OCR'**
+  String get startPhoneToolOcr;
+
+  /// Phone home with no files: the title (FmMHome t.emptyTitle).
+  ///
+  /// In en, this message translates to:
+  /// **'No documents yet'**
+  String get startPhoneEmptyTitle;
+
+  /// Phone home with no files: the line under the title (FmMHome t.emptySub).
+  ///
+  /// In en, this message translates to:
+  /// **'Open a PDF from your phone or a cloud drive, or scan a paper document.'**
+  String get startPhoneEmptySubtitle;
+
+  /// Phone home with no files: the first action, a button (FmMHome t.open).
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file'**
+  String get startPhoneOpen;
+
+  /// Phone home with no files: the second action, a button (FmMHome t.scan).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a document'**
+  String get startPhoneScan;
+
+  /// Phone home: the link beside Recent to every file (FmMHome t.all).
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get startPhoneSeeAll;
+
+  /// Phone home: the label over the places to open from, shown in capitals through the locale's casing (FmMHome t.import).
+  ///
+  /// In en, this message translates to:
+  /// **'Open from'**
+  String get startPhoneOpenFrom;
+
+  /// Phone home: a place to open from, the phone's downloads folder (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get startPhoneSourceDownloads;
+
+  /// Phone home: a place to open from, a product name that stays as it is (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get startPhoneSourceGoogleDrive;
+
+  /// Phone home: a place to open from, a product name that stays as it is (FmMHome sources).
+  ///
+  /// In en, this message translates to:
+  /// **'OneDrive'**
+  String get startPhoneSourceOneDrive;
+
+  /// Phone home: heading of the recent files (FmMHome recent).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get startPhoneRecent;
+
   /// Heading of the pinned files on the start screen (a1-4, FmStart pinned).
   ///
   /// In en, this message translates to:
@@ -2750,6 +2864,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get startMissingClose;
+
+  /// Phone: the search field over a long list in a bottom sheet (a13-8c, G129).
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get selectSheetSearch;
+
+  /// Phone: shown when the search finds nothing in a bottom sheet's list (a13-8c).
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get selectSheetNoMatch;
+
+  /// Phone: accessible name of the scrim behind a bottom sheet, which closes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get selectSheetClose;
 
   /// The line of an error tab (a1-9b) for a bug in Ferman.
   ///
@@ -4976,6 +5108,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resized text block · page {page}'**
   String editStepResized(String page);
+
+  /// Phone navigation bar: its name for screen readers (FmPhone, tabsLabel).
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get phoneSections;
+
+  /// Phone navigation bar: the start screen (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get phoneTabHome;
+
+  /// Phone navigation bar: the file browser (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get phoneTabFiles;
+
+  /// Phone navigation bar: Scan to PDF (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get phoneTabScan;
+
+  /// Phone navigation bar: Settings (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get phoneTabSettings;
 }
 
 class _AppLocalizationsDelegate

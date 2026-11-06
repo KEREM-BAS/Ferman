@@ -17,6 +17,9 @@ enum M1Screen {
   /// First run, the language picker (a1-1).
   languagePicker('first run: language picker (a1-1)'),
 
+  /// First run, step 1 of 3: the editing specimen (a1-2a).
+  editStep('first run: editing step (a1-2a)'),
+
   /// First run, step 2 of 3: everything stays on your device (a1-2b).
   privacyStep('first run: privacy step (a1-2b)'),
 
@@ -62,7 +65,7 @@ enum M1Screen {
   /// The widget type that marks this screen.
   Type get widgetType => switch (this) {
     languagePicker => LanguagePicker,
-    privacyStep || freeStep => WelcomeStep,
+    editStep || privacyStep || freeStep => WelcomeStep,
     start => FmStart,
     _ => FmSettings,
   };
@@ -73,9 +76,10 @@ enum M1Screen {
     switch (this) {
       case languagePicker || start:
         break;
-      case privacyStep || freeStep:
+      case editStep || privacyStep || freeStep:
         tester.widget<LanguagePicker>(find.byType(LanguagePicker)).onContinue();
         await tester.pumpAndSettle();
+        if (this == editStep) break;
         tester.widget<WelcomeStep>(find.byType(WelcomeStep)).onNext();
         await tester.pumpAndSettle();
         if (this == freeStep) {

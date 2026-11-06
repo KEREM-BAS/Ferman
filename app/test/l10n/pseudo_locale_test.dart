@@ -69,7 +69,9 @@ bool _isData(String text) {
         for (final region in Region.all) regionDisplayName(region.code, 'en'),
       }.contains(bare) ||
       keyCap.hasMatch(bare) ||
-      RegExp(r'\d').hasMatch(bare);
+      RegExp(r'\d').hasMatch(bare) ||
+      // The first-run specimen's page stays Turkish in every language (a1-2a).
+      bare.startsWith('Kiracı');
 }
 
 void main() {

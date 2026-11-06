@@ -572,6 +572,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.onboardingLanguageSearchPlaceholder);
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      isolate(super.onboardingLanguageSearchPlaceholderPhone);
+
+  @override
   String get onboardingLanguageSearchLabel =>
       isolate(super.onboardingLanguageSearchLabel);
 
@@ -870,6 +874,24 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get settingsPaneAi => isolate(super.settingsPaneAi);
+
+  @override
+  String get settingsPhoneGroupDocuments =>
+      isolate(super.settingsPhoneGroupDocuments);
+
+  @override
+  String get settingsPhoneGroupApp => isolate(super.settingsPhoneGroupApp);
+
+  @override
+  String get settingsPhoneGroupRegion =>
+      isolate(super.settingsPhoneGroupRegion);
+
+  @override
+  String get settingsPhonePrivacyValue =>
+      isolate(super.settingsPhonePrivacyValue);
+
+  @override
+  String get settingsPhoneAbout => isolate(super.settingsPhoneAbout);
 
   @override
   String get settingsPanePrivacy => isolate(super.settingsPanePrivacy);
@@ -1380,6 +1402,48 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get startDropStripSubtitle => isolate(super.startDropStripSubtitle);
 
   @override
+  String get startPhoneSearch => isolate(super.startPhoneSearch);
+
+  @override
+  String get startPhoneToolCombine => isolate(super.startPhoneToolCombine);
+
+  @override
+  String get startPhoneToolOcr => isolate(super.startPhoneToolOcr);
+
+  @override
+  String get startPhoneEmptyTitle => isolate(super.startPhoneEmptyTitle);
+
+  @override
+  String get startPhoneEmptySubtitle => isolate(super.startPhoneEmptySubtitle);
+
+  @override
+  String get startPhoneOpen => isolate(super.startPhoneOpen);
+
+  @override
+  String get startPhoneScan => isolate(super.startPhoneScan);
+
+  @override
+  String get startPhoneSeeAll => isolate(super.startPhoneSeeAll);
+
+  @override
+  String get startPhoneOpenFrom => isolate(super.startPhoneOpenFrom);
+
+  @override
+  String get startPhoneSourceDownloads =>
+      isolate(super.startPhoneSourceDownloads);
+
+  @override
+  String get startPhoneSourceGoogleDrive =>
+      isolate(super.startPhoneSourceGoogleDrive);
+
+  @override
+  String get startPhoneSourceOneDrive =>
+      isolate(super.startPhoneSourceOneDrive);
+
+  @override
+  String get startPhoneRecent => isolate(super.startPhoneRecent);
+
+  @override
   String get startPinned => isolate(super.startPinned);
 
   @override
@@ -1470,6 +1534,15 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get startMissingClose => isolate(super.startMissingClose);
+
+  @override
+  String get selectSheetSearch => isolate(super.selectSheetSearch);
+
+  @override
+  String get selectSheetNoMatch => isolate(super.selectSheetNoMatch);
+
+  @override
+  String get selectSheetClose => isolate(super.selectSheetClose);
 
   @override
   String get errorInternal => isolate(super.errorInternal);
@@ -2663,6 +2736,21 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String editStepResized(String page) => isolate(super.editStepResized(page));
+
+  @override
+  String get phoneSections => isolate(super.phoneSections);
+
+  @override
+  String get phoneTabHome => isolate(super.phoneTabHome);
+
+  @override
+  String get phoneTabFiles => isolate(super.phoneTabFiles);
+
+  @override
+  String get phoneTabScan => isolate(super.phoneTabScan);
+
+  @override
+  String get phoneTabSettings => isolate(super.phoneTabSettings);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

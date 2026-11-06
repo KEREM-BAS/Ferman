@@ -37,7 +37,7 @@ node tools/design-refs compare                    # goldens against references: 
 | `--twice` | Render the same boards again in a freshly launched browser and fail unless every PNG has the same SHA-256. For a board that differs, both renders and a pixel diff go to `<out>/_diffs/<id>.first.png`, `.second.png` and `.diff.png`. |
 | `--jobs <n>` | Boards rendered in parallel. Default: the number of CPUs, at most 4. The output does not depend on it. |
 | `--chromium <path>` | The Chromium executable to launch. See [The browser](#the-browser). |
-| `--write-boards` | Regenerate `boards.json` from the design files (after a re-export), keeping the sets `m1` and `m2` and rewriting `langs`. |
+| `--write-boards` | Regenerate `boards.json` from the design files (after a re-export), keeping the sets `m1`, `m2` and `phone` and rewriting `langs`. |
 
 Output: `<out>/<id>.png` for each board, `<out>/<id>.<lang>.png` for each language variant, and
 `<out>/manifest.json` with every PNG's size and SHA-256 (a variant's entry also names its `board`
@@ -146,7 +146,9 @@ What they do not mean:
 
 `compare-map.json` lists every pair. `goldenSize` is the contract with the goldens: a whole
 window at 1440 × 900 and a device pixel ratio of 1, named
-`<screen>_<mac|win>_<light|dark>_<en|tr|ar|de|ja>.png` with the screens of the golden matrix. Each pair:
+`<screen>_<mac|win>_<light|dark>_<en|tr|ar|de|ja>.png` with the screens of the golden matrix. `phoneGoldenSize`
+is the same for a phone golden: a whole 393 × 852 screen, `<screen>_phone_<light|dark>_<en|tr|ar>.png`.
+Each pair:
 
 | Field | Meaning |
 |---|---|
@@ -260,7 +262,7 @@ npm ci
 npx playwright-core install-deps chromium-headless-shell   # system libraries and fonts (apt)
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-node index.mjs --only @m1,@m2,@m3 --twice               # pull requests; a manual run renders every board twice
+node index.mjs --only @m1,@m2,@m3,@phone --twice               # pull requests; a manual run renders every board twice
 node index.mjs compare                              # then the report, appended to the step summary
 ```
 

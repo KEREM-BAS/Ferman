@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/kbd.dart';
@@ -7,6 +8,7 @@ import 'package:ferman/design/components/foundation/anchored_layout.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -505,7 +507,10 @@ class _MenuRow extends StatelessWidget {
             child: Semantics(
               checked: checked,
               child: Container(
-                height: Menu.itemHeight,
+                // A finger needs more at phone width (G129).
+                height: WindowMetrics.isPhone(context)
+                    ? math.max(Menu.itemHeight, theme.density.hitMin)
+                    : Menu.itemHeight,
                 padding: EdgeInsetsDirectional.symmetric(
                   horizontal: theme.space.space2,
                 ),
