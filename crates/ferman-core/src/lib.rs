@@ -67,6 +67,7 @@
 // Unsafe code is denied, and allowed only in `platform` (ADR 0010, M3 plan question 1).
 #![deny(unsafe_code)]
 
+pub mod annotations;
 mod appendix;
 pub mod assemble;
 mod content;
@@ -292,6 +293,11 @@ pub enum WriteError {
     /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
     /// out of range, label ranges out of order.
     PagePlan,
+    /// An annotation the page does not name.
+    NoSuchAnnotation,
+    /// An annotation change that cannot apply: geometry its kind cannot take, a style on a kind
+    /// whose drawing Ferman does not make, a value out of range.
+    AnnotationPlan,
 }
 
 impl std::fmt::Display for WriteError {
@@ -312,6 +318,8 @@ impl std::fmt::Display for WriteError {
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
             Self::PagePlan => f.write_str("a page operation that cannot apply"),
+            Self::NoSuchAnnotation => f.write_str("no such annotation"),
+            Self::AnnotationPlan => f.write_str("an annotation change that cannot apply"),
         }
     }
 }

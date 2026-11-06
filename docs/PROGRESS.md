@@ -606,6 +606,15 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     yet, like W0's, so CI's golden step stays red until the `goldens-linux` artifact is committed,
     and a6-1 to a6-5 are then compared with `build/design-refs/` (`compare-map.json` has no pairs for
     them yet).
+  - W2, the annotation reader, writer and appearances (commits 13 and 14, 2026-11-06):
+    `ferman_core::annotations` (reader with limits, `change_annotation`, `drop_annotation`),
+    `ferman_ops::annotations` (create, update, delete, reply, set_resolved, one generator per kind),
+    `facade/annotations.rs`, the bridge, `FrbEngineService` and `FakeEngineService`. Each operation
+    is one step behind the Comment gate. Acceptance in `crates/ferman-api/tests/annotations.rs` on
+    `annots-other-producer`, plain and turned pages; recovery in `tests/recovery.rs`; fuzz target
+    `annotations`. No CLI subcommands, as with W1's page operations. The app's controls come with
+    commit 17, so `comments` stays in the registry. Other line-end styles and cloudy borders are
+    read and kept but not drawn by a redraw (`shortcut:` comments).
 - [ ] The owner approves M4
 
 ### M5 · Release pipeline

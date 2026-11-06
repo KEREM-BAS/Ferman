@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -738,6 +738,117 @@ Future<RevisionInfo> commitEdit({
 Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
 
+/// The annotations of `document` as its committed revisions leave them. Links, form widgets and
+/// popups are not listed.
+///
+/// See [`facade::Engine::annotations`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<AnnotationList> annotations({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbAnnotations(document: document);
+
+/// Creates `annotation` on the page `page` as one history step.
+///
+/// See [`facade::Engine::add_annotation`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` for text no font here has,
+/// and `NotFound`; so do the other annotation calls.
+Future<AnnotationCommit> addAnnotation({
+  required BigInt document,
+  required BigInt page,
+  required NewAnnotation annotation,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddAnnotation(
+  document: document,
+  page: page,
+  annotation: annotation,
+  name: name,
+);
+
+/// Applies `change` to annotation `handle` as one history step.
+///
+/// See [`facade::Engine::update_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> updateAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required AnnotationChange change,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbUpdateAnnotation(
+  document: document,
+  handle: handle,
+  change: change,
+  name: name,
+);
+
+/// Deletes annotation `handle`, with its popup and replies, as one history step.
+///
+/// See [`facade::Engine::delete_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> deleteAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteAnnotation(
+  document: document,
+  handle: handle,
+  name: name,
+);
+
+/// Replies to annotation `handle` as `author`, as one history step. Mentions are text: nothing is
+/// sent to anyone.
+///
+/// See [`facade::Engine::reply_to_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> replyToAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required String author,
+  required String text,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbReplyToAnnotation(
+  document: document,
+  handle: handle,
+  author: author,
+  text: text,
+  name: name,
+);
+
+/// Resolves or reopens the thread of annotation `handle` as `author`, as one history step; a thread
+/// already so adds none.
+///
+/// See [`facade::Engine::set_annotation_resolved`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> setAnnotationResolved({
+  required BigInt document,
+  required BigInt handle,
+  required String author,
+  required bool resolved,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetAnnotationResolved(
+  document: document,
+  handle: handle,
+  author: author,
+  resolved: resolved,
+  name: name,
+);
+
 /// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
 ///
 /// See [`facade::Engine::rotate_pages`].
@@ -1171,6 +1282,369 @@ enum Alignment {
 
   /// Flush on both sides, but for the last line.
   justified,
+}
+
+/// What a change sets; `None` leaves it.
+class AnnotationChange {
+  /// New text.
+  final String? contents;
+
+  /// A new box: its geometry follows.
+  final PageRect? rect;
+
+  /// New geometry, as `NewAnnotation.points`.
+  final List<AnnotationPoints>? points;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its stroke, in points.
+  final double? stroke;
+
+  /// Its opacity.
+  final double? opacity;
+
+  /// A text box's or callout's font size.
+  final double? fontSize;
+
+  const AnnotationChange({
+    this.contents,
+    this.rect,
+    this.points,
+    this.color,
+    this.stroke,
+    this.opacity,
+    this.fontSize,
+  });
+
+  @override
+  int get hashCode =>
+      contents.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      color.hashCode ^
+      stroke.hashCode ^
+      opacity.hashCode ^
+      fontSize.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationChange &&
+          runtimeType == other.runtimeType &&
+          contents == other.contents &&
+          rect == other.rect &&
+          points == other.points &&
+          color == other.color &&
+          stroke == other.stroke &&
+          opacity == other.opacity &&
+          fontSize == other.fontSize;
+}
+
+/// A colour, each part from 0 to 1.
+class AnnotationColor {
+  /// Red.
+  final double red;
+
+  /// Green.
+  final double green;
+
+  /// Blue.
+  final double blue;
+
+  const AnnotationColor({
+    required this.red,
+    required this.green,
+    required this.blue,
+  });
+
+  @override
+  int get hashCode => red.hashCode ^ green.hashCode ^ blue.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationColor &&
+          runtimeType == other.runtimeType &&
+          red == other.red &&
+          green == other.green &&
+          blue == other.blue;
+}
+
+/// What a commit that names an annotation returns.
+class AnnotationCommit {
+  /// The annotation's handle.
+  final BigInt handle;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  const AnnotationCommit({required this.handle, required this.revision});
+
+  @override
+  int get hashCode => handle.hashCode ^ revision.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationCommit &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          revision == other.revision;
+}
+
+/// One annotation, in displayed points.
+class AnnotationInfo {
+  /// Its identity for the other calls.
+  final BigInt handle;
+
+  /// Its page's handle.
+  final BigInt page;
+
+  /// What it is.
+  final AnnotationKind kind;
+
+  /// The type's name in the file, which names an `Other`.
+  final String subtype;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// Quads (four corners each), strokes, a line's two ends, vertices or a leader.
+  final List<AnnotationPoints> points;
+
+  /// A line or callout ends in an arrow.
+  final bool arrow;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// A text box's font size.
+  final double? fontSize;
+
+  /// Its author.
+  final String? author;
+
+  /// Its text.
+  final String? contents;
+
+  /// Rich text goes with it; replacing the text removes it.
+  final bool rich;
+
+  /// When it was made.
+  final PdfDate? created;
+
+  /// When it last changed.
+  final PdfDate? modified;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// The annotation it replies to.
+  final BigInt? repliesTo;
+
+  /// The top of its thread, its own handle when it is no reply.
+  final BigInt thread;
+
+  /// The state it sets, for a state reply, which the panel does not list.
+  final String? state;
+
+  /// On top of a thread: whether it is resolved.
+  final bool resolved;
+
+  /// Who resolved it.
+  final String? resolvedBy;
+
+  /// When.
+  final PdfDate? resolvedAt;
+
+  /// The people of the file its text mentions.
+  final List<String> mentions;
+
+  const AnnotationInfo({
+    required this.handle,
+    required this.page,
+    required this.kind,
+    required this.subtype,
+    required this.rect,
+    required this.points,
+    required this.arrow,
+    this.color,
+    required this.opacity,
+    required this.stroke,
+    this.fontSize,
+    this.author,
+    this.contents,
+    required this.rich,
+    this.created,
+    this.modified,
+    this.icon,
+    this.repliesTo,
+    required this.thread,
+    this.state,
+    required this.resolved,
+    this.resolvedBy,
+    this.resolvedAt,
+    required this.mentions,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      page.hashCode ^
+      kind.hashCode ^
+      subtype.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      arrow.hashCode ^
+      color.hashCode ^
+      opacity.hashCode ^
+      stroke.hashCode ^
+      fontSize.hashCode ^
+      author.hashCode ^
+      contents.hashCode ^
+      rich.hashCode ^
+      created.hashCode ^
+      modified.hashCode ^
+      icon.hashCode ^
+      repliesTo.hashCode ^
+      thread.hashCode ^
+      state.hashCode ^
+      resolved.hashCode ^
+      resolvedBy.hashCode ^
+      resolvedAt.hashCode ^
+      mentions.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          page == other.page &&
+          kind == other.kind &&
+          subtype == other.subtype &&
+          rect == other.rect &&
+          points == other.points &&
+          arrow == other.arrow &&
+          color == other.color &&
+          opacity == other.opacity &&
+          stroke == other.stroke &&
+          fontSize == other.fontSize &&
+          author == other.author &&
+          contents == other.contents &&
+          rich == other.rich &&
+          created == other.created &&
+          modified == other.modified &&
+          icon == other.icon &&
+          repliesTo == other.repliesTo &&
+          thread == other.thread &&
+          state == other.state &&
+          resolved == other.resolved &&
+          resolvedBy == other.resolvedBy &&
+          resolvedAt == other.resolvedAt &&
+          mentions == other.mentions;
+}
+
+/// What an annotation is.
+enum AnnotationKind {
+  /// A highlight.
+  highlight,
+
+  /// An underline.
+  underline,
+
+  /// A strike-through.
+  strikeOut,
+
+  /// A squiggly underline, read and rendered, never created.
+  squiggly,
+
+  /// A note on the page, or a reply.
+  note,
+
+  /// A text box.
+  freeText,
+
+  /// A text box with a leader.
+  callout,
+
+  /// Freehand.
+  ink,
+
+  /// A rectangle.
+  square,
+
+  /// An ellipse.
+  circle,
+
+  /// A line, with or without an arrow.
+  line,
+
+  /// A polygon.
+  polygon,
+
+  /// A stamp.
+  stamp,
+
+  /// Any other type: listed, its text editable, its drawing left alone.
+  other,
+}
+
+/// A document's annotations.
+class AnnotationList {
+  /// In page order.
+  final List<AnnotationInfo> annotations;
+
+  /// The names in the file, for mentions.
+  final List<String> people;
+
+  /// Whether a limit cut the list or a text short.
+  final bool truncated;
+
+  const AnnotationList({
+    required this.annotations,
+    required this.people,
+    required this.truncated,
+  });
+
+  @override
+  int get hashCode =>
+      annotations.hashCode ^ people.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationList &&
+          runtimeType == other.runtimeType &&
+          annotations == other.annotations &&
+          people == other.people &&
+          truncated == other.truncated;
+}
+
+/// One run of an annotation's points: a quad's corners, a stroke, a line's ends, vertices or a
+/// leader. A struct because the Dco codec of FRB 2.13 cannot write a list of lists of structs.
+class AnnotationPoints {
+  /// The points.
+  final List<PagePoint> points;
+
+  const AnnotationPoints({required this.points});
+
+  @override
+  int get hashCode => points.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationPoints &&
+          runtimeType == other.runtimeType &&
+          points == other.points;
 }
 
 /// The error every fallible call returns; Dart receives it as an exception.
@@ -2873,6 +3347,106 @@ enum MissingReasonKind {
   restricted,
 }
 
+/// A new annotation, in displayed points.
+class NewAnnotation {
+  /// What it is; never `Squiggly` or `Other`.
+  final AnnotationKind kind;
+
+  /// A note's, text box's, shape's or stamp's box; a callout's text box.
+  final PageRect rect;
+
+  /// Text markup: each quad's corners, top left, top right, bottom left, bottom right. Ink: each
+  /// stroke. Line: its two ends. Polygon: its vertices. Callout: its leader from the far end.
+  final List<AnnotationPoints> points;
+
+  /// Its colour.
+  final AnnotationColor color;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its text.
+  final String contents;
+
+  /// Its author.
+  final String author;
+
+  /// A text box's, callout's or stamp label's size.
+  final double fontSize;
+
+  /// A line ends in an arrow.
+  final bool arrow;
+
+  /// A stamp's label, already cased for its language.
+  final String label;
+
+  /// The line under a stamp's label.
+  final String? meta;
+
+  /// A stamp's turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  const NewAnnotation({
+    required this.kind,
+    required this.rect,
+    required this.points,
+    required this.color,
+    required this.stroke,
+    required this.opacity,
+    required this.contents,
+    required this.author,
+    required this.fontSize,
+    required this.arrow,
+    required this.label,
+    this.meta,
+    required this.tilt,
+    this.icon,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      color.hashCode ^
+      stroke.hashCode ^
+      opacity.hashCode ^
+      contents.hashCode ^
+      author.hashCode ^
+      fontSize.hashCode ^
+      arrow.hashCode ^
+      label.hashCode ^
+      meta.hashCode ^
+      tilt.hashCode ^
+      icon.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewAnnotation &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          rect == other.rect &&
+          points == other.points &&
+          color == other.color &&
+          stroke == other.stroke &&
+          opacity == other.opacity &&
+          contents == other.contents &&
+          author == other.author &&
+          fontSize == other.fontSize &&
+          arrow == other.arrow &&
+          label == other.label &&
+          meta == other.meta &&
+          tilt == other.tilt &&
+          icon == other.icon;
+}
+
 /// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
 /// panel callout (a3-11, a3-19, G39). The facade's `TooComplex` comes as one value per cause.
 enum NotEditableReason {
@@ -3398,12 +3972,20 @@ class PdfDate {
   /// The minute, 0 to 59.
   final int minute;
 
+  /// The second, 0 to 59.
+  final int second;
+
+  /// The offset from UTC in minutes, when the string gives one.
+  final int? offsetMinutes;
+
   const PdfDate({
     required this.year,
     required this.month,
     required this.day,
     required this.hour,
     required this.minute,
+    required this.second,
+    this.offsetMinutes,
   });
 
   @override
@@ -3412,7 +3994,9 @@ class PdfDate {
       month.hashCode ^
       day.hashCode ^
       hour.hashCode ^
-      minute.hashCode;
+      minute.hashCode ^
+      second.hashCode ^
+      offsetMinutes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3423,7 +4007,9 @@ class PdfDate {
           month == other.month &&
           day == other.day &&
           hour == other.hour &&
-          minute == other.minute;
+          minute == other.minute &&
+          second == other.second &&
+          offsetMinutes == other.offsetMinutes;
 }
 
 /// Whether PDFium is loaded: the state of a [`PdfiumStatus`].

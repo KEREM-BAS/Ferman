@@ -364,7 +364,9 @@ impl From<ferman_core::CoreError> for ApiError {
                 | ferman_core::WriteError::NothingToUndo
                 | ferman_core::WriteError::NothingToRedo
                 | ferman_core::WriteError::NoSuchPage
-                | ferman_core::WriteError::PagePlan,
+                | ferman_core::WriteError::PagePlan
+                | ferman_core::WriteError::NoSuchAnnotation
+                | ferman_core::WriteError::AnnotationPlan,
             ) => (ErrorKind::InvalidInput, MessageKey::INTERNAL),
             // A block inside a form needs its placement, which the rewriter does not give yet;
             // a repaired document is saved as a repaired copy, later.
@@ -438,6 +440,10 @@ impl From<ferman_ops::OpsError> for ApiError {
     fn from(err: ferman_ops::OpsError) -> Self {
         match err {
             ferman_ops::OpsError::Core(err) => err.into(),
+            ferman_ops::OpsError::NoFontForText => {
+                Self::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                    .with_details("no font has the text")
+            }
             err => Self::internal(err.to_string()),
         }
     }
@@ -576,6 +582,8 @@ mod tests {
             WriteError::NothingToRedo,
             WriteError::NoSuchPage,
             WriteError::PagePlan,
+            WriteError::NoSuchAnnotation,
+            WriteError::AnnotationPlan,
         ] {
             let err = ApiError::from(CoreError::Write(write));
             assert_eq!(err.kind, ErrorKind::InvalidInput, "{write:?}");

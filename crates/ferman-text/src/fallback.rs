@@ -961,12 +961,13 @@ fn substitute(
 }
 
 /// Glyphs with their codes in a new font and their advances per unit of font size.
-pub(crate) type GlyphCodes = Vec<(GlyphId, Vec<u8>, f32)>;
+pub type GlyphCodes = Vec<(GlyphId, Vec<u8>, f32)>;
 
 /// A new Type0 font named `name` (on the page) with the glyphs `wanted` of the font at `index` of
 /// `data` (at `instance` of a variable font), each with the text its ToUnicode entry gives (an empty one reads as nothing): the font, and
 /// each wanted glyph's code and advance per unit of font size, in order.
-pub(crate) fn embed(
+#[must_use]
+pub fn embed(
     data: &[u8],
     index: u32,
     instance: Option<&FaceInstance>,

@@ -200,6 +200,13 @@ doc = false
 bench = false
 
 [[bin]]
+name = "annotations"
+path = "fuzz_targets/annotations.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "image_layer"
 path = "fuzz_targets/image_layer.rs"
 test = false

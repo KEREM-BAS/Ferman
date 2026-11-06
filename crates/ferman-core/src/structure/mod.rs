@@ -137,6 +137,21 @@ impl Page {
             _ => (u, v),
         }
     }
+
+    /// The point of the page's user space shown at displayed point (`x`, `y`): the inverse of
+    /// [`display_point`](Self::display_point).
+    #[must_use]
+    pub fn user_point(&self, x: f32, y: f32) -> (f32, f32) {
+        let crop = &self.crop_box;
+        let (width, height) = (crop.right - crop.left, crop.top - crop.bottom);
+        let (u, v) = match self.rotation {
+            90 => (y, height - x),
+            180 => (width - x, height - y),
+            270 => (width - y, x),
+            _ => (x, y),
+        };
+        (crop.left + u, crop.top - v)
+    }
 }
 
 /// The order of pages in spreads and books (`/ViewerPreferences /Direction`, G32).
@@ -998,6 +1013,10 @@ pub(crate) mod tests {
         assert_eq!(page(90).display_point(15.0, 213.0), (193.0, 5.0));
         assert_eq!(page(180).display_point(15.0, 213.0), (95.0, 193.0));
         assert_eq!(page(270).display_point(15.0, 213.0), (7.0, 95.0));
+        for turn in [0, 90, 180, 270] {
+            let (x, y) = page(turn).display_point(15.0, 213.0);
+            assert_eq!(page(turn).user_point(x, y), (15.0, 213.0));
+        }
     }
 
     #[test]

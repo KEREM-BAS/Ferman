@@ -1330,6 +1330,249 @@ class FakeEngineService implements EngineService {
     handle: ++_lastPageHandle,
   );
 
+  /// Each document's annotations by the history's place they were left at;
+  /// undo and redo walk them with the steps.
+  final Map<int, Map<int, List<AnnotationInfo>>> _annotationVersions = {};
+
+  /// The annotations a test gives a document before any step.
+  final Map<int, List<AnnotationInfo>> initialAnnotations = {};
+
+  int _lastAnnotationHandle = 1 << 40;
+
+  List<AnnotationInfo> _annotationsNow(int document) {
+    final versions = _annotationVersions[document] ?? const {};
+    for (var at = _history(document).current; at > 0; at--) {
+      final version = versions[at];
+      if (version != null) return version;
+    }
+    return initialAnnotations[document] ?? const [];
+  }
+
+  /// One step named [name] that leaves [after], on the page of [page].
+  RevisionInfo _annotationStep(
+    int document,
+    String name,
+    int page,
+    List<AnnotationInfo> after,
+  ) {
+    final info = _pagesChanged(document, name, [page], (all) => [...all]);
+    final versions = _annotationVersions[document] ??= {};
+    final at = _history(document).current;
+    versions
+      ..removeWhere((step, _) => step >= at)
+      ..[at] = after;
+    return info;
+  }
+
+  AnnotationInfo _annotationNamed(int document, int handle) {
+    for (final annotation in _annotationsNow(document)) {
+      if (annotation.handle == handle) return annotation;
+    }
+    throw const EngineException(
+      kind: EngineErrorKind.invalidInput,
+      messageKey: 'errorInternal',
+    );
+  }
+
+  @override
+  Future<AnnotationList> annotations(int document) async {
+    final annotations = _annotationsNow(document);
+    return AnnotationList(
+      annotations: annotations,
+      people: {
+        for (final annotation in annotations)
+          if (annotation.author case final author? when author.isNotEmpty)
+            author,
+      }.toList(),
+    );
+  }
+
+  /// Adds a mark as the engine would list it. A squiggly or unknown type is
+  /// refused, as the engine refuses it.
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) async {
+    if (annotation.kind == AnnotationKind.squiggly ||
+        annotation.kind == AnnotationKind.other) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final handle = ++_lastAnnotationHandle;
+    final added = AnnotationInfo(
+      handle: handle,
+      page: page,
+      kind: annotation.kind,
+      rect: annotation.rect,
+      points: annotation.points,
+      arrow: annotation.arrow,
+      color: annotation.color,
+      opacity: annotation.opacity,
+      stroke: annotation.stroke,
+      fontSize: annotation.fontSize,
+      author: annotation.author,
+      contents: annotation.contents,
+      created: now(),
+      modified: now(),
+      icon: annotation.icon,
+      thread: handle,
+    );
+    final revision = _annotationStep(document, name, page, [
+      ..._annotationsNow(document),
+      added,
+    ]);
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) async {
+    final old = _annotationNamed(document, handle);
+    final changed = AnnotationInfo(
+      handle: handle,
+      page: old.page,
+      kind: old.kind,
+      subtype: old.subtype,
+      rect: change.rect ?? old.rect,
+      points: change.points ?? old.points,
+      arrow: old.arrow,
+      color: change.color ?? old.color,
+      opacity: change.opacity ?? old.opacity,
+      stroke: change.stroke ?? old.stroke,
+      fontSize: change.fontSize ?? old.fontSize,
+      author: old.author,
+      contents: change.contents ?? old.contents,
+      rich: old.rich && change.contents == null,
+      created: old.created,
+      modified: now(),
+      icon: old.icon,
+      repliesTo: old.repliesTo,
+      thread: old.thread,
+      state: old.state,
+      resolved: old.resolved,
+      resolvedBy: old.resolvedBy,
+      resolvedAt: old.resolvedAt,
+      mentions: old.mentions,
+    );
+    final revision = _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle == handle) changed else annotation,
+    ]);
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) async {
+    final old = _annotationNamed(document, handle);
+    return _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle != handle && annotation.thread != handle)
+          annotation,
+    ]);
+  }
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) async {
+    final old = _annotationNamed(document, handle);
+    final reply = ++_lastAnnotationHandle;
+    final people = (await annotations(document)).people;
+    final revision = _annotationStep(document, name, old.page, [
+      ..._annotationsNow(document),
+      AnnotationInfo(
+        handle: reply,
+        page: old.page,
+        kind: AnnotationKind.note,
+        rect: old.rect,
+        author: author,
+        contents: text,
+        created: now(),
+        modified: now(),
+        repliesTo: old.thread,
+        thread: old.thread,
+        mentions: [
+          for (final person in people)
+            if (text.contains('@$person')) person,
+        ],
+      ),
+    ]);
+    return AnnotationCommit(handle: reply, revision: revision);
+  }
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) async {
+    final old = _annotationNamed(document, handle);
+    final top = _annotationNamed(document, old.thread);
+    if (top.resolved == resolved) {
+      return RevisionInfo(current: _history(document).current);
+    }
+    return _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle == top.handle)
+          AnnotationInfo(
+            handle: top.handle,
+            page: top.page,
+            kind: top.kind,
+            subtype: top.subtype,
+            rect: top.rect,
+            points: top.points,
+            arrow: top.arrow,
+            color: top.color,
+            opacity: top.opacity,
+            stroke: top.stroke,
+            fontSize: top.fontSize,
+            author: top.author,
+            contents: top.contents,
+            rich: top.rich,
+            created: top.created,
+            modified: top.modified,
+            icon: top.icon,
+            thread: top.thread,
+            resolved: resolved,
+            resolvedBy: resolved ? author : null,
+            resolvedAt: resolved ? now() : null,
+            mentions: top.mentions,
+          )
+        else
+          annotation,
+      AnnotationInfo(
+        handle: ++_lastAnnotationHandle,
+        page: top.page,
+        kind: AnnotationKind.note,
+        rect: top.rect,
+        author: author,
+        modified: now(),
+        repliesTo: top.handle,
+        thread: top.handle,
+        state: resolved ? 'Completed' : 'None',
+      ),
+    ]);
+  }
+
   @override
   Future<RevisionInfo> rotatePages(
     int document,

@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -921826719;
+  int get rustContentHash => 174848717;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -80,6 +80,15 @@ class FermanBridge
 }
 
 abstract class FermanBridgeApi extends BaseApi {
+  Future<AnnotationCommit> crateFrbAddAnnotation({
+    required BigInt document,
+    required BigInt page,
+    required NewAnnotation annotation,
+    required String name,
+  });
+
+  Future<AnnotationList> crateFrbAnnotations({required BigInt document});
+
   ApiVersion crateFrbApiVersion();
 
   Future<EditPreview> crateFrbApplyEdit({
@@ -158,6 +167,12 @@ abstract class FermanBridgeApi extends BaseApi {
 
   Future<void> crateFrbDebugPanic();
 
+  Future<RevisionInfo> crateFrbDeleteAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required String name,
+  });
+
   Future<RevisionInfo> crateFrbDeletePages({
     required BigInt document,
     required Uint64List pages,
@@ -235,6 +250,14 @@ abstract class FermanBridgeApi extends BaseApi {
   Future<void> crateFrbPauseJob({required BigInt job});
 
   Future<RevisionInfo> crateFrbRedo({required BigInt document});
+
+  Future<AnnotationCommit> crateFrbReplyToAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required String author,
+    required String text,
+    required String name,
+  });
 
   Future<void> crateFrbRequestView({
     required BigInt view,
@@ -340,6 +363,14 @@ abstract class FermanBridgeApi extends BaseApi {
     required TextPosition focus,
   });
 
+  Future<RevisionInfo> crateFrbSetAnnotationResolved({
+    required BigInt document,
+    required BigInt handle,
+    required String author,
+    required bool resolved,
+    required String name,
+  });
+
   Future<EditPreview> crateFrbSetBlockLanguage({
     required BigInt transaction,
     required String tag,
@@ -443,6 +474,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required String password,
   });
 
+  Future<AnnotationCommit> crateFrbUpdateAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required AnnotationChange change,
+    required String name,
+  });
+
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
     required Uint64List pages,
@@ -459,6 +497,66 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     required super.generalizedFrbRustBinding,
     required super.portManager,
   });
+
+  @override
+  Future<AnnotationCommit> crateFrbAddAnnotation({
+    required BigInt document,
+    required BigInt page,
+    required NewAnnotation annotation,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(page);
+          var arg2 = cst_encode_box_autoadd_new_annotation(annotation);
+          var arg3 = cst_encode_String(name);
+          return wire.wire__crate__frb__add_annotation(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbAddAnnotationConstMeta,
+        argValues: [document, page, annotation, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbAddAnnotationConstMeta => const TaskConstMeta(
+    debugName: "add_annotation",
+    argNames: ["document", "page", "annotation", "name"],
+  );
+
+  @override
+  Future<AnnotationList> crateFrbAnnotations({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__annotations(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_list,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbAnnotationsConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbAnnotationsConstMeta =>
+      const TaskConstMeta(debugName: "annotations", argNames: ["document"]);
 
   @override
   ApiVersion crateFrbApiVersion() {
@@ -960,6 +1058,41 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbDebugPanicConstMeta =>
       const TaskConstMeta(debugName: "debug_panic", argNames: []);
+
+  @override
+  Future<RevisionInfo> crateFrbDeleteAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_String(name);
+          return wire.wire__crate__frb__delete_annotation(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbDeleteAnnotationConstMeta,
+        argValues: [document, handle, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbDeleteAnnotationConstMeta => const TaskConstMeta(
+    debugName: "delete_annotation",
+    argNames: ["document", "handle", "name"],
+  );
 
   @override
   Future<RevisionInfo> crateFrbDeletePages({
@@ -1488,6 +1621,47 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbRedoConstMeta =>
       const TaskConstMeta(debugName: "redo", argNames: ["document"]);
+
+  @override
+  Future<AnnotationCommit> crateFrbReplyToAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required String author,
+    required String text,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_String(author);
+          var arg3 = cst_encode_String(text);
+          var arg4 = cst_encode_String(name);
+          return wire.wire__crate__frb__reply_to_annotation(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbReplyToAnnotationConstMeta,
+        argValues: [document, handle, author, text, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbReplyToAnnotationConstMeta => const TaskConstMeta(
+    debugName: "reply_to_annotation",
+    argNames: ["document", "handle", "author", "text", "name"],
+  );
 
   @override
   Future<void> crateFrbRequestView({
@@ -2081,6 +2255,48 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "selection",
     argNames: ["document", "page", "anchor", "focus"],
   );
+
+  @override
+  Future<RevisionInfo> crateFrbSetAnnotationResolved({
+    required BigInt document,
+    required BigInt handle,
+    required String author,
+    required bool resolved,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_String(author);
+          var arg3 = cst_encode_bool(resolved);
+          var arg4 = cst_encode_String(name);
+          return wire.wire__crate__frb__set_annotation_resolved(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSetAnnotationResolvedConstMeta,
+        argValues: [document, handle, author, resolved, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSetAnnotationResolvedConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_annotation_resolved",
+        argNames: ["document", "handle", "author", "resolved", "name"],
+      );
 
   @override
   Future<EditPreview> crateFrbSetBlockLanguage({
@@ -2744,6 +2960,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<AnnotationCommit> crateFrbUpdateAnnotation({
+    required BigInt document,
+    required BigInt handle,
+    required AnnotationChange change,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_box_autoadd_annotation_change(change);
+          var arg3 = cst_encode_String(name);
+          return wire.wire__crate__frb__update_annotation(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbUpdateAnnotationConstMeta,
+        argValues: [document, handle, change, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbUpdateAnnotationConstMeta => const TaskConstMeta(
+    debugName: "update_annotation",
+    argNames: ["document", "handle", "change", "name"],
+  );
+
+  @override
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
     required Uint64List pages,
@@ -2832,6 +3086,110 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Alignment dco_decode_alignment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return Alignment.values[raw as int];
+  }
+
+  @protected
+  AnnotationChange dco_decode_annotation_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return AnnotationChange(
+      contents: dco_decode_opt_String(arr[0]),
+      rect: dco_decode_opt_box_autoadd_page_rect(arr[1]),
+      points: dco_decode_opt_list_annotation_points(arr[2]),
+      color: dco_decode_opt_box_autoadd_annotation_color(arr[3]),
+      stroke: dco_decode_opt_box_autoadd_f_32(arr[4]),
+      opacity: dco_decode_opt_box_autoadd_f_32(arr[5]),
+      fontSize: dco_decode_opt_box_autoadd_f_32(arr[6]),
+    );
+  }
+
+  @protected
+  AnnotationColor dco_decode_annotation_color(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return AnnotationColor(
+      red: dco_decode_f_32(arr[0]),
+      green: dco_decode_f_32(arr[1]),
+      blue: dco_decode_f_32(arr[2]),
+    );
+  }
+
+  @protected
+  AnnotationCommit dco_decode_annotation_commit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return AnnotationCommit(
+      handle: dco_decode_u_64(arr[0]),
+      revision: dco_decode_revision_info(arr[1]),
+    );
+  }
+
+  @protected
+  AnnotationInfo dco_decode_annotation_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 24)
+      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
+    return AnnotationInfo(
+      handle: dco_decode_u_64(arr[0]),
+      page: dco_decode_u_64(arr[1]),
+      kind: dco_decode_annotation_kind(arr[2]),
+      subtype: dco_decode_String(arr[3]),
+      rect: dco_decode_page_rect(arr[4]),
+      points: dco_decode_list_annotation_points(arr[5]),
+      arrow: dco_decode_bool(arr[6]),
+      color: dco_decode_opt_box_autoadd_annotation_color(arr[7]),
+      opacity: dco_decode_f_32(arr[8]),
+      stroke: dco_decode_f_32(arr[9]),
+      fontSize: dco_decode_opt_box_autoadd_f_32(arr[10]),
+      author: dco_decode_opt_String(arr[11]),
+      contents: dco_decode_opt_String(arr[12]),
+      rich: dco_decode_bool(arr[13]),
+      created: dco_decode_opt_box_autoadd_pdf_date(arr[14]),
+      modified: dco_decode_opt_box_autoadd_pdf_date(arr[15]),
+      icon: dco_decode_opt_String(arr[16]),
+      repliesTo: dco_decode_opt_box_autoadd_u_64(arr[17]),
+      thread: dco_decode_u_64(arr[18]),
+      state: dco_decode_opt_String(arr[19]),
+      resolved: dco_decode_bool(arr[20]),
+      resolvedBy: dco_decode_opt_String(arr[21]),
+      resolvedAt: dco_decode_opt_box_autoadd_pdf_date(arr[22]),
+      mentions: dco_decode_list_String(arr[23]),
+    );
+  }
+
+  @protected
+  AnnotationKind dco_decode_annotation_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AnnotationKind.values[raw as int];
+  }
+
+  @protected
+  AnnotationList dco_decode_annotation_list(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return AnnotationList(
+      annotations: dco_decode_list_annotation_info(arr[0]),
+      people: dco_decode_list_String(arr[1]),
+      truncated: dco_decode_bool(arr[2]),
+    );
+  }
+
+  @protected
+  AnnotationPoints dco_decode_annotation_points(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return AnnotationPoints(points: dco_decode_list_page_point(arr[0]));
   }
 
   @protected
@@ -2955,6 +3313,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  AnnotationChange dco_decode_box_autoadd_annotation_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_annotation_change(raw);
+  }
+
+  @protected
+  AnnotationColor dco_decode_box_autoadd_annotation_color(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_annotation_color(raw);
+  }
+
+  @protected
   ApiError dco_decode_box_autoadd_api_error(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_api_error(raw);
@@ -3015,9 +3385,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int dco_decode_box_autoadd_i_16(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   MissingGlyphs dco_decode_box_autoadd_missing_glyphs(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_missing_glyphs(raw);
+  }
+
+  @protected
+  NewAnnotation dco_decode_box_autoadd_new_annotation(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_new_annotation(raw);
   }
 
   @protected
@@ -3577,6 +3959,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<AnnotationInfo> dco_decode_list_annotation_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_annotation_info).toList();
+  }
+
+  @protected
+  List<AnnotationPoints> dco_decode_list_annotation_points(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_annotation_points).toList();
+  }
+
+  @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_attachment).toList();
@@ -3705,6 +4099,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<PagePoint> dco_decode_list_page_point(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_page_point).toList();
+  }
+
+  @protected
   List<PageRect> dco_decode_list_page_rect(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_page_rect).toList();
@@ -3814,6 +4214,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  NewAnnotation dco_decode_new_annotation(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 14)
+      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    return NewAnnotation(
+      kind: dco_decode_annotation_kind(arr[0]),
+      rect: dco_decode_page_rect(arr[1]),
+      points: dco_decode_list_annotation_points(arr[2]),
+      color: dco_decode_annotation_color(arr[3]),
+      stroke: dco_decode_f_32(arr[4]),
+      opacity: dco_decode_f_32(arr[5]),
+      contents: dco_decode_String(arr[6]),
+      author: dco_decode_String(arr[7]),
+      fontSize: dco_decode_f_32(arr[8]),
+      arrow: dco_decode_bool(arr[9]),
+      label: dco_decode_String(arr[10]),
+      meta: dco_decode_opt_String(arr[11]),
+      tilt: dco_decode_f_32(arr[12]),
+      icon: dco_decode_opt_String(arr[13]),
+    );
+  }
+
+  @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return NotEditableReason.values[raw as int];
@@ -3871,6 +4295,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  AnnotationColor? dco_decode_opt_box_autoadd_annotation_color(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_annotation_color(raw);
+  }
+
+  @protected
   ApiError? dco_decode_opt_box_autoadd_api_error(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_api_error(raw);
@@ -3921,6 +4351,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int? dco_decode_opt_box_autoadd_i_16(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_i_16(raw);
+  }
+
+  @protected
   MissingGlyphs? dco_decode_opt_box_autoadd_missing_glyphs(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_missing_glyphs(raw);
@@ -3950,6 +4386,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   PageMargins? dco_decode_opt_box_autoadd_page_margins(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_page_margins(raw);
+  }
+
+  @protected
+  PageRect? dco_decode_opt_box_autoadd_page_rect(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_page_rect(raw);
   }
 
   @protected
@@ -3992,6 +4434,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_view_item(raw);
+  }
+
+  @protected
+  List<AnnotationPoints>? dco_decode_opt_list_annotation_points(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_list_annotation_points(raw);
   }
 
   @protected
@@ -4128,14 +4576,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   PdfDate dco_decode_pdf_date(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return PdfDate(
       year: dco_decode_u_16(arr[0]),
       month: dco_decode_u_8(arr[1]),
       day: dco_decode_u_8(arr[2]),
       hour: dco_decode_u_8(arr[3]),
       minute: dco_decode_u_8(arr[4]),
+      second: dco_decode_u_8(arr[5]),
+      offsetMinutes: dco_decode_opt_box_autoadd_i_16(arr[6]),
     );
   }
 
@@ -4558,6 +5008,126 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  AnnotationChange sse_decode_annotation_change(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_contents = sse_decode_opt_String(deserializer);
+    var var_rect = sse_decode_opt_box_autoadd_page_rect(deserializer);
+    var var_points = sse_decode_opt_list_annotation_points(deserializer);
+    var var_color = sse_decode_opt_box_autoadd_annotation_color(deserializer);
+    var var_stroke = sse_decode_opt_box_autoadd_f_32(deserializer);
+    var var_opacity = sse_decode_opt_box_autoadd_f_32(deserializer);
+    var var_fontSize = sse_decode_opt_box_autoadd_f_32(deserializer);
+    return AnnotationChange(
+      contents: var_contents,
+      rect: var_rect,
+      points: var_points,
+      color: var_color,
+      stroke: var_stroke,
+      opacity: var_opacity,
+      fontSize: var_fontSize,
+    );
+  }
+
+  @protected
+  AnnotationColor sse_decode_annotation_color(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_red = sse_decode_f_32(deserializer);
+    var var_green = sse_decode_f_32(deserializer);
+    var var_blue = sse_decode_f_32(deserializer);
+    return AnnotationColor(red: var_red, green: var_green, blue: var_blue);
+  }
+
+  @protected
+  AnnotationCommit sse_decode_annotation_commit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_handle = sse_decode_u_64(deserializer);
+    var var_revision = sse_decode_revision_info(deserializer);
+    return AnnotationCommit(handle: var_handle, revision: var_revision);
+  }
+
+  @protected
+  AnnotationInfo sse_decode_annotation_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_handle = sse_decode_u_64(deserializer);
+    var var_page = sse_decode_u_64(deserializer);
+    var var_kind = sse_decode_annotation_kind(deserializer);
+    var var_subtype = sse_decode_String(deserializer);
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_points = sse_decode_list_annotation_points(deserializer);
+    var var_arrow = sse_decode_bool(deserializer);
+    var var_color = sse_decode_opt_box_autoadd_annotation_color(deserializer);
+    var var_opacity = sse_decode_f_32(deserializer);
+    var var_stroke = sse_decode_f_32(deserializer);
+    var var_fontSize = sse_decode_opt_box_autoadd_f_32(deserializer);
+    var var_author = sse_decode_opt_String(deserializer);
+    var var_contents = sse_decode_opt_String(deserializer);
+    var var_rich = sse_decode_bool(deserializer);
+    var var_created = sse_decode_opt_box_autoadd_pdf_date(deserializer);
+    var var_modified = sse_decode_opt_box_autoadd_pdf_date(deserializer);
+    var var_icon = sse_decode_opt_String(deserializer);
+    var var_repliesTo = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_thread = sse_decode_u_64(deserializer);
+    var var_state = sse_decode_opt_String(deserializer);
+    var var_resolved = sse_decode_bool(deserializer);
+    var var_resolvedBy = sse_decode_opt_String(deserializer);
+    var var_resolvedAt = sse_decode_opt_box_autoadd_pdf_date(deserializer);
+    var var_mentions = sse_decode_list_String(deserializer);
+    return AnnotationInfo(
+      handle: var_handle,
+      page: var_page,
+      kind: var_kind,
+      subtype: var_subtype,
+      rect: var_rect,
+      points: var_points,
+      arrow: var_arrow,
+      color: var_color,
+      opacity: var_opacity,
+      stroke: var_stroke,
+      fontSize: var_fontSize,
+      author: var_author,
+      contents: var_contents,
+      rich: var_rich,
+      created: var_created,
+      modified: var_modified,
+      icon: var_icon,
+      repliesTo: var_repliesTo,
+      thread: var_thread,
+      state: var_state,
+      resolved: var_resolved,
+      resolvedBy: var_resolvedBy,
+      resolvedAt: var_resolvedAt,
+      mentions: var_mentions,
+    );
+  }
+
+  @protected
+  AnnotationKind sse_decode_annotation_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return AnnotationKind.values[inner];
+  }
+
+  @protected
+  AnnotationList sse_decode_annotation_list(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_annotations = sse_decode_list_annotation_info(deserializer);
+    var var_people = sse_decode_list_String(deserializer);
+    var var_truncated = sse_decode_bool(deserializer);
+    return AnnotationList(
+      annotations: var_annotations,
+      people: var_people,
+      truncated: var_truncated,
+    );
+  }
+
+  @protected
+  AnnotationPoints sse_decode_annotation_points(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_points = sse_decode_list_page_point(deserializer);
+    return AnnotationPoints(points: var_points);
+  }
+
+  @protected
   ApiError sse_decode_api_error(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_kind = sse_decode_error_kind(deserializer);
@@ -4687,6 +5257,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  AnnotationChange sse_decode_box_autoadd_annotation_change(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_annotation_change(deserializer));
+  }
+
+  @protected
+  AnnotationColor sse_decode_box_autoadd_annotation_color(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_annotation_color(deserializer));
+  }
+
+  @protected
   ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_api_error(deserializer));
@@ -4757,11 +5343,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int sse_decode_box_autoadd_i_16(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_i_16(deserializer));
+  }
+
+  @protected
   MissingGlyphs sse_decode_box_autoadd_missing_glyphs(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_missing_glyphs(deserializer));
+  }
+
+  @protected
+  NewAnnotation sse_decode_box_autoadd_new_annotation(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_new_annotation(deserializer));
   }
 
   @protected
@@ -5382,6 +5982,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<AnnotationInfo> sse_decode_list_annotation_info(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <AnnotationInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_annotation_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<AnnotationPoints> sse_decode_list_annotation_points(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <AnnotationPoints>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_annotation_points(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -5652,6 +6280,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<PagePoint> sse_decode_list_page_point(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <PagePoint>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_page_point(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -5829,6 +6469,41 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  NewAnnotation sse_decode_new_annotation(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_annotation_kind(deserializer);
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_points = sse_decode_list_annotation_points(deserializer);
+    var var_color = sse_decode_annotation_color(deserializer);
+    var var_stroke = sse_decode_f_32(deserializer);
+    var var_opacity = sse_decode_f_32(deserializer);
+    var var_contents = sse_decode_String(deserializer);
+    var var_author = sse_decode_String(deserializer);
+    var var_fontSize = sse_decode_f_32(deserializer);
+    var var_arrow = sse_decode_bool(deserializer);
+    var var_label = sse_decode_String(deserializer);
+    var var_meta = sse_decode_opt_String(deserializer);
+    var var_tilt = sse_decode_f_32(deserializer);
+    var var_icon = sse_decode_opt_String(deserializer);
+    return NewAnnotation(
+      kind: var_kind,
+      rect: var_rect,
+      points: var_points,
+      color: var_color,
+      stroke: var_stroke,
+      opacity: var_opacity,
+      contents: var_contents,
+      author: var_author,
+      fontSize: var_fontSize,
+      arrow: var_arrow,
+      label: var_label,
+      meta: var_meta,
+      tilt: var_tilt,
+      icon: var_icon,
+    );
+  }
+
+  @protected
   NotEditableReason sse_decode_not_editable_reason(
     SseDeserializer deserializer,
   ) {
@@ -5918,6 +6593,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_alignment(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  AnnotationColor? sse_decode_opt_box_autoadd_annotation_color(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_annotation_color(deserializer));
     } else {
       return null;
     }
@@ -6024,6 +6712,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int? sse_decode_opt_box_autoadd_i_16(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_i_16(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   MissingGlyphs? sse_decode_opt_box_autoadd_missing_glyphs(
     SseDeserializer deserializer,
   ) {
@@ -6083,6 +6782,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_page_margins(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  PageRect? sse_decode_opt_box_autoadd_page_rect(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_page_rect(deserializer));
     } else {
       return null;
     }
@@ -6162,6 +6872,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_view_item(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  List<AnnotationPoints>? sse_decode_opt_list_annotation_points(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_annotation_points(deserializer));
     } else {
       return null;
     }
@@ -6318,12 +7041,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_day = sse_decode_u_8(deserializer);
     var var_hour = sse_decode_u_8(deserializer);
     var var_minute = sse_decode_u_8(deserializer);
+    var var_second = sse_decode_u_8(deserializer);
+    var var_offsetMinutes = sse_decode_opt_box_autoadd_i_16(deserializer);
     return PdfDate(
       year: var_year,
       month: var_month,
       day: var_day,
       hour: var_hour,
       minute: var_minute,
+      second: var_second,
+      offsetMinutes: var_offsetMinutes,
     );
   }
 
@@ -6731,6 +7458,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_annotation_kind(AnnotationKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   bool cst_encode_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
@@ -7019,6 +7752,103 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_annotation_change(
+    AnnotationChange self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_String(self.contents, serializer);
+    sse_encode_opt_box_autoadd_page_rect(self.rect, serializer);
+    sse_encode_opt_list_annotation_points(self.points, serializer);
+    sse_encode_opt_box_autoadd_annotation_color(self.color, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.stroke, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.opacity, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.fontSize, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_color(
+    AnnotationColor self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_32(self.red, serializer);
+    sse_encode_f_32(self.green, serializer);
+    sse_encode_f_32(self.blue, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_commit(
+    AnnotationCommit self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.handle, serializer);
+    sse_encode_revision_info(self.revision, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_info(
+    AnnotationInfo self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.handle, serializer);
+    sse_encode_u_64(self.page, serializer);
+    sse_encode_annotation_kind(self.kind, serializer);
+    sse_encode_String(self.subtype, serializer);
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_list_annotation_points(self.points, serializer);
+    sse_encode_bool(self.arrow, serializer);
+    sse_encode_opt_box_autoadd_annotation_color(self.color, serializer);
+    sse_encode_f_32(self.opacity, serializer);
+    sse_encode_f_32(self.stroke, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.fontSize, serializer);
+    sse_encode_opt_String(self.author, serializer);
+    sse_encode_opt_String(self.contents, serializer);
+    sse_encode_bool(self.rich, serializer);
+    sse_encode_opt_box_autoadd_pdf_date(self.created, serializer);
+    sse_encode_opt_box_autoadd_pdf_date(self.modified, serializer);
+    sse_encode_opt_String(self.icon, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.repliesTo, serializer);
+    sse_encode_u_64(self.thread, serializer);
+    sse_encode_opt_String(self.state, serializer);
+    sse_encode_bool(self.resolved, serializer);
+    sse_encode_opt_String(self.resolvedBy, serializer);
+    sse_encode_opt_box_autoadd_pdf_date(self.resolvedAt, serializer);
+    sse_encode_list_String(self.mentions, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_kind(
+    AnnotationKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_list(
+    AnnotationList self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_annotation_info(self.annotations, serializer);
+    sse_encode_list_String(self.people, serializer);
+    sse_encode_bool(self.truncated, serializer);
+  }
+
+  @protected
+  void sse_encode_annotation_points(
+    AnnotationPoints self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_page_point(self.points, serializer);
+  }
+
+  @protected
   void sse_encode_api_error(ApiError self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_error_kind(self.kind, serializer);
@@ -7113,6 +7943,24 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_annotation_change(
+    AnnotationChange self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_annotation_change(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_annotation_color(
+    AnnotationColor self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_annotation_color(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_api_error(
     ApiError self,
     SseSerializer serializer,
@@ -7200,12 +8048,27 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_i_16(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_16(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_missing_glyphs(
     MissingGlyphs self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_missing_glyphs(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_new_annotation(
+    NewAnnotation self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_new_annotation(self, serializer);
   }
 
   @protected
@@ -7702,6 +8565,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_annotation_info(
+    List<AnnotationInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_annotation_info(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_annotation_points(
+    List<AnnotationPoints> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_annotation_points(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_attachment(
     List<Attachment> self,
     SseSerializer serializer,
@@ -7948,6 +8835,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_page_point(
+    List<PagePoint> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_page_point(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_page_rect(
     List<PageRect> self,
     SseSerializer serializer,
@@ -8116,6 +9015,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_new_annotation(NewAnnotation self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_annotation_kind(self.kind, serializer);
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_list_annotation_points(self.points, serializer);
+    sse_encode_annotation_color(self.color, serializer);
+    sse_encode_f_32(self.stroke, serializer);
+    sse_encode_f_32(self.opacity, serializer);
+    sse_encode_String(self.contents, serializer);
+    sse_encode_String(self.author, serializer);
+    sse_encode_f_32(self.fontSize, serializer);
+    sse_encode_bool(self.arrow, serializer);
+    sse_encode_String(self.label, serializer);
+    sse_encode_opt_String(self.meta, serializer);
+    sse_encode_f_32(self.tilt, serializer);
+    sse_encode_opt_String(self.icon, serializer);
+  }
+
+  @protected
   void sse_encode_not_editable_reason(
     NotEditableReason self,
     SseSerializer serializer,
@@ -8181,6 +9099,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_alignment(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_annotation_color(
+    AnnotationColor? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_annotation_color(self, serializer);
     }
   }
 
@@ -8286,6 +9217,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_i_16(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_i_16(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_missing_glyphs(
     MissingGlyphs? self,
     SseSerializer serializer,
@@ -8347,6 +9288,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_page_margins(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_page_rect(
+    PageRect? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_page_rect(self, serializer);
     }
   }
 
@@ -8429,6 +9383,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_view_item(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_list_annotation_points(
+    List<AnnotationPoints>? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_annotation_points(self, serializer);
     }
   }
 
@@ -8543,6 +9510,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_8(self.day, serializer);
     sse_encode_u_8(self.hour, serializer);
     sse_encode_u_8(self.minute, serializer);
+    sse_encode_u_8(self.second, serializer);
+    sse_encode_opt_box_autoadd_i_16(self.offsetMinutes, serializer);
   }
 
   @protected

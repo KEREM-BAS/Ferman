@@ -21,13 +21,14 @@
 //! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels.
 //! - `combine`: combine, extract, insert from a file and replace.
 //! - `split`: split planning.
-//! - `annotations`: annotation types with appearance streams, replies and flattening.
+//! - [`annotations`]: annotation types with appearance streams and replies; flattening follows.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
 //! - `signatures`: simple typed, drawn and image signatures.
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
 
+pub mod annotations;
 pub mod combine;
 pub mod images;
 pub mod pages;
@@ -54,6 +55,10 @@ pub enum OpsError {
     /// Image bytes that no decoder Ferman has can read, or a JPEG a PDF cannot carry as it is.
     #[error("the image cannot be read")]
     UnreadableImage,
+    /// Text that no font Ferman can embed here has; the annotation is not written, so nothing
+    /// is substituted silently (ADR 0006).
+    #[error("no font has the text")]
+    NoFontForText,
     /// An internal invariant did not hold. This is a bug in Ferman, reported as an error instead of
     /// a panic (ADR 0010).
     #[error("internal error in ferman-ops: {context}")]

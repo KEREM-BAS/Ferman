@@ -52,7 +52,7 @@
 //!   [`BlockStyleInfo`] the panel reads.
 #![forbid(unsafe_code)]
 
-mod bidi;
+pub mod bidi;
 pub mod collate;
 pub mod editability;
 pub mod extract;

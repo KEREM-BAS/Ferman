@@ -385,6 +385,10 @@ pub struct PdfDate {
     pub hour: u8,
     /// The minute, 0 to 59.
     pub minute: u8,
+    /// The second, 0 to 59.
+    pub second: u8,
+    /// The offset from UTC in minutes, when the string gives one.
+    pub offset_minutes: Option<i16>,
 }
 
 /// An embedded file of an [`OpenedDocument`] (a2-3b).
@@ -2257,6 +2261,449 @@ pub async fn rollback_edit(transaction: u64) -> Result<RevisionInfo, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// What an annotation is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AnnotationKind {
+    /// A highlight.
+    Highlight,
+    /// An underline.
+    Underline,
+    /// A strike-through.
+    StrikeOut,
+    /// A squiggly underline, read and rendered, never created.
+    Squiggly,
+    /// A note on the page, or a reply.
+    Note,
+    /// A text box.
+    FreeText,
+    /// A text box with a leader.
+    Callout,
+    /// Freehand.
+    Ink,
+    /// A rectangle.
+    Square,
+    /// An ellipse.
+    Circle,
+    /// A line, with or without an arrow.
+    Line,
+    /// A polygon.
+    Polygon,
+    /// A stamp.
+    Stamp,
+    /// Any other type: listed, its text editable, its drawing left alone.
+    Other,
+}
+
+/// A colour, each part from 0 to 1.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AnnotationColor {
+    /// Red.
+    pub red: f32,
+    /// Green.
+    pub green: f32,
+    /// Blue.
+    pub blue: f32,
+}
+
+/// One run of an annotation's points: a quad's corners, a stroke, a line's ends, vertices or a
+/// leader. A struct because the Dco codec of FRB 2.13 cannot write a list of lists of structs.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationPoints {
+    /// The points.
+    pub points: Vec<PagePoint>,
+}
+
+/// One annotation, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationInfo {
+    /// Its identity for the other calls.
+    pub handle: u64,
+    /// Its page's handle.
+    pub page: u64,
+    /// What it is.
+    pub kind: AnnotationKind,
+    /// The type's name in the file, which names an `Other`.
+    pub subtype: String,
+    /// Its box.
+    pub rect: PageRect,
+    /// Quads (four corners each), strokes, a line's two ends, vertices or a leader.
+    pub points: Vec<AnnotationPoints>,
+    /// A line or callout ends in an arrow.
+    pub arrow: bool,
+    /// Its colour.
+    pub color: Option<AnnotationColor>,
+    /// Its opacity, from 0 to 1.
+    pub opacity: f32,
+    /// Its stroke, in points.
+    pub stroke: f32,
+    /// A text box's font size.
+    pub font_size: Option<f32>,
+    /// Its author.
+    pub author: Option<String>,
+    /// Its text.
+    pub contents: Option<String>,
+    /// Rich text goes with it; replacing the text removes it.
+    pub rich: bool,
+    /// When it was made.
+    pub created: Option<PdfDate>,
+    /// When it last changed.
+    pub modified: Option<PdfDate>,
+    /// A note's icon or a stamp's name.
+    pub icon: Option<String>,
+    /// The annotation it replies to.
+    pub replies_to: Option<u64>,
+    /// The top of its thread, its own handle when it is no reply.
+    pub thread: u64,
+    /// The state it sets, for a state reply, which the panel does not list.
+    pub state: Option<String>,
+    /// On top of a thread: whether it is resolved.
+    pub resolved: bool,
+    /// Who resolved it.
+    pub resolved_by: Option<String>,
+    /// When.
+    pub resolved_at: Option<PdfDate>,
+    /// The people of the file its text mentions.
+    pub mentions: Vec<String>,
+}
+
+/// A document's annotations.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationList {
+    /// In page order.
+    pub annotations: Vec<AnnotationInfo>,
+    /// The names in the file, for mentions.
+    pub people: Vec<String>,
+    /// Whether a limit cut the list or a text short.
+    pub truncated: bool,
+}
+
+/// A new annotation, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewAnnotation {
+    /// What it is; never `Squiggly` or `Other`.
+    pub kind: AnnotationKind,
+    /// A note's, text box's, shape's or stamp's box; a callout's text box.
+    pub rect: PageRect,
+    /// Text markup: each quad's corners, top left, top right, bottom left, bottom right. Ink: each
+    /// stroke. Line: its two ends. Polygon: its vertices. Callout: its leader from the far end.
+    pub points: Vec<AnnotationPoints>,
+    /// Its colour.
+    pub color: AnnotationColor,
+    /// Its stroke, in points.
+    pub stroke: f32,
+    /// Its opacity, from 0 to 1.
+    pub opacity: f32,
+    /// Its text.
+    pub contents: String,
+    /// Its author.
+    pub author: String,
+    /// A text box's, callout's or stamp label's size.
+    pub font_size: f32,
+    /// A line ends in an arrow.
+    pub arrow: bool,
+    /// A stamp's label, already cased for its language.
+    pub label: String,
+    /// The line under a stamp's label.
+    pub meta: Option<String>,
+    /// A stamp's turn in degrees; negative turns anticlockwise.
+    pub tilt: f32,
+    /// A note's icon or a stamp's name.
+    pub icon: Option<String>,
+}
+
+/// What a change sets; `None` leaves it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationChange {
+    /// New text.
+    pub contents: Option<String>,
+    /// A new box: its geometry follows.
+    pub rect: Option<PageRect>,
+    /// New geometry, as `NewAnnotation.points`.
+    pub points: Option<Vec<AnnotationPoints>>,
+    /// Its colour.
+    pub color: Option<AnnotationColor>,
+    /// Its stroke, in points.
+    pub stroke: Option<f32>,
+    /// Its opacity.
+    pub opacity: Option<f32>,
+    /// A text box's or callout's font size.
+    pub font_size: Option<f32>,
+}
+
+/// What a commit that names an annotation returns.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationCommit {
+    /// The annotation's handle.
+    pub handle: u64,
+    /// Where the history stands.
+    pub revision: RevisionInfo,
+}
+
+fn annotation_kind_dto(kind: facade::AnnotationKind) -> AnnotationKind {
+    match kind {
+        facade::AnnotationKind::Highlight => AnnotationKind::Highlight,
+        facade::AnnotationKind::Underline => AnnotationKind::Underline,
+        facade::AnnotationKind::StrikeOut => AnnotationKind::StrikeOut,
+        facade::AnnotationKind::Squiggly => AnnotationKind::Squiggly,
+        facade::AnnotationKind::Note => AnnotationKind::Note,
+        facade::AnnotationKind::FreeText => AnnotationKind::FreeText,
+        facade::AnnotationKind::Callout => AnnotationKind::Callout,
+        facade::AnnotationKind::Ink => AnnotationKind::Ink,
+        facade::AnnotationKind::Square => AnnotationKind::Square,
+        facade::AnnotationKind::Circle => AnnotationKind::Circle,
+        facade::AnnotationKind::Line => AnnotationKind::Line,
+        facade::AnnotationKind::Polygon => AnnotationKind::Polygon,
+        facade::AnnotationKind::Stamp => AnnotationKind::Stamp,
+        facade::AnnotationKind::Other => AnnotationKind::Other,
+    }
+}
+
+fn annotation_kind_of(kind: AnnotationKind) -> facade::AnnotationKind {
+    match kind {
+        AnnotationKind::Highlight => facade::AnnotationKind::Highlight,
+        AnnotationKind::Underline => facade::AnnotationKind::Underline,
+        AnnotationKind::StrikeOut => facade::AnnotationKind::StrikeOut,
+        AnnotationKind::Squiggly => facade::AnnotationKind::Squiggly,
+        AnnotationKind::Note => facade::AnnotationKind::Note,
+        AnnotationKind::FreeText => facade::AnnotationKind::FreeText,
+        AnnotationKind::Callout => facade::AnnotationKind::Callout,
+        AnnotationKind::Ink => facade::AnnotationKind::Ink,
+        AnnotationKind::Square => facade::AnnotationKind::Square,
+        AnnotationKind::Circle => facade::AnnotationKind::Circle,
+        AnnotationKind::Line => facade::AnnotationKind::Line,
+        AnnotationKind::Polygon => facade::AnnotationKind::Polygon,
+        AnnotationKind::Stamp => facade::AnnotationKind::Stamp,
+        AnnotationKind::Other => facade::AnnotationKind::Other,
+    }
+}
+
+fn annotation_color_dto([red, green, blue]: [f32; 3]) -> AnnotationColor {
+    AnnotationColor { red, green, blue }
+}
+
+fn annotation_color_of(color: AnnotationColor) -> [f32; 3] {
+    [color.red, color.green, color.blue]
+}
+
+fn annotation_rect_of(rect: PageRect) -> [f32; 4] {
+    [rect.left, rect.top, rect.right, rect.bottom]
+}
+
+fn annotation_points_of(points: Vec<AnnotationPoints>) -> Vec<Vec<[f32; 2]>> {
+    points
+        .into_iter()
+        .map(|part| {
+            part.points
+                .into_iter()
+                .map(|point| [point.x, point.y])
+                .collect()
+        })
+        .collect()
+}
+
+fn annotation_dto(annotation: facade::AnnotationInfo) -> AnnotationInfo {
+    AnnotationInfo {
+        handle: annotation.handle,
+        page: annotation.page,
+        kind: annotation_kind_dto(annotation.kind),
+        subtype: annotation.subtype,
+        rect: rect_dto(annotation.rect),
+        points: annotation
+            .points
+            .into_iter()
+            .map(|part| AnnotationPoints {
+                points: part.into_iter().map(point_dto).collect(),
+            })
+            .collect(),
+        arrow: annotation.arrow,
+        color: annotation.color.map(annotation_color_dto),
+        opacity: annotation.opacity,
+        stroke: annotation.stroke,
+        font_size: annotation.font_size,
+        author: annotation.author,
+        contents: annotation.contents,
+        rich: annotation.rich,
+        created: annotation.created.map(pdf_date_dto),
+        modified: annotation.modified.map(pdf_date_dto),
+        icon: annotation.icon,
+        replies_to: annotation.replies_to,
+        thread: annotation.thread,
+        state: annotation.state,
+        resolved: annotation.resolved,
+        resolved_by: annotation.resolved_by,
+        resolved_at: annotation.resolved_at.map(pdf_date_dto),
+        mentions: annotation.mentions,
+    }
+}
+
+fn annotation_commit_dto(commit: facade::AnnotationCommit) -> AnnotationCommit {
+    AnnotationCommit {
+        handle: commit.handle,
+        revision: revision_dto(commit.revision),
+    }
+}
+
+/// The annotations of `document` as its committed revisions leave them. Links, form widgets and
+/// popups are not listed.
+///
+/// See [`facade::Engine::annotations`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn annotations(document: u64) -> Result<AnnotationList, ApiError> {
+    engine()?
+        .annotations(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| AnnotationList {
+            annotations: list.annotations.into_iter().map(annotation_dto).collect(),
+            people: list.people,
+            truncated: list.truncated,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Creates `annotation` on the page `page` as one history step.
+///
+/// See [`facade::Engine::add_annotation`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` for text no font here has,
+/// and `NotFound`; so do the other annotation calls.
+pub async fn add_annotation(
+    document: u64,
+    page: u64,
+    annotation: NewAnnotation,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let new = facade::NewAnnotation {
+        kind: annotation_kind_of(annotation.kind),
+        rect: annotation_rect_of(annotation.rect),
+        points: annotation_points_of(annotation.points),
+        color: annotation_color_of(annotation.color),
+        stroke: annotation.stroke,
+        opacity: annotation.opacity,
+        contents: annotation.contents,
+        author: annotation.author,
+        font_size: annotation.font_size,
+        arrow: annotation.arrow,
+        label: annotation.label,
+        meta: annotation.meta,
+        tilt: annotation.tilt,
+        icon: annotation.icon,
+    };
+    engine()?
+        .add_annotation(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Applies `change` to annotation `handle` as one history step.
+///
+/// See [`facade::Engine::update_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn update_annotation(
+    document: u64,
+    handle: u64,
+    change: AnnotationChange,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let change = facade::AnnotationChange {
+        contents: change.contents,
+        rect: change.rect.map(annotation_rect_of),
+        points: change.points.map(annotation_points_of),
+        color: change.color.map(annotation_color_of),
+        stroke: change.stroke,
+        opacity: change.opacity,
+        font_size: change.font_size,
+    };
+    engine()?
+        .update_annotation(facade::DocumentId::from_raw(document), handle, change, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes annotation `handle`, with its popup and replies, as one history step.
+///
+/// See [`facade::Engine::delete_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn delete_annotation(
+    document: u64,
+    handle: u64,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_annotation(facade::DocumentId::from_raw(document), handle, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Replies to annotation `handle` as `author`, as one history step. Mentions are text: nothing is
+/// sent to anyone.
+///
+/// See [`facade::Engine::reply_to_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn reply_to_annotation(
+    document: u64,
+    handle: u64,
+    author: String,
+    text: String,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    engine()?
+        .reply_to_annotation(
+            facade::DocumentId::from_raw(document),
+            handle,
+            author,
+            text,
+            name,
+        )
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Resolves or reopens the thread of annotation `handle` as `author`, as one history step; a thread
+/// already so adds none.
+///
+/// See [`facade::Engine::set_annotation_resolved`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn set_annotation_resolved(
+    document: u64,
+    handle: u64,
+    author: String,
+    resolved: bool,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .set_annotation_resolved(
+            facade::DocumentId::from_raw(document),
+            handle,
+            author,
+            resolved,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// What each side of a page gives up, in displayed points.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PageMargins {
@@ -3829,6 +4276,8 @@ fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {
         day: date.day,
         hour: date.hour,
         minute: date.minute,
+        second: date.second,
+        offset_minutes: date.offset_minutes,
     }
 }
 

@@ -281,7 +281,7 @@ impl RevisionStore {
     /// Runs `change` on page `index`'s `/Annots` and writes them back, when it says it changed
     /// them, as a direct array of the page. Never through a reference: in a damaged or hostile
     /// file that names a font, the page tree's `/Kids` or another page's annotations.
-    fn change_annots(
+    pub(crate) fn change_annots(
         &mut self,
         doc: &Document,
         index: usize,
@@ -303,6 +303,12 @@ impl RevisionStore {
         self.put(page, Object::Dictionary(dict))?;
         Ok(true)
     }
+}
+
+/// `text` as a PDF text string's value.
+#[must_use]
+pub fn text_value(text: &str) -> Value {
+    Value::String(crate::text_string::encode(text))
 }
 
 #[cfg(test)]

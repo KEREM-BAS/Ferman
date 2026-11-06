@@ -328,6 +328,57 @@ abstract interface class EngineService {
   /// The fonts the text panel's font field offers for [block], best first.
   Future<List<FontCandidate>> blockFonts(int document, int page, int block);
 
+  /// The annotations of [document] as its committed revisions leave them, in
+  /// page order. Links, form widgets and popups are not listed.
+  Future<AnnotationList> annotations(int document);
+
+  /// Creates [annotation] on [page], by [PageInfo.handle], as the one step
+  /// [name] of the history. Throws an [EngineException] with
+  /// [EngineErrorKind.notEditable] when the document's permissions forbid
+  /// comments (ask [opGate] with [DocumentOp.comment]),
+  /// [EngineErrorKind.confirmationRequired] for a signed document before
+  /// [confirmEditSigned], [EngineErrorKind.invalidInput] for a value out of
+  /// range or while a transaction is open, and [EngineErrorKind.unsupported]
+  /// for text no font here has. So do the other annotation calls.
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  );
+
+  /// Applies [change] to annotation [handle] as one step. Only what changes is
+  /// written; a stamp takes a new box and text, an unknown type text only.
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  );
+
+  /// Deletes annotation [handle], with its popup and replies, as one step.
+  Future<RevisionInfo> deleteAnnotation(int document, int handle, String name);
+
+  /// Replies to annotation [handle] as [author], as one step. Mentions are
+  /// text: nothing is sent to anyone.
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  });
+
+  /// Resolves or reopens the thread of annotation [handle] as [author], as one
+  /// step; a thread already so adds none.
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  });
+
   /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
   /// quarter turns, clockwise when positive, as the one step [name] of its
   /// history. Throws an [EngineException] with [EngineErrorKind.notEditable]
@@ -815,6 +866,50 @@ class UnavailableEngineService implements EngineService {
     int page,
     int block,
   ) async => throw error;
+
+  @override
+  Future<AnnotationList> annotations(int document) async => throw error;
+
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) async => throw error;
 
   @override
   Future<RevisionInfo> rotatePages(

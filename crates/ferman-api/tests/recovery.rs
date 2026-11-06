@@ -104,6 +104,29 @@ fn child(dir: &Path) -> ! {
     block_on(engine().move_pages(doc, vec![pages[3]], Some(pages[0]), "Moved".to_owned())).unwrap();
     block_on(engine().delete_pages(doc, vec![pages[1]], "Deleted".to_owned())).unwrap();
     block_on(engine().duplicate_pages(doc, vec![pages[5]], "Duplicated".to_owned())).unwrap();
+    let commented = block_on(engine().open(dir.join("commented.pdf"), None)).unwrap();
+    block_on(engine().add_annotation(
+        commented.id,
+        commented.pages[0].handle,
+        ferman_api::facade::NewAnnotation {
+            kind: ferman_api::facade::AnnotationKind::Square,
+            rect: [60.0, 60.0, 160.0, 160.0],
+            points: Vec::new(),
+            color: [0.85, 0.22, 0.17],
+            stroke: 2.0,
+            opacity: 1.0,
+            contents: "Bak".to_owned(),
+            author: "Ayşe".to_owned(),
+            font_size: 12.0,
+            arrow: false,
+            label: String::new(),
+            meta: None,
+            tilt: 0.0,
+            icon: None,
+        },
+        "Square".to_owned(),
+    ))
+    .unwrap();
     // Past the one-second sync of the actor's tick.
     std::thread::sleep(Duration::from_millis(2500));
     std::fs::write(dir.join("ready"), b"").unwrap();
@@ -132,6 +155,8 @@ fn a_killed_instance_is_restored_from_its_journal() {
     std::fs::write(dir.join("rotated.pdf"), &original).unwrap();
     let tree = std::fs::read(corpus("pages-tree")).unwrap();
     std::fs::write(dir.join("arranged.pdf"), &tree).unwrap();
+    let notes = std::fs::read(corpus("annots-other-producer")).unwrap();
+    std::fs::write(dir.join("commented.pdf"), &notes).unwrap();
 
     let mut child = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--ignored", "--exact", TEST, "--test-threads", "1"])
@@ -157,7 +182,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let root = dir.join("Recovery");
     block_on(engine().start_recovery(root.clone())).unwrap();
     let listed = block_on(engine().list_recoverable()).unwrap();
-    assert_eq!(listed.len(), 6, "{listed:?}");
+    assert_eq!(listed.len(), 7, "{listed:?}");
     let named = |name: &str| {
         listed
             .iter()
@@ -202,6 +227,26 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let restored = text(&block_on(engine().text_blocks(secret, 0)).unwrap());
     assert!(restored.contains("BRD-2026-09-0188"), "{restored}");
     assert_eq!(std::fs::read(dir.join("payslip.pdf")).unwrap(), payslip);
+
+    // An annotation comes back from the journal: objects, so no record of its own.
+    let found = named("commented.pdf");
+    let restored = block_on(engine().restore_recovered(
+        found.session.clone(),
+        found.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap();
+    let notes = block_on(engine().annotations(restored.opened.id)).unwrap();
+    assert!(
+        notes
+            .annotations
+            .iter()
+            .any(|note| note.contents.as_deref() == Some("Bak")
+                && note.author.as_deref() == Some("Ayşe")),
+        "the new square is back"
+    );
+    assert!(block_on(engine().undo(restored.opened.id)).is_ok());
 
     let found = named("kira.pdf");
     assert_eq!(found.original, dir.join("kira.pdf"));

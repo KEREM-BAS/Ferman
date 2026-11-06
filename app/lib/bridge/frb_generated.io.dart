@@ -42,6 +42,27 @@ abstract class FermanBridgeApiImplPlatform
   Alignment dco_decode_alignment(dynamic raw);
 
   @protected
+  AnnotationChange dco_decode_annotation_change(dynamic raw);
+
+  @protected
+  AnnotationColor dco_decode_annotation_color(dynamic raw);
+
+  @protected
+  AnnotationCommit dco_decode_annotation_commit(dynamic raw);
+
+  @protected
+  AnnotationInfo dco_decode_annotation_info(dynamic raw);
+
+  @protected
+  AnnotationKind dco_decode_annotation_kind(dynamic raw);
+
+  @protected
+  AnnotationList dco_decode_annotation_list(dynamic raw);
+
+  @protected
+  AnnotationPoints dco_decode_annotation_points(dynamic raw);
+
+  @protected
   ApiError dco_decode_api_error(dynamic raw);
 
   @protected
@@ -67,6 +88,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment dco_decode_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  AnnotationChange dco_decode_box_autoadd_annotation_change(dynamic raw);
+
+  @protected
+  AnnotationColor dco_decode_box_autoadd_annotation_color(dynamic raw);
 
   @protected
   ApiError dco_decode_box_autoadd_api_error(dynamic raw);
@@ -99,7 +126,13 @@ abstract class FermanBridgeApiImplPlatform
   FontSettings dco_decode_box_autoadd_font_settings(dynamic raw);
 
   @protected
+  int dco_decode_box_autoadd_i_16(dynamic raw);
+
+  @protected
   MissingGlyphs dco_decode_box_autoadd_missing_glyphs(dynamic raw);
+
+  @protected
+  NewAnnotation dco_decode_box_autoadd_new_annotation(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
@@ -273,6 +306,12 @@ abstract class FermanBridgeApiImplPlatform
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<AnnotationInfo> dco_decode_list_annotation_info(dynamic raw);
+
+  @protected
+  List<AnnotationPoints> dco_decode_list_annotation_points(dynamic raw);
+
+  @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
@@ -336,6 +375,9 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> dco_decode_list_page_info(dynamic raw);
 
   @protected
+  List<PagePoint> dco_decode_list_page_point(dynamic raw);
+
+  @protected
   List<PageRect> dco_decode_list_page_rect(dynamic raw);
 
   @protected
@@ -381,6 +423,9 @@ abstract class FermanBridgeApiImplPlatform
   MissingReasonKind dco_decode_missing_reason_kind(dynamic raw);
 
   @protected
+  NewAnnotation dco_decode_new_annotation(dynamic raw);
+
+  @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw);
 
   @protected
@@ -394,6 +439,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment? dco_decode_opt_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  AnnotationColor? dco_decode_opt_box_autoadd_annotation_color(dynamic raw);
 
   @protected
   ApiError? dco_decode_opt_box_autoadd_api_error(dynamic raw);
@@ -420,6 +468,9 @@ abstract class FermanBridgeApiImplPlatform
   FontEmbedding? dco_decode_opt_box_autoadd_font_embedding(dynamic raw);
 
   @protected
+  int? dco_decode_opt_box_autoadd_i_16(dynamic raw);
+
+  @protected
   MissingGlyphs? dco_decode_opt_box_autoadd_missing_glyphs(dynamic raw);
 
   @protected
@@ -435,6 +486,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   PageMargins? dco_decode_opt_box_autoadd_page_margins(dynamic raw);
+
+  @protected
+  PageRect? dco_decode_opt_box_autoadd_page_rect(dynamic raw);
 
   @protected
   PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
@@ -456,6 +510,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
+
+  @protected
+  List<AnnotationPoints>? dco_decode_opt_list_annotation_points(dynamic raw);
 
   @protected
   Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
@@ -623,6 +680,27 @@ abstract class FermanBridgeApiImplPlatform
   Alignment sse_decode_alignment(SseDeserializer deserializer);
 
   @protected
+  AnnotationChange sse_decode_annotation_change(SseDeserializer deserializer);
+
+  @protected
+  AnnotationColor sse_decode_annotation_color(SseDeserializer deserializer);
+
+  @protected
+  AnnotationCommit sse_decode_annotation_commit(SseDeserializer deserializer);
+
+  @protected
+  AnnotationInfo sse_decode_annotation_info(SseDeserializer deserializer);
+
+  @protected
+  AnnotationKind sse_decode_annotation_kind(SseDeserializer deserializer);
+
+  @protected
+  AnnotationList sse_decode_annotation_list(SseDeserializer deserializer);
+
+  @protected
+  AnnotationPoints sse_decode_annotation_points(SseDeserializer deserializer);
+
+  @protected
   ApiError sse_decode_api_error(SseDeserializer deserializer);
 
   @protected
@@ -648,6 +726,16 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment sse_decode_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  AnnotationChange sse_decode_box_autoadd_annotation_change(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  AnnotationColor sse_decode_box_autoadd_annotation_color(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer);
@@ -690,7 +778,15 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  int sse_decode_box_autoadd_i_16(SseDeserializer deserializer);
+
+  @protected
   MissingGlyphs sse_decode_box_autoadd_missing_glyphs(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NewAnnotation sse_decode_box_autoadd_new_annotation(
     SseDeserializer deserializer,
   );
 
@@ -882,6 +978,16 @@ abstract class FermanBridgeApiImplPlatform
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
+  List<AnnotationInfo> sse_decode_list_annotation_info(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<AnnotationPoints> sse_decode_list_annotation_points(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
 
   @protected
@@ -963,6 +1069,9 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> sse_decode_list_page_info(SseDeserializer deserializer);
 
   @protected
+  List<PagePoint> sse_decode_list_page_point(SseDeserializer deserializer);
+
+  @protected
   List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
 
   @protected
@@ -1014,6 +1123,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  NewAnnotation sse_decode_new_annotation(SseDeserializer deserializer);
+
+  @protected
   NotEditableReason sse_decode_not_editable_reason(
     SseDeserializer deserializer,
   );
@@ -1029,6 +1141,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment? sse_decode_opt_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  AnnotationColor? sse_decode_opt_box_autoadd_annotation_color(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ApiError? sse_decode_opt_box_autoadd_api_error(SseDeserializer deserializer);
@@ -1067,6 +1184,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  int? sse_decode_opt_box_autoadd_i_16(SseDeserializer deserializer);
+
+  @protected
   MissingGlyphs? sse_decode_opt_box_autoadd_missing_glyphs(
     SseDeserializer deserializer,
   );
@@ -1092,6 +1212,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  PageRect? sse_decode_opt_box_autoadd_page_rect(SseDeserializer deserializer);
+
+  @protected
   PdfDate? sse_decode_opt_box_autoadd_pdf_date(SseDeserializer deserializer);
 
   @protected
@@ -1113,6 +1236,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
+
+  @protected
+  List<AnnotationPoints>? sse_decode_opt_list_annotation_points(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Uint32List? sse_decode_opt_list_prim_u_32_strict(
@@ -1324,6 +1452,24 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_annotation_change>
+  cst_encode_box_autoadd_annotation_change(AnnotationChange raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_annotation_change();
+    cst_api_fill_to_wire_annotation_change(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_annotation_color>
+  cst_encode_box_autoadd_annotation_color(AnnotationColor raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_annotation_color();
+    cst_api_fill_to_wire_annotation_color(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_api_error> cst_encode_box_autoadd_api_error(
     ApiError raw,
   ) {
@@ -1414,12 +1560,28 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Int16> cst_encode_box_autoadd_i_16(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_i_16(cst_encode_i_16(raw));
+  }
+
+  @protected
   ffi.Pointer<wire_cst_missing_glyphs> cst_encode_box_autoadd_missing_glyphs(
     MissingGlyphs raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     final ptr = wire.cst_new_box_autoadd_missing_glyphs();
     cst_api_fill_to_wire_missing_glyphs(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_new_annotation> cst_encode_box_autoadd_new_annotation(
+    NewAnnotation raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_new_annotation();
+    cst_api_fill_to_wire_new_annotation(raw, ptr.ref);
     return ptr;
   }
 
@@ -1569,6 +1731,29 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_String(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_annotation_info> cst_encode_list_annotation_info(
+    List<AnnotationInfo> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_annotation_info(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_annotation_info(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_annotation_points>
+  cst_encode_list_annotation_points(List<AnnotationPoints> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_annotation_points(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_annotation_points(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -1819,6 +2004,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_page_point> cst_encode_list_page_point(
+    List<PagePoint> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_page_point(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_page_point(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_page_rect> cst_encode_list_page_rect(
     List<PageRect> raw,
   ) {
@@ -1969,6 +2166,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_annotation_color>
+  cst_encode_opt_box_autoadd_annotation_color(AnnotationColor? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_annotation_color(raw);
+  }
+
+  @protected
   ffi.Pointer<wire_cst_api_error> cst_encode_opt_box_autoadd_api_error(
     ApiError? raw,
   ) {
@@ -2036,6 +2242,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Int16> cst_encode_opt_box_autoadd_i_16(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_16(raw);
+  }
+
+  @protected
   ffi.Pointer<wire_cst_missing_glyphs>
   cst_encode_opt_box_autoadd_missing_glyphs(MissingGlyphs? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
@@ -2080,6 +2292,14 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_box_autoadd_page_margins(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_page_rect> cst_encode_opt_box_autoadd_page_rect(
+    PageRect? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_page_rect(raw);
   }
 
   @protected
@@ -2135,6 +2355,13 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_annotation_points>
+  cst_encode_opt_list_annotation_points(List<AnnotationPoints>? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_annotation_points(raw);
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_32_strict>
   cst_encode_opt_list_prim_u_32_strict(Uint32List? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
@@ -2145,6 +2372,90 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_change(
+    AnnotationChange apiObj,
+    wire_cst_annotation_change wireObj,
+  ) {
+    wireObj.contents = cst_encode_opt_String(apiObj.contents);
+    wireObj.rect = cst_encode_opt_box_autoadd_page_rect(apiObj.rect);
+    wireObj.points = cst_encode_opt_list_annotation_points(apiObj.points);
+    wireObj.color = cst_encode_opt_box_autoadd_annotation_color(apiObj.color);
+    wireObj.stroke = cst_encode_opt_box_autoadd_f_32(apiObj.stroke);
+    wireObj.opacity = cst_encode_opt_box_autoadd_f_32(apiObj.opacity);
+    wireObj.font_size = cst_encode_opt_box_autoadd_f_32(apiObj.fontSize);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_color(
+    AnnotationColor apiObj,
+    wire_cst_annotation_color wireObj,
+  ) {
+    wireObj.red = cst_encode_f_32(apiObj.red);
+    wireObj.green = cst_encode_f_32(apiObj.green);
+    wireObj.blue = cst_encode_f_32(apiObj.blue);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_commit(
+    AnnotationCommit apiObj,
+    wire_cst_annotation_commit wireObj,
+  ) {
+    wireObj.handle = cst_encode_u_64(apiObj.handle);
+    cst_api_fill_to_wire_revision_info(apiObj.revision, wireObj.revision);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_info(
+    AnnotationInfo apiObj,
+    wire_cst_annotation_info wireObj,
+  ) {
+    wireObj.handle = cst_encode_u_64(apiObj.handle);
+    wireObj.page = cst_encode_u_64(apiObj.page);
+    wireObj.kind = cst_encode_annotation_kind(apiObj.kind);
+    wireObj.subtype = cst_encode_String(apiObj.subtype);
+    cst_api_fill_to_wire_page_rect(apiObj.rect, wireObj.rect);
+    wireObj.points = cst_encode_list_annotation_points(apiObj.points);
+    wireObj.arrow = cst_encode_bool(apiObj.arrow);
+    wireObj.color = cst_encode_opt_box_autoadd_annotation_color(apiObj.color);
+    wireObj.opacity = cst_encode_f_32(apiObj.opacity);
+    wireObj.stroke = cst_encode_f_32(apiObj.stroke);
+    wireObj.font_size = cst_encode_opt_box_autoadd_f_32(apiObj.fontSize);
+    wireObj.author = cst_encode_opt_String(apiObj.author);
+    wireObj.contents = cst_encode_opt_String(apiObj.contents);
+    wireObj.rich = cst_encode_bool(apiObj.rich);
+    wireObj.created = cst_encode_opt_box_autoadd_pdf_date(apiObj.created);
+    wireObj.modified = cst_encode_opt_box_autoadd_pdf_date(apiObj.modified);
+    wireObj.icon = cst_encode_opt_String(apiObj.icon);
+    wireObj.replies_to = cst_encode_opt_box_autoadd_u_64(apiObj.repliesTo);
+    wireObj.thread = cst_encode_u_64(apiObj.thread);
+    wireObj.state = cst_encode_opt_String(apiObj.state);
+    wireObj.resolved = cst_encode_bool(apiObj.resolved);
+    wireObj.resolved_by = cst_encode_opt_String(apiObj.resolvedBy);
+    wireObj.resolved_at = cst_encode_opt_box_autoadd_pdf_date(
+      apiObj.resolvedAt,
+    );
+    wireObj.mentions = cst_encode_list_String(apiObj.mentions);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_list(
+    AnnotationList apiObj,
+    wire_cst_annotation_list wireObj,
+  ) {
+    wireObj.annotations = cst_encode_list_annotation_info(apiObj.annotations);
+    wireObj.people = cst_encode_list_String(apiObj.people);
+    wireObj.truncated = cst_encode_bool(apiObj.truncated);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_annotation_points(
+    AnnotationPoints apiObj,
+    wire_cst_annotation_points wireObj,
+  ) {
+    wireObj.points = cst_encode_list_page_point(apiObj.points);
   }
 
   @protected
@@ -2243,6 +2554,22 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_box_autoadd_annotation_change(
+    AnnotationChange apiObj,
+    ffi.Pointer<wire_cst_annotation_change> wireObj,
+  ) {
+    cst_api_fill_to_wire_annotation_change(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_annotation_color(
+    AnnotationColor apiObj,
+    ffi.Pointer<wire_cst_annotation_color> wireObj,
+  ) {
+    cst_api_fill_to_wire_annotation_color(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_api_error(
     ApiError apiObj,
     ffi.Pointer<wire_cst_api_error> wireObj,
@@ -2304,6 +2631,14 @@ abstract class FermanBridgeApiImplPlatform
     ffi.Pointer<wire_cst_missing_glyphs> wireObj,
   ) {
     cst_api_fill_to_wire_missing_glyphs(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_new_annotation(
+    NewAnnotation apiObj,
+    ffi.Pointer<wire_cst_new_annotation> wireObj,
+  ) {
+    cst_api_fill_to_wire_new_annotation(apiObj, wireObj.ref);
   }
 
   @protected
@@ -2694,6 +3029,27 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_new_annotation(
+    NewAnnotation apiObj,
+    wire_cst_new_annotation wireObj,
+  ) {
+    wireObj.kind = cst_encode_annotation_kind(apiObj.kind);
+    cst_api_fill_to_wire_page_rect(apiObj.rect, wireObj.rect);
+    wireObj.points = cst_encode_list_annotation_points(apiObj.points);
+    cst_api_fill_to_wire_annotation_color(apiObj.color, wireObj.color);
+    wireObj.stroke = cst_encode_f_32(apiObj.stroke);
+    wireObj.opacity = cst_encode_f_32(apiObj.opacity);
+    wireObj.contents = cst_encode_String(apiObj.contents);
+    wireObj.author = cst_encode_String(apiObj.author);
+    wireObj.font_size = cst_encode_f_32(apiObj.fontSize);
+    wireObj.arrow = cst_encode_bool(apiObj.arrow);
+    wireObj.label = cst_encode_String(apiObj.label);
+    wireObj.meta = cst_encode_opt_String(apiObj.meta);
+    wireObj.tilt = cst_encode_f_32(apiObj.tilt);
+    wireObj.icon = cst_encode_opt_String(apiObj.icon);
+  }
+
+  @protected
   void cst_api_fill_to_wire_opened_document(
     OpenedDocument apiObj,
     wire_cst_opened_document wireObj,
@@ -2830,6 +3186,10 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.day = cst_encode_u_8(apiObj.day);
     wireObj.hour = cst_encode_u_8(apiObj.hour);
     wireObj.minute = cst_encode_u_8(apiObj.minute);
+    wireObj.second = cst_encode_u_8(apiObj.second);
+    wireObj.offset_minutes = cst_encode_opt_box_autoadd_i_16(
+      apiObj.offsetMinutes,
+    );
   }
 
   @protected
@@ -3080,6 +3440,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_alignment(Alignment raw);
 
   @protected
+  int cst_encode_annotation_kind(AnnotationKind raw);
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
@@ -3218,6 +3581,48 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_alignment(Alignment self, SseSerializer serializer);
 
   @protected
+  void sse_encode_annotation_change(
+    AnnotationChange self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_color(
+    AnnotationColor self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_commit(
+    AnnotationCommit self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_info(
+    AnnotationInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_kind(
+    AnnotationKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_list(
+    AnnotationList self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_annotation_points(
+    AnnotationPoints self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_api_error(ApiError self, SseSerializer serializer);
 
   @protected
@@ -3247,6 +3652,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_alignment(
     Alignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_annotation_change(
+    AnnotationChange self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_annotation_color(
+    AnnotationColor self,
     SseSerializer serializer,
   );
 
@@ -3308,8 +3725,17 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_box_autoadd_i_16(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_missing_glyphs(
     MissingGlyphs self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_new_annotation(
+    NewAnnotation self,
     SseSerializer serializer,
   );
 
@@ -3536,6 +3962,18 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_annotation_info(
+    List<AnnotationInfo> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_annotation_points(
+    List<AnnotationPoints> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_attachment(
     List<Attachment> self,
     SseSerializer serializer,
@@ -3647,6 +4085,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_page_info(List<PageInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_page_point(
+    List<PagePoint> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
 
   @protected
@@ -3728,6 +4172,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_new_annotation(NewAnnotation self, SseSerializer serializer);
+
+  @protected
   void sse_encode_not_editable_reason(
     NotEditableReason self,
     SseSerializer serializer,
@@ -3748,6 +4195,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_alignment(
     Alignment? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_annotation_color(
+    AnnotationColor? self,
     SseSerializer serializer,
   );
 
@@ -3797,6 +4250,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_i_16(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_missing_glyphs(
     MissingGlyphs? self,
     SseSerializer serializer,
@@ -3823,6 +4279,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_page_margins(
     PageMargins? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_page_rect(
+    PageRect? self,
     SseSerializer serializer,
   );
 
@@ -3856,6 +4318,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_view_item(
     ViewItem? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_annotation_points(
+    List<AnnotationPoints>? self,
     SseSerializer serializer,
   );
 
@@ -4061,6 +4529,57 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+
+  void wire__crate__frb__add_annotation(
+    int port_,
+    int document,
+    int page,
+    ffi.Pointer<wire_cst_new_annotation> annotation,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__add_annotation(
+      port_,
+      document,
+      page,
+      annotation,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__add_annotationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_new_annotation>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__add_annotation');
+  late final _wire__crate__frb__add_annotation =
+      _wire__crate__frb__add_annotationPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_new_annotation>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__frb__annotations(int port_, int document) {
+    return _wire__crate__frb__annotations(port_, document);
+  }
+
+  late final _wire__crate__frb__annotationsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__annotations',
+      );
+  late final _wire__crate__frb__annotations = _wire__crate__frb__annotationsPtr
+      .asFunction<void Function(int, int)>();
 
   WireSyncRust2DartDco wire__crate__frb__api_version() {
     return _wire__crate__frb__api_version();
@@ -4402,6 +4921,37 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__debug_panic = _wire__crate__frb__debug_panicPtr
       .asFunction<void Function(int)>();
+
+  void wire__crate__frb__delete_annotation(
+    int port_,
+    int document,
+    int handle,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__delete_annotation(port_, document, handle, name);
+  }
+
+  late final _wire__crate__frb__delete_annotationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__delete_annotation');
+  late final _wire__crate__frb__delete_annotation =
+      _wire__crate__frb__delete_annotationPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__delete_pages(
     int port_,
@@ -4803,6 +5353,50 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__redo = _wire__crate__frb__redoPtr
       .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__reply_to_annotation(
+    int port_,
+    int document,
+    int handle,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> author,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__reply_to_annotation(
+      port_,
+      document,
+      handle,
+      author,
+      text,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__reply_to_annotationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__reply_to_annotation');
+  late final _wire__crate__frb__reply_to_annotation =
+      _wire__crate__frb__reply_to_annotationPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__request_view(
     int port_,
@@ -5352,6 +5946,50 @@ class FermanBridgeWire implements BaseWire {
           ffi.Pointer<wire_cst_text_position>,
         )
       >();
+
+  void wire__crate__frb__set_annotation_resolved(
+    int port_,
+    int document,
+    int handle,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> author,
+    bool resolved,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__set_annotation_resolved(
+      port_,
+      document,
+      handle,
+      author,
+      resolved,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__set_annotation_resolvedPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Bool,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__set_annotation_resolved');
+  late final _wire__crate__frb__set_annotation_resolved =
+      _wire__crate__frb__set_annotation_resolvedPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              bool,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__set_block_language(
     int port_,
@@ -5928,6 +6566,46 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
+  void wire__crate__frb__update_annotation(
+    int port_,
+    int document,
+    int handle,
+    ffi.Pointer<wire_cst_annotation_change> change,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__update_annotation(
+      port_,
+      document,
+      handle,
+      change,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__update_annotationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_annotation_change>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__update_annotation');
+  late final _wire__crate__frb__update_annotation =
+      _wire__crate__frb__update_annotationPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_annotation_change>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__frb__white_margins(
     int port_,
     int document,
@@ -5974,6 +6652,32 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _cst_new_box_autoadd_alignment = _cst_new_box_autoadd_alignmentPtr
       .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_annotation_change>
+  cst_new_box_autoadd_annotation_change() {
+    return _cst_new_box_autoadd_annotation_change();
+  }
+
+  late final _cst_new_box_autoadd_annotation_changePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_annotation_change> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_annotation_change');
+  late final _cst_new_box_autoadd_annotation_change =
+      _cst_new_box_autoadd_annotation_changePtr
+          .asFunction<ffi.Pointer<wire_cst_annotation_change> Function()>();
+
+  ffi.Pointer<wire_cst_annotation_color>
+  cst_new_box_autoadd_annotation_color() {
+    return _cst_new_box_autoadd_annotation_color();
+  }
+
+  late final _cst_new_box_autoadd_annotation_colorPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_annotation_color> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_annotation_color');
+  late final _cst_new_box_autoadd_annotation_color =
+      _cst_new_box_autoadd_annotation_colorPtr
+          .asFunction<ffi.Pointer<wire_cst_annotation_color> Function()>();
 
   ffi.Pointer<wire_cst_api_error> cst_new_box_autoadd_api_error() {
     return _cst_new_box_autoadd_api_error();
@@ -6095,6 +6799,17 @@ class FermanBridgeWire implements BaseWire {
       _cst_new_box_autoadd_font_settingsPtr
           .asFunction<ffi.Pointer<wire_cst_font_settings> Function()>();
 
+  ffi.Pointer<ffi.Int16> cst_new_box_autoadd_i_16(int value) {
+    return _cst_new_box_autoadd_i_16(value);
+  }
+
+  late final _cst_new_box_autoadd_i_16Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int16> Function(ffi.Int16)>>(
+        'frbgen_ferman_cst_new_box_autoadd_i_16',
+      );
+  late final _cst_new_box_autoadd_i_16 = _cst_new_box_autoadd_i_16Ptr
+      .asFunction<ffi.Pointer<ffi.Int16> Function(int)>();
+
   ffi.Pointer<wire_cst_missing_glyphs> cst_new_box_autoadd_missing_glyphs() {
     return _cst_new_box_autoadd_missing_glyphs();
   }
@@ -6106,6 +6821,18 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_missing_glyphs =
       _cst_new_box_autoadd_missing_glyphsPtr
           .asFunction<ffi.Pointer<wire_cst_missing_glyphs> Function()>();
+
+  ffi.Pointer<wire_cst_new_annotation> cst_new_box_autoadd_new_annotation() {
+    return _cst_new_box_autoadd_new_annotation();
+  }
+
+  late final _cst_new_box_autoadd_new_annotationPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_new_annotation> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_new_annotation');
+  late final _cst_new_box_autoadd_new_annotation =
+      _cst_new_box_autoadd_new_annotationPtr
+          .asFunction<ffi.Pointer<wire_cst_new_annotation> Function()>();
 
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_not_editable_reason(int value) {
     return _cst_new_box_autoadd_not_editable_reason(value);
@@ -6292,6 +7019,39 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_String');
   late final _cst_new_list_String = _cst_new_list_StringPtr
       .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_annotation_info> cst_new_list_annotation_info(
+    int len,
+  ) {
+    return _cst_new_list_annotation_info(len);
+  }
+
+  late final _cst_new_list_annotation_infoPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_annotation_info> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_annotation_info');
+  late final _cst_new_list_annotation_info = _cst_new_list_annotation_infoPtr
+      .asFunction<ffi.Pointer<wire_cst_list_annotation_info> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_annotation_points> cst_new_list_annotation_points(
+    int len,
+  ) {
+    return _cst_new_list_annotation_points(len);
+  }
+
+  late final _cst_new_list_annotation_pointsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_annotation_points> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_annotation_points');
+  late final _cst_new_list_annotation_points =
+      _cst_new_list_annotation_pointsPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_annotation_points> Function(int)
+          >();
 
   ffi.Pointer<wire_cst_list_attachment> cst_new_list_attachment(int len) {
     return _cst_new_list_attachment(len);
@@ -6584,6 +7344,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_page_info = _cst_new_list_page_infoPtr
       .asFunction<ffi.Pointer<wire_cst_list_page_info> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_page_point> cst_new_list_page_point(int len) {
+    return _cst_new_list_page_point(len);
+  }
+
+  late final _cst_new_list_page_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_page_point> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_page_point');
+  late final _cst_new_list_page_point = _cst_new_list_page_pointPtr
+      .asFunction<ffi.Pointer<wire_cst_list_page_point> Function(int)>();
+
   ffi.Pointer<wire_cst_list_page_rect> cst_new_list_page_rect(int len) {
     return _cst_new_list_page_rect(len);
   }
@@ -6779,11 +7552,18 @@ typedef DartDartPostCObjectFnTypeFunction = bool Function(
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
 
-final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint8> ptr;
+final class wire_cst_page_rect extends ffi.Struct {
+  @ffi.Float()
+  external double left;
 
-  @ffi.Int32()
-  external int len;
+  @ffi.Float()
+  external double top;
+
+  @ffi.Float()
+  external double right;
+
+  @ffi.Float()
+  external double bottom;
 }
 
 final class wire_cst_page_point extends ffi.Struct {
@@ -6792,6 +7572,78 @@ final class wire_cst_page_point extends ffi.Struct {
 
   @ffi.Float()
   external double y;
+}
+
+final class wire_cst_list_page_point extends ffi.Struct {
+  external ffi.Pointer<wire_cst_page_point> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_annotation_points extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_page_point> points;
+}
+
+final class wire_cst_list_annotation_points extends ffi.Struct {
+  external ffi.Pointer<wire_cst_annotation_points> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_annotation_color extends ffi.Struct {
+  @ffi.Float()
+  external double red;
+
+  @ffi.Float()
+  external double green;
+
+  @ffi.Float()
+  external double blue;
+}
+
+final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_new_annotation extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  external wire_cst_page_rect rect;
+
+  external ffi.Pointer<wire_cst_list_annotation_points> points;
+
+  external wire_cst_annotation_color color;
+
+  @ffi.Float()
+  external double stroke;
+
+  @ffi.Float()
+  external double opacity;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> contents;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
+
+  @ffi.Float()
+  external double font_size;
+
+  @ffi.Bool()
+  external bool arrow;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> label;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> meta;
+
+  @ffi.Float()
+  external double tilt;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> icon;
 }
 
 final class wire_cst_list_String extends ffi.Struct {
@@ -6903,20 +7755,6 @@ final class wire_cst_list_wanted_item extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_page_rect extends ffi.Struct {
-  @ffi.Float()
-  external double left;
-
-  @ffi.Float()
-  external double top;
-
-  @ffi.Float()
-  external double right;
-
-  @ffi.Float()
-  external double bottom;
-}
-
 final class wire_cst_search_options extends ffi.Struct {
   @ffi.Bool()
   external bool match_case;
@@ -7020,6 +7858,22 @@ final class wire_cst_list_split_output extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+}
+
+final class wire_cst_annotation_change extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> contents;
+
+  external ffi.Pointer<wire_cst_page_rect> rect;
+
+  external ffi.Pointer<wire_cst_list_annotation_points> points;
+
+  external ffi.Pointer<wire_cst_annotation_color> color;
+
+  external ffi.Pointer<ffi.Float> stroke;
+
+  external ffi.Pointer<ffi.Float> opacity;
+
+  external ffi.Pointer<ffi.Float> font_size;
 }
 
 final class wire_cst_api_error extends ffi.Struct {
@@ -7128,6 +7982,11 @@ final class wire_cst_pdf_date extends ffi.Struct {
 
   @ffi.Uint8()
   external int minute;
+
+  @ffi.Uint8()
+  external int second;
+
+  external ffi.Pointer<ffi.Int16> offset_minutes;
 }
 
 final class wire_cst_attachment extends ffi.Struct {
@@ -7292,6 +8151,72 @@ final class wire_cst_security extends ffi.Struct {
 
   @ffi.Bool()
   external bool restricted;
+}
+
+final class wire_cst_annotation_info extends ffi.Struct {
+  @ffi.Uint64()
+  external int handle;
+
+  @ffi.Uint64()
+  external int page;
+
+  @ffi.Int32()
+  external int kind;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> subtype;
+
+  external wire_cst_page_rect rect;
+
+  external ffi.Pointer<wire_cst_list_annotation_points> points;
+
+  @ffi.Bool()
+  external bool arrow;
+
+  external ffi.Pointer<wire_cst_annotation_color> color;
+
+  @ffi.Float()
+  external double opacity;
+
+  @ffi.Float()
+  external double stroke;
+
+  external ffi.Pointer<ffi.Float> font_size;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> contents;
+
+  @ffi.Bool()
+  external bool rich;
+
+  external ffi.Pointer<wire_cst_pdf_date> created;
+
+  external ffi.Pointer<wire_cst_pdf_date> modified;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> icon;
+
+  external ffi.Pointer<ffi.Uint64> replies_to;
+
+  @ffi.Uint64()
+  external int thread;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> state;
+
+  @ffi.Bool()
+  external bool resolved;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> resolved_by;
+
+  external ffi.Pointer<wire_cst_pdf_date> resolved_at;
+
+  external ffi.Pointer<wire_cst_list_String> mentions;
+}
+
+final class wire_cst_list_annotation_info extends ffi.Struct {
+  external ffi.Pointer<wire_cst_annotation_info> ptr;
+
+  @ffi.Int32()
+  external int len;
 }
 
 final class wire_cst_line_info extends ffi.Struct {
@@ -7644,6 +8569,35 @@ final class wire_cst_list_split_file extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_revision_info extends ffi.Struct {
+  @ffi.Uint32()
+  external int current;
+
+  external ffi.Pointer<ffi.Uint64> render_key;
+
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> changed_pages;
+
+  external ffi.Pointer<wire_cst_list_font_substitution> substitutions;
+
+  external ffi.Pointer<wire_cst_document_structure> structure;
+}
+
+final class wire_cst_annotation_commit extends ffi.Struct {
+  @ffi.Uint64()
+  external int handle;
+
+  external wire_cst_revision_info revision;
+}
+
+final class wire_cst_annotation_list extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_annotation_info> annotations;
+
+  external ffi.Pointer<wire_cst_list_String> people;
+
+  @ffi.Bool()
+  external bool truncated;
+}
+
 final class wire_cst_api_version extends ffi.Struct {
   @ffi.Uint32()
   external int major;
@@ -7833,19 +8787,6 @@ final class wire_cst_restored_document extends ffi.Struct {
   external bool original_changed;
 
   external ffi.Pointer<ffi.Uint64> render_key;
-}
-
-final class wire_cst_revision_info extends ffi.Struct {
-  @ffi.Uint32()
-  external int current;
-
-  external ffi.Pointer<ffi.Uint64> render_key;
-
-  external ffi.Pointer<wire_cst_list_prim_u_32_strict> changed_pages;
-
-  external ffi.Pointer<wire_cst_list_font_substitution> substitutions;
-
-  external ffi.Pointer<wire_cst_document_structure> structure;
 }
 
 final class wire_cst_reverted extends ffi.Struct {

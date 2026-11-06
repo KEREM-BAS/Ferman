@@ -1103,6 +1103,224 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<AnnotationList> annotations(int document) async {
+    try {
+      final list = await bridge.annotations(document: BigInt.from(document));
+      return AnnotationList(
+        annotations: [for (final item in list.annotations) _annotation(item)],
+        people: list.people,
+        truncated: list.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addAnnotation(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      annotation: bridge.NewAnnotation(
+        kind: bridge.AnnotationKind.values.byName(annotation.kind.name),
+        rect: _bridgeRect(annotation.rect),
+        points: _bridgePoints(annotation.points),
+        color: _bridgeColor(annotation.color),
+        stroke: annotation.stroke,
+        opacity: annotation.opacity,
+        contents: annotation.contents,
+        author: annotation.author,
+        fontSize: annotation.fontSize,
+        arrow: annotation.arrow,
+        label: annotation.label,
+        meta: annotation.meta,
+        tilt: annotation.tilt,
+        icon: annotation.icon,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.updateAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      change: bridge.AnnotationChange(
+        contents: change.contents,
+        rect: switch (change.rect) {
+          null => null,
+          final rect => _bridgeRect(rect),
+        },
+        points: switch (change.points) {
+          null => null,
+          final points => _bridgePoints(points),
+        },
+        color: switch (change.color) {
+          null => null,
+          final color => _bridgeColor(color),
+        },
+        stroke: change.stroke,
+        opacity: change.opacity,
+        fontSize: change.fontSize,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) => _revision(
+    () => bridge.deleteAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) => _annotationCommit(
+    () => bridge.replyToAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      author: author,
+      text: text,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) => _revision(
+    () => bridge.setAnnotationResolved(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      author: author,
+      resolved: resolved,
+      name: name,
+    ),
+  );
+
+  static Future<AnnotationCommit> _annotationCommit(
+    Future<bridge.AnnotationCommit> Function() call,
+  ) async {
+    bridge.AnnotationCommit? commit;
+    final revision = await _revision(() async {
+      final made = await call();
+      commit = made;
+      return made.revision;
+    });
+    return AnnotationCommit(handle: commit!.handle.toInt(), revision: revision);
+  }
+
+  static bridge.PageRect _bridgeRect(Rect rect) => bridge.PageRect(
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+  );
+
+  static List<bridge.AnnotationPoints> _bridgePoints(
+    List<List<Offset>> points,
+  ) => [
+    for (final part in points)
+      bridge.AnnotationPoints(
+        points: [
+          for (final point in part) bridge.PagePoint(x: point.dx, y: point.dy),
+        ],
+      ),
+  ];
+
+  static bridge.AnnotationColor _bridgeColor(AnnotationColor color) =>
+      bridge.AnnotationColor(
+        red: color.red,
+        green: color.green,
+        blue: color.blue,
+      );
+
+  static AnnotationInfo _annotation(bridge.AnnotationInfo item) =>
+      AnnotationInfo(
+        handle: item.handle.toInt(),
+        page: item.page.toInt(),
+        kind: AnnotationKind.values.byName(item.kind.name),
+        subtype: item.subtype,
+        rect: _rect(item.rect),
+        points: [
+          for (final part in item.points)
+            [for (final point in part.points) Offset(point.x, point.y)],
+        ],
+        arrow: item.arrow,
+        color: switch (item.color) {
+          null => null,
+          final color => AnnotationColor(color.red, color.green, color.blue),
+        },
+        opacity: item.opacity,
+        stroke: item.stroke,
+        fontSize: item.fontSize,
+        author: item.author,
+        contents: item.contents,
+        rich: item.rich,
+        created: _instant(item.created),
+        modified: _instant(item.modified),
+        icon: item.icon,
+        repliesTo: item.repliesTo?.toInt(),
+        thread: item.thread.toInt(),
+        state: item.state,
+        resolved: item.resolved,
+        resolvedBy: item.resolvedBy,
+        resolvedAt: _instant(item.resolvedAt),
+        mentions: item.mentions,
+      );
+
+  /// A date with a zone as local time, one with none as written.
+  static DateTime? _instant(bridge.PdfDate? date) {
+    if (date == null) return null;
+    final offset = date.offsetMinutes;
+    if (offset == null) {
+      return DateTime(
+        date.year,
+        date.month,
+        date.day,
+        date.hour,
+        date.minute,
+        date.second,
+      );
+    }
+    return DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+      date.hour,
+      date.minute - offset,
+      date.second,
+    ).toLocal();
+  }
+
+  @override
   Future<RevisionInfo> rotatePages(
     int document,
     List<int> pages,

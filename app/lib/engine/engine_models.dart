@@ -255,6 +255,309 @@ class PageInfo {
   final int? handle;
 }
 
+/// What an annotation is.
+enum AnnotationKind {
+  /// A highlight.
+  highlight,
+
+  /// An underline.
+  underline,
+
+  /// A strike-through.
+  strikeOut,
+
+  /// A squiggly underline: read and rendered, never created.
+  squiggly,
+
+  /// A note on the page, or a reply.
+  note,
+
+  /// A text box.
+  freeText,
+
+  /// A text box with a leader.
+  callout,
+
+  /// Freehand.
+  ink,
+
+  /// A rectangle.
+  square,
+
+  /// An ellipse.
+  circle,
+
+  /// A line, with or without an arrow.
+  line,
+
+  /// A polygon.
+  polygon,
+
+  /// A stamp.
+  stamp,
+
+  /// Any other type: listed, its text editable, its drawing left alone.
+  other,
+}
+
+/// A colour of a mark, each part from 0 to 1. Marks do not change with theme.
+@immutable
+class AnnotationColor {
+  /// Creates a colour.
+  const new(this.red, this.green, this.blue);
+
+  /// Red.
+  final double red;
+
+  /// Green.
+  final double green;
+
+  /// Blue.
+  final double blue;
+}
+
+/// One annotation, in displayed points.
+@immutable
+class AnnotationInfo {
+  /// Creates an annotation.
+  const new({
+    required this.handle,
+    required this.page,
+    required this.kind,
+    required this.rect,
+    required this.thread,
+    this.subtype = '',
+    this.points = const [],
+    this.arrow = false,
+    this.color,
+    this.opacity = 1,
+    this.stroke = 1,
+    this.fontSize,
+    this.author,
+    this.contents,
+    this.rich = false,
+    this.created,
+    this.modified,
+    this.icon,
+    this.repliesTo,
+    this.state,
+    this.resolved = false,
+    this.resolvedBy,
+    this.resolvedAt,
+    this.mentions = const [],
+  });
+
+  /// Its identity for the other calls. It stays through edits, undo and saves;
+  /// one written directly in the page's array gets a new one with its first
+  /// change, which the change returns.
+  final int handle;
+
+  /// Its page, by [PageInfo.handle].
+  final int page;
+
+  /// What it is.
+  final AnnotationKind kind;
+
+  /// The type's name in the file, which names an [AnnotationKind.other].
+  final String subtype;
+
+  /// Its box.
+  final Rect rect;
+
+  /// Quads (four corners each), strokes, a line's two ends, vertices or a
+  /// leader, as [NewAnnotation.points] orders them.
+  final List<List<Offset>> points;
+
+  /// A line or callout ends in an arrow.
+  final bool arrow;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// A text box's font size.
+  final double? fontSize;
+
+  /// Its author.
+  final String? author;
+
+  /// Its text.
+  final String? contents;
+
+  /// Rich text goes with it; replacing the text removes it.
+  final bool rich;
+
+  /// When it was made: local time when the file gives a zone, else as written.
+  final DateTime? created;
+
+  /// When it last changed, as [created].
+  final DateTime? modified;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// The annotation it replies to.
+  final int? repliesTo;
+
+  /// The top of its thread, its own handle when it is no reply.
+  final int thread;
+
+  /// The state it sets, for a state reply, which the panel does not list.
+  final String? state;
+
+  /// On top of a thread: whether it is resolved.
+  final bool resolved;
+
+  /// Who resolved it.
+  final String? resolvedBy;
+
+  /// When, as [created].
+  final DateTime? resolvedAt;
+
+  /// The people of the file its text mentions.
+  final List<String> mentions;
+}
+
+/// A document's annotations.
+@immutable
+class AnnotationList {
+  /// Creates a list.
+  const new({
+    this.annotations = const [],
+    this.people = const [],
+    this.truncated = false,
+  });
+
+  /// In page order.
+  final List<AnnotationInfo> annotations;
+
+  /// The names in the file, for mentions (a4-2).
+  final List<String> people;
+
+  /// Whether a limit cut the list or a text short.
+  final bool truncated;
+}
+
+/// A new annotation, in displayed points.
+@immutable
+class NewAnnotation {
+  /// Creates a new annotation.
+  const new({
+    required this.kind,
+    required this.color,
+    required this.author,
+    this.rect = Rect.zero,
+    this.points = const [],
+    this.stroke = 1,
+    this.opacity = 1,
+    this.contents = '',
+    this.fontSize = 12,
+    this.arrow = false,
+    this.label = '',
+    this.meta,
+    this.tilt = 0,
+    this.icon,
+  });
+
+  /// What it is; never [AnnotationKind.squiggly] or [AnnotationKind.other].
+  final AnnotationKind kind;
+
+  /// A note's, text box's, shape's or stamp's box; a callout's text box.
+  final Rect rect;
+
+  /// Text markup: each quad's corners, top left, top right, bottom left,
+  /// bottom right. Ink: each stroke. Line: its two ends. Polygon: its vertices.
+  /// Callout: its leader from the far end.
+  final List<List<Offset>> points;
+
+  /// Its colour.
+  final AnnotationColor color;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its text.
+  final String contents;
+
+  /// Its author.
+  final String author;
+
+  /// A text box's, callout's or stamp label's size.
+  final double fontSize;
+
+  /// A line ends in an arrow.
+  final bool arrow;
+
+  /// A stamp's label, already cased for its language.
+  final String label;
+
+  /// The line under a stamp's label: name, date and time as placed.
+  final String? meta;
+
+  /// A stamp's turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+}
+
+/// What a change to an annotation sets; null leaves it.
+@immutable
+class AnnotationChange {
+  /// Creates a change.
+  const new({
+    this.contents,
+    this.rect,
+    this.points,
+    this.color,
+    this.stroke,
+    this.opacity,
+    this.fontSize,
+  });
+
+  /// New text.
+  final String? contents;
+
+  /// A new box: its geometry follows.
+  final Rect? rect;
+
+  /// New geometry, as [NewAnnotation.points].
+  final List<List<Offset>>? points;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its stroke, in points.
+  final double? stroke;
+
+  /// Its opacity.
+  final double? opacity;
+
+  /// A text box's or callout's font size.
+  final double? fontSize;
+}
+
+/// What a commit that names an annotation returns.
+@immutable
+class AnnotationCommit {
+  /// Creates a commit.
+  const new({required this.handle, required this.revision});
+
+  /// The annotation's handle.
+  final int handle;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+}
+
 /// What each side of a page gives up, in displayed points.
 @immutable
 class PageMargins {

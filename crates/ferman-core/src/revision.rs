@@ -1228,7 +1228,7 @@ fn simple_copy(scope: &Scope<'_>, font: &mut Dictionary, copy: &SimpleFontCopy) 
 }
 
 /// Queues the objects of `font` and returns its Type0 dictionary's id.
-fn embedded_font(
+pub(crate) fn embedded_font(
     font: &EmbeddedFont,
     queued: &mut Vec<(ObjectId, Object)>,
     next: &mut u32,

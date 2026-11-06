@@ -589,7 +589,7 @@ impl Session {
     }
 
     /// Where the pages `handles` are in the committed revisions, in the same order.
-    fn page_indices(&self, handles: &[u64]) -> Result<Vec<usize>, ApiError> {
+    pub(super) fn page_indices(&self, handles: &[u64]) -> Result<Vec<usize>, ApiError> {
         let at: HashMap<u64, usize> = self
             .committed
             .pages(&self.model.document)
@@ -1123,6 +1123,26 @@ impl Session {
     /// How many times this document's revisions were published, which a job's change checks.
     pub(super) fn published_generation(&self) -> u64 {
         self.model.revised().generation
+    }
+
+    /// The fonts for an annotation's text, built now if they are not yet.
+    pub(super) fn font_library(&self) -> Arc<FontLibrary> {
+        self.fonts.library()
+    }
+
+    /// Annotation `handle` in the committed revisions.
+    pub(super) fn annotation(
+        &self,
+        handle: u64,
+    ) -> Result<ferman_core::annotations::Annotation, ApiError> {
+        self.committed
+            .annotations(&self.model.document)
+            .annotations
+            .into_iter()
+            .find(|annotation| annotation.handle == handle)
+            .ok_or_else(|| {
+                ferman_core::CoreError::Write(ferman_core::WriteError::NoSuchAnnotation).into()
+            })
     }
 
     /// The handles of pages `indices` as the committed revisions leave the pages.
