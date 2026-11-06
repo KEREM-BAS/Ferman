@@ -1114,32 +1114,56 @@ class DocumentEditor extends _$DocumentEditor {
     });
   }
 
-  /// Takes [change], of the shown document's pages, as a step of its history,
-  /// after committing the typing (Organize). The engine's error, or null when
-  /// it took it or no document shows; the history is then as it was.
-  Future<EngineException?> pageChange(
-    Future<RevisionInfo> Function(int document) change,
-  ) async {
-    _idle?.cancel();
-    EngineException? failure;
-    await _run(() async {
-      await _close();
-      final document = _document;
-      if (document == null) return;
-      try {
-        await _reverted(document, await change(document));
-      } on EngineException catch (error) {
-        failure = error;
-      }
-    });
-    return failure;
-  }
-
   /// A revert's step has no block, and the redo branch went with it.
   Future<void> _reverted(int document, RevisionInfo info) async {
     _targets = _targets.take(state.history.current).toList();
     await _refresh(document, info);
     state = state.copy(clearPreview: true);
+  }
+
+  /// Takes the page operation [change] on [document] as one step, after
+  /// committing the typing; [committed] runs once it applied. The engine's
+  /// error, or null. Before the first change to a signed document the engine
+  /// refuses it, and it runs again after a3-16a's "Edit anyway".
+  Future<EngineException?> pageChange(
+    int document,
+    Future<RevisionInfo> Function() change, {
+    VoidCallback? committed,
+  }) async {
+    _idle?.cancel();
+    EngineException? failed;
+    await _run(() async {
+      await _close();
+      try {
+        final info = await change();
+        // The redo branch went with it.
+        if (document == _document) {
+          _targets = _targets.take(state.history.current).toList();
+        }
+        await _refresh(document, info);
+        if (document == _document) state = state.copy(clearPreview: true);
+        committed?.call();
+      } on EngineException catch (error) {
+        final tab = ref
+            .read(shellDocumentsProvider)
+            .documents
+            .where((tab) => tab.document?.id == document)
+            .firstOrNull;
+        if (error.kind == EngineErrorKind.confirmationRequired && tab != null) {
+          ref
+              .read(documentSaverProvider.notifier)
+              .askSigned(
+                tab,
+                () => unawaited(
+                  pageChange(document, change, committed: committed),
+                ),
+              );
+        } else {
+          failed = error;
+        }
+      }
+    });
+    return failed;
   }
 
   /// Opens the editor on the block step [step] changed, its typing becoming

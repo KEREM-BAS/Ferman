@@ -36,4 +36,10 @@ final class FakeFilePickerService implements FilePickerService {
     saves.add(suggestedName);
     return saveTo;
   }
+
+  /// The folder the folder panel returns; null, as if cancelled, by default.
+  String? folder;
+
+  @override
+  Future<String?> openFolder() async => folder;
 }

@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-904 messages in `app_en.arb`; translated: Turkish 904, Arabic 904.
+1014 messages in `app_en.arb`; translated: Turkish 1014, Arabic 1014.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -952,13 +952,123 @@ The table below is generated from the ARB files by `tools/l10n`
 | `organizeToastDeletedNote` | {count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}} | {count, plural, other{{pages}. Optimize et ve temizle’yi seçene kadar dosyada kalır.}} | {count, plural, =1{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».} other{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».}} | Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command. |
 | `organizeStepInsert` | Insert {name} | {name} ekle | إدراج {name} | History step: inserted the file {name}. |
 | `organizeFailed` | The pages weren’t changed | Sayfalar değiştirilmedi | لم تتغير الصفحات | Toast: a page command failed; the document is as it was. |
-| `organizeInsertFailed` | Couldn’t insert {name} | {name} eklenemedi | تعذّر إدراج {name} | Toast and task drawer: a dropped file's pages could not go in. |
+| `organizeInsertFailed` | Couldn’t insert {name} | {name} eklenemedi | تعذّر إدراج {name} | Toast: a dropped file's pages could not go in. |
 | `organizeDropMoveBefore` | {count, plural, =1{Drop to move page {pages} before page {before}} other{Drop to move pages {pages} before page {before}}} | {count, plural, =1{{pages}. sayfayı {before}. sayfanın önüne taşımak için bırakın} other{{pages}. sayfaları {before}. sayfanın önüne taşımak için bırakın}} | {count, plural, =1{أفلت لنقل الصفحة {pages} قبل الصفحة {before}} other{أفلت لنقل الصفحات {pages} قبل الصفحة {before}}} | Page grid (a6-1b): what a drop does. |
 | `organizeDropMoveEnd` | {count, plural, =1{Drop to move page {pages} to the end} other{Drop to move pages {pages} to the end}} | {count, plural, =1{{pages}. sayfayı sona taşımak için bırakın} other{{pages}. sayfaları sona taşımak için bırakın}} | {count, plural, =1{أفلت لنقل الصفحة {pages} إلى النهاية} other{أفلت لنقل الصفحات {pages} إلى النهاية}} | Page grid (a6-1b): what a drop past the last page does. |
 | `organizeDropFilesBefore` | Drop to insert before page {before} | {before}. sayfanın önüne eklemek için bırakın | أفلت للإدراج قبل الصفحة {before} | Page grid: files over the grid (G105), what a drop does. |
 | `organizeDropFilesEnd` | Drop to insert at the end | Sona eklemek için bırakın | أفلت للإدراج في النهاية | Page grid: files over the grid past the last page (G105). |
-| `jobInsertingTitle` | Reading {name} | {name} okunuyor | جارٍ قراءة {name} | Task drawer: a dropped file's pages being read. |
-| `jobInsertedTitle` | Inserted {name} | {name} eklendi | أُدرج {name} | Task drawer: a dropped file's pages are read. |
+| `jobInsertingTitle` | Reading pages from {name} | {name} dosyasından sayfalar okunuyor | جارٍ قراءة الصفحات من {name} | a11-6b: an insert running, from a dialog or a drop. |
+| `jobInsertedTitle` | Inserted pages from {name} | {name} dosyasından sayfalar eklendi | أُدرجت الصفحات من {name} | a11-6b: an insert finished, from a dialog or a drop. |
 | `organizeSelectFirst` | Select pages first | Önce sayfaları seçin | حدد الصفحات أولًا | Organize tool row: why a command on the selection is disabled while none is selected; not drawn. |
+| `organizeCancel` | Cancel | İptal | إلغاء | Organize's dialogs and crop panel: closes without changing anything. |
+| `organizeUndo` | Undo | Geri al | تراجع | a11-6: the action of the toast after a crop. |
+| `organizeFailedTitle` | Couldn’t change the pages | Sayfalar değiştirilemedi | تعذّر تغيير الصفحات | Toast title: the engine refused a page operation. |
+| `organizeBadRange` | Write pages like 1–3, 5, up to page {last}. | Sayfaları 1–3, 5 gibi yazın; en çok {last}. sayfaya kadar. | اكتب الصفحات بهذا الشكل: 1–3، 5، حتى الصفحة {last}. | Error under a page range field. {last} is the last page's number. |
+| `organizeSizeA4` | A4 · {size} | A4 · {size} | A4 · {size} | a6-4 and G45: a page size option. {size} is formatted for the region. |
+| `organizeSizeLetter` | Letter · {size} | Letter · {size} | Letter · {size} | a6-4 and G45: a page size option. {size} is formatted for the region. |
+| `organizeSizeCustom` | Custom… | Özel… | مخصّص… | a6-4 and G45: a page size option that shows width and height. |
+| `organizeWidth` | Width | Genişlik | العرض | A custom page size's width field. |
+| `organizeHeight` | Height | Yükseklik | الارتفاع | A custom page size's height field. |
+| `cropTitle` | Crop and page size | Kırpma ve sayfa boyutu | الاقتصاص وحجم الصفحة | a6-4: the panel's title. |
+| `cropMargins` | Margins | Kenar boşlukları | الهوامش | a6-4: panel section. |
+| `cropTop` | Top | Üst | أعلى | a6-4: margin field. |
+| `cropBottom` | Bottom | Alt | أسفل | a6-4: margin field. |
+| `cropLeft` | Left | Sol | يسار | a6-4: margin field; the page's left, which never mirrors. |
+| `cropRight` | Right | Sağ | يمين | a6-4: margin field; the page's right, which never mirrors. |
+| `cropRemoveWhite` | Remove white margins | Beyaz kenarları kaldır | إزالة الهوامش البيضاء | a6-4: finds the content box of each page. |
+| `cropNoContent` | These pages have no content to measure. | Bu sayfalarda ölçülecek içerik yok. | لا يوجد في هذه الصفحات محتوى يمكن قياسه. | a6-4, not drawn: Remove white margins found nothing. |
+| `cropTooMuch` | These margins leave nothing of page {page}. | Bu kenar boşlukları {page}. sayfadan hiçbir şey bırakmıyor. | لا تُبقي هذه الهوامش شيئًا من الصفحة {page}. | a6-4, not drawn: the margins are larger than a page in the scope. |
+| `cropPageSize` | Page size | Sayfa boyutu | حجم الصفحة | a6-4: panel section and its select's name. |
+| `cropKeepSize` | Keep current size ({size}) | Geçerli boyutu koru ({size}) | الإبقاء على الحجم الحالي ({size}) | a6-4: the first page size option. |
+| `cropContent` | Content | İçerik | المحتوى | a6-4: the accessible name of the Centre or Scale to fit control. |
+| `cropFitCentre` | Centre | Ortala | توسيط | a6-4: content stays at its size, centred. |
+| `cropFitScale` | Scale to fit | Sığacak şekilde ölçekle | تغيير الحجم للملاءمة | a6-4: content is scaled to the new page. |
+| `cropApplyTo` | Apply to | Uygulanacak sayfalar | التطبيق على | a6-4: panel section. |
+| `cropThisPage` | This page | Bu sayfa | هذه الصفحة | a6-4: scope. |
+| `cropAllPages` | {count, plural, =1{The only page} other{All {formatted} pages}} | {count, plural, =1{Tek sayfa} other{{formatted} sayfanın tümü}} | {count, plural, zero{كل الصفحات} one{الصفحة الوحيدة} two{الصفحتان كلتاهما} few{كل الصفحات الـ{formatted}} many{كل الصفحات الـ{formatted}} other{كل الصفحات الـ{formatted}}} | a6-4: scope, every page of the document. |
+| `cropSomePages` | Pages | Sayfalar | الصفحات | a6-4: scope, the pages of a range. |
+| `cropWhichPages` | Which pages | Hangi sayfalar | أي الصفحات | a6-4: the accessible name of the parity select. |
+| `cropParityAll` | All pages in range | Aralıktaki tüm sayfalar | كل الصفحات في النطاق | a6-4: parity option. |
+| `cropParityOdd` | Odd pages | Tek sayfalar | الصفحات الفردية | a6-4: parity option. |
+| `cropParityEven` | Even pages | Çift sayfalar | الصفحات الزوجية | a6-4: parity option. |
+| `cropAction` | {count, plural, =1{Crop {formatted} page} other{Crop {formatted} pages}} | {count, plural, =1{{formatted} sayfayı kırp} other{{formatted} sayfayı kırp}} | {count, plural, zero{اقتصاص} one{اقتصاص صفحة واحدة} two{اقتصاص صفحتين} few{اقتصاص {formatted} صفحات} many{اقتصاص {formatted} صفحة} other{اقتصاص {formatted} صفحة}} | a6-4: the primary button. |
+| `cropResizeAction` | {count, plural, =1{Resize {formatted} page} other{Resize {formatted} pages}} | {count, plural, =1{{formatted} sayfayı yeniden boyutlandır} other{{formatted} sayfayı yeniden boyutlandır}} | {count, plural, zero{تغيير الحجم} one{تغيير حجم صفحة واحدة} two{تغيير حجم صفحتين} few{تغيير حجم {formatted} صفحات} many{تغيير حجم {formatted} صفحة} other{تغيير حجم {formatted} صفحة}} | a6-4: the primary button when only the page size changes. |
+| `cropDone` | {count, plural, =1{{formatted} page cropped} other{{formatted} pages cropped}} | {count, plural, =1{{formatted} sayfa kırpıldı} other{{formatted} sayfa kırpıldı}} | {count, plural, zero{لم تُقتص أي صفحة} one{اقتُصت صفحة واحدة} two{اقتُصت صفحتان} few{اقتُصت {formatted} صفحات} many{اقتُصت {formatted} صفحة} other{اقتُصت {formatted} صفحة}} | The toast after a crop (a11-6's pattern). |
+| `cropDoneHidden` | What’s outside is hidden, not removed. | Dışarıda kalan kısım gizlendi, kaldırılmadı. | ما يقع خارج الإطار مخفي وليس محذوفًا. | The toast after a crop: cropping hides content and does not remove it (G57). |
+| `cropStep` | Crop pages | Sayfaları kırp | اقتصاص الصفحات | The history step of a crop. |
+| `cropSizeStep` | Change page size | Sayfa boyutunu değiştir | تغيير حجم الصفحة | The history step of a new page size. |
+| `labelsTitle` | Page labels | Sayfa etiketleri | تسميات الصفحات | a6-5: the dialog's title. |
+| `labelsDescription` | Choose how pages are numbered in Ferman, in other PDF apps and when printing. | Sayfaların Ferman’da, diğer PDF uygulamalarında ve yazdırırken nasıl numaralanacağını seçin. | اختر طريقة ترقيم الصفحات في Ferman وفي تطبيقات PDF الأخرى وعند الطباعة. | a6-5: the dialog's description. |
+| `labelsColumnPages` | Pages | Sayfalar | الصفحات | a6-5: column head, shown in capitals, and the field's name. |
+| `labelsColumnStyle` | Style | Biçim | النمط | a6-5: column head, shown in capitals, and the select's name. |
+| `labelsColumnPrefix` | Prefix | Önek | البادئة | a6-5: column head, shown in capitals, and the field's name. |
+| `labelsColumnStart` | Start at | Başlangıç | البدء من | a6-5: column head, shown in capitals, and the field's name. |
+| `labelsPrefixNone` | None | Yok | بلا | a6-5: the empty prefix's placeholder. |
+| `labelsStyleRomanLower` | i, ii, iii | i, ii, iii | i, ii, iii | a6-5: a label style. |
+| `labelsStyleRomanUpper` | I, II, III | I, II, III | I, II, III | a6-5: a label style. |
+| `labelsStyleDecimal` | 1, 2, 3 | 1, 2, 3 | 1, 2, 3 | a6-5: a label style. |
+| `labelsStyleLettersLower` | a, b, c | a, b, c | a, b, c | a6-5: a label style. |
+| `labelsStyleLettersUpper` | A, B, C | A, B, C | A, B, C | A label style a6-5 does not draw, which PDF has. |
+| `labelsStyleNone` | Prefix only | Yalnızca önek | البادئة فقط | a6-5: a label style with no number. |
+| `labelsRemoveRange` | Remove range | Aralığı kaldır | إزالة النطاق | a6-5: a row's remove button. |
+| `labelsAddRange` | Add range | Aralık ekle | إضافة نطاق | a6-5: adds a row. |
+| `labelsPreview` | Preview | Önizleme | معاينة | a6-5: the preview row's caption. |
+| `labelsPrint` | Also print the numbers on the pages | Numaraları sayfalara da bas | طباعة الأرقام على الصفحات أيضًا | a6-5: disabled until page marks ship. |
+| `labelsPrintNote` | Adds them as a footer. Pages that already show a number are skipped. | Altbilgi olarak eklenir. Zaten numara gösteren sayfalar atlanır. | تُضاف في تذييل الصفحة. وتُتخطى الصفحات التي تعرض رقمًا بالفعل. | a6-5: the note under the disabled checkbox. |
+| `labelsApply` | Apply labels | Etiketleri uygula | تطبيق التسميات | a6-5: the primary button. |
+| `labelsStep` | Change page labels | Sayfa etiketlerini değiştir | تغيير تسميات الصفحات | The history step of new labels. |
+| `labelsErrorInvalid` | Row {row}: write its pages like 1–9. | {row}. satır: sayfaları 1–9 gibi yazın. | الصف {row}: اكتب صفحاته بهذا الشكل: 1–9. | a6-5, not drawn: a row's pages cannot be read. |
+| `labelsErrorOverlap` | Row {row} overlaps the range before it. | {row}. satır önceki aralıkla çakışıyor. | يتداخل الصف {row} مع النطاق الذي قبله. | a6-5, not drawn: ranges overlap or are out of order. |
+| `labelsErrorPast` | Row {row} goes past the last page, {last}. | {row}. satır son sayfayı ({last}) aşıyor. | يتجاوز الصف {row} الصفحة الأخيرة، {last}. | a6-5, not drawn: a range past the last page. |
+| `labelsErrorUncovered` | Page {page} is in no range. Ranges must cover every page. | {page}. sayfa hiçbir aralıkta değil. Aralıklar tüm sayfaları kapsamalıdır. | الصفحة {page} ليست في أي نطاق. يجب أن تشمل النطاقات كل الصفحات. | a6-5, not drawn: a page no range covers. |
+| `insertMenuBlank` | Blank page | Boş sayfa | صفحة فارغة | a6-1: Insert's menu. |
+| `insertMenuFile` | Pages from a file… | Dosyadan sayfalar… | صفحات من ملف… | a6-1: Insert's menu. |
+| `insertMenuScan` | From scanner or camera… | Tarayıcıdan veya kameradan… | من الماسح الضوئي أو الكاميرا… | a6-1: Insert's menu, disabled until scanning ships. |
+| `insertBlankTitle` | Insert blank page | Boş sayfa ekle | إدراج صفحة فارغة | G45: the dialog's title. |
+| `insertSize` | Size | Boyut | الحجم | G45: the size select. |
+| `insertSameSize` | Same as page {page} ({size}) | {page}. sayfayla aynı ({size}) | مثل الصفحة {page} ({size}) | G45: the first size option. |
+| `insertOrientation` | Orientation | Yön | الاتجاه | G45: the accessible name of Portrait or Landscape. |
+| `insertPortrait` | Portrait | Dikey | طولي | G45: orientation. |
+| `insertLandscape` | Landscape | Yatay | عرضي | G45: orientation. |
+| `insertCount` | Number of pages | Sayfa sayısı | عدد الصفحات | G45: the count field. |
+| `insertPosition` | Position | Konum | الموضع | G45: the accessible name of Before or After. |
+| `insertBefore` | Before | Önce | قبل | G45: position, before the page in the next field. |
+| `insertAfter` | After | Sonra | بعد | G45: position, after the page in the next field. |
+| `insertPage` | Page | Sayfa | الصفحة | G45: the position's page field. |
+| `insertAction` | {count, plural, =1{Insert {formatted} page} other{Insert {formatted} pages}} | {count, plural, =1{{formatted} sayfa ekle} other{{formatted} sayfa ekle}} | {count, plural, zero{إدراج} one{إدراج صفحة واحدة} two{إدراج صفحتين} few{إدراج {formatted} صفحات} many{إدراج {formatted} صفحة} other{إدراج {formatted} صفحة}} | G45: the primary button. |
+| `insertBlankStep` | Insert blank page | Boş sayfa ekle | إدراج صفحة فارغة | The history step of blank pages. |
+| `insertFileTitle` | Insert pages from file | Dosyadan sayfa ekle | إدراج صفحات من ملف | G45: the dialog's title. |
+| `insertFileAction` | Insert pages | Sayfaları ekle | إدراج الصفحات | G45: the primary button. |
+| `insertFileStep` | Insert pages from file | Dosyadan sayfa ekle | إدراج صفحات من ملف | The history step of inserted pages. |
+| `sourceChoose` | Choose file… | Dosya seç… | اختيار ملف… | G45: opens the system's file panel. |
+| `sourceNone` | No file chosen | Dosya seçilmedi | لم يُختر أي ملف | G45: before a file is chosen. |
+| `sourcePagesInfo` | {count, plural, =1{{name} · {formatted} page} other{{name} · {formatted} pages}} | {count, plural, =1{{name} · {formatted} sayfa} other{{name} · {formatted} sayfa}} | {count, plural, zero{{name}} one{{name} · صفحة واحدة} two{{name} · صفحتان} few{{name} · {formatted} صفحات} many{{name} · {formatted} صفحة} other{{name} · {formatted} صفحة}} | G45: the chosen file and its pages. |
+| `sourceRange` | Pages from the file | Dosyadan alınacak sayfalar | الصفحات من الملف | G45: the source's range field. |
+| `sourceAllPages` | All pages | Tüm sayfalar | كل الصفحات | G45 and a6-4: an empty range's placeholder. |
+| `sourceUnlock` | Unlock | Kilidi aç | فتح القفل | G45: tries the password of a locked source file. |
+| `sourceForbidden` | This file doesn’t allow taking pages from it. Its owner password lifts that. | Bu dosya sayfalarının alınmasına izin vermiyor. Sahip parolası bu kısıtlamayı kaldırır. | لا يسمح هذا الملف بأخذ صفحات منه. وترفع كلمة مرور المالك هذا القيد. | G45: a source file that forbids assembling. |
+| `sourceUnreadable` | Ferman can’t read this file. | Ferman bu dosyayı okuyamıyor. | يتعذّر على Ferman قراءة هذا الملف. | G45: a source file that cannot be used. |
+| `replaceTitle` | Replace pages | Sayfaları değiştir | استبدال الصفحات | G45: the dialog's title. |
+| `replaceThese` | Pages in this document | Bu belgedeki sayfalar | الصفحات في هذا المستند | G45: the range to replace. |
+| `replaceFewer` | The file gives fewer pages: the rest of these pages are deleted. | Dosyadan daha az sayfa geliyor: bu sayfaların kalanı silinir. | يوفّر الملف صفحات أقل: ستُحذف بقية هذه الصفحات. | G45: fewer new pages than replaced ones. |
+| `replaceMore` | The file gives more pages: the extra ones go after the last. | Dosyadan daha çok sayfa geliyor: fazlası sonuncunun ardına eklenir. | يوفّر الملف صفحات أكثر: ستأتي الصفحات الزائدة بعد الأخيرة. | G45: more new pages than replaced ones. |
+| `replaceAction` | {count, plural, =1{Replace {formatted} page} other{Replace {formatted} pages}} | {count, plural, =1{{formatted} sayfayı değiştir} other{{formatted} sayfayı değiştir}} | {count, plural, zero{استبدال} one{استبدال صفحة واحدة} two{استبدال صفحتين} few{استبدال {formatted} صفحات} many{استبدال {formatted} صفحة} other{استبدال {formatted} صفحة}} | G45: the primary button. |
+| `replaceStep` | Replace pages | Sayfaları değiştir | استبدال الصفحات | The history step of a replace. |
+| `extractTitle` | Extract pages | Sayfaları çıkar | استخراج الصفحات | G45: the dialog's title. |
+| `extractPages` | Pages | Sayfalar | الصفحات | G45: the range to extract. |
+| `extractOneFile` | One file | Tek dosya | ملف واحد | G45: extract option. |
+| `extractEachFile` | One file per page | Her sayfa için bir dosya | ملف لكل صفحة | G45: extract option. |
+| `extractDelete` | Delete these pages afterwards | Ardından bu sayfaları sil | حذف هذه الصفحات بعد ذلك | G45: extract option. |
+| `extractDeleteAll` | A document keeps at least one page. | Bir belgede en az bir sayfa kalmalıdır. | يجب أن تبقى في المستند صفحة واحدة على الأقل. | G45: why deleting afterwards is off when every page is extracted. |
+| `extractAction` | Extract… | Çıkar… | استخراج… | G45: the primary button; a system panel asks where. |
+| `extractFileName` | {document} pages {pages} | {document} sayfa {pages} | {document} الصفحات {pages} | G45: the name of an extracted file, without its extension. |
+| `extractDeleteStep` | Delete pages | Sayfaları sil | حذف الصفحات | The history step of deleting extracted pages. |
+| `jobExtractingTitle` | Extracting pages of {name} | {name} sayfaları çıkarılıyor | جارٍ استخراج صفحات {name} | a11-6b: an extract running. |
+| `jobExtractedTitle` | Extracted pages of {name} | {name} sayfaları çıkarıldı | استُخرجت صفحات {name} | a11-6b: an extract finished. |
+| `jobExtractFailedTitle` | Couldn’t extract pages of {name} | {name} sayfaları çıkarılamadı | تعذّر استخراج صفحات {name} | a11-6b: an extract failed. |
+| `jobInsertFailedTitle` | Couldn’t insert pages from {name} | {name} dosyasından sayfalar eklenemedi | تعذّر إدراج الصفحات من {name} | a11-6b: an insert failed. |
+| `jobReplacingTitle` | Reading replacement pages from {name} | {name} dosyasından yeni sayfalar okunuyor | جارٍ قراءة الصفحات البديلة من {name} | a11-6b: a replace running. |
+| `jobReplacedTitle` | Replaced pages with {name} | Sayfalar {name} ile değiştirildi | استُبدلت الصفحات بـ{name} | a11-6b: a replace finished. |
+| `jobReplaceFailedTitle` | Couldn’t replace pages with {name} | Sayfalar {name} ile değiştirilemedi | تعذّر استبدال الصفحات بـ{name} | a11-6b: a replace failed. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

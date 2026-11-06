@@ -87,6 +87,15 @@ Finder _iconButton(String label) => find.byWidgetPredicate(
 );
 
 /// View's tools that work once a document shows.
+/// Organize's tools that wait for a shown document.
+const Set<String> _organizing = {
+  'Insert',
+  'Extract',
+  'Replace',
+  'Crop',
+  'Page labels',
+};
+
 const Set<String> _viewing = {
   'Select',
   'Hand',
@@ -589,7 +598,9 @@ void main() {
           // Organize's commands for a selection.
           expect(
             entry.disabledReason,
-            mode == FermanMode.view && _viewing.contains(entry.label)
+            mode == FermanMode.view && _viewing.contains(entry.label) ||
+                    mode == FermanMode.organize &&
+                        _organizing.contains(entry.label)
                 ? isNull
                 : works
                 ? working[entry.label]

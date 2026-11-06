@@ -19,6 +19,10 @@ abstract interface class FilePickerService {
   /// as…", a2-3b); the chosen path, null when cancelled. The panel asks
   /// before replacing a file.
   Future<String?> saveFile({required String suggestedName});
+
+  /// Shows the system folder panel (ADR 0018); the chosen folder, null when
+  /// cancelled.
+  Future<String?> openFolder();
 }
 
 /// The pickers of file_selector: NSOpenPanel on macOS, IFileOpenDialog on
@@ -44,6 +48,9 @@ final class NativeFilePickerService implements FilePickerService {
     final location = await getSaveLocation(suggestedName: suggestedName);
     return location?.path;
   }
+
+  @override
+  Future<String?> openFolder() => getDirectoryPath();
 
   static XTypeGroup _pdf(String label) => XTypeGroup(
     label: label,

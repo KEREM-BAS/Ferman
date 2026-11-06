@@ -6,7 +6,15 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/crop_panel.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/extract_pages_dialog.dart';
+import 'package:ferman/features/organize/insert_blank_dialog.dart';
+import 'package:ferman/features/organize/insert_file_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
+import 'package:ferman/features/organize/page_labels_dialog.dart';
+import 'package:ferman/features/organize/replace_pages_dialog.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -791,6 +799,76 @@ class _SignTools extends ConsumerWidget {
   }
 }
 
+/// a6-1's Insert menu: Blank page, Pages from a file and, disabled until it
+/// ships, the scanner.
+List<MenuItem> _insertItems(BuildContext context, AppLocalizations l10n) => [
+  MenuItem(id: 'blank', label: l10n.insertMenuBlank, icon: IconName.filePlus2),
+  MenuItem(id: 'file', label: l10n.insertMenuFile, icon: IconName.folderOpen),
+  MenuItem(
+    id: 'scan',
+    label: l10n.insertMenuScan,
+    icon: IconName.scan,
+    disabled: true,
+    disabledReason: Feature.scanToPdf.disabledReason(context),
+  ),
+];
+
+/// Does what Insert's menu entry [item] says.
+void _insertChosen(WidgetRef ref, MenuItem item) {
+  final document = ref.read(viewerProvider)?.document;
+  if (document == null) return;
+  final pages = organizeSelection(ref);
+  switch (item.id) {
+    case 'blank':
+      showInsertBlankDialog(ref, document, pages);
+    case 'file':
+      showInsertFileDialog(ref, document, pages);
+  }
+}
+
+/// a6-1's Insert button with its menu.
+class _InsertTool extends ConsumerStatefulWidget {
+  const new({required this.live});
+
+  /// Whether the document can change.
+  final bool live;
+
+  @override
+  ConsumerState<_InsertTool> createState() => _InsertToolState();
+}
+
+class _InsertToolState extends ConsumerState<_InsertTool> {
+  bool _open = false;
+
+  void _close() => setState(() => _open = false);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Popover(
+      open: _open,
+      surface: false,
+      onDismiss: _close,
+      anchor: ToolButton(
+        icon: IconName.filePlus2,
+        label: l10n.shellToolInsert,
+        hasMenu: true,
+        disabled: !widget.live,
+        onPressed: widget.live ? () => setState(() => _open = !_open) : null,
+      ),
+      child: Menu(
+        items: _insertItems(context, l10n),
+        autofocus: true,
+        onClose: _close,
+        onSelected: (item) {
+          _close();
+          _insertChosen(ref, item);
+        },
+      ),
+    );
+  }
+}
+
 /// Organize (FmWindow lines 105–122): Insert, rotate left and right
 /// (icon-only), Duplicate, Extract, Replace, Delete | Split, Combine files,
 /// Crop, Page labels … the hint, which counts the selection (a6-1) and the
@@ -811,16 +889,25 @@ class _OrganizeTools extends ConsumerWidget {
     final refusal = ref.watch(organizeRefusalProvider)?.call(l10n);
     final reason = refusal ?? (selected == 0 ? l10n.organizeSelectFirst : null);
     final deleteRefusal = ref.watch(deleteRefusalProvider)?.call(l10n);
+    final document = ref.watch(viewerProvider.select((view) => view?.document));
+    final name = ref.watch(shellDocumentsProvider).active?.name ?? '';
+    // Extract only reads; the others change the document.
+    final changes = document != null && document.readOnly == null;
+    final crop = ref.watch(cropShowingProvider);
     return Toolbar(
       semanticLabel: l10n.shellOrganizeTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.organizeDialogs,
-          icon: IconName.filePlus2,
-          label: l10n.shellToolInsert,
-          hasMenu: true,
+        ToolbarItem(
+          menuItem: MenuItem(
+            id: l10n.shellToolInsert,
+            label: l10n.shellToolInsert,
+            icon: IconName.filePlus2,
+            disabled: !changes,
+            submenu: _insertItems(context, l10n),
+          ),
+          onMenuSelected: (item) => _insertChosen(ref, item),
+          child: _InsertTool(live: changes),
         ),
         ToolButton(
           icon: IconName.rotateCcw,
@@ -853,17 +940,30 @@ class _OrganizeTools extends ConsumerWidget {
               ? null
               : () => unawaited(commands().duplicate()),
         ),
-        _future(
-          context,
-          feature: Feature.organizeDialogs,
+        ToolButton(
           icon: IconName.fileOutput,
           label: l10n.shellToolExtract,
+          disabled: document == null,
+          onPressed: document == null
+              ? null
+              : () => showExtractPagesDialog(
+                  ref,
+                  document,
+                  name,
+                  organizeSelection(ref),
+                ),
         ),
-        _future(
-          context,
-          feature: Feature.organizeDialogs,
+        ToolButton(
           icon: IconName.replace,
           label: l10n.shellToolReplace,
+          disabled: !changes,
+          onPressed: changes
+              ? () => showReplacePagesDialog(
+                  ref,
+                  document,
+                  organizeSelection(ref),
+                )
+              : null,
         ),
         ToolButton(
           icon: IconName.trash2,
@@ -890,19 +990,23 @@ class _OrganizeTools extends ConsumerWidget {
           label: l10n.shellToolCombineFiles,
           active: false,
         ),
-        _future(
-          context,
-          feature: Feature.organizeDialogs,
+        ToolButton(
           icon: IconName.crop,
           label: l10n.shellToolCrop,
-          active: false,
+          active: crop,
+          disabled: !changes,
+          onPressed: changes
+              ? () => crop
+                    ? ref.read(organizeCropProvider.notifier).cancel()
+                    : showCropTool(ref, document, organizeSelection(ref))
+              : null,
         ),
-        _future(
-          context,
-          feature: Feature.organizeDialogs,
+        ToolButton(
           icon: IconName.hash,
           label: l10n.shellToolPageLabels,
           active: false,
+          disabled: !changes,
+          onPressed: changes ? () => showPageLabelsDialog(ref, document) : null,
         ),
         const ToolbarSpacer(),
         Padding(

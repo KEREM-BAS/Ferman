@@ -2,6 +2,9 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
+import 'package:ferman/features/organize/crop_overlay.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_grid.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/document_banners.dart';
@@ -283,6 +286,16 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                                     ),
                                                   ),
                                           ),
+                                          // a6-4, over the pages' own
+                                          // geometry, which never mirrors.
+                                          if (ref.watch(cropShowingProvider))
+                                            const Positioned.fill(
+                                              child: Directionality(
+                                                textDirection:
+                                                    TextDirection.ltr,
+                                                child: CropOverlay(),
+                                              ),
+                                            ),
                                           PositionedDirectional(
                                             top: theme.space.space3,
                                             end: theme.space.space4,
@@ -315,6 +328,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                   ),
                                 ),
                               ?taskDrawer,
+                              const OrganizeDialogs(),
                               const Positioned.fill(child: SaveOverlays()),
                             ],
                           ),

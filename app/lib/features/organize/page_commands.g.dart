@@ -435,7 +435,7 @@ final class PageCommandsProvider extends $NotifierProvider<PageCommands, void> {
   }
 }
 
-String _$pageCommandsHash() => r'739f5464193fb7fd782c414861fc497989011a86';
+String _$pageCommandsHash() => r'49161bc05e81670aba9cacd530420c971b9699d9';
 
 /// The page commands on the selection (a6-1, a6-1b), as
 /// `pageCommandsProvider`: each is one step of the history, offered back by a

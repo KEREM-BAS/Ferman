@@ -236,20 +236,17 @@ class PageCommands extends _$PageCommands {
     ToastText title,
     ToastText message,
   ) async {
+    final document = _document?.id;
+    if (document == null) return;
     final failure = await ref
         .read(documentEditorProvider.notifier)
-        .pageChange(change);
-    if (failure == null) {
-      _offerUndo(title, message);
-      return;
-    }
+        .pageChange(
+          document,
+          () => change(document),
+          committed: () => _offerUndo(title, message),
+        );
+    if (failure == null) return;
     final tab = ref.read(shellDocumentsProvider).active;
-    if (failure.kind == EngineErrorKind.confirmationRequired && tab != null) {
-      ref
-          .read(documentSaverProvider.notifier)
-          .askSigned(tab, () => unawaited(_apply(change, title, message)));
-      return;
-    }
     ref
         .read(toastNoticesProvider.notifier)
         .show(
@@ -405,7 +402,7 @@ class PageCommands extends _$PageCommands {
         final before = _document!.pages.length;
         final failure = await ref
             .read(documentEditorProvider.notifier)
-            .pageChange((_) => _engine.applyJobChange(job));
+            .pageChange(document.id, () => _engine.applyJobChange(job));
         if (failure != null) throw failure;
         final added = (_document?.pages.length ?? before) - before;
         final count = _format.integer(added);

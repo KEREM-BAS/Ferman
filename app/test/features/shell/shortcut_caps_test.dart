@@ -101,6 +101,12 @@ final Map<String, ShellCommand> _choiceCommands = {
 /// The View row's and the status bar's viewing controls: disabled without
 /// a reason while no document shows.
 const Set<String> _waitForDocument = {
+  // Organize's tools that work with a document.
+  'Insert',
+  'Extract',
+  'Replace',
+  'Crop',
+  'Page labels',
   'Select',
   'Hand',
   'Marquee zoom',
@@ -279,7 +285,9 @@ void main() {
           final tooltips = _tooltipsOf(tester, finder);
           expect(tooltips.length, lessThanOrEqualTo(1), reason: reason);
           final waits =
-              (!inRow || mode == FermanMode.view) &&
+              (!inRow ||
+                  mode == FermanMode.view ||
+                  mode == FermanMode.organize) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -445,7 +453,7 @@ void main() {
         final disabled = [
           for (final entry in entries)
             if (entry.disabled &&
-                (mode != FermanMode.view ||
+                (mode != FermanMode.view && mode != FermanMode.organize ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

@@ -3406,14 +3406,441 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String jobInsertingTitle(String name) {
-    return '$name okunuyor';
+    return '$name dosyasından sayfalar okunuyor';
   }
 
   @override
   String jobInsertedTitle(String name) {
-    return '$name eklendi';
+    return '$name dosyasından sayfalar eklendi';
   }
 
   @override
   String get organizeSelectFirst => 'Önce sayfaları seçin';
+
+  @override
+  String get organizeCancel => 'İptal';
+
+  @override
+  String get organizeUndo => 'Geri al';
+
+  @override
+  String get organizeFailedTitle => 'Sayfalar değiştirilemedi';
+
+  @override
+  String organizeBadRange(String last) {
+    return 'Sayfaları 1–3, 5 gibi yazın; en çok $last. sayfaya kadar.';
+  }
+
+  @override
+  String organizeSizeA4(String size) {
+    return 'A4 · $size';
+  }
+
+  @override
+  String organizeSizeLetter(String size) {
+    return 'Letter · $size';
+  }
+
+  @override
+  String get organizeSizeCustom => 'Özel…';
+
+  @override
+  String get organizeWidth => 'Genişlik';
+
+  @override
+  String get organizeHeight => 'Yükseklik';
+
+  @override
+  String get cropTitle => 'Kırpma ve sayfa boyutu';
+
+  @override
+  String get cropMargins => 'Kenar boşlukları';
+
+  @override
+  String get cropTop => 'Üst';
+
+  @override
+  String get cropBottom => 'Alt';
+
+  @override
+  String get cropLeft => 'Sol';
+
+  @override
+  String get cropRight => 'Sağ';
+
+  @override
+  String get cropRemoveWhite => 'Beyaz kenarları kaldır';
+
+  @override
+  String get cropNoContent => 'Bu sayfalarda ölçülecek içerik yok.';
+
+  @override
+  String cropTooMuch(String page) {
+    return 'Bu kenar boşlukları $page. sayfadan hiçbir şey bırakmıyor.';
+  }
+
+  @override
+  String get cropPageSize => 'Sayfa boyutu';
+
+  @override
+  String cropKeepSize(String size) {
+    return 'Geçerli boyutu koru ($size)';
+  }
+
+  @override
+  String get cropContent => 'İçerik';
+
+  @override
+  String get cropFitCentre => 'Ortala';
+
+  @override
+  String get cropFitScale => 'Sığacak şekilde ölçekle';
+
+  @override
+  String get cropApplyTo => 'Uygulanacak sayfalar';
+
+  @override
+  String get cropThisPage => 'Bu sayfa';
+
+  @override
+  String cropAllPages(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfanın tümü',
+      one: 'Tek sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropSomePages => 'Sayfalar';
+
+  @override
+  String get cropWhichPages => 'Hangi sayfalar';
+
+  @override
+  String get cropParityAll => 'Aralıktaki tüm sayfalar';
+
+  @override
+  String get cropParityOdd => 'Tek sayfalar';
+
+  @override
+  String get cropParityEven => 'Çift sayfalar';
+
+  @override
+  String cropAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfayı kırp',
+      one: '$formatted sayfayı kırp',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropResizeAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfayı yeniden boyutlandır',
+      one: '$formatted sayfayı yeniden boyutlandır',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropDone(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfa kırpıldı',
+      one: '$formatted sayfa kırpıldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropDoneHidden => 'Dışarıda kalan kısım gizlendi, kaldırılmadı.';
+
+  @override
+  String get cropStep => 'Sayfaları kırp';
+
+  @override
+  String get cropSizeStep => 'Sayfa boyutunu değiştir';
+
+  @override
+  String get labelsTitle => 'Sayfa etiketleri';
+
+  @override
+  String get labelsDescription =>
+      'Sayfaların Ferman’da, diğer PDF uygulamalarında ve yazdırırken nasıl numaralanacağını seçin.';
+
+  @override
+  String get labelsColumnPages => 'Sayfalar';
+
+  @override
+  String get labelsColumnStyle => 'Biçim';
+
+  @override
+  String get labelsColumnPrefix => 'Önek';
+
+  @override
+  String get labelsColumnStart => 'Başlangıç';
+
+  @override
+  String get labelsPrefixNone => 'Yok';
+
+  @override
+  String get labelsStyleRomanLower => 'i, ii, iii';
+
+  @override
+  String get labelsStyleRomanUpper => 'I, II, III';
+
+  @override
+  String get labelsStyleDecimal => '1, 2, 3';
+
+  @override
+  String get labelsStyleLettersLower => 'a, b, c';
+
+  @override
+  String get labelsStyleLettersUpper => 'A, B, C';
+
+  @override
+  String get labelsStyleNone => 'Yalnızca önek';
+
+  @override
+  String get labelsRemoveRange => 'Aralığı kaldır';
+
+  @override
+  String get labelsAddRange => 'Aralık ekle';
+
+  @override
+  String get labelsPreview => 'Önizleme';
+
+  @override
+  String get labelsPrint => 'Numaraları sayfalara da bas';
+
+  @override
+  String get labelsPrintNote =>
+      'Altbilgi olarak eklenir. Zaten numara gösteren sayfalar atlanır.';
+
+  @override
+  String get labelsApply => 'Etiketleri uygula';
+
+  @override
+  String get labelsStep => 'Sayfa etiketlerini değiştir';
+
+  @override
+  String labelsErrorInvalid(String row) {
+    return '$row. satır: sayfaları 1–9 gibi yazın.';
+  }
+
+  @override
+  String labelsErrorOverlap(String row) {
+    return '$row. satır önceki aralıkla çakışıyor.';
+  }
+
+  @override
+  String labelsErrorPast(String row, String last) {
+    return '$row. satır son sayfayı ($last) aşıyor.';
+  }
+
+  @override
+  String labelsErrorUncovered(String page) {
+    return '$page. sayfa hiçbir aralıkta değil. Aralıklar tüm sayfaları kapsamalıdır.';
+  }
+
+  @override
+  String get insertMenuBlank => 'Boş sayfa';
+
+  @override
+  String get insertMenuFile => 'Dosyadan sayfalar…';
+
+  @override
+  String get insertMenuScan => 'Tarayıcıdan veya kameradan…';
+
+  @override
+  String get insertBlankTitle => 'Boş sayfa ekle';
+
+  @override
+  String get insertSize => 'Boyut';
+
+  @override
+  String insertSameSize(String page, String size) {
+    return '$page. sayfayla aynı ($size)';
+  }
+
+  @override
+  String get insertOrientation => 'Yön';
+
+  @override
+  String get insertPortrait => 'Dikey';
+
+  @override
+  String get insertLandscape => 'Yatay';
+
+  @override
+  String get insertCount => 'Sayfa sayısı';
+
+  @override
+  String get insertPosition => 'Konum';
+
+  @override
+  String get insertBefore => 'Önce';
+
+  @override
+  String get insertAfter => 'Sonra';
+
+  @override
+  String get insertPage => 'Sayfa';
+
+  @override
+  String insertAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfa ekle',
+      one: '$formatted sayfa ekle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insertBlankStep => 'Boş sayfa ekle';
+
+  @override
+  String get insertFileTitle => 'Dosyadan sayfa ekle';
+
+  @override
+  String get insertFileAction => 'Sayfaları ekle';
+
+  @override
+  String get insertFileStep => 'Dosyadan sayfa ekle';
+
+  @override
+  String get sourceChoose => 'Dosya seç…';
+
+  @override
+  String get sourceNone => 'Dosya seçilmedi';
+
+  @override
+  String sourcePagesInfo(int count, String name, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$name · $formatted sayfa',
+      one: '$name · $formatted sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sourceRange => 'Dosyadan alınacak sayfalar';
+
+  @override
+  String get sourceAllPages => 'Tüm sayfalar';
+
+  @override
+  String get sourceUnlock => 'Kilidi aç';
+
+  @override
+  String get sourceForbidden =>
+      'Bu dosya sayfalarının alınmasına izin vermiyor. Sahip parolası bu kısıtlamayı kaldırır.';
+
+  @override
+  String get sourceUnreadable => 'Ferman bu dosyayı okuyamıyor.';
+
+  @override
+  String get replaceTitle => 'Sayfaları değiştir';
+
+  @override
+  String get replaceThese => 'Bu belgedeki sayfalar';
+
+  @override
+  String get replaceFewer =>
+      'Dosyadan daha az sayfa geliyor: bu sayfaların kalanı silinir.';
+
+  @override
+  String get replaceMore =>
+      'Dosyadan daha çok sayfa geliyor: fazlası sonuncunun ardına eklenir.';
+
+  @override
+  String replaceAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sayfayı değiştir',
+      one: '$formatted sayfayı değiştir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get replaceStep => 'Sayfaları değiştir';
+
+  @override
+  String get extractTitle => 'Sayfaları çıkar';
+
+  @override
+  String get extractPages => 'Sayfalar';
+
+  @override
+  String get extractOneFile => 'Tek dosya';
+
+  @override
+  String get extractEachFile => 'Her sayfa için bir dosya';
+
+  @override
+  String get extractDelete => 'Ardından bu sayfaları sil';
+
+  @override
+  String get extractDeleteAll => 'Bir belgede en az bir sayfa kalmalıdır.';
+
+  @override
+  String get extractAction => 'Çıkar…';
+
+  @override
+  String extractFileName(String document, String pages) {
+    return '$document sayfa $pages';
+  }
+
+  @override
+  String get extractDeleteStep => 'Sayfaları sil';
+
+  @override
+  String jobExtractingTitle(String name) {
+    return '$name sayfaları çıkarılıyor';
+  }
+
+  @override
+  String jobExtractedTitle(String name) {
+    return '$name sayfaları çıkarıldı';
+  }
+
+  @override
+  String jobExtractFailedTitle(String name) {
+    return '$name sayfaları çıkarılamadı';
+  }
+
+  @override
+  String jobInsertFailedTitle(String name) {
+    return '$name dosyasından sayfalar eklenemedi';
+  }
+
+  @override
+  String jobReplacingTitle(String name) {
+    return '$name dosyasından yeni sayfalar okunuyor';
+  }
+
+  @override
+  String jobReplacedTitle(String name) {
+    return 'Sayfalar $name ile değiştirildi';
+  }
+
+  @override
+  String jobReplaceFailedTitle(String name) {
+    return 'Sayfalar $name ile değiştirilemedi';
+  }
 }

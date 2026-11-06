@@ -538,6 +538,14 @@ void main() {
         'Duplicate',
         'Delete',
       };
+      // Organize's tools that wait for a document.
+      const organizing = {
+        'Extract',
+        'Replace',
+        'Crop',
+        'Page labels',
+        'Insert▾',
+      };
       // Edit's tools that work since M3: Edit text, Edit history, Review edits
       // (the row's one button), and undo and redo with nothing to undo or redo
       // yet.
@@ -569,7 +577,8 @@ void main() {
           final name = describe(item);
           expect(
             reason,
-            mode == FermanMode.view && viewing.contains(name)
+            mode == FermanMode.view && viewing.contains(name) ||
+                    mode == FermanMode.organize && organizing.contains(name)
                 ? isNull
                 : mode == FermanMode.edit
                 ? working[name] ?? futureVersion

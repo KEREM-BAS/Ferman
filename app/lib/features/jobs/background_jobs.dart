@@ -4,6 +4,7 @@ import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -18,8 +19,14 @@ enum BackgroundJobKind {
   /// A copy of a document: the first job, until Compress and Split land.
   copyDocument,
 
-  /// The pages of a file read to go into a document (B104).
+  /// Pages of a document written as new files (G45).
+  extractPages,
+
+  /// Pages of a file read for an insert (G45).
   insertPages,
+
+  /// Pages of a file read for a replace (G45).
+  replacePages,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -75,7 +82,9 @@ final class BackgroundJob {
   /// The row's icon while it works (FmWindow's task).
   IconName get icon => switch (kind) {
     BackgroundJobKind.copyDocument => IconName.copy,
+    BackgroundJobKind.extractPages => IconName.fileOutput,
     BackgroundJobKind.insertPages => IconName.filePlus2,
+    BackgroundJobKind.replacePages => IconName.replace,
   };
 
   /// The row's title in [state].
@@ -89,13 +98,26 @@ final class BackgroundJob {
       ),
       (BackgroundJobKind.copyDocument, TaskState.error) =>
         l10n.jobCopyFailedTitle(name),
+      (BackgroundJobKind.extractPages, TaskState.running || TaskState.paused) =>
+        l10n.jobExtractingTitle(name),
+      (BackgroundJobKind.extractPages, TaskState.done) =>
+        l10n.jobExtractedTitle(name),
+      (BackgroundJobKind.extractPages, TaskState.error) =>
+        l10n.jobExtractFailedTitle(name),
       (BackgroundJobKind.insertPages, TaskState.running || TaskState.paused) =>
         l10n.jobInsertingTitle(name),
       (BackgroundJobKind.insertPages, TaskState.done) => l10n.jobInsertedTitle(
         name,
       ),
       (BackgroundJobKind.insertPages, TaskState.error) =>
-        l10n.organizeInsertFailed(name),
+        l10n.jobInsertFailedTitle(name),
+      (BackgroundJobKind.replacePages, TaskState.running || TaskState.paused) =>
+        l10n.jobReplacingTitle(name),
+      (BackgroundJobKind.replacePages, TaskState.done) => l10n.jobReplacedTitle(
+        name,
+      ),
+      (BackgroundJobKind.replacePages, TaskState.error) =>
+        l10n.jobReplaceFailedTitle(name),
     };
   }
 
@@ -204,6 +226,9 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
   /// Completes when no row works any more, while a quit waits.
   Completer<void>? _ended;
 
+  /// What follows each job that finishes, by row: the change it prepared.
+  final Map<int, Future<EngineException?> Function(JobUpdate)> _thens = {};
+
   @override
   BackgroundJobs build() {
     ref.onDispose(() {
@@ -274,13 +299,89 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     return done.future;
   }
 
+  /// Writes [pages] of [document], named [name], as the new file [output] as a
+  /// job; with [deleteName], it then deletes them as that step.
+  Future<void> extractPages(
+    int document,
+    String name,
+    List<int> pages, {
+    required String output,
+    String? deleteName,
+  }) async {
+    final staging = await ref.read(fileAccessProvider).staging(output);
+    _start(
+      BackgroundJobKind.extractPages,
+      name,
+      staging,
+      ref
+          .read(engineServiceProvider)
+          .extractPagesJob(document, pages, output: output, staging: staging),
+      then: _deleting(document, pages, deleteName),
+    );
+  }
+
+  /// Writes each of [files] of [document], named [name], into [folder] as one
+  /// job; with [deleteName], it then deletes [pages], by handle, as that step.
+  /// The folder panel's grant covers the new files, so nothing needs staging.
+  void extractEachPage(
+    int document,
+    String name,
+    List<SplitFile> files, {
+    required String folder,
+    required List<int> pages,
+    String? deleteName,
+  }) => _start(
+    BackgroundJobKind.extractPages,
+    name,
+    null,
+    ref.read(engineServiceProvider).splitJob(document, files, folder: folder),
+    then: _deleting(document, pages, deleteName),
+  );
+
+  Future<EngineException?> Function(JobUpdate)? _deleting(
+    int document,
+    List<int> pages,
+    String? name,
+  ) => name == null
+      ? null
+      : (_) => ref
+            .read(documentEditorProvider.notifier)
+            .pageChange(
+              document,
+              () => ref
+                  .read(engineServiceProvider)
+                  .deletePages(document, pages, name),
+            );
+
+  /// Reads the file [name] through [updates] as a job of [kind], then commits
+  /// the change it prepared to [document] as one step.
+  void pagesFromFile(
+    BackgroundJobKind kind,
+    int document,
+    String name,
+    Stream<JobUpdate> updates,
+  ) => _start(
+    kind,
+    name,
+    null,
+    updates,
+    then: (done) => ref
+        .read(documentEditorProvider.notifier)
+        .pageChange(
+          document,
+          () => ref.read(engineServiceProvider).applyJobChange(done.job),
+        ),
+  );
+
   void _start(
     BackgroundJobKind kind,
     String name,
     String? staging,
-    Stream<JobUpdate> updates,
-  ) {
+    Stream<JobUpdate> updates, {
+    Future<EngineException?> Function(JobUpdate done)? then,
+  }) {
     final id = _next++;
+    if (then != null) _thens[id] = then;
     state = state.copyWith(
       rows: [
         ...state.rows,
@@ -373,7 +474,12 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
         return;
       }
     }
-    await _end(id, output?.staged == null ? staging : null, output: output);
+    await _end(
+      id,
+      output?.staged == null ? staging : null,
+      output: output,
+      error: await _thens[id]?.call(update),
+    );
   }
 
   /// A row's end: a cancelled one goes, the others stay for an hour.
@@ -385,6 +491,7 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     JobOutputFile? output,
   }) async {
     unawaited(_subscriptions.remove(id)?.cancel());
+    _thens.remove(id);
     if (staging != null) {
       await ref.read(fileAccessProvider).discardStaging(staging);
     }

@@ -5,6 +5,8 @@ import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/crop_panel.dart';
+import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/organize_panel.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
@@ -79,6 +81,8 @@ class FmWindow extends ConsumerWidget {
     final organizing =
         ref.watch(shellModeProvider) == FermanMode.organize &&
         ref.watch(selectedPagesProvider).isNotEmpty;
+    // So does Crop and page size (a6-4).
+    final crop = ref.watch(cropShowingProvider);
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -162,7 +166,9 @@ class FmWindow extends ConsumerWidget {
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,
-                              review
+                              crop
+                                  ? CropPanel(width: widths.panel)
+                                  : review
                                   // a3-12 is wider than it, room allowing.
                                   ? ReviewListPanel(
                                       width: math.max(

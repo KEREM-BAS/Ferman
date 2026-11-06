@@ -4556,7 +4556,7 @@
   },
   "organizeInsertFailed": "Couldn’t insert {name}",
   "@organizeInsertFailed": {
-    "description": "Toast and task drawer: a dropped file's pages could not go in.",
+    "description": "Toast: a dropped file's pages could not go in.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -4603,18 +4603,18 @@
   "@organizeDropFilesEnd": {
     "description": "Page grid: files over the grid past the last page (G105)."
   },
-  "jobInsertingTitle": "Reading {name}",
+  "jobInsertingTitle": "Reading pages from {name}",
   "@jobInsertingTitle": {
-    "description": "Task drawer: a dropped file's pages being read.",
+    "description": "a11-6b: an insert running, from a dialog or a drop.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "jobInsertedTitle": "Inserted {name}",
+  "jobInsertedTitle": "Inserted pages from {name}",
   "@jobInsertedTitle": {
-    "description": "Task drawer: a dropped file's pages are read.",
+    "description": "a11-6b: an insert finished, from a dialog or a drop.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -4624,5 +4624,603 @@
   "organizeSelectFirst": "Select pages first",
   "@organizeSelectFirst": {
     "description": "Organize tool row: why a command on the selection is disabled while none is selected; not drawn."
+  },
+  "organizeCancel": "Cancel",
+  "@organizeCancel": {
+    "description": "Organize's dialogs and crop panel: closes without changing anything."
+  },
+  "organizeUndo": "Undo",
+  "@organizeUndo": {
+    "description": "a11-6: the action of the toast after a crop."
+  },
+  "organizeFailedTitle": "Couldn’t change the pages",
+  "@organizeFailedTitle": {
+    "description": "Toast title: the engine refused a page operation."
+  },
+  "organizeBadRange": "Write pages like 1–3, 5, up to page {last}.",
+  "@organizeBadRange": {
+    "description": "Error under a page range field. {last} is the last page's number.",
+    "placeholders": {
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeSizeA4": "A4 · {size}",
+  "@organizeSizeA4": {
+    "description": "a6-4 and G45: a page size option. {size} is formatted for the region.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeSizeLetter": "Letter · {size}",
+  "@organizeSizeLetter": {
+    "description": "a6-4 and G45: a page size option. {size} is formatted for the region.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeSizeCustom": "Custom…",
+  "@organizeSizeCustom": {
+    "description": "a6-4 and G45: a page size option that shows width and height."
+  },
+  "organizeWidth": "Width",
+  "@organizeWidth": {
+    "description": "A custom page size's width field."
+  },
+  "organizeHeight": "Height",
+  "@organizeHeight": {
+    "description": "A custom page size's height field."
+  },
+  "cropTitle": "Crop and page size",
+  "@cropTitle": {
+    "description": "a6-4: the panel's title."
+  },
+  "cropMargins": "Margins",
+  "@cropMargins": {
+    "description": "a6-4: panel section."
+  },
+  "cropTop": "Top",
+  "@cropTop": {
+    "description": "a6-4: margin field."
+  },
+  "cropBottom": "Bottom",
+  "@cropBottom": {
+    "description": "a6-4: margin field."
+  },
+  "cropLeft": "Left",
+  "@cropLeft": {
+    "description": "a6-4: margin field; the page's left, which never mirrors."
+  },
+  "cropRight": "Right",
+  "@cropRight": {
+    "description": "a6-4: margin field; the page's right, which never mirrors."
+  },
+  "cropRemoveWhite": "Remove white margins",
+  "@cropRemoveWhite": {
+    "description": "a6-4: finds the content box of each page."
+  },
+  "cropNoContent": "These pages have no content to measure.",
+  "@cropNoContent": {
+    "description": "a6-4, not drawn: Remove white margins found nothing."
+  },
+  "cropTooMuch": "These margins leave nothing of page {page}.",
+  "@cropTooMuch": {
+    "description": "a6-4, not drawn: the margins are larger than a page in the scope.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "cropPageSize": "Page size",
+  "@cropPageSize": {
+    "description": "a6-4: panel section and its select's name."
+  },
+  "cropKeepSize": "Keep current size ({size})",
+  "@cropKeepSize": {
+    "description": "a6-4: the first page size option.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "cropContent": "Content",
+  "@cropContent": {
+    "description": "a6-4: the accessible name of the Centre or Scale to fit control."
+  },
+  "cropFitCentre": "Centre",
+  "@cropFitCentre": {
+    "description": "a6-4: content stays at its size, centred."
+  },
+  "cropFitScale": "Scale to fit",
+  "@cropFitScale": {
+    "description": "a6-4: content is scaled to the new page."
+  },
+  "cropApplyTo": "Apply to",
+  "@cropApplyTo": {
+    "description": "a6-4: panel section."
+  },
+  "cropThisPage": "This page",
+  "@cropThisPage": {
+    "description": "a6-4: scope."
+  },
+  "cropAllPages": "{count, plural, =1{The only page} other{All {formatted} pages}}",
+  "@cropAllPages": {
+    "description": "a6-4: scope, every page of the document.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "cropSomePages": "Pages",
+  "@cropSomePages": {
+    "description": "a6-4: scope, the pages of a range."
+  },
+  "cropWhichPages": "Which pages",
+  "@cropWhichPages": {
+    "description": "a6-4: the accessible name of the parity select."
+  },
+  "cropParityAll": "All pages in range",
+  "@cropParityAll": {
+    "description": "a6-4: parity option."
+  },
+  "cropParityOdd": "Odd pages",
+  "@cropParityOdd": {
+    "description": "a6-4: parity option."
+  },
+  "cropParityEven": "Even pages",
+  "@cropParityEven": {
+    "description": "a6-4: parity option."
+  },
+  "cropAction": "{count, plural, =1{Crop {formatted} page} other{Crop {formatted} pages}}",
+  "@cropAction": {
+    "description": "a6-4: the primary button.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "cropResizeAction": "{count, plural, =1{Resize {formatted} page} other{Resize {formatted} pages}}",
+  "@cropResizeAction": {
+    "description": "a6-4: the primary button when only the page size changes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "cropDone": "{count, plural, =1{{formatted} page cropped} other{{formatted} pages cropped}}",
+  "@cropDone": {
+    "description": "The toast after a crop (a11-6's pattern).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "cropDoneHidden": "What’s outside is hidden, not removed.",
+  "@cropDoneHidden": {
+    "description": "The toast after a crop: cropping hides content and does not remove it (G57)."
+  },
+  "cropStep": "Crop pages",
+  "@cropStep": {
+    "description": "The history step of a crop."
+  },
+  "cropSizeStep": "Change page size",
+  "@cropSizeStep": {
+    "description": "The history step of a new page size."
+  },
+  "labelsTitle": "Page labels",
+  "@labelsTitle": {
+    "description": "a6-5: the dialog's title."
+  },
+  "labelsDescription": "Choose how pages are numbered in Ferman, in other PDF apps and when printing.",
+  "@labelsDescription": {
+    "description": "a6-5: the dialog's description."
+  },
+  "labelsColumnPages": "Pages",
+  "@labelsColumnPages": {
+    "description": "a6-5: column head, shown in capitals, and the field's name."
+  },
+  "labelsColumnStyle": "Style",
+  "@labelsColumnStyle": {
+    "description": "a6-5: column head, shown in capitals, and the select's name."
+  },
+  "labelsColumnPrefix": "Prefix",
+  "@labelsColumnPrefix": {
+    "description": "a6-5: column head, shown in capitals, and the field's name."
+  },
+  "labelsColumnStart": "Start at",
+  "@labelsColumnStart": {
+    "description": "a6-5: column head, shown in capitals, and the field's name."
+  },
+  "labelsPrefixNone": "None",
+  "@labelsPrefixNone": {
+    "description": "a6-5: the empty prefix's placeholder."
+  },
+  "labelsStyleRomanLower": "i, ii, iii",
+  "@labelsStyleRomanLower": {
+    "description": "a6-5: a label style."
+  },
+  "labelsStyleRomanUpper": "I, II, III",
+  "@labelsStyleRomanUpper": {
+    "description": "a6-5: a label style."
+  },
+  "labelsStyleDecimal": "1, 2, 3",
+  "@labelsStyleDecimal": {
+    "description": "a6-5: a label style."
+  },
+  "labelsStyleLettersLower": "a, b, c",
+  "@labelsStyleLettersLower": {
+    "description": "a6-5: a label style."
+  },
+  "labelsStyleLettersUpper": "A, B, C",
+  "@labelsStyleLettersUpper": {
+    "description": "A label style a6-5 does not draw, which PDF has."
+  },
+  "labelsStyleNone": "Prefix only",
+  "@labelsStyleNone": {
+    "description": "a6-5: a label style with no number."
+  },
+  "labelsRemoveRange": "Remove range",
+  "@labelsRemoveRange": {
+    "description": "a6-5: a row's remove button."
+  },
+  "labelsAddRange": "Add range",
+  "@labelsAddRange": {
+    "description": "a6-5: adds a row."
+  },
+  "labelsPreview": "Preview",
+  "@labelsPreview": {
+    "description": "a6-5: the preview row's caption."
+  },
+  "labelsPrint": "Also print the numbers on the pages",
+  "@labelsPrint": {
+    "description": "a6-5: disabled until page marks ship."
+  },
+  "labelsPrintNote": "Adds them as a footer. Pages that already show a number are skipped.",
+  "@labelsPrintNote": {
+    "description": "a6-5: the note under the disabled checkbox."
+  },
+  "labelsApply": "Apply labels",
+  "@labelsApply": {
+    "description": "a6-5: the primary button."
+  },
+  "labelsStep": "Change page labels",
+  "@labelsStep": {
+    "description": "The history step of new labels."
+  },
+  "labelsErrorInvalid": "Row {row}: write its pages like 1–9.",
+  "@labelsErrorInvalid": {
+    "description": "a6-5, not drawn: a row's pages cannot be read.",
+    "placeholders": {
+      "row": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsErrorOverlap": "Row {row} overlaps the range before it.",
+  "@labelsErrorOverlap": {
+    "description": "a6-5, not drawn: ranges overlap or are out of order.",
+    "placeholders": {
+      "row": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsErrorPast": "Row {row} goes past the last page, {last}.",
+  "@labelsErrorPast": {
+    "description": "a6-5, not drawn: a range past the last page.",
+    "placeholders": {
+      "row": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsErrorUncovered": "Page {page} is in no range. Ranges must cover every page.",
+  "@labelsErrorUncovered": {
+    "description": "a6-5, not drawn: a page no range covers.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "insertMenuBlank": "Blank page",
+  "@insertMenuBlank": {
+    "description": "a6-1: Insert's menu."
+  },
+  "insertMenuFile": "Pages from a file…",
+  "@insertMenuFile": {
+    "description": "a6-1: Insert's menu."
+  },
+  "insertMenuScan": "From scanner or camera…",
+  "@insertMenuScan": {
+    "description": "a6-1: Insert's menu, disabled until scanning ships."
+  },
+  "insertBlankTitle": "Insert blank page",
+  "@insertBlankTitle": {
+    "description": "G45: the dialog's title."
+  },
+  "insertSize": "Size",
+  "@insertSize": {
+    "description": "G45: the size select."
+  },
+  "insertSameSize": "Same as page {page} ({size})",
+  "@insertSameSize": {
+    "description": "G45: the first size option.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "insertOrientation": "Orientation",
+  "@insertOrientation": {
+    "description": "G45: the accessible name of Portrait or Landscape."
+  },
+  "insertPortrait": "Portrait",
+  "@insertPortrait": {
+    "description": "G45: orientation."
+  },
+  "insertLandscape": "Landscape",
+  "@insertLandscape": {
+    "description": "G45: orientation."
+  },
+  "insertCount": "Number of pages",
+  "@insertCount": {
+    "description": "G45: the count field."
+  },
+  "insertPosition": "Position",
+  "@insertPosition": {
+    "description": "G45: the accessible name of Before or After."
+  },
+  "insertBefore": "Before",
+  "@insertBefore": {
+    "description": "G45: position, before the page in the next field."
+  },
+  "insertAfter": "After",
+  "@insertAfter": {
+    "description": "G45: position, after the page in the next field."
+  },
+  "insertPage": "Page",
+  "@insertPage": {
+    "description": "G45: the position's page field."
+  },
+  "insertAction": "{count, plural, =1{Insert {formatted} page} other{Insert {formatted} pages}}",
+  "@insertAction": {
+    "description": "G45: the primary button.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "insertBlankStep": "Insert blank page",
+  "@insertBlankStep": {
+    "description": "The history step of blank pages."
+  },
+  "insertFileTitle": "Insert pages from file",
+  "@insertFileTitle": {
+    "description": "G45: the dialog's title."
+  },
+  "insertFileAction": "Insert pages",
+  "@insertFileAction": {
+    "description": "G45: the primary button."
+  },
+  "insertFileStep": "Insert pages from file",
+  "@insertFileStep": {
+    "description": "The history step of inserted pages."
+  },
+  "sourceChoose": "Choose file…",
+  "@sourceChoose": {
+    "description": "G45: opens the system's file panel."
+  },
+  "sourceNone": "No file chosen",
+  "@sourceNone": {
+    "description": "G45: before a file is chosen."
+  },
+  "sourcePagesInfo": "{count, plural, =1{{name} · {formatted} page} other{{name} · {formatted} pages}}",
+  "@sourcePagesInfo": {
+    "description": "G45: the chosen file and its pages.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceRange": "Pages from the file",
+  "@sourceRange": {
+    "description": "G45: the source's range field."
+  },
+  "sourceAllPages": "All pages",
+  "@sourceAllPages": {
+    "description": "G45 and a6-4: an empty range's placeholder."
+  },
+  "sourceUnlock": "Unlock",
+  "@sourceUnlock": {
+    "description": "G45: tries the password of a locked source file."
+  },
+  "sourceForbidden": "This file doesn’t allow taking pages from it. Its owner password lifts that.",
+  "@sourceForbidden": {
+    "description": "G45: a source file that forbids assembling."
+  },
+  "sourceUnreadable": "Ferman can’t read this file.",
+  "@sourceUnreadable": {
+    "description": "G45: a source file that cannot be used."
+  },
+  "replaceTitle": "Replace pages",
+  "@replaceTitle": {
+    "description": "G45: the dialog's title."
+  },
+  "replaceThese": "Pages in this document",
+  "@replaceThese": {
+    "description": "G45: the range to replace."
+  },
+  "replaceFewer": "The file gives fewer pages: the rest of these pages are deleted.",
+  "@replaceFewer": {
+    "description": "G45: fewer new pages than replaced ones."
+  },
+  "replaceMore": "The file gives more pages: the extra ones go after the last.",
+  "@replaceMore": {
+    "description": "G45: more new pages than replaced ones."
+  },
+  "replaceAction": "{count, plural, =1{Replace {formatted} page} other{Replace {formatted} pages}}",
+  "@replaceAction": {
+    "description": "G45: the primary button.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "replaceStep": "Replace pages",
+  "@replaceStep": {
+    "description": "The history step of a replace."
+  },
+  "extractTitle": "Extract pages",
+  "@extractTitle": {
+    "description": "G45: the dialog's title."
+  },
+  "extractPages": "Pages",
+  "@extractPages": {
+    "description": "G45: the range to extract."
+  },
+  "extractOneFile": "One file",
+  "@extractOneFile": {
+    "description": "G45: extract option."
+  },
+  "extractEachFile": "One file per page",
+  "@extractEachFile": {
+    "description": "G45: extract option."
+  },
+  "extractDelete": "Delete these pages afterwards",
+  "@extractDelete": {
+    "description": "G45: extract option."
+  },
+  "extractDeleteAll": "A document keeps at least one page.",
+  "@extractDeleteAll": {
+    "description": "G45: why deleting afterwards is off when every page is extracted."
+  },
+  "extractAction": "Extract…",
+  "@extractAction": {
+    "description": "G45: the primary button; a system panel asks where."
+  },
+  "extractFileName": "{document} pages {pages}",
+  "@extractFileName": {
+    "description": "G45: the name of an extracted file, without its extension.",
+    "placeholders": {
+      "document": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "extractDeleteStep": "Delete pages",
+  "@extractDeleteStep": {
+    "description": "The history step of deleting extracted pages."
+  },
+  "jobExtractingTitle": "Extracting pages of {name}",
+  "@jobExtractingTitle": {
+    "description": "a11-6b: an extract running.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobExtractedTitle": "Extracted pages of {name}",
+  "@jobExtractedTitle": {
+    "description": "a11-6b: an extract finished.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobExtractFailedTitle": "Couldn’t extract pages of {name}",
+  "@jobExtractFailedTitle": {
+    "description": "a11-6b: an extract failed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobInsertFailedTitle": "Couldn’t insert pages from {name}",
+  "@jobInsertFailedTitle": {
+    "description": "a11-6b: an insert failed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobReplacingTitle": "Reading replacement pages from {name}",
+  "@jobReplacingTitle": {
+    "description": "a11-6b: a replace running.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobReplacedTitle": "Replaced pages with {name}",
+  "@jobReplacedTitle": {
+    "description": "a11-6b: a replace finished.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobReplaceFailedTitle": "Couldn’t replace pages with {name}",
+  "@jobReplaceFailedTitle": {
+    "description": "a11-6b: a replace failed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }
