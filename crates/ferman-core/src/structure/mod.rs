@@ -115,6 +115,13 @@ pub struct Page {
 }
 
 impl Page {
+    /// A handle that stays this page's while the document is open, whatever moves around it:
+    /// its object's number and generation. Opaque to the UI.
+    #[must_use]
+    pub fn handle(&self) -> u64 {
+        (u64::from(self.id.0) << 16) | u64::from(self.id.1)
+    }
+
     /// A point of the page's user space in displayed points: from the top-left corner of the crop
     /// box as the page shows after `/Rotate`, y down, as PDFium lays the page out.
     #[must_use]
@@ -278,6 +285,19 @@ pub struct Structure {
     pub info: Info,
 }
 
+/// What a document's revisions can change of its structure: recomputed through the store's
+/// overlay when a revision touches more than streams, the document's own scan otherwise. Its
+/// fonts, forms, signatures and the rest stay as the file opened with them.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct RevisedStructure {
+    /// The pages with their labels.
+    pub pages: Vec<Page>,
+    /// The outline (bookmarks).
+    pub outline: Vec<OutlineItem>,
+    /// Embedded files and file attachment annotations.
+    pub attachments: Vec<Attachment>,
+}
+
 /// Whether the two parsers agree (ADR 0004, G102): lopdf's model and PDFium.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Agreement {
@@ -419,7 +439,20 @@ impl<'a> Scope<'a> {
 
     /// The catalog.
     pub(crate) fn catalog(&self) -> Option<&'a Dictionary> {
-        self.doc.catalog().ok()
+        if self.overlay.is_none() {
+            return self.doc.catalog().ok();
+        }
+        let root = self.doc.trailer.get(b"Root").ok()?.as_reference().ok()?;
+        self.dictionary(root)
+    }
+
+    /// Object `id` as a dictionary, as `lopdf::Document::get_dictionary` takes it: a stream's
+    /// does not count.
+    pub(crate) fn dictionary(&self, id: ObjectId) -> Option<&'a Dictionary> {
+        match self.resolve(self.object(id)?)? {
+            Object::Dictionary(dict) => Some(dict),
+            _ => None,
+        }
     }
 }
 
@@ -466,16 +499,8 @@ pub(crate) fn inherited<'a>(
     None
 }
 
-/// Scans `doc`. A part that cannot be read is left empty.
-pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
-    let ids: Vec<ObjectId> = doc.page_iter().collect();
-    let mut scope = Scope {
-        doc,
-        limits,
-        page_of: BTreeMap::new(),
-        annotation_page: BTreeMap::new(),
-        overlay: None,
-    };
+/// Fills `scope`'s page and annotation maps from the pages `ids`.
+fn index_pages(scope: &mut Scope<'_>, ids: &[ObjectId]) {
     for (index, id) in ids.iter().enumerate() {
         let Ok(index) = u32::try_from(index) else {
             break;
@@ -483,7 +508,7 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
         scope.page_of.entry(*id).or_insert(index);
     }
     for (index, id) in ids.iter().enumerate() {
-        let (Ok(index), Ok(page)) = (u32::try_from(index), doc.get_dictionary(*id)) else {
+        let (Ok(index), Some(page)) = (u32::try_from(index), scope.dictionary(*id)) else {
             continue;
         };
         if let Some(annotations) = scope.get_array(page, b"Annots") {
@@ -494,16 +519,106 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
             }
         }
     }
-    let labels = labels(&scope, ids.len());
-    let pages = ids
-        .iter()
+}
+
+/// The pages `ids` with their labels.
+fn pages(scope: &Scope<'_>, ids: &[ObjectId]) -> Vec<Page> {
+    let labels = labels(scope, ids.len());
+    ids.iter()
         .enumerate()
         .filter_map(|(index, id)| {
             let index = u32::try_from(index).ok()?;
             let label = labels.get(usize::try_from(index).ok()?).cloned().flatten();
-            Some(page(&scope, *id, index, label))
+            Some(page(scope, *id, index, label))
         })
-        .collect();
+        .collect()
+}
+
+/// The pages in `lopdf::Document::page_iter`'s order and with its limits, read through the
+/// scope's overlay. The two agree on every corpus file (`revision`'s tests).
+fn page_ids(scope: &Scope<'_>, added: usize) -> Vec<ObjectId> {
+    const DEPTH: usize = 256;
+    let kids = |id: ObjectId| {
+        scope
+            .dictionary(id)
+            .and_then(|node| scope.get_array(node, b"Kids"))
+            .map(Vec::as_slice)
+    };
+    let mut budget = scope.doc.objects.len().saturating_add(added);
+    let mut stack: Vec<&[Object]> = Vec::new();
+    let mut level = scope
+        .catalog()
+        .and_then(|catalog| catalog.get(b"Pages").ok())
+        .and_then(|root| root.as_reference().ok())
+        .and_then(kids);
+    let mut out = Vec::new();
+    loop {
+        while let Some((kid, rest)) = level.and_then(<[Object]>::split_first) {
+            if budget == 0 {
+                return out;
+            }
+            budget = budget.saturating_sub(1);
+            level = Some(rest);
+            let Ok(id) = kid.as_reference() else {
+                continue;
+            };
+            let Some(Ok(kind)) = scope.dictionary(id).map(Dictionary::get_type) else {
+                continue;
+            };
+            match kind {
+                b"Page" => out.push(id),
+                b"Pages" if stack.len() < DEPTH => {
+                    if !rest.is_empty() {
+                        stack.push(rest);
+                    }
+                    level = kids(id);
+                }
+                _ => {}
+            }
+        }
+        match stack.pop() {
+            Some(next) => level = Some(next),
+            None => return out,
+        }
+    }
+}
+
+/// [`RevisedStructure`] of `doc` read through `overlay`; `added` is how many objects it adds to
+/// the model. A part that cannot be read is left empty.
+pub(crate) fn revised(
+    doc: &lopdf::Document,
+    limits: &Limits,
+    overlay: &RevisionStore,
+    added: usize,
+) -> RevisedStructure {
+    let mut scope = Scope {
+        doc,
+        limits,
+        page_of: BTreeMap::new(),
+        annotation_page: BTreeMap::new(),
+        overlay: Some(overlay),
+    };
+    let ids = page_ids(&scope, added);
+    index_pages(&mut scope, &ids);
+    RevisedStructure {
+        pages: pages(&scope, &ids),
+        outline: navigation::outline(&scope),
+        attachments: navigation::attachments(&scope),
+    }
+}
+
+/// Scans `doc`. A part that cannot be read is left empty.
+pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
+    let ids: Vec<ObjectId> = doc.page_iter().collect();
+    let mut scope = Scope {
+        doc,
+        limits,
+        page_of: BTreeMap::new(),
+        annotation_page: BTreeMap::new(),
+        overlay: None,
+    };
+    index_pages(&mut scope, &ids);
+    let pages = pages(&scope, &ids);
     let catalog = scope.catalog();
     let direction = catalog
         .and_then(|catalog| scope.get_dict(catalog, b"ViewerPreferences"))
@@ -538,7 +653,7 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
 
 /// One page's boxes, rotation and displayed size, as PDFium computes them.
 fn page(scope: &Scope<'_>, id: ObjectId, index: u32, label: Option<String>) -> Page {
-    let dict = scope.doc.get_dictionary(id).ok();
+    let dict = scope.dictionary(id);
     let boxed = |key: &[u8]| {
         dict.and_then(|dict| inherited(scope, dict, key))
             .and_then(|value| rect(scope, value))

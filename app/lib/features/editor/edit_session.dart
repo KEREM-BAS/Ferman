@@ -6,6 +6,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -259,7 +260,8 @@ final class EditorState {
 /// [text]'s words: lines broken anew are the same text.
 String sameWords(String text) => text.split(RegExp(r'\s+')).join(' ');
 
-/// The block a committed step changed, for [HiddenLines].
+/// The block a committed step changed, for [HiddenLines]; its page by
+/// [PageInfo.handle].
 typedef _StepTarget = ({
   int page,
   int block,
@@ -765,7 +767,7 @@ class DocumentEditor extends _$DocumentEditor {
         committed: active == null
             ? null
             : (
-                page: active.page,
+                page: _handleOf(document, active.page),
                 block: active.block.id,
                 frame: active.block.frame,
                 dir: active.block.direction,
@@ -1135,14 +1137,16 @@ class DocumentEditor extends _$DocumentEditor {
     final target = _targets.elementAtOrNull(step);
     if (document == null || target == null) return;
     await _run(_close);
+    final index = _pageOf(target.page);
+    if (index == null) return;
     final PageBlocks page;
     try {
-      page = await _engine.textBlocks(document, target.page);
+      page = await _engine.textBlocks(document, index);
     } on EngineException {
       return;
     }
     final best = blockOver(page.blocks, target.frame);
-    if (best != null) await open(target.page, best, caret: 0, name: name);
+    if (best != null) await open(index, best, caret: 0, name: name);
   }
 
   Future<void> _step(Future<RevisionInfo> Function(int) move) {
@@ -1310,6 +1314,9 @@ class DocumentEditor extends _$DocumentEditor {
   }) async {
     final before = state.history;
     final history = await _engine.history(document);
+    if (info?.structure case final structure?) {
+      _restructured(document, structure);
+    }
     // A step taken changes the history even when the pages could not be
     // drawn again (no render key).
     final changed =
@@ -1338,6 +1345,47 @@ class DocumentEditor extends _$DocumentEditor {
     if (changed) _mark(document, SaveState.unsaved);
   }
 
+  /// The revision changed [document]'s pages, outline or attachments: its
+  /// tab, and through it the canvas, the sidebar and the page count, show
+  /// them, and a search runs again.
+  void _restructured(int document, DocumentStructure structure) {
+    final documents = ref.read(shellDocumentsProvider.notifier);
+    for (final tab in ref.read(shellDocumentsProvider).documents) {
+      if (tab case ShellDocument(:final path?, document: final open?)
+          when open.id == document) {
+        documents.replace(
+          path,
+          tab.withDocument(open.withStructure(structure)),
+        );
+      }
+    }
+    if (document == _document) {
+      ref.read(findProvider.notifier).pagesChanged();
+    }
+  }
+
+  /// The tab's document of [document], which says where a step's page is now.
+  OpenedDocument? _opened(int document) {
+    for (final tab in ref.read(shellDocumentsProvider).documents) {
+      if (tab.document?.id == document) return tab.document;
+    }
+    return null;
+  }
+
+  /// The handle of [page] of [document].
+  int _handleOf(int document, int page) =>
+      _opened(document)?.pageHandle(page) ?? page;
+
+  /// Where [handle] of the shown document's pages is now; null once it is
+  /// gone.
+  int? _pageOf(int handle) => switch (_document) {
+    final document? => switch (_opened(document)) {
+      final open? => open.pageIndexOf(handle),
+      null => handle,
+    },
+    null => null,
+  };
+
   /// The lines hidden by the newest step of each block that applies.
   List<HiddenLines> _hidden(EditHistory history) {
     final newest = <(int, int), int>{};
@@ -1350,13 +1398,14 @@ class DocumentEditor extends _$DocumentEditor {
       for (final i in newest.values)
         if (_targets[i] case final target?
             when history.steps[i].hiddenLines > 0)
-          HiddenLines(
-            page: target.page,
-            block: target.block,
-            frame: target.frame,
-            direction: target.dir,
-            lines: history.steps[i].hiddenLines,
-          ),
+          if (_pageOf(target.page) case final page?)
+            HiddenLines(
+              page: page,
+              block: target.block,
+              frame: target.frame,
+              direction: target.dir,
+              lines: history.steps[i].hiddenLines,
+            ),
     ];
   }
 
@@ -1366,12 +1415,14 @@ class DocumentEditor extends _$DocumentEditor {
     final oldest = <(int, int), EditedBlock>{};
     for (var i = 0; i < history.current; i++) {
       if (_targets.elementAtOrNull(i) case final target?) {
-        oldest[(target.page, target.block)] ??= EditedBlock(
-          page: target.page,
-          block: target.block,
-          before: target.before,
-          frame: target.frame,
-        );
+        if (_pageOf(target.page) case final page?) {
+          oldest[(target.page, target.block)] ??= EditedBlock(
+            page: page,
+            block: target.block,
+            before: target.before,
+            frame: target.frame,
+          );
+        }
       }
     }
     return oldest.values.toList();

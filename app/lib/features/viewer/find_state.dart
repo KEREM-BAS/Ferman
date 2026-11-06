@@ -109,6 +109,12 @@ class Find extends _$Find {
         const FindState();
   }
 
+  /// The document's pages changed: what was found goes, and the search runs
+  /// again.
+  void pagesChanged() {
+    if (state.hasQuery) _start();
+  }
+
   /// Shows the bar and focuses its field (⌘F, Ctrl+F).
   void open() => state = state.copyWith(
     open: true,

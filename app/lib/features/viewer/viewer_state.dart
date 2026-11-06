@@ -224,6 +224,7 @@ final class ViewerState {
 
   /// A copy with the given values.
   ViewerState copyWith({
+    OpenedDocument? document,
     PageLayout? layout,
     double? zoom,
     ZoomFit? Function()? fit,
@@ -232,7 +233,7 @@ final class ViewerState {
     Offset? offset,
     int? row,
   }) => ViewerState(
-    document: document,
+    document: document ?? this.document,
     layout: layout ?? this.layout,
     zoom: zoom ?? this.zoom,
     fit: fit == null ? this.fit : fit(),
@@ -274,7 +275,11 @@ class Viewer extends _$Viewer {
     listenSelf((_, next) {
       if (next != null) memory.remember(next);
     });
-    if (memory.recall<ViewerState>() case final view?) return view;
+    if (memory.recall<ViewerState>() case final view?) {
+      return identical(view.document, document)
+          ? view
+          : _withDocument(view, document);
+    }
     // A document opens with the layout and zoom of Settings › General.
     final settings = ref.read(settingsProvider);
     return ViewerState(
@@ -290,6 +295,21 @@ class Viewer extends _$Viewer {
         NewDocumentZoom.actual => null,
       },
     );
+  }
+
+  /// [view] on [document], the same document after a revision: its pages may
+  /// have moved or changed size, so the fit and the scroll follow.
+  ViewerState _withDocument(ViewerState view, OpenedDocument document) {
+    final turned = view.copyWith(document: document);
+    final next = turned.copyWith(
+      row: math.min(view.row, math.max(turned.placement.rows.length - 1, 0)),
+    );
+    final fit = view.fit;
+    if (fit == null || view.viewport.isEmpty || next.pageSizes.isEmpty) {
+      return _clamped(next);
+    }
+    final zoom = fitZoom(fit, next.pageSizes, view.layout, view.viewport);
+    return _clamped(next.copyWith(zoom: zoom));
   }
 
   /// The canvas is [viewport] large; a fitted zoom follows it.

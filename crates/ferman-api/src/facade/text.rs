@@ -184,7 +184,19 @@ impl Engine {
                 .cloned()
                 .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
             let fonts = &model.document.structure().fonts;
-            let pages = first_pages(fonts, |font| !font.embedded);
+            // The fonts' pages are the file's; PDFium has the pages as the revisions left them.
+            let store = Arc::clone(&model.revised().store);
+            let pages: Vec<u32> = first_pages(fonts, |font| !font.embedded)
+                .into_iter()
+                .filter_map(|page| {
+                    let page = model
+                        .document
+                        .structure()
+                        .pages
+                        .get(usize::try_from(page).ok()?)?;
+                    u32::try_from(store.page_index(&model.document, page.handle())?).ok()
+                })
+                .collect();
             let drawn = if pages.is_empty() {
                 Vec::new()
             } else {
@@ -338,20 +350,25 @@ impl Engine {
             .get(&document)
             .cloned()
             .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
-        let index = usize::try_from(page)
-            .ok()
-            .filter(|&index| index < model.document.page_count())
-            .ok_or_else(|| {
-                ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
-                    .with_details("no such page")
-            })?;
-        let (cached, store, generation) = {
+        let (store, generation) = {
             let revised = model.revised();
-            let cached = revised.blocks.get(index).cloned().flatten();
-            (cached, Arc::clone(&revised.store), revised.generation)
+            (Arc::clone(&revised.store), revised.generation)
         };
-        if let Some(text) = cached {
-            return Ok((model, text));
+        let found = usize::try_from(page).ok().and_then(|index| {
+            let handle = store.pages(&model.document).get(index)?.handle();
+            Some((index, handle))
+        });
+        let (index, handle) = found.ok_or_else(|| {
+            ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("no such page")
+        })?;
+        {
+            let revised = model.revised();
+            if revised.generation == generation
+                && let Some(text) = revised.blocks.get(&handle)
+            {
+                return Ok((Arc::clone(&model), Arc::clone(text)));
+            }
         }
         let shared = Arc::clone(&model);
         let (reply, receiver) = futures_channel::oneshot::channel();
@@ -373,9 +390,8 @@ impl Engine {
                         &context,
                     )?);
                     let mut revised = shared.revised();
-                    let newest = revised.generation == generation;
-                    if let Some(slot) = revised.blocks.get_mut(index).filter(|_| newest) {
-                        *slot = Some(Arc::clone(&text));
+                    if revised.generation == generation {
+                        revised.blocks.insert(handle, Arc::clone(&text));
                     }
                     Ok(text)
                 }));

@@ -329,7 +329,7 @@ pub fn with_language(
         Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
         None => document.page_text(index, &mut recorder)?,
     }
-    let page = Page::new(&recorder, document.structure().pages.get(index));
+    let page = Page::new(&recorder, document.pages_through(revisions).get(index));
     let mut around: Vec<(SpanSource, Range<usize>)> = Vec::new();
     for line in &block.lines {
         if let Ok(runs) = page.runs(line)
@@ -483,7 +483,7 @@ pub fn rewrite_block_styled(
         Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
         None => document.page_text(index, &mut recorder)?,
     }
-    let page = Page::new(&recorder, document.structure().pages.get(index));
+    let page = Page::new(&recorder, document.pages_through(revisions).get(index));
     let frame = Frame::of(block);
     let fresh;
     let store = match revisions {
@@ -2981,7 +2981,7 @@ pub fn block_style(
     library: Option<&FontLibrary>,
 ) -> Result<Option<BlockStyleInfo>, TextError> {
     let recorder = recorded(document, revisions, index)?;
-    let page = Page::new(&recorder, document.structure().pages.get(index));
+    let page = Page::new(&recorder, revisions.pages(document).get(index));
     let Some((state, _)) = page.first_show(block) else {
         return Ok(None);
     };
@@ -3070,7 +3070,7 @@ pub fn block_fonts(
     library: Option<&FontLibrary>,
 ) -> Result<Vec<fallback::FontCandidate>, TextError> {
     let recorder = recorded(document, revisions, index)?;
-    let page = Page::new(&recorder, document.structure().pages.get(index));
+    let page = Page::new(&recorder, revisions.pages(document).get(index));
     let Some((state, _)) = page.first_show(block) else {
         return Ok(Vec::new());
     };

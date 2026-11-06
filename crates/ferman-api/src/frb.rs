@@ -188,6 +188,8 @@ pub struct PageInfo {
     pub height: f32,
     /// The page label, such as "iv", when the document has labels.
     pub label: Option<String>,
+    /// What names the page while the document is open, whatever moves around it.
+    pub handle: u64,
 }
 
 /// A document the engine opened.
@@ -1016,8 +1018,19 @@ pub struct DependentCell {
     pub frame: PageRect,
 }
 
+/// What a commit can change of an [`OpenedDocument`]'s lists.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DocumentStructure {
+    /// Its pages.
+    pub pages: Vec<PageInfo>,
+    /// The outline, each item followed by its children.
+    pub outline: Vec<OutlineEntry>,
+    /// Its embedded files.
+    pub attachments: Vec<Attachment>,
+}
+
 /// Where the history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RevisionInfo {
     /// How many steps apply: 0 is the document as opened.
     pub current: u32,
@@ -1025,6 +1038,8 @@ pub struct RevisionInfo {
     pub render_key: Option<u64>,
     /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
     pub substitutions: Vec<FontSubstitution>,
+    /// The pages, outline and attachments, when this changed them.
+    pub structure: Option<DocumentStructure>,
 }
 
 /// One committed step of the history.
@@ -1039,8 +1054,8 @@ pub struct HistoryStep {
     /// The characters it set in another font (the review list's font rows); `announced` is
     /// always true.
     pub substitutions: Vec<FontSubstitution>,
-    /// The page of the block it changed; `None` for a revert and a restored step.
-    pub page: Option<u32>,
+    /// The pages it changed, by [`PageInfo::handle`]; empty for a revert and a restored step.
+    pub pages: Vec<u64>,
     /// The block's text before it: the review list's before; empty for a revert and a restored
     /// step.
     pub before: String,
@@ -1051,7 +1066,7 @@ pub struct HistoryStep {
 }
 
 /// What a revert did.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Reverted {
     /// Whether the step was reverted; `false` when later steps depend on it and were not asked
     /// to go with it.
@@ -1984,7 +1999,7 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                             })
                         })
                         .collect(),
-                    page: step.page,
+                    pages: step.pages,
                     before: step.before,
                     after: step.after,
                     reverts: step.reverts,
@@ -2421,7 +2436,37 @@ fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
             .into_iter()
             .map(substitution_dto)
             .collect(),
+        structure: info.structure.map(|structure| DocumentStructure {
+            pages: pages_dto(structure.pages),
+            outline: outline_dto(structure.outline),
+            attachments: attachments_dto(structure.attachments),
+        }),
     }
+}
+
+/// Pages as their mirrors.
+fn pages_dto(pages: Vec<facade::PageInfo>) -> Vec<PageInfo> {
+    pages
+        .into_iter()
+        .map(|page| PageInfo {
+            width: page.size.width,
+            height: page.size.height,
+            label: page.label,
+            handle: page.handle,
+        })
+        .collect()
+}
+
+/// Attachments as their mirrors.
+fn attachments_dto(attachments: Vec<facade::Attachment>) -> Vec<Attachment> {
+    attachments
+        .into_iter()
+        .map(|file| Attachment {
+            name: file.name,
+            size: file.size,
+            modified: file.modified.or(file.created).map(pdf_date_dto),
+        })
+        .collect()
 }
 
 /// A font's origin as its mirror.
@@ -2680,25 +2725,9 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             facade::ReadOnly::XfaOnly => ReadOnlyReason::XfaOnly,
         }),
         right_to_left: document.direction == facade::Direction::RightToLeft,
-        pages: document
-            .pages
-            .into_iter()
-            .map(|page| PageInfo {
-                width: page.size.width,
-                height: page.size.height,
-                label: page.label,
-            })
-            .collect(),
+        pages: pages_dto(document.pages),
         outline: outline_dto(document.outline),
-        attachments: document
-            .attachments
-            .into_iter()
-            .map(|file| Attachment {
-                name: file.name,
-                size: file.size,
-                modified: file.modified.or(file.created).map(pdf_date_dto),
-            })
-            .collect(),
+        attachments: attachments_dto(document.attachments),
         layers: document
             .layers
             .into_iter()

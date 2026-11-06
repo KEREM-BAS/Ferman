@@ -28,7 +28,7 @@ mod version;
 
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
-pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
+pub use document::{DocumentStructure, OpenedDocument, PageInfo, ReadOnly, Security};
 pub use edit::{
     ConfirmationToken, DependentCell, EditPreview, FontSettings, FontSubstitution, History,
     HistoryStep, MissingGlyphInfo, Reverted, RevisionInfo, TransactionId,

@@ -742,11 +742,27 @@ class FakeEngineService implements EngineService {
   ({List<_FakeStep> steps, int current}) _history(int document) =>
       _histories[document] ?? (steps: const [], current: 0);
 
+  /// The pages, outline and attachments the next commit, undo or redo leaves:
+  /// what a change to the document's structure hands the app.
+  DocumentStructure? nextStructure;
+
   /// A new render key for every page of [document], as a reload gives.
-  RevisionInfo _reloaded(int document) => RevisionInfo(
-    current: _history(document).current,
-    renderKey: _renderKeys[document] = ++_lastRenderKey,
-  );
+  RevisionInfo _reloaded(int document) {
+    final structure = nextStructure;
+    nextStructure = null;
+    if (structure != null) {
+      for (final entry in documents.entries.toList()) {
+        if (entry.value.id == document) {
+          documents[entry.key] = entry.value.withStructure(structure);
+        }
+      }
+    }
+    return RevisionInfo(
+      current: _history(document).current,
+      renderKey: _renderKeys[document] = ++_lastRenderKey,
+      structure: structure,
+    );
+  }
 
   /// Refused while step 3's characters are drawn without a choice; the
   /// transaction stays open.
@@ -796,7 +812,13 @@ class FakeEngineService implements EngineService {
                 ? open.overflow?.keepHidden ?? 0
                 : 0,
             substitutions: open.substitutions,
-            page: open.page,
+            pages: [
+              documents.values
+                      .where((document) => document.id == open.document)
+                      .firstOrNull
+                      ?.pageHandle(open.page) ??
+                  open.page,
+            ],
             before: before.blocks
                 .where((block) => block.id == open.block)
                 .map((block) => block.text)
@@ -830,6 +852,7 @@ class FakeEngineService implements EngineService {
       current: reloaded.current,
       renderKey: reloaded.renderKey,
       substitutions: told,
+      structure: reloaded.structure,
     );
   }
 

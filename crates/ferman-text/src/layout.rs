@@ -256,7 +256,7 @@ fn text_page_through(
         Err(err) => return Err(err.into()),
     };
     collector.finish();
-    let page = document.structure().pages.get(index);
+    let page = document.pages_through(revisions).get(index);
     let mut model = build(&collector.glyphs, page, context, limited);
     if model.blocks.is_empty() {
         model.empty = empty_reason(collector.images, collector.paths);
@@ -265,7 +265,7 @@ fn text_page_through(
         HashMap::new()
     } else {
         let wanted = collector.show_mcids.values().copied().collect();
-        document.marked_content_languages(index, &wanted)
+        document.marked_content_languages(revisions, index, &wanted)
     };
     for block in &mut model.blocks {
         block.language = block_language(block, &collector, &tagged);

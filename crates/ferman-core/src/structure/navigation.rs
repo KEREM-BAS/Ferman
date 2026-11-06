@@ -224,7 +224,7 @@ pub(crate) fn attachments(scope: &Scope<'_>) -> Vec<Attachment> {
         }
     }
     for (annotation, page) in &scope.annotation_page {
-        let Ok(annotation) = scope.doc.get_dictionary(*annotation) else {
+        let Some(annotation) = scope.dictionary(*annotation) else {
             continue;
         };
         if scope.get_name(annotation, b"Subtype") != Some(b"FileAttachment") {

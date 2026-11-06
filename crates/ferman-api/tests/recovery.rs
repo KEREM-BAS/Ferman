@@ -93,6 +93,11 @@ fn child(dir: &Path) -> ! {
         let doc = block_on(engine().open(dir.join(name), None)).unwrap().id;
         edit(doc, "18.500", "19.500");
     }
+    let doc = block_on(engine().open(dir.join("rotated.pdf"), None))
+        .unwrap()
+        .id;
+    block_on(engine().rotate_page(doc, 2, 1, "Rotated".to_owned())).unwrap();
+    edit(doc, "18.500", "19.500");
     // Past the one-second sync of the actor's tick.
     std::thread::sleep(Duration::from_millis(2500));
     std::fs::write(dir.join("ready"), b"").unwrap();
@@ -118,6 +123,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     std::fs::write(dir.join("payslip.pdf"), &payslip).unwrap();
     std::fs::write(dir.join("changed.pdf"), &original).unwrap();
     std::fs::write(dir.join("nobase.pdf"), &original).unwrap();
+    std::fs::write(dir.join("rotated.pdf"), &original).unwrap();
 
     let mut child = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--ignored", "--exact", TEST, "--test-threads", "1"])
@@ -143,7 +149,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let root = dir.join("Recovery");
     block_on(engine().start_recovery(root.clone())).unwrap();
     let listed = block_on(engine().list_recoverable()).unwrap();
-    assert_eq!(listed.len(), 4, "{listed:?}");
+    assert_eq!(listed.len(), 5, "{listed:?}");
     let named = |name: &str| {
         listed
             .iter()
@@ -243,6 +249,31 @@ fn a_killed_instance_is_restored_from_its_journal() {
             .starts_with(&original)
     );
     block_on(engine().close(restored.opened.id)).unwrap();
+
+    // A change that is not a block's replays like any other: the document opens rotated, its
+    // handles those of the file, and the step that turned it reverts.
+    let rotated = named("rotated.pdf");
+    let handles = block_on(engine().open(dir.join("nobase.pdf"), None)).unwrap();
+    let restored = block_on(engine().restore_recovered(
+        rotated.session.clone(),
+        rotated.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap();
+    let rotated_doc = restored.opened.id;
+    assert_eq!(
+        (
+            restored.opened.pages[2].size.width,
+            restored.opened.pages[2].size.height
+        ),
+        (handles.pages[2].size.height, handles.pages[2].size.width),
+        "the restored document opens with its pages as the revisions leave them"
+    );
+    assert_eq!(restored.opened.pages[2].handle, handles.pages[2].handle);
+    assert!(text(&block_on(engine().text_blocks(rotated_doc, 0)).unwrap()).contains("19.500"));
+    block_on(engine().close(handles.id)).unwrap();
+    block_on(engine().close_discarding(rotated_doc)).unwrap();
 
     // A document too large for a base copy opens from its original, while that is unchanged.
     let nobase = named("nobase.pdf");

@@ -9,6 +9,11 @@
 //! thread the revised bytes (the incremental update the save would write), so PDFium reloads the
 //! document and every page gets a new render key.
 //!
+//! A change that is not a block's ([`Session::commit_change`], [`Engine::rotate_page`]) is one
+//! commit: its operation writes into a transaction of a copy of the committed revisions, and the
+//! confirmation, the history step, the recovery journal, the publish and the reload are the same
+//! as a block's.
+//!
 //! A transaction edits one block. [`Engine::apply`] replaces the block's whole text: it rewrites
 //! the block of the committed revision each time, so the open transaction holds only the newest
 //! text, and returns the page as it would read (the preview is not rendered). [`Engine::commit`]
@@ -80,7 +85,7 @@ use ferman_text::{
     OverflowPlan, Substitution, SubstitutionKind, TextBlock,
 };
 
-use super::document::Model;
+use super::document::{DocumentStructure, Model};
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
@@ -288,7 +293,7 @@ impl ConfirmationToken {
 }
 
 /// Where the document's history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RevisionInfo {
     /// How many steps of the history apply: 0 is the document as opened.
     pub current: u32,
@@ -298,6 +303,9 @@ pub struct RevisionInfo {
     /// The substitutions the commit made, for the "Font substituted" toast (a11-6); empty after
     /// anything else.
     pub substitutions: Vec<FontSubstitution>,
+    /// The document's pages, outline and attachments, when this changed them since the app last
+    /// heard; `None` when they are as they were.
+    pub structure: Option<DocumentStructure>,
 }
 
 /// One committed step of the history.
@@ -312,12 +320,13 @@ pub struct HistoryStep {
     pub hidden_lines: u32,
     /// The characters it set in another font than their line's (a3-12's font rows).
     pub substitutions: Vec<Substitution>,
-    /// The page of the block it changed; `None` for a revert and a restored step.
-    pub page: Option<u32>,
-    /// The block's text before it, for the review list (a3-12); empty for a revert and a
-    /// restored step.
+    /// The pages it changed, by [`handle`](ferman_core::structure::Page::handle), so they are
+    /// found after a move; empty for a revert and a restored step.
+    pub pages: Vec<u64>,
+    /// The block's text before it, for the review list (a3-12), or what the change's operation
+    /// says of it; empty for a revert and a restored step.
     pub before: String,
-    /// The block's text after it; see `before`.
+    /// The text after it; see `before`.
     pub after: String,
     /// The steps this one reverted, by index; empty for an edit.
     pub reverts: Vec<u32>,
@@ -336,7 +345,7 @@ pub struct History {
 }
 
 /// What [`Engine::revert`] did.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Reverted {
     /// Whether the step was reverted; `false` when later steps depend on it and were not asked
     /// to go with it, and the history is as it was.
@@ -500,7 +509,7 @@ impl Session {
                 time: now_millis(),
                 hidden_lines: 0,
                 substitutions: Vec::new(),
-                page: None,
+                pages: Vec::new(),
                 before: String::new(),
                 after: String::new(),
                 reverts: Vec::new(),
@@ -559,17 +568,15 @@ impl Session {
     fn page_index(&self, page: u32) -> Result<usize, ApiError> {
         usize::try_from(page)
             .ok()
-            .filter(|&index| index < self.model.document.page_count())
+            .filter(|&index| index < self.committed.pages(&self.model.document).len())
             .ok_or_else(|| {
                 ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                     .with_details("no such page")
             })
     }
 
-    pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
-        if self.open.is_some() {
-            return Err(CoreError::Write(WriteError::TransactionOpen).into());
-        }
+    /// Fails for a document that cannot be changed at all, with the reason.
+    fn changeable(&self) -> Result<(), ApiError> {
         if let Some(reason) = self.model.read_only {
             return Err(ApiError::not_editable(reason));
         }
@@ -580,6 +587,12 @@ impl Session {
         {
             return Err(ApiError::not_editable(NotEditableReason::Restricted));
         }
+        Ok(())
+    }
+
+    pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
+        self.closed()?;
+        self.changeable()?;
         let index = self.page_index(page)?;
         let text = ferman_text::text_page_revised(
             &self.model.document,
@@ -1007,7 +1020,7 @@ impl Session {
             return Ok((self.current(), None, Vec::new()));
         };
         let (working, hidden, substitutions) = (open.working, open.hidden, open.substitutions);
-        let page = u32::try_from(open.page).ok();
+        let pages = self.page_handles(&[open.page]);
         let frame = open.block.bbox;
         let text_before = open.block.text();
         let text_after = open.text.unwrap_or_default();
@@ -1035,7 +1048,7 @@ impl Session {
             time: now_millis(),
             hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
             substitutions,
-            page,
+            pages,
             before: text_before,
             after: text_after,
             reverts: Vec::new(),
@@ -1045,6 +1058,55 @@ impl Session {
         self.committed = Arc::new(working);
         self.journal(Change::Commit);
         Ok((self.current(), self.publish(), told))
+    }
+
+    /// The handles of pages `indices` as the committed revisions leave the pages.
+    fn page_handles(&self, indices: &[usize]) -> Vec<u64> {
+        let pages = self.committed.pages(&self.model.document);
+        indices
+            .iter()
+            .filter_map(|&index| pages.get(index).map(ferman_core::structure::Page::handle))
+            .collect()
+    }
+
+    /// Commits what `change` writes as the step `name` of the history, which names `pages` (as
+    /// the committed revisions leave them) and says `before` and `after`. A change that writes
+    /// nothing adds no step; a failed one, or one a signed document's confirmation stops, leaves
+    /// the history as it was.
+    pub(super) fn commit_change(
+        &mut self,
+        name: String,
+        pages: &[usize],
+        (before, after): (String, String),
+        change: impl FnOnce(&ferman_core::Document, &mut RevisionStore) -> Result<(), ApiError>,
+    ) -> Result<(u32, Reload), ApiError> {
+        self.closed()?;
+        self.changeable()?;
+        let mut working = (*self.committed).clone();
+        working.begin()?;
+        change(&self.model.document, &mut working)?;
+        let current = self.committed.current();
+        if working.commit()? == current {
+            return Ok((self.current(), None));
+        }
+        self.confirmed()?;
+        let pages = self.page_handles(pages);
+        self.steps.truncate(current);
+        self.steps.push(HistoryStep {
+            name,
+            time: now_millis(),
+            hidden_lines: 0,
+            substitutions: Vec::new(),
+            pages,
+            before,
+            after,
+            reverts: Vec::new(),
+        });
+        self.frames.resize(current, None);
+        self.frames.push(None);
+        self.committed = Arc::new(working);
+        self.journal(Change::Commit);
+        Ok((self.current(), self.publish()))
     }
 
     /// The edits that still count: applied, not reverted, and not a revert themselves.
@@ -1069,24 +1131,31 @@ impl Session {
     }
 
     /// Whether `later` builds on `earlier` whatever their bytes say: it changed the same block,
-    /// or `earlier` added resources to the page that `later`'s text may draw with.
+    /// or `earlier` added resources to the page that `later`'s text may draw with. A step with
+    /// pages and no frame is no block's: it adds nothing text draws with, and draws no text.
     fn builds_on(&self, later: usize, earlier: usize) -> bool {
         let (Some(a), Some(b)) = (self.steps.get(earlier), self.steps.get(later)) else {
             return false;
         };
-        // A restored step does not know its page, so it may be `later`'s.
-        if a.page.is_some() && b.page.is_some() && a.page != b.page {
+        // A restored step does not know its pages, so they may be `later`'s.
+        if !a.pages.is_empty()
+            && !b.pages.is_empty()
+            && !a.pages.iter().any(|page| b.pages.contains(page))
+        {
             return false;
         }
         let frame = |step: usize| self.frames.get(step).copied().flatten();
         let overlapping = matches!((frame(earlier), frame(later)), (Some(a), Some(b))
             if a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]);
+        let block = |step: usize, pages: &[u64]| frame(step).is_some() || pages.is_empty();
         overlapping
-            || !self
-                .committed
-                .revisions()
-                .get(earlier)
-                .is_some_and(ferman_core::revision::ChangeSet::streams_only)
+            || (block(earlier, &a.pages)
+                && block(later, &b.pages)
+                && !self
+                    .committed
+                    .revisions()
+                    .get(earlier)
+                    .is_some_and(ferman_core::revision::ChangeSet::streams_only))
     }
 
     /// `set`, the steps to revert, grown by every live step that depends on one of them, and the
@@ -1154,7 +1223,7 @@ impl Session {
             time: now_millis(),
             hidden_lines: 0,
             substitutions: Vec::new(),
-            page: None,
+            pages: Vec::new(),
             before: String::new(),
             after: String::new(),
             reverts,
@@ -1546,7 +1615,10 @@ impl Session {
             let mut revised = self.model.revised();
             revised.store = Arc::clone(&self.committed);
             revised.generation = revised.generation.saturating_add(1);
-            revised.blocks.fill(None);
+            revised.blocks.clear();
+            // shortcut: an edit of one page makes the next search read every page again; keep
+            // the text of pages it did not touch if a search after an edit proves slow.
+            revised.texts.clear();
             revised.generation
         };
         // shortcut: the whole file is built to cut off its update; build the update alone when
@@ -1896,7 +1968,48 @@ impl Engine {
                 current,
                 render_key: None,
                 substitutions: Vec::new(),
+                structure: None,
             })
+        })
+        .await
+    }
+
+    /// Turns page `page` of `document` by `quarter_turns` quarter turns, clockwise when positive,
+    /// as the step `name` of the history (`/Rotate` in the page's dictionary).
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotEditable` with the reason for a document that cannot be changed,
+    /// `ConfirmationRequired` for a signed document before its confirmation, `InvalidInput` for a
+    /// page it does not have or while a transaction is open, and `NotFound` for a document that
+    /// is not open.
+    pub async fn rotate_page(
+        &self,
+        document: DocumentId,
+        page: u32,
+        quarter_turns: i32,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| {
+                    let index = session.page_index(page)?;
+                    session.commit_change(
+                        name,
+                        &[index],
+                        (String::new(), String::new()),
+                        |doc, working| {
+                            Ok(ferman_ops::pages::rotate(
+                                doc,
+                                working,
+                                index,
+                                quarter_turns,
+                            )?)
+                        },
+                    )
+                })
+                .await?;
+            Ok(self.revision_info(document, current, reload).await)
         })
         .await
     }
@@ -2346,10 +2459,16 @@ impl Engine {
             },
             None => None,
         };
+        let structure = self
+            .models()
+            .ok()
+            .and_then(|models| models.get(&document).cloned())
+            .and_then(|model| model.structure_change());
         RevisionInfo {
             current,
             render_key,
             substitutions: Vec::new(),
+            structure,
         }
     }
 }
@@ -2457,7 +2576,8 @@ mod tests {
         edit(&mut session, &first_words[1], "By", "second");
         let edited = page_text(&session);
         let history = session.history();
-        assert_eq!(history.steps[0].page, Some(0));
+        let first = session.committed.pages(&session.model.document)[0].handle();
+        assert_eq!(history.steps[0].pages, [first]);
         assert!(history.steps[0].before.contains(&first_words[0]));
         assert!(history.steps[0].after.contains("Ax"));
 

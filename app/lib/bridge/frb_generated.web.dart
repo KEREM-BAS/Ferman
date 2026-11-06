@@ -77,6 +77,9 @@ abstract class FermanBridgeApiImplPlatform
   BlockStyleInfo dco_decode_box_autoadd_block_style_info(dynamic raw);
 
   @protected
+  DocumentStructure dco_decode_box_autoadd_document_structure(dynamic raw);
+
+  @protected
   ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
 
   @protected
@@ -153,6 +156,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   DocumentPermissions dco_decode_document_permissions(dynamic raw);
+
+  @protected
+  DocumentStructure dco_decode_document_structure(dynamic raw);
 
   @protected
   EditPreview dco_decode_edit_preview(dynamic raw);
@@ -281,6 +287,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
 
   @protected
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
@@ -324,6 +333,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   BlockStyleInfo? dco_decode_opt_box_autoadd_block_style_info(dynamic raw);
+
+  @protected
+  DocumentStructure? dco_decode_opt_box_autoadd_document_structure(dynamic raw);
 
   @protected
   ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
@@ -541,6 +553,11 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  DocumentStructure sse_decode_box_autoadd_document_structure(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   ExtendBlocked sse_decode_box_autoadd_extend_blocked(
     SseDeserializer deserializer,
   );
@@ -639,6 +656,9 @@ abstract class FermanBridgeApiImplPlatform
   DocumentPermissions sse_decode_document_permissions(
     SseDeserializer deserializer,
   );
+
+  @protected
+  DocumentStructure sse_decode_document_structure(SseDeserializer deserializer);
 
   @protected
   EditPreview sse_decode_edit_preview(SseDeserializer deserializer);
@@ -781,6 +801,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
 
   @protected
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
@@ -832,6 +855,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   BlockStyleInfo? sse_decode_opt_box_autoadd_block_style_info(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  DocumentStructure? sse_decode_opt_box_autoadd_document_structure(
     SseDeserializer deserializer,
   );
 
@@ -1158,6 +1186,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_document_structure(DocumentStructure raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_document_structure(raw);
+  }
+
+  @protected
   JSAny cst_encode_box_autoadd_extend_blocked(ExtendBlocked raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_extend_blocked(raw);
@@ -1332,6 +1366,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_document_structure(DocumentStructure raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_page_info(raw.pages),
+      cst_encode_list_outline_entry(raw.outline),
+      cst_encode_list_attachment(raw.attachments),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_edit_preview(EditPreview raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -1450,7 +1494,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_i_64(raw.time),
       cst_encode_u_32(raw.hiddenLines),
       cst_encode_list_font_substitution(raw.substitutions),
-      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_list_prim_u_64_strict(raw.pages),
       cst_encode_String(raw.before),
       cst_encode_String(raw.after),
       cst_encode_list_prim_u_32_strict(raw.reverts),
@@ -1593,6 +1637,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_prim_u_64_strict(Uint64List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.inner.jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
@@ -1702,6 +1752,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny? cst_encode_opt_box_autoadd_block_style_info(BlockStyleInfo? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_block_style_info(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_document_structure(DocumentStructure? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_document_structure(raw);
   }
 
   @protected
@@ -1834,6 +1890,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_f_32(raw.width),
       cst_encode_f_32(raw.height),
       cst_encode_opt_String(raw.label),
+      cst_encode_u_64(raw.handle),
     ].jsify()!;
   }
 
@@ -1926,6 +1983,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_u_32(raw.current),
       cst_encode_opt_box_autoadd_u_64(raw.renderKey),
       cst_encode_list_font_substitution(raw.substitutions),
+      cst_encode_opt_box_autoadd_document_structure(raw.structure),
     ].jsify()!;
   }
 
@@ -2218,6 +2276,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_box_autoadd_document_structure(
+    DocumentStructure self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_extend_blocked(
     ExtendBlocked self,
     SseSerializer serializer,
@@ -2337,6 +2401,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_document_permissions(
     DocumentPermissions self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_document_structure(
+    DocumentStructure self,
     SseSerializer serializer,
   );
 
@@ -2512,6 +2582,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -2589,6 +2665,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_block_style_info(
     BlockStyleInfo? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_document_structure(
+    DocumentStructure? self,
     SseSerializer serializer,
   );
 

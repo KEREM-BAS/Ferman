@@ -478,6 +478,20 @@ final class ShellDocument {
   bool get unsaved =>
       saveState == SaveState.unsaved || saveState == SaveState.error;
 
+  /// This tab showing [document], with its number of pages.
+  ShellDocument withDocument(OpenedDocument document) => ShellDocument(
+    name: name,
+    icon: icon,
+    saveState: saveState,
+    savedAt: savedAt,
+    pageCount: document.pages.length,
+    editCount: editCount,
+    path: path,
+    document: document,
+    locked: locked,
+    error: error,
+  );
+
   /// This document in [saveState], saved at [savedAt] when given, with
   /// [editCount] edits when given.
   ShellDocument withSave(

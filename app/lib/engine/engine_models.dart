@@ -229,7 +229,12 @@ class RepairFix {
 @immutable
 class PageInfo {
   /// Creates a page.
-  const new({required this.width, required this.height, this.label});
+  const new({
+    required this.width,
+    required this.height,
+    this.label,
+    this.handle,
+  });
 
   /// The width, after the crop box and the page's rotation.
   final double width;
@@ -239,6 +244,31 @@ class PageInfo {
 
   /// The page label, such as "iv", when the document has labels.
   final String? label;
+
+  /// What names the page while the document is open, whatever moves around
+  /// it; history steps hold it. Set by the engine; a page made without one
+  /// answers to its index ([OpenedDocument.pageHandle]).
+  final int? handle;
+}
+
+/// What a commit, undo or redo changed of a document's lists.
+@immutable
+class DocumentStructure {
+  /// Creates the lists.
+  const new({
+    required this.pages,
+    this.outline = const [],
+    this.attachments = const [],
+  });
+
+  /// Its pages.
+  final List<PageInfo> pages;
+
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Its embedded files.
+  final List<Attachment> attachments;
 }
 
 /// One outline item (bookmark) of an [OpenedDocument].
@@ -624,15 +654,41 @@ class OpenedDocument {
   /// screen's Scanned badge).
   final bool scanned;
 
+  /// The handle of page [index].
+  int pageHandle(int index) => pages.elementAtOrNull(index)?.handle ?? index;
+
+  /// Where the page with [handle] is now; null once it is gone.
+  int? pageIndexOf(int handle) {
+    for (var i = 0; i < pages.length; i++) {
+      if ((pages[i].handle ?? i) == handle) return i;
+    }
+    return null;
+  }
+
   /// This document with [security], as the owner unlock leaves it.
-  OpenedDocument withSecurity(Security? security) => OpenedDocument(
+  OpenedDocument withSecurity(Security? security) =>
+      _copy(security: () => security);
+
+  /// This document with [structure], as a revision leaves it.
+  OpenedDocument withStructure(DocumentStructure structure) => _copy(
+    pages: structure.pages,
+    outline: structure.outline,
+    attachments: structure.attachments,
+  );
+
+  OpenedDocument _copy({
+    List<PageInfo>? pages,
+    List<OutlineEntry>? outline,
+    List<Attachment>? attachments,
+    Security? Function()? security,
+  }) => OpenedDocument(
     id: id,
-    pages: pages,
+    pages: pages ?? this.pages,
     readOnly: readOnly,
     repairs: repairs,
     rightToLeft: rightToLeft,
-    outline: outline,
-    attachments: attachments,
+    outline: outline ?? this.outline,
+    attachments: attachments ?? this.attachments,
     layers: layers,
     layersSwitchable: layersSwitchable,
     signatures: signatures,
@@ -645,7 +701,7 @@ class OpenedDocument {
     tagged: tagged,
     linearized: linearized,
     fonts: fonts,
-    security: security,
+    security: security == null ? this.security : security(),
     scripts: scripts,
     formFields: formFields,
     scanned: scanned,
@@ -1673,6 +1729,7 @@ class RevisionInfo {
     required this.current,
     this.renderKey,
     this.substitutions = const [],
+    this.structure,
   });
 
   /// How many steps of the history apply: 0 is the document as opened.
@@ -1686,6 +1743,10 @@ class RevisionInfo {
   /// The substitutions a commit made, for the "Font substituted" toast
   /// (a11-6); empty after anything else.
   final List<FontSubstitution> substitutions;
+
+  /// The document's pages, outline and attachments when this changed them;
+  /// null when they are as they were.
+  final DocumentStructure? structure;
 }
 
 /// One committed step of a document's history.
@@ -1697,7 +1758,7 @@ class HistoryStep {
     required this.time,
     this.hiddenLines = 0,
     this.substitutions = const [],
-    this.page,
+    this.pages = const [],
     this.before = '',
     this.after = '',
     this.reverts = const [],
@@ -1717,9 +1778,9 @@ class HistoryStep {
   /// (a3-12).
   final List<FontSubstitution> substitutions;
 
-  /// The page of the block it changed, from 0; null for a revert and a step
-  /// restored from the recovery files.
-  final int? page;
+  /// The pages it changed, by [PageInfo.handle], so they are found after a
+  /// move; empty for a revert and a step restored from the recovery files.
+  final List<int> pages;
 
   /// The block's text before it: the review list's before (a3-12).
   final String before;

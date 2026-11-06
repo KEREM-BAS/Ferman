@@ -847,6 +847,14 @@ class FrbEngineService implements EngineService {
           for (final substitution in info.substitutions)
             _substitution(substitution),
         ],
+        structure: switch (info.structure) {
+          null => null,
+          final structure => DocumentStructure(
+            pages: _pages(structure.pages),
+            outline: _outline(structure.outline),
+            attachments: _attachments(structure.attachments),
+          ),
+        },
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -905,7 +913,7 @@ class FrbEngineService implements EngineService {
                 for (final substitution in step.substitutions)
                   _substitution(substitution),
               ],
-              page: step.page,
+              pages: [for (final page in step.pages) page.toInt()],
               before: step.before,
               after: step.after,
               reverts: step.reverts.toList(),
@@ -1302,6 +1310,38 @@ String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
 
+/// The engine's pages as the app's.
+List<PageInfo> _pages(List<bridge.PageInfo> pages) => [
+  for (final page in pages)
+    PageInfo(
+      width: page.width,
+      height: page.height,
+      label: page.label,
+      handle: page.handle.toInt(),
+    ),
+];
+
+/// The engine's outline as the app's.
+List<OutlineEntry> _outline(List<bridge.OutlineEntry> outline) => [
+  for (final item in outline)
+    OutlineEntry(
+      title: item.title,
+      page: item.page,
+      depth: item.depth,
+      open: item.open,
+    ),
+];
+
+/// The engine's attachments as the app's.
+List<Attachment> _attachments(List<bridge.Attachment> attachments) => [
+  for (final file in attachments)
+    Attachment(
+      name: file.name,
+      size: file.size?.toInt(),
+      modified: _date(file.modified),
+    ),
+];
+
 /// The engine's document as the app's.
 OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
   id: document.id.toInt(),
@@ -1326,27 +1366,9 @@ OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
       ),
   ],
   rightToLeft: document.rightToLeft,
-  pages: [
-    for (final page in document.pages)
-      PageInfo(width: page.width, height: page.height, label: page.label),
-  ],
-  outline: [
-    for (final item in document.outline)
-      OutlineEntry(
-        title: item.title,
-        page: item.page,
-        depth: item.depth,
-        open: item.open,
-      ),
-  ],
-  attachments: [
-    for (final file in document.attachments)
-      Attachment(
-        name: file.name,
-        size: file.size?.toInt(),
-        modified: _date(file.modified),
-      ),
-  ],
+  pages: _pages(document.pages),
+  outline: _outline(document.outline),
+  attachments: _attachments(document.attachments),
   layers: [
     for (final layer in document.layers)
       Layer(name: layer.name, visible: layer.visible, locked: layer.locked),

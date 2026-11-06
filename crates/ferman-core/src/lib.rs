@@ -31,6 +31,9 @@
 //!   ([`Splice`](revision::Splice)), with copy-on-write for shared streams and forms (§6.6); and
 //!   the incremental writer, which appends the changes to the original bytes in the file's own
 //!   cross-reference form, encrypted with the document's key (§7.3).
+//! - [`write`](mod@write): what an operation above ferman-core writes with, without naming
+//!   lopdf: objects as plain [`Value`](write::Value)s, new object numbers, page entries and
+//!   `/Annots` (ADR 0003, question 11 of the M4 plan).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
 //!   [`save_pdf`](save::save_pdf) writes a document through a temp file beside it, flushed,
 //!   verified, given the original's metadata and swapped in, with every failure of §7.8 a
@@ -84,6 +87,7 @@ pub mod source;
 pub mod structure;
 mod syntax;
 mod text_string;
+pub mod write;
 mod xref;
 
 pub use document::{Document, OpenOptions, open};

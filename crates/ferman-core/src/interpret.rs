@@ -344,12 +344,13 @@ impl Document {
         self.page_text_through(None, index, sink)
     }
 
-    /// The language of each marked-content id of page `index`, from its structure elements'
-    /// `/Lang` (ISO 32000-2 §14.9.2), for the ids in `wanted`; empty for a page or document
-    /// without any.
+    /// The language of each marked-content id of page `index`, as `overlay`'s revisions leave
+    /// it, from its structure elements' `/Lang` (ISO 32000-2 §14.9.2), for the ids in `wanted`;
+    /// empty for a page or document without any.
     #[must_use]
     pub fn marked_content_languages(
         &self,
+        overlay: Option<&RevisionStore>,
         index: usize,
         wanted: &HashSet<i64>,
     ) -> HashMap<i64, String> {
@@ -358,10 +359,9 @@ impl Document {
             limits: self.limits(),
             page_of: BTreeMap::new(),
             annotation_page: BTreeMap::new(),
-            overlay: None,
+            overlay,
         };
-        self.structure()
-            .pages
+        self.pages_through(overlay)
             .get(index)
             .and_then(|page| match scope.object(page.id) {
                 Some(Object::Dictionary(dict)) => Some(crate::structure::marked_content_languages(
@@ -372,6 +372,15 @@ impl Document {
             .unwrap_or_default()
     }
 
+    /// The pages as `overlay`'s revisions leave them, or as the file holds them without one.
+    #[must_use]
+    pub fn pages_through<'a>(
+        &'a self,
+        overlay: Option<&'a RevisionStore>,
+    ) -> &'a [crate::structure::Page] {
+        overlay.map_or(&self.structure().pages, |overlay| overlay.pages(self))
+    }
+
     /// [`page_text`](Self::page_text), reading objects through `overlay`'s revisions.
     pub(crate) fn page_text_through(
         &self,
@@ -379,7 +388,7 @@ impl Document {
         index: usize,
         sink: &mut dyn TextSink,
     ) -> Result<(), CoreError> {
-        let Some(page) = self.structure().pages.get(index) else {
+        let Some(page) = self.pages_through(overlay).get(index) else {
             return Ok(());
         };
         let limits = self.limits();

@@ -14,9 +14,9 @@
 //!
 //! # Planned modules
 //!
-//! The crate is a skeleton in M1. Operations start in M4, one module per family:
+//! Operations start in M4, one module per family; [`pages`] has rotate so far:
 //!
-//! - `pages`: insert, delete, rotate, move, duplicate, extract, replace, crop and page labels.
+//! - `pages`: insert, delete, move, duplicate, extract, replace, crop and page labels.
 //! - `combine`: combine and split.
 //! - `annotations`: annotation types with appearance streams, replies and flattening.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
@@ -24,6 +24,8 @@
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
+
+pub mod pages;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
