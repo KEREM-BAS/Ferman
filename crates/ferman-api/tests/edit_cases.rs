@@ -2778,7 +2778,9 @@ fn e24_edited_after_unlocking_and_still_encrypted() {
             problems.push(format!("object {:?} rewritten", object.id));
         }
         let raw = object.raw.as_ref().expect("a stream");
-        if raw.len() % 16 != 0 || find(raw, b"Tf", 0).is_some() {
+        // Both operators, since random AES bytes hold any one short pattern now and then.
+        let plain = find(raw, b"BT", 0).is_some() && find(raw, b" Tf", 0).is_some();
+        if raw.len() % 16 != 0 || plain {
             problems.push(format!("stream {:?} is not encrypted", object.id));
         }
     }
