@@ -513,16 +513,14 @@ void main() {
   group('the app’s own, at 375 × 812', () {
     testWidgets('the default-app prompt', (tester) async {
       await pumpFermanApp(tester, size: _phone, defaultApp: _FakeDefaultApp());
-      // shortcut: the start screen under it still overflows on this branch;
-      // drop this line once it has its phone layout.
-      tester.takeException();
+      expect(tester.takeException(), isNull);
       _expectFits(tester, find.text('Use Ferman for PDFs'));
       _expectFits(tester, find.text('Don’t ask again'));
       _expectTargets(tester, find.byType(Scrim));
       await tester.tap(find.text('Not now'));
       await tester.pumpAndSettle();
       expect(find.byType(Scrim), findsNothing);
-      tester.takeException();
+      expect(tester.takeException(), isNull);
     });
 
     for (final language in _languages) {
@@ -543,9 +541,7 @@ void main() {
             initialSettingsProvider.overrideWithValue(settings),
           ],
         );
-        // shortcut: the pane's segmented controls overflow until Settings has
-        // its phone layout; make this an expect then.
-        tester.takeException();
+        expect(tester.takeException(), isNull);
         final selects = find.byWidgetPredicate((widget) => widget is Select);
         var searchable = 0;
         for (var i = 0; i < selects.evaluate().length; i++) {

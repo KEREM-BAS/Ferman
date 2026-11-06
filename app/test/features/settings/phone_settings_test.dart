@@ -24,9 +24,7 @@ Finder _row(String label) => find.ancestor(
 );
 
 Future<void> _open(WidgetTester tester, [SettingsPane? pane]) async {
-  // shortcut: the start screen below still overflows at this width; drop
-  // this and [_leftStart] once it has its phone layout.
-  tester.takeException();
+  expect(tester.takeException(), isNull);
   final context = tester.element(find.byType(FmStart));
   // The push completes only when Settings closes.
   unawaited(
@@ -47,7 +45,7 @@ Future<void> _scrollAndTap(WidgetTester tester, Finder finder) async {
 
 /// Back on the start screen; see [_open].
 void _leftStart(WidgetTester tester) {
-  tester.takeException();
+  expect(tester.takeException(), isNull);
   expect(find.byType(FmSettings), findsNothing);
   expect(find.byType(FmStart), findsOneWidget);
 }
@@ -122,7 +120,7 @@ void main() {
 
     testWidgets('a pane opened directly goes back to the list', (tester) async {
       await pumpFermanApp(tester, size: goldenPhoneSize);
-      tester.takeException();
+      expect(tester.takeException(), isNull);
       GoRouter.of(tester.element(find.byType(FmStart)))
           .go(Routes.settingsPane('privacy'));
       await tester.pumpAndSettle();

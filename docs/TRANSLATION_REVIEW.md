@@ -52,10 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-586 messages in `app_en.arb`; translated: Turkish 586, Arabic 586.
-597 messages in `app_en.arb`; translated: Turkish 597, Arabic 597.
-590 messages in `app_en.arb`; translated: Turkish 590, Arabic 590.
-588 messages in `app_en.arb`; translated: Turkish 588, Arabic 588.
+606 messages in `app_en.arb`; translated: Turkish 606, Arabic 606.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|

@@ -222,8 +222,7 @@ void main() {
       await _open(tester, M1Screen.privacyStep);
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
-      // The start screen's phone layout is its own step.
-      tester.takeException();
+      expect(tester.takeException(), isNull);
       expect(find.byType(WelcomeStep), findsNothing);
       expect(find.byType(FmStart), findsOneWidget);
     });

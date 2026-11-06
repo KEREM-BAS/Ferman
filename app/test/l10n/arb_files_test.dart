@@ -40,6 +40,9 @@ Set<String> _placeholdersIn(String message) => {
 /// list (and reasons) as `tools/checks` `ArbParityCheck.repositorySameInTurkish`.
 const Set<String> _sameInArabic = {
   'appName', // the product name, never translated
+  'startPhoneToolOcr', // OCR, as the FmMHome board writes it in Arabic
+  'startPhoneSourceGoogleDrive', // a product's name
+  'startPhoneSourceOneDrive', // a product's name
   'shellMoreDocumentsBadge', // a plus sign and a count ("+3")
   'shellToolEimza', // e-imza, the Turkish name of the electronic signature
   'shellConvertWord', // a file format named after its product

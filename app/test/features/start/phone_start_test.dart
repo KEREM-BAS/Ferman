@@ -162,8 +162,7 @@ void main() {
       await pumpFermanApp(tester, size: goldenPhoneSize, engine: _webEngine);
       await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
-      // Settings' own phone layout is its own step.
-      tester.takeException();
+      expect(tester.takeException(), isNull);
       expect(find.byType(FmSettings), findsOneWidget);
     });
   });
