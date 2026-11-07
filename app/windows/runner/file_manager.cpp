@@ -1,9 +1,11 @@
 #include "file_manager.h"
 
+// windows.h must come before shellapi.h and shlobj.h.
+#include <windows.h>
+
 #include <flutter/standard_method_codec.h>
 #include <shellapi.h>
 #include <shlobj.h>
-#include <windows.h>
 
 #include <algorithm>
 #include <cctype>
