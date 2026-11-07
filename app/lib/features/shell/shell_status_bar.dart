@@ -57,7 +57,7 @@ class ShellStatusBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final document = ref.watch(shellDocumentsProvider).active;
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
@@ -91,7 +91,7 @@ class ShellStatusBar extends ConsumerWidget {
       label: label,
       size: IconButtonSize.xs,
       tooltipSide: TooltipSide.top,
-      shortcut: command.caps(platform),
+      shortcut: keys.caps(command),
       disabled: action == null,
       onPressed: action,
     );

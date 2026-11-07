@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
@@ -12,16 +12,17 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Takes files dropped on the window (a1-6, G105): while files are dragged
-/// over it, a1-6's overlay covers [child], the screen below the title bar,
-/// and a drop opens each file in a new tab ([DocumentOpener.open]). The
-/// [titleBar] above, with the document tabs, takes drops too.
+/// over it, a1-6's overlay covers [child], the screen below the title bar.
+/// A drop on its "Combine into one PDF" target puts the files in Combine's
+/// tab, in the order dropped, where they can be reordered before Combine
+/// writes them (B191); a drop anywhere else opens each file in a new tab
+/// ([DocumentOpener.open]). The target under the pointer takes the accent
+/// ring. The [titleBar] above, with the document tabs, takes drops too.
 ///
 /// Files arrive through desktop_drop, which names them only once they are
-/// dropped (G117): the overlay shows no count and no row per file. a1-6's
-/// "Combine into one PDF" target is disabled until it ships (B191),
-/// so a drop opens tabs, but on Organize's page grid (B104, G105), which
-/// takes the files itself and shows where they go instead of the overlay
-/// ([PageGridDropSlot]).
+/// dropped (G117): the overlay shows no count and no row per file. On
+/// Organize's page grid (B104, G105) the grid takes the files itself and
+/// shows where they go instead of the overlay ([PageGridDropSlot]).
 ///
 /// Nothing is taken where [enabled] is false (first run, Settings) or while
 /// opening is disabled ([openFilesDisabledReason]: the engine's problem,
@@ -52,12 +53,29 @@ class FileDrop extends ConsumerStatefulWidget {
 class _FileDropState extends ConsumerState<FileDrop> {
   bool _over = false;
 
+  /// Whether the pointer is over the Combine target.
+  bool _combine = false;
+  final GlobalKey _combineTarget = GlobalKey(debugLabel: 'Combine target');
+
   /// The page grid under the pointer, if one takes files.
   PageGridDropTarget? get _grid => ref.read(pageGridDropSlotProvider).target;
 
   void _hover(DropEventDetails details) {
     final over = !(_grid?.hover(details.globalPosition) ?? false);
-    if (over != _over) setState(() => _over = over);
+    final box = _combineTarget.currentContext?.findRenderObject();
+    final combine =
+        over &&
+        box is RenderBox &&
+        box.hasSize &&
+        (Offset.zero & box.size).contains(
+          box.globalToLocal(details.globalPosition),
+        );
+    if (over != _over || combine != _combine) {
+      setState(() {
+        _over = over;
+        _combine = combine;
+      });
+    }
   }
 
   @override
@@ -66,20 +84,36 @@ class _FileDropState extends ConsumerState<FileDrop> {
         widget.enabled && openFilesDisabledReason(context, ref) == null;
     final content = Stack(
       fit: StackFit.expand,
-      children: [widget.child, if (enabled && _over) const _DropOverlay()],
+      children: [
+        widget.child,
+        if (enabled && _over)
+          _DropOverlay(combine: _combine, combineKey: _combineTarget),
+      ],
     );
     final bar = widget.titleBar;
     return DropTarget(
       enable: enabled,
       onDragEntered: _hover,
       onDragUpdated: _hover,
+      // desktop_drop calls this before onDragDone too, so the target the
+      // pointer was over stays until the drop takes it or a drag enters.
       onDragExited: (_) {
         _grid?.hover(null);
         setState(() => _over = false);
       },
       onDragDone: (details) {
         final paths = [for (final file in details.files) file.path];
-        if (!(_grid?.drop(paths, details.globalPosition) ?? false)) {
+        final combine = _combine;
+        setState(() => _over = _combine = false);
+        if (_grid?.drop(paths, details.globalPosition) ?? false) return;
+        if (combine) {
+          ref
+              .read(combineFilesProvider.notifier)
+              .showTab(
+                AppLocalizations.of(context).shellToolCombineFiles,
+                add: paths,
+              );
+        } else {
           unawaited(ref.read(documentOpenerProvider.notifier).open(paths));
         }
       },
@@ -98,11 +132,17 @@ class _FileDropState extends ConsumerState<FileDrop> {
 
 /// a1-6's overlay (FmStart `dragOver`): a dashed accent frame on the
 /// accent-subtle fill, 16 px inside the screen, with the upload tile, the
-/// headline and its line, and the two targets. "Open in tabs" keeps the
-/// accent ring, as the only target that works; "Combine into one PDF" is
-/// disabled, its line the future-version reason (G10, B191).
+/// headline and its line, and the two targets: the one a drop goes to,
+/// "Combine into one PDF" while [combine] and "Open in tabs" otherwise,
+/// takes the accent ring.
 class _DropOverlay extends StatelessWidget {
-  const new();
+  const new({required this.combine, required this.combineKey});
+
+  /// Whether a drop now goes to the Combine target.
+  final bool combine;
+
+  /// The Combine target's key, to find it under the pointer.
+  final GlobalKey combineKey;
 
   /// The gap between the head and the targets (`gap: 28px`).
   static const double gap = 28;
@@ -215,15 +255,15 @@ class _DropOverlay extends StatelessWidget {
                             icon: IconName.files,
                             title: l10n.dropOverlayTabs,
                             line: l10n.dropOverlayTabsDescription,
+                            ringed: !combine,
                           ),
                           _target(
                             context,
+                            key: combineKey,
                             icon: IconName.merge,
                             title: l10n.dropOverlayCombine,
-                            line: Feature.combineDropped.disabledReason(
-                              context,
-                            ),
-                            disabled: true,
+                            line: l10n.dropOverlayCombineDescription,
+                            ringed: combine,
                           ),
                         ],
                       ),
@@ -243,11 +283,13 @@ class _DropOverlay extends StatelessWidget {
     required IconName icon,
     required String title,
     required String line,
-    bool disabled = false,
+    required bool ringed,
+    Key? key,
   }) {
     final theme = context.ferman;
     final colors = theme.colors;
     return Container(
+      key: key,
       width: targetWidth,
       padding: const EdgeInsetsDirectional.all(targetPadding),
       decoration: BoxDecoration(
@@ -255,7 +297,7 @@ class _DropOverlay extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(theme.radius.radiusLg)),
         // CSS paints the first shadow on top, Flutter the last: the ring
         // comes last.
-        boxShadow: disabled
+        boxShadow: !ringed
             ? [
                 BoxShadow(
                   color: colors.borderDefault,
@@ -274,11 +316,7 @@ class _DropOverlay extends StatelessWidget {
           Row(
             spacing: theme.space.space2_5,
             children: [
-              Icon(
-                icon,
-                size: targetIconSize,
-                color: disabled ? colors.iconDisabled : colors.textAccent,
-              ),
+              Icon(icon, size: targetIconSize, color: colors.textAccent),
               Flexible(
                 child: Text(
                   title,
@@ -286,7 +324,7 @@ class _DropOverlay extends StatelessWidget {
                     fontSize: targetTitleSize,
                     height: targetTitleHeight / targetTitleSize,
                     fontWeight: theme.typeScale.weightSemibold,
-                    color: disabled ? colors.textDisabled : colors.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -295,7 +333,7 @@ class _DropOverlay extends StatelessWidget {
           Text(
             line,
             style: theme.typography.caption.copyWith(
-              color: disabled ? colors.textDisabled : colors.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],

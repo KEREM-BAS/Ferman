@@ -812,6 +812,66 @@ final class ShortcutPlatformProvider
 
 String _$shortcutPlatformHash() => r'e178a9005d056a5b6519dbf4826a74a3d7cef5b2';
 
+/// The keys of every command, as `shortcutBindingsProvider`: the table on
+/// the system the app runs on with the user's changes from Settings ›
+/// Keyboard shortcuts (a11-1j). Every caption, tooltip and binding reads
+/// it.
+
+@ProviderFor(shortcutBindings)
+final shortcutBindingsProvider = ShortcutBindingsProvider._();
+
+/// The keys of every command, as `shortcutBindingsProvider`: the table on
+/// the system the app runs on with the user's changes from Settings ›
+/// Keyboard shortcuts (a11-1j). Every caption, tooltip and binding reads
+/// it.
+
+final class ShortcutBindingsProvider
+    extends
+        $FunctionalProvider<
+          ShortcutBindings,
+          ShortcutBindings,
+          ShortcutBindings
+        >
+    with $Provider<ShortcutBindings> {
+  /// The keys of every command, as `shortcutBindingsProvider`: the table on
+  /// the system the app runs on with the user's changes from Settings ›
+  /// Keyboard shortcuts (a11-1j). Every caption, tooltip and binding reads
+  /// it.
+  ShortcutBindingsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shortcutBindingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shortcutBindingsHash();
+
+  @$internal
+  @override
+  $ProviderElement<ShortcutBindings> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ShortcutBindings create(Ref ref) {
+    return shortcutBindings(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShortcutBindings value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShortcutBindings>(value),
+    );
+  }
+}
+
+String _$shortcutBindingsHash() => r'54a8acc98fe7879c3c651cb518711b410972b746';
+
 /// The open documents, as `shellDocumentsProvider`: none until the first
 /// one opens.
 

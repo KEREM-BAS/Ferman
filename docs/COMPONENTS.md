@@ -2602,6 +2602,7 @@ Drawn in: 11b App.
 | `onQueryChange` |  | `onQueryChanged` | `ValueChanged<String>?` |  |  |  |
 | `onSelect` |  | `onSelected` | `ValueChanged<CommandItem>?` |  |  |  |
 | `onClose` |  | `onClose` | `VoidCallback?` |  |  |  |
+| — |  | `onSearch` | `ValueChanged<String>?` |  |  | Called with the query on Enter while no command matches, to search the document instead (the a11-2 note). |
 | `placeholder` |  | `placeholder` | `String` | `"Search commands, pages and text"` |  |  |
 | `emptyText` |  | `emptyText` | `String?` |  |  | Default "No commands match “q”. Press Enter to search the document instead." |
 | — |  | `semanticLabel` | `String?` |  |  | The accessible name of the palette ("Command palette"). |
@@ -2666,6 +2667,8 @@ Drawn in: 01 First run and files, 02 View, 04 Comment, 05a Fill, 05b Sign, 06 Or
 | `open` | yes | `open` | `bool` | `true` |  |  |
 | `inline` | yes | `inline` | `bool` | `false` |  | Without scrim, modality or trap (boards, the gallery). |
 | — |  | `sheet` | `bool` | `false` |  | A bottom sheet at phone width (a13-8c, G129): the Select list. |
+| — |  | `width` | `double?` |  |  | A width other than the size's, for a board that draws its own (a11-3's 1100 px cheat sheet). |
+| — |  | `headTrailing` | `Widget?` |  |  | A widget in the head between the title and the close button (a11-3's search field). |
 | `title` | yes | `title` | `String` (required) |  |  | The question ("Apply 2 redactions?"). |
 | `description` | yes | `description` | `String?` |  |  |  |
 | `icon` | yes | `icon` | `IconName?` |  |  |  |

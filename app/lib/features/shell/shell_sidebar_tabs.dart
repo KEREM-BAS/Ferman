@@ -5,8 +5,12 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/forms/form_state.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
+import 'package:ferman/features/shell/document_parts.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_bar.dart' show findNoneText;
 import 'package:ferman/features/viewer/find_state.dart';
@@ -16,6 +20,8 @@ import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,8 +51,11 @@ ScrollController _rememberedScroll(WidgetRef ref, SidebarTab tab) {
 
 /// The Pages tab (a2-3p): a thumbnail of every page, the reader's page
 /// selected; a click or Enter goes to the page, and the arrow keys move
-/// between thumbnails ([PageThumbnails]). Badges arrive with their features
-/// (f5).
+/// between thumbnails ([PageThumbnails]). Each thumbnail carries f5's
+/// badges, each with its tooltip, also spoken after the page's name: edited
+/// since the document opened, comments, form fields, a signature or its
+/// field, and warnings (lines a3-4's "Keep and warn" hides, a signature an
+/// edit broke).
 class SidebarPages extends ConsumerStatefulWidget {
   /// The pages of `viewerProvider`'s document.
   const new({super.key});
@@ -92,9 +101,27 @@ class _SidebarPagesState extends ConsumerState<SidebarPages>
     }
     if (document == null) return const SizedBox.shrink();
     final viewer = ref.read(viewerProvider.notifier);
-    final invalidated = ref.watch(
-      documentEditorProvider.select((s) => s.history.signatureInvalidated),
-    );
+    final history = ref.watch(documentEditorProvider.select((s) => s.history));
+    final invalidated = history.signatureInvalidated;
+    // f5's other badges, by page handle.
+    final edited = {
+      for (final step in history.steps.take(history.current)) ...step.pages,
+    };
+    final comments = <int, int>{};
+    for (final thread in ref.watch(documentThreadsProvider)) {
+      comments[thread.top.page] = (comments[thread.top.page] ?? 0) + 1;
+    }
+    final fields = <int, int>{};
+    for (final field
+        in ref.watch(documentFormProvider).value?.fields ??
+            const <FieldInfo>[]) {
+      if (field.kind == FieldKind.signature || field.kind == FieldKind.push) {
+        continue;
+      }
+      for (final page in {for (final widget in field.widgets) widget.page}) {
+        fields[page] = (fields[page] ?? 0) + 1;
+      }
+    }
     return ListView.builder(
       controller: _scroll,
       padding: EdgeInsetsDirectional.only(
@@ -109,6 +136,35 @@ class _SidebarPagesState extends ConsumerState<SidebarPages>
         final page = document.pages[index];
         final label = pageLabel(document, index, format);
         final handle = document.pageHandle(index);
+        final signatures = document.signatures.where(
+          (field) => field.page == index,
+        );
+        final tooltips = <ThumbnailBadge, String>{
+          if (edited.contains(handle))
+            ThumbnailBadge.edited: l10n.sidebarBadgeEdited,
+          if (comments[handle] case final count?)
+            ThumbnailBadge.comments: l10n.sidebarBadgeComments(
+              count,
+              format.integer(count),
+            ),
+          if (fields[handle] case final count?)
+            ThumbnailBadge.formFields: l10n.sidebarBadgeFields(
+              count,
+              format.integer(count),
+            ),
+          if (signatures.isNotEmpty)
+            ThumbnailBadge.signature: signatures.any((field) => field.signed)
+                ? l10n.sidebarBadgeSigned
+                : l10n.sidebarBadgeSignatureField,
+          if (hidden[index] case final lines?)
+            ThumbnailBadge.warnings: l10n.editOverflowHidden(
+              lines,
+              format.integer(lines),
+            )
+          // a3-16b: the signature's page once a change breaks it.
+          else if (invalidated && signatures.any((field) => field.signed))
+            ThumbnailBadge.warnings: l10n.signedBannerTitle(1),
+        };
         return Padding(
           key: ValueKey(handle),
           padding: EdgeInsetsDirectional.only(
@@ -125,32 +181,17 @@ class _SidebarPagesState extends ConsumerState<SidebarPages>
                 width: SidebarPages.thumbnailWidth,
                 aspect: page.width > 0 ? page.height / page.width : 1,
                 selected: index == current,
-                semanticLabel: l10n.sidebarPage(label),
+                semanticLabel: [
+                  l10n.sidebarPage(label),
+                  for (final badge in ThumbnailBadge.values) ?tooltips[badge],
+                ].join(', '),
                 onPressed: () => viewer.goToPage(index),
-                badges: switch (hidden[index]) {
-                  final lines? => ThumbnailBadges(
-                    badges: const {ThumbnailBadge.warnings},
-                    tooltips: {
-                      ThumbnailBadge.warnings: l10n.editOverflowHidden(
-                        lines,
-                        format.integer(lines),
+                badges: tooltips.isEmpty
+                    ? null
+                    : ThumbnailBadges(
+                        badges: tooltips.keys.toSet(),
+                        tooltips: tooltips,
                       ),
-                    },
-                  ),
-                  // a3-16b: the signature's page once a change breaks it.
-                  null
-                      when invalidated &&
-                          document.signatures.any(
-                            (field) => field.signed && field.page == index,
-                          ) =>
-                    ThumbnailBadges(
-                      badges: const {ThumbnailBadge.warnings},
-                      tooltips: {
-                        ThumbnailBadge.warnings: l10n.signedBannerTitle(1),
-                      },
-                    ),
-                  null => null,
-                },
                 child: switch (thumbnailOf(handle)) {
                   final image? => RawImage(image: image, fit: BoxFit.fill),
                   // A blank page until the thumbnail arrives, never the
@@ -170,7 +211,14 @@ class _SidebarPagesState extends ConsumerState<SidebarPages>
 /// as the document says until the reader toggles it with its chevron or
 /// the arrow keys (→ opens, ← closes, mirrored in right to left). The
 /// current section, the last shown bookmark at or before the reader's
-/// page, is tinted. A click or Enter goes to the bookmark's page.
+/// page, is tinted. A click or Enter goes to the bookmark's page and
+/// selects it for the More menu.
+///
+/// Editing (a2-3a): F2 or a double click renames a bookmark in place (Enter
+/// keeps the name, Esc cancels), Delete removes it with its children, and a
+/// bookmark dragged onto another goes before it (its top third), into it as
+/// its first child (the middle) or after it and its children (the bottom
+/// third), shown by an accent line or ring. Each change is one step.
 class SidebarOutline extends ConsumerStatefulWidget {
   /// The outline of `viewerProvider`'s document.
   const new({super.key});
@@ -190,6 +238,12 @@ class SidebarOutline extends ConsumerStatefulWidget {
   /// The chevron's stroke.
   static const double chevronStroke = 2;
 
+  /// The rename field's `padding-block: 2px`.
+  static const double fieldPadding = 2;
+
+  /// The drop marker's width.
+  static const double dropLine = 2;
+
   @override
   ConsumerState<SidebarOutline> createState() => _SidebarOutlineState();
 }
@@ -208,10 +262,28 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
 
   late final ScrollController _scroll;
 
+  /// Where a dragged bookmark would go now: the row under it and the place.
+  (int, OutlineDrop)? _drop;
+
+  /// The row and time of the last pointer down, for a double click; a
+  /// listener, so a single click is not held back waiting for a second.
+  (int, Duration)? _lastDown;
+
   @override
   void initState() {
     super.initState();
     _scroll = _rememberedScroll(ref, SidebarTab.outline);
+  }
+
+  /// Where a bookmark dropped at [global] over the row of [context] goes.
+  OutlineDrop _placeAt(BuildContext context, Offset global) {
+    final box = context.findRenderObject()! as RenderBox;
+    final third = box.globalToLocal(global).dy / box.size.height * 3;
+    return third < 1
+        ? OutlineDrop.before
+        : third < 2
+        ? OutlineDrop.into
+        : OutlineDrop.after;
   }
 
   @override
@@ -227,6 +299,19 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final document = ref.watch(viewerProvider.select((v) => v?.document));
     final current = ref.watch(viewerProvider.select((v) => v?.currentPage));
+    final renaming = ref.watch(outlineRenamingProvider);
+    final refusal = ref.watch(organizeRefusalProvider);
+    // The toggled parents are kept by index, which an outline edit or its
+    // undo changes; another document keeps its own.
+    ref.listen(viewerProvider.select((v) => v?.document), (before, after) {
+      List<(String, int)> shape(OpenedDocument? document) => [
+        for (final entry in document?.outline ?? const <OutlineEntry>[])
+          (entry.title, entry.depth),
+      ];
+      if (before?.id == after?.id && !listEquals(shape(before), shape(after))) {
+        _toggled.clear();
+      }
+    });
     if (document == null) return const SizedBox.shrink();
     final outline = document.outline;
     if (outline.isEmpty) {
@@ -246,7 +331,9 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
     int? closedDepth;
     for (var index = 0; index < outline.length; index++) {
       final depth = outline[index].depth;
-      if (closedDepth != null && depth > closedDepth) continue;
+      if (closedDepth != null && depth > closedDepth && index != renaming) {
+        continue;
+      }
       closedDepth = isParent(index) && !isOpen(index) ? depth : null;
       rows.add(index);
     }
@@ -260,6 +347,20 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
     void toggle(int index) => setState(() {
       if (!_toggled.remove(index)) _toggled.add(index);
     });
+    final editable = refusal == null;
+    void act(OutlineAction action, int index) =>
+        runOutlineAction(ref, l10n, document, action, index);
+    void renamed(int index, String? title) {
+      ref.read(outlineRenamingProvider.notifier).stop();
+      final name = title?.trim() ?? '';
+      if (name.isEmpty || name == outline[index].title) return;
+      commitOutline(
+        ref,
+        document.id,
+        outlineRenamed(keptOutline(outline), index, name),
+        l10n.outlineStep,
+      );
+    }
 
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return ListView.builder(
@@ -272,6 +373,26 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
       itemBuilder: (context, row) {
         final index = rows[row];
         final entry = outline[index];
+        final indent = theme.space.space2 + entry.depth * SidebarOutline.indent;
+        if (index == renaming) {
+          return Padding(
+            padding: EdgeInsetsDirectional.only(
+              top: row == 0 ? 0 : SidebarOutline.rowGap,
+            ),
+            child: Container(
+              padding: EdgeInsetsDirectional.only(
+                start: indent,
+                top: SidebarOutline.fieldPadding,
+                bottom: SidebarOutline.fieldPadding,
+              ),
+              child: InlineNameField(
+                initial: entry.title,
+                label: l10n.outlineBookmarkName,
+                onDone: (title) => renamed(index, title),
+              ),
+            ),
+          );
+        }
         final parent = isParent(index);
         final open = parent && isOpen(index);
         final isCurrent = index == currentRow;
@@ -285,7 +406,7 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
         final back = rtl
             ? LogicalKeyboardKey.arrowRight
             : LogicalKeyboardKey.arrowLeft;
-        return Padding(
+        final view = Padding(
           padding: EdgeInsetsDirectional.only(
             top: row == 0 ? 0 : SidebarOutline.rowGap,
           ),
@@ -294,80 +415,186 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
               if (parent && !open)
                 SingleActivator(forward): () => toggle(index),
               if (parent && open) SingleActivator(back): () => toggle(index),
+              if (editable) ...{
+                const SingleActivator(LogicalKeyboardKey.f2): () =>
+                    act(OutlineAction.rename, index),
+                const SingleActivator(LogicalKeyboardKey.delete): () =>
+                    act(OutlineAction.delete, index),
+                const SingleActivator(LogicalKeyboardKey.backspace): () =>
+                    act(OutlineAction.delete, index),
+              },
             },
-            child: Semantics(
-              expanded: parent ? open : null,
-              child: FermanInteractive(
-                semanticLabel: entry.title,
-                selected: isCurrent,
-                onPressed: page == null
-                    ? null
-                    : () => ref.read(viewerProvider.notifier).goToPage(page),
-                builder: (context, states, _) => FocusRing(
-                  visible: states.contains(WidgetState.focused),
-                  style: FocusRingStyle.inset,
-                  borderRadius: BorderRadius.circular(theme.radius.radiusSm),
-                  child: Container(
-                    height: SidebarOutline.rowHeight,
-                    padding: EdgeInsetsDirectional.only(
-                      start:
-                          theme.space.space2 +
-                          entry.depth * SidebarOutline.indent,
-                      end: theme.space.space2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isCurrent
-                          ? theme.colors.surfaceSelected
-                          : states.contains(WidgetState.hovered)
-                          ? theme.colors.surfaceHover
-                          : null,
-                      borderRadius: BorderRadius.circular(
-                        theme.radius.radiusSm,
+            child: Listener(
+              onPointerDown: (event) {
+                final last = _lastDown;
+                _lastDown = (index, event.timeStamp);
+                if (editable &&
+                    last != null &&
+                    last.$1 == index &&
+                    event.timeStamp - last.$2 <= kDoubleTapTimeout) {
+                  act(OutlineAction.rename, index);
+                }
+              },
+              child: Semantics(
+                expanded: parent ? open : null,
+                child: FermanInteractive(
+                  semanticLabel: entry.title,
+                  selected: isCurrent,
+                  onPressed: () {
+                    ref.read(outlineSelectedProvider.notifier).select(index);
+                    if (page != null) {
+                      ref.read(viewerProvider.notifier).goToPage(page);
+                    }
+                  },
+                  builder: (context, states, _) => FocusRing(
+                    visible: states.contains(WidgetState.focused),
+                    style: FocusRingStyle.inset,
+                    borderRadius: BorderRadius.circular(theme.radius.radiusSm),
+                    child: Container(
+                      height: SidebarOutline.rowHeight,
+                      padding: EdgeInsetsDirectional.only(
+                        start: indent,
+                        end: theme.space.space2,
                       ),
-                    ),
-                    child: Row(
-                      spacing: theme.space.space1_5,
-                      children: [
-                        SizedBox.square(
-                          dimension: SidebarOutline.chevronSize,
-                          child: parent
-                              ? GestureDetector(
-                                  onTap: () => toggle(index),
-                                  child: RotatedBox(
-                                    // Closed points to the reading end.
-                                    quarterTurns: open ? 0 : (rtl ? 1 : 3),
-                                    child: Icon(
-                                      IconName.chevronDown,
-                                      size: SidebarOutline.chevronSize,
-                                      strokeWidth: SidebarOutline.chevronStroke,
-                                      color: theme.colors.iconSecondary,
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? theme.colors.surfaceSelected
+                            : states.contains(WidgetState.hovered)
+                            ? theme.colors.surfaceHover
+                            : null,
+                        borderRadius: BorderRadius.circular(
+                          theme.radius.radiusSm,
+                        ),
+                        border: _drop == (index, OutlineDrop.into)
+                            ? Border.all(
+                                color: theme.colors.accent,
+                                width: SidebarOutline.dropLine,
+                              )
+                            : null,
+                      ),
+                      child: Row(
+                        spacing: theme.space.space1_5,
+                        children: [
+                          SizedBox.square(
+                            dimension: SidebarOutline.chevronSize,
+                            child: parent
+                                ? GestureDetector(
+                                    onTap: () => toggle(index),
+                                    child: RotatedBox(
+                                      // Closed points to the reading end.
+                                      quarterTurns: open ? 0 : (rtl ? 1 : 3),
+                                      child: Icon(
+                                        IconName.chevronDown,
+                                        size: SidebarOutline.chevronSize,
+                                        strokeWidth:
+                                            SidebarOutline.chevronStroke,
+                                        color: theme.colors.iconSecondary,
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                        Expanded(
-                          child: Text(
-                            // The document's own text keeps its direction
-                            // in a right-to-left UI: "4.1 Yıllık artış".
-                            bidiIsolate(entry.title),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.typography.body.copyWith(color: color),
+                                  )
+                                : null,
                           ),
-                        ),
-                        if (page != null)
-                          Text(
-                            pageLabel(document, page, format),
-                            style: theme.typography.body.copyWith(
-                              color: theme.colors.textTertiary,
-                              fontFeatures: theme.typeScale.numericTabular,
+                          Expanded(
+                            child: Text(
+                              // The document's own text keeps its direction
+                              // in a right-to-left UI: "4.1 Yıllık artış".
+                              bidiIsolate(entry.title),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.typography.body.copyWith(
+                                color: color,
+                              ),
                             ),
                           ),
-                      ],
+                          if (page != null)
+                            Text(
+                              pageLabel(document, page, format),
+                              style: theme.typography.body.copyWith(
+                                color: theme.colors.textTertiary,
+                                fontFeatures: theme.typeScale.numericTabular,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+              ),
+            ),
+          ),
+        );
+        if (!editable) return view;
+        final line = switch (_drop) {
+          (final at, final place) when at == index => place,
+          _ => null,
+        };
+        return Builder(
+          builder: (rowContext) => DragTarget<int>(
+            onWillAcceptWithDetails: (details) =>
+                outlineMoved(
+                  keptOutline(outline),
+                  details.data,
+                  index,
+                  OutlineDrop.before,
+                ) !=
+                null,
+            onMove: (details) {
+              final place = _placeAt(rowContext, details.offset);
+              if (_drop != (index, place)) {
+                setState(() => _drop = (index, place));
+              }
+            },
+            onLeave: (_) {
+              if (_drop?.$1 == index) setState(() => _drop = null);
+            },
+            onAcceptWithDetails: (details) {
+              final place = _placeAt(rowContext, details.offset);
+              setState(() => _drop = null);
+              final moved = outlineMoved(
+                keptOutline(outline),
+                details.data,
+                index,
+                place,
+              );
+              if (moved != null) {
+                commitOutline(ref, document.id, moved, l10n.outlineStep);
+              }
+            },
+            builder: (context, _, _) => Draggable<int>(
+              data: index,
+              dragAnchorStrategy: pointerDragAnchorStrategy,
+              onDragEnd: (_) => setState(() => _drop = null),
+              feedback: Container(
+                padding: EdgeInsetsDirectional.symmetric(
+                  horizontal: theme.space.space2,
+                  vertical: theme.space.space1,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(theme.radius.radiusSm),
+                  boxShadow: theme.elevation.shadowPopover,
+                ),
+                child: Text(
+                  bidiIsolate(entry.title),
+                  style: theme.typography.body.copyWith(
+                    color: theme.colors.textPrimary,
+                  ),
+                ),
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  view,
+                  if (line == OutlineDrop.before || line == OutlineDrop.after)
+                    PositionedDirectional(
+                      start: indent,
+                      end: 0,
+                      top: line == OutlineDrop.before ? 0 : null,
+                      bottom: line == OutlineDrop.after ? 0 : null,
+                      height: SidebarOutline.dropLine,
+                      child: ColoredBox(color: theme.colors.accent),
+                    ),
+                ],
               ),
             ),
           ),

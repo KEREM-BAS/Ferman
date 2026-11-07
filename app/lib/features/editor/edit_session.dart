@@ -399,6 +399,11 @@ class DocumentEditor extends _$DocumentEditor {
         (_, enabled) => unawaited(_recovery(enabled: enabled)),
         fireImmediately: true,
       )
+      ..listen(
+        settingsProvider.select((s) => s.keepVersions),
+        (_, enabled) => unawaited(_versions(enabled: enabled)),
+        fireImmediately: true,
+      )
       ..listen(openDocumentProvider.select((document) => document?.id), (
         _,
         next,
@@ -448,6 +453,15 @@ class DocumentEditor extends _$DocumentEditor {
       await _engine.setRecoveryEnabled(enabled: enabled);
     } on Object {
       // An engine that did not start has no edits to recover.
+    }
+  }
+
+  /// Tells the engine a11-1c's "Keep versions" (ADR 0022).
+  Future<void> _versions({required bool enabled}) async {
+    try {
+      await _engine.setVersionsEnabled(enabled: enabled);
+    } on Object {
+      // An engine that did not start saves nothing to keep.
     }
   }
 

@@ -13,7 +13,7 @@ void main() {
   group('the shortcut table', () {
     for (final platform in ShortcutPlatform.values) {
       test('has no duplicate binding on ${platform.name}', () {
-        expect(ShellCommand.conflicts(platform), isEmpty);
+        expect(ShortcutBindings(platform).conflicts(), isEmpty);
       });
     }
 
@@ -93,10 +93,10 @@ void main() {
       for (final MapEntry(key: tool, value: command) in counterpart.entries) {
         expect(command.modes, {FermanMode.comment}, reason: command.name);
         for (final platform in ShortcutPlatform.values) {
-          expect(command.bindingsFor(platform), [
+          expect(command.defaultsFor(platform), [
             KeyBinding(tool.shortcutKey!),
           ], reason: '${command.name} on ${platform.name}');
-          expect(command.caps(platform), [tool.shortcut]);
+          expect(ShortcutBindings(platform).caps(command), [tool.shortcut]);
         }
       }
       // No other Comment command takes a single key.
@@ -105,7 +105,7 @@ void main() {
         if (counterpart.containsValue(command)) continue;
         for (final platform in ShortcutPlatform.values) {
           expect(
-            command.bindingsFor(platform).where((binding) => binding.isPlain),
+            command.defaultsFor(platform).where((binding) => binding.isPlain),
             isEmpty,
             reason: command.name,
           );
@@ -117,27 +117,90 @@ void main() {
       const mac = ShortcutPlatform.mac;
       const win = ShortcutPlatform.windows;
       const linux = ShortcutPlatform.linux;
-      expect(ShellCommand.commandPalette.caps(mac), ['⌘', 'K']);
-      expect(ShellCommand.commandPalette.caps(win), ['Ctrl', 'K']);
-      expect(ShellCommand.commandPalette.caps(linux), ['Ctrl', 'K']);
-      expect(ShellCommand.togglePanel.caps(mac), ['⌥', '⌘', 'P']);
-      expect(ShellCommand.togglePanel.caps(win), ['Ctrl', 'Alt', 'P']);
-      expect(ShellCommand.saveAs.caps(mac), ['⇧', '⌘', 'S']);
-      expect(ShellCommand.saveAs.caps(win), ['Ctrl', 'Shift', 'S']);
-      expect(ShellCommand.redo.caps(mac), ['⇧', '⌘', 'Z']);
-      expect(ShellCommand.redo.caps(win), ['Ctrl', 'Y']);
-      expect(ShellCommand.findAndReplace.caps(mac), ['⌥', '⌘', 'F']);
-      expect(ShellCommand.findAndReplace.caps(win), ['Ctrl', 'H']);
-      expect(ShellCommand.zoomIn.caps(mac), ['⌘', '+']);
-      expect(ShellCommand.zoomOut.caps(win), ['Ctrl', '−']);
-      expect(ShellCommand.settings.caps(mac), ['⌘', ',']);
-      expect(ShellCommand.rotateLeft.caps(win), ['Ctrl', '[']);
-      expect(ShellCommand.nextDocument.caps(mac), ['⌃', 'Tab']);
-      expect(ShellCommand.addText.caps(mac), ['⇧', 'T']);
-      expect(ShellCommand.previousField.caps(win), ['Shift', 'Tab']);
-      expect(ShellCommand.deletePages.caps(mac), ['⌫']);
-      expect(ShellCommand.deletePages.caps(win), ['Del']);
-      expect(ShellCommand.movePagesUp.caps(linux), ['Ctrl', 'Alt', '↑']);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.commandPalette), [
+        '⌘',
+        'K',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.commandPalette), [
+        'Ctrl',
+        'K',
+      ]);
+      expect(const ShortcutBindings(linux).caps(ShellCommand.commandPalette), [
+        'Ctrl',
+        'K',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.togglePanel), [
+        '⌥',
+        '⌘',
+        'P',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.togglePanel), [
+        'Ctrl',
+        'Alt',
+        'P',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.saveAs), [
+        '⇧',
+        '⌘',
+        'S',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.saveAs), [
+        'Ctrl',
+        'Shift',
+        'S',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.redo), [
+        '⇧',
+        '⌘',
+        'Z',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.redo), [
+        'Ctrl',
+        'Y',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.findAndReplace), [
+        '⌥',
+        '⌘',
+        'F',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.findAndReplace), [
+        'Ctrl',
+        'H',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.zoomIn), ['⌘', '+']);
+      expect(const ShortcutBindings(win).caps(ShellCommand.zoomOut), [
+        'Ctrl',
+        '−',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.settings), [
+        '⌘',
+        ',',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.rotateLeft), [
+        'Ctrl',
+        '[',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.nextDocument), [
+        '⌃',
+        'Tab',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.addText), [
+        '⇧',
+        'T',
+      ]);
+      expect(const ShortcutBindings(win).caps(ShellCommand.previousField), [
+        'Shift',
+        'Tab',
+      ]);
+      expect(const ShortcutBindings(mac).caps(ShellCommand.deletePages), ['⌫']);
+      expect(const ShortcutBindings(win).caps(ShellCommand.deletePages), [
+        'Del',
+      ]);
+      expect(const ShortcutBindings(linux).caps(ShellCommand.movePagesUp), [
+        'Ctrl',
+        'Alt',
+        '↑',
+      ]);
     });
 
     test('resolves the ⌥⌘S collision as G44 decides', () {
@@ -151,54 +214,90 @@ void main() {
         (command) => command.mac.contains(optionCommandS),
       );
       expect(owners, [ShellCommand.saveCopy]);
-      expect(ShellCommand.toggleSidebar.caps(mac), ['⌃', '⌘', 'S']);
-      expect(ShellCommand.addSignature.modes, {FermanMode.sign});
-      // Windows and Linux keep FmWindow's sidebar key; Save a copy has none.
-      expect(ShellCommand.toggleSidebar.caps(ShortcutPlatform.windows), [
-        'Ctrl',
-        'Alt',
+      expect(const ShortcutBindings(mac).caps(ShellCommand.toggleSidebar), [
+        '⌃',
+        '⌘',
         'S',
       ]);
-      expect(ShellCommand.saveCopy.caps(ShortcutPlatform.windows), isNull);
+      expect(ShellCommand.addSignature.modes, {FermanMode.sign});
+      // Windows and Linux keep FmWindow's sidebar key; Save a copy has none.
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.toggleSidebar),
+        ['Ctrl', 'Alt', 'S'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.saveCopy),
+        isNull,
+      );
     });
 
     test('moves the document jump off the zoom keys', () {
-      expect(ShellCommand.actualSize.caps(ShortcutPlatform.mac), ['⌘', '1']);
-      expect(ShellCommand.fitWidth.caps(ShortcutPlatform.mac), ['⌘', '2']);
-      expect(ShellCommand.document1.caps(ShortcutPlatform.mac), [
-        '⌥',
-        '⌘',
-        '1',
-      ]);
-      expect(ShellCommand.document9.caps(ShortcutPlatform.windows), [
-        'Alt',
-        '9',
-      ]);
+      expect(
+        const ShortcutBindings(ShortcutPlatform.mac)
+            .caps(ShellCommand.actualSize),
+        ['⌘', '1'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.mac)
+            .caps(ShellCommand.fitWidth),
+        ['⌘', '2'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.mac)
+            .caps(ShellCommand.document1),
+        ['⌥', '⌘', '1'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.document9),
+        ['Alt', '9'],
+      );
     });
 
     test('holds the window commands of each system', () {
-      expect(ShellCommand.minimizeWindow.caps(ShortcutPlatform.mac), [
-        '⌘',
-        'M',
-      ]);
-      expect(ShellCommand.quit.caps(ShortcutPlatform.mac), ['⌘', 'Q']);
-      expect(ShellCommand.closeDocument.caps(ShortcutPlatform.mac), ['⌘', 'W']);
-      expect(ShellCommand.closeDocument.caps(ShortcutPlatform.windows), [
-        'Ctrl',
-        'W',
-      ]);
-      expect(ShellCommand.closeWindow.caps(ShortcutPlatform.windows), [
-        'Alt',
-        'F4',
-      ]);
-      expect(ShellCommand.closeWindow.caps(ShortcutPlatform.linux), [
-        'Alt',
-        'F4',
-      ]);
-      expect(ShellCommand.quit.caps(ShortcutPlatform.linux), ['Ctrl', 'Q']);
-      expect(ShellCommand.quit.caps(ShortcutPlatform.windows), isNull);
       expect(
-        ShellCommand.minimizeWindow.caps(ShortcutPlatform.windows),
+        const ShortcutBindings(ShortcutPlatform.mac)
+            .caps(ShellCommand.minimizeWindow),
+        ['⌘', 'M'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.mac).caps(ShellCommand.quit),
+        ['⌘', 'Q'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.mac)
+            .caps(ShellCommand.closeDocument),
+        ['⌘', 'W'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.closeDocument),
+        ['Ctrl', 'W'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.closeWindow),
+        ['Alt', 'F4'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.linux)
+            .caps(ShellCommand.closeWindow),
+        ['Alt', 'F4'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.linux).caps(ShellCommand.quit),
+        ['Ctrl', 'Q'],
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.quit),
+        isNull,
+      );
+      expect(
+        const ShortcutBindings(ShortcutPlatform.windows)
+            .caps(ShellCommand.minimizeWindow),
         isNull,
       );
     });
@@ -223,7 +322,7 @@ void main() {
       for (final platform in ShortcutPlatform.values) {
         final missing = {
           for (final command in ShellCommand.values)
-            if (command.bindingsFor(platform).isEmpty) command,
+            if (command.defaultsFor(platform).isEmpty) command,
         };
         expect(missing, without[platform], reason: platform.name);
       }
@@ -234,11 +333,9 @@ void main() {
         FermanMode mode, {
         ShortcutScope scope = ShortcutScope.window,
       }) => {
-        for (final intent in ShellCommand.shortcutsFor(
+        for (final intent in const ShortcutBindings(
           ShortcutPlatform.mac,
-          mode,
-          scope: scope,
-        ).values)
+        ).shortcutsFor(mode, scope: scope).values)
           (intent as ShellCommandIntent).command,
       };
       final view = commandsOf(FermanMode.view);
@@ -415,10 +512,11 @@ void main() {
       window = FakeDesktopWindow(WindowPlatform.linux);
       await pumpShell(tester, shellHost(window: window));
       await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
-      final palette = await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+      // Print waits for its feature (unfinishedCommands).
+      final print = await tester.sendKeyEvent(LogicalKeyboardKey.keyP);
       final open = await tester.sendKeyEvent(LogicalKeyboardKey.keyO);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
-      expect(palette, isFalse);
+      expect(print, isFalse);
       expect(open, isFalse);
       // A single-key tool of the View mode.
       expect(await tester.sendKeyEvent(LogicalKeyboardKey.keyH), isFalse);

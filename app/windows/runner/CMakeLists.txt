@@ -11,6 +11,7 @@ add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"
   "main.cpp"
   "open_requests.cpp"
+  "print_channel.cpp"
   "title_bar.cpp"
   "utils.cpp"
   "win32_window.cpp"
@@ -41,6 +42,8 @@ target_link_libraries(${BINARY_NAME} PRIVATE "dwmapi.lib")
 target_link_libraries(${BINARY_NAME} PRIVATE "comctl32.lib")
 # File Explorer shows a file (file_manager.cpp).
 target_link_libraries(${BINARY_NAME} PRIVATE "shell32.lib")
+# The system print dialog and the printer's device context (print_channel.cpp).
+target_link_libraries(${BINARY_NAME} PRIVATE "comdlg32.lib" "gdi32.lib")
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 
 # Run the Flutter tool portions of the build. This must not be removed.

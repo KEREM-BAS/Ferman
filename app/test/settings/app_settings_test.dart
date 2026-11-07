@@ -27,7 +27,9 @@ void main() {
         'recoveryCopies': true,
         'reflow': true,
         'markEdited': true,
+        'keepVersions': true,
         'myStamps': <String>[],
+        'shortcuts': <String, List<String>>{},
       });
     });
 
@@ -61,7 +63,9 @@ void main() {
         'recoveryCopies': true,
         'reflow': true,
         'markEdited': true,
+        'keepVersions': true,
         'myStamps': <String>[],
+        'shortcuts': <String, List<String>>{},
       });
     });
 
@@ -140,6 +144,76 @@ void main() {
         const AppSettings(languageCode: 'tr'),
         isNot(const AppSettings(languageCode: 'en')),
       );
+    });
+
+    test('Keep versions off round-trips', () {
+      const settings = AppSettings(keepVersions: false);
+      expect(AppSettings.fromJson(settings.toJson()), settings);
+    });
+
+    test('the export leaves out the documents open last', () {
+      const settings = AppSettings(lastDocuments: ['/a.pdf'], reflow: false);
+      final exported = settings.toExport();
+      expect(exported.containsKey('lastDocuments'), isFalse);
+      expect(exported['reflow'], isFalse);
+    });
+
+    group('imported (decision 34)', () {
+      const current = AppSettings(
+        onboardingCompleted: true,
+        lastDocuments: ['/mine.pdf'],
+      );
+
+      test('refuses what is not a settings file', () {
+        for (final json in <Object?>[
+          null,
+          [1],
+          'text',
+          <String, Object?>{},
+          {'version': 'one'},
+          {'version': 0},
+          {'version': AppSettings.currentVersion + 1},
+        ]) {
+          expect(AppSettings.imported(json, current), isNull, reason: '$json');
+        }
+      });
+
+      test('takes the choices, but not the documents, first run or keys '
+          'it does not know', () {
+        final settings = AppSettings.imported({
+          'version': 1,
+          'theme': 'dark',
+          'language': 'tr',
+          'region': 'TR',
+          'keepVersions': false,
+          'onboardingCompleted': false,
+          'lastDocuments': ['/theirs.pdf'],
+          'unknownKey': 1,
+        }, current)!;
+        expect(settings.themeMode, AppThemeMode.dark);
+        expect(settings.languageCode, 'tr');
+        expect(settings.regionCode, 'TR');
+        expect(settings.keepVersions, isFalse);
+        expect(settings.onboardingCompleted, isTrue);
+        expect(settings.lastDocuments, ['/mine.pdf']);
+        expect(settings.unknown, isEmpty);
+      });
+
+      test('values out of bounds take their defaults', () {
+        final settings = AppSettings.imported({
+          'version': 1,
+          'language': '../../etc',
+          'region': 'T R',
+          'theme': 'neon',
+          'commenterName': 'x' * (AppSettings.largestImportedText + 1),
+          'markEdited': 'yes',
+        }, current)!;
+        expect(settings.languageCode, isNull);
+        expect(settings.regionCode, isNull);
+        expect(settings.themeMode, AppThemeMode.system);
+        expect(settings.commenterName, isNull);
+        expect(settings.markEdited, isTrue);
+      });
     });
   });
 }

@@ -46,6 +46,9 @@ enum BackgroundJobKind {
 
   /// Comments drawn into the pages, after an optional copy (a4-5b).
   flattenComments,
+
+  /// A compressed copy written as a new file (a9-1).
+  compress,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -109,6 +112,7 @@ final class BackgroundJob {
     BackgroundJobKind.create => IconName.filePlus2,
     BackgroundJobKind.commentSummary => IconName.messageSquare,
     BackgroundJobKind.flattenComments => IconName.layers,
+    BackgroundJobKind.compress => IconName.minimize2,
   };
 
   /// The row's title in [state].
@@ -179,6 +183,13 @@ final class BackgroundJob {
         l10n.jobFlattenedTitle(name),
       (BackgroundJobKind.flattenComments, TaskState.error) =>
         l10n.jobFlattenFailedTitle(name),
+      (BackgroundJobKind.compress, TaskState.running || TaskState.paused) =>
+        l10n.jobCompressingTitle(name),
+      (BackgroundJobKind.compress, TaskState.done) => l10n.jobCompressedTitle(
+        name,
+      ),
+      (BackgroundJobKind.compress, TaskState.error) =>
+        l10n.jobCompressFailedTitle(name),
     };
   }
 
@@ -198,6 +209,18 @@ final class BackgroundJob {
           l10n.jobFlattenPageUnsupported,
         _ => engineMessage(l10n, error, bidiIsolate(name)),
       };
+    }
+    if (state == TaskState.done && kind == BackgroundJobKind.compress) {
+      // The engine's facts: a result no smaller writes nothing (decision 25).
+      final before = int.tryParse(params['before'] ?? '');
+      final after = int.tryParse(params['after'] ?? '');
+      if (params['written'] == 'false') return l10n.jobCompressNotSmaller;
+      if (before != null && after != null) {
+        return l10n.jobCompressedSizes(
+          format.fileSize(before),
+          format.fileSize(after),
+        );
+      }
     }
     if (state == TaskState.done) {
       if (int.tryParse(params['files'] ?? '') case final files?
@@ -571,6 +594,44 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
     );
   }
 
+  /// Compresses [document], named [name], with [preset] into the new file
+  /// [output] as a job (a9-1); a signed document needs [unsign], its warning
+  /// accepted (decision 25). A name that is taken says so: a job never
+  /// overwrites.
+  Future<void> compress(
+    int document,
+    String name, {
+    required CompressPreset preset,
+    required String output,
+    bool unsign = false,
+  }) async {
+    if (await fileExists(output)) {
+      ref
+          .read(toastNoticesProvider.notifier)
+          .show(
+            tone: ToastTone.danger,
+            title: (l10n) =>
+                l10n.combineOutputExists(bidiIsolate(fileName(output))),
+          );
+      return;
+    }
+    final staging = await ref.read(fileAccessProvider).staging(output);
+    _start(
+      BackgroundJobKind.compress,
+      name,
+      staging,
+      ref
+          .read(engineServiceProvider)
+          .compressJob(
+            document,
+            preset: preset,
+            output: output,
+            unsign: unsign,
+            staging: staging,
+          ),
+    );
+  }
+
   /// Writes [files] of [document], named [name], into [folder] as a job. There
   /// is no staging: under the macOS sandbox the folder panel granted [folder]
   /// itself (G143), and a shared staging directory goes at the first swap.
@@ -686,7 +747,11 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
       }
     }
     if (_row(id) case final row?) {
-      _replace(row.copyWith(params: {'files': '${update.outputs.length}'}));
+      _replace(
+        row.copyWith(
+          params: {...update.params, 'files': '${update.outputs.length}'},
+        ),
+      );
     }
     await _end(
       id,

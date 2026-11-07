@@ -470,4 +470,28 @@ void main() {
     expect(markStrokes(FillTool.cross, box), hasLength(2));
     expect(markStrokes(FillTool.check, box).single, hasLength(3));
   });
+
+  testWidgets('the canvas leaves the widgets to the field overlay and draws '
+      'them in the other modes (B203)', (tester) async {
+    final engine = FakeEngineService(
+      documents: {
+        _path: OpenedDocument(
+          id: _document,
+          pages: _opened.pages,
+          formFields: 1,
+        ),
+      },
+    )..initialFields[_document] = [_name];
+    final container = await _open(tester, engine);
+    expect(engine.formWidgetRequests.last, isFalse);
+    container.read(fillToolsStateProvider.notifier).pick(FillTool.text);
+    await tester.pumpAndSettle();
+    expect(engine.formWidgetRequests.last, isTrue);
+    container.read(fillToolsStateProvider.notifier).pick(FillTool.fields);
+    await tester.pumpAndSettle();
+    expect(engine.formWidgetRequests.last, isFalse);
+    container.read(shellModeProvider.notifier).select(FermanMode.view);
+    await tester.pumpAndSettle();
+    expect(engine.formWidgetRequests.last, isTrue);
+  });
 }

@@ -2789,7 +2789,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsKeepVersions => 'الاحتفاظ بالإصدارات';
 
   @override
-  String get settingsKeepVersions30 => '30 يومًا، بجانب الملف';
+  String get settingsKeepVersions30 => 'تُحفظ لمدة 30 يومًا';
 
   @override
   String get settingsReflow =>
@@ -3485,8 +3485,10 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
-      one: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
+      other:
+          '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
+      one:
+          '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
     );
     return '$_temp0';
   }
@@ -5597,4 +5599,810 @@ class AppLocalizationsAr extends AppLocalizations {
   String sidebarSearchFormField(String text) {
     return 'حقل نموذج: $text';
   }
+
+  @override
+  String jobCompressingTitle(String name) {
+    return 'جارٍ ضغط $name';
+  }
+
+  @override
+  String jobCompressedTitle(String name) {
+    return 'ضُغط $name';
+  }
+
+  @override
+  String jobCompressFailedTitle(String name) {
+    return 'تعذر ضغط $name';
+  }
+
+  @override
+  String get jobCompressNotSmaller =>
+      'لا يمكن أن يصغر أكثر، لذا لم يُكتب شيء. يبقى الأصل كما هو.';
+
+  @override
+  String jobCompressedSizes(String before, String after) {
+    return '$before ← $after';
+  }
+
+  @override
+  String get printForbidden => 'لا يسمح المؤلف بالطباعة';
+
+  @override
+  String printSent(String name) {
+    return 'أُرسل $name إلى الطابعة';
+  }
+
+  @override
+  String printFailed(String name) {
+    return 'تعذرت طباعة $name';
+  }
+
+  @override
+  String printTitle(String name) {
+    return 'طباعة “$name”';
+  }
+
+  @override
+  String get printSystemDialog => 'استخدام نافذة النظام…';
+
+  @override
+  String get printAction => 'طباعة';
+
+  @override
+  String get printPrinter => 'الطابعة';
+
+  @override
+  String get printPrinterSystem => 'تُختار في نافذة النظام';
+
+  @override
+  String get printCopies => 'النسخ';
+
+  @override
+  String get printPages => 'الصفحات';
+
+  @override
+  String get printPagesAll => 'الكل';
+
+  @override
+  String get printLayout => 'التخطيط';
+
+  @override
+  String get printLayoutPages => 'الصفحات';
+
+  @override
+  String get printLayoutBooklet => 'كتيّب';
+
+  @override
+  String get printLayoutPoster => 'ملصق';
+
+  @override
+  String get printBothSides => 'على الوجهين';
+
+  @override
+  String get printLongEdge => 'الحافة الطويلة';
+
+  @override
+  String get printShortEdge => 'الحافة القصيرة';
+
+  @override
+  String get printOneSide => 'وجه واحد';
+
+  @override
+  String get printScale => 'المقياس';
+
+  @override
+  String get printScaleFit => 'ملاءمة المساحة القابلة للطباعة';
+
+  @override
+  String get printScaleActual => 'الحجم الفعلي (100٪)';
+
+  @override
+  String get printScaleCustom => 'مخصص…';
+
+  @override
+  String get printInclude => 'تضمين';
+
+  @override
+  String printComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'التعليقات والأختام ($n)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get printFormFields => 'محتوى حقول النموذج';
+
+  @override
+  String get printHiddenLayers => 'الطبقات المخفية';
+
+  @override
+  String get printPreviousSheet => 'الورقة السابقة';
+
+  @override
+  String get printNextSheet => 'الورقة التالية';
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) {
+    return 'الورقة $sheet من $sheets · $paper';
+  }
+
+  @override
+  String compressFileName(String name) {
+    return '$name، مضغوط';
+  }
+
+  @override
+  String get compressTitle => 'ضغط';
+
+  @override
+  String get compressPreset => 'الإعداد المسبق';
+
+  @override
+  String get compressHighQuality => 'جودة عالية';
+
+  @override
+  String get compressBalanced => 'متوازن';
+
+  @override
+  String get compressSmallest => 'الأصغر';
+
+  @override
+  String get compressHighQualityDescription => 'الصور بدقة 300 ppi، للطباعة.';
+
+  @override
+  String get compressBalancedDescription =>
+      'الصور بدقة 150 ppi، للمشاركة والقراءة على الشاشة.';
+
+  @override
+  String get compressSmallestDescription =>
+      'الصور بدقة 96 ppi، للبريد الإلكتروني. يبقى النص حادًا.';
+
+  @override
+  String get compressCustom => 'مخصص…';
+
+  @override
+  String get compressCustomDescription => 'اضبط دقة الصور والجودة وما يُزال.';
+
+  @override
+  String compressAbout(String size) {
+    return '≈ $size';
+  }
+
+  @override
+  String get compressNow => 'الآن';
+
+  @override
+  String get compressAfter => 'بعد';
+
+  @override
+  String compressEstimateSampled(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'قُدّر من $n من الصور العيّنة. يظهر الحجم الدقيق بعد الحفظ.',
+      one: 'قُدّر من صورة عيّنة واحدة. يظهر الحجم الدقيق بعد الحفظ.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressEstimateExact =>
+      'قيس على كل صورة. يظهر الحجم الدقيق بعد الحفظ.';
+
+  @override
+  String compressDoes(String preset) {
+    return 'ما يفعله $preset';
+  }
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يعيد ضغط $n من الصور إلى $ppi ppi',
+      one: 'يعيد ضغط صورة واحدة إلى $ppi ppi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String compressDoesFonts(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يدمج $n من نسخ الخطوط المكررة',
+      one: 'يدمج نسخة خط مكررة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesUnused =>
+      'يزيل الكائنات غير المستخدمة والصور المصغّرة';
+
+  @override
+  String compressDoesLeft(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يترك $n من الصور كما هي: لا يستطيع Ferman إعادة ضغطها',
+      one: 'يترك صورة واحدة كما هي: لا يستطيع Ferman إعادة ضغطها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesKeeps =>
+      'يحتفظ بالنص والروابط والإشارات المرجعية والنماذج';
+
+  @override
+  String get compressSignedTitle => 'هذا المستند موقّع';
+
+  @override
+  String get compressSignedBody =>
+      'لا تحتوي النسخة المضغوطة على تواقيع. يبقى الأصل الموقّع كما هو.';
+
+  @override
+  String get compressAction => 'ضغط وحفظ باسم…';
+
+  @override
+  String saveAsCommentsOff(String name) {
+    return 'يُحفظ الملف نسخةً من دونها؛ ويبقى $name مفتوحًا بتعليقاته.';
+  }
+
+  @override
+  String get saveAsHistoryOn =>
+      'يُكتب الملف من جديد، من دون المراجعات السابقة أو الصفحات المحذوفة. تفقد التواقيع صلاحيتها.';
+
+  @override
+  String get saveAsHistoryOff =>
+      'تبقى الصفحات المحذوفة والنص السابق في الملف ويمكن استعادتها منه.';
+
+  @override
+  String get versionTitle => 'سجل الإصدارات';
+
+  @override
+  String versionCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n إصدار',
+      few: '$n إصدارات',
+      two: 'إصداران',
+      one: 'إصدار واحد',
+      zero: 'لا إصدارات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionList => 'الإصدارات';
+
+  @override
+  String get versionNone => 'لا إصدارات بعد. يحتفظ كل حفظ بإصدار.';
+
+  @override
+  String get versionKept =>
+      'تُحفظ لمدة 30 يومًا على هذا الجهاز. غيّر ذلك من الإعدادات › التحرير.';
+
+  @override
+  String get versionNow => 'الآن';
+
+  @override
+  String get versionUnsaved => 'غير محفوظ';
+
+  @override
+  String versionNowDetail(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n من التعديلات منذ آخر حفظ',
+      one: 'تعديل واحد منذ آخر حفظ',
+      zero: 'تغييرات منذ آخر حفظ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionOpened => 'فُتح';
+
+  @override
+  String get versionOpenedDetail => 'الملف كما فُتح';
+
+  @override
+  String get versionSaved => 'حُفظ';
+
+  @override
+  String get versionSigned => 'وُقّع';
+
+  @override
+  String get versionUnsavedWork => 'عمل غير محفوظ';
+
+  @override
+  String get versionRestored => 'استُعيد';
+
+  @override
+  String versionEdits(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n من التعديلات',
+      one: 'تعديل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionEditsNamed(int count, String n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n من التعديلات · $names',
+      one: 'تعديل واحد · $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionViewing(String time) {
+    return 'تعرض الإصدار من $time.';
+  }
+
+  @override
+  String get versionReadOnly => 'للقراءة فقط. لم يتغيّر مستندك الحالي.';
+
+  @override
+  String get versionBack => 'العودة إلى الحالي';
+
+  @override
+  String get versionRestoreThis => 'استعادة هذا الإصدار…';
+
+  @override
+  String get versionRestoreShort => 'استعادة…';
+
+  @override
+  String get versionCompare => 'مقارنة بالحالي';
+
+  @override
+  String versionRestoreTitle(String time) {
+    return 'هل تريد استعادة الإصدار من $time؟';
+  }
+
+  @override
+  String get versionRestoreBody =>
+      'يُحفظ ملفك الحالي، مع أي تعديلات غير محفوظة، كإصدار أولًا، فلا يضيع شيء.';
+
+  @override
+  String get versionRestore => 'استعادة';
+
+  @override
+  String get commandPalette => 'لوحة الأوامر';
+
+  @override
+  String get commandShowShortcuts => 'عرض اختصارات لوحة المفاتيح';
+
+  @override
+  String get commandSaveCopy => 'حفظ نسخة';
+
+  @override
+  String get commandDocumentProperties => 'خصائص المستند';
+
+  @override
+  String get commandNextDocument => 'المستند التالي';
+
+  @override
+  String commandShowDocument(String number) {
+    return 'عرض المستند $number';
+  }
+
+  @override
+  String get commandGoToPage => 'الانتقال إلى صفحة';
+
+  @override
+  String get commandReadingMode => 'وضع القراءة';
+
+  @override
+  String get commandInsertFromFile => 'إدراج من ملف';
+
+  @override
+  String get commandDeletePages => 'حذف الصفحات';
+
+  @override
+  String get commandSelectAllPages => 'تحديد كل الصفحات';
+
+  @override
+  String get commandMovePagesUp => 'نقل الصفحات لأعلى';
+
+  @override
+  String get commandMovePagesDown => 'نقل الصفحات لأسفل';
+
+  @override
+  String get commandWindowMenu => 'قائمة النافذة';
+
+  @override
+  String get commandCloseWindow => 'إغلاق النافذة';
+
+  @override
+  String get commandQuit => 'إنهاء Ferman';
+
+  @override
+  String get palettePlaceholder => 'ابحث في الأوامر والصفحات والنص';
+
+  @override
+  String paletteEmpty(String query) {
+    return 'لا توجد أوامر تطابق “$query”. اضغط Enter للبحث في المستند بدلًا من ذلك.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return 'لا توجد أوامر تطابق “$query”.';
+  }
+
+  @override
+  String get paletteCommands => 'الأوامر';
+
+  @override
+  String get paletteRecentFiles => 'الملفات الأخيرة';
+
+  @override
+  String get paletteMove => 'تنقّل';
+
+  @override
+  String get paletteRun => 'تشغيل';
+
+  @override
+  String get shortcutsSheetSearch => 'البحث في الاختصارات';
+
+  @override
+  String get shortcutsSheetNote =>
+      'غيّر الاختصارات من الإعدادات › اختصارات لوحة المفاتيح.';
+
+  @override
+  String get shortcutsChanged => 'مُغيَّر';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return 'لا توجد اختصارات تطابق “$query”.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'عام';
+
+  @override
+  String get shortcutsGroupNavigate => 'التنقل';
+
+  @override
+  String get shortcutsGroupWindow => 'النافذة';
+
+  @override
+  String get shortcutsPaneSearch => 'ابحث عن أمر أو اضغط المفاتيح';
+
+  @override
+  String get shortcutsPreset => 'الإعداد المسبق';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (افتراضي)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'مثل Acrobat';
+
+  @override
+  String get shortcutsPresetPreview => 'مثل المعاينة';
+
+  @override
+  String get shortcutsRecording => 'اضغط الاختصار الجديد…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys مستخدم بالفعل لـ“$command”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء على $current.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys مستخدم بالفعل لـ“$command”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء دون اختصار.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys محجوز للنظام. اضغط مفاتيح أخرى، أو Esc للإلغاء.';
+  }
+
+  @override
+  String get shortcutsNone => 'بلا اختصار';
+
+  @override
+  String shortcutsChange(String command) {
+    return 'تغيير اختصار $command';
+  }
+
+  @override
+  String get shortcutsReset => 'استعادة الاختصار الافتراضي';
+
+  @override
+  String get settingsSearchNoMatch => 'لا توجد إعدادات مطابقة';
+
+  @override
+  String get settingsSearchNoMatchBody => 'جرّب كلمة أخرى.';
+
+  @override
+  String get settingsPaneLicences => 'التراخيص';
+
+  @override
+  String get settingsKeepVersionsOff => 'عدم الاحتفاظ بالإصدارات';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return 'البحث في $count من الخطوط المثبّتة';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'البحث في الخطوط';
+
+  @override
+  String get settingsFontsFilter => 'تصفية';
+
+  @override
+  String get settingsFontsFilterTurkish => 'تدعم التركية';
+
+  @override
+  String get settingsFontsFilterAll => 'كل الخطوط';
+
+  @override
+  String get settingsFontsFilterOpen => 'المستخدمة في المستندات المفتوحة';
+
+  @override
+  String get settingsFontsBundled => 'مضمّن مع Ferman';
+
+  @override
+  String get settingsFontsInstalled => 'مثبّت';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR التركية · LX اللاتينية الموسّعة · CY السيريلية · GR اليونانية · AR العربية · HE العبرية · DV الديفاناغارية · CJK الصينية واليابانية والكورية. يعني الرمز المشطوب أن الخط لا يستطيع رسم تلك الكتابة.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return 'يدعم $script';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return 'لا يدعم $script';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'لا توجد خطوط مطابقة';
+
+  @override
+  String get settingsFontsLoading => 'جارٍ قراءة الخطوط على هذا الجهاز…';
+
+  @override
+  String get settingsSavedSignatures =>
+      'التوقيعات المحفوظة · على هذا الجهاز فقط';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'لا توجد توقيعات محفوظة بعد. يمكنك إنشاء واحد من التعبئة والتوقيع › توقيع.';
+
+  @override
+  String get settingsSignatureTyped => 'مكتوب';
+
+  @override
+  String get settingsDeleteSignature => 'حذف التوقيع المحفوظ';
+
+  @override
+  String get settingsCertificates => 'الشهادات';
+
+  @override
+  String get settingsAddCertificate => 'إضافة ملف شهادة…';
+
+  @override
+  String get settingsCardDriver => 'برنامج تشغيل بطاقة e-imza (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'البحث تلقائيًا';
+
+  @override
+  String get settingsTimestampServer => 'خادم الطوابع الزمنية';
+
+  @override
+  String get settingsTimestampNone => 'لا شيء';
+
+  @override
+  String get settingsCheckRevocation =>
+      'التحقق من الإبطال عبر الإنترنت عند فتح الملفات الموقّعة';
+
+  @override
+  String get settingsGpu => 'استخدام بطاقة الرسوميات لرسم الصفحات';
+
+  @override
+  String get settingsPageCache => 'ذاكرة التخزين المؤقت للصفحات';
+
+  @override
+  String get settingsThumbnails => 'الصور المصغّرة';
+
+  @override
+  String get settingsThumbnailsAuto => 'إنشاء عند الحاجة';
+
+  @override
+  String get settingsThumbnailsAll => 'إنشاء الكل عند الفتح';
+
+  @override
+  String get settingsObjectInspector => 'إظهار فاحص كائنات PDF (للمطوّرين)';
+
+  @override
+  String get settingsExport => 'تصدير الإعدادات…';
+
+  @override
+  String get settingsImport => 'استيراد الإعدادات…';
+
+  @override
+  String get settingsShowLogs => 'إظهار ملفات السجل';
+
+  @override
+  String get settingsReset =>
+      'أعِد كل إعداد إلى قيمته الافتراضية. تبقى التوقيعات والشهادات المحفوظة.';
+
+  @override
+  String get settingsResetButton => 'إعادة ضبط الإعدادات…';
+
+  @override
+  String get settingsResetTitle => 'إعادة ضبط كل الإعدادات؟';
+
+  @override
+  String get settingsResetBody =>
+      'تعود السمة واللغة والمنطقة وكل الخيارات الأخرى إلى قيمها الافتراضية. تبقى التوقيعات المحفوظة وأختامك والمستندات المفتوحة.';
+
+  @override
+  String get settingsResetConfirm => 'إعادة الضبط';
+
+  @override
+  String get settingsImportTitle => 'استبدال إعداداتك؟';
+
+  @override
+  String get settingsImportBody =>
+      'تحلّ الإعدادات الموجودة في الملف محلّ إعداداتك. تبقى التوقيعات المحفوظة والمستندات المفتوحة.';
+
+  @override
+  String get settingsImportConfirm => 'استيراد';
+
+  @override
+  String get settingsImportFailed => 'تعذّر استيراد الإعدادات';
+
+  @override
+  String get settingsImportFailedBody => 'الملف ليس ملف إعدادات Ferman.';
+
+  @override
+  String get settingsExported => 'تم تصدير الإعدادات';
+
+  @override
+  String get settingsExportFailed => 'تعذّر تصدير الإعدادات';
+
+  @override
+  String get settingsExportName => 'إعدادات Ferman';
+
+  @override
+  String get settingsSettingsFile => 'ملف الإعدادات';
+
+  @override
+  String get licencesIntro =>
+      'Ferman برنامج حر مرخّص بموجب رخصة Apache 2.0. وهو مبني على الأعمال أدناه، ويحتفظ كل جزء منها برخصته.';
+
+  @override
+  String get licencesSearch => 'البحث في التراخيص';
+
+  @override
+  String get licencesLoading => 'جارٍ قراءة التراخيص…';
+
+  @override
+  String get licencesNoMatch => 'لا توجد تراخيص مطابقة';
+
+  @override
+  String get sidebarLegendTitle => 'شارات الصفحات';
+
+  @override
+  String get sidebarLegendEdited => 'معدّلة';
+
+  @override
+  String get sidebarLegendEditedBody => 'تغيّرت منذ أن فتحتها';
+
+  @override
+  String get sidebarLegendComments => 'التعليقات';
+
+  @override
+  String get sidebarLegendCommentsBody =>
+      'ملاحظات أو تعليقات توضيحية على الصفحة';
+
+  @override
+  String get sidebarLegendFields => 'حقول النموذج';
+
+  @override
+  String get sidebarLegendFieldsBody => 'حقول يمكنك تعبئتها';
+
+  @override
+  String get sidebarLegendSignature => 'التوقيع';
+
+  @override
+  String get sidebarLegendSignatureBody => 'موقّعة أو فيها حقل توقيع';
+
+  @override
+  String get sidebarLegendWarnings => 'التحذيرات';
+
+  @override
+  String get sidebarLegendWarningsBody => 'حروف ناقصة، فيض النص، روابط معطّلة';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'تسمع قارئات الشاشة الشارات ضمن اسم الصفحة، مثل «الصفحة 1، معدّلة، تعليقان، تحذير واحد».';
+
+  @override
+  String get sidebarBadgeEdited => 'معدّلة';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n تعليق',
+      few: '$n تعليقات',
+      two: 'تعليقان',
+      one: 'تعليق واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n حقل نموذج',
+      few: '$n حقول نموذج',
+      two: 'حقلا نموذج',
+      one: 'حقل نموذج واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'موقّعة';
+
+  @override
+  String get sidebarBadgeSignatureField => 'حقل توقيع';
+
+  @override
+  String get outlineNewBookmark => 'إشارة مرجعية جديدة';
+
+  @override
+  String get outlineBookmarkName => 'اسم الإشارة المرجعية';
+
+  @override
+  String get outlineStep => 'تغيير الإشارات المرجعية';
+
+  @override
+  String get outlineRename => 'إعادة التسمية';
+
+  @override
+  String get outlineNest => 'ضمّ تحت الإشارة السابقة';
+
+  @override
+  String get outlineUnnest => 'نقل مستوى إلى الخارج';
+
+  @override
+  String get outlineMoveUp => 'نقل لأعلى';
+
+  @override
+  String get outlineMoveDown => 'نقل لأسفل';
+
+  @override
+  String get outlineDelete => 'حذف الإشارة المرجعية';
+
+  @override
+  String get propertiesStep => 'تغيير خصائص المستند';
+
+  @override
+  String get dropOverlayCombineDescription => 'بالترتيب المعروض.';
 }

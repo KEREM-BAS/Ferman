@@ -9,6 +9,7 @@ import 'package:ferman/l10n/format.dart';
 import 'package:ferman/platform/default_app.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/open_requests.dart';
+import 'package:ferman/platform/print_service.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/recent/recent_files_start.dart';
 import 'package:ferman/recent/recent_previews.dart';
@@ -48,6 +49,7 @@ Future<void> bootstrap([List<String> arguments = const []]) async {
         recentPreviewStoreProvider.overrideWithValue(recentPreviewStore),
         homeDirectoryProvider.overrideWithValue(userHomeDirectory()),
         fileAccessProvider.overrideWithValue(const PlatformFileAccess()),
+        printServiceProvider.overrideWithValue(const PlatformPrintService()),
         if (defaultTargetPlatform == TargetPlatform.macOS)
           defaultPdfAppProvider.overrideWithValue(
             const PlatformDefaultPdfApp(),

@@ -306,6 +306,15 @@ void main() {
       () => service.saveCopy(1, '/tmp/a.pdf'),
       () => service.saveRepairedCopy(1, '/tmp/a.pdf'),
       () => service.optimizeAndClean(1),
+      () => service.compressAnalysis(1),
+      () => service
+          .compressJob(1, preset: CompressPreset.balanced, output: '/tmp/b.pdf')
+          .first,
+      () => service.setVersionsEnabled(enabled: false),
+      () => service.versions(1),
+      () => service.openVersion(1, 2),
+      () => service.restoreVersion(1, 2),
+      () => service.printPages(1).first,
       () => service.wouldBreakSignatures(1),
       () => service.opGate(1, DocumentOp.fill),
       () => service.confirmEditSigned(1),

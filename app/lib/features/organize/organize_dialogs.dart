@@ -83,21 +83,24 @@ void afterSigned(WidgetRef ref, OpenedDocument document, VoidCallback then) {
   }
 }
 
-/// Takes [change] as one step of [document], or says why not in a toast. Reads
-/// what it needs before it waits, so a dialog can close at once.
+/// Takes [change] as one step of [document], or says why not in a toast; runs
+/// [committed] once it applied. Reads what it needs before it waits, so a
+/// dialog can close at once.
 void commitPageChange(
   WidgetRef ref,
   int document,
-  Future<RevisionInfo> Function() change,
-) {
+  Future<RevisionInfo> Function() change, {
+  VoidCallback? committed,
+}) {
   final toasts = ref.read(toastNoticesProvider.notifier);
   final name = _nameOf(ref, document);
   unawaited(
-    ref.read(documentEditorProvider.notifier).pageChange(document, change).then(
-      (error) {
-        if (error != null) showPageChangeFailure(toasts, error, name);
-      },
-    ),
+    ref
+        .read(documentEditorProvider.notifier)
+        .pageChange(document, change, committed: committed)
+        .then((error) {
+          if (error != null) showPageChangeFailure(toasts, error, name);
+        }),
   );
 }
 

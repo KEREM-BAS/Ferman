@@ -101,6 +101,9 @@ final Map<String, ShellCommand> _choiceCommands = {
 /// The View row's and the status bar's viewing controls: disabled without
 /// a reason while no document shows.
 final Set<String> _waitForDocument = {
+  // The sidebar's buttons that change the document (a2-3a, a2-3b).
+  _l10n.shellAddBookmark,
+  _l10n.shellAttachFile,
   // Comment's tools.
   for (final tool in AnnotationTool.values)
     if (tool != AnnotationTool.measure) _l10n.annotationToolLabel(tool),
@@ -131,6 +134,10 @@ final Set<String> _waitForDocument = {
   'Add text',
   'Checkmark',
   'Date',
+  // Tools' tools that work with a document (a9-1, a9-6, a9-8).
+  'Compress',
+  'Print',
+  'Version history',
 };
 
 /// The commands that have a control but whose keys no M1 surface shows
@@ -297,7 +304,7 @@ void main() {
           final command = inRow
               ? _rowControls[mode]![control.label]
               : _chromeControls[control.label];
-          final keys = command?.caps(platform);
+          final keys = ShortcutBindings(platform).caps(command);
           final reason = '$where: ${control.label}';
           expect(control.shortcut, keys, reason: reason);
           if (command != null && keys != null) found.add(command);
@@ -310,7 +317,8 @@ void main() {
                   mode == FermanMode.view ||
                   mode == FermanMode.organize ||
                   mode == FermanMode.comment ||
-                  mode == FermanMode.sign) &&
+                  mode == FermanMode.sign ||
+                  mode == FermanMode.tools) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -352,12 +360,13 @@ void main() {
           find.descendant(of: search, matching: find.byWidget(caps.single)),
           findsOneWidget,
         );
-        expect(caps.single.keys, ShellCommand.commandPalette.caps(platform));
+        expect(
+          caps.single.keys,
+          ShortcutBindings(platform).caps(ShellCommand.commandPalette),
+        );
         found.add(ShellCommand.commandPalette);
-        // Search is disabled until M4: its tooltip is the reason.
-        final searchTip = _tooltipsOf(tester, search).single;
-        expect(searchTip.message, futureVersion);
-        expect(searchTip.shortcut, isNull);
+        // Search opens the palette: its caps show, with no reason tooltip.
+        expect(_tooltipsOf(tester, search), isEmpty);
       }
 
       for (final mode in FermanMode.values) {
@@ -444,7 +453,7 @@ void main() {
         expect(entries, isNotEmpty, reason: mode.id);
         for (final entry in entries) {
           final command = _rowControls[mode]![entry.label];
-          final keys = command?.caps(platform);
+          final keys = ShortcutBindings(platform).caps(command);
           expect(entry.shortcut, keys, reason: '${mode.id}: ${entry.label}');
           if (command != null && keys != null) shown.add(command);
           // The choices of a submenu (the zoom menu, Fit, Page layout).
@@ -452,7 +461,7 @@ void main() {
             final choiceCommand = _choiceCommands[choice.label];
             expect(
               choice.shortcut,
-              choiceCommand?.caps(platform),
+              ShortcutBindings(platform).caps(choiceCommand),
               reason: '${mode.id}: ${entry.label} › ${choice.label}',
             );
             if (choiceCommand != null) inSubmenus.add(choiceCommand);
@@ -479,7 +488,8 @@ void main() {
                 ((mode != FermanMode.view &&
                         mode != FermanMode.organize &&
                         mode != FermanMode.comment &&
-                        mode != FermanMode.sign) ||
+                        mode != FermanMode.sign &&
+                        mode != FermanMode.tools) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

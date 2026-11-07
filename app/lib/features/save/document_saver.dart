@@ -269,7 +269,14 @@ class DocumentSaver extends _$DocumentSaver {
 
   /// Writes the sheet's document to [path]: Save as, after which the tab
   /// shows the new file, or with [copy] a copy that leaves it as it was.
-  Future<void> saveTo(String path, {required bool copy}) async {
+  /// Without [SaveAsOptions.includeComments] the file is a copy: the
+  /// document keeps its own file and its comments (B138).
+  Future<void> saveTo(
+    String path, {
+    required bool copy,
+    SaveAsOptions options = const SaveAsOptions(),
+  }) async {
+    final asCopy = copy || !options.includeComments;
     final tab = state.sheet?.document;
     closeSheet();
     final from = tab?.path;
@@ -278,14 +285,17 @@ class DocumentSaver extends _$DocumentSaver {
     Future<EngineException?> write() async {
       // A copy onto the document's own file is a save (the engine treats
       // it as one), so the tab shows it saved.
-      if (path == from) return await _editor.save(document: id);
-      if (copy) {
+      if (path == from && options.includeComments && !options.removeHistory) {
+        return await _editor.save(document: id);
+      }
+      if (asCopy) {
         return await _editor.write(
           id,
           () => _editor.through(
             id,
             path,
-            (staging) => _engine.saveCopy(id, path, staging: staging),
+            (staging) =>
+                _engine.saveCopy(id, path, options: options, staging: staging),
           ),
           copy: true,
         );
@@ -294,7 +304,8 @@ class DocumentSaver extends _$DocumentSaver {
         await _editor.through(
           id,
           path,
-          (staging) => _engine.saveAs(id, path, staging: staging),
+          (staging) =>
+              _engine.saveAs(id, path, options: options, staging: staging),
         );
         // Within the write's turn, so the next write in the queue sees it.
         ref
@@ -488,6 +499,28 @@ class DocumentSaver extends _$DocumentSaver {
       ),
       saveAs: () async => _openSheet(tab),
     );
+  }
+
+  /// Makes [version] the active document's file again (a9-8, decision 27):
+  /// the engine keeps unsaved work as a version first and checks for an
+  /// external change; the file then opens again, as Reload does.
+  Future<void> restoreVersion(int version) async {
+    final tab = _active;
+    final id = tab?.document?.id;
+    if (tab == null || id == null) return;
+    final restored = await _guard(
+      tab,
+      () => _editor.write(
+        id,
+        () => _editor.through(
+          id,
+          _editor.pathOf(id),
+          (staging) => _engine.restoreVersion(id, version, staging: staging),
+        ),
+      ),
+      saveAs: () async => _openSheet(tab),
+    );
+    if (restored) await reload();
   }
 
   /// "Save repaired copy…" (a1-9, B103): the system save panel, then the

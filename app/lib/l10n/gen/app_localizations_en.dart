@@ -2726,7 +2726,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsKeepVersions => 'Keep versions';
 
   @override
-  String get settingsKeepVersions30 => '30 days, next to the file';
+  String get settingsKeepVersions30 => 'Kept for 30 days';
 
   @override
   String get settingsReflow =>
@@ -3383,8 +3383,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. They stay in the file until you run Optimize and clean.',
-      one: '$pages. It stays in the file until you run Optimize and clean.',
+      other:
+          '$pages. They stay in the file until you save with Remove edit history or run Optimize and clean.',
+      one:
+          '$pages. It stays in the file until you save with Remove edit history or run Optimize and clean.',
     );
     return '$_temp0';
   }
@@ -5415,4 +5417,810 @@ class AppLocalizationsEn extends AppLocalizations {
   String sidebarSearchFormField(String text) {
     return 'Form field: $text';
   }
+
+  @override
+  String jobCompressingTitle(String name) {
+    return 'Compressing $name';
+  }
+
+  @override
+  String jobCompressedTitle(String name) {
+    return 'Compressed $name';
+  }
+
+  @override
+  String jobCompressFailedTitle(String name) {
+    return 'Couldn’t compress $name';
+  }
+
+  @override
+  String get jobCompressNotSmaller =>
+      'It can’t get smaller, so nothing was written. The original stays as it is.';
+
+  @override
+  String jobCompressedSizes(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String get printForbidden => 'The author doesn’t allow printing';
+
+  @override
+  String printSent(String name) {
+    return 'Sent $name to the printer';
+  }
+
+  @override
+  String printFailed(String name) {
+    return 'Couldn’t print $name';
+  }
+
+  @override
+  String printTitle(String name) {
+    return 'Print “$name”';
+  }
+
+  @override
+  String get printSystemDialog => 'Use system dialog…';
+
+  @override
+  String get printAction => 'Print';
+
+  @override
+  String get printPrinter => 'Printer';
+
+  @override
+  String get printPrinterSystem => 'Chosen in the system dialog';
+
+  @override
+  String get printCopies => 'Copies';
+
+  @override
+  String get printPages => 'Pages';
+
+  @override
+  String get printPagesAll => 'All';
+
+  @override
+  String get printLayout => 'Layout';
+
+  @override
+  String get printLayoutPages => 'Pages';
+
+  @override
+  String get printLayoutBooklet => 'Booklet';
+
+  @override
+  String get printLayoutPoster => 'Poster';
+
+  @override
+  String get printBothSides => 'Both sides';
+
+  @override
+  String get printLongEdge => 'Long edge';
+
+  @override
+  String get printShortEdge => 'Short edge';
+
+  @override
+  String get printOneSide => 'One side';
+
+  @override
+  String get printScale => 'Scale';
+
+  @override
+  String get printScaleFit => 'Fit to printable area';
+
+  @override
+  String get printScaleActual => 'Actual size (100%)';
+
+  @override
+  String get printScaleCustom => 'Custom…';
+
+  @override
+  String get printInclude => 'Include';
+
+  @override
+  String printComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Comments and stamps ($n)',
+      one: 'Comments and stamps ($n)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get printFormFields => 'Form field contents';
+
+  @override
+  String get printHiddenLayers => 'Hidden layers';
+
+  @override
+  String get printPreviousSheet => 'Previous sheet';
+
+  @override
+  String get printNextSheet => 'Next sheet';
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) {
+    return 'Sheet $sheet of $sheets · $paper';
+  }
+
+  @override
+  String compressFileName(String name) {
+    return '$name, compressed';
+  }
+
+  @override
+  String get compressTitle => 'Compress';
+
+  @override
+  String get compressPreset => 'Preset';
+
+  @override
+  String get compressHighQuality => 'High quality';
+
+  @override
+  String get compressBalanced => 'Balanced';
+
+  @override
+  String get compressSmallest => 'Smallest';
+
+  @override
+  String get compressHighQualityDescription =>
+      'Images at 300 ppi, for printing.';
+
+  @override
+  String get compressBalancedDescription =>
+      'Images at 150 ppi, for sharing and reading on screen.';
+
+  @override
+  String get compressSmallestDescription =>
+      'Images at 96 ppi, for e-mail. Text stays sharp.';
+
+  @override
+  String get compressCustom => 'Custom…';
+
+  @override
+  String get compressCustomDescription =>
+      'Set image resolution, quality and what to remove.';
+
+  @override
+  String compressAbout(String size) {
+    return '≈ $size';
+  }
+
+  @override
+  String get compressNow => 'Now';
+
+  @override
+  String get compressAfter => 'After';
+
+  @override
+  String compressEstimateSampled(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Estimated from $n sample images. The exact size is shown after saving.',
+      one:
+          'Estimated from $n sample image. The exact size is shown after saving.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressEstimateExact =>
+      'Measured on every image. The exact size is shown after saving.';
+
+  @override
+  String compressDoes(String preset) {
+    return 'What $preset does';
+  }
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Recompresses $n images to $ppi ppi',
+      one: 'Recompresses $n image to $ppi ppi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String compressDoesFonts(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Merges $n duplicate font copies',
+      one: 'Merges $n duplicate font copy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesUnused => 'Removes unused objects and thumbnails';
+
+  @override
+  String compressDoesLeft(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Leaves $n images as they are: Ferman can’t recompress them',
+      one: 'Leaves $n image as it is: Ferman can’t recompress it',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesKeeps => 'Keeps text, links, bookmarks and forms';
+
+  @override
+  String get compressSignedTitle => 'This document is signed';
+
+  @override
+  String get compressSignedBody =>
+      'The compressed copy has no signatures. The signed original stays as it is.';
+
+  @override
+  String get compressAction => 'Compress and save as…';
+
+  @override
+  String saveAsCommentsOff(String name) {
+    return 'The file is saved as a copy without them; $name stays open with its comments.';
+  }
+
+  @override
+  String get saveAsHistoryOn =>
+      'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.';
+
+  @override
+  String get saveAsHistoryOff =>
+      'Deleted pages and earlier text stay in the file and can be recovered from it.';
+
+  @override
+  String get versionTitle => 'Version history';
+
+  @override
+  String versionCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n versions',
+      one: '$n version',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionList => 'Versions';
+
+  @override
+  String get versionNone => 'No versions yet. Each save keeps one.';
+
+  @override
+  String get versionKept =>
+      'Kept for 30 days on this device. Change in Settings › Editing.';
+
+  @override
+  String get versionNow => 'Now';
+
+  @override
+  String get versionUnsaved => 'unsaved';
+
+  @override
+  String versionNowDetail(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits since the last save',
+      one: '$n edit since the last save',
+      zero: 'Changes since the last save',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionOpened => 'Opened';
+
+  @override
+  String get versionOpenedDetail => 'The file as it was opened';
+
+  @override
+  String get versionSaved => 'Saved';
+
+  @override
+  String get versionSigned => 'Signed';
+
+  @override
+  String get versionUnsavedWork => 'Unsaved work';
+
+  @override
+  String get versionRestored => 'Restored';
+
+  @override
+  String versionEdits(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits',
+      one: '$n edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionEditsNamed(int count, String n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits · $names',
+      one: '$n edit · $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionViewing(String time) {
+    return 'Viewing the version from $time.';
+  }
+
+  @override
+  String get versionReadOnly =>
+      'Read-only. Your current document is unchanged.';
+
+  @override
+  String get versionBack => 'Back to current';
+
+  @override
+  String get versionRestoreThis => 'Restore this version…';
+
+  @override
+  String get versionRestoreShort => 'Restore…';
+
+  @override
+  String get versionCompare => 'Compare with current';
+
+  @override
+  String versionRestoreTitle(String time) {
+    return 'Restore the version from $time?';
+  }
+
+  @override
+  String get versionRestoreBody =>
+      'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.';
+
+  @override
+  String get versionRestore => 'Restore';
+
+  @override
+  String get commandPalette => 'Command palette';
+
+  @override
+  String get commandShowShortcuts => 'Show keyboard shortcuts';
+
+  @override
+  String get commandSaveCopy => 'Save a copy';
+
+  @override
+  String get commandDocumentProperties => 'Document properties';
+
+  @override
+  String get commandNextDocument => 'Next document';
+
+  @override
+  String commandShowDocument(String number) {
+    return 'Show document $number';
+  }
+
+  @override
+  String get commandGoToPage => 'Go to page';
+
+  @override
+  String get commandReadingMode => 'Reading mode';
+
+  @override
+  String get commandInsertFromFile => 'Insert from file';
+
+  @override
+  String get commandDeletePages => 'Delete pages';
+
+  @override
+  String get commandSelectAllPages => 'Select all pages';
+
+  @override
+  String get commandMovePagesUp => 'Move pages up';
+
+  @override
+  String get commandMovePagesDown => 'Move pages down';
+
+  @override
+  String get commandWindowMenu => 'Window menu';
+
+  @override
+  String get commandCloseWindow => 'Close window';
+
+  @override
+  String get commandQuit => 'Quit Ferman';
+
+  @override
+  String get palettePlaceholder => 'Search commands, pages and text';
+
+  @override
+  String paletteEmpty(String query) {
+    return 'No commands match “$query”. Press Enter to search the document instead.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return 'No commands match “$query”.';
+  }
+
+  @override
+  String get paletteCommands => 'Commands';
+
+  @override
+  String get paletteRecentFiles => 'Recent files';
+
+  @override
+  String get paletteMove => 'Move';
+
+  @override
+  String get paletteRun => 'Run';
+
+  @override
+  String get shortcutsSheetSearch => 'Search shortcuts';
+
+  @override
+  String get shortcutsSheetNote =>
+      'Change shortcuts in Settings › Keyboard shortcuts.';
+
+  @override
+  String get shortcutsChanged => 'Changed';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return 'No shortcuts match “$query”.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'General';
+
+  @override
+  String get shortcutsGroupNavigate => 'Navigate';
+
+  @override
+  String get shortcutsGroupWindow => 'Window';
+
+  @override
+  String get shortcutsPaneSearch => 'Search commands or press keys';
+
+  @override
+  String get shortcutsPreset => 'Preset';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (default)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'Like Acrobat';
+
+  @override
+  String get shortcutsPresetPreview => 'Like Preview';
+
+  @override
+  String get shortcutsRecording => 'Press new shortcut…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys is already “$command”. Press Enter to reassign it, Esc to keep $current.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys is already “$command”. Press Enter to reassign it, Esc to keep no shortcut.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys belongs to the system. Press other keys, or Esc to cancel.';
+  }
+
+  @override
+  String get shortcutsNone => 'No shortcut';
+
+  @override
+  String shortcutsChange(String command) {
+    return 'Change the shortcut of $command';
+  }
+
+  @override
+  String get shortcutsReset => 'Restore the default shortcut';
+
+  @override
+  String get settingsSearchNoMatch => 'No settings match';
+
+  @override
+  String get settingsSearchNoMatchBody => 'Try another word.';
+
+  @override
+  String get settingsPaneLicences => 'Licences';
+
+  @override
+  String get settingsKeepVersionsOff => 'Don’t keep versions';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return 'Search $count installed fonts';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'Search fonts';
+
+  @override
+  String get settingsFontsFilter => 'Filter';
+
+  @override
+  String get settingsFontsFilterTurkish => 'Covers Turkish';
+
+  @override
+  String get settingsFontsFilterAll => 'All fonts';
+
+  @override
+  String get settingsFontsFilterOpen => 'Used in open documents';
+
+  @override
+  String get settingsFontsBundled => 'Included with Ferman';
+
+  @override
+  String get settingsFontsInstalled => 'Installed';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return 'Covers $script';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return 'Doesn’t cover $script';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'No fonts match';
+
+  @override
+  String get settingsFontsLoading => 'Reading the fonts on this computer…';
+
+  @override
+  String get settingsSavedSignatures =>
+      'Saved signatures · on this device only';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'No saved signatures yet. Fill & Sign › Sign makes one.';
+
+  @override
+  String get settingsSignatureTyped => 'Typed';
+
+  @override
+  String get settingsDeleteSignature => 'Delete saved signature';
+
+  @override
+  String get settingsCertificates => 'Certificates';
+
+  @override
+  String get settingsAddCertificate => 'Add certificate file…';
+
+  @override
+  String get settingsCardDriver => 'e-imza card driver (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'Find automatically';
+
+  @override
+  String get settingsTimestampServer => 'Timestamp server';
+
+  @override
+  String get settingsTimestampNone => 'None';
+
+  @override
+  String get settingsCheckRevocation =>
+      'Check revocation online when opening signed files';
+
+  @override
+  String get settingsGpu => 'Use the graphics card to draw pages';
+
+  @override
+  String get settingsPageCache => 'Page cache';
+
+  @override
+  String get settingsThumbnails => 'Thumbnails';
+
+  @override
+  String get settingsThumbnailsAuto => 'Make as needed';
+
+  @override
+  String get settingsThumbnailsAll => 'Make all when opening';
+
+  @override
+  String get settingsObjectInspector =>
+      'Show the PDF object inspector (for developers)';
+
+  @override
+  String get settingsExport => 'Export settings…';
+
+  @override
+  String get settingsImport => 'Import settings…';
+
+  @override
+  String get settingsShowLogs => 'Show log files';
+
+  @override
+  String get settingsReset =>
+      'Reset every setting to its default. Saved signatures and certificates stay.';
+
+  @override
+  String get settingsResetButton => 'Reset settings…';
+
+  @override
+  String get settingsResetTitle => 'Reset every setting?';
+
+  @override
+  String get settingsResetBody =>
+      'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.';
+
+  @override
+  String get settingsResetConfirm => 'Reset';
+
+  @override
+  String get settingsImportTitle => 'Replace your settings?';
+
+  @override
+  String get settingsImportBody =>
+      'The settings in the file replace yours. Saved signatures and the documents you have open stay.';
+
+  @override
+  String get settingsImportConfirm => 'Import';
+
+  @override
+  String get settingsImportFailed => 'Couldn’t import the settings';
+
+  @override
+  String get settingsImportFailedBody =>
+      'The file isn’t a Ferman settings file.';
+
+  @override
+  String get settingsExported => 'Settings exported';
+
+  @override
+  String get settingsExportFailed => 'Couldn’t export the settings';
+
+  @override
+  String get settingsExportName => 'Ferman settings';
+
+  @override
+  String get settingsSettingsFile => 'Settings file';
+
+  @override
+  String get licencesIntro =>
+      'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.';
+
+  @override
+  String get licencesSearch => 'Search licences';
+
+  @override
+  String get licencesLoading => 'Reading the licences…';
+
+  @override
+  String get licencesNoMatch => 'No licences match';
+
+  @override
+  String get sidebarLegendTitle => 'Page badges';
+
+  @override
+  String get sidebarLegendEdited => 'Edited';
+
+  @override
+  String get sidebarLegendEditedBody => 'changed since you opened it';
+
+  @override
+  String get sidebarLegendComments => 'Comments';
+
+  @override
+  String get sidebarLegendCommentsBody => 'notes or markup on the page';
+
+  @override
+  String get sidebarLegendFields => 'Form fields';
+
+  @override
+  String get sidebarLegendFieldsBody => 'fields you can fill in';
+
+  @override
+  String get sidebarLegendSignature => 'Signature';
+
+  @override
+  String get sidebarLegendSignatureBody => 'signed or has a signature field';
+
+  @override
+  String get sidebarLegendWarnings => 'Warnings';
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      'missing glyphs, overflow, broken links';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.';
+
+  @override
+  String get sidebarBadgeEdited => 'edited';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n form fields',
+      one: '1 form field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'signed';
+
+  @override
+  String get sidebarBadgeSignatureField => 'signature field';
+
+  @override
+  String get outlineNewBookmark => 'New bookmark';
+
+  @override
+  String get outlineBookmarkName => 'Bookmark name';
+
+  @override
+  String get outlineStep => 'Change bookmarks';
+
+  @override
+  String get outlineRename => 'Rename';
+
+  @override
+  String get outlineNest => 'Nest under the one above';
+
+  @override
+  String get outlineUnnest => 'Move out a level';
+
+  @override
+  String get outlineMoveUp => 'Move up';
+
+  @override
+  String get outlineMoveDown => 'Move down';
+
+  @override
+  String get outlineDelete => 'Delete bookmark';
+
+  @override
+  String get propertiesStep => 'Change document properties';
+
+  @override
+  String get dropOverlayCombineDescription =>
+      'Merged in the order shown. You can reorder before saving.';
 }

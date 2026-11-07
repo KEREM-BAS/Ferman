@@ -92,7 +92,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
 | [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Answered 2026-11-06: (a) |
 | [Q25](#q25) | Right-to-left lines drawn in an order the bidi algorithm does not give: M3 instead of M2 | the M2 review | Open |
-| [Q26](#q26) | Form fields on the canvas outside Fill & Sign: ferman-render draws widgets, or the app's overlay shows them in every mode | the M4 review | Open |
+| [Q26](#q26) | Form fields on the canvas outside Fill & Sign: ferman-render draws widgets, or the app's overlay shows them in every mode | the M4 review | Answered 2026-11-07: fix it now; (a), the render-only appendix |
 
 ## Questions
 
@@ -940,6 +940,13 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Meanwhile:** fields show in Fill & Sign only ([B203](BACKLOG.md), whose milestone follows
   this answer: the M4 review, then P2 unless the owner says otherwise).
 - **Needed by:** the M4 review.
-- **Status:** Open
+- **Status:** Answered on 2026-11-07
 - **Related:** BACKLOG B203, `crates/ferman-api/tests/forms.rs`, `app/lib/features/forms/form_overlay.dart`
-- **Answer:** none yet
+- **Answer:** the owner chose to fix it in M4 (W6). Built as (a): ferman-core's render-only
+  appendix gives every widget to PDFium under the subtype `/FermanWidget`, which its render path
+  draws from the appearance like any other annotation, in every tile, thumbnail and print; the
+  open loads it for a document with fields. Fill & Sign's field overlay draws each field itself,
+  so while it shows the canvas leaves the widgets out (`Engine::show_form_widgets`), and no value
+  shows twice. Hide all keeps the widgets. Not measured on `long-500`, which has no fields: a
+  document without fields builds no appendix. A widget with no `/AP` (a `/NeedAppearances` form
+  never filled) still draws nothing until Ferman writes its appearance.

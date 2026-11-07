@@ -15,7 +15,9 @@
 //! - **With a matrix and a clip** (`FPDF_RenderPageBitmapWithMatrix`): the matrix scales the page
 //!   as displayed (PDFium applies `/Rotate` first) and moves the tile's corner to the bitmap's
 //!   origin; the clip is the whole bitmap. PDFium's form-fill overlay is off, which this path
-//!   requires; widgets draw from their appearance streams like other annotations.
+//!   requires, and this path draws no `/Widget`: ferman-core's render-only appendix gives each
+//!   widget to PDFium under another subtype, so it draws from its appearance stream like other
+//!   annotations (B203).
 //! - **With a margin around each tile**, [`TILE_MARGIN`] pixels on every side, cut away after
 //!   rendering. PDFium draws a glyph that crosses the edge of its bitmap differently from the same
 //!   glyph inside it (by up to 136 of 255 levels in a few pixels next to the edge), so without the

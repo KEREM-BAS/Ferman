@@ -58,7 +58,11 @@ class FrbEngineService implements EngineService {
             ? (await getApplicationSupportDirectory()).path
             : null,
       );
-      if (root != null) await startRecovery(root);
+      if (root != null) {
+        await startRecovery(root);
+        // Version history beside it in the app data directory (ADR 0022).
+        await bridge.startVersions(root: versionsDirectory(root));
+      }
     } on Object {
       // No recovery folder: the documents open and save without one.
     }
@@ -837,6 +841,37 @@ class FrbEngineService implements EngineService {
         transaction: BigInt.from(transaction),
       );
       return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<InstalledFont>> installedFonts() async {
+    try {
+      final fonts = await bridge.installedFonts(
+        bundledDir: bundledFontsDirectory(),
+      );
+      return [
+        for (final font in fonts)
+          InstalledFont(
+            family: font.family,
+            origin: _origin(font.origin),
+            scripts: {
+              for (final script in font.scripts)
+                switch (script) {
+                  bridge.FontScript.turkish => FontScript.turkish,
+                  bridge.FontScript.latinExtended => FontScript.latinExtended,
+                  bridge.FontScript.cyrillic => FontScript.cyrillic,
+                  bridge.FontScript.greek => FontScript.greek,
+                  bridge.FontScript.arabic => FontScript.arabic,
+                  bridge.FontScript.hebrew => FontScript.hebrew,
+                  bridge.FontScript.devanagari => FontScript.devanagari,
+                  bridge.FontScript.cjk => FontScript.cjk,
+                },
+            },
+          ),
+      ];
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -1985,6 +2020,81 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) => _revision(
+    () => bridge.setOutline(
+      document: BigInt.from(document),
+      items: [
+        for (final item in items)
+          bridge.OutlineEdit(
+            item: item.item,
+            page: item.page,
+            title: item.title,
+            depth: item.depth,
+            open: item.open,
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name) =>
+      _revision(
+        () => bridge.setInfo(
+          document: BigInt.from(document),
+          info: bridge.InfoEdit(
+            title: info.title,
+            author: info.author,
+            subject: info.subject,
+            keywords: info.keywords,
+          ),
+          name: name,
+        ),
+      );
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) => _revision(
+    () => bridge.attachFile(
+      document: BigInt.from(document),
+      path: path,
+      fileName: fileName,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> removeAttachment(int document, int index, String name) =>
+      _revision(
+        () => bridge.removeAttachment(
+          document: BigInt.from(document),
+          index: index,
+          name: name,
+        ),
+      );
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async {
+    try {
+      final key = await bridge.showFormWidgets(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
   Future<RevisionInfo> undo(int document) =>
       _revision(() => bridge.undo(document: BigInt.from(document)));
 
@@ -2012,6 +2122,7 @@ class FrbEngineService implements EngineService {
             pages: _pages(structure.pages),
             outline: _outline(structure.outline),
             attachments: _attachments(structure.attachments),
+            info: _info(structure.info),
           ),
         },
       );
@@ -2115,11 +2226,17 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<String?> saveAs(int document, String path, {String? staging}) async {
+  Future<String?> saveAs(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  }) async {
     try {
       return await bridge.saveAs(
         document: BigInt.from(document),
         path: path,
+        options: _saveOptions(options),
         staging: staging,
       );
     } on bridge.ApiError catch (error) {
@@ -2128,17 +2245,29 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<String?> saveCopy(int document, String path, {String? staging}) async {
+  Future<String?> saveCopy(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  }) async {
     try {
       return await bridge.saveCopy(
         document: BigInt.from(document),
         path: path,
+        options: _saveOptions(options),
         staging: staging,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
   }
+
+  static bridge.SaveAsOptions _saveOptions(SaveAsOptions options) =>
+      bridge.SaveAsOptions(
+        includeComments: options.includeComments,
+        removeHistory: options.removeHistory,
+      );
 
   @override
   Future<String?> saveRepairedCopy(
@@ -2159,17 +2288,177 @@ class FrbEngineService implements EngineService {
     }
   }
 
+  /// Runs Optimize and clean's job to its end: the staged file, or null.
   @override
   Future<String?> optimizeAndClean(int document, {String? staging}) async {
-    try {
-      return await bridge.optimizeAndClean(
+    final last = await _jobUpdates(
+      bridge.startOptimizeAndCleanJob(
         document: BigInt.from(document),
+        staging: staging,
+      ),
+    ).last;
+    switch (last.state) {
+      case JobState.done:
+        return last.outputs.isEmpty ? null : last.outputs.first.staged;
+      case JobState.failed:
+        throw last.error ?? const EngineException(messageKey: 'errorInternal');
+      case JobState.cancelled || JobState.running || JobState.paused:
+        throw const EngineException(messageKey: 'errorInternal');
+    }
+  }
+
+  @override
+  Future<CompressAnalysis> compressAnalysis(int document) async {
+    try {
+      final analysis = await bridge.compressAnalysis(
+        document: BigInt.from(document),
+      );
+      return CompressAnalysis(
+        before: analysis.before.toInt(),
+        estimates: [
+          for (final estimate in analysis.estimates)
+            CompressEstimate(
+              preset: switch (estimate.preset) {
+                bridge.CompressPreset.highQuality => CompressPreset.highQuality,
+                bridge.CompressPreset.balanced => CompressPreset.balanced,
+                bridge.CompressPreset.smallest => CompressPreset.smallest,
+              },
+              after: estimate.after.toInt(),
+              exact: estimate.exact,
+              sampled: estimate.sampled,
+            ),
+        ],
+        images: analysis.images,
+        unreadable: analysis.unreadable,
+        masks: analysis.masks,
+        patterns: analysis.patterns,
+        duplicateFonts: analysis.duplicateFonts,
+        thumbnails: analysis.thumbnails,
+        signed: analysis.signed,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> compressJob(
+    int document, {
+    required CompressPreset preset,
+    required String output,
+    bool unsign = false,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCompressJob(
+      document: BigInt.from(document),
+      preset: switch (preset) {
+        CompressPreset.highQuality => bridge.CompressPreset.highQuality,
+        CompressPreset.balanced => bridge.CompressPreset.balanced,
+        CompressPreset.smallest => bridge.CompressPreset.smallest,
+      },
+      unsign: unsign,
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Future<void> setVersionsEnabled({required bool enabled}) async {
+    try {
+      await bridge.setVersionsEnabled(enabled: enabled);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<VersionInfo>> versions(int document) async {
+    try {
+      final list = await bridge.versions(document: BigInt.from(document));
+      return [
+        for (final version in list)
+          VersionInfo(
+            id: version.id.toInt(),
+            kind: switch (version.kind) {
+              bridge.VersionKind.opened => VersionKind.opened,
+              bridge.VersionKind.saved => VersionKind.saved,
+              bridge.VersionKind.signed => VersionKind.signed,
+              bridge.VersionKind.unsaved => VersionKind.unsaved,
+              bridge.VersionKind.restored => VersionKind.restored,
+            },
+            time: version.time.toInt(),
+            size: version.size.toInt(),
+            edits: version.edits,
+            names: version.names,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<OpenedDocument> openVersion(
+    int document,
+    int version, {
+    String? password,
+  }) async {
+    try {
+      return _opened(
+        await bridge.openVersion(
+          document: BigInt.from(document),
+          version: BigInt.from(version),
+          password: password,
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> restoreVersion(
+    int document,
+    int version, {
+    String? staging,
+  }) async {
+    try {
+      return await bridge.restoreVersion(
+        document: BigInt.from(document),
+        version: BigInt.from(version),
         staging: staging,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
   }
+
+  @override
+  Stream<PrintPage> printPages(
+    int document, {
+    List<int> pages = const [],
+    bool includeComments = true,
+  }) => bridge
+      .printPages(
+        document: BigInt.from(document),
+        pages: _handles(pages),
+        includeComments: includeComments,
+      )
+      .handleError(
+        (Object error) => throw _exception(error as bridge.ApiError),
+        test: (error) => error is bridge.ApiError,
+      )
+      .map(
+        (page) => PrintPage(
+          index: page.index,
+          widthPoints: page.widthPoints,
+          heightPoints: page.heightPoints,
+          dpi: page.dpi,
+          width: page.width,
+          height: page.height,
+          pixels: page.pixels,
+        ),
+      );
 
   @override
   Future<bool> wouldBreakSignatures(int document) async {
@@ -2195,6 +2484,7 @@ class FrbEngineService implements EngineService {
           DocumentOp.comment => bridge.DocumentOp.comment,
           DocumentOp.fill => bridge.DocumentOp.fill,
           DocumentOp.print => bridge.DocumentOp.print,
+          DocumentOp.modify => bridge.DocumentOp.modify,
         },
         fields: fields,
       );
@@ -2585,16 +2875,7 @@ OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
   ],
   version: document.version,
   fileSize: document.fileSize.toInt(),
-  info: DocumentInfo(
-    title: document.info.title,
-    author: document.info.author,
-    subject: document.info.subject,
-    keywords: document.info.keywords,
-    creator: document.info.creator,
-    producer: document.info.producer,
-    created: _date(document.info.created),
-    modified: _date(document.info.modified),
-  ),
+  info: _info(document.info),
   language: document.language,
   tagged: document.tagged,
   linearized: document.linearized,
@@ -2647,6 +2928,18 @@ Security? _security(bridge.Security? security) => switch (security) {
 };
 
 /// The date as the file writes it, in no time zone, so it shows as written.
+DocumentInfo _info(bridge.DocumentInfo info) => DocumentInfo(
+  title: info.title,
+  author: info.author,
+  subject: info.subject,
+  keywords: info.keywords,
+  creator: info.creator,
+  producer: info.producer,
+  created: _date(info.created),
+  modified: _date(info.modified),
+  editable: info.editable,
+);
+
 DateTime? _date(bridge.PdfDate? date) => date == null
     ? null
     : DateTime(date.year, date.month, date.day, date.hour, date.minute);

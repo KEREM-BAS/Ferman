@@ -2801,7 +2801,7 @@ manifests.
 `a11-5` changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry,
 nothing locked." ([G13](DESIGN_GAPS.md#g13)); names the copyright holder from
 [Q14](QUESTIONS.md#q14) ("The Ferman Authors"), and its "Licences" button opens the M4
-notices screen.
+notices screen, Settings › Licences at `/settings/licences` (M4 W5).
 
 ### Engine capabilities and crates
 

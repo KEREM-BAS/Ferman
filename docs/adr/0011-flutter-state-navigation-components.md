@@ -126,7 +126,9 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
 - Form validators return `bool` and check null and empty values explicitly.
 - Every command is a Shortcuts and Actions pair, with the shortcut shown in its tooltip and menu entry,
   per platform (⌘ on macOS, Ctrl on Windows and Linux). Shortcut collisions are checked from one source
-  table ([G44](../DESIGN_GAPS.md#g44)).
+  table ([G44](../DESIGN_GAPS.md#g44)). Since M4 W5 that table is the defaults: the user's changes
+  live in `AppSettings.shortcuts` per system, and `ShortcutBindings` (`shortcutBindingsProvider`) is
+  the only way to read a command's keys, for bindings and tooltips alike; `ShellCommand.caps` is gone.
 - Focus traversal follows reading order; every control has a Semantics label.
 - Custom title bars use window_manager (f6, f6a). Linux gets a custom title bar too: client-side
   decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel on the left in

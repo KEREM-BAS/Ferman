@@ -66,6 +66,7 @@ flutter:
     - assets/licenses/pdfium/pdfium.txt
     - assets/licenses/pdfium/simdutf.txt
     - assets/licenses/pdfium/zlib.txt
+    - assets/licenses/rust/crates.json
     - assets/fonts/ibm-plex-sans/LICENSE.txt
     - assets/fonts/ibm-plex-serif/LICENSE.txt
     - assets/fonts/ibm-plex-mono/LICENSE.txt

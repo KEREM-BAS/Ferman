@@ -68,6 +68,8 @@ pub struct Engine {
     pub(super) recovery: Arc<super::recovery::Recovery>,
     /// The background jobs, running and finished (`jobs`).
     pub(super) jobs: Arc<super::jobs::JobManager>,
+    /// Version history's folder and switch, which the actors share (`versions`).
+    pub(super) versions: Arc<super::versions::VersionConfig>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -106,6 +108,7 @@ impl Engine {
             fonts: Arc::default(),
             recovery: Arc::default(),
             jobs: Arc::new(super::jobs::JobManager::start()),
+            versions: Arc::default(),
         }
     }
 

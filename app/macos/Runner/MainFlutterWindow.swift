@@ -28,6 +28,8 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   private var openReady = false
   /// The "ferman/files" channel: bookmarks of the files the user granted.
   private var filesChannel: FlutterMethodChannel?
+  /// The "ferman/print" channel (a9-6).
+  private var printChannel: PrintChannel?
   /// The files whose security-scoped access has started, by path, with the
   /// resolved URL that holds it: only that URL can stop it.
   private var accessed: [String: URL] = [:]
@@ -92,6 +94,8 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
       self.handleFiles(call, result: result)
     }
     self.filesChannel = filesChannel
+
+    printChannel = PrintChannel(messenger: flutterViewController.engine.binaryMessenger)
 
     // AppKit lays the title bar out again after these and puts the buttons
     // back at their default place; put them where Ferman's title bar wants
@@ -472,5 +476,117 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
         y: aligned((layout.titleBarHeight - size.height) / 2))
       button.setFrameOrigin(origin)
     }
+  }
+}
+
+/// The "ferman/print" channel (app/lib/platform/print_service.dart, a9-6,
+/// decision 29): the system print panel, then each page drawn into a Core
+/// Printing session as Dart sends it, so a long document never waits in
+/// memory; "end" hands the job to the spooler, "abort" drops it.
+final class PrintChannel {
+  private let channel: FlutterMethodChannel
+  /// The print under way, from "begin" to "end" or "abort".
+  private var info: NSPrintInfo?
+  /// Whether pages are scaled to the printable area, or printed at their size.
+  private var fit = true
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "ferman/print", binaryMessenger: messenger)
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self else {
+        result(false)
+        return
+      }
+      let arguments = call.arguments as? [String: Any]
+      switch call.method {
+      case "begin":
+        result(
+          self.begin(
+            name: arguments?["name"] as? String ?? "",
+            fit: arguments?["fit"] as? Bool ?? true))
+      case "page":
+        result(self.page(arguments))
+      case "end":
+        result(self.finish(abort: false))
+      case "abort":
+        result(self.finish(abort: true))
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  /// Shows the print panel (printer, copies, paper); false when cancelled or
+  /// the session cannot start.
+  private func begin(name: String, fit: Bool) -> Bool {
+    _ = finish(abort: true)
+    guard let info = NSPrintInfo.shared.copy() as? NSPrintInfo else { return false }
+    let panel = NSPrintPanel()
+    panel.options = [.showsCopies, .showsPaperSize, .showsOrientation]
+    guard panel.runModal(with: info) == NSApplication.ModalResponse.OK.rawValue else {
+      return false
+    }
+    let settings = PMPrintSettings(info.pmPrintSettings())
+    _ = PMPrintSettingsSetJobName(settings, name as CFString)
+    let session = PMPrintSession(info.pmPrintSession())
+    guard
+      PMSessionBeginCGDocumentNoDialog(session, settings, PMPageFormat(info.pmPageFormat()))
+        == noErr
+    else { return false }
+    self.info = info
+    self.fit = fit
+    return true
+  }
+
+  /// Draws one page, 8-bit BGRA, opaque, the top row first, on a new sheet.
+  private func page(_ arguments: [String: Any]?) -> Bool {
+    guard let info, let arguments,
+      let width = arguments["width"] as? Int,
+      let height = arguments["height"] as? Int,
+      let widthPoints = arguments["widthPoints"] as? Double,
+      let heightPoints = arguments["heightPoints"] as? Double,
+      let pixels = (arguments["pixels"] as? FlutterStandardTypedData)?.data,
+      width > 0, height > 0, widthPoints > 0, heightPoints > 0,
+      pixels.count >= width * height * 4,
+      let provider = CGDataProvider(data: pixels as CFData),
+      let image = CGImage(
+        width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
+        bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGBitmapInfo(
+          rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue
+            | CGBitmapInfo.byteOrder32Little.rawValue),
+        provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent)
+    else { return false }
+    let session = PMPrintSession(info.pmPrintSession())
+    let format = PMPageFormat(info.pmPageFormat())
+    guard PMSessionBeginPageNoDialog(session, format, nil) == noErr else { return false }
+    defer { _ = PMSessionEndPageNoDialog(session) }
+    var context: Unmanaged<CGContext>?
+    guard PMSessionGetCGGraphicsContext(session, &context) == noErr,
+      let graphics = context?.takeUnretainedValue()
+    else { return false }
+    // The context's origin is the imageable area's lower-left corner.
+    var area = PMRect()
+    _ = PMGetAdjustedPageRect(format, &area)
+    let room = CGSize(width: area.right - area.left, height: area.bottom - area.top)
+    var size = CGSize(width: widthPoints, height: heightPoints)
+    if fit {
+      let scale = min(room.width / size.width, room.height / size.height)
+      size = CGSize(width: size.width * scale, height: size.height * scale)
+    }
+    let origin = CGPoint(x: (room.width - size.width) / 2, y: (room.height - size.height) / 2)
+    graphics.draw(image, in: CGRect(origin: origin, size: size))
+    return true
+  }
+
+  /// Ends the print: sent to the spooler, or with [abort] dropped.
+  private func finish(abort: Bool) -> Bool {
+    guard let info else { return false }
+    self.info = nil
+    let session = PMPrintSession(info.pmPrintSession())
+    if abort {
+      _ = PMSessionSetError(session, OSStatus(kPMCancel))
+    }
+    return PMSessionEndDocumentNoDialog(session) == noErr && !abort
   }
 }

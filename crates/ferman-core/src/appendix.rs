@@ -1,7 +1,8 @@
 //! Render-only bytes (ADR 0009): what PDFium reads after a document's own bytes and Ferman never
 //! writes to disk or keeps as a revision. [`RevisionStore::render_appendix`] is the committed
-//! revisions as the writer would save them, with a catalog that shows and hides layers (a2-3c) in
-//! one more revision only this copy has; [`RevisionStore::pages_changed_since`] says which pages
+//! revisions as the writer would save them, with a catalog that shows and hides layers (a2-3c),
+//! hidden comments, and form widgets PDFium draws (B203, Q26) in one more revision only this copy
+//! has; [`RevisionStore::pages_changed_since`] says which pages
 //! a new appendix draws differently. The writing helpers here serve the writers too.
 // Offsets and sizes are checked (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
@@ -22,6 +23,16 @@ const MAX_WALK: usize = 2_000_000;
 
 /// `/F`: hidden.
 const HIDDEN: i64 = 2;
+/// `/F`: printed.
+const PRINT: i64 = 4;
+/// `/F`: not shown on screen, though it may print.
+const NO_VIEW: i64 = 32;
+
+/// The subtype a widget gets in the appendix. PDFium's render path draws no `/Widget` (only its
+/// form-fill overlay does, which takes no matrix, so no tile), but it draws any other annotation
+/// from its appearance, `/AS` and `/F` as for a widget (B203, Q26 option a). A name no annotation
+/// type has, so nothing PDFium does for a known type applies.
+const DRAWN_WIDGET: &[u8] = b"FermanWidget";
 
 /// The markup annotations (ISO 32000-2 §12.5.6.2): what Hide all hides.
 const MARKUP: &[&[u8]] = &[
@@ -46,10 +57,12 @@ const MARKUP: &[&[u8]] = &[
 
 impl RevisionStore {
     /// The bytes to put after `doc`'s for PDFium to render these revisions, empty when none
-    /// applies and nothing else is asked. With `visible` (one value per
+    /// applies, nothing else is asked and no page has a form widget. With `visible` (one value per
     /// [`Structure::layers`](crate::structure::Structure), in order) it shows those layers and
     /// hides the others; groups not listed keep their state. With `hide_comments` every markup
     /// annotation gets the hidden bit (a4-5, decision 12): widgets, links and signatures stay.
+    /// With `widgets` every widget is given to PDFium as [`DRAWN_WIDGET`], so its appearance draws
+    /// (B203); without, PDFium draws none, for Fill & Sign's overlay, which draws each field.
     ///
     /// # Errors
     ///
@@ -60,18 +73,44 @@ impl RevisionStore {
         doc: &Document,
         visible: Option<&[bool]>,
         hide_comments: bool,
+        widgets: bool,
     ) -> Result<Vec<u8>, CoreError> {
-        let bytes = if visible.is_some() || hide_comments {
+        self.appendix(doc, visible, hide_comments, widgets, false)
+    }
+
+    /// [`render_appendix`](Self::render_appendix) for paper, with every widget drawn: an
+    /// annotation prints by its Print flag, NoView or not, as a reader prints it (PDFium renders
+    /// tiles with screen flags, which go by NoView).
+    ///
+    /// # Errors
+    ///
+    /// The errors of [`incremental_update`](Self::incremental_update).
+    pub fn print_appendix(
+        &self,
+        doc: &Document,
+        hide_comments: bool,
+    ) -> Result<Vec<u8>, CoreError> {
+        self.appendix(doc, None, hide_comments, true, true)
+    }
+
+    fn appendix(
+        &self,
+        doc: &Document,
+        visible: Option<&[bool]>,
+        hide_comments: bool,
+        widgets: bool,
+        print: bool,
+    ) -> Result<Vec<u8>, CoreError> {
+        let annotations = self.annotations_rendered(doc, hide_comments, widgets, print);
+        let bytes = if visible.is_some() || !annotations.is_empty() {
             let mut shown = self.clone();
             shown.begin()?;
             if let Some(visible) = visible {
                 let (root, catalog) = self.catalog_showing(doc, visible)?;
                 shown.put(root, Object::Dictionary(catalog))?;
             }
-            if hide_comments {
-                for (id, object) in self.markup_hidden(doc) {
-                    shown.put(id, object)?;
-                }
+            for (id, object) in annotations {
+                shown.put(id, object)?;
             }
             shown.commit()?;
             shown.incremental_update(doc)?
@@ -84,18 +123,95 @@ impl RevisionStore {
             .to_vec())
     }
 
-    /// The objects that hide every markup annotation still drawn: each one's own object, and a
+    /// Takes every markup annotation, and the pop-ups they own, out of the pages' `/Annots` in
+    /// the open transaction (Save as without "Include comments and markup", a1-11): widgets,
+    /// links and signatures stay. How many it took out; a rewrite then leaves them out of the
+    /// file, while an incremental update keeps their objects in the earlier revision.
+    ///
+    /// # Errors
+    ///
+    /// [`crate::WriteError::NoTransaction`].
+    pub fn remove_markup(&mut self, doc: &Document) -> Result<u32, CoreError> {
+        self.transaction_open()?;
+        let mut removed = 0u32;
+        for index in 0..self.pages(doc).len() {
+            let gone: Vec<bool> = {
+                let scope = self.scope(doc);
+                let Some(dict) = self
+                    .pages(doc)
+                    .get(index)
+                    .and_then(|page| scope.dictionary(page.id))
+                else {
+                    continue;
+                };
+                let markup = |annotation: &Dictionary| {
+                    scope
+                        .get_name(annotation, b"Subtype")
+                        .is_some_and(|subtype| MARKUP.contains(&subtype))
+                };
+                scope
+                    .get_array(dict, b"Annots")
+                    .into_iter()
+                    .flatten()
+                    .map(|item| {
+                        scope.dict(item).is_some_and(|annotation| {
+                            markup(annotation)
+                                || (scope.get_name(annotation, b"Subtype") == Some(b"Popup")
+                                    && scope.get_dict(annotation, b"Parent").is_some_and(markup))
+                        })
+                    })
+                    .collect()
+            };
+            let count = gone.iter().filter(|&&gone| gone).count();
+            if count == 0 {
+                continue;
+            }
+            let mut flags = gone.into_iter();
+            self.change_annots(doc, index, |items| {
+                items.retain(|_| !flags.next().unwrap_or(false));
+                true
+            })?;
+            removed = removed.saturating_add(u32::try_from(count).unwrap_or(u32::MAX));
+        }
+        Ok(removed)
+    }
+
+    /// The objects that, with `widgets`, draw every widget as [`DRAWN_WIDGET`] and, with
+    /// `hide_comments`, hide every markup annotation still drawn: each one's own object, and a
     /// page's dictionary for those written directly in its `/Annots`.
-    fn markup_hidden(&self, doc: &Document) -> Vec<(ObjectId, Object)> {
+    fn annotations_rendered(
+        &self,
+        doc: &Document,
+        hide_comments: bool,
+        widgets: bool,
+        print: bool,
+    ) -> Vec<(ObjectId, Object)> {
         let scope = self.scope(doc);
         let hidden = |annotation: &Dictionary| -> Option<Dictionary> {
             let subtype = scope.get_name(annotation, b"Subtype")?;
+            let widget = widgets && subtype == b"Widget";
             let flags = scope.get_int(annotation, b"F").unwrap_or(0);
-            if !MARKUP.contains(&subtype) || flags & HIDDEN != 0 {
+            let mut shown = flags;
+            if print {
+                shown = if flags & PRINT == 0 {
+                    shown | HIDDEN
+                } else {
+                    shown & !NO_VIEW
+                };
+            }
+            if hide_comments && MARKUP.contains(&subtype) {
+                shown |= HIDDEN;
+            }
+            if !widget && shown == flags {
                 return None;
             }
             let mut annotation = annotation.clone();
-            annotation.set("F", flags | HIDDEN);
+            if widget {
+                annotation.set("Subtype", Object::Name(DRAWN_WIDGET.to_vec()));
+            }
+            if shown != flags {
+                annotation.set("F", shown);
+            }
             Some(annotation)
         };
         let mut queued = Vec::new();
@@ -212,12 +328,15 @@ impl RevisionStore {
             .collect();
         changed.extend(then.keys().filter(|id| !now.contains_key(*id)));
         // A catalog that changed only in /AcroForm draws the same: its fonts and fields reach a page
-        // through the widgets, and the walk below finds those.
+        // through the widgets, and the walk below finds those. Its outline, name trees
+        // (attachments) and XMP draw nothing.
         let root = doc.xref().trailer.get(b"Root").ok()?.as_reference().ok()?;
         if changed.contains(&root) {
             let without_form = |store: &Self| {
                 let mut catalog = store.scope(doc).dictionary(root)?.clone();
-                catalog.remove(b"AcroForm");
+                for key in [&b"AcroForm"[..], b"Outlines", b"Names", b"Metadata"] {
+                    catalog.remove(key);
+                }
                 Some(catalog)
             };
             if without_form(self)? != without_form(before)? {
@@ -526,7 +645,7 @@ mod tests {
             let store = RevisionStore::new(&document);
             assert!(
                 store
-                    .render_appendix(&document, None, false)
+                    .render_appendix(&document, None, false, true)
                     .unwrap()
                     .is_empty()
             );
@@ -538,7 +657,7 @@ mod tests {
                 let mut copy = original.clone();
                 copy.extend(
                     store
-                        .render_appendix(&document, Some(&wanted), false)
+                        .render_appendix(&document, Some(&wanted), false, true)
                         .unwrap(),
                 );
                 assert!(copy.starts_with(&original));
@@ -561,7 +680,7 @@ mod tests {
         let mut copy = original.clone();
         copy.extend(
             store
-                .render_appendix(&document, Some(&[false, true, true]), false)
+                .render_appendix(&document, Some(&[false, true, true]), false, true)
                 .unwrap(),
         );
         assert_eq!(visible(&copy), [false, true, true]);
@@ -572,6 +691,107 @@ mod tests {
             visible(&store.incremental_update(&document).unwrap()),
             [true, true, false]
         );
+    }
+
+    /// B203: every widget reaches PDFium as [`super::DRAWN_WIDGET`], from the open on, unless
+    /// Fill & Sign draws them, and Hide all hides the markup beside it, a direct one through its
+    /// page, and never a widget.
+    #[test]
+    fn widgets_are_drawn_and_hide_all_leaves_them() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let page = doc.page_iter().next().unwrap();
+        let widget = doc.add_object(dictionary! { "Subtype" => "Widget", "FT" => "Tx", "F" => 4 });
+        doc.get_dictionary_mut(page).unwrap().set(
+            "Annots",
+            vec![
+                Object::Reference(widget),
+                Object::Dictionary(dictionary! { "Subtype" => "Square" }),
+            ],
+        );
+        let mut original = Vec::new();
+        doc.save_to(&mut original).unwrap();
+        let document = opened(&original);
+        let store = RevisionStore::new(&document);
+        for hide in [false, true] {
+            let mut copy = original.clone();
+            copy.extend(store.render_appendix(&document, None, hide, true).unwrap());
+            let shown = opened(&copy);
+            let model = shown.model();
+            let annots = model
+                .get_dictionary(page)
+                .unwrap()
+                .get(b"Annots")
+                .unwrap()
+                .as_array()
+                .unwrap();
+            let subtype = |dict: &lopdf::Dictionary| dict.get(b"Subtype").unwrap().clone();
+            let first = model.get_dictionary(widget).unwrap();
+            assert_eq!(subtype(first), Object::Name(b"FermanWidget".to_vec()));
+            assert_eq!(first.get(b"F").unwrap().as_i64().unwrap(), 4);
+            let square = annots[1].as_dict().unwrap();
+            assert_eq!(subtype(square), Object::Name(b"Square".to_vec()));
+            assert_eq!(
+                square.get(b"F").ok().and_then(|f| f.as_i64().ok()),
+                hide.then_some(2)
+            );
+            // The document's own model still has its widget.
+            assert_eq!(
+                subtype(document.model().get_dictionary(widget).unwrap()),
+                Object::Name(b"Widget".to_vec())
+            );
+        }
+        // Fill & Sign draws the fields itself: no appendix, PDFium draws no widget.
+        assert!(
+            store
+                .render_appendix(&document, None, false, false)
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    /// Paper shows what has the Print flag, NoView or not, and nothing else.
+    #[test]
+    fn print_goes_by_the_print_flag() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let page = doc.page_iter().next().unwrap();
+        let button = doc.add_object(dictionary! { "Subtype" => "Widget", "FT" => "Btn" });
+        let stamp = doc.add_object(dictionary! { "Subtype" => "Stamp", "F" => 4 | 32 });
+        let note = doc.add_object(dictionary! { "Subtype" => "Text", "F" => 0 });
+        doc.get_dictionary_mut(page).unwrap().set(
+            "Annots",
+            vec![
+                Object::Reference(button),
+                Object::Reference(stamp),
+                Object::Reference(note),
+            ],
+        );
+        let mut original = Vec::new();
+        doc.save_to(&mut original).unwrap();
+        let document = opened(&original);
+        let store = RevisionStore::new(&document);
+        let mut copy = original.clone();
+        copy.extend(store.print_appendix(&document, false).unwrap());
+        let printed = opened(&copy);
+        let flags = |id| {
+            printed
+                .model()
+                .get_dictionary(id)
+                .unwrap()
+                .get(b"F")
+                .unwrap()
+                .as_i64()
+                .unwrap()
+        };
+        assert_eq!(flags(button), 2, "a button without Print stays off paper");
+        assert_eq!(flags(stamp), 4, "a print-only stamp prints");
+        assert_eq!(flags(note), 2);
+        let subtype = printed
+            .model()
+            .get_dictionary(button)
+            .unwrap()
+            .get(b"Subtype")
+            .unwrap();
+        assert_eq!(subtype, &Object::Name(b"FermanWidget".to_vec()));
     }
 
     fn opened(bytes: &[u8]) -> Document {

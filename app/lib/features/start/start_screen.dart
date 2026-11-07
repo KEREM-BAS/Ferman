@@ -17,6 +17,7 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/start/default_app_prompt.dart';
 import 'package:ferman/features/start/recent_files_view.dart';
+import 'package:ferman/features/tools/compress_panel.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -84,14 +85,14 @@ class FmStart extends ConsumerWidget {
     if (WindowMetrics.isPhone(context)) return const _PhoneHome();
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final problem = ref.watch(engineProblemProvider);
     final openReason = openFilesDisabledReason(context, ref);
     final onOpen = openFiles(context, ref);
     final failed = ref.watch(documentOpenerProvider);
     final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
-    // ⌘O and ⌘N have keys on every system.
-    final open = ShellCommand.open.caps(platform)!;
+    // None when the person gave Open's keys to another command.
+    final open = keys.caps(ShellCommand.open);
     final actions = [
       (
         onOpen,
@@ -110,7 +111,7 @@ class FmStart extends ConsumerWidget {
         IconName.filePlus2,
         l10n.startCreatePdf,
         l10n.startCreatePdfDescription,
-        ShellCommand.createPdf.caps(platform),
+        keys.caps(ShellCommand.createPdf),
         openReason,
       ),
       (
@@ -150,8 +151,22 @@ class FmStart extends ConsumerWidget {
                   }
                 }),
           );
+    // Compress opens a file in Tools with its panel (a9-1).
+    final compress = onOpen == null
+        ? null
+        : () => unawaited(
+            ref
+                .read(documentOpenerProvider.notifier)
+                .pick(filterLabel: l10n.openPdfFilter)
+                .then((_) {
+                  if (ref.read(shellDocumentsProvider).active?.document !=
+                      null) {
+                    showCompress(ref);
+                  }
+                }),
+          );
     final tools = <(Feature?, IconName, String, VoidCallback?)>[
-      (Feature.compress, IconName.minimize2, l10n.startToolCompress, null),
+      (null, IconName.minimize2, l10n.startToolCompress, compress),
       (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert, null),
       (null, IconName.signature, l10n.startToolSign, sign),
       (Feature.ocr, IconName.scanText, l10n.startToolOcr, null),
@@ -226,7 +241,7 @@ class FmStart extends ConsumerWidget {
             subtitle: l10n.startDropSubtitle,
             openLabel: l10n.startOpenPdf,
             createLabel: l10n.startNewBlankPdf,
-            shortcut: open,
+            shortcut: open ?? const [],
             footnote: l10n.startDropFootnote,
             minHeight: dropMinHeight,
             onOpen: onOpen,
@@ -478,7 +493,7 @@ class _PhoneHome extends ConsumerWidget {
       (Feature.phoneSign, IconName.signature, l10n.startToolSign),
       (Feature.phoneEditing, IconName.filePenLine, l10n.shellModeEdit),
       (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
-      (Feature.compress, IconName.minimize2, l10n.startToolCompress),
+      (Feature.phoneCompress, IconName.minimize2, l10n.startToolCompress),
       (Feature.phoneCombine, IconName.merge, l10n.startPhoneToolCombine),
       (Feature.passwordProtection, IconName.shield, l10n.startToolProtect),
       (Feature.ocr, IconName.scanText, l10n.startPhoneToolOcr),

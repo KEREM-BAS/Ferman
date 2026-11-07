@@ -58,10 +58,6 @@ enum Feature {
   /// (a13-15).
   aboutAndLicence('B169'),
 
-  /// Combining dropped files: "Combine into one PDF" while files are dragged
-  /// over the window (a1-6).
-  combineDropped('B191'),
-
   /// Create PDF from the clipboard: its source in the Create PDF dialog.
   createFromClipboard('B176'),
 
@@ -75,9 +71,9 @@ enum Feature {
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
 
-  /// The Save as sheet's options "Include comments and markup" and "Remove
-  /// edit history from the file" (a1-11).
-  saveAsOptions('B138'),
+  /// The Save as sheet's "Optimized for web" (a1-11, question 4 of the M4
+  /// plan): a linearizing writer (G111).
+  webOptimized('B186'),
 
   // Viewing.
 
@@ -93,15 +89,6 @@ enum Feature {
   /// Dark reading mode: the View row's switch and the option under
   /// Settings › General › PDF pages in dark theme.
   darkReadingMode('B040'),
-
-  /// The sidebar's tab contents: the Pages tab's badge legend.
-  sidebarContents('B065'),
-
-  /// Editing bookmarks: the Outline tab's Add bookmark and More.
-  editingBookmarks('B066'),
-
-  /// Attaching files: the Attachments tab's Attach a file.
-  attachingFiles('B067'),
 
   /// Showing and hiding layers in a repaired document, or one opened with
   /// its password: the Layers tab's eye buttons there.
@@ -155,10 +142,6 @@ enum Feature {
   /// defaults, which has no entry yet).
   formDataExport('B207'),
 
-  /// Managing saved signatures: Settings › Signatures and certificates, and
-  /// the Sign menu's Manage saved signatures….
-  settingsSignatures('B208'),
-
   /// Signing on the phone, which has no shell yet: the phone home's quick
   /// tool Sign.
   phoneSign('B209'),
@@ -206,9 +189,12 @@ enum Feature {
 
   // Tools.
 
-  /// Compress: Start › Compress and Tools › Compress, and the Save as
-  /// sheet's "Optimized for web", which needs its image pipeline (G111).
-  compress('B022'),
+  /// Compress's Custom… preset (a9-1), whose form no board draws.
+  compressCustom('B182'),
+
+  /// Compress on the phone, which has no shell yet: the phone home's quick
+  /// tool.
+  phoneCompress('B212'),
 
   /// Compare: Start › Compare, Tools › Compare, the first-run tile and the
   /// changed-on-disk bar's Compare (a11-7b).
@@ -224,33 +210,45 @@ enum Feature {
   /// Batch actions: Tools › Batch actions and the first-run tile.
   batchActions('B064'),
 
-  /// Basic system print (Tools › Print).
-  printing('B061'),
+  /// Print's Printer, Copies and Both sides (a9-6), which the system print
+  /// dialog sets (question 3 of the M4 plan).
+  printSystemOptions('B214'),
 
-  /// Version history: Tools › Version history and Settings › Editing › Keep
-  /// versions.
-  versionHistory('B060'),
+  /// Print's Booklet and Poster layouts (a9-6b, a9-6c).
+  printLayouts('B215'),
+
+  /// Print's custom scale and its Include choices for form fields and hidden
+  /// layers (a9-6).
+  printMoreOptions('B216'),
 
   /// The AI assistant: the mode bar's AI button, Tools › AI assistant,
   /// Settings › AI assistant and Settings › Privacy › Your AI provider.
   aiAssistant('B032'),
 
-  /// The command palette: the title bar's Search.
-  commandPalette('B030'),
-
   // Settings and first run.
 
-  /// Searching Settings.
-  settingsSearch('B073'),
+  /// Settings › Keyboard shortcuts › Preset: Like Acrobat and Like Preview.
+  shortcutPresets('B181'),
 
-  /// Settings › Fonts.
-  settingsFonts('B075'),
+  /// Settings › Fonts' filter "Used in open documents" (a11-1d).
+  fontsInOpenDocuments('B220'),
 
-  /// Keyboard shortcuts: Settings › Keyboard shortcuts.
-  keyboardShortcuts('B076'),
+  /// Drawing pages on the graphics card: Settings › Advanced's switch.
+  gpuRendering('B178'),
 
-  /// Settings › Advanced.
-  settingsAdvanced('B077'),
+  /// Page cache sizes other than the engine's: Settings › Advanced › Page
+  /// cache's other options.
+  pageCacheSize('B218'),
+
+  /// Making every thumbnail when a document opens: Settings › Advanced ›
+  /// Thumbnails' second option.
+  thumbnailsUpfront('B219'),
+
+  /// The PDF object inspector: Settings › Advanced's switch.
+  objectInspector('B179'),
+
+  /// Log files on the device: Settings › Advanced › Show log files.
+  logFiles('B180'),
 
   /// Spacing before and after a block in the text panel (a3-2): Spacing ›
   /// Before and After.

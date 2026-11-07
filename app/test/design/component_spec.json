@@ -7435,6 +7435,15 @@
           "declared": false
         },
         {
+          "ds": null,
+          "dart": "onSearch",
+          "type": "ValueChanged<String>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the query on Enter while no command matches, to search the document instead (the a11-2 note).",
+          "declared": false
+        },
+        {
           "ds": "placeholder",
           "dart": "placeholder",
           "type": "String",
@@ -7650,6 +7659,24 @@
           "required": false,
           "default": false,
           "notes": "A bottom sheet at phone width (a13-8c, G129): the Select list.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "width",
+          "type": "double?",
+          "required": false,
+          "default": null,
+          "notes": "A width other than the size's, for a board that draws its own (a11-3's 1100 px cheat sheet).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "headTrailing",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "A widget in the head between the title and the close button (a11-3's search field).",
           "declared": false
         },
         {

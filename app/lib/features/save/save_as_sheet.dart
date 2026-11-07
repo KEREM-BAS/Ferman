@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/save/file_exists.dart';
 import 'package:ferman/features/shell/open_files.dart';
@@ -24,10 +25,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// name already taken in a folder the panel did not confirm asks for
 /// another, so the sheet never replaces a file unasked, and so does the
 /// file of another open tab, wherever. Only PDF works:
-/// PDF/A-2b (P4) and "Optimized for web" (M4) stay visible and disabled,
-/// their reason in place of their description (G111), and so do the two
-/// options ([Feature.saveAsOptions]). "Save as a copy" writes a copy and
-/// leaves the document as it was (⌥⌘S starts with it checked).
+/// PDF/A-2b (P4) and "Optimized for web" (P2, B186) stay visible and
+/// disabled, their reason in place of their description (G111). "Save as a
+/// copy" writes a copy and leaves the document as it was (⌥⌘S starts with it
+/// checked). Without "Include comments and markup" the file is a copy without
+/// them, and the document keeps its own; "Remove edit history from the file"
+/// rewrites it whole, without earlier revisions or deleted pages, and its
+/// line says that until then deleted pages stay in the file (B138, question 5
+/// of the M4 plan).
 class SaveAsSheet extends ConsumerStatefulWidget {
   /// The sheet for [request].
   const new(this.request, {super.key});
@@ -61,6 +66,8 @@ class _SaveAsSheetState extends ConsumerState<SaveAsSheet> {
 
   late String _folder = _home;
   late bool _copy = widget.request.copy;
+  bool _comments = true;
+  bool _history = false;
   String? _error;
 
   @override
@@ -103,20 +110,31 @@ class _SaveAsSheetState extends ConsumerState<SaveAsSheet> {
       setState(() => _error = l10n.saveAsNameOpen);
       return;
     }
+    // Without comments the file is a copy, never the document's own file.
+    if (!_comments && path == widget.request.document.path) {
+      setState(() => _error = l10n.saveAsNameTaken);
+      return;
+    }
     if (path != _confirmed &&
         path != widget.request.document.path &&
         await fileExists(path)) {
       if (mounted) setState(() => _error = l10n.saveAsNameTaken);
       return;
     }
-    await _saver.saveTo(path, copy: _copy);
+    await _saver.saveTo(
+      path,
+      copy: _copy,
+      options: SaveAsOptions(
+        includeComments: _comments,
+        removeHistory: _history,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final future = Feature.saveAsOptions.disabledReason(context);
     final chosen = _chosen;
     return Dialog(
       title: l10n.saveAsTitle,
@@ -215,9 +233,11 @@ class _SaveAsSheetState extends ConsumerState<SaveAsSheet> {
                       value: 2,
                       groupValue: 0,
                       label: l10n.saveAsWeb,
-                      description: Feature.compress.disabledReason(context),
+                      description: Feature.webOptimized.disabledReason(context),
                       disabled: true,
-                      disabledReason: Feature.compress.disabledReason(context),
+                      disabledReason: Feature.webOptimized.disabledReason(
+                        context,
+                      ),
                     ),
                   ],
                 ),
@@ -237,19 +257,23 @@ class _SaveAsSheetState extends ConsumerState<SaveAsSheet> {
                   ),
             onChanged: (value) => setState(() => _copy = value),
           ),
-          // Comments are always included, and the edit history stays in
-          // the file (an incremental update), so each shows what it does.
           Checkbox(
-            checked: true,
+            checked: _comments,
             label: l10n.saveAsComments,
-            disabled: true,
-            disabledReason: future,
+            description: _comments
+                ? null
+                : l10n.saveAsCommentsOff(
+                    bidiIsolate(widget.request.document.name),
+                  ),
+            onChanged: (value) => setState(() => _comments = value),
           ),
           Checkbox(
-            checked: false,
+            checked: _history,
             label: l10n.saveAsHistory,
-            disabled: true,
-            disabledReason: future,
+            description: _history
+                ? l10n.saveAsHistoryOn
+                : l10n.saveAsHistoryOff,
+            onChanged: (value) => setState(() => _history = value),
           ),
         ],
       ),

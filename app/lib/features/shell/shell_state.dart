@@ -8,6 +8,7 @@ import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -454,6 +455,16 @@ bool shellAiEnabled(Ref ref) => false;
 /// it to check another system.
 @riverpod
 ShortcutPlatform shortcutPlatform(Ref ref) => ShortcutPlatform.current;
+
+/// The keys of every command, as `shortcutBindingsProvider`: the table on
+/// the system the app runs on with the user's changes from Settings ›
+/// Keyboard shortcuts (a11-1j). Every caption, tooltip and binding reads
+/// it.
+@riverpod
+ShortcutBindings shortcutBindings(Ref ref) => ShortcutBindings.fromSettings(
+  ref.watch(shortcutPlatformProvider),
+  ref.watch(settingsProvider.select((settings) => settings.shortcuts)),
+);
 
 /// An open document as the shell shows it: the title bar's tab, the Save
 /// button and the status bar all read the same document, so they always

@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `info_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `preset`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `save_options`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgePrint`, `BridgeSearch`, `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -601,6 +601,17 @@ Future<EditPreview> resolveOverflow({
 Future<void> setFontSettings({required FontSettings settings}) =>
     FermanBridge.instance.api.crateFrbSetFontSettings(settings: settings);
 
+/// The font families bundled in `bundled_dir` and installed on this computer, bundled first and
+/// then by name, scanned off the calling thread (a11-1d).
+///
+/// See [`facade::Engine::installed_fonts`].
+///
+/// # Errors
+///
+/// Only an internal error.
+Future<List<InstalledFont>> installedFonts({String? bundledDir}) =>
+    FermanBridge.instance.api.crateFrbInstalledFonts(bundledDir: bundledDir);
+
 /// Draws step 3's characters in the candidate `postscript_name` of `origin` (a3-3b).
 ///
 /// See [`facade::Engine::choose_font`].
@@ -750,6 +761,22 @@ Future<BigInt> showComments({
   required BigInt document,
   required bool visible,
 }) => FermanBridge.instance.api.crateFrbShowComments(
+  document: document,
+  visible: visible,
+);
+
+/// Draws the form widgets of `document` in every view, or leaves them to Fill & Sign's overlay
+/// (B203): render-only, never saved. Returns every page's new render key, 0 when nothing changes.
+///
+/// See [`facade::Engine::show_form_widgets`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+Future<BigInt> showFormWidgets({
+  required BigInt document,
+  required bool visible,
+}) => FermanBridge.instance.api.crateFrbShowFormWidgets(
   document: document,
   visible: visible,
 );
@@ -1171,6 +1198,80 @@ Future<RevisionInfo> setPageLabels({
   name: name,
 );
 
+/// Makes `items` the outline of `document` (a2-3a) as one history step: renamed, added, nested,
+/// moved and deleted items at once. An item kept keeps its destination, colour and style.
+///
+/// See [`facade::Engine::set_outline`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`], and `InvalidInput` for items that cannot apply.
+Future<RevisionInfo> setOutline({
+  required BigInt document,
+  required List<OutlineEdit> items,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetOutline(
+  document: document,
+  items: items,
+  name: name,
+);
+
+/// Makes `info` the information of `document` (a2-7), in `/Info` and its XMP, as one history
+/// step.
+///
+/// See [`facade::Engine::set_info`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` for a file without an `/Info` object,
+/// and `NotFound`.
+Future<RevisionInfo> setInfo({
+  required BigInt document,
+  required InfoEdit info,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetInfo(
+  document: document,
+  info: info,
+  name: name,
+);
+
+/// Attaches the file at `path` to `document` as `file_name` (a2-3b), one history step.
+///
+/// See [`facade::Engine::attach_file`].
+///
+/// # Errors
+///
+/// As [`set_info`], the file errors, and `ResourceLimit` for a file too large for one change.
+Future<RevisionInfo> attachFile({
+  required BigInt document,
+  required String path,
+  required String fileName,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAttachFile(
+  document: document,
+  path: path,
+  fileName: fileName,
+  name: name,
+);
+
+/// Takes attachment `index` of [`OpenedDocument::attachments`] out of `document`, one history
+/// step; a file attachment annotation is a comment and is not taken out here.
+///
+/// See [`facade::Engine::remove_attachment`].
+///
+/// # Errors
+///
+/// As [`set_info`], and `InvalidInput` for an annotation's attachment or an index past them.
+Future<RevisionInfo> removeAttachment({
+  required BigInt document,
+  required int index,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbRemoveAttachment(
+  document: document,
+  index: index,
+  name: name,
+);
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -1279,7 +1380,8 @@ Future<String?> saveOverChange({required BigInt document, String? staging}) =>
       staging: staging,
     );
 
-/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+/// Saves a copy of `document` as the file at `path` with Save as's `options`; later saves still
+/// write to its own file.
 ///
 /// See [`facade::Engine::save_copy`].
 ///
@@ -1289,10 +1391,12 @@ Future<String?> saveOverChange({required BigInt document, String? staging}) =>
 Future<String?> saveCopy({
   required BigInt document,
   required String path,
+  required SaveAsOptions options,
   String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveCopy(
   document: document,
   path: path,
+  options: options,
   staging: staging,
 );
 
@@ -1316,18 +1420,138 @@ Future<String?> saveRepairedCopy({
   staging: staging,
 );
 
-/// Optimize and clean: the document's file rewritten whole.
+/// Optimize and clean as a background job: the document's file rewritten whole. The stream's
+/// first event has the job's handle; its last says how it ended, with the document's file as its
+/// output (staged under the sandbox, for [`finish_save`]).
 ///
-/// See [`facade::Engine::optimize_and_clean`].
+/// See [`facade::Engine::optimize_and_clean_job`].
 ///
 /// # Errors
 ///
-/// As [`save`]; `Unsupported` for a repaired document.
-Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
-    FermanBridge.instance.api.crateFrbOptimizeAndClean(
-      document: document,
-      staging: staging,
-    );
+/// `NotFound` for a document that is not open; the job fails with `ConfirmationRequired`,
+/// `Unsupported` for a repaired document and the save failures.
+Stream<JobEvent> startOptimizeAndCleanJob({
+  required BigInt document,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartOptimizeAndCleanJob(
+  document: document,
+  staging: staging,
+);
+
+/// What Compress would do to `document` as it stands, with each preset's estimate.
+///
+/// See [`facade::Engine::compress_analysis`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the writer's errors.
+Future<CompressAnalysis> compressAnalysis({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbCompressAnalysis(document: document);
+
+/// Compresses `document` with `preset` into the new file `output` as a background job. The last
+/// event's parameters are facts with no message key: `before`, `after`, `written`,
+/// `recompressed` and `unreadable`.
+///
+/// See [`facade::Engine::compress_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `ConfirmationRequired` for a signed document without
+/// `unsign`, `NotFound`.
+Stream<JobEvent> startCompressJob({
+  required BigInt document,
+  required CompressPreset preset,
+  required bool unsign,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCompressJob(
+  document: document,
+  preset: preset,
+  unsign: unsign,
+  output: output,
+  staging: staging,
+);
+
+/// Streams `pages` of `document` (by handle; all when empty) rendered one by one for the print
+/// channel, without its markup annotations unless `include_comments`. The stream ends after the
+/// last page; cancelling it ends the print.
+///
+/// See [`facade::Engine::print_pages`].
+///
+/// # Errors
+///
+/// `NotEditable` when the document forbids printing, `InvalidInput`, `NotFound`, and the render
+/// thread's errors.
+Stream<PrintPage> printPages({
+  required BigInt document,
+  required Uint64List pages,
+  required bool includeComments,
+}) => FermanBridge.instance.api.crateFrbPrintPages(
+  document: document,
+  pages: pages,
+  includeComments: includeComments,
+);
+
+/// Names the versions folder in the app data directory, at launch (ADR 0022).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<void> startVersions({required String root}) =>
+    FermanBridge.instance.api.crateFrbStartVersions(root: root);
+
+/// "Keep versions" (a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<void> setVersionsEnabled({required bool enabled}) =>
+    FermanBridge.instance.api.crateFrbSetVersionsEnabled(enabled: enabled);
+
+/// The versions of `document`'s file, newest first.
+///
+/// See [`facade::Engine::versions`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<List<VersionInfo>> versions({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbVersions(document: document);
+
+/// Opens version `version` of `document` read-only for the preview; an encrypted document's needs
+/// its `password` again.
+///
+/// See [`facade::Engine::open_version`].
+///
+/// # Errors
+///
+/// `NotFound` for a version it does not have, and what [`open`] returns.
+Future<OpenedDocument> openVersion({
+  required BigInt document,
+  required BigInt version,
+  String? password,
+}) => FermanBridge.instance.api.crateFrbOpenVersion(
+  document: document,
+  version: version,
+  password: password,
+);
+
+/// Makes version `version` the file of `document` again; the app then opens the file again.
+///
+/// See [`facade::Engine::restore_version`].
+///
+/// # Errors
+///
+/// `NotFound`, `FileChangedOnDisk` and the save failures.
+Future<String?> restoreVersion({
+  required BigInt document,
+  required BigInt version,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbRestoreVersion(
+  document: document,
+  version: version,
+  staging: staging,
+);
 
 /// Whether Optimize and clean would break the document's signatures.
 ///
@@ -1547,7 +1771,8 @@ Future<String?> saveUnsignedCopy({
 Future<bool> checkExternalChange({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbCheckExternalChange(document: document);
 
-/// Saves `document` as the file at `path`; later saves write there.
+/// Saves `document` as the file at `path` with Save as's `options`; later saves write there,
+/// unless the comments are left out.
 ///
 /// See [`facade::Engine::save_as`].
 ///
@@ -1557,10 +1782,12 @@ Future<bool> checkExternalChange({required BigInt document}) =>
 Future<String?> saveAs({
   required BigInt document,
   required String path,
+  required SaveAsOptions options,
   String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveAs(
   document: document,
   path: path,
+  options: options,
   staging: staging,
 );
 
@@ -2434,6 +2661,123 @@ class CombinePreview {
           bytes == other.bytes;
 }
 
+/// What Compress would do to a document (a9-1).
+class CompressAnalysis {
+  /// The size now, in bytes.
+  final BigInt before;
+
+  /// High quality, Balanced and Smallest, in that order.
+  final List<CompressEstimate> estimates;
+
+  /// The images it may recompress.
+  final int images;
+
+  /// Images in a format or colour it does not decode, left as they are.
+  final int unreadable;
+
+  /// Masks and images with a colour-key mask, left as they are.
+  final int masks;
+
+  /// Images drawn only through patterns, left as they are.
+  final int patterns;
+
+  /// Duplicate font copies merged.
+  final int duplicateFonts;
+
+  /// Pages whose thumbnail goes.
+  final int thumbnails;
+
+  /// Whether the document is signed: the warning comes first, and the copy has no signatures.
+  final bool signed;
+
+  const CompressAnalysis({
+    required this.before,
+    required this.estimates,
+    required this.images,
+    required this.unreadable,
+    required this.masks,
+    required this.patterns,
+    required this.duplicateFonts,
+    required this.thumbnails,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      before.hashCode ^
+      estimates.hashCode ^
+      images.hashCode ^
+      unreadable.hashCode ^
+      masks.hashCode ^
+      patterns.hashCode ^
+      duplicateFonts.hashCode ^
+      thumbnails.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompressAnalysis &&
+          runtimeType == other.runtimeType &&
+          before == other.before &&
+          estimates == other.estimates &&
+          images == other.images &&
+          unreadable == other.unreadable &&
+          masks == other.masks &&
+          patterns == other.patterns &&
+          duplicateFonts == other.duplicateFonts &&
+          thumbnails == other.thumbnails &&
+          signed == other.signed;
+}
+
+/// A preset's estimated result.
+class CompressEstimate {
+  /// The preset.
+  final CompressPreset preset;
+
+  /// The estimated size after, in bytes.
+  final BigInt after;
+
+  /// Whether every image was recompressed for it, so it is exact but for rounding.
+  final bool exact;
+
+  /// How many images it recompressed.
+  final int sampled;
+
+  const CompressEstimate({
+    required this.preset,
+    required this.after,
+    required this.exact,
+    required this.sampled,
+  });
+
+  @override
+  int get hashCode =>
+      preset.hashCode ^ after.hashCode ^ exact.hashCode ^ sampled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompressEstimate &&
+          runtimeType == other.runtimeType &&
+          preset == other.preset &&
+          after == other.after &&
+          exact == other.exact &&
+          sampled == other.sampled;
+}
+
+/// a9-1's presets.
+enum CompressPreset {
+  /// Images at 300 ppi, for printing.
+  highQuality,
+
+  /// Images at 150 ppi, for sharing and reading on screen.
+  balanced,
+
+  /// Images at 96 ppi, for e-mail.
+  smallest,
+}
+
 /// One engine crate and its version.
 class CrateVersion {
   /// The crate name, such as `"ferman-core"`.
@@ -2504,6 +2848,9 @@ class DocumentInfo {
   /// `/ModDate`.
   final PdfDate? modified;
 
+  /// Whether a2-7 can edit it: the file has an `/Info` object.
+  final bool editable;
+
   const DocumentInfo({
     this.title,
     this.author,
@@ -2513,6 +2860,7 @@ class DocumentInfo {
     this.producer,
     this.created,
     this.modified,
+    required this.editable,
   });
 
   @override
@@ -2524,7 +2872,8 @@ class DocumentInfo {
       creator.hashCode ^
       producer.hashCode ^
       created.hashCode ^
-      modified.hashCode;
+      modified.hashCode ^
+      editable.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2538,7 +2887,8 @@ class DocumentInfo {
           creator == other.creator &&
           producer == other.producer &&
           created == other.created &&
-          modified == other.modified;
+          modified == other.modified &&
+          editable == other.editable;
 }
 
 /// What the user asks to do to a document.
@@ -2557,6 +2907,9 @@ enum DocumentOp {
 
   /// Printing, which changes nothing in the file.
   print,
+
+  /// Changing the document's information or attachments.
+  modify,
 }
 
 /// What an encrypted document allows without its owner password (a2-10b's rows).
@@ -2633,14 +2986,19 @@ class DocumentStructure {
   /// Its embedded files.
   final List<Attachment> attachments;
 
+  /// Its information.
+  final DocumentInfo info;
+
   const DocumentStructure({
     required this.pages,
     required this.outline,
     required this.attachments,
+    required this.info,
   });
 
   @override
-  int get hashCode => pages.hashCode ^ outline.hashCode ^ attachments.hashCode;
+  int get hashCode =>
+      pages.hashCode ^ outline.hashCode ^ attachments.hashCode ^ info.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2649,7 +3007,8 @@ class DocumentStructure {
           runtimeType == other.runtimeType &&
           pages == other.pages &&
           outline == other.outline &&
-          attachments == other.attachments;
+          attachments == other.attachments &&
+          info == other.info;
 }
 
 /// What a block's page would read after [`apply_edit`].
@@ -3494,6 +3853,33 @@ enum FontOrigin {
   bundled,
 }
 
+/// A script of Settings › Fonts' coverage chips (a11-1d), in their order.
+enum FontScript {
+  /// TR: the Turkish letters.
+  turkish,
+
+  /// LX: Latin Extended-A.
+  latinExtended,
+
+  /// CY: Cyrillic.
+  cyrillic,
+
+  /// GR: Greek.
+  greek,
+
+  /// AR: Arabic.
+  arabic,
+
+  /// HE: Hebrew.
+  hebrew,
+
+  /// DV: Devanagari.
+  devanagari,
+
+  /// CJK: Chinese, Japanese and Korean.
+  cjk,
+}
+
 /// Where the fonts for missing glyphs come from.
 class FontSettings {
   /// The directory of the fonts bundled with the app.
@@ -3787,6 +4173,42 @@ class HistoryStep {
           reverts == other.reverts;
 }
 
+/// The document information a2-7 edits; an empty value removes its entry.
+class InfoEdit {
+  /// The title.
+  final String title;
+
+  /// The author.
+  final String author;
+
+  /// The subject.
+  final String subject;
+
+  /// The keywords.
+  final String keywords;
+
+  const InfoEdit({
+    required this.title,
+    required this.author,
+    required this.subject,
+    required this.keywords,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ author.hashCode ^ subject.hashCode ^ keywords.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InfoEdit &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          author == other.author &&
+          subject == other.subject &&
+          keywords == other.keywords;
+}
+
 /// Whether an input can be used, for its row in a6-3 (G45).
 enum InputStatus {
   /// It can.
@@ -3806,6 +4228,36 @@ enum InputStatus {
 
   /// Neither a PDF nor an image Ferman can read, or the file is gone.
   unreadable,
+}
+
+/// A family of Settings › Fonts (a11-1d).
+class InstalledFont {
+  /// The family name.
+  final String family;
+
+  /// Bundled with Ferman or installed on this computer.
+  final FontOrigin origin;
+
+  /// The scripts its regular face covers, read from its file.
+  final List<FontScript> scripts;
+
+  const InstalledFont({
+    required this.family,
+    required this.origin,
+    required this.scripts,
+  });
+
+  @override
+  int get hashCode => family.hashCode ^ origin.hashCode ^ scripts.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InstalledFont &&
+          runtimeType == other.runtimeType &&
+          family == other.family &&
+          origin == other.origin &&
+          scripts == other.scripts;
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -4777,6 +5229,53 @@ class OpenedDocument {
           scanned == other.scanned;
 }
 
+/// One outline item as [`set_outline`] writes it, in reading order: each item followed by its
+/// children.
+class OutlineEdit {
+  /// The item it keeps, by its place in [`OpenedDocument::outline`] as it stands now; `None`
+  /// for a new item.
+  final int? item;
+
+  /// The page a new item goes to, from 0.
+  final int? page;
+
+  /// Its title.
+  final String title;
+
+  /// Its nesting, from 0; at most one more than the item before it.
+  final int depth;
+
+  /// Whether it shows its children.
+  final bool open;
+
+  const OutlineEdit({
+    this.item,
+    this.page,
+    required this.title,
+    required this.depth,
+    required this.open,
+  });
+
+  @override
+  int get hashCode =>
+      item.hashCode ^
+      page.hashCode ^
+      title.hashCode ^
+      depth.hashCode ^
+      open.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OutlineEdit &&
+          runtimeType == other.runtimeType &&
+          item == other.item &&
+          page == other.page &&
+          title == other.title &&
+          depth == other.depth &&
+          open == other.open;
+}
+
 /// One outline item (bookmark) of an [`OpenedDocument`].
 class OutlineEntry {
   /// Its title.
@@ -5173,6 +5672,63 @@ class PdfiumStatus {
           reason == other.reason;
 }
 
+/// One page of a print, rendered (a9-6).
+class PrintPage {
+  /// Its index in the document, from 0.
+  final int index;
+
+  /// Its width as displayed, in points.
+  final double widthPoints;
+
+  /// Its height as displayed, in points.
+  final double heightPoints;
+
+  /// The resolution it is rendered at.
+  final int dpi;
+
+  /// Its width in device pixels.
+  final int width;
+
+  /// Its height in device pixels.
+  final int height;
+
+  /// 8-bit BGRA, opaque, `width × 4` bytes per row, the top row first.
+  final Uint8List pixels;
+
+  const PrintPage({
+    required this.index,
+    required this.widthPoints,
+    required this.heightPoints,
+    required this.dpi,
+    required this.width,
+    required this.height,
+    required this.pixels,
+  });
+
+  @override
+  int get hashCode =>
+      index.hashCode ^
+      widthPoints.hashCode ^
+      heightPoints.hashCode ^
+      dpi.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      pixels.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrintPage &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          widthPoints == other.widthPoints &&
+          heightPoints == other.heightPoints &&
+          dpi == other.dpi &&
+          width == other.width &&
+          height == other.height &&
+          pixels == other.pixels;
+}
+
 /// How urgent a wanted item is, highest first (ARCHITECTURE §4.5).
 enum Priority {
   /// Tiles on screen.
@@ -5409,6 +5965,31 @@ class RevisionInfo {
           changedPages == other.changedPages &&
           substitutions == other.substitutions &&
           structure == other.structure;
+}
+
+/// Save as's options (a1-11).
+class SaveAsOptions {
+  /// "Include comments and markup"; without it the document keeps its own file.
+  final bool includeComments;
+
+  /// "Remove edit history from the file": the file is rewritten whole.
+  final bool removeHistory;
+
+  const SaveAsOptions({
+    required this.includeComments,
+    required this.removeHistory,
+  });
+
+  @override
+  int get hashCode => includeComments.hashCode ^ removeHistory.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SaveAsOptions &&
+          runtimeType == other.runtimeType &&
+          includeComments == other.includeComments &&
+          removeHistory == other.removeHistory;
 }
 
 /// A saved signature file: the app owns its format.
@@ -6127,6 +6708,75 @@ class TextPosition {
           runtimeType == other.runtimeType &&
           block == other.block &&
           index == other.index;
+}
+
+/// A version as a9-8's timeline shows it.
+class VersionInfo {
+  /// Its id.
+  final BigInt id;
+
+  /// What made it.
+  final VersionKind kind;
+
+  /// When, in milliseconds since the Unix epoch.
+  final BigInt time;
+
+  /// Its size in bytes.
+  final BigInt size;
+
+  /// How many edits it holds since the version before.
+  final int edits;
+
+  /// Their names; empty for an encrypted document.
+  final List<String> names;
+
+  const VersionInfo({
+    required this.id,
+    required this.kind,
+    required this.time,
+    required this.size,
+    required this.edits,
+    required this.names,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      kind.hashCode ^
+      time.hashCode ^
+      size.hashCode ^
+      edits.hashCode ^
+      names.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VersionInfo &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          kind == other.kind &&
+          time == other.time &&
+          size == other.size &&
+          edits == other.edits &&
+          names == other.names;
+}
+
+/// What made a version (a9-8).
+enum VersionKind {
+  /// The file as it was opened, before the first save.
+  opened,
+
+  /// A save.
+  saved,
+
+  /// A save with a new simple signature.
+  signed,
+
+  /// Unsaved work kept before a restore.
+  unsaved,
+
+  /// A restore.
+  restored,
 }
 
 /// An event of a view's stream. The stream ends when the view closes, with its document or when

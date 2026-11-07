@@ -2720,7 +2720,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsKeepVersions => 'Sürümleri sakla';
 
   @override
-  String get settingsKeepVersions30 => '30 gün, dosyanın yanında';
+  String get settingsKeepVersions30 => '30 gün saklanır';
 
   @override
   String get settingsReflow =>
@@ -3362,7 +3362,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. Optimize et ve temizle’yi seçene kadar dosyada kalır.',
+      other:
+          '$pages. Düzenleme geçmişini kaldırarak kaydedene ya da Optimize et ve temizle’yi seçene kadar dosyada kalır.',
     );
     return '$_temp0';
   }
@@ -5391,4 +5392,797 @@ class AppLocalizationsTr extends AppLocalizations {
   String sidebarSearchFormField(String text) {
     return 'Form alanı: $text';
   }
+
+  @override
+  String jobCompressingTitle(String name) {
+    return '$name sıkıştırılıyor';
+  }
+
+  @override
+  String jobCompressedTitle(String name) {
+    return '$name sıkıştırıldı';
+  }
+
+  @override
+  String jobCompressFailedTitle(String name) {
+    return '$name sıkıştırılamadı';
+  }
+
+  @override
+  String get jobCompressNotSmaller =>
+      'Daha küçük olamıyor, bu yüzden hiçbir şey yazılmadı. Asıl dosya olduğu gibi kalıyor.';
+
+  @override
+  String jobCompressedSizes(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String get printForbidden => 'Yazar yazdırmaya izin vermiyor';
+
+  @override
+  String printSent(String name) {
+    return '$name yazıcıya gönderildi';
+  }
+
+  @override
+  String printFailed(String name) {
+    return '$name yazdırılamadı';
+  }
+
+  @override
+  String printTitle(String name) {
+    return '“$name” belgesini yazdır';
+  }
+
+  @override
+  String get printSystemDialog => 'Sistem penceresini kullan…';
+
+  @override
+  String get printAction => 'Yazdır';
+
+  @override
+  String get printPrinter => 'Yazıcı';
+
+  @override
+  String get printPrinterSystem => 'Sistem penceresinde seçilir';
+
+  @override
+  String get printCopies => 'Kopya';
+
+  @override
+  String get printPages => 'Sayfalar';
+
+  @override
+  String get printPagesAll => 'Tümü';
+
+  @override
+  String get printLayout => 'Düzen';
+
+  @override
+  String get printLayoutPages => 'Sayfalar';
+
+  @override
+  String get printLayoutBooklet => 'Kitapçık';
+
+  @override
+  String get printLayoutPoster => 'Poster';
+
+  @override
+  String get printBothSides => 'Çift taraflı';
+
+  @override
+  String get printLongEdge => 'Uzun kenar';
+
+  @override
+  String get printShortEdge => 'Kısa kenar';
+
+  @override
+  String get printOneSide => 'Tek taraf';
+
+  @override
+  String get printScale => 'Ölçek';
+
+  @override
+  String get printScaleFit => 'Yazdırılabilir alana sığdır';
+
+  @override
+  String get printScaleActual => 'Gerçek boyut (%100)';
+
+  @override
+  String get printScaleCustom => 'Özel…';
+
+  @override
+  String get printInclude => 'Dâhil et';
+
+  @override
+  String printComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yorumlar ve damgalar ($n)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get printFormFields => 'Form alanlarının içeriği';
+
+  @override
+  String get printHiddenLayers => 'Gizli katmanlar';
+
+  @override
+  String get printPreviousSheet => 'Önceki yaprak';
+
+  @override
+  String get printNextSheet => 'Sonraki yaprak';
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) {
+    return 'Yaprak $sheet / $sheets · $paper';
+  }
+
+  @override
+  String compressFileName(String name) {
+    return '$name, sıkıştırılmış';
+  }
+
+  @override
+  String get compressTitle => 'Sıkıştır';
+
+  @override
+  String get compressPreset => 'Ön ayar';
+
+  @override
+  String get compressHighQuality => 'Yüksek kalite';
+
+  @override
+  String get compressBalanced => 'Dengeli';
+
+  @override
+  String get compressSmallest => 'En küçük';
+
+  @override
+  String get compressHighQualityDescription => 'Görseller 300 ppi, baskı için.';
+
+  @override
+  String get compressBalancedDescription =>
+      'Görseller 150 ppi, paylaşmak ve ekranda okumak için.';
+
+  @override
+  String get compressSmallestDescription =>
+      'Görseller 96 ppi, e-posta için. Metin keskin kalır.';
+
+  @override
+  String get compressCustom => 'Özel…';
+
+  @override
+  String get compressCustomDescription =>
+      'Görsel çözünürlüğünü, kaliteyi ve neyin kaldırılacağını ayarlayın.';
+
+  @override
+  String compressAbout(String size) {
+    return '≈ $size';
+  }
+
+  @override
+  String get compressNow => 'Şimdi';
+
+  @override
+  String get compressAfter => 'Sonra';
+
+  @override
+  String compressEstimateSampled(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$n örnek görselden tahmin edildi. Kesin boyut kaydettikten sonra gösterilir.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressEstimateExact =>
+      'Her görselde ölçüldü. Kesin boyut kaydettikten sonra gösterilir.';
+
+  @override
+  String compressDoes(String preset) {
+    return '$preset ne yapar';
+  }
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n görseli $ppi ppi olarak yeniden sıkıştırır',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String compressDoesFonts(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n yinelenen yazı tipi kopyasını birleştirir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesUnused =>
+      'Kullanılmayan nesneleri ve küçük resimleri kaldırır';
+
+  @override
+  String compressDoesLeft(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$n görseli olduğu gibi bırakır: Ferman bunları yeniden sıkıştıramaz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesKeeps =>
+      'Metni, bağlantıları, yer imlerini ve formları korur';
+
+  @override
+  String get compressSignedTitle => 'Bu belge imzalı';
+
+  @override
+  String get compressSignedBody =>
+      'Sıkıştırılmış kopyada imza olmaz. İmzalı asıl dosya olduğu gibi kalır.';
+
+  @override
+  String get compressAction => 'Sıkıştır ve farklı kaydet…';
+
+  @override
+  String saveAsCommentsOff(String name) {
+    return 'Dosya onlarsız bir kopya olarak kaydedilir; $name yorumlarıyla açık kalır.';
+  }
+
+  @override
+  String get saveAsHistoryOn =>
+      'Dosya baştan yazılır; önceki düzeltmeler ve silinen sayfalar olmadan. İmzalar geçersiz olur.';
+
+  @override
+  String get saveAsHistoryOff =>
+      'Silinen sayfalar ve önceki metin dosyada kalır ve oradan geri alınabilir.';
+
+  @override
+  String get versionTitle => 'Sürüm geçmişi';
+
+  @override
+  String versionCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sürüm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionList => 'Sürümler';
+
+  @override
+  String get versionNone => 'Henüz sürüm yok. Her kayıt bir sürüm saklar.';
+
+  @override
+  String get versionKept =>
+      'Bu aygıtta 30 gün saklanır. Ayarlar › Düzenleme’den değiştirin.';
+
+  @override
+  String get versionNow => 'Şimdi';
+
+  @override
+  String get versionUnsaved => 'kaydedilmedi';
+
+  @override
+  String versionNowDetail(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Son kayıttan bu yana $n düzenleme',
+      zero: 'Son kayıttan bu yana değişiklikler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionOpened => 'Açıldı';
+
+  @override
+  String get versionOpenedDetail => 'Dosyanın açıldığı hâli';
+
+  @override
+  String get versionSaved => 'Kaydedildi';
+
+  @override
+  String get versionSigned => 'İmzalandı';
+
+  @override
+  String get versionUnsavedWork => 'Kaydedilmemiş çalışma';
+
+  @override
+  String get versionRestored => 'Geri yüklendi';
+
+  @override
+  String versionEdits(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n düzenleme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionEditsNamed(int count, String n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n düzenleme · $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionViewing(String time) {
+    return '$time sürümü görüntüleniyor.';
+  }
+
+  @override
+  String get versionReadOnly => 'Salt okunur. Geçerli belgeniz değişmedi.';
+
+  @override
+  String get versionBack => 'Geçerli sürüme dön';
+
+  @override
+  String get versionRestoreThis => 'Bu sürümü geri yükle…';
+
+  @override
+  String get versionRestoreShort => 'Geri yükle…';
+
+  @override
+  String get versionCompare => 'Geçerli sürümle karşılaştır';
+
+  @override
+  String versionRestoreTitle(String time) {
+    return '$time sürümü geri yüklensin mi?';
+  }
+
+  @override
+  String get versionRestoreBody =>
+      'Geçerli dosyanız, kaydedilmemiş düzenlemeleriyle birlikte önce bir sürüm olarak saklanır; hiçbir şey kaybolmaz.';
+
+  @override
+  String get versionRestore => 'Geri yükle';
+
+  @override
+  String get commandPalette => 'Komut paleti';
+
+  @override
+  String get commandShowShortcuts => 'Klavye kısayollarını göster';
+
+  @override
+  String get commandSaveCopy => 'Kopya kaydet';
+
+  @override
+  String get commandDocumentProperties => 'Belge özellikleri';
+
+  @override
+  String get commandNextDocument => 'Sonraki belge';
+
+  @override
+  String commandShowDocument(String number) {
+    return '$number. belgeyi göster';
+  }
+
+  @override
+  String get commandGoToPage => 'Sayfaya git';
+
+  @override
+  String get commandReadingMode => 'Okuma modu';
+
+  @override
+  String get commandInsertFromFile => 'Dosyadan ekle';
+
+  @override
+  String get commandDeletePages => 'Sayfaları sil';
+
+  @override
+  String get commandSelectAllPages => 'Tüm sayfaları seç';
+
+  @override
+  String get commandMovePagesUp => 'Sayfaları yukarı taşı';
+
+  @override
+  String get commandMovePagesDown => 'Sayfaları aşağı taşı';
+
+  @override
+  String get commandWindowMenu => 'Pencere menüsü';
+
+  @override
+  String get commandCloseWindow => 'Pencereyi kapat';
+
+  @override
+  String get commandQuit => 'Ferman’dan çık';
+
+  @override
+  String get palettePlaceholder => 'Komut, sayfa ve metin ara';
+
+  @override
+  String paletteEmpty(String query) {
+    return '“$query” ile eşleşen komut yok. Belgede aramak için Enter’a basın.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return '“$query” ile eşleşen komut yok.';
+  }
+
+  @override
+  String get paletteCommands => 'Komutlar';
+
+  @override
+  String get paletteRecentFiles => 'Son dosyalar';
+
+  @override
+  String get paletteMove => 'Gezin';
+
+  @override
+  String get paletteRun => 'Çalıştır';
+
+  @override
+  String get shortcutsSheetSearch => 'Kısayollarda ara';
+
+  @override
+  String get shortcutsSheetNote =>
+      'Kısayolları Ayarlar › Klavye kısayolları’ndan değiştirin.';
+
+  @override
+  String get shortcutsChanged => 'Değiştirildi';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return '“$query” ile eşleşen kısayol yok.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'Genel';
+
+  @override
+  String get shortcutsGroupNavigate => 'Gezinme';
+
+  @override
+  String get shortcutsGroupWindow => 'Pencere';
+
+  @override
+  String get shortcutsPaneSearch => 'Komut arayın veya tuşlara basın';
+
+  @override
+  String get shortcutsPreset => 'Hazır ayar';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (varsayılan)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'Acrobat gibi';
+
+  @override
+  String get shortcutsPresetPreview => 'Önizleme gibi';
+
+  @override
+  String get shortcutsRecording => 'Yeni kısayola basın…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys zaten “$command” için kullanılıyor. Yeniden atamak için Enter’a, $current kısayolunu korumak için Esc’ye basın.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys zaten “$command” için kullanılıyor. Yeniden atamak için Enter’a, kısayolsuz bırakmak için Esc’ye basın.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys sisteme ait. Başka tuşlara basın veya iptal etmek için Esc’ye basın.';
+  }
+
+  @override
+  String get shortcutsNone => 'Kısayol yok';
+
+  @override
+  String shortcutsChange(String command) {
+    return '$command kısayolunu değiştir';
+  }
+
+  @override
+  String get shortcutsReset => 'Varsayılan kısayolu geri yükle';
+
+  @override
+  String get settingsSearchNoMatch => 'Eşleşen ayar yok';
+
+  @override
+  String get settingsSearchNoMatchBody => 'Başka bir sözcük deneyin.';
+
+  @override
+  String get settingsPaneLicences => 'Lisanslar';
+
+  @override
+  String get settingsKeepVersionsOff => 'Sürümleri saklama';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return '$count yüklü yazı tipinde ara';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'Yazı tiplerinde ara';
+
+  @override
+  String get settingsFontsFilter => 'Süz';
+
+  @override
+  String get settingsFontsFilterTurkish => 'Türkçeyi kapsar';
+
+  @override
+  String get settingsFontsFilterAll => 'Tüm yazı tipleri';
+
+  @override
+  String get settingsFontsFilterOpen => 'Açık belgelerde kullanılanlar';
+
+  @override
+  String get settingsFontsBundled => 'Ferman ile birlikte gelir';
+
+  @override
+  String get settingsFontsInstalled => 'Yüklü';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR Türkçe · LX Genişletilmiş Latin · CY Kiril · GR Yunan · AR Arapça · HE İbranice · DV Devanagari · CJK Çince, Japonca, Korece. Üstü çizili bir kod, yazı tipinin o yazıyı çizemediğini gösterir.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return '$script kapsanır';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return '$script kapsanmaz';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'Eşleşen yazı tipi yok';
+
+  @override
+  String get settingsFontsLoading => 'Bu bilgisayardaki yazı tipleri okunuyor…';
+
+  @override
+  String get settingsSavedSignatures => 'Kayıtlı imzalar · yalnızca bu cihazda';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'Henüz kayıtlı imza yok. Doldur ve İmzala › İmzala ile bir tane oluşturabilirsiniz.';
+
+  @override
+  String get settingsSignatureTyped => 'Yazılmış';
+
+  @override
+  String get settingsDeleteSignature => 'Kayıtlı imzayı sil';
+
+  @override
+  String get settingsCertificates => 'Sertifikalar';
+
+  @override
+  String get settingsAddCertificate => 'Sertifika dosyası ekle…';
+
+  @override
+  String get settingsCardDriver => 'e-imza kart sürücüsü (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'Otomatik bul';
+
+  @override
+  String get settingsTimestampServer => 'Zaman damgası sunucusu';
+
+  @override
+  String get settingsTimestampNone => 'Yok';
+
+  @override
+  String get settingsCheckRevocation =>
+      'İmzalı dosyaları açarken iptal durumunu çevrimiçi denetle';
+
+  @override
+  String get settingsGpu => 'Sayfaları çizmek için ekran kartını kullan';
+
+  @override
+  String get settingsPageCache => 'Sayfa önbelleği';
+
+  @override
+  String get settingsThumbnails => 'Küçük resimler';
+
+  @override
+  String get settingsThumbnailsAuto => 'Gerektikçe oluştur';
+
+  @override
+  String get settingsThumbnailsAll => 'Açarken tümünü oluştur';
+
+  @override
+  String get settingsObjectInspector =>
+      'PDF nesne denetçisini göster (geliştiriciler için)';
+
+  @override
+  String get settingsExport => 'Ayarları dışa aktar…';
+
+  @override
+  String get settingsImport => 'Ayarları içe aktar…';
+
+  @override
+  String get settingsShowLogs => 'Günlük dosyalarını göster';
+
+  @override
+  String get settingsReset =>
+      'Tüm ayarları varsayılanlarına döndürün. Kayıtlı imzalar ve sertifikalar korunur.';
+
+  @override
+  String get settingsResetButton => 'Ayarları sıfırla…';
+
+  @override
+  String get settingsResetTitle => 'Tüm ayarlar sıfırlansın mı?';
+
+  @override
+  String get settingsResetBody =>
+      'Tema, dil, bölge ve diğer tüm seçimler varsayılanlarına döner. Kayıtlı imzalar, damgalarınız ve açık belgeleriniz korunur.';
+
+  @override
+  String get settingsResetConfirm => 'Sıfırla';
+
+  @override
+  String get settingsImportTitle => 'Ayarlarınız değiştirilsin mi?';
+
+  @override
+  String get settingsImportBody =>
+      'Dosyadaki ayarlar sizinkilerin yerini alır. Kayıtlı imzalar ve açık belgeleriniz korunur.';
+
+  @override
+  String get settingsImportConfirm => 'İçe aktar';
+
+  @override
+  String get settingsImportFailed => 'Ayarlar içe aktarılamadı';
+
+  @override
+  String get settingsImportFailedBody => 'Dosya bir Ferman ayar dosyası değil.';
+
+  @override
+  String get settingsExported => 'Ayarlar dışa aktarıldı';
+
+  @override
+  String get settingsExportFailed => 'Ayarlar dışa aktarılamadı';
+
+  @override
+  String get settingsExportName => 'Ferman ayarları';
+
+  @override
+  String get settingsSettingsFile => 'Ayar dosyası';
+
+  @override
+  String get licencesIntro =>
+      'Ferman, Apache Lisansı 2.0 ile sunulan özgür bir yazılımdır. Aşağıdaki çalışmalar üzerine kuruludur ve her biri kendi lisansını korur.';
+
+  @override
+  String get licencesSearch => 'Lisanslarda ara';
+
+  @override
+  String get licencesLoading => 'Lisanslar okunuyor…';
+
+  @override
+  String get licencesNoMatch => 'Eşleşen lisans yok';
+
+  @override
+  String get sidebarLegendTitle => 'Sayfa rozetleri';
+
+  @override
+  String get sidebarLegendEdited => 'Düzenlendi';
+
+  @override
+  String get sidebarLegendEditedBody => 'açtığınızdan beri değişti';
+
+  @override
+  String get sidebarLegendComments => 'Yorumlar';
+
+  @override
+  String get sidebarLegendCommentsBody => 'sayfada not veya işaretleme';
+
+  @override
+  String get sidebarLegendFields => 'Form alanları';
+
+  @override
+  String get sidebarLegendFieldsBody => 'doldurabileceğiniz alanlar';
+
+  @override
+  String get sidebarLegendSignature => 'İmza';
+
+  @override
+  String get sidebarLegendSignatureBody => 'imzalı veya imza alanı var';
+
+  @override
+  String get sidebarLegendWarnings => 'Uyarılar';
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      'eksik glifler, taşma, bozuk bağlantılar';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'Ekran okuyucular rozetleri sayfa adında duyar, ör. “Sayfa 1, düzenlendi, 2 yorum, 1 uyarı”.';
+
+  @override
+  String get sidebarBadgeEdited => 'düzenlendi';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n yorum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n form alanı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'imzalı';
+
+  @override
+  String get sidebarBadgeSignatureField => 'imza alanı';
+
+  @override
+  String get outlineNewBookmark => 'Yeni yer işareti';
+
+  @override
+  String get outlineBookmarkName => 'Yer işareti adı';
+
+  @override
+  String get outlineStep => 'Yer işaretlerini değiştir';
+
+  @override
+  String get outlineRename => 'Yeniden adlandır';
+
+  @override
+  String get outlineNest => 'Üsttekinin altına yerleştir';
+
+  @override
+  String get outlineUnnest => 'Bir düzey dışarı taşı';
+
+  @override
+  String get outlineMoveUp => 'Yukarı taşı';
+
+  @override
+  String get outlineMoveDown => 'Aşağı taşı';
+
+  @override
+  String get outlineDelete => 'Yer işaretini sil';
+
+  @override
+  String get propertiesStep => 'Belge özelliklerini değiştir';
+
+  @override
+  String get dropOverlayCombineDescription =>
+      'Gösterilen sırayla birleştirilir.';
 }

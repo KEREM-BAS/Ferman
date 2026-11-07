@@ -28,6 +28,8 @@ import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/signatures/saved_signatures.dart';
 import 'package:ferman/features/signatures/sign_tools.dart';
 import 'package:ferman/features/stamps/comment_tool_menus.dart';
+import 'package:ferman/features/tools/print_dialog.dart';
+import 'package:ferman/features/tools/tools_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
@@ -186,7 +188,7 @@ class _ViewTools extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
     final view = ref.watch(
@@ -242,7 +244,7 @@ class _ViewTools extends ConsumerWidget {
           id: value,
           label: name,
           icon: icon,
-          shortcut: fitCommands[value]?.caps(platform),
+          shortcut: keys.caps(fitCommands[value]),
           checked: value == zoomValue,
         ),
       const MenuItem.divider(),
@@ -257,7 +259,7 @@ class _ViewTools extends ConsumerWidget {
         id: 'marquee',
         label: l10n.shellToolMarqueeZoom,
         icon: IconName.squareDashed,
-        shortcut: ShellCommand.marqueeZoom.caps(platform),
+        shortcut: keys.caps(ShellCommand.marqueeZoom),
       ),
     ];
     // The zoom menu and the segmented controls move into a narrow row's
@@ -279,7 +281,7 @@ class _ViewTools extends ConsumerWidget {
             id: value,
             label: name,
             icon: icon,
-            shortcut: commands[value]?.caps(platform),
+            shortcut: keys.caps(commands[value]),
             checked: value == checked,
           ),
       ],
@@ -293,7 +295,7 @@ class _ViewTools extends ConsumerWidget {
       icon: icon,
       label: label,
       active: (view?.tool ?? ViewerTool.select) == which,
-      shortcut: command.caps(platform),
+      shortcut: keys.caps(command),
       disabled: !live,
       onPressed: live ? () => viewer.setTool(which) : null,
     );
@@ -305,7 +307,7 @@ class _ViewTools extends ConsumerWidget {
     ) => IconButton(
       icon: icon,
       label: label,
-      shortcut: command.caps(platform),
+      shortcut: keys.caps(command),
       disabled: !live,
       onPressed: live ? action : null,
     );
@@ -334,7 +336,7 @@ class _ViewTools extends ConsumerWidget {
           icon: IconName.squareDashed,
           label: l10n.shellToolMarqueeZoom,
           active: view?.tool == ViewerTool.marquee,
-          shortcut: ShellCommand.marqueeZoom.caps(platform),
+          shortcut: keys.caps(ShellCommand.marqueeZoom),
           disabled: !live,
           onPressed: live ? () => viewer.setTool(ViewerTool.marquee) : null,
         ),
@@ -495,7 +497,7 @@ class _ViewTools extends ConsumerWidget {
           feature: Feature.presentation,
           icon: IconName.presentation,
           label: l10n.shellToolPresent,
-          shortcut: ShellCommand.present.caps(platform),
+          shortcut: keys.caps(ShellCommand.present),
         ),
         const ToolbarSpacer(),
         Switch(
@@ -524,7 +526,7 @@ class _EditTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final edits = ref.watch(shellDocumentsProvider).active?.editCount ?? 0;
     final document = ref.watch(viewerProvider.select((view) => view != null));
@@ -554,7 +556,7 @@ class _EditTools extends ConsumerWidget {
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
           active: !linkOn,
-          shortcut: ShellCommand.editText.caps(platform),
+          shortcut: keys.caps(ShellCommand.editText),
           disabled: forbidden,
           disabledReason: forbidden ? l10n.shellEditForbidden : null,
           onPressed: forbidden ? null : () => links.show(on: false),
@@ -565,7 +567,7 @@ class _EditTools extends ConsumerWidget {
           icon: IconName.type,
           label: l10n.shellToolAddText,
           active: false,
-          shortcut: ShellCommand.addText.caps(platform),
+          shortcut: keys.caps(ShellCommand.addText),
         ),
         _future(
           context,
@@ -573,13 +575,13 @@ class _EditTools extends ConsumerWidget {
           icon: IconName.image,
           label: l10n.shellToolAddImage,
           active: false,
-          shortcut: ShellCommand.addImage.caps(platform),
+          shortcut: keys.caps(ShellCommand.addImage),
         ),
         ToolButton(
           icon: IconName.link,
           label: l10n.shellToolLink,
           active: linkOn,
-          shortcut: ShellCommand.link.caps(platform),
+          shortcut: keys.caps(ShellCommand.link),
           onPressed: links.toggle,
         ),
         const ToolbarSeparator(),
@@ -589,7 +591,7 @@ class _EditTools extends ConsumerWidget {
           icon: IconName.replace,
           label: l10n.shellToolFindReplace,
           active: false,
-          shortcut: ShellCommand.findAndReplace.caps(platform),
+          shortcut: keys.caps(ShellCommand.findAndReplace),
         ),
         _future(
           context,
@@ -605,7 +607,7 @@ class _EditTools extends ConsumerWidget {
         IconButton(
           icon: IconName.undo2,
           label: l10n.shellUndo,
-          shortcut: ShellCommand.undo.caps(platform),
+          shortcut: keys.caps(ShellCommand.undo),
           disabledReason: l10n.editNothingToUndo,
           onPressed: document && editor.canUndo
               ? () =>
@@ -615,7 +617,7 @@ class _EditTools extends ConsumerWidget {
         IconButton(
           icon: IconName.redo2,
           label: l10n.shellRedo,
-          shortcut: ShellCommand.redo.caps(platform),
+          shortcut: keys.caps(ShellCommand.redo),
           disabledReason: l10n.editNothingToRedo,
           onPressed: document && editor.canRedo
               ? () =>
@@ -949,7 +951,7 @@ class _OrganizeTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final selected = ref.watch(selectedPagesProvider).length;
     final total = ref.watch(openDocumentProvider)?.pages.length ?? 0;
@@ -986,7 +988,7 @@ class _OrganizeTools extends ConsumerWidget {
           icon: IconName.rotateCcw,
           label: l10n.shellToolRotateLeft,
           showLabel: false,
-          shortcut: ShellCommand.rotateLeft.caps(platform),
+          shortcut: keys.caps(ShellCommand.rotateLeft),
           disabled: reason != null,
           disabledReason: reason,
           onPressed: reason != null
@@ -997,7 +999,7 @@ class _OrganizeTools extends ConsumerWidget {
           icon: IconName.rotateCw,
           label: l10n.shellToolRotateRight,
           showLabel: false,
-          shortcut: ShellCommand.rotateRight.caps(platform),
+          shortcut: keys.caps(ShellCommand.rotateRight),
           disabled: reason != null,
           disabledReason: reason,
           onPressed: reason != null
@@ -1042,7 +1044,7 @@ class _OrganizeTools extends ConsumerWidget {
         ToolButton(
           icon: IconName.trash2,
           label: l10n.shellToolDelete,
-          shortcut: ShellCommand.deletePages.caps(platform),
+          shortcut: keys.caps(ShellCommand.deletePages),
           disabled: reason != null || deleteRefusal != null,
           disabledReason: reason ?? deleteRefusal,
           onPressed: reason != null || deleteRefusal != null
@@ -1181,7 +1183,7 @@ class _ProtectTools extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     return Toolbar(
       semanticLabel: l10n.shellProtectTools,
       overflowLabel: l10n.moreTools,
@@ -1192,7 +1194,7 @@ class _ProtectTools extends ConsumerWidget {
           icon: IconName.eyeOff,
           label: l10n.shellToolRedact,
           active: true,
-          shortcut: ShellCommand.redact.caps(platform),
+          shortcut: keys.caps(ShellCommand.redact),
         ),
         _future(
           context,
@@ -1248,32 +1250,42 @@ class _ProtectTools extends ConsumerWidget {
 
 /// Tools (FmWindow lines 150–163): Compress, Compare, Accessibility, PDF/A
 /// & preflight, Batch actions, Print, Measure, Version history | AI
-/// assistant.
+/// assistant. Compress (a9-1), Print (a9-6) and Version history (a9-8) work
+/// with a document open; Print not where the document forbids it (B121).
 class _ToolsTools extends ConsumerWidget {
   const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
-    ToolButton tool(
-      Feature feature,
-      IconName icon,
-      String label, {
-      List<String>? shortcut,
-    }) => _future(
+    final keys = ref.watch(shortcutBindingsProvider);
+    final live = ref.watch(openDocumentProvider) != null;
+    final panel = ref.watch(toolsPanelProvider);
+    final printRefusal = ref.watch(printRefusalProvider)?.call(l10n);
+    final panels = ref.read(toolsPanelProvider.notifier);
+    ToolButton tool(Feature feature, IconName icon, String label) => _future(
       context,
       feature: feature,
       icon: icon,
       label: label,
       active: false,
-      shortcut: shortcut,
     );
     return Toolbar(
       semanticLabel: l10n.shellModeTools,
       overflowLabel: l10n.moreTools,
       children: [
-        tool(Feature.compress, IconName.minimize2, l10n.shellToolCompress),
+        ToolButton(
+          icon: IconName.minimize2,
+          label: l10n.shellToolCompress,
+          active: panel == ToolsPanel.compress,
+          disabled: !live,
+          onPressed: live
+              ? () {
+                  panels.toggle(ToolsPanel.compress);
+                  ref.read(shellPanelOpenProvider.notifier).open();
+                }
+              : null,
+        ),
         tool(Feature.compare, IconName.gitCompare, l10n.shellToolCompare),
         tool(
           Feature.accessibilityTools,
@@ -1282,17 +1294,24 @@ class _ToolsTools extends ConsumerWidget {
         ),
         tool(Feature.pdfAAndPreflight, IconName.fileCheck2, l10n.shellToolPdfA),
         tool(Feature.batchActions, IconName.workflow, l10n.shellToolBatch),
-        tool(
-          Feature.printing,
-          IconName.printer,
-          l10n.shellToolPrint,
-          shortcut: ShellCommand.printDocument.caps(platform),
+        ToolButton(
+          icon: IconName.printer,
+          label: l10n.shellToolPrint,
+          active: false,
+          shortcut: keys.caps(ShellCommand.printDocument),
+          disabled: !live || printRefusal != null,
+          disabledReason: printRefusal,
+          onPressed: live && printRefusal == null
+              ? () => showPrintDialog(ref)
+              : null,
         ),
         tool(Feature.measure, IconName.ruler, l10n.shellToolMeasure),
-        tool(
-          Feature.versionHistory,
-          IconName.history,
-          l10n.shellToolVersionHistory,
+        ToolButton(
+          icon: IconName.history,
+          label: l10n.shellToolVersionHistory,
+          active: panel == ToolsPanel.versions,
+          disabled: !live,
+          onPressed: live ? () => panels.toggle(ToolsPanel.versions) : null,
         ),
         const ToolbarSeparator(),
         tool(Feature.aiAssistant, IconName.sparkles, l10n.shellAiAssistant),

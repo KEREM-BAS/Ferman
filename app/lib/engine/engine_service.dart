@@ -270,6 +270,10 @@ abstract interface class EngineService {
   /// (a11-1c). The fonts are indexed again the next time an edit needs them.
   Future<void> setFontSettings(FontSettings settings);
 
+  /// The font families bundled with Ferman and installed on this computer,
+  /// bundled first and then by name, scanned off the UI isolate (a11-1d).
+  Future<List<InstalledFont>> installedFonts();
+
   /// Draws the characters missing-glyph step 3 offers candidates for in the
   /// candidate [postscriptName] of [origin] (a3-3b); the choice holds for
   /// the rest of the [transaction].
@@ -597,6 +601,40 @@ abstract interface class EngineService {
     String name,
   );
 
+  /// Makes [items] the outline of [document] (a2-3a: rename, add, nest,
+  /// reorder, delete) as one step. Throws an [EngineException] with
+  /// [EngineErrorKind.invalidInput] for items that cannot apply, and as
+  /// [setPageLabels] otherwise ([DocumentOp.organize]).
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  );
+
+  /// Makes [info] the information of [document] (a2-7), in `/Info` and its
+  /// XMP, as one step ([DocumentOp.modify]). Throws an [EngineException] with
+  /// [EngineErrorKind.invalidInput] for a file without an `/Info` object.
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name);
+
+  /// Attaches the file at [path] to [document] as [fileName] (a2-3b), one
+  /// step ([DocumentOp.modify]); its bytes are read now.
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  );
+
+  /// Takes attachment [index] of [OpenedDocument.attachments] out of
+  /// [document], one step ([DocumentOp.modify]). A file attachment
+  /// annotation's is a comment: [EngineErrorKind.invalidInput].
+  Future<RevisionInfo> removeAttachment(int document, int index, String name);
+
+  /// Draws the form widgets of [document] in every view, or leaves them to
+  /// Fill & Sign's overlay, which draws each field (B203): render-only, never
+  /// saved. Returns every page's new render key, 0 when nothing changes.
+  Future<int> showFormWidgets(int document, {required bool visible});
+
   /// Steps [document] back one step of its history.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
@@ -664,12 +702,23 @@ abstract interface class EngineService {
   /// failed ([EngineException.noRecoveryCopy]).
   Future<bool> finishSave(int document, {required bool swapped});
 
-  /// Saves [document] as the file at [path]; later saves write there.
-  Future<String?> saveAs(int document, String path, {String? staging});
+  /// Saves [document] as the file at [path] with Save as's [options]
+  /// (a1-11); later saves write there, unless the comments are left out.
+  Future<String?> saveAs(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  });
 
-  /// Saves a copy of [document] as the file at [path]; later saves still
-  /// write to its own file.
-  Future<String?> saveCopy(int document, String path, {String? staging});
+  /// Saves a copy of [document] as the file at [path] with Save as's
+  /// [options]; later saves still write to its own file.
+  Future<String?> saveCopy(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  });
 
   /// Writes a repaired [document] (a1-9) rewritten whole as the file at
   /// [path] (B103). Its own damaged file only with [replaceOriginal], the
@@ -682,10 +731,56 @@ abstract interface class EngineService {
   });
 
   /// Optimize and clean: the file of [document] rewritten whole, without
-  /// earlier revisions and unreferenced objects (ARCHITECTURE §7.3). Ask
-  /// [wouldBreakSignatures] and warn first; a signed document needs
-  /// [confirmEditSigned].
+  /// earlier revisions and unreferenced objects (ARCHITECTURE §7.3), as an
+  /// engine job (ADR 0009) whose end this awaits. Ask [wouldBreakSignatures]
+  /// and warn first; a signed document needs [confirmEditSigned].
   Future<String?> optimizeAndClean(int document, {String? staging});
+
+  /// What Compress would do to [document] as it stands, with each preset's
+  /// estimated size (a9-1).
+  Future<CompressAnalysis> compressAnalysis(int document);
+
+  /// Compresses [document] with [preset] into the new file [output] as a job.
+  /// A signed document needs [unsign], the warning accepted. The last
+  /// update's params are facts: `before`, `after`, `written` (a larger result
+  /// writes nothing and keeps the original), `recompressed`, `unreadable`.
+  Stream<JobUpdate> compressJob(
+    int document, {
+    required CompressPreset preset,
+    required String output,
+    bool unsign = false,
+    String? staging,
+  });
+
+  /// "Keep versions" (a11-1c): off, saves keep no version (ADR 0022).
+  Future<void> setVersionsEnabled({required bool enabled});
+
+  /// The versions of [document]'s file, newest first (a9-8).
+  Future<List<VersionInfo>> versions(int document);
+
+  /// Opens [version] of [document] read-only from its bytes for the
+  /// preview; close it as any document. An encrypted one needs [password].
+  Future<OpenedDocument> openVersion(
+    int document,
+    int version, {
+    String? password,
+  });
+
+  /// Makes [version] the file of [document] again (decision 27): unsaved
+  /// work is kept as a version first, the file is replaced whole after the
+  /// external-change check; the app then opens the file again.
+  Future<String?> restoreVersion(int document, int version, {String? staging});
+
+  /// The pages of [document] to print (a9-6), all when [pages] is empty, by
+  /// handle, rendered one by one in memory for the platform's print channel;
+  /// without [includeComments] the markup annotations are hidden. Cancelling
+  /// the subscription ends the print. Throws [EngineErrorKind.notEditable]
+  /// when the document forbids printing.
+  Stream<PrintPage> printPages(
+    int document, {
+    List<int> pages = const [],
+    bool includeComments = true,
+  });
 
   /// Whether [optimizeAndClean] would break signatures of [document] (G35).
   Future<bool> wouldBreakSignatures(int document);
@@ -961,6 +1056,9 @@ class UnavailableEngineService implements EngineService {
   Future<void> setFontSettings(FontSettings settings) async => throw error;
 
   @override
+  Future<List<InstalledFont>> installedFonts() async => throw error;
+
+  @override
   Future<EditPreview> chooseFont(
     int transaction,
     FontOrigin origin,
@@ -1227,6 +1325,39 @@ class UnavailableEngineService implements EngineService {
   ) async => throw error;
 
   @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> setInfo(
+    int document,
+    InfoEdit info,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> removeAttachment(
+    int document,
+    int index,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async =>
+      throw error;
+
+  @override
   Future<RevisionInfo> undo(int document) async => throw error;
 
   @override
@@ -1263,13 +1394,18 @@ class UnavailableEngineService implements EngineService {
       throw error;
 
   @override
-  Future<String?> saveAs(int document, String path, {String? staging}) async =>
-      throw error;
+  Future<String?> saveAs(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  }) async => throw error;
 
   @override
   Future<String?> saveCopy(
     int document,
     String path, {
+    SaveAsOptions options = const SaveAsOptions(),
     String? staging,
   }) async => throw error;
 
@@ -1284,6 +1420,45 @@ class UnavailableEngineService implements EngineService {
   @override
   Future<String?> optimizeAndClean(int document, {String? staging}) async =>
       throw error;
+
+  @override
+  Future<CompressAnalysis> compressAnalysis(int document) async => throw error;
+
+  @override
+  Stream<JobUpdate> compressJob(
+    int document, {
+    required CompressPreset preset,
+    required String output,
+    bool unsign = false,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<void> setVersionsEnabled({required bool enabled}) async => throw error;
+
+  @override
+  Future<List<VersionInfo>> versions(int document) async => throw error;
+
+  @override
+  Future<OpenedDocument> openVersion(
+    int document,
+    int version, {
+    String? password,
+  }) async => throw error;
+
+  @override
+  Future<String?> restoreVersion(
+    int document,
+    int version, {
+    String? staging,
+  }) async => throw error;
+
+  @override
+  Stream<PrintPage> printPages(
+    int document, {
+    List<int> pages = const [],
+    bool includeComments = true,
+  }) => Stream.error(error);
 
   @override
   Future<bool> wouldBreakSignatures(int document) async => throw error;

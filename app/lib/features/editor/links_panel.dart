@@ -34,7 +34,7 @@ class LinksPanel extends ConsumerWidget {
     final selected = ref.watch(linkToolProvider.select((s) => s.selected));
     final refusal = ref.watch(linkRefusalProvider);
     final selection = ref.watch(canvasSelectionProvider);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final line = BorderSide(
       color: theme.colors.borderSubtle,
       width: theme.border.borderWidth,
@@ -84,7 +84,7 @@ class LinksPanel extends ConsumerWidget {
                     icon: IconName.plus,
                     label: l10n.editBarLink,
                     size: IconButtonSize.xs,
-                    shortcut: ShellCommand.addLink.caps(platform),
+                    shortcut: keys.caps(ShellCommand.addLink),
                     disabledReason:
                         refusal?.call(l10n) ?? l10n.linksSelectTextFirst,
                     onPressed: refusal == null && selection != null

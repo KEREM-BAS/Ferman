@@ -21,6 +21,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/fake_desktop_window.dart';
 import 'shell_host.dart';
 
+/// The Tools row's tools that work with a document (a9-1, a9-6, a9-8).
+const Set<String> _toolsWorking = {'Compress', 'Print', 'Version history'};
 void main() {
   late FakeDesktopWindow window;
 
@@ -610,7 +612,8 @@ void main() {
                 ? working[name] ?? futureVersion
                 : mode == FermanMode.organize && onSelection.contains(name)
                 ? 'Select pages first'
-                : name == 'Split'
+                : name == 'Split' ||
+                      mode == FermanMode.tools && _toolsWorking.contains(name)
                 // It waits for a shown document, not a version.
                 ? isNull
                 : name == 'Combine files' || name == 'Create PDF'
@@ -719,7 +722,9 @@ void main() {
       final search = tester.widget<Button>(
         find.ancestor(of: find.text('Search'), matching: find.byType(Button)),
       );
-      expect(search.disabledReason, futureVersion);
+      // The command palette (a11-2).
+      expect(search.disabledReason, isNull);
+      expect(search.onPressed, isNotNull);
       expect(search.variant, ButtonVariant.ghost);
     });
 
@@ -810,11 +815,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('3'), findsOneWidget);
+      // f5's legend opens without a document too.
       expect(
         tester
             .widget<IconButton>(iconButton('What the page badges mean'))
-            .disabledReason,
-        futureVersion,
+            .onPressed,
+        isNotNull,
       );
       final pages = tester.element(
         find.byKey(FmSidebar.keyOf(SidebarTab.pages), skipOffstage: false),

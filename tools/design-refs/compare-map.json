@@ -478,7 +478,25 @@
       "id": "a11-1c-mac",
       "board": "a11-1c",
       "golden": "settings_editing_mac_light_en.png",
-      "note": "Settings › Editing (M3, G43). Keep versions and Font for new text are disabled."
+      "note": "Settings › Editing (M3, G43). Font for new text is disabled; Keep versions says Kept for 30 days and has no 7-day option (ADR 0022)."
+    },
+    {
+      "id": "a11-1d-mac",
+      "board": "a11-1d",
+      "golden": "settings_fonts_mac_light_en.png",
+      "note": "Settings › Fonts (M4, B075). The test engine lists four fonts; codes a font cannot draw are struck through as the legend says."
+    },
+    {
+      "id": "a11-1e-mac",
+      "board": "a11-1e",
+      "golden": "settings_signatures_mac_light_en.png",
+      "note": "Settings › Signatures and certificates (M4, B208). No certificates until P3; each card has a delete button the board does not draw."
+    },
+    {
+      "id": "a11-1k-mac",
+      "board": "a11-1k",
+      "golden": "settings_advanced_mac_light_en.png",
+      "note": "Settings › Advanced (M4, B077). The GPU switch is off and disabled; Page cache shows the engine's 256 MB."
     },
     {
       "id": "a11-7-mac",

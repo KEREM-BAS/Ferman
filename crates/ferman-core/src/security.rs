@@ -121,6 +121,8 @@ pub enum DocumentOp {
     Fill,
     /// Printing, which changes nothing in the file.
     Print,
+    /// Changing the document's information or attachments.
+    Modify,
 }
 
 /// The permissions a document grants without its owner password (ISO 32000-2 Table 22).
@@ -207,6 +209,7 @@ impl Permissions {
             DocumentOp::Comment => self.annotate(),
             DocumentOp::Fill => self.fill_forms(),
             DocumentOp::Print => self.print(),
+            DocumentOp::Modify => self.modify(),
         }
     }
 

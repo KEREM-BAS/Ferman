@@ -103,8 +103,73 @@ const List<BundledLicense> bundledLicenses = [
   BundledLicense('assets/licenses/dbus/SOURCE.txt', ['dbus']),
 ];
 
-/// Adds every [bundledLicenses] text to Flutter's [LicenseRegistry], so the
-/// licences screen shows them next to the licences the build collects.
+/// The Rust crates' notices (docs/DEPENDENCIES.md §5.4): each licence text
+/// once with the crates that carry it, made by `tools/licenses/generate.sh`
+/// from cargo-about for the crates a desktop build links. ferman-api's test
+/// `licences` checks it against cargo's graph.
+const String rustNotices = 'assets/licenses/rust/crates.json';
+
+/// The Dart packages of `pubspec.lock` that only build and test the app:
+/// Flutter's build collects every package's licence, these too, but none of
+/// them ships, so Settings › Licences leaves them out ([ships]). A test
+/// checks the list against the lock's dependency graph.
+const Set<String> devOnlyPackages = {
+  '_fe_analyzer_shared',
+  'alchemist',
+  'analyzer',
+  'analyzer_buffer',
+  'build',
+  'build_config',
+  'build_daemon',
+  'build_runner',
+  'built_collection',
+  'built_value',
+  'checked_yaml',
+  'cli_util',
+  'code_builder',
+  'convert',
+  'dart_style',
+  'equatable',
+  'ffigen',
+  'file',
+  'flutter_driver',
+  'freezed_annotation',
+  'fuchsia_remote_debug_protocol',
+  'glob',
+  'graphs',
+  'http_multi_server',
+  'integration_test',
+  'io',
+  'mime',
+  'mockito',
+  'mocktail',
+  'pool',
+  'process',
+  'pubspec_parse',
+  'quiver',
+  'riverpod_analyzer_utils',
+  'riverpod_generator',
+  'shelf',
+  'shelf_web_socket',
+  'source_gen',
+  'stream_transform',
+  'sync_http',
+  'very_good_analysis',
+  'watcher',
+  'web_socket',
+  'web_socket_channel',
+  'webdriver',
+  'yaml_edit',
+};
+
+/// Whether the licence [entry] covers something the app ships: not only
+/// packages of [devOnlyPackages].
+bool ships(LicenseEntry entry) =>
+    !entry.packages.every(devOnlyPackages.contains);
+
+/// Adds every [bundledLicenses] text and the [rustNotices] to Flutter's
+/// [LicenseRegistry], so the licences screen shows them next to the
+/// licences the build collects.
 ///
 /// Call it once at start-up. The texts are read from [bundle] (the root
 /// bundle by default) only when something asks the registry for licences.
@@ -126,6 +191,30 @@ Stream<LicenseEntry> _bundledLicenseEntries(AssetBundle bundle) async* {
       license.packages,
       decodeLicenseText(bytes),
     );
+  }
+  final data = await bundle.load(rustNotices);
+  final notices = jsonDecode(
+    utf8.decode(
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    ),
+  );
+  // The asset is the app's own, generated; anything else in it is skipped.
+  if (notices is! Map<String, Object?>) return;
+  final licences = notices['licences'];
+  if (licences is! List<Object?>) return;
+  for (final licence in licences) {
+    if (licence case {
+      'crates': final List<Object?> crates,
+      'text': final String text,
+    }) {
+      yield LicenseEntryWithLineBreaks([
+        // "name version": the screen lists a crate by its name, once.
+        ...{
+          for (final crate in crates)
+            if (crate is String) crate.split(' ').first,
+        },
+      ], text);
+    }
   }
 }
 

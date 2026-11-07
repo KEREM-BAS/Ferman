@@ -496,8 +496,15 @@ void main() {
   });
 
   test('the shell keys: L for the tool, ⇧⌘K for Add link (G144)', () {
-    expect(ShellCommand.addLink.caps(ShortcutPlatform.mac), ['⇧', '⌘', 'K']);
-    expect(ShellCommand.commandPalette.caps(ShortcutPlatform.mac), ['⌘', 'K']);
+    expect(
+      const ShortcutBindings(ShortcutPlatform.mac).caps(ShellCommand.addLink),
+      ['⇧', '⌘', 'K'],
+    );
+    expect(
+      const ShortcutBindings(ShortcutPlatform.mac)
+          .caps(ShellCommand.commandPalette),
+      ['⌘', 'K'],
+    );
   });
 
   test('a mail link shows its address alone', () {

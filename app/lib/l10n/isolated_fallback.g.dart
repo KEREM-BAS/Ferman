@@ -4621,6 +4621,688 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String sidebarSearchFormField(String text) =>
       isolate(super.sidebarSearchFormField(text));
+
+  @override
+  String jobCompressingTitle(String name) =>
+      isolate(super.jobCompressingTitle(name));
+
+  @override
+  String jobCompressedTitle(String name) =>
+      isolate(super.jobCompressedTitle(name));
+
+  @override
+  String jobCompressFailedTitle(String name) =>
+      isolate(super.jobCompressFailedTitle(name));
+
+  @override
+  String get jobCompressNotSmaller => isolate(super.jobCompressNotSmaller);
+
+  @override
+  String jobCompressedSizes(String before, String after) =>
+      isolate(super.jobCompressedSizes(before, after));
+
+  @override
+  String get printForbidden => isolate(super.printForbidden);
+
+  @override
+  String printSent(String name) => isolate(super.printSent(name));
+
+  @override
+  String printFailed(String name) => isolate(super.printFailed(name));
+
+  @override
+  String printTitle(String name) => isolate(super.printTitle(name));
+
+  @override
+  String get printSystemDialog => isolate(super.printSystemDialog);
+
+  @override
+  String get printAction => isolate(super.printAction);
+
+  @override
+  String get printPrinter => isolate(super.printPrinter);
+
+  @override
+  String get printPrinterSystem => isolate(super.printPrinterSystem);
+
+  @override
+  String get printCopies => isolate(super.printCopies);
+
+  @override
+  String get printPages => isolate(super.printPages);
+
+  @override
+  String get printPagesAll => isolate(super.printPagesAll);
+
+  @override
+  String get printLayout => isolate(super.printLayout);
+
+  @override
+  String get printLayoutPages => isolate(super.printLayoutPages);
+
+  @override
+  String get printLayoutBooklet => isolate(super.printLayoutBooklet);
+
+  @override
+  String get printLayoutPoster => isolate(super.printLayoutPoster);
+
+  @override
+  String get printBothSides => isolate(super.printBothSides);
+
+  @override
+  String get printLongEdge => isolate(super.printLongEdge);
+
+  @override
+  String get printShortEdge => isolate(super.printShortEdge);
+
+  @override
+  String get printOneSide => isolate(super.printOneSide);
+
+  @override
+  String get printScale => isolate(super.printScale);
+
+  @override
+  String get printScaleFit => isolate(super.printScaleFit);
+
+  @override
+  String get printScaleActual => isolate(super.printScaleActual);
+
+  @override
+  String get printScaleCustom => isolate(super.printScaleCustom);
+
+  @override
+  String get printInclude => isolate(super.printInclude);
+
+  @override
+  String printComments(int count, String n) =>
+      isolate(super.printComments(count, n));
+
+  @override
+  String get printFormFields => isolate(super.printFormFields);
+
+  @override
+  String get printHiddenLayers => isolate(super.printHiddenLayers);
+
+  @override
+  String get printPreviousSheet => isolate(super.printPreviousSheet);
+
+  @override
+  String get printNextSheet => isolate(super.printNextSheet);
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) =>
+      isolate(super.printSheetOf(sheet, sheets, paper));
+
+  @override
+  String compressFileName(String name) => isolate(super.compressFileName(name));
+
+  @override
+  String get compressTitle => isolate(super.compressTitle);
+
+  @override
+  String get compressPreset => isolate(super.compressPreset);
+
+  @override
+  String get compressHighQuality => isolate(super.compressHighQuality);
+
+  @override
+  String get compressBalanced => isolate(super.compressBalanced);
+
+  @override
+  String get compressSmallest => isolate(super.compressSmallest);
+
+  @override
+  String get compressHighQualityDescription =>
+      isolate(super.compressHighQualityDescription);
+
+  @override
+  String get compressBalancedDescription =>
+      isolate(super.compressBalancedDescription);
+
+  @override
+  String get compressSmallestDescription =>
+      isolate(super.compressSmallestDescription);
+
+  @override
+  String get compressCustom => isolate(super.compressCustom);
+
+  @override
+  String get compressCustomDescription =>
+      isolate(super.compressCustomDescription);
+
+  @override
+  String compressAbout(String size) => isolate(super.compressAbout(size));
+
+  @override
+  String get compressNow => isolate(super.compressNow);
+
+  @override
+  String get compressAfter => isolate(super.compressAfter);
+
+  @override
+  String compressEstimateSampled(int count, String n) =>
+      isolate(super.compressEstimateSampled(count, n));
+
+  @override
+  String get compressEstimateExact => isolate(super.compressEstimateExact);
+
+  @override
+  String compressDoes(String preset) => isolate(super.compressDoes(preset));
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) =>
+      isolate(super.compressDoesImages(count, n, ppi));
+
+  @override
+  String compressDoesFonts(int count, String n) =>
+      isolate(super.compressDoesFonts(count, n));
+
+  @override
+  String get compressDoesUnused => isolate(super.compressDoesUnused);
+
+  @override
+  String compressDoesLeft(int count, String n) =>
+      isolate(super.compressDoesLeft(count, n));
+
+  @override
+  String get compressDoesKeeps => isolate(super.compressDoesKeeps);
+
+  @override
+  String get compressSignedTitle => isolate(super.compressSignedTitle);
+
+  @override
+  String get compressSignedBody => isolate(super.compressSignedBody);
+
+  @override
+  String get compressAction => isolate(super.compressAction);
+
+  @override
+  String saveAsCommentsOff(String name) =>
+      isolate(super.saveAsCommentsOff(name));
+
+  @override
+  String get saveAsHistoryOn => isolate(super.saveAsHistoryOn);
+
+  @override
+  String get saveAsHistoryOff => isolate(super.saveAsHistoryOff);
+
+  @override
+  String get versionTitle => isolate(super.versionTitle);
+
+  @override
+  String versionCount(int count, String n) =>
+      isolate(super.versionCount(count, n));
+
+  @override
+  String get versionList => isolate(super.versionList);
+
+  @override
+  String get versionNone => isolate(super.versionNone);
+
+  @override
+  String get versionKept => isolate(super.versionKept);
+
+  @override
+  String get versionNow => isolate(super.versionNow);
+
+  @override
+  String get versionUnsaved => isolate(super.versionUnsaved);
+
+  @override
+  String versionNowDetail(int count, String n) =>
+      isolate(super.versionNowDetail(count, n));
+
+  @override
+  String get versionOpened => isolate(super.versionOpened);
+
+  @override
+  String get versionOpenedDetail => isolate(super.versionOpenedDetail);
+
+  @override
+  String get versionSaved => isolate(super.versionSaved);
+
+  @override
+  String get versionSigned => isolate(super.versionSigned);
+
+  @override
+  String get versionUnsavedWork => isolate(super.versionUnsavedWork);
+
+  @override
+  String get versionRestored => isolate(super.versionRestored);
+
+  @override
+  String versionEdits(int count, String n) =>
+      isolate(super.versionEdits(count, n));
+
+  @override
+  String versionEditsNamed(int count, String n, String names) =>
+      isolate(super.versionEditsNamed(count, n, names));
+
+  @override
+  String versionViewing(String time) => isolate(super.versionViewing(time));
+
+  @override
+  String get versionReadOnly => isolate(super.versionReadOnly);
+
+  @override
+  String get versionBack => isolate(super.versionBack);
+
+  @override
+  String get versionRestoreThis => isolate(super.versionRestoreThis);
+
+  @override
+  String get versionRestoreShort => isolate(super.versionRestoreShort);
+
+  @override
+  String get versionCompare => isolate(super.versionCompare);
+
+  @override
+  String versionRestoreTitle(String time) =>
+      isolate(super.versionRestoreTitle(time));
+
+  @override
+  String get versionRestoreBody => isolate(super.versionRestoreBody);
+
+  @override
+  String get versionRestore => isolate(super.versionRestore);
+
+  @override
+  String get commandPalette => isolate(super.commandPalette);
+
+  @override
+  String get commandShowShortcuts => isolate(super.commandShowShortcuts);
+
+  @override
+  String get commandSaveCopy => isolate(super.commandSaveCopy);
+
+  @override
+  String get commandDocumentProperties =>
+      isolate(super.commandDocumentProperties);
+
+  @override
+  String get commandNextDocument => isolate(super.commandNextDocument);
+
+  @override
+  String commandShowDocument(String number) =>
+      isolate(super.commandShowDocument(number));
+
+  @override
+  String get commandGoToPage => isolate(super.commandGoToPage);
+
+  @override
+  String get commandReadingMode => isolate(super.commandReadingMode);
+
+  @override
+  String get commandInsertFromFile => isolate(super.commandInsertFromFile);
+
+  @override
+  String get commandDeletePages => isolate(super.commandDeletePages);
+
+  @override
+  String get commandSelectAllPages => isolate(super.commandSelectAllPages);
+
+  @override
+  String get commandMovePagesUp => isolate(super.commandMovePagesUp);
+
+  @override
+  String get commandMovePagesDown => isolate(super.commandMovePagesDown);
+
+  @override
+  String get commandWindowMenu => isolate(super.commandWindowMenu);
+
+  @override
+  String get commandCloseWindow => isolate(super.commandCloseWindow);
+
+  @override
+  String get commandQuit => isolate(super.commandQuit);
+
+  @override
+  String get palettePlaceholder => isolate(super.palettePlaceholder);
+
+  @override
+  String paletteEmpty(String query) => isolate(super.paletteEmpty(query));
+
+  @override
+  String paletteEmptyNoDocument(String query) =>
+      isolate(super.paletteEmptyNoDocument(query));
+
+  @override
+  String get paletteCommands => isolate(super.paletteCommands);
+
+  @override
+  String get paletteRecentFiles => isolate(super.paletteRecentFiles);
+
+  @override
+  String get paletteMove => isolate(super.paletteMove);
+
+  @override
+  String get paletteRun => isolate(super.paletteRun);
+
+  @override
+  String get shortcutsSheetSearch => isolate(super.shortcutsSheetSearch);
+
+  @override
+  String get shortcutsSheetNote => isolate(super.shortcutsSheetNote);
+
+  @override
+  String get shortcutsChanged => isolate(super.shortcutsChanged);
+
+  @override
+  String shortcutsNoMatch(String query) =>
+      isolate(super.shortcutsNoMatch(query));
+
+  @override
+  String get shortcutsGroupGeneral => isolate(super.shortcutsGroupGeneral);
+
+  @override
+  String get shortcutsGroupNavigate => isolate(super.shortcutsGroupNavigate);
+
+  @override
+  String get shortcutsGroupWindow => isolate(super.shortcutsGroupWindow);
+
+  @override
+  String get shortcutsPaneSearch => isolate(super.shortcutsPaneSearch);
+
+  @override
+  String get shortcutsPreset => isolate(super.shortcutsPreset);
+
+  @override
+  String get shortcutsPresetFerman => isolate(super.shortcutsPresetFerman);
+
+  @override
+  String get shortcutsPresetAcrobat => isolate(super.shortcutsPresetAcrobat);
+
+  @override
+  String get shortcutsPresetPreview => isolate(super.shortcutsPresetPreview);
+
+  @override
+  String get shortcutsRecording => isolate(super.shortcutsRecording);
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) =>
+      isolate(super.shortcutsTaken(keys, command, current));
+
+  @override
+  String shortcutsTakenNone(String keys, String command) =>
+      isolate(super.shortcutsTakenNone(keys, command));
+
+  @override
+  String shortcutsReserved(String keys) =>
+      isolate(super.shortcutsReserved(keys));
+
+  @override
+  String get shortcutsNone => isolate(super.shortcutsNone);
+
+  @override
+  String shortcutsChange(String command) =>
+      isolate(super.shortcutsChange(command));
+
+  @override
+  String get shortcutsReset => isolate(super.shortcutsReset);
+
+  @override
+  String get settingsSearchNoMatch => isolate(super.settingsSearchNoMatch);
+
+  @override
+  String get settingsSearchNoMatchBody =>
+      isolate(super.settingsSearchNoMatchBody);
+
+  @override
+  String get settingsPaneLicences => isolate(super.settingsPaneLicences);
+
+  @override
+  String get settingsKeepVersionsOff => isolate(super.settingsKeepVersionsOff);
+
+  @override
+  String settingsFontsSearch(String count) =>
+      isolate(super.settingsFontsSearch(count));
+
+  @override
+  String get settingsFontsSearchLabel =>
+      isolate(super.settingsFontsSearchLabel);
+
+  @override
+  String get settingsFontsFilter => isolate(super.settingsFontsFilter);
+
+  @override
+  String get settingsFontsFilterTurkish =>
+      isolate(super.settingsFontsFilterTurkish);
+
+  @override
+  String get settingsFontsFilterAll => isolate(super.settingsFontsFilterAll);
+
+  @override
+  String get settingsFontsFilterOpen => isolate(super.settingsFontsFilterOpen);
+
+  @override
+  String get settingsFontsBundled => isolate(super.settingsFontsBundled);
+
+  @override
+  String get settingsFontsInstalled => isolate(super.settingsFontsInstalled);
+
+  @override
+  String get settingsFontsLegend => isolate(super.settingsFontsLegend);
+
+  @override
+  String settingsFontsCovers(String script) =>
+      isolate(super.settingsFontsCovers(script));
+
+  @override
+  String settingsFontsMissing(String script) =>
+      isolate(super.settingsFontsMissing(script));
+
+  @override
+  String get settingsFontsNoMatch => isolate(super.settingsFontsNoMatch);
+
+  @override
+  String get settingsFontsLoading => isolate(super.settingsFontsLoading);
+
+  @override
+  String get settingsSavedSignatures => isolate(super.settingsSavedSignatures);
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      isolate(super.settingsSavedSignaturesNone);
+
+  @override
+  String get settingsSignatureTyped => isolate(super.settingsSignatureTyped);
+
+  @override
+  String get settingsDeleteSignature => isolate(super.settingsDeleteSignature);
+
+  @override
+  String get settingsCertificates => isolate(super.settingsCertificates);
+
+  @override
+  String get settingsAddCertificate => isolate(super.settingsAddCertificate);
+
+  @override
+  String get settingsCardDriver => isolate(super.settingsCardDriver);
+
+  @override
+  String get settingsCardDriverAuto => isolate(super.settingsCardDriverAuto);
+
+  @override
+  String get settingsTimestampServer => isolate(super.settingsTimestampServer);
+
+  @override
+  String get settingsTimestampNone => isolate(super.settingsTimestampNone);
+
+  @override
+  String get settingsCheckRevocation => isolate(super.settingsCheckRevocation);
+
+  @override
+  String get settingsGpu => isolate(super.settingsGpu);
+
+  @override
+  String get settingsPageCache => isolate(super.settingsPageCache);
+
+  @override
+  String get settingsThumbnails => isolate(super.settingsThumbnails);
+
+  @override
+  String get settingsThumbnailsAuto => isolate(super.settingsThumbnailsAuto);
+
+  @override
+  String get settingsThumbnailsAll => isolate(super.settingsThumbnailsAll);
+
+  @override
+  String get settingsObjectInspector => isolate(super.settingsObjectInspector);
+
+  @override
+  String get settingsExport => isolate(super.settingsExport);
+
+  @override
+  String get settingsImport => isolate(super.settingsImport);
+
+  @override
+  String get settingsShowLogs => isolate(super.settingsShowLogs);
+
+  @override
+  String get settingsReset => isolate(super.settingsReset);
+
+  @override
+  String get settingsResetButton => isolate(super.settingsResetButton);
+
+  @override
+  String get settingsResetTitle => isolate(super.settingsResetTitle);
+
+  @override
+  String get settingsResetBody => isolate(super.settingsResetBody);
+
+  @override
+  String get settingsResetConfirm => isolate(super.settingsResetConfirm);
+
+  @override
+  String get settingsImportTitle => isolate(super.settingsImportTitle);
+
+  @override
+  String get settingsImportBody => isolate(super.settingsImportBody);
+
+  @override
+  String get settingsImportConfirm => isolate(super.settingsImportConfirm);
+
+  @override
+  String get settingsImportFailed => isolate(super.settingsImportFailed);
+
+  @override
+  String get settingsImportFailedBody =>
+      isolate(super.settingsImportFailedBody);
+
+  @override
+  String get settingsExported => isolate(super.settingsExported);
+
+  @override
+  String get settingsExportFailed => isolate(super.settingsExportFailed);
+
+  @override
+  String get settingsExportName => isolate(super.settingsExportName);
+
+  @override
+  String get settingsSettingsFile => isolate(super.settingsSettingsFile);
+
+  @override
+  String get licencesIntro => isolate(super.licencesIntro);
+
+  @override
+  String get licencesSearch => isolate(super.licencesSearch);
+
+  @override
+  String get licencesLoading => isolate(super.licencesLoading);
+
+  @override
+  String get licencesNoMatch => isolate(super.licencesNoMatch);
+
+  @override
+  String get sidebarLegendTitle => isolate(super.sidebarLegendTitle);
+
+  @override
+  String get sidebarLegendEdited => isolate(super.sidebarLegendEdited);
+
+  @override
+  String get sidebarLegendEditedBody => isolate(super.sidebarLegendEditedBody);
+
+  @override
+  String get sidebarLegendComments => isolate(super.sidebarLegendComments);
+
+  @override
+  String get sidebarLegendCommentsBody =>
+      isolate(super.sidebarLegendCommentsBody);
+
+  @override
+  String get sidebarLegendFields => isolate(super.sidebarLegendFields);
+
+  @override
+  String get sidebarLegendFieldsBody => isolate(super.sidebarLegendFieldsBody);
+
+  @override
+  String get sidebarLegendSignature => isolate(super.sidebarLegendSignature);
+
+  @override
+  String get sidebarLegendSignatureBody =>
+      isolate(super.sidebarLegendSignatureBody);
+
+  @override
+  String get sidebarLegendWarnings => isolate(super.sidebarLegendWarnings);
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      isolate(super.sidebarLegendWarningsBody);
+
+  @override
+  String get sidebarLegendFootnote => isolate(super.sidebarLegendFootnote);
+
+  @override
+  String get sidebarBadgeEdited => isolate(super.sidebarBadgeEdited);
+
+  @override
+  String sidebarBadgeComments(int count, String n) =>
+      isolate(super.sidebarBadgeComments(count, n));
+
+  @override
+  String sidebarBadgeFields(int count, String n) =>
+      isolate(super.sidebarBadgeFields(count, n));
+
+  @override
+  String get sidebarBadgeSigned => isolate(super.sidebarBadgeSigned);
+
+  @override
+  String get sidebarBadgeSignatureField =>
+      isolate(super.sidebarBadgeSignatureField);
+
+  @override
+  String get outlineNewBookmark => isolate(super.outlineNewBookmark);
+
+  @override
+  String get outlineBookmarkName => isolate(super.outlineBookmarkName);
+
+  @override
+  String get outlineStep => isolate(super.outlineStep);
+
+  @override
+  String get outlineRename => isolate(super.outlineRename);
+
+  @override
+  String get outlineNest => isolate(super.outlineNest);
+
+  @override
+  String get outlineUnnest => isolate(super.outlineUnnest);
+
+  @override
+  String get outlineMoveUp => isolate(super.outlineMoveUp);
+
+  @override
+  String get outlineMoveDown => isolate(super.outlineMoveDown);
+
+  @override
+  String get outlineDelete => isolate(super.outlineDelete);
+
+  @override
+  String get propertiesStep => isolate(super.propertiesStep);
+
+  @override
+  String get dropOverlayCombineDescription =>
+      isolate(super.dropOverlayCombineDescription);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate
