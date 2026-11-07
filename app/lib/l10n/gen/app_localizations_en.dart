@@ -3383,8 +3383,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. They stay in the file until you run Optimize and clean.',
-      one: '$pages. It stays in the file until you run Optimize and clean.',
+      other:
+          '$pages. They stay in the file until you save with Remove edit history or run Optimize and clean.',
+      one:
+          '$pages. It stays in the file until you save with Remove edit history or run Optimize and clean.',
     );
     return '$_temp0';
   }
@@ -5415,4 +5417,383 @@ class AppLocalizationsEn extends AppLocalizations {
   String sidebarSearchFormField(String text) {
     return 'Form field: $text';
   }
+
+  @override
+  String jobCompressingTitle(String name) {
+    return 'Compressing $name';
+  }
+
+  @override
+  String jobCompressedTitle(String name) {
+    return 'Compressed $name';
+  }
+
+  @override
+  String jobCompressFailedTitle(String name) {
+    return 'Couldn’t compress $name';
+  }
+
+  @override
+  String get jobCompressNotSmaller =>
+      'It can’t get smaller, so nothing was written. The original stays as it is.';
+
+  @override
+  String jobCompressedSizes(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String get printForbidden => 'The author doesn’t allow printing';
+
+  @override
+  String printSent(String name) {
+    return 'Sent $name to the printer';
+  }
+
+  @override
+  String printFailed(String name) {
+    return 'Couldn’t print $name';
+  }
+
+  @override
+  String printTitle(String name) {
+    return 'Print “$name”';
+  }
+
+  @override
+  String get printSystemDialog => 'Use system dialog…';
+
+  @override
+  String get printAction => 'Print';
+
+  @override
+  String get printPrinter => 'Printer';
+
+  @override
+  String get printPrinterSystem => 'Chosen in the system dialog';
+
+  @override
+  String get printCopies => 'Copies';
+
+  @override
+  String get printPages => 'Pages';
+
+  @override
+  String get printPagesAll => 'All';
+
+  @override
+  String get printLayout => 'Layout';
+
+  @override
+  String get printLayoutPages => 'Pages';
+
+  @override
+  String get printLayoutBooklet => 'Booklet';
+
+  @override
+  String get printLayoutPoster => 'Poster';
+
+  @override
+  String get printBothSides => 'Both sides';
+
+  @override
+  String get printLongEdge => 'Long edge';
+
+  @override
+  String get printShortEdge => 'Short edge';
+
+  @override
+  String get printOneSide => 'One side';
+
+  @override
+  String get printScale => 'Scale';
+
+  @override
+  String get printScaleFit => 'Fit to printable area';
+
+  @override
+  String get printScaleActual => 'Actual size (100%)';
+
+  @override
+  String get printScaleCustom => 'Custom…';
+
+  @override
+  String get printInclude => 'Include';
+
+  @override
+  String printComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Comments and stamps ($n)',
+      one: 'Comments and stamps ($n)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get printFormFields => 'Form field contents';
+
+  @override
+  String get printHiddenLayers => 'Hidden layers';
+
+  @override
+  String get printPreviousSheet => 'Previous sheet';
+
+  @override
+  String get printNextSheet => 'Next sheet';
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) {
+    return 'Sheet $sheet of $sheets · $paper';
+  }
+
+  @override
+  String compressFileName(String name) {
+    return '$name, compressed';
+  }
+
+  @override
+  String get compressTitle => 'Compress';
+
+  @override
+  String get compressPreset => 'Preset';
+
+  @override
+  String get compressHighQuality => 'High quality';
+
+  @override
+  String get compressBalanced => 'Balanced';
+
+  @override
+  String get compressSmallest => 'Smallest';
+
+  @override
+  String get compressHighQualityDescription =>
+      'Images at 300 ppi, for printing.';
+
+  @override
+  String get compressBalancedDescription =>
+      'Images at 150 ppi, for sharing and reading on screen.';
+
+  @override
+  String get compressSmallestDescription =>
+      'Images at 96 ppi, for e-mail. Text stays sharp.';
+
+  @override
+  String get compressCustom => 'Custom…';
+
+  @override
+  String get compressCustomDescription =>
+      'Set image resolution, quality and what to remove.';
+
+  @override
+  String compressAbout(String size) {
+    return '≈ $size';
+  }
+
+  @override
+  String get compressNow => 'Now';
+
+  @override
+  String get compressAfter => 'After';
+
+  @override
+  String compressEstimateSampled(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Estimated from $n sample images. The exact size is shown after saving.',
+      one:
+          'Estimated from $n sample image. The exact size is shown after saving.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressEstimateExact =>
+      'Measured on every image. The exact size is shown after saving.';
+
+  @override
+  String compressDoes(String preset) {
+    return 'What $preset does';
+  }
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Recompresses $n images to $ppi ppi',
+      one: 'Recompresses $n image to $ppi ppi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String compressDoesFonts(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Merges $n duplicate font copies',
+      one: 'Merges $n duplicate font copy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesUnused => 'Removes unused objects and thumbnails';
+
+  @override
+  String compressDoesLeft(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Leaves $n images as they are: Ferman can’t recompress them',
+      one: 'Leaves $n image as it is: Ferman can’t recompress it',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesKeeps => 'Keeps text, links, bookmarks and forms';
+
+  @override
+  String get compressSignedTitle => 'This document is signed';
+
+  @override
+  String get compressSignedBody =>
+      'The compressed copy has no signatures. The signed original stays as it is.';
+
+  @override
+  String get compressAction => 'Compress and save as…';
+
+  @override
+  String saveAsCommentsOff(String name) {
+    return 'The file is saved as a copy without them; $name stays open with its comments.';
+  }
+
+  @override
+  String get saveAsHistoryOn =>
+      'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.';
+
+  @override
+  String get saveAsHistoryOff =>
+      'Deleted pages and earlier text stay in the file and can be recovered from it.';
+
+  @override
+  String get versionTitle => 'Version history';
+
+  @override
+  String versionCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n versions',
+      one: '$n version',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionList => 'Versions';
+
+  @override
+  String get versionNone => 'No versions yet. Each save keeps one.';
+
+  @override
+  String get versionKept =>
+      'Kept for 30 days on this device. Change in Settings › Editing.';
+
+  @override
+  String get versionNow => 'Now';
+
+  @override
+  String get versionUnsaved => 'unsaved';
+
+  @override
+  String versionNowDetail(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits since the last save',
+      one: '$n edit since the last save',
+      zero: 'Changes since the last save',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionOpened => 'Opened';
+
+  @override
+  String get versionOpenedDetail => 'The file as it was opened';
+
+  @override
+  String get versionSaved => 'Saved';
+
+  @override
+  String get versionSigned => 'Signed';
+
+  @override
+  String get versionUnsavedWork => 'Unsaved work';
+
+  @override
+  String get versionRestored => 'Restored';
+
+  @override
+  String versionEdits(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits',
+      one: '$n edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionEditsNamed(int count, String n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n edits · $names',
+      one: '$n edit · $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionViewing(String time) {
+    return 'Viewing the version from $time.';
+  }
+
+  @override
+  String get versionReadOnly =>
+      'Read-only. Your current document is unchanged.';
+
+  @override
+  String get versionBack => 'Back to current';
+
+  @override
+  String get versionRestoreThis => 'Restore this version…';
+
+  @override
+  String get versionRestoreShort => 'Restore…';
+
+  @override
+  String get versionCompare => 'Compare with current';
+
+  @override
+  String versionRestoreTitle(String time) {
+    return 'Restore the version from $time?';
+  }
+
+  @override
+  String get versionRestoreBody =>
+      'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.';
+
+  @override
+  String get versionRestore => 'Restore';
 }

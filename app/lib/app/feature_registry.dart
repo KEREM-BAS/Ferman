@@ -75,9 +75,9 @@ enum Feature {
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
 
-  /// The Save as sheet's options "Include comments and markup" and "Remove
-  /// edit history from the file" (a1-11).
-  saveAsOptions('B138'),
+  /// The Save as sheet's "Optimized for web" (a1-11, question 4 of the M4
+  /// plan): a linearizing writer (G111).
+  webOptimized('B186'),
 
   // Viewing.
 
@@ -206,9 +206,12 @@ enum Feature {
 
   // Tools.
 
-  /// Compress: Start › Compress and Tools › Compress, and the Save as
-  /// sheet's "Optimized for web", which needs its image pipeline (G111).
-  compress('B022'),
+  /// Compress's Custom… preset (a9-1), whose form no board draws.
+  compressCustom('B182'),
+
+  /// Compress on the phone, which has no shell yet: the phone home's quick
+  /// tool.
+  phoneCompress('B212'),
 
   /// Compare: Start › Compare, Tools › Compare, the first-run tile and the
   /// changed-on-disk bar's Compare (a11-7b).
@@ -224,12 +227,20 @@ enum Feature {
   /// Batch actions: Tools › Batch actions and the first-run tile.
   batchActions('B064'),
 
-  /// Basic system print (Tools › Print).
-  printing('B061'),
+  /// Print's Printer, Copies and Both sides (a9-6), which the system print
+  /// dialog sets (question 3 of the M4 plan).
+  printSystemOptions('B214'),
 
-  /// Version history: Tools › Version history and Settings › Editing › Keep
-  /// versions.
-  versionHistory('B060'),
+  /// Print's Booklet and Poster layouts (a9-6b, a9-6c).
+  printLayouts('B215'),
+
+  /// Print's custom scale and its Include choices for form fields and hidden
+  /// layers (a9-6).
+  printMoreOptions('B216'),
+
+  /// Settings › Editing › Keep versions (a11-1c); versions are kept from M4
+  /// W4 (ADR 0022).
+  keepVersions('B213'),
 
   /// The AI assistant: the mode bar's AI button, Tools › AI assistant,
   /// Settings › AI assistant and Settings › Privacy › Your AI provider.

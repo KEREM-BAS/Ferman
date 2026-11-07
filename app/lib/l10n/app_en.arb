@@ -3240,11 +3240,11 @@
   },
   "saveAsComments": "Include comments and markup",
   "@saveAsComments": {
-    "description": "Save as sheet (a1-11): a checkbox, disabled until saving without comments works."
+    "description": "Save as sheet (a1-11): a checkbox; without it the file is a copy without comments (B138)."
   },
   "saveAsHistory": "Remove edit history from the file",
   "@saveAsHistory": {
-    "description": "Save as sheet (a1-11): a checkbox, disabled until version history arrives."
+    "description": "Save as sheet (a1-11): a checkbox; with it the file is rewritten whole (B138)."
   },
   "saveAsCancel": "Cancel",
   "@saveAsCancel": {
@@ -4537,9 +4537,9 @@
       }
     }
   },
-  "organizeToastDeletedNote": "{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}",
+  "organizeToastDeletedNote": "{count, plural, =1{{pages}. It stays in the file until you save with Remove edit history or run Optimize and clean.} other{{pages}. They stay in the file until you save with Remove edit history or run Optimize and clean.}}",
   "@organizeToastDeletedNote": {
-    "description": "Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.",
+    "description": "Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the names of Save as's Remove edit history and of Optimize and clean.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -7314,5 +7314,514 @@
         "type": "String"
       }
     }
+  },
+  "jobCompressingTitle": "Compressing {name}",
+  "@jobCompressingTitle": {
+    "description": "Task drawer: Compress (a9-1) while it runs.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressedTitle": "Compressed {name}",
+  "@jobCompressedTitle": {
+    "description": "Task drawer: Compress, done.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressFailedTitle": "Couldn’t compress {name}",
+  "@jobCompressFailedTitle": {
+    "description": "Task drawer: Compress failed; nothing was written.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressNotSmaller": "It can’t get smaller, so nothing was written. The original stays as it is.",
+  "@jobCompressNotSmaller": {
+    "description": "Task drawer: Compress done, but the result was not smaller (decision 25)."
+  },
+  "jobCompressedSizes": "{before} → {after}",
+  "@jobCompressedSizes": {
+    "description": "Task drawer: Compress done; the sizes before and after, such as 24,6 MB → 6,8 MB.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "printForbidden": "The author doesn’t allow printing",
+  "@printForbidden": {
+    "description": "Tooltip of Print (B121) when the document's permissions forbid printing."
+  },
+  "printSent": "Sent {name} to the printer",
+  "@printSent": {
+    "description": "Toast after a print was handed to the system.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printFailed": "Couldn’t print {name}",
+  "@printFailed": {
+    "description": "Toast when a print failed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printTitle": "Print “{name}”",
+  "@printTitle": {
+    "description": "Print dialog (a9-6): the title; {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printSystemDialog": "Use system dialog…",
+  "@printSystemDialog": {
+    "description": "Print dialog: opens the system print dialog for the whole document."
+  },
+  "printAction": "Print",
+  "@printAction": {
+    "description": "Print dialog: the primary button, which opens the system print dialog."
+  },
+  "printPrinter": "Printer",
+  "@printPrinter": {
+    "description": "Print dialog: the printer menu, set in the system dialog."
+  },
+  "printPrinterSystem": "Chosen in the system dialog",
+  "@printPrinterSystem": {
+    "description": "Print dialog: the printer menu's only entry."
+  },
+  "printCopies": "Copies",
+  "@printCopies": {
+    "description": "Print dialog: the number of copies, set in the system dialog."
+  },
+  "printPages": "Pages",
+  "@printPages": {
+    "description": "Print dialog: the pages field."
+  },
+  "printPagesAll": "All",
+  "@printPagesAll": {
+    "description": "Print dialog: the pages field's placeholder; empty prints every page."
+  },
+  "printLayout": "Layout",
+  "@printLayout": {
+    "description": "Print dialog: the layout choice."
+  },
+  "printLayoutPages": "Pages",
+  "@printLayoutPages": {
+    "description": "Print dialog: one page per sheet."
+  },
+  "printLayoutBooklet": "Booklet",
+  "@printLayoutBooklet": {
+    "description": "Print dialog: booklet layout (P5)."
+  },
+  "printLayoutPoster": "Poster",
+  "@printLayoutPoster": {
+    "description": "Print dialog: poster tiling (P5)."
+  },
+  "printBothSides": "Both sides",
+  "@printBothSides": {
+    "description": "Print dialog: duplex, set in the system dialog."
+  },
+  "printLongEdge": "Long edge",
+  "@printLongEdge": {
+    "description": "Print dialog: duplex along the long edge."
+  },
+  "printShortEdge": "Short edge",
+  "@printShortEdge": {
+    "description": "Print dialog: duplex along the short edge."
+  },
+  "printOneSide": "One side",
+  "@printOneSide": {
+    "description": "Print dialog: no duplex."
+  },
+  "printScale": "Scale",
+  "@printScale": {
+    "description": "Print dialog: the scale menu."
+  },
+  "printScaleFit": "Fit to printable area",
+  "@printScaleFit": {
+    "description": "Print dialog: scale to the printable area."
+  },
+  "printScaleActual": "Actual size (100%)",
+  "@printScaleActual": {
+    "description": "Print dialog: print at the page's own size."
+  },
+  "printScaleCustom": "Custom…",
+  "@printScaleCustom": {
+    "description": "Print dialog: a custom scale (later)."
+  },
+  "printInclude": "Include",
+  "@printInclude": {
+    "description": "Print dialog: the heading of what prints."
+  },
+  "printComments": "{count, plural, =1{Comments and stamps ({n})} other{Comments and stamps ({n})}}",
+  "@printComments": {
+    "description": "Print dialog: whether comments and stamps print; {n} is how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "printFormFields": "Form field contents",
+  "@printFormFields": {
+    "description": "Print dialog: form fields, which always print."
+  },
+  "printHiddenLayers": "Hidden layers",
+  "@printHiddenLayers": {
+    "description": "Print dialog: hidden layers (later)."
+  },
+  "printPreviousSheet": "Previous sheet",
+  "@printPreviousSheet": {
+    "description": "Print dialog: the preview's previous sheet."
+  },
+  "printNextSheet": "Next sheet",
+  "@printNextSheet": {
+    "description": "Print dialog: the preview's next sheet."
+  },
+  "printSheetOf": "Sheet {sheet} of {sheets} · {paper}",
+  "@printSheetOf": {
+    "description": "Print dialog: under the preview; {paper} is the region's paper, A4 or Letter.",
+    "placeholders": {
+      "sheet": {
+        "type": "String"
+      },
+      "sheets": {
+        "type": "String"
+      },
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "compressFileName": "{name}, compressed",
+  "@compressFileName": {
+    "description": "Compress: the suggested file name, without .pdf; {name} is the document's.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "compressTitle": "Compress",
+  "@compressTitle": {
+    "description": "Compress panel (a9-1): the title."
+  },
+  "compressPreset": "Preset",
+  "@compressPreset": {
+    "description": "Compress panel: the presets' group name for screen readers."
+  },
+  "compressHighQuality": "High quality",
+  "@compressHighQuality": {
+    "description": "Compress preset."
+  },
+  "compressBalanced": "Balanced",
+  "@compressBalanced": {
+    "description": "Compress preset."
+  },
+  "compressSmallest": "Smallest",
+  "@compressSmallest": {
+    "description": "Compress preset."
+  },
+  "compressHighQualityDescription": "Images at 300 ppi, for printing.",
+  "@compressHighQualityDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressBalancedDescription": "Images at 150 ppi, for sharing and reading on screen.",
+  "@compressBalancedDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressSmallestDescription": "Images at 96 ppi, for e-mail. Text stays sharp.",
+  "@compressSmallestDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressCustom": "Custom…",
+  "@compressCustom": {
+    "description": "Compress: the custom preset (later, B182)."
+  },
+  "compressCustomDescription": "Set image resolution, quality and what to remove.",
+  "@compressCustomDescription": {
+    "description": "Compress: the custom preset's line."
+  },
+  "compressAbout": "≈ {size}",
+  "@compressAbout": {
+    "description": "Compress: an estimated size, such as ≈ 6,8 MB.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "compressNow": "Now",
+  "@compressNow": {
+    "description": "Compress: the size now."
+  },
+  "compressAfter": "After",
+  "@compressAfter": {
+    "description": "Compress: the estimated size after."
+  },
+  "compressEstimateSampled": "{count, plural, =1{Estimated from {n} sample image. The exact size is shown after saving.} other{Estimated from {n} sample images. The exact size is shown after saving.}}",
+  "@compressEstimateSampled": {
+    "description": "Compress: under the sizes; the estimate samples images by their bytes (decision 26).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressEstimateExact": "Measured on every image. The exact size is shown after saving.",
+  "@compressEstimateExact": {
+    "description": "Compress: under the sizes when every image was measured."
+  },
+  "compressDoes": "What {preset} does",
+  "@compressDoes": {
+    "description": "Compress: the section's title; {preset} is the preset's name.",
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesImages": "{count, plural, =1{Recompresses {n} image to {ppi} ppi} other{Recompresses {n} images to {ppi} ppi}}",
+  "@compressDoesImages": {
+    "description": "Compress: what the preset does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "ppi": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesFonts": "{count, plural, =1{Merges {n} duplicate font copy} other{Merges {n} duplicate font copies}}",
+  "@compressDoesFonts": {
+    "description": "Compress: what the preset does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesUnused": "Removes unused objects and thumbnails",
+  "@compressDoesUnused": {
+    "description": "Compress: what the preset does."
+  },
+  "compressDoesLeft": "{count, plural, =1{Leaves {n} image as it is: Ferman can’t recompress it} other{Leaves {n} images as they are: Ferman can’t recompress them}}",
+  "@compressDoesLeft": {
+    "description": "Compress: images in formats, masks or patterns it does not recompress (decision 26).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesKeeps": "Keeps text, links, bookmarks and forms",
+  "@compressDoesKeeps": {
+    "description": "Compress: what the preset never changes."
+  },
+  "compressSignedTitle": "This document is signed",
+  "@compressSignedTitle": {
+    "description": "Compress: the warning on a signed document (decision 25)."
+  },
+  "compressSignedBody": "The compressed copy has no signatures. The signed original stays as it is.",
+  "@compressSignedBody": {
+    "description": "Compress: the warning's text."
+  },
+  "compressAction": "Compress and save as…",
+  "@compressAction": {
+    "description": "Compress: the primary button; the system save panel asks where."
+  },
+  "saveAsCommentsOff": "The file is saved as a copy without them; {name} stays open with its comments.",
+  "@saveAsCommentsOff": {
+    "description": "Save as sheet: under Include comments when it is unchecked; {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveAsHistoryOn": "The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.",
+  "@saveAsHistoryOn": {
+    "description": "Save as sheet: under Remove edit history when it is checked (B138)."
+  },
+  "saveAsHistoryOff": "Deleted pages and earlier text stay in the file and can be recovered from it.",
+  "@saveAsHistoryOff": {
+    "description": "Save as sheet: under Remove edit history when it is unchecked (M4 plan question 5)."
+  },
+  "versionTitle": "Version history",
+  "@versionTitle": {
+    "description": "Version history (a9-8): the panel's title."
+  },
+  "versionCount": "{count, plural, =1{{n} version} other{{n} versions}}",
+  "@versionCount": {
+    "description": "Version history: how many versions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionList": "Versions",
+  "@versionList": {
+    "description": "Version history: the list's name for screen readers."
+  },
+  "versionNone": "No versions yet. Each save keeps one.",
+  "@versionNone": {
+    "description": "Version history: the empty list."
+  },
+  "versionKept": "Kept for 30 days on this device. Change in Settings › Editing.",
+  "@versionKept": {
+    "description": "Version history: the foot (ADR 0022: versions live in the app data directory)."
+  },
+  "versionNow": "Now",
+  "@versionNow": {
+    "description": "Version history: the current, unsaved state."
+  },
+  "versionUnsaved": "unsaved",
+  "@versionUnsaved": {
+    "description": "Version history: Now's time."
+  },
+  "versionNowDetail": "{count, plural, =0{Changes since the last save} =1{{n} edit since the last save} other{{n} edits since the last save}}",
+  "@versionNowDetail": {
+    "description": "Version history: Now's line.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionOpened": "Opened",
+  "@versionOpened": {
+    "description": "Version history: the file as it was opened."
+  },
+  "versionOpenedDetail": "The file as it was opened",
+  "@versionOpenedDetail": {
+    "description": "Version history: the opened version's line."
+  },
+  "versionSaved": "Saved",
+  "@versionSaved": {
+    "description": "Version history: a save."
+  },
+  "versionSigned": "Signed",
+  "@versionSigned": {
+    "description": "Version history: a save with a new signature."
+  },
+  "versionUnsavedWork": "Unsaved work",
+  "@versionUnsavedWork": {
+    "description": "Version history: unsaved work kept before a restore."
+  },
+  "versionRestored": "Restored",
+  "@versionRestored": {
+    "description": "Version history: a restore."
+  },
+  "versionEdits": "{count, plural, =1{{n} edit} other{{n} edits}}",
+  "@versionEdits": {
+    "description": "Version history: a version's line.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionEditsNamed": "{count, plural, =1{{n} edit · {names}} other{{n} edits · {names}}}",
+  "@versionEditsNamed": {
+    "description": "Version history: a version's line; {names} lists the edits.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "versionViewing": "Viewing the version from {time}.",
+  "@versionViewing": {
+    "description": "Version history: the preview's bar; {time} is a time or a date.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "versionReadOnly": "Read-only. Your current document is unchanged.",
+  "@versionReadOnly": {
+    "description": "Version history: the preview's bar."
+  },
+  "versionBack": "Back to current",
+  "@versionBack": {
+    "description": "Version history: leaves the preview."
+  },
+  "versionRestoreThis": "Restore this version…",
+  "@versionRestoreThis": {
+    "description": "Version history: the preview bar's restore."
+  },
+  "versionRestoreShort": "Restore…",
+  "@versionRestoreShort": {
+    "description": "Version history: the chosen row's restore."
+  },
+  "versionCompare": "Compare with current",
+  "@versionCompare": {
+    "description": "Version history: compare (P3)."
+  },
+  "versionRestoreTitle": "Restore the version from {time}?",
+  "@versionRestoreTitle": {
+    "description": "Version history: the restore question's title.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "versionRestoreBody": "Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.",
+  "@versionRestoreBody": {
+    "description": "Version history: the restore question (decision 27)."
+  },
+  "versionRestore": "Restore",
+  "@versionRestore": {
+    "description": "Version history: the restore question's button."
   }
 }

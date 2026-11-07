@@ -56,7 +56,6 @@ void main() {
     );
     expect(tester.getSemantics(scan).hint, _future);
     for (final label in [
-      'Compress',
       'Convert',
       'Recognize text (OCR)',
       'Protect',

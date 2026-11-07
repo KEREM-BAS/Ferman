@@ -22,6 +22,8 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/signatures/add_signature_dialog.dart';
 import 'package:ferman/features/signatures/sign_tools.dart';
+import 'package:ferman/features/tools/print_dialog.dart';
+import 'package:ferman/features/tools/tools_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -123,6 +125,8 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.documentProperties: ref
             .read(documentPropertiesRequestProvider.notifier)
             .request,
+      if (active?.document != null && ref.read(printRefusalProvider) == null)
+        ShellCommand.printDocument: () => showPrintDialog(ref),
       for (var i = 0; i < documentJumps.length && i < count; i++)
         documentJumps[i]: () => documents.activate(i),
       if (ref.read(viewerProvider) != null) ...{
@@ -266,7 +270,8 @@ class ShellCommandScope extends ConsumerWidget {
         ..watch(shellDocumentsProvider)
         ..watch(shellPanelsProvider)
         ..watch(viewerProvider.select((view) => view != null))
-        ..watch(documentEditorProvider);
+        ..watch(documentEditorProvider)
+        ..watch(printRefusalProvider);
       if (mode == FermanMode.organize) {
         ref
           ..watch(selectedPagesProvider)

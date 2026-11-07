@@ -131,6 +131,10 @@ final Set<String> _waitForDocument = {
   'Add text',
   'Checkmark',
   'Date',
+  // Tools' tools that work with a document (a9-1, a9-6, a9-8).
+  'Compress',
+  'Print',
+  'Version history',
 };
 
 /// The commands that have a control but whose keys no M1 surface shows
@@ -310,7 +314,8 @@ void main() {
                   mode == FermanMode.view ||
                   mode == FermanMode.organize ||
                   mode == FermanMode.comment ||
-                  mode == FermanMode.sign) &&
+                  mode == FermanMode.sign ||
+                  mode == FermanMode.tools) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -479,7 +484,8 @@ void main() {
                 ((mode != FermanMode.view &&
                         mode != FermanMode.organize &&
                         mode != FermanMode.comment &&
-                        mode != FermanMode.sign) ||
+                        mode != FermanMode.sign &&
+                        mode != FermanMode.tools) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

@@ -3362,7 +3362,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. Optimize et ve temizle’yi seçene kadar dosyada kalır.',
+      other:
+          '$pages. Düzenleme geçmişini kaldırarak kaydedene ya da Optimize et ve temizle’yi seçene kadar dosyada kalır.',
     );
     return '$_temp0';
   }
@@ -5391,4 +5392,374 @@ class AppLocalizationsTr extends AppLocalizations {
   String sidebarSearchFormField(String text) {
     return 'Form alanı: $text';
   }
+
+  @override
+  String jobCompressingTitle(String name) {
+    return '$name sıkıştırılıyor';
+  }
+
+  @override
+  String jobCompressedTitle(String name) {
+    return '$name sıkıştırıldı';
+  }
+
+  @override
+  String jobCompressFailedTitle(String name) {
+    return '$name sıkıştırılamadı';
+  }
+
+  @override
+  String get jobCompressNotSmaller =>
+      'Daha küçük olamıyor, bu yüzden hiçbir şey yazılmadı. Asıl dosya olduğu gibi kalıyor.';
+
+  @override
+  String jobCompressedSizes(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String get printForbidden => 'Yazar yazdırmaya izin vermiyor';
+
+  @override
+  String printSent(String name) {
+    return '$name yazıcıya gönderildi';
+  }
+
+  @override
+  String printFailed(String name) {
+    return '$name yazdırılamadı';
+  }
+
+  @override
+  String printTitle(String name) {
+    return '“$name” belgesini yazdır';
+  }
+
+  @override
+  String get printSystemDialog => 'Sistem penceresini kullan…';
+
+  @override
+  String get printAction => 'Yazdır';
+
+  @override
+  String get printPrinter => 'Yazıcı';
+
+  @override
+  String get printPrinterSystem => 'Sistem penceresinde seçilir';
+
+  @override
+  String get printCopies => 'Kopya';
+
+  @override
+  String get printPages => 'Sayfalar';
+
+  @override
+  String get printPagesAll => 'Tümü';
+
+  @override
+  String get printLayout => 'Düzen';
+
+  @override
+  String get printLayoutPages => 'Sayfalar';
+
+  @override
+  String get printLayoutBooklet => 'Kitapçık';
+
+  @override
+  String get printLayoutPoster => 'Poster';
+
+  @override
+  String get printBothSides => 'Çift taraflı';
+
+  @override
+  String get printLongEdge => 'Uzun kenar';
+
+  @override
+  String get printShortEdge => 'Kısa kenar';
+
+  @override
+  String get printOneSide => 'Tek taraf';
+
+  @override
+  String get printScale => 'Ölçek';
+
+  @override
+  String get printScaleFit => 'Yazdırılabilir alana sığdır';
+
+  @override
+  String get printScaleActual => 'Gerçek boyut (%100)';
+
+  @override
+  String get printScaleCustom => 'Özel…';
+
+  @override
+  String get printInclude => 'Dâhil et';
+
+  @override
+  String printComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yorumlar ve damgalar ($n)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get printFormFields => 'Form alanlarının içeriği';
+
+  @override
+  String get printHiddenLayers => 'Gizli katmanlar';
+
+  @override
+  String get printPreviousSheet => 'Önceki yaprak';
+
+  @override
+  String get printNextSheet => 'Sonraki yaprak';
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) {
+    return 'Yaprak $sheet / $sheets · $paper';
+  }
+
+  @override
+  String compressFileName(String name) {
+    return '$name, sıkıştırılmış';
+  }
+
+  @override
+  String get compressTitle => 'Sıkıştır';
+
+  @override
+  String get compressPreset => 'Ön ayar';
+
+  @override
+  String get compressHighQuality => 'Yüksek kalite';
+
+  @override
+  String get compressBalanced => 'Dengeli';
+
+  @override
+  String get compressSmallest => 'En küçük';
+
+  @override
+  String get compressHighQualityDescription => 'Görseller 300 ppi, baskı için.';
+
+  @override
+  String get compressBalancedDescription =>
+      'Görseller 150 ppi, paylaşmak ve ekranda okumak için.';
+
+  @override
+  String get compressSmallestDescription =>
+      'Görseller 96 ppi, e-posta için. Metin keskin kalır.';
+
+  @override
+  String get compressCustom => 'Özel…';
+
+  @override
+  String get compressCustomDescription =>
+      'Görsel çözünürlüğünü, kaliteyi ve neyin kaldırılacağını ayarlayın.';
+
+  @override
+  String compressAbout(String size) {
+    return '≈ $size';
+  }
+
+  @override
+  String get compressNow => 'Şimdi';
+
+  @override
+  String get compressAfter => 'Sonra';
+
+  @override
+  String compressEstimateSampled(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$n örnek görselden tahmin edildi. Kesin boyut kaydettikten sonra gösterilir.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressEstimateExact =>
+      'Her görselde ölçüldü. Kesin boyut kaydettikten sonra gösterilir.';
+
+  @override
+  String compressDoes(String preset) {
+    return '$preset ne yapar';
+  }
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n görseli $ppi ppi olarak yeniden sıkıştırır',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String compressDoesFonts(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n yinelenen yazı tipi kopyasını birleştirir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesUnused =>
+      'Kullanılmayan nesneleri ve küçük resimleri kaldırır';
+
+  @override
+  String compressDoesLeft(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$n görseli olduğu gibi bırakır: Ferman bunları yeniden sıkıştıramaz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get compressDoesKeeps =>
+      'Metni, bağlantıları, yer imlerini ve formları korur';
+
+  @override
+  String get compressSignedTitle => 'Bu belge imzalı';
+
+  @override
+  String get compressSignedBody =>
+      'Sıkıştırılmış kopyada imza olmaz. İmzalı asıl dosya olduğu gibi kalır.';
+
+  @override
+  String get compressAction => 'Sıkıştır ve farklı kaydet…';
+
+  @override
+  String saveAsCommentsOff(String name) {
+    return 'Dosya onlarsız bir kopya olarak kaydedilir; $name yorumlarıyla açık kalır.';
+  }
+
+  @override
+  String get saveAsHistoryOn =>
+      'Dosya baştan yazılır; önceki düzeltmeler ve silinen sayfalar olmadan. İmzalar geçersiz olur.';
+
+  @override
+  String get saveAsHistoryOff =>
+      'Silinen sayfalar ve önceki metin dosyada kalır ve oradan geri alınabilir.';
+
+  @override
+  String get versionTitle => 'Sürüm geçmişi';
+
+  @override
+  String versionCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n sürüm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionList => 'Sürümler';
+
+  @override
+  String get versionNone => 'Henüz sürüm yok. Her kayıt bir sürüm saklar.';
+
+  @override
+  String get versionKept =>
+      'Bu aygıtta 30 gün saklanır. Ayarlar › Düzenleme’den değiştirin.';
+
+  @override
+  String get versionNow => 'Şimdi';
+
+  @override
+  String get versionUnsaved => 'kaydedilmedi';
+
+  @override
+  String versionNowDetail(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Son kayıttan bu yana $n düzenleme',
+      zero: 'Son kayıttan bu yana değişiklikler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get versionOpened => 'Açıldı';
+
+  @override
+  String get versionOpenedDetail => 'Dosyanın açıldığı hâli';
+
+  @override
+  String get versionSaved => 'Kaydedildi';
+
+  @override
+  String get versionSigned => 'İmzalandı';
+
+  @override
+  String get versionUnsavedWork => 'Kaydedilmemiş çalışma';
+
+  @override
+  String get versionRestored => 'Geri yüklendi';
+
+  @override
+  String versionEdits(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n düzenleme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionEditsNamed(int count, String n, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n düzenleme · $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String versionViewing(String time) {
+    return '$time sürümü görüntüleniyor.';
+  }
+
+  @override
+  String get versionReadOnly => 'Salt okunur. Geçerli belgeniz değişmedi.';
+
+  @override
+  String get versionBack => 'Geçerli sürüme dön';
+
+  @override
+  String get versionRestoreThis => 'Bu sürümü geri yükle…';
+
+  @override
+  String get versionRestoreShort => 'Geri yükle…';
+
+  @override
+  String get versionCompare => 'Geçerli sürümle karşılaştır';
+
+  @override
+  String versionRestoreTitle(String time) {
+    return '$time sürümü geri yüklensin mi?';
+  }
+
+  @override
+  String get versionRestoreBody =>
+      'Geçerli dosyanız, kaydedilmemiş düzenlemeleriyle birlikte önce bir sürüm olarak saklanır; hiçbir şey kaybolmaz.';
+
+  @override
+  String get versionRestore => 'Geri yükle';
 }

@@ -93,7 +93,7 @@ class EditingPane extends ConsumerWidget {
       value: '30',
       options: [SelectOption(value: '30', label: l10n.settingsKeepVersions30)],
       disabled: true,
-      disabledReason: Feature.versionHistory.disabledReason(context),
+      disabledReason: Feature.keepVersions.disabledReason(context),
     );
 
     return Column(

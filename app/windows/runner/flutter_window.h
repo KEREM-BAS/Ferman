@@ -8,6 +8,7 @@
 
 #include "file_manager.h"
 #include "open_requests.h"
+#include "print_channel.h"
 #include "title_bar.h"
 #include "win32_window.h"
 
@@ -41,6 +42,7 @@ class FlutterWindow : public Win32Window {
 
   // Shows files in File Explorer (ferman/files).
   std::unique_ptr<FileChannel> file_channel_;
+  std::unique_ptr<PrintChannel> print_channel_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

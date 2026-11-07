@@ -71,6 +71,7 @@ const Set<String> _sameInArabic = {
   'propertiesAes128', // encryption method names
   'propertiesAes256',
   'languageWithRegion', // placeholders and parentheses only
+  'compressAbout', // an approximately-equal sign and a size
 };
 
 /// Each Arabic string the design's Arabic boards draw for M1, by the ARB

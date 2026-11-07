@@ -4143,13 +4143,13 @@ abstract class AppLocalizations {
   /// **'“{name}” stays open and unchanged; the copy is saved in {folder}.'**
   String saveAsCopyDescription(String name, String folder);
 
-  /// Save as sheet (a1-11): a checkbox, disabled until saving without comments works.
+  /// Save as sheet (a1-11): a checkbox; without it the file is a copy without comments (B138).
   ///
   /// In en, this message translates to:
   /// **'Include comments and markup'**
   String get saveAsComments;
 
-  /// Save as sheet (a1-11): a checkbox, disabled until version history arrives.
+  /// Save as sheet (a1-11): a checkbox; with it the file is rewritten whole (B138).
   ///
   /// In en, this message translates to:
   /// **'Remove edit history from the file'**
@@ -5475,10 +5475,10 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Page {pages}} other{Pages {pages}}}'**
   String organizeToastPages(int count, String pages);
 
-  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.
+  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the names of Save as's Remove edit history and of Optimize and clean.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}'**
+  /// **'{count, plural, =1{{pages}. It stays in the file until you save with Remove edit history or run Optimize and clean.} other{{pages}. They stay in the file until you save with Remove edit history or run Optimize and clean.}}'**
   String organizeToastDeletedNote(int count, String pages);
 
   /// History step: inserted the file {name}.
@@ -8661,6 +8661,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Form field: {text}'**
   String sidebarSearchFormField(String text);
+
+  /// Task drawer: Compress (a9-1) while it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Compressing {name}'**
+  String jobCompressingTitle(String name);
+
+  /// Task drawer: Compress, done.
+  ///
+  /// In en, this message translates to:
+  /// **'Compressed {name}'**
+  String jobCompressedTitle(String name);
+
+  /// Task drawer: Compress failed; nothing was written.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t compress {name}'**
+  String jobCompressFailedTitle(String name);
+
+  /// Task drawer: Compress done, but the result was not smaller (decision 25).
+  ///
+  /// In en, this message translates to:
+  /// **'It can’t get smaller, so nothing was written. The original stays as it is.'**
+  String get jobCompressNotSmaller;
+
+  /// Task drawer: Compress done; the sizes before and after, such as 24,6 MB → 6,8 MB.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after}'**
+  String jobCompressedSizes(String before, String after);
+
+  /// Tooltip of Print (B121) when the document's permissions forbid printing.
+  ///
+  /// In en, this message translates to:
+  /// **'The author doesn’t allow printing'**
+  String get printForbidden;
+
+  /// Toast after a print was handed to the system.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {name} to the printer'**
+  String printSent(String name);
+
+  /// Toast when a print failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t print {name}'**
+  String printFailed(String name);
+
+  /// Print dialog (a9-6): the title; {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Print “{name}”'**
+  String printTitle(String name);
+
+  /// Print dialog: opens the system print dialog for the whole document.
+  ///
+  /// In en, this message translates to:
+  /// **'Use system dialog…'**
+  String get printSystemDialog;
+
+  /// Print dialog: the primary button, which opens the system print dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get printAction;
+
+  /// Print dialog: the printer menu, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get printPrinter;
+
+  /// Print dialog: the printer menu's only entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen in the system dialog'**
+  String get printPrinterSystem;
+
+  /// Print dialog: the number of copies, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies'**
+  String get printCopies;
+
+  /// Print dialog: the pages field.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get printPages;
+
+  /// Print dialog: the pages field's placeholder; empty prints every page.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get printPagesAll;
+
+  /// Print dialog: the layout choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get printLayout;
+
+  /// Print dialog: one page per sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get printLayoutPages;
+
+  /// Print dialog: booklet layout (P5).
+  ///
+  /// In en, this message translates to:
+  /// **'Booklet'**
+  String get printLayoutBooklet;
+
+  /// Print dialog: poster tiling (P5).
+  ///
+  /// In en, this message translates to:
+  /// **'Poster'**
+  String get printLayoutPoster;
+
+  /// Print dialog: duplex, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Both sides'**
+  String get printBothSides;
+
+  /// Print dialog: duplex along the long edge.
+  ///
+  /// In en, this message translates to:
+  /// **'Long edge'**
+  String get printLongEdge;
+
+  /// Print dialog: duplex along the short edge.
+  ///
+  /// In en, this message translates to:
+  /// **'Short edge'**
+  String get printShortEdge;
+
+  /// Print dialog: no duplex.
+  ///
+  /// In en, this message translates to:
+  /// **'One side'**
+  String get printOneSide;
+
+  /// Print dialog: the scale menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale'**
+  String get printScale;
+
+  /// Print dialog: scale to the printable area.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to printable area'**
+  String get printScaleFit;
+
+  /// Print dialog: print at the page's own size.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual size (100%)'**
+  String get printScaleActual;
+
+  /// Print dialog: a custom scale (later).
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get printScaleCustom;
+
+  /// Print dialog: the heading of what prints.
+  ///
+  /// In en, this message translates to:
+  /// **'Include'**
+  String get printInclude;
+
+  /// Print dialog: whether comments and stamps print; {n} is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Comments and stamps ({n})} other{Comments and stamps ({n})}}'**
+  String printComments(int count, String n);
+
+  /// Print dialog: form fields, which always print.
+  ///
+  /// In en, this message translates to:
+  /// **'Form field contents'**
+  String get printFormFields;
+
+  /// Print dialog: hidden layers (later).
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden layers'**
+  String get printHiddenLayers;
+
+  /// Print dialog: the preview's previous sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous sheet'**
+  String get printPreviousSheet;
+
+  /// Print dialog: the preview's next sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Next sheet'**
+  String get printNextSheet;
+
+  /// Print dialog: under the preview; {paper} is the region's paper, A4 or Letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {sheet} of {sheets} · {paper}'**
+  String printSheetOf(String sheet, String sheets, String paper);
+
+  /// Compress: the suggested file name, without .pdf; {name} is the document's.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, compressed'**
+  String compressFileName(String name);
+
+  /// Compress panel (a9-1): the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress'**
+  String get compressTitle;
+
+  /// Compress panel: the presets' group name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get compressPreset;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'High quality'**
+  String get compressHighQuality;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get compressBalanced;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get compressSmallest;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 300 ppi, for printing.'**
+  String get compressHighQualityDescription;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 150 ppi, for sharing and reading on screen.'**
+  String get compressBalancedDescription;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 96 ppi, for e-mail. Text stays sharp.'**
+  String get compressSmallestDescription;
+
+  /// Compress: the custom preset (later, B182).
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get compressCustom;
+
+  /// Compress: the custom preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Set image resolution, quality and what to remove.'**
+  String get compressCustomDescription;
+
+  /// Compress: an estimated size, such as ≈ 6,8 MB.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {size}'**
+  String compressAbout(String size);
+
+  /// Compress: the size now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get compressNow;
+
+  /// Compress: the estimated size after.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get compressAfter;
+
+  /// Compress: under the sizes; the estimate samples images by their bytes (decision 26).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Estimated from {n} sample image. The exact size is shown after saving.} other{Estimated from {n} sample images. The exact size is shown after saving.}}'**
+  String compressEstimateSampled(int count, String n);
+
+  /// Compress: under the sizes when every image was measured.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured on every image. The exact size is shown after saving.'**
+  String get compressEstimateExact;
+
+  /// Compress: the section's title; {preset} is the preset's name.
+  ///
+  /// In en, this message translates to:
+  /// **'What {preset} does'**
+  String compressDoes(String preset);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Recompresses {n} image to {ppi} ppi} other{Recompresses {n} images to {ppi} ppi}}'**
+  String compressDoesImages(int count, String n, String ppi);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Merges {n} duplicate font copy} other{Merges {n} duplicate font copies}}'**
+  String compressDoesFonts(int count, String n);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes unused objects and thumbnails'**
+  String get compressDoesUnused;
+
+  /// Compress: images in formats, masks or patterns it does not recompress (decision 26).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Leaves {n} image as it is: Ferman can’t recompress it} other{Leaves {n} images as they are: Ferman can’t recompress them}}'**
+  String compressDoesLeft(int count, String n);
+
+  /// Compress: what the preset never changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps text, links, bookmarks and forms'**
+  String get compressDoesKeeps;
+
+  /// Compress: the warning on a signed document (decision 25).
+  ///
+  /// In en, this message translates to:
+  /// **'This document is signed'**
+  String get compressSignedTitle;
+
+  /// Compress: the warning's text.
+  ///
+  /// In en, this message translates to:
+  /// **'The compressed copy has no signatures. The signed original stays as it is.'**
+  String get compressSignedBody;
+
+  /// Compress: the primary button; the system save panel asks where.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress and save as…'**
+  String get compressAction;
+
+  /// Save as sheet: under Include comments when it is unchecked; {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is saved as a copy without them; {name} stays open with its comments.'**
+  String saveAsCommentsOff(String name);
+
+  /// Save as sheet: under Remove edit history when it is checked (B138).
+  ///
+  /// In en, this message translates to:
+  /// **'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.'**
+  String get saveAsHistoryOn;
+
+  /// Save as sheet: under Remove edit history when it is unchecked (M4 plan question 5).
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted pages and earlier text stay in the file and can be recovered from it.'**
+  String get saveAsHistoryOff;
+
+  /// Version history (a9-8): the panel's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Version history'**
+  String get versionTitle;
+
+  /// Version history: how many versions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} version} other{{n} versions}}'**
+  String versionCount(int count, String n);
+
+  /// Version history: the list's name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get versionList;
+
+  /// Version history: the empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'No versions yet. Each save keeps one.'**
+  String get versionNone;
+
+  /// Version history: the foot (ADR 0022: versions live in the app data directory).
+  ///
+  /// In en, this message translates to:
+  /// **'Kept for 30 days on this device. Change in Settings › Editing.'**
+  String get versionKept;
+
+  /// Version history: the current, unsaved state.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get versionNow;
+
+  /// Version history: Now's time.
+  ///
+  /// In en, this message translates to:
+  /// **'unsaved'**
+  String get versionUnsaved;
+
+  /// Version history: Now's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Changes since the last save} =1{{n} edit since the last save} other{{n} edits since the last save}}'**
+  String versionNowDetail(int count, String n);
+
+  /// Version history: the file as it was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened'**
+  String get versionOpened;
+
+  /// Version history: the opened version's line.
+  ///
+  /// In en, this message translates to:
+  /// **'The file as it was opened'**
+  String get versionOpenedDetail;
+
+  /// Version history: a save.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get versionSaved;
+
+  /// Version history: a save with a new signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed'**
+  String get versionSigned;
+
+  /// Version history: unsaved work kept before a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved work'**
+  String get versionUnsavedWork;
+
+  /// Version history: a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get versionRestored;
+
+  /// Version history: a version's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} edit} other{{n} edits}}'**
+  String versionEdits(int count, String n);
+
+  /// Version history: a version's line; {names} lists the edits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} edit · {names}} other{{n} edits · {names}}}'**
+  String versionEditsNamed(int count, String n, String names);
+
+  /// Version history: the preview's bar; {time} is a time or a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing the version from {time}.'**
+  String versionViewing(String time);
+
+  /// Version history: the preview's bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only. Your current document is unchanged.'**
+  String get versionReadOnly;
+
+  /// Version history: leaves the preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to current'**
+  String get versionBack;
+
+  /// Version history: the preview bar's restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this version…'**
+  String get versionRestoreThis;
+
+  /// Version history: the chosen row's restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore…'**
+  String get versionRestoreShort;
+
+  /// Version history: compare (P3).
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with current'**
+  String get versionCompare;
+
+  /// Version history: the restore question's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the version from {time}?'**
+  String versionRestoreTitle(String time);
+
+  /// Version history: the restore question (decision 27).
+  ///
+  /// In en, this message translates to:
+  /// **'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.'**
+  String get versionRestoreBody;
+
+  /// Version history: the restore question's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get versionRestore;
 }
 
 class _AppLocalizationsDelegate

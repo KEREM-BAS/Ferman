@@ -21,6 +21,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/fake_desktop_window.dart';
 import 'shell_host.dart';
 
+/// The Tools row's tools that work with a document (a9-1, a9-6, a9-8).
+const Set<String> _toolsWorking = {'Compress', 'Print', 'Version history'};
 void main() {
   late FakeDesktopWindow window;
 
@@ -610,7 +612,8 @@ void main() {
                 ? working[name] ?? futureVersion
                 : mode == FermanMode.organize && onSelection.contains(name)
                 ? 'Select pages first'
-                : name == 'Split'
+                : name == 'Split' ||
+                      mode == FermanMode.tools && _toolsWorking.contains(name)
                 // It waits for a shown document, not a version.
                 ? isNull
                 : name == 'Combine files' || name == 'Create PDF'

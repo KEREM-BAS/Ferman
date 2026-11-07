@@ -4621,6 +4621,290 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String sidebarSearchFormField(String text) =>
       isolate(super.sidebarSearchFormField(text));
+
+  @override
+  String jobCompressingTitle(String name) =>
+      isolate(super.jobCompressingTitle(name));
+
+  @override
+  String jobCompressedTitle(String name) =>
+      isolate(super.jobCompressedTitle(name));
+
+  @override
+  String jobCompressFailedTitle(String name) =>
+      isolate(super.jobCompressFailedTitle(name));
+
+  @override
+  String get jobCompressNotSmaller => isolate(super.jobCompressNotSmaller);
+
+  @override
+  String jobCompressedSizes(String before, String after) =>
+      isolate(super.jobCompressedSizes(before, after));
+
+  @override
+  String get printForbidden => isolate(super.printForbidden);
+
+  @override
+  String printSent(String name) => isolate(super.printSent(name));
+
+  @override
+  String printFailed(String name) => isolate(super.printFailed(name));
+
+  @override
+  String printTitle(String name) => isolate(super.printTitle(name));
+
+  @override
+  String get printSystemDialog => isolate(super.printSystemDialog);
+
+  @override
+  String get printAction => isolate(super.printAction);
+
+  @override
+  String get printPrinter => isolate(super.printPrinter);
+
+  @override
+  String get printPrinterSystem => isolate(super.printPrinterSystem);
+
+  @override
+  String get printCopies => isolate(super.printCopies);
+
+  @override
+  String get printPages => isolate(super.printPages);
+
+  @override
+  String get printPagesAll => isolate(super.printPagesAll);
+
+  @override
+  String get printLayout => isolate(super.printLayout);
+
+  @override
+  String get printLayoutPages => isolate(super.printLayoutPages);
+
+  @override
+  String get printLayoutBooklet => isolate(super.printLayoutBooklet);
+
+  @override
+  String get printLayoutPoster => isolate(super.printLayoutPoster);
+
+  @override
+  String get printBothSides => isolate(super.printBothSides);
+
+  @override
+  String get printLongEdge => isolate(super.printLongEdge);
+
+  @override
+  String get printShortEdge => isolate(super.printShortEdge);
+
+  @override
+  String get printOneSide => isolate(super.printOneSide);
+
+  @override
+  String get printScale => isolate(super.printScale);
+
+  @override
+  String get printScaleFit => isolate(super.printScaleFit);
+
+  @override
+  String get printScaleActual => isolate(super.printScaleActual);
+
+  @override
+  String get printScaleCustom => isolate(super.printScaleCustom);
+
+  @override
+  String get printInclude => isolate(super.printInclude);
+
+  @override
+  String printComments(int count, String n) =>
+      isolate(super.printComments(count, n));
+
+  @override
+  String get printFormFields => isolate(super.printFormFields);
+
+  @override
+  String get printHiddenLayers => isolate(super.printHiddenLayers);
+
+  @override
+  String get printPreviousSheet => isolate(super.printPreviousSheet);
+
+  @override
+  String get printNextSheet => isolate(super.printNextSheet);
+
+  @override
+  String printSheetOf(String sheet, String sheets, String paper) =>
+      isolate(super.printSheetOf(sheet, sheets, paper));
+
+  @override
+  String compressFileName(String name) => isolate(super.compressFileName(name));
+
+  @override
+  String get compressTitle => isolate(super.compressTitle);
+
+  @override
+  String get compressPreset => isolate(super.compressPreset);
+
+  @override
+  String get compressHighQuality => isolate(super.compressHighQuality);
+
+  @override
+  String get compressBalanced => isolate(super.compressBalanced);
+
+  @override
+  String get compressSmallest => isolate(super.compressSmallest);
+
+  @override
+  String get compressHighQualityDescription =>
+      isolate(super.compressHighQualityDescription);
+
+  @override
+  String get compressBalancedDescription =>
+      isolate(super.compressBalancedDescription);
+
+  @override
+  String get compressSmallestDescription =>
+      isolate(super.compressSmallestDescription);
+
+  @override
+  String get compressCustom => isolate(super.compressCustom);
+
+  @override
+  String get compressCustomDescription =>
+      isolate(super.compressCustomDescription);
+
+  @override
+  String compressAbout(String size) => isolate(super.compressAbout(size));
+
+  @override
+  String get compressNow => isolate(super.compressNow);
+
+  @override
+  String get compressAfter => isolate(super.compressAfter);
+
+  @override
+  String compressEstimateSampled(int count, String n) =>
+      isolate(super.compressEstimateSampled(count, n));
+
+  @override
+  String get compressEstimateExact => isolate(super.compressEstimateExact);
+
+  @override
+  String compressDoes(String preset) => isolate(super.compressDoes(preset));
+
+  @override
+  String compressDoesImages(int count, String n, String ppi) =>
+      isolate(super.compressDoesImages(count, n, ppi));
+
+  @override
+  String compressDoesFonts(int count, String n) =>
+      isolate(super.compressDoesFonts(count, n));
+
+  @override
+  String get compressDoesUnused => isolate(super.compressDoesUnused);
+
+  @override
+  String compressDoesLeft(int count, String n) =>
+      isolate(super.compressDoesLeft(count, n));
+
+  @override
+  String get compressDoesKeeps => isolate(super.compressDoesKeeps);
+
+  @override
+  String get compressSignedTitle => isolate(super.compressSignedTitle);
+
+  @override
+  String get compressSignedBody => isolate(super.compressSignedBody);
+
+  @override
+  String get compressAction => isolate(super.compressAction);
+
+  @override
+  String saveAsCommentsOff(String name) =>
+      isolate(super.saveAsCommentsOff(name));
+
+  @override
+  String get saveAsHistoryOn => isolate(super.saveAsHistoryOn);
+
+  @override
+  String get saveAsHistoryOff => isolate(super.saveAsHistoryOff);
+
+  @override
+  String get versionTitle => isolate(super.versionTitle);
+
+  @override
+  String versionCount(int count, String n) =>
+      isolate(super.versionCount(count, n));
+
+  @override
+  String get versionList => isolate(super.versionList);
+
+  @override
+  String get versionNone => isolate(super.versionNone);
+
+  @override
+  String get versionKept => isolate(super.versionKept);
+
+  @override
+  String get versionNow => isolate(super.versionNow);
+
+  @override
+  String get versionUnsaved => isolate(super.versionUnsaved);
+
+  @override
+  String versionNowDetail(int count, String n) =>
+      isolate(super.versionNowDetail(count, n));
+
+  @override
+  String get versionOpened => isolate(super.versionOpened);
+
+  @override
+  String get versionOpenedDetail => isolate(super.versionOpenedDetail);
+
+  @override
+  String get versionSaved => isolate(super.versionSaved);
+
+  @override
+  String get versionSigned => isolate(super.versionSigned);
+
+  @override
+  String get versionUnsavedWork => isolate(super.versionUnsavedWork);
+
+  @override
+  String get versionRestored => isolate(super.versionRestored);
+
+  @override
+  String versionEdits(int count, String n) =>
+      isolate(super.versionEdits(count, n));
+
+  @override
+  String versionEditsNamed(int count, String n, String names) =>
+      isolate(super.versionEditsNamed(count, n, names));
+
+  @override
+  String versionViewing(String time) => isolate(super.versionViewing(time));
+
+  @override
+  String get versionReadOnly => isolate(super.versionReadOnly);
+
+  @override
+  String get versionBack => isolate(super.versionBack);
+
+  @override
+  String get versionRestoreThis => isolate(super.versionRestoreThis);
+
+  @override
+  String get versionRestoreShort => isolate(super.versionRestoreShort);
+
+  @override
+  String get versionCompare => isolate(super.versionCompare);
+
+  @override
+  String versionRestoreTitle(String time) =>
+      isolate(super.versionRestoreTitle(time));
+
+  @override
+  String get versionRestoreBody => isolate(super.versionRestoreBody);
+
+  @override
+  String get versionRestore => isolate(super.versionRestore);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

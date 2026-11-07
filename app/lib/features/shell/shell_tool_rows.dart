@@ -28,6 +28,8 @@ import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/signatures/saved_signatures.dart';
 import 'package:ferman/features/signatures/sign_tools.dart';
 import 'package:ferman/features/stamps/comment_tool_menus.dart';
+import 'package:ferman/features/tools/print_dialog.dart';
+import 'package:ferman/features/tools/tools_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
@@ -1248,7 +1250,8 @@ class _ProtectTools extends ConsumerWidget {
 
 /// Tools (FmWindow lines 150–163): Compress, Compare, Accessibility, PDF/A
 /// & preflight, Batch actions, Print, Measure, Version history | AI
-/// assistant.
+/// assistant. Compress (a9-1), Print (a9-6) and Version history (a9-8) work
+/// with a document open; Print not where the document forbids it (B121).
 class _ToolsTools extends ConsumerWidget {
   const new();
 
@@ -1256,24 +1259,33 @@ class _ToolsTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
-    ToolButton tool(
-      Feature feature,
-      IconName icon,
-      String label, {
-      List<String>? shortcut,
-    }) => _future(
+    final live = ref.watch(openDocumentProvider) != null;
+    final panel = ref.watch(toolsPanelProvider);
+    final printRefusal = ref.watch(printRefusalProvider)?.call(l10n);
+    final panels = ref.read(toolsPanelProvider.notifier);
+    ToolButton tool(Feature feature, IconName icon, String label) => _future(
       context,
       feature: feature,
       icon: icon,
       label: label,
       active: false,
-      shortcut: shortcut,
     );
     return Toolbar(
       semanticLabel: l10n.shellModeTools,
       overflowLabel: l10n.moreTools,
       children: [
-        tool(Feature.compress, IconName.minimize2, l10n.shellToolCompress),
+        ToolButton(
+          icon: IconName.minimize2,
+          label: l10n.shellToolCompress,
+          active: panel == ToolsPanel.compress,
+          disabled: !live,
+          onPressed: live
+              ? () {
+                  panels.toggle(ToolsPanel.compress);
+                  ref.read(shellPanelOpenProvider.notifier).open();
+                }
+              : null,
+        ),
         tool(Feature.compare, IconName.gitCompare, l10n.shellToolCompare),
         tool(
           Feature.accessibilityTools,
@@ -1282,17 +1294,24 @@ class _ToolsTools extends ConsumerWidget {
         ),
         tool(Feature.pdfAAndPreflight, IconName.fileCheck2, l10n.shellToolPdfA),
         tool(Feature.batchActions, IconName.workflow, l10n.shellToolBatch),
-        tool(
-          Feature.printing,
-          IconName.printer,
-          l10n.shellToolPrint,
+        ToolButton(
+          icon: IconName.printer,
+          label: l10n.shellToolPrint,
+          active: false,
           shortcut: ShellCommand.printDocument.caps(platform),
+          disabled: !live || printRefusal != null,
+          disabledReason: printRefusal,
+          onPressed: live && printRefusal == null
+              ? () => showPrintDialog(ref)
+              : null,
         ),
         tool(Feature.measure, IconName.ruler, l10n.shellToolMeasure),
-        tool(
-          Feature.versionHistory,
-          IconName.history,
-          l10n.shellToolVersionHistory,
+        ToolButton(
+          icon: IconName.history,
+          label: l10n.shellToolVersionHistory,
+          active: panel == ToolsPanel.versions,
+          disabled: !live,
+          onPressed: live ? () => panels.toggle(ToolsPanel.versions) : null,
         ),
         const ToolbarSeparator(),
         tool(Feature.aiAssistant, IconName.sparkles, l10n.shellAiAssistant),

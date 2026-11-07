@@ -2,6 +2,8 @@
 
 #include <flutter_linux/flutter_linux.h>
 
+#include <cstring>
+
 #include "flutter/generated_plugin_registrant.h"
 
 struct _MyApplication {
@@ -20,6 +22,18 @@ struct _MyApplication {
   // The "ferman/files" channel (app/lib/platform/file_access.dart): "openUrl"
   // and "show".
   FlMethodChannel* files_channel;
+  // The "ferman/print" channel (app/lib/platform/print_service.dart, a9-6).
+  FlMethodChannel* print_channel;
+  // The print under way, from "begin" until GTK reports it done.
+  GtkPrintOperation* print_operation;
+  // "begin", waiting for the print dialog's answer.
+  FlMethodCall* print_begin;
+  // A page Dart sent before GTK asked for it.
+  FlMethodCall* print_page;
+  // The page GTK asked for before Dart sent it, deferred.
+  GtkPrintContext* print_context;
+  // Whether pages are scaled to the printable area, or printed at their size.
+  gboolean print_fit;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
@@ -162,6 +176,217 @@ static void files_method_call_cb(FlMethodChannel* channel,
       -1, nullptr, show_items_cb, g_object_ref(method_call));
 }
 
+// Answers a "ferman/print" call with |done|.
+static void respond_print(FlMethodCall* method_call, gboolean done) {
+  g_autoptr(FlValue) result = fl_value_new_bool(done);
+  g_autoptr(GError) error = nullptr;
+  if (!fl_method_call_respond_success(method_call, result, &error)) {
+    g_warning("ferman/print: failed to respond: %s", error->message);
+  }
+}
+
+// Answers the waiting "begin" with |done|.
+static void print_answer_begin(MyApplication* self, gboolean done) {
+  if (self->print_begin == nullptr) {
+    return;
+  }
+  respond_print(self->print_begin, done);
+  g_clear_object(&self->print_begin);
+}
+
+// Draws the page of |method_call|'s arguments, 8-bit BGRA, opaque, the top
+// row first, on |context|; FALSE when the arguments are not a page.
+static gboolean print_draw(MyApplication* self, GtkPrintContext* context,
+                           FlMethodCall* method_call) {
+  FlValue* args = fl_method_call_get_args(method_call);
+  if (fl_value_get_type(args) != FL_VALUE_TYPE_MAP) {
+    return FALSE;
+  }
+  FlValue* width_value = fl_value_lookup_string(args, "width");
+  FlValue* height_value = fl_value_lookup_string(args, "height");
+  FlValue* width_points = fl_value_lookup_string(args, "widthPoints");
+  FlValue* height_points = fl_value_lookup_string(args, "heightPoints");
+  FlValue* pixels = fl_value_lookup_string(args, "pixels");
+  if (width_value == nullptr || height_value == nullptr ||
+      width_points == nullptr || height_points == nullptr ||
+      pixels == nullptr ||
+      fl_value_get_type(width_value) != FL_VALUE_TYPE_INT ||
+      fl_value_get_type(height_value) != FL_VALUE_TYPE_INT ||
+      fl_value_get_type(width_points) != FL_VALUE_TYPE_FLOAT ||
+      fl_value_get_type(height_points) != FL_VALUE_TYPE_FLOAT ||
+      fl_value_get_type(pixels) != FL_VALUE_TYPE_UINT8_LIST) {
+    return FALSE;
+  }
+  int64_t width = fl_value_get_int(width_value);
+  int64_t height = fl_value_get_int(height_value);
+  double drawn_width = fl_value_get_float(width_points);
+  double drawn_height = fl_value_get_float(height_points);
+  if (width <= 0 || height <= 0 || width > G_MAXINT / 4 ||
+      height > G_MAXINT || drawn_width <= 0 || drawn_height <= 0 ||
+      fl_value_get_length(pixels) <
+          static_cast<size_t>(width) * static_cast<size_t>(height) * 4) {
+    return FALSE;
+  }
+  // A surface of its own: the print surface may keep it until the page ends.
+  cairo_surface_t* image = cairo_image_surface_create(
+      CAIRO_FORMAT_RGB24, static_cast<int>(width), static_cast<int>(height));
+  if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(image);
+    return FALSE;
+  }
+  cairo_surface_flush(image);
+  unsigned char* target = cairo_image_surface_get_data(image);
+  int stride = cairo_image_surface_get_stride(image);
+  const uint8_t* source = fl_value_get_uint8_list(pixels);
+  for (int64_t row = 0; row < height; row++) {
+    memcpy(target + row * stride, source + row * width * 4, width * 4);
+  }
+  cairo_surface_mark_dirty(image);
+  double area_width = gtk_print_context_get_width(context);
+  double area_height = gtk_print_context_get_height(context);
+  if (self->print_fit) {
+    double scale = MIN(area_width / drawn_width, area_height / drawn_height);
+    drawn_width *= scale;
+    drawn_height *= scale;
+  }
+  cairo_t* cr = gtk_print_context_get_cairo_context(context);
+  cairo_save(cr);
+  cairo_translate(cr, (area_width - drawn_width) / 2,
+                  (area_height - drawn_height) / 2);
+  cairo_scale(cr, drawn_width / width, drawn_height / height);
+  cairo_set_source_surface(cr, image, 0, 0);
+  cairo_paint(cr);
+  cairo_restore(cr);
+  cairo_surface_destroy(image);
+  return TRUE;
+}
+
+// The dialog was accepted: Dart starts sending pages.
+static void print_begin_cb(GtkPrintOperation* operation,
+                           GtkPrintContext* context, gpointer user_data) {
+  print_answer_begin(MY_APPLICATION(user_data), TRUE);
+}
+
+// GTK wants the next page: drawn now when Dart sent it, deferred otherwise.
+static void print_draw_page_cb(GtkPrintOperation* operation,
+                               GtkPrintContext* context, gint page_nr,
+                               gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  if (self->print_page != nullptr) {
+    g_autoptr(FlMethodCall) page = self->print_page;
+    self->print_page = nullptr;
+    respond_print(page, print_draw(self, context, page));
+    return;
+  }
+  gtk_print_operation_set_defer_drawing(operation);
+  self->print_context = context;
+}
+
+// The print ended, sent, cancelled or failed: whatever still waits hears so.
+static void print_done_cb(GtkPrintOperation* operation,
+                          GtkPrintOperationResult result, gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  print_answer_begin(self, FALSE);
+  if (self->print_page != nullptr) {
+    respond_print(self->print_page, FALSE);
+    g_clear_object(&self->print_page);
+  }
+  self->print_context = nullptr;
+  if (self->print_operation == operation) {
+    g_clear_object(&self->print_operation);
+  }
+}
+
+// The value of |key| in the map |args|, or nullptr.
+static FlValue* print_argument(FlValue* args, const gchar* key) {
+  return fl_value_get_type(args) == FL_VALUE_TYPE_MAP
+             ? fl_value_lookup_string(args, key)
+             : nullptr;
+}
+
+// Handles a call on the "ferman/print" channel (decision 29): "begin" shows
+// the GTK print dialog for "pages" pages, "page" draws one page as Dart sends
+// it, after the one before, so a long document never waits in memory, "end"
+// lets GTK send what was drawn and "abort" cancels.
+static void print_method_call_cb(FlMethodChannel* channel,
+                                 FlMethodCall* method_call,
+                                 gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  const gchar* method = fl_method_call_get_name(method_call);
+  FlValue* args = fl_method_call_get_args(method_call);
+  if (g_strcmp0(method, "begin") == 0) {
+    if (self->print_operation != nullptr) {
+      gtk_print_operation_cancel(self->print_operation);
+    }
+    FlValue* name = print_argument(args, "name");
+    FlValue* pages = print_argument(args, "pages");
+    FlValue* fit = print_argument(args, "fit");
+    if (pages == nullptr || fl_value_get_type(pages) != FL_VALUE_TYPE_INT ||
+        fl_value_get_int(pages) <= 0 || fl_value_get_int(pages) > G_MAXINT) {
+      respond_print(method_call, FALSE);
+      return;
+    }
+    self->print_fit = fit == nullptr ||
+                      fl_value_get_type(fit) != FL_VALUE_TYPE_BOOL ||
+                      fl_value_get_bool(fit);
+    GtkPrintOperation* operation = gtk_print_operation_new();
+    self->print_operation = operation;
+    self->print_begin = FL_METHOD_CALL(g_object_ref(method_call));
+    gtk_print_operation_set_n_pages(operation,
+                                    static_cast<gint>(fl_value_get_int(pages)));
+    if (name != nullptr && fl_value_get_type(name) == FL_VALUE_TYPE_STRING) {
+      gtk_print_operation_set_job_name(operation, fl_value_get_string(name));
+    }
+    gtk_print_operation_set_unit(operation, GTK_UNIT_POINTS);
+    gtk_print_operation_set_allow_async(operation, TRUE);
+    g_signal_connect(operation, "begin-print", G_CALLBACK(print_begin_cb),
+                     self);
+    g_signal_connect(operation, "draw-page", G_CALLBACK(print_draw_page_cb),
+                     self);
+    g_signal_connect(operation, "done", G_CALLBACK(print_done_cb), self);
+    GtkPrintOperationResult result = gtk_print_operation_run(
+        operation, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, self->window,
+        nullptr);
+    if (result == GTK_PRINT_OPERATION_RESULT_ERROR ||
+        result == GTK_PRINT_OPERATION_RESULT_CANCEL) {
+      print_answer_begin(self, FALSE);
+    }
+    return;
+  }
+  if (g_strcmp0(method, "page") == 0) {
+    if (self->print_operation == nullptr || self->print_page != nullptr) {
+      respond_print(method_call, FALSE);
+    } else if (self->print_context != nullptr) {
+      GtkPrintContext* context = self->print_context;
+      self->print_context = nullptr;
+      respond_print(method_call, print_draw(self, context, method_call));
+      gtk_print_operation_draw_page_finish(self->print_operation);
+    } else {
+      self->print_page = FL_METHOD_CALL(g_object_ref(method_call));
+    }
+    return;
+  }
+  if (g_strcmp0(method, "end") == 0) {
+    // GTK sends the print once the last page is drawn.
+    respond_print(method_call, self->print_operation != nullptr);
+    return;
+  }
+  if (g_strcmp0(method, "abort") == 0) {
+    if (self->print_operation != nullptr) {
+      gtk_print_operation_cancel(self->print_operation);
+      if (self->print_context != nullptr) {
+        self->print_context = nullptr;
+        gtk_print_operation_draw_page_finish(self->print_operation);
+      }
+    }
+    respond_print(method_call, TRUE);
+    return;
+  }
+  g_autoptr(FlMethodResponse) response =
+      FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  fl_method_call_respond(method_call, response, nullptr);
+}
+
 // Sets the window icon from data/app_icon.png beside the executable (made by
 // tools/app-icons, installed by CMakeLists.txt). Without it the window keeps
 // the desktop's generic icon; a packaged Ferman's .desktop file names its own.
@@ -265,6 +490,11 @@ static void my_application_activate(GApplication* application) {
       FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(
       self->files_channel, files_method_call_cb, self, nullptr);
+  self->print_channel = fl_method_channel_new(
+      fl_engine_get_binary_messenger(fl_view_get_engine(view)), "ferman/print",
+      FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(
+      self->print_channel, print_method_call_cb, self, nullptr);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -363,6 +593,10 @@ static void my_application_dispose(GObject* object) {
   g_clear_object(&self->window_channel);
   g_clear_object(&self->open_channel);
   g_clear_object(&self->files_channel);
+  g_clear_object(&self->print_channel);
+  g_clear_object(&self->print_begin);
+  g_clear_object(&self->print_page);
+  g_clear_object(&self->print_operation);
   g_clear_pointer(&self->kept_paths, g_ptr_array_unref);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }

@@ -609,6 +609,12 @@ void main() {
                     mode == FermanMode.sign &&
                         const {'Sign', 'Initials'}.contains(entry.label) ||
                     entry.label == 'Split' ||
+                    mode == FermanMode.tools &&
+                        const {
+                          'Compress',
+                          'Print',
+                          'Version history',
+                        }.contains(entry.label) ||
                     entry.label == 'Combine files' ||
                     entry.label == 'Create PDF'
                 ? isNull
