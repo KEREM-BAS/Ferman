@@ -4782,4 +4782,191 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get placePolygonHint =>
       'انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى.';
+
+  @override
+  String get linksTitle => 'الروابط';
+
+  @override
+  String get linksNote => 'يسأل Ferman قبل فتح رابط ويب من ملف PDF.';
+
+  @override
+  String get linksEmpty => 'لا توجد روابط في هذا المستند.';
+
+  @override
+  String get linksTruncated =>
+      'يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها.';
+
+  @override
+  String get linksSelectTextFirst => 'حدّد أولًا النص المراد ربطه';
+
+  @override
+  String get linksKindWeb => 'ويب';
+
+  @override
+  String get linksKindMail => 'بريد إلكتروني';
+
+  @override
+  String get linksKindPage => 'صفحة';
+
+  @override
+  String get linksKindScript => 'برنامج نصي، لا يُشغَّل';
+
+  @override
+  String get linksKindLaunch => 'برنامج، لا يُشغَّل';
+
+  @override
+  String get linksKindFile => 'ملف، لا يُفتح';
+
+  @override
+  String get linksKindAddress => 'عنوان، لا يُفتح';
+
+  @override
+  String get linksKindAction => 'إجراء غير معروف، يُحتفظ به';
+
+  @override
+  String get linksKindNothing => 'لا يفعل شيئًا';
+
+  @override
+  String linksPage(String page) {
+    return 'الصفحة $page';
+  }
+
+  @override
+  String get linksPageMissing => 'صفحة مفقودة';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · الصفحة $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · الصفحة $page · قيد التحرير';
+  }
+
+  @override
+  String get linkAddTitle => 'إضافة رابط';
+
+  @override
+  String get linkEditTitle => 'تحرير الرابط';
+
+  @override
+  String get linkTo => 'الربط إلى';
+
+  @override
+  String get linkTypeFile => 'ملف';
+
+  @override
+  String get linkFieldWeb => 'عنوان الويب';
+
+  @override
+  String get linkFieldMail => 'عنوان البريد الإلكتروني';
+
+  @override
+  String get linkFieldPage => 'رقم الصفحة';
+
+  @override
+  String get linkAppearance => 'المظهر';
+
+  @override
+  String get linkLookNone => 'غير مرئي (يحتفظ النص بمظهره)';
+
+  @override
+  String get linkLookUnderline => 'تسطير';
+
+  @override
+  String get linkLookBox => 'إطار رفيع';
+
+  @override
+  String get linkRemove => 'إزالة الرابط';
+
+  @override
+  String get linkSave => 'حفظ الرابط';
+
+  @override
+  String get linkStepAdd => 'إضافة رابط';
+
+  @override
+  String get linkStepEdit => 'تحرير الرابط';
+
+  @override
+  String get linkStepRemove => 'إزالة الرابط';
+
+  @override
+  String get linkErrorWeb => 'اكتب عنوان ويب يبدأ بـ http:// أو https://.';
+
+  @override
+  String get linkErrorMail => 'اكتب عنوان بريد إلكتروني مثل name@example.com.';
+
+  @override
+  String get linkFailedTitle => 'تعذّر تغيير الرابط';
+
+  @override
+  String get linkOpenWebTitle => 'هل تريد فتح عنوان الويب هذا؟';
+
+  @override
+  String get linkOpenMailTitle => 'هل تريد مراسلة هذا العنوان؟';
+
+  @override
+  String get linkOpenDescription =>
+      'هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته.';
+
+  @override
+  String get linkOpenAction => 'فتح الرابط';
+
+  @override
+  String get linkOpenFailed => 'تعذّر فتح الرابط';
+
+  @override
+  String get linkBrokenTitle => 'هذا الرابط لا يؤدي إلى أي مكان';
+
+  @override
+  String get linkRefusedTitle => 'لم يتبع Ferman هذا الرابط';
+
+  @override
+  String get linkRefusedScript =>
+      'كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return 'كان سيشغّل $target، ولا يشغّل Ferman البرامج للمستندات أبدًا.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'يشير إلى ملف آخر، $target، ولا يفتح Ferman الملفات من الروابط.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'لا يفتح Ferman هذا النوع من العناوين: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'معطّل: يحتوي هذا المستند على $pages صفحة',
+      few: 'معطّل: يحتوي هذا المستند على $pages صفحات',
+      two: 'معطّل: يحتوي هذا المستند على صفحتين ($pages)',
+      one: 'معطّل: يحتوي هذا المستند على صفحة واحدة ($pages)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اكتب صفحة من 1 إلى $pages.',
+      one: 'يحتوي هذا المستند على صفحة واحدة ($pages).',
+    );
+    return '$_temp0';
+  }
 }

@@ -13,6 +13,8 @@ import 'package:ferman/features/editor/block_editor.dart';
 import 'package:ferman/features/editor/edit_callouts.dart';
 import 'package:ferman/features/editor/edit_marks.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/link_popover.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
 import 'package:ferman/features/viewer/text_state.dart';
@@ -91,6 +93,12 @@ class DocumentView extends ConsumerStatefulWidget {
   /// How many characters of a block's first line its hover tooltip names.
   static const int tipChars = 24;
 
+  /// How far a press may move and still be a click on a link.
+  static const double clickSlop = 4;
+
+  /// The height a3-6's popover needs under a link, or it opens over it.
+  static const double linkPopoverRoom = 290;
+
   /// The decoded bitmaps kept, in bytes.
   static const int cacheBytes = 256 << 20;
 
@@ -157,6 +165,10 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
 
   /// The inline editor's key, new for each block edited, and its edit.
   GlobalKey _editorKey = GlobalKey();
+  final GlobalKey _linkPopover = GlobalKey();
+
+  /// Where a press that may be a click on a link began.
+  Offset? _press;
   ActiveEdit? _keyed;
 
   /// Where a text selection started: its page and position.
@@ -449,14 +461,27 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   void _down(PointerDownEvent event) {
     // A click in the open editor is the text field's.
     if (widget.edit && _inEditor(event.position)) return;
+    if (_inLinkPopover(event.position)) return;
     Focus.maybeOf(context)?.requestFocus();
     ContextMenuController.removeAny();
+    // A click follows a link, or marks it with the Link tool (a3-6).
+    _press =
+        event.buttons == kPrimaryButton &&
+            (_linkTool || (!widget.edit && _tool != ViewerTool.marquee))
+        ? event.localPosition
+        : null;
     if (event.kind != PointerDeviceKind.mouse) return;
     if (event.buttons == kSecondaryMouseButton) {
       if (_selectsText) _showMenu(event.position);
       return;
     }
     if (event.buttons != kPrimaryMouseButton) return;
+    if (_linkTool) {
+      ref.read(linkToolProvider.notifier).mark(null);
+      _selecting = true;
+      unawaited(_startSelection(_targetAt(event.localPosition)));
+      return;
+    }
     if (widget.edit) {
       unawaited(_openEditor(_targetAt(event.localPosition)));
       return;
@@ -487,6 +512,13 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   }
 
   void _up(PointerEvent event) {
+    final press = _press;
+    _press = null;
+    if (press != null &&
+        event is PointerUpEvent &&
+        (event.localPosition - press).distance <= DocumentView.clickSlop) {
+      unawaited(_clickedLink(press));
+    }
     final start = _marqueeStart;
     final end = _marqueeEnd;
     if (start != null && end != null && event is PointerUpEvent) {
@@ -502,12 +534,44 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     });
   }
 
+  /// A click at [local]: follows the link there, or marks it with the Link
+  /// tool. The engine says which link it is.
+  Future<void> _clickedLink(Offset local) async {
+    final target = _targetAt(local);
+    final document = ref.read(viewerProvider)?.document;
+    if (target == null || document == null) return;
+    final LinkInfo? link;
+    try {
+      link = await _engine.linkAt(
+        document.id,
+        document.pageHandle(target.page),
+        target.point,
+      );
+    } on EngineException {
+      return;
+    }
+    if (!mounted || link == null) return;
+    final tool = ref.read(linkToolProvider.notifier);
+    _linkTool ? tool.mark(link.handle) : tool.follow(link);
+  }
+
+  /// Whether the Link tool is on.
+  bool get _linkTool => widget.edit && ref.read(linkToolProvider).on;
+
+  /// Whether [position] (global) is over the Link tool's popover.
+  bool _inLinkPopover(Offset position) {
+    final box = _linkPopover.currentContext?.findRenderObject();
+    return box is RenderBox &&
+        box.hasSize &&
+        (Offset.zero & box.size).contains(box.globalToLocal(position));
+  }
+
   // Text: blocks, hover, caret and selection.
 
-  /// Whether the Select tool selects text: View mode with Select chosen, or
-  /// Comment mode with a text mark's tool.
+  /// Whether the pointer selects text: View mode with Select chosen, the Link
+  /// tool, or Comment mode with a text mark's tool.
   bool get _selectsText =>
-      (widget.tools && _tool == ViewerTool.select) || _marking;
+      _linkTool || (widget.tools && _tool == ViewerTool.select) || _marking;
 
   /// Whether the pointer selects text to mark (a4-1).
   bool get _marking =>
@@ -588,7 +652,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       return;
     }
     setState(() => _hover = target);
-    if (!widget.edit || target == null) return;
+    if (!widget.edit || _linkTool || target == null) return;
     // Pointing at empty space keeps the last callout, so the pointer can go
     // over to the panel to read it.
     final reason = target.block != null
@@ -770,7 +834,25 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     final hoverReason = hover?.block != null
         ? hover!.block!.notEditable
         : hover?.empty;
-    final cursor = widget.edit
+    final linkTool = ref.watch(linkToolProvider);
+    final linkOn = widget.edit && linkTool.on;
+    final overLink = switch (hover) {
+      final over? when _selectsText =>
+        linkOver(
+              ref.watch(documentLinksProvider).value?.links ?? const [],
+              state.document.pageHandle(over.page),
+              over.point,
+            ) !=
+            null,
+      _ => false,
+    };
+    final cursor = overLink
+        ? SystemMouseCursors.click
+        : linkOn
+        ? hover?.block != null
+              ? SystemMouseCursors.text
+              : MouseCursor.defer
+        : widget.edit
         ? hover?.block != null && hoverReason == null
               ? SystemMouseCursors.text
               : hover != null && hoverReason != null
@@ -857,7 +939,10 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                           ),
                         ),
                       ),
-                  if (widget.edit) ..._editLayer(context, state),
+                  if (linkOn)
+                    ..._linkLayer(context, state, linkTool)
+                  else if (widget.edit)
+                    ..._editLayer(context, state),
                   if (widget.comment)
                     Positioned.fill(
                       child: CommentOverlay(
@@ -921,6 +1006,85 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                     barGap: size.editMarkBarGap,
                     barWidth: size.editMarkBarW,
                   ),
+    ];
+  }
+
+  /// The Link tool's faint outlines, the marked one solid, and the Edit link
+  /// popover by it (a3-6), in the UI's direction, inside the canvas.
+  List<Widget> _linkLayer(
+    BuildContext context,
+    ViewerState state,
+    LinkToolState tool,
+  ) {
+    final theme = context.ferman;
+    final colors = theme.pageColors;
+    final viewport = state.viewport;
+    final gap = theme.space.space2;
+    final links = ref.watch(documentLinksProvider).value?.links ?? const [];
+    final refusal = ref.watch(linkRefusalProvider);
+    Rect? box(int handle, Rect rect) =>
+        switch (state.document.pageIndexOf(handle)) {
+          final index? => _onCanvas(state, index, rect),
+          null => null,
+        };
+    final draft = tool.draft;
+    final marked = links.where((link) => link.handle == tool.selected);
+    final anchor = draft != null
+        ? box(draft.page, draft.rect)
+        : marked.isEmpty
+        ? null
+        : box(marked.first.page, marked.first.rect);
+    final width = math.min(LinkPopover.width, viewport.width - 2 * gap);
+    // Under the link, or over it when the popover would not fit.
+    final over =
+        anchor != null &&
+        anchor.bottom + DocumentView.linkPopoverRoom > viewport.height;
+    return [
+      for (final link in links)
+        if (box(link.page, link.rect) case final at?
+            when at.overlaps(Offset.zero & viewport))
+          PositionedDirectional(
+            start: at.left,
+            top: at.top,
+            width: at.width,
+            height: at.height,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: link.handle == tool.selected
+                        ? colors.editBox
+                        : colors.editBoxHover,
+                    width: link.handle == tool.selected
+                        ? theme.border.borderWidthStrong
+                        : theme.border.borderWidth,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      if (anchor != null && refusal == null)
+        PositionedDirectional(
+          start: anchor.left.clamp(
+            gap,
+            math.max(gap, viewport.width - width - gap),
+          ),
+          width: width,
+          top: over ? null : anchor.bottom + gap,
+          bottom: over
+              ? math.max(gap, viewport.height - anchor.top + gap)
+              : null,
+          child: Directionality(
+            textDirection: widget.uiDirection,
+            child: KeyedSubtree(
+              key: _linkPopover,
+              child: LinkPopover(
+                key: ValueKey<int?>(draft == null ? tool.selected : null),
+                link: draft == null ? marked.first : null,
+              ),
+            ),
+          ),
+        ),
     ];
   }
 

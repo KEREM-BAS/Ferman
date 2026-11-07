@@ -4638,4 +4638,190 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placePolygonHint =>
       'Click each corner of the polygon, then press Enter or click the first corner.';
+
+  @override
+  String get linksTitle => 'Links';
+
+  @override
+  String get linksNote => 'Ferman asks before opening a web link from a PDF.';
+
+  @override
+  String get linksEmpty => 'No links in this document.';
+
+  @override
+  String get linksTruncated =>
+      'This document has too many links to list them all.';
+
+  @override
+  String get linksSelectTextFirst => 'Select the text to link first';
+
+  @override
+  String get linksKindWeb => 'Web';
+
+  @override
+  String get linksKindMail => 'E-mail';
+
+  @override
+  String get linksKindPage => 'Page';
+
+  @override
+  String get linksKindScript => 'Script, not run';
+
+  @override
+  String get linksKindLaunch => 'Program, not started';
+
+  @override
+  String get linksKindFile => 'File, not opened';
+
+  @override
+  String get linksKindAddress => 'Address, not opened';
+
+  @override
+  String get linksKindAction => 'Unknown action, kept';
+
+  @override
+  String get linksKindNothing => 'Does nothing';
+
+  @override
+  String linksPage(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get linksPageMissing => 'Missing page';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · page $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · page $page · editing';
+  }
+
+  @override
+  String get linkAddTitle => 'Add link';
+
+  @override
+  String get linkEditTitle => 'Edit link';
+
+  @override
+  String get linkTo => 'Link to';
+
+  @override
+  String get linkTypeFile => 'File';
+
+  @override
+  String get linkFieldWeb => 'Web address';
+
+  @override
+  String get linkFieldMail => 'E-mail address';
+
+  @override
+  String get linkFieldPage => 'Page number';
+
+  @override
+  String get linkAppearance => 'Appearance';
+
+  @override
+  String get linkLookNone => 'Invisible (text keeps its look)';
+
+  @override
+  String get linkLookUnderline => 'Underline';
+
+  @override
+  String get linkLookBox => 'Thin box';
+
+  @override
+  String get linkRemove => 'Remove link';
+
+  @override
+  String get linkSave => 'Save link';
+
+  @override
+  String get linkStepAdd => 'Add link';
+
+  @override
+  String get linkStepEdit => 'Edit link';
+
+  @override
+  String get linkStepRemove => 'Remove link';
+
+  @override
+  String get linkErrorWeb =>
+      'Type a web address that starts with http:// or https://.';
+
+  @override
+  String get linkErrorMail => 'Type an e-mail address, like name@example.com.';
+
+  @override
+  String get linkFailedTitle => 'The link wasn\'t changed';
+
+  @override
+  String get linkOpenWebTitle => 'Open this web address?';
+
+  @override
+  String get linkOpenMailTitle => 'Write to this address?';
+
+  @override
+  String get linkOpenDescription =>
+      'This link comes from the document. It opens in your own apps, so check that you trust where it goes.';
+
+  @override
+  String get linkOpenAction => 'Open link';
+
+  @override
+  String get linkOpenFailed => 'The link couldn\'t be opened';
+
+  @override
+  String get linkBrokenTitle => 'This link leads nowhere';
+
+  @override
+  String get linkRefusedTitle => 'Ferman didn\'t follow this link';
+
+  @override
+  String get linkRefusedScript =>
+      'It would run a script, and Ferman doesn\'t run a document\'s scripts.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return 'It would start $target, and Ferman never starts programs for a document.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'It points to another file, $target, and Ferman doesn\'t open files from links.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'Ferman doesn\'t open this kind of address: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Broken: this document has $pages pages',
+      one: 'Broken: this document has $pages page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Type a page from 1 to $pages.',
+      one: 'This document has $pages page.',
+    );
+    return '$_temp0';
+  }
 }

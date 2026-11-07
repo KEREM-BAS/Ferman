@@ -7,6 +7,7 @@ import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_style_bar.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
@@ -507,7 +508,7 @@ class _ViewTools extends ConsumerWidget {
 /// Find & replace, Page marks | undo, redo, Edit history … Mark edited
 /// text, Review edits with its count.
 ///
-/// Edit text, the only tool built, is on. Undo and redo work while the
+/// Edit text is on unless the Link tool is (a3-6). Undo and redo work while the
 /// history has a step for them (`documentEditorProvider`), and say
 /// "Nothing to undo" or "Nothing to redo" otherwise (G126); Edit history
 /// shows or hides a3-10's panel in the right panel's place.
@@ -525,6 +526,8 @@ class _EditTools extends ConsumerWidget {
     final editor = ref.watch(documentEditorProvider);
     final historyOpen = ref.watch(editHistoryOpenProvider);
     final reviewOpen = ref.watch(reviewListProvider.select((s) => s.open));
+    final linkOn = ref.watch(linkToolProvider.select((tool) => tool.on));
+    final links = ref.read(linkToolProvider.notifier);
     void toggleReview() => reviewOpen
         ? ref.read(reviewListProvider.notifier).show(open: false)
         : showReviewList(ref);
@@ -540,16 +543,16 @@ class _EditTools extends ConsumerWidget {
       semanticLabel: l10n.shellEditTools,
       overflowLabel: l10n.moreTools,
       children: [
-        // The only tool so far, always on: T has nothing to switch to. The
-        // author's permissions can forbid it (a2-10a, G27).
+        // On unless the Link tool is. The author's permissions can forbid it
+        // (a2-10a, G27).
         ToolButton(
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
-          active: true,
+          active: !linkOn,
           shortcut: ShellCommand.editText.caps(platform),
           disabled: forbidden,
           disabledReason: forbidden ? l10n.shellEditForbidden : null,
-          onPressed: forbidden ? null : () {},
+          onPressed: forbidden ? null : () => links.show(on: false),
         ),
         _future(
           context,
@@ -567,13 +570,12 @@ class _EditTools extends ConsumerWidget {
           active: false,
           shortcut: ShellCommand.addImage.caps(platform),
         ),
-        _future(
-          context,
-          feature: Feature.links,
+        ToolButton(
           icon: IconName.link,
           label: l10n.shellToolLink,
-          active: false,
+          active: linkOn,
           shortcut: ShellCommand.link.caps(platform),
+          onPressed: links.toggle,
         ),
         const ToolbarSeparator(),
         _future(

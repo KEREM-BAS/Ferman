@@ -4099,7 +4099,7 @@
   },
   "editBarLink": "Add link",
   "@editBarLink": {
-    "description": "a3-1c: button, disabled until links work."
+    "description": "a3-1c: button; a3-6: the panel's + button."
   },
   "editBarHighlight": "Highlight (adds a comment)",
   "@editBarHighlight": {
@@ -6264,5 +6264,261 @@
   "placePolygonHint": "Click each corner of the polygon, then press Enter or click the first corner.",
   "@placePolygonHint": {
     "description": "Screen readers: the page while a polygon is being drawn."
+  },
+  "linksTitle": "Links",
+  "@linksTitle": {
+    "description": "a3-6: the Links panel's title."
+  },
+  "linksNote": "Ferman asks before opening a web link from a PDF.",
+  "@linksNote": {
+    "description": "a3-6: the panel's note. The board also says 'or a file'; file links are refused (G145)."
+  },
+  "linksEmpty": "No links in this document.",
+  "@linksEmpty": {
+    "description": "a3-6: the panel with no links; not drawn."
+  },
+  "linksTruncated": "This document has too many links to list them all.",
+  "@linksTruncated": {
+    "description": "a3-6: a limit cut the list short."
+  },
+  "linksSelectTextFirst": "Select the text to link first",
+  "@linksSelectTextFirst": {
+    "description": "a3-6: why Add link is disabled with nothing selected."
+  },
+  "linksKindWeb": "Web",
+  "@linksKindWeb": {
+    "description": "a3-6: a kind of link, and a segment of Edit link."
+  },
+  "linksKindMail": "E-mail",
+  "@linksKindMail": {
+    "description": "a3-6: a kind of link, and a segment of Edit link."
+  },
+  "linksKindPage": "Page",
+  "@linksKindPage": {
+    "description": "a3-6: a kind of link, and a segment of Edit link."
+  },
+  "linksKindScript": "Script, not run",
+  "@linksKindScript": {
+    "description": "a3-6: a link that would run a script (G145)."
+  },
+  "linksKindLaunch": "Program, not started",
+  "@linksKindLaunch": {
+    "description": "a3-6: a link that would start a program (G145)."
+  },
+  "linksKindFile": "File, not opened",
+  "@linksKindFile": {
+    "description": "a3-6: a link to another file (G145)."
+  },
+  "linksKindAddress": "Address, not opened",
+  "@linksKindAddress": {
+    "description": "a3-6: an address of a scheme Ferman does not open (G145)."
+  },
+  "linksKindAction": "Unknown action, kept",
+  "@linksKindAction": {
+    "description": "a3-6: an action Ferman does not know; it stays in the file."
+  },
+  "linksKindNothing": "Does nothing",
+  "@linksKindNothing": {
+    "description": "a3-6: a link with no action."
+  },
+  "linksPage": "Page {page}",
+  "@linksPage": {
+    "description": "a3-6: where a link to a page goes.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "linksPageMissing": "Missing page",
+  "@linksPageMissing": {
+    "description": "a3-6: a broken link that names no page."
+  },
+  "linksMeta": "{kind} · page {page}",
+  "@linksMeta": {
+    "description": "a3-6: a row's second line.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "linksMetaEditing": "{kind} · page {page} · editing",
+  "@linksMetaEditing": {
+    "description": "a3-6: the second line of the row being edited.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "linkAddTitle": "Add link",
+  "@linkAddTitle": {
+    "description": "a3-6: the popover's title for a new link."
+  },
+  "linkEditTitle": "Edit link",
+  "@linkEditTitle": {
+    "description": "a3-6: the popover's title."
+  },
+  "linkTo": "Link to",
+  "@linkTo": {
+    "description": "a3-6: the name of the type control."
+  },
+  "linkTypeFile": "File",
+  "@linkTypeFile": {
+    "description": "a3-6: a segment of Edit link, disabled (B200)."
+  },
+  "linkFieldWeb": "Web address",
+  "@linkFieldWeb": {
+    "description": "a3-6: the field's label."
+  },
+  "linkFieldMail": "E-mail address",
+  "@linkFieldMail": {
+    "description": "a3-6: the field's label."
+  },
+  "linkFieldPage": "Page number",
+  "@linkFieldPage": {
+    "description": "a3-6: the field's label."
+  },
+  "linkAppearance": "Appearance",
+  "@linkAppearance": {
+    "description": "a3-6: the field's label."
+  },
+  "linkLookNone": "Invisible (text keeps its look)",
+  "@linkLookNone": {
+    "description": "a3-6: an appearance."
+  },
+  "linkLookUnderline": "Underline",
+  "@linkLookUnderline": {
+    "description": "a3-6: an appearance."
+  },
+  "linkLookBox": "Thin box",
+  "@linkLookBox": {
+    "description": "a3-6: an appearance."
+  },
+  "linkRemove": "Remove link",
+  "@linkRemove": {
+    "description": "a3-6: button."
+  },
+  "linkSave": "Save link",
+  "@linkSave": {
+    "description": "a3-6: button."
+  },
+  "linkStepAdd": "Add link",
+  "@linkStepAdd": {
+    "description": "The history step's name."
+  },
+  "linkStepEdit": "Edit link",
+  "@linkStepEdit": {
+    "description": "The history step's name."
+  },
+  "linkStepRemove": "Remove link",
+  "@linkStepRemove": {
+    "description": "The history step's name."
+  },
+  "linkErrorWeb": "Type a web address that starts with http:// or https://.",
+  "@linkErrorWeb": {
+    "description": "a3-6: the Web field's error."
+  },
+  "linkErrorMail": "Type an e-mail address, like name@example.com.",
+  "@linkErrorMail": {
+    "description": "a3-6: the E-mail field's error."
+  },
+  "linkFailedTitle": "The link wasn't changed",
+  "@linkFailedTitle": {
+    "description": "A toast's title when the engine refuses a link change."
+  },
+  "linkOpenWebTitle": "Open this web address?",
+  "@linkOpenWebTitle": {
+    "description": "G145: the prompt before a web link."
+  },
+  "linkOpenMailTitle": "Write to this address?",
+  "@linkOpenMailTitle": {
+    "description": "G145: the prompt before an e-mail link."
+  },
+  "linkOpenDescription": "This link comes from the document. It opens in your own apps, so check that you trust where it goes.",
+  "@linkOpenDescription": {
+    "description": "G145: the prompt's description."
+  },
+  "linkOpenAction": "Open link",
+  "@linkOpenAction": {
+    "description": "G145: the prompt's button."
+  },
+  "linkOpenFailed": "The link couldn't be opened",
+  "@linkOpenFailed": {
+    "description": "A toast when the system opens nothing."
+  },
+  "linkBrokenTitle": "This link leads nowhere",
+  "@linkBrokenTitle": {
+    "description": "A toast when a broken link is clicked."
+  },
+  "linkRefusedTitle": "Ferman didn't follow this link",
+  "@linkRefusedTitle": {
+    "description": "A toast when a link is not offered (G145)."
+  },
+  "linkRefusedScript": "It would run a script, and Ferman doesn't run a document's scripts.",
+  "@linkRefusedScript": {
+    "description": "G145."
+  },
+  "linkRefusedLaunch": "It would start {target}, and Ferman never starts programs for a document.",
+  "@linkRefusedLaunch": {
+    "description": "G145.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "linkRefusedFile": "It points to another file, {target}, and Ferman doesn't open files from links.",
+  "@linkRefusedFile": {
+    "description": "G145.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "linkRefusedAddress": "Ferman doesn't open this kind of address: {target}",
+  "@linkRefusedAddress": {
+    "description": "G145.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "linkRefusedAction": "It does something Ferman doesn't know, so it stays in the file and doesn't run.",
+  "@linkRefusedAction": {
+    "description": "G145."
+  },
+  "linksBrokenMeta": "{count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}}",
+  "@linksBrokenMeta": {
+    "description": "a3-6: a link to a page the document does not have.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "linkErrorPage": "{count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}}",
+  "@linkErrorPage": {
+    "description": "a3-6: the Page field's error.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
   }
 }

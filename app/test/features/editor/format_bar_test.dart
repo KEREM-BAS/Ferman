@@ -219,7 +219,8 @@ void main() {
   ) async {
     await pumpEditor(tester);
     await select(tester);
-    for (final icon in [IconName.link, IconName.replace]) {
+    expect(button(tester, IconName.link).onPressed, isNotNull);
+    for (final icon in [IconName.replace]) {
       expect(
         button(tester, icon).disabledReason,
         'Available in a future version',

@@ -139,6 +139,8 @@ const Set<ShellCommand> _shownFromM2 = {
 /// The commands no control of the shell shows, with the reason. Their keys
 /// are listed by the command palette (B030) and the cheat sheet (B076).
 const Set<ShellCommand> _keysOnly = {
+  // Shown by the Links panel's + and a3-1c's bar, which this walk never opens.
+  ShellCommand.addLink,
   // The cheat sheet itself (B076).
   ShellCommand.keyboardShortcuts,
   // The start screen's Create PDF card shows ⌘N (B019); FmWindow draws the

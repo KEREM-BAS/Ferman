@@ -5,6 +5,8 @@ import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/comments/comments_panel.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/links.dart';
+import 'package:ferman/features/editor/links_panel.dart';
 import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
@@ -76,6 +78,8 @@ class FmWindow extends ConsumerWidget {
     final history =
         ref.watch(shellModeProvider) == FermanMode.edit &&
         ref.watch(editHistoryOpenProvider);
+    // So does the Link tool's list (a3-6).
+    final links = ref.watch(linkToolProvider.select((tool) => tool.on));
     // So does Review edits (a3-12).
     final review =
         ref.watch(shellModeProvider) == FermanMode.edit &&
@@ -191,6 +195,8 @@ class FmWindow extends ConsumerWidget {
                                     )
                                   : history
                                   ? EditHistoryPanel(width: widths.panel)
+                                  : links
+                                  ? LinksPanel(width: widths.panel)
                                   : organizing
                                   ? OrganizePanel(width: widths.panel)
                                   : comments

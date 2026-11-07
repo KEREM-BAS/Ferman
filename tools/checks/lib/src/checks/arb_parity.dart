@@ -35,6 +35,7 @@ final class ArbParityCheck implements Check {
   /// key only when the text is the same in Turkish.
   static const Map<String, String> repositorySameInTurkish = {
     'commentQuote': 'Turkish quotes with the same marks',
+    'linksKindWeb': 'Web is the Turkish word too',
     'labelsStyleDecimal': 'the numbers themselves, which PDF defines',
     'labelsStyleLettersLower': 'the numbers themselves, which PDF defines',
     'labelsStyleLettersUpper': 'the numbers themselves, which PDF defines',

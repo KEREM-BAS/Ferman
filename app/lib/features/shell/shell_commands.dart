@@ -8,6 +8,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/extract_pages_dialog.dart';
 import 'package:ferman/features/organize/insert_file_dialog.dart';
@@ -91,6 +92,7 @@ class ShellCommandScope extends ConsumerWidget {
     final panels = ref.read(shellPanelsProvider);
     final viewer = ref.read(viewerProvider.notifier);
     final editor = ref.read(documentEditorProvider.notifier);
+    final links = ref.read(linkToolProvider.notifier);
     final edits = ref.read(documentEditorProvider);
     final saver = ref.read(documentSaverProvider.notifier);
     return {
@@ -132,6 +134,9 @@ class ShellCommandScope extends ConsumerWidget {
             .read(pageFieldRequestProvider.notifier)
             .request,
         ShellCommand.find: ref.read(findProvider.notifier).open,
+        ShellCommand.editText: () => links.show(on: false),
+        ShellCommand.link: links.toggle,
+        ShellCommand.addLink: links.addSelection,
         ShellCommand.selectTool: () => viewer.setTool(ViewerTool.select),
         ShellCommand.handTool: () => viewer.setTool(ViewerTool.hand),
         ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),

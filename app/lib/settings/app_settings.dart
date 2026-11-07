@@ -215,6 +215,7 @@ final class AppSettings {
   /// The name on comments (G46, "Your name for comments"); null until the
   /// first comment asks. It may be empty.
   final String? commenterName;
+
   /// Comment › Stamp › My stamps (a4-3): each stamp as JSON, read by
   /// `myStampsProvider`.
   final List<String> myStamps;

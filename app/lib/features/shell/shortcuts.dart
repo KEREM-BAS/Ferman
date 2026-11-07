@@ -484,6 +484,13 @@ enum ShellCommand {
     modes: {FermanMode.edit},
   ),
 
+  /// Edit: Add link on the selection (G144: ⌘K stays the palette).
+  addLink(
+    mac: [KeyBinding(_Key.keyK, meta: true, shift: true)],
+    windows: [KeyBinding(_Key.keyK, control: true, shift: true)],
+    modes: {FermanMode.edit},
+  ),
+
   /// Edit: Find & replace (FmWindow `k.replace`).
   findAndReplace(
     mac: [KeyBinding(_Key.keyF, meta: true, alt: true)],

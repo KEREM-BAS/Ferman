@@ -4615,4 +4615,189 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get placePolygonHint =>
       'Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın.';
+
+  @override
+  String get linksTitle => 'Bağlantılar';
+
+  @override
+  String get linksNote =>
+      'Ferman, PDF\'teki bir web bağlantısını açmadan önce sorar.';
+
+  @override
+  String get linksEmpty => 'Bu belgede bağlantı yok.';
+
+  @override
+  String get linksTruncated =>
+      'Bu belgede hepsi listelenemeyecek kadar çok bağlantı var.';
+
+  @override
+  String get linksSelectTextFirst => 'Önce bağlantı verilecek metni seçin';
+
+  @override
+  String get linksKindWeb => 'Web';
+
+  @override
+  String get linksKindMail => 'E-posta';
+
+  @override
+  String get linksKindPage => 'Sayfa';
+
+  @override
+  String get linksKindScript => 'Betik, çalıştırılmaz';
+
+  @override
+  String get linksKindLaunch => 'Program, başlatılmaz';
+
+  @override
+  String get linksKindFile => 'Dosya, açılmaz';
+
+  @override
+  String get linksKindAddress => 'Adres, açılmaz';
+
+  @override
+  String get linksKindAction => 'Bilinmeyen eylem, korunur';
+
+  @override
+  String get linksKindNothing => 'Hiçbir şey yapmaz';
+
+  @override
+  String linksPage(String page) {
+    return 'Sayfa $page';
+  }
+
+  @override
+  String get linksPageMissing => 'Eksik sayfa';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · sayfa $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · sayfa $page · düzenleniyor';
+  }
+
+  @override
+  String get linkAddTitle => 'Bağlantı ekle';
+
+  @override
+  String get linkEditTitle => 'Bağlantıyı düzenle';
+
+  @override
+  String get linkTo => 'Bağlantı hedefi';
+
+  @override
+  String get linkTypeFile => 'Dosya';
+
+  @override
+  String get linkFieldWeb => 'Web adresi';
+
+  @override
+  String get linkFieldMail => 'E-posta adresi';
+
+  @override
+  String get linkFieldPage => 'Sayfa numarası';
+
+  @override
+  String get linkAppearance => 'Görünüm';
+
+  @override
+  String get linkLookNone => 'Görünmez (metin görünümünü korur)';
+
+  @override
+  String get linkLookUnderline => 'Alt çizgi';
+
+  @override
+  String get linkLookBox => 'İnce kutu';
+
+  @override
+  String get linkRemove => 'Bağlantıyı kaldır';
+
+  @override
+  String get linkSave => 'Bağlantıyı kaydet';
+
+  @override
+  String get linkStepAdd => 'Bağlantı ekle';
+
+  @override
+  String get linkStepEdit => 'Bağlantıyı düzenle';
+
+  @override
+  String get linkStepRemove => 'Bağlantıyı kaldır';
+
+  @override
+  String get linkErrorWeb =>
+      'http:// veya https:// ile başlayan bir web adresi yazın.';
+
+  @override
+  String get linkErrorMail => 'name@example.com gibi bir e-posta adresi yazın.';
+
+  @override
+  String get linkFailedTitle => 'Bağlantı değiştirilemedi';
+
+  @override
+  String get linkOpenWebTitle => 'Bu web adresi açılsın mı?';
+
+  @override
+  String get linkOpenMailTitle => 'Bu adrese e-posta yazılsın mı?';
+
+  @override
+  String get linkOpenDescription =>
+      'Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun.';
+
+  @override
+  String get linkOpenAction => 'Bağlantıyı aç';
+
+  @override
+  String get linkOpenFailed => 'Bağlantı açılamadı';
+
+  @override
+  String get linkBrokenTitle => 'Bu bağlantı hiçbir yere gitmiyor';
+
+  @override
+  String get linkRefusedTitle => 'Ferman bu bağlantıyı izlemedi';
+
+  @override
+  String get linkRefusedScript =>
+      'Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return '$target başlatılacaktı; Ferman belgeler için asla program başlatmaz.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'Başka bir dosyayı, $target, gösteriyor; Ferman bağlantılardan dosya açmaz.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'Ferman bu tür adresleri açmaz: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'Ferman\'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bozuk: bu belgede $pages sayfa var',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '1 ile $pages arasında bir sayfa yazın.',
+    );
+    return '$_temp0';
+  }
 }

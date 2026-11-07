@@ -582,6 +582,7 @@ void main() {
         // Edit's tools that work since M3.
         final working = {
           'Edit text': null,
+          'Link': null,
           'Undo': 'Nothing to undo',
           'Redo': 'Nothing to redo',
           'Edit history': null,

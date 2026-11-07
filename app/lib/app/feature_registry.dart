@@ -125,8 +125,8 @@ enum Feature {
   /// Adding images (Edit › Add image).
   addingImages('B043'),
 
-  /// Links (Edit › Link).
-  links('B044'),
+  /// A link to a file: a3-6's File type.
+  linksToFiles('B200'),
 
   /// Find and replace (Edit › Find & replace).
   findAndReplace('B045'),

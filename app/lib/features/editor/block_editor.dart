@@ -12,6 +12,7 @@ import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/format_bar.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -349,7 +350,19 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
     }
   }
 
-  /// The selection's format keys, and Esc, while the bar is open (G141).
+  /// Add link on the selection (a3-1c), by the bar's button or ⇧⌘K.
+  void _addLink() {
+    final selection = _barSelection;
+    if (selection == null) return;
+    unawaited(
+      ref
+          .read(linkToolProvider.notifier)
+          .addFromEditor(_controller.text, selection),
+    );
+  }
+
+  /// The selection's format keys and Add link, and Esc, while the bar is open
+  /// (G141, G144).
   Map<ShortcutActivator, VoidCallback> _barKeys(BlockStyleInfo? info) {
     if (!_selected) return const {};
     final mac = ref.watch(shortcutPlatformProvider) == ShortcutPlatform.mac;
@@ -360,6 +373,12 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
 
     return {
       const SingleActivator(LogicalKeyboardKey.escape): _closeBar,
+      SingleActivator(
+        LogicalKeyboardKey.keyK,
+        meta: mac,
+        control: !mac,
+        shift: true,
+      ): _addLink,
       if (info != null) ...{
         SingleActivator(
           LogicalKeyboardKey.keyB,
@@ -394,7 +413,12 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
           // A click on the bar is no click outside the block's field.
           child: TextFieldTapRegion(
             onTapOutside: _tappedOutsideBar,
-            child: FormatBar(info: info, onDone: _barDone, onMark: _mark),
+            child: FormatBar(
+              info: info,
+              onDone: _barDone,
+              onMark: _mark,
+              onAddLink: _addLink,
+            ),
           ),
         ),
       ),

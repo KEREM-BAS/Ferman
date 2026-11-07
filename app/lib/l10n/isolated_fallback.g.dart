@@ -3981,6 +3981,166 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get placePolygonHint => isolate(super.placePolygonHint);
+
+  @override
+  String get linksTitle => isolate(super.linksTitle);
+
+  @override
+  String get linksNote => isolate(super.linksNote);
+
+  @override
+  String get linksEmpty => isolate(super.linksEmpty);
+
+  @override
+  String get linksTruncated => isolate(super.linksTruncated);
+
+  @override
+  String get linksSelectTextFirst => isolate(super.linksSelectTextFirst);
+
+  @override
+  String get linksKindWeb => isolate(super.linksKindWeb);
+
+  @override
+  String get linksKindMail => isolate(super.linksKindMail);
+
+  @override
+  String get linksKindPage => isolate(super.linksKindPage);
+
+  @override
+  String get linksKindScript => isolate(super.linksKindScript);
+
+  @override
+  String get linksKindLaunch => isolate(super.linksKindLaunch);
+
+  @override
+  String get linksKindFile => isolate(super.linksKindFile);
+
+  @override
+  String get linksKindAddress => isolate(super.linksKindAddress);
+
+  @override
+  String get linksKindAction => isolate(super.linksKindAction);
+
+  @override
+  String get linksKindNothing => isolate(super.linksKindNothing);
+
+  @override
+  String linksPage(String page) => isolate(super.linksPage(page));
+
+  @override
+  String get linksPageMissing => isolate(super.linksPageMissing);
+
+  @override
+  String linksMeta(String kind, String page) =>
+      isolate(super.linksMeta(kind, page));
+
+  @override
+  String linksMetaEditing(String kind, String page) =>
+      isolate(super.linksMetaEditing(kind, page));
+
+  @override
+  String get linkAddTitle => isolate(super.linkAddTitle);
+
+  @override
+  String get linkEditTitle => isolate(super.linkEditTitle);
+
+  @override
+  String get linkTo => isolate(super.linkTo);
+
+  @override
+  String get linkTypeFile => isolate(super.linkTypeFile);
+
+  @override
+  String get linkFieldWeb => isolate(super.linkFieldWeb);
+
+  @override
+  String get linkFieldMail => isolate(super.linkFieldMail);
+
+  @override
+  String get linkFieldPage => isolate(super.linkFieldPage);
+
+  @override
+  String get linkAppearance => isolate(super.linkAppearance);
+
+  @override
+  String get linkLookNone => isolate(super.linkLookNone);
+
+  @override
+  String get linkLookUnderline => isolate(super.linkLookUnderline);
+
+  @override
+  String get linkLookBox => isolate(super.linkLookBox);
+
+  @override
+  String get linkRemove => isolate(super.linkRemove);
+
+  @override
+  String get linkSave => isolate(super.linkSave);
+
+  @override
+  String get linkStepAdd => isolate(super.linkStepAdd);
+
+  @override
+  String get linkStepEdit => isolate(super.linkStepEdit);
+
+  @override
+  String get linkStepRemove => isolate(super.linkStepRemove);
+
+  @override
+  String get linkErrorWeb => isolate(super.linkErrorWeb);
+
+  @override
+  String get linkErrorMail => isolate(super.linkErrorMail);
+
+  @override
+  String get linkFailedTitle => isolate(super.linkFailedTitle);
+
+  @override
+  String get linkOpenWebTitle => isolate(super.linkOpenWebTitle);
+
+  @override
+  String get linkOpenMailTitle => isolate(super.linkOpenMailTitle);
+
+  @override
+  String get linkOpenDescription => isolate(super.linkOpenDescription);
+
+  @override
+  String get linkOpenAction => isolate(super.linkOpenAction);
+
+  @override
+  String get linkOpenFailed => isolate(super.linkOpenFailed);
+
+  @override
+  String get linkBrokenTitle => isolate(super.linkBrokenTitle);
+
+  @override
+  String get linkRefusedTitle => isolate(super.linkRefusedTitle);
+
+  @override
+  String get linkRefusedScript => isolate(super.linkRefusedScript);
+
+  @override
+  String linkRefusedLaunch(String target) =>
+      isolate(super.linkRefusedLaunch(target));
+
+  @override
+  String linkRefusedFile(String target) =>
+      isolate(super.linkRefusedFile(target));
+
+  @override
+  String linkRefusedAddress(String target) =>
+      isolate(super.linkRefusedAddress(target));
+
+  @override
+  String get linkRefusedAction => isolate(super.linkRefusedAction);
+
+  @override
+  String linksBrokenMeta(int count, String pages) =>
+      isolate(super.linksBrokenMeta(count, pages));
+
+  @override
+  String linkErrorPage(int count, String pages) =>
+      isolate(super.linkErrorPage(count, pages));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

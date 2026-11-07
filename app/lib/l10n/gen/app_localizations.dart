@@ -5067,7 +5067,7 @@ abstract class AppLocalizations {
   /// **'Format selection'**
   String get editBarLabel;
 
-  /// a3-1c: button, disabled until links work.
+  /// a3-1c: button; a3-6: the panel's + button.
   ///
   /// In en, this message translates to:
   /// **'Add link'**
@@ -7443,6 +7443,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Click each corner of the polygon, then press Enter or click the first corner.'**
   String get placePolygonHint;
+
+  /// a3-6: the Links panel's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get linksTitle;
+
+  /// a3-6: the panel's note. The board also says 'or a file'; file links are refused (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman asks before opening a web link from a PDF.'**
+  String get linksNote;
+
+  /// a3-6: the panel with no links; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'No links in this document.'**
+  String get linksEmpty;
+
+  /// a3-6: a limit cut the list short.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has too many links to list them all.'**
+  String get linksTruncated;
+
+  /// a3-6: why Add link is disabled with nothing selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the text to link first'**
+  String get linksSelectTextFirst;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'Web'**
+  String get linksKindWeb;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'E-mail'**
+  String get linksKindMail;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get linksKindPage;
+
+  /// a3-6: a link that would run a script (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Script, not run'**
+  String get linksKindScript;
+
+  /// a3-6: a link that would start a program (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Program, not started'**
+  String get linksKindLaunch;
+
+  /// a3-6: a link to another file (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'File, not opened'**
+  String get linksKindFile;
+
+  /// a3-6: an address of a scheme Ferman does not open (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Address, not opened'**
+  String get linksKindAddress;
+
+  /// a3-6: an action Ferman does not know; it stays in the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown action, kept'**
+  String get linksKindAction;
+
+  /// a3-6: a link with no action.
+  ///
+  /// In en, this message translates to:
+  /// **'Does nothing'**
+  String get linksKindNothing;
+
+  /// a3-6: where a link to a page goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String linksPage(String page);
+
+  /// a3-6: a broken link that names no page.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing page'**
+  String get linksPageMissing;
+
+  /// a3-6: a row's second line.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · page {page}'**
+  String linksMeta(String kind, String page);
+
+  /// a3-6: the second line of the row being edited.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · page {page} · editing'**
+  String linksMetaEditing(String kind, String page);
+
+  /// a3-6: the popover's title for a new link.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get linkAddTitle;
+
+  /// a3-6: the popover's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit link'**
+  String get linkEditTitle;
+
+  /// a3-6: the name of the type control.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to'**
+  String get linkTo;
+
+  /// a3-6: a segment of Edit link, disabled (B200).
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get linkTypeFile;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Web address'**
+  String get linkFieldWeb;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'E-mail address'**
+  String get linkFieldMail;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Page number'**
+  String get linkFieldPage;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get linkAppearance;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Invisible (text keeps its look)'**
+  String get linkLookNone;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get linkLookUnderline;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Thin box'**
+  String get linkLookBox;
+
+  /// a3-6: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get linkRemove;
+
+  /// a3-6: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save link'**
+  String get linkSave;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get linkStepAdd;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit link'**
+  String get linkStepEdit;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get linkStepRemove;
+
+  /// a3-6: the Web field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a web address that starts with http:// or https://.'**
+  String get linkErrorWeb;
+
+  /// a3-6: the E-mail field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Type an e-mail address, like name@example.com.'**
+  String get linkErrorMail;
+
+  /// A toast's title when the engine refuses a link change.
+  ///
+  /// In en, this message translates to:
+  /// **'The link wasn\'t changed'**
+  String get linkFailedTitle;
+
+  /// G145: the prompt before a web link.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this web address?'**
+  String get linkOpenWebTitle;
+
+  /// G145: the prompt before an e-mail link.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to this address?'**
+  String get linkOpenMailTitle;
+
+  /// G145: the prompt's description.
+  ///
+  /// In en, this message translates to:
+  /// **'This link comes from the document. It opens in your own apps, so check that you trust where it goes.'**
+  String get linkOpenDescription;
+
+  /// G145: the prompt's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open link'**
+  String get linkOpenAction;
+
+  /// A toast when the system opens nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'The link couldn\'t be opened'**
+  String get linkOpenFailed;
+
+  /// A toast when a broken link is clicked.
+  ///
+  /// In en, this message translates to:
+  /// **'This link leads nowhere'**
+  String get linkBrokenTitle;
+
+  /// A toast when a link is not offered (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman didn\'t follow this link'**
+  String get linkRefusedTitle;
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It would run a script, and Ferman doesn\'t run a document\'s scripts.'**
+  String get linkRefusedScript;
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It would start {target}, and Ferman never starts programs for a document.'**
+  String linkRefusedLaunch(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It points to another file, {target}, and Ferman doesn\'t open files from links.'**
+  String linkRefusedFile(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman doesn\'t open this kind of address: {target}'**
+  String linkRefusedAddress(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.'**
+  String get linkRefusedAction;
+
+  /// a3-6: a link to a page the document does not have.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}}'**
+  String linksBrokenMeta(int count, String pages);
+
+  /// a3-6: the Page field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}}'**
+  String linkErrorPage(int count, String pages);
 }
 
 class _AppLocalizationsDelegate

@@ -564,6 +564,7 @@ void main() {
       // yet.
       const working = {
         'Edit text': 'enabled',
+        'Link': 'enabled',
         'icon:Undo': 'Nothing to undo',
         'icon:Redo': 'Nothing to redo',
         'icon:Edit history': 'enabled',
