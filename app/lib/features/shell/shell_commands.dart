@@ -350,10 +350,8 @@ const List<ShellCommand> documentJumps = [
 /// test keeps the two halves complete); the palette shows these disabled
 /// with the feature's reason (G10).
 const Map<ShellCommand, Feature> unfinishedCommands = {
-  ShellCommand.printDocument: Feature.printing,
   ShellCommand.readingMode: Feature.darkReadingMode,
   ShellCommand.present: Feature.presentation,
-  ShellCommand.addBookmark: Feature.editingBookmarks,
   ShellCommand.addText: Feature.addingTextBoxes,
   ShellCommand.addImage: Feature.addingImages,
   ShellCommand.findAndReplace: Feature.findAndReplace,

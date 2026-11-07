@@ -125,7 +125,10 @@ void main() {
     await open(tester);
     await keys(tester, LogicalKeyboardKey.keyK);
     expect(row(tester, 'Save as').shortcut, ['Ctrl', 'Shift', 'S']);
-    expect(row(tester, 'Print').disabledReason, futureVersion);
+    expect(row(tester, 'Print').disabledReason, isNull);
+    expect(row(tester, 'Measure').disabledReason, futureVersion);
+    expect(row(tester, 'Compress').disabledReason, isNull);
+    expect(row(tester, 'Version history').disabledReason, isNull);
     expect(row(tester, 'Zoom in').disabledReason, isNull);
     expect(row(tester, 'Background tasks').disabledReason, isNull);
     expect(row(tester, 'Optimize and clean').disabledReason, isNull);

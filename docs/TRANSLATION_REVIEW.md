@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1610 messages in `app_en.arb`; translated: Turkish 1610, Arabic 1610.
+1638 messages in `app_en.arb`; translated: Turkish 1638, Arabic 1638.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1666,5 +1666,33 @@ The table below is generated from the ARB files by `tools/l10n`
 | `licencesSearch` | Search licences | Lisanslarda ara | البحث في التراخيص | Settings › Licences: placeholder and screen-reader name of the search field. |
 | `licencesLoading` | Reading the licences… | Lisanslar okunuyor… | جارٍ قراءة التراخيص… | Settings › Licences: screen-reader name of the spinner while the licences are read. |
 | `licencesNoMatch` | No licences match | Eşleşen lisans yok | لا توجد تراخيص مطابقة | Settings › Licences: title of the empty state when the search finds nothing. |
+| `sidebarLegendTitle` | Page badges | Sayfa rozetleri | شارات الصفحات | Heading of the page-badge legend the Pages tab's info button opens (f5, FmSidebar). |
+| `sidebarLegendEdited` | Edited | Düzenlendi | معدّلة | Legend row name (f5): the accent dot of a page changed since the document was opened. |
+| `sidebarLegendEditedBody` | changed since you opened it | açtığınızdan beri değişti | تغيّرت منذ أن فتحتها | Legend row explanation after sidebarLegendEdited (f5), lowercase as it follows a dot. |
+| `sidebarLegendComments` | Comments | Yorumlar | التعليقات | Legend row name (f5): the comment badge. |
+| `sidebarLegendCommentsBody` | notes or markup on the page | sayfada not veya işaretleme | ملاحظات أو تعليقات توضيحية على الصفحة | Legend row explanation after sidebarLegendComments (f5). |
+| `sidebarLegendFields` | Form fields | Form alanları | حقول النموذج | Legend row name (f5): the form-field badge. |
+| `sidebarLegendFieldsBody` | fields you can fill in | doldurabileceğiniz alanlar | حقول يمكنك تعبئتها | Legend row explanation after sidebarLegendFields (f5). |
+| `sidebarLegendSignature` | Signature | İmza | التوقيع | Legend row name (f5): the signature badge. |
+| `sidebarLegendSignatureBody` | signed or has a signature field | imzalı veya imza alanı var | موقّعة أو فيها حقل توقيع | Legend row explanation after sidebarLegendSignature (f5). |
+| `sidebarLegendWarnings` | Warnings | Uyarılar | التحذيرات | Legend row name (f5): the amber warning badge. |
+| `sidebarLegendWarningsBody` | missing glyphs, overflow, broken links | eksik glifler, taşma, bozuk bağlantılar | حروف ناقصة، فيض النص، روابط معطّلة | Legend row explanation after sidebarLegendWarnings (f5). |
+| `sidebarLegendFootnote` | Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”. | Ekran okuyucular rozetleri sayfa adında duyar, ör. “Sayfa 1, düzenlendi, 2 yorum, 1 uyarı”. | تسمع قارئات الشاشة الشارات ضمن اسم الصفحة، مثل «الصفحة 1، معدّلة، تعليقان، تحذير واحد». | Note under the legend's rows (f5). |
+| `sidebarBadgeEdited` | edited | düzenlendi | معدّلة | Tooltip and spoken name of a thumbnail's edited dot (f5); it follows the page name after a comma. |
+| `sidebarBadgeComments` | {count, plural, =1{1 comment} other{{n} comments}} | {count, plural, other{{n} yorum}} | {count, plural, =1{تعليق واحد} =2{تعليقان} few{{n} تعليقات} other{{n} تعليق}} | Tooltip and spoken name of a thumbnail's comment badge (f5). |
+| `sidebarBadgeFields` | {count, plural, =1{1 form field} other{{n} form fields}} | {count, plural, other{{n} form alanı}} | {count, plural, =1{حقل نموذج واحد} =2{حقلا نموذج} few{{n} حقول نموذج} other{{n} حقل نموذج}} | Tooltip and spoken name of a thumbnail's form-field badge (f5). |
+| `sidebarBadgeSigned` | signed | imzalı | موقّعة | Tooltip and spoken name of a thumbnail's signature badge on a signed page (f5). |
+| `sidebarBadgeSignatureField` | signature field | imza alanı | حقل توقيع | Tooltip and spoken name of a thumbnail's signature badge on a page with an empty signature field (f5). |
+| `outlineNewBookmark` | New bookmark | Yeni yer işareti | إشارة مرجعية جديدة | Title of a bookmark Add bookmark (⌘B) adds, renamed in place at once (a2-3a). |
+| `outlineBookmarkName` | Bookmark name | Yer işareti adı | اسم الإشارة المرجعية | Accessible name of the field that renames a bookmark in place (a2-3a, FmSidebar). |
+| `outlineStep` | Change bookmarks | Yer işaretlerini değiştir | تغيير الإشارات المرجعية | The history step of an outline change: rename, add, nest, reorder or delete (a2-3a). |
+| `outlineRename` | Rename | Yeniden adlandır | إعادة التسمية | Outline › More menu item: renames the selected bookmark in place (F2). |
+| `outlineNest` | Nest under the one above | Üsttekinin altına yerleştir | ضمّ تحت الإشارة السابقة | Outline › More menu item: moves the selected bookmark one level in. |
+| `outlineUnnest` | Move out a level | Bir düzey dışarı taşı | نقل مستوى إلى الخارج | Outline › More menu item: moves the selected bookmark one level out. |
+| `outlineMoveUp` | Move up | Yukarı taşı | نقل لأعلى | Outline › More menu item: swaps the selected bookmark with the one above at its level. |
+| `outlineMoveDown` | Move down | Aşağı taşı | نقل لأسفل | Outline › More menu item: swaps the selected bookmark with the one below at its level. |
+| `outlineDelete` | Delete bookmark | Yer işaretini sil | حذف الإشارة المرجعية | Outline › More menu item: deletes the selected bookmark and the ones nested in it. |
+| `propertiesStep` | Change document properties | Belge özelliklerini değiştir | تغيير خصائص المستند | The history step of a metadata change in Document properties (a2-7). |
+| `dropOverlayCombineDescription` | Merged in the order shown. You can reorder before saving. | Gösterilen sırayla birleştirilir. | بالترتيب المعروض. | Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

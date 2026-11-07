@@ -11,6 +11,8 @@ import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/tools/compress_panel.dart';
+import 'package:ferman/features/tools/version_history.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
@@ -150,6 +152,22 @@ class _ShellPaletteState extends ConsumerState<ShellPalette> {
             ),
             icon: IconName.sparkles,
           ),
+        if (document != null) ...[
+          item(
+            'compress',
+            l10n.shellToolCompress,
+            () => showCompress(ref),
+            icon: IconName.minimize2,
+            hint: l10n.shellModeTools,
+          ),
+          item(
+            'versions',
+            l10n.shellToolVersionHistory,
+            () => showVersionHistory(ref),
+            icon: IconName.history,
+            hint: l10n.shellModeTools,
+          ),
+        ],
       ],
     ];
 
