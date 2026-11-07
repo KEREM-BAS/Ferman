@@ -4,6 +4,8 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_state.dart';
+import 'package:ferman/features/comments/commenter_name_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:flutter/widgets.dart' show Offset, Rect;
@@ -164,6 +166,13 @@ Future<void> main() async {
           .show(visible: false);
       await tester.pumpAndSettle();
     },
+    'comment_name': (tester) async {
+      await _opened(tester);
+      _container(tester)
+          .read(organizeDialogProvider.notifier)
+          .show(CommenterNameDialog(done: (_) {}));
+      await tester.pumpAndSettle();
+    },
   };
   const boards = {
     'comment_selected': 'a4-1',
@@ -188,6 +197,8 @@ Future<void> main() async {
             onboardingCompleted: true,
           ).copyWith(commenterName: 'Av. Deniz Aksoy'),
           engine: _engine(),
+          // A Dialog hides while tickers are muted.
+          muteTickers: screen != 'comment_name',
           open: open,
         );
       }

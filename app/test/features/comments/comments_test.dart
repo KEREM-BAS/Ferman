@@ -6,10 +6,14 @@ import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_style_bar.dart';
 import 'package:ferman/features/comments/commenter_name_dialog.dart';
 import 'package:ferman/features/comments/comments_panel.dart';
+import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/link_open_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +29,7 @@ const int _document = 9;
 
 const OpenedDocument _opened = OpenedDocument(
   id: _document,
+  layersSwitchable: true,
   pages: [
     PageInfo(width: 595, height: 842, handle: 100),
     PageInfo(width: 595, height: 842, handle: 101),
@@ -508,5 +513,325 @@ void main() {
     expect(match.page, 1);
     expect(container.read(commentSelectionProvider)?.handle, 2);
     expect(container.read(viewerProvider)?.currentPage, 1);
+  });
+
+  /// Puts a note's text field on the page at [point].
+  Future<Finder> typing(
+    WidgetTester tester,
+    ProviderContainer container,
+    Offset point,
+  ) async {
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.note);
+    await tester.pump();
+    await tester.tapAt(
+      _at(container, tester, point),
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pumpAndSettle();
+    return find.descendant(
+      of: find.byType(CommentOverlay),
+      matching: find.byType(EditableText),
+    );
+  }
+
+  testWidgets('a click in Comment mode never follows a link under it', (
+    tester,
+  ) async {
+    final engine = _engine(annotations: const [])
+      ..fakeLinks[_document] = [
+        const LinkInfo(
+          handle: 1,
+          page: 100,
+          rect: Rect.fromLTWH(90, 90, 200, 40),
+          kind: LinkKind.web,
+          target: 'https://example.org',
+        ),
+      ];
+    final container = await _open(tester, engine);
+    final field = await typing(tester, container, const Offset(100, 100));
+    expect(field, findsOneWidget);
+    expect(
+      container.read(organizeDialogProvider),
+      isNot(isA<LinkOpenDialog>()),
+    );
+  });
+
+  testWidgets('a click in the text being typed keeps the editor open', (
+    tester,
+  ) async {
+    final engine = _engine(annotations: const []);
+    final container = await _open(tester, engine);
+    final field = await typing(tester, container, const Offset(100, 100));
+    await tester.enterText(field, 'Bak buna');
+    await tester.pump();
+    await tester.tapAt(
+      tester.getTopLeft(field) + const Offset(4, 4),
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pumpAndSettle();
+    expect(field, findsOneWidget);
+    expect(await _list(engine), isEmpty);
+  });
+
+  testWidgets('the text being typed follows the UI’s direction', (
+    tester,
+  ) async {
+    final container = await _open(tester, _engine(annotations: const []));
+    final field = await typing(tester, container, const Offset(100, 100));
+    expect(Directionality.of(tester.element(field)), TextDirection.ltr);
+    await container
+        .read(settingsProvider.notifier)
+        .change((old) => old.copyWith(languageCode: () => 'ar'));
+    await tester.pumpAndSettle();
+    expect(Directionality.of(tester.element(field)), TextDirection.rtl);
+  });
+
+  testWidgets('text being typed is kept when another document shows', (
+    tester,
+  ) async {
+    const other = OpenedDocument(
+      id: 77,
+      pages: [PageInfo(width: 595, height: 842, handle: 700)],
+    );
+    final engine = FakeEngineService(
+      documents: {_path: _opened, '/docs/other.pdf': other},
+    )..initialAnnotations[_document] = const [];
+    final container = await _open(tester, engine);
+    final field = await typing(tester, container, const Offset(100, 100));
+    await tester.enterText(field, 'Yarım not');
+    await tester.pump();
+    container
+        .read(shellDocumentsProvider.notifier)
+        .add(
+          const ShellDocument(
+            name: 'other.pdf',
+            path: '/docs/other.pdf',
+            document: other,
+            saveState: SaveState.saved,
+            pageCount: 1,
+          ),
+        );
+    await tester.pumpAndSettle();
+    expect(container.read(openDocumentProvider)?.id, 77);
+    final kept = (await _list(engine)).single;
+    expect(kept.contents, 'Yarım not');
+    expect((await engine.annotations(77)).annotations, isEmpty);
+  });
+
+  testWidgets('Backspace leaves a hidden comment and one no longer listed', (
+    tester,
+  ) async {
+    final engine = _engine();
+    final container = await _open(tester, engine);
+    container.read(commentSelectionProvider.notifier).select(1);
+    await tester.pumpAndSettle();
+    await container.read(commentsShownProvider.notifier).show(visible: false);
+    await tester.pumpAndSettle();
+    expect(container.read(commentSelectionProvider), isNull);
+    await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.pumpAndSettle();
+    expect(
+      (await _list(engine)).map((annotation) => annotation.handle),
+      contains(1),
+    );
+    await container.read(commentsShownProvider.notifier).show(visible: true);
+
+    // Added and undone: the handle is gone, and so is the selection.
+    await container
+        .read(commentCommandsProvider.notifier)
+        .add(
+          100,
+          (author) => NewAnnotation(
+            kind: AnnotationKind.square,
+            color: _red,
+            author: author,
+            rect: const Rect.fromLTWH(10, 10, 20, 20),
+          ),
+        );
+    await tester.pumpAndSettle();
+    expect(container.read(commentSelectionProvider), isNotNull);
+    await container.read(documentEditorProvider.notifier).undo();
+    await tester.pumpAndSettle();
+    expect(container.read(commentSelectionProvider), isNull);
+  });
+
+  testWidgets('a step drops the selection of a direct annotation’s handle', (
+    tester,
+  ) async {
+    // The handles of those written directly in `/Annots` are places.
+    const direct = 4503599627370496 + 7;
+    const mark = AnnotationInfo(
+      handle: direct,
+      page: 100,
+      kind: AnnotationKind.square,
+      rect: Rect.fromLTWH(100, 100, 200, 80),
+      thread: direct,
+    );
+    final engine = _engine(annotations: const [mark, _rectangle]);
+    final container = await _open(tester, engine);
+    container.read(commentSelectionProvider.notifier).select(direct);
+    await tester.pumpAndSettle();
+    await container
+        .read(commentCommandsProvider.notifier)
+        .update(1, const AnnotationChange(opacity: 0.6));
+    await tester.pumpAndSettle();
+    expect(container.read(commentSelectionProvider), isNull);
+
+    // An ordinary handle holds through the same.
+    container.read(commentSelectionProvider.notifier).select(1);
+    await tester.pumpAndSettle();
+    await container
+        .read(commentCommandsProvider.notifier)
+        .update(1, const AnnotationChange(opacity: 0.8));
+    await tester.pumpAndSettle();
+    expect(container.read(commentSelectionProvider)?.handle, 1);
+  });
+
+  testWidgets('an open note stays inside the canvas', (tester) async {
+    const edge = AnnotationInfo(
+      handle: 9,
+      page: 100,
+      kind: AnnotationKind.note,
+      rect: Rect.fromLTWH(560, 100, 24, 24),
+      thread: 9,
+      author: 'Mert Kaya',
+      contents: 'Kenarda',
+    );
+    final container = await _open(tester, _engine(annotations: const [edge]));
+    container.read(commentSelectionProvider.notifier).select(9, noteOpen: true);
+    await tester.pumpAndSettle();
+    final card = find.byKey(const ValueKey<String>('StickyNote.card'));
+    final canvas = tester.getRect(find.byType(CommentOverlay));
+    expect(tester.getRect(card).right, lessThanOrEqualTo(canvas.right));
+    expect(tester.getRect(card).left, greaterThanOrEqualTo(canvas.left));
+  });
+
+  testWidgets('Open comment brings the panel the user closed', (tester) async {
+    final container = await _open(tester, _engine());
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.select);
+    container.read(commentSelectionProvider.notifier).select(1);
+    container.read(shellPanelOpenProvider.notifier).close();
+    await tester.pumpAndSettle();
+    expect(find.byType(CommentsPanel), findsNothing);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(CommentStyleBar),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is IconButton && widget.label == 'Open comment',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(CommentsPanel), findsOneWidget);
+    expect(container.read(commentSelectionProvider)?.composing, isTrue);
+  });
+
+  testWidgets('a note’s pin drags, right clicks and still opens with a click', (
+    tester,
+  ) async {
+    final engine = _engine(annotations: const [_note]);
+    final container = await _open(tester, engine);
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.select);
+    container.read(viewerProvider.notifier).goToPage(1);
+    await tester.pumpAndSettle();
+    final pin = find.byKey(const ValueKey<String>('StickyNote.pin'));
+    final start = tester.getCenter(pin);
+    await _drag(tester, start, start + const Offset(80, 40));
+    final view = container.read(viewerProvider)!;
+    final moved = (await _list(engine)).single;
+    expect(moved.rect.left, closeTo(50 + 80 / view.scale, 2));
+    expect(moved.rect.top, closeTo(50 + 40 / view.scale, 2));
+    expect(find.byKey(const ValueKey<String>('StickyNote.card')), findsNothing);
+
+    await tester.tapAt(
+      tester.getCenter(pin),
+      kind: PointerDeviceKind.mouse,
+      buttons: kSecondaryMouseButton,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Open comment'), findsOneWidget);
+    ContextMenuController.removeAny();
+    await tester.pumpAndSettle();
+
+    await tester.tap(pin);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey<String>('StickyNote.card')), findsOne);
+  });
+
+  testWidgets('a resolved card offers Reopen, and only where it can', (
+    tester,
+  ) async {
+    final engine = _engine();
+    final container = await _open(tester, engine);
+    await tester.tap(find.text('All 3'));
+    container
+        .read(commentSelectionProvider.notifier)
+        .select(4, composing: true);
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(Button, 'Resolve'), findsNothing);
+    final reopen = find.widgetWithText(Button, 'Reopen');
+    expect(tester.widget<Button>(reopen).onPressed, isNotNull);
+
+    engine.opGates[(_document, DocumentOp.comment)] = OpGate.forbidden;
+    container.invalidate(commentGateProvider);
+    await tester.pumpAndSettle();
+    final refused = tester.widget<Button>(reopen);
+    expect(refused.onPressed, isNull);
+    expect(refused.disabled, isTrue);
+    expect(refused.disabledReason, isNotNull);
+  });
+
+  testWidgets('a tool that marks turns hidden comments back on', (
+    tester,
+  ) async {
+    final engine = _engine();
+    final container = await _open(tester, engine);
+    await container.read(commentsShownProvider.notifier).show(visible: false);
+    await tester.pumpAndSettle();
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.select);
+    await tester.pumpAndSettle();
+    expect(container.read(commentsShownProvider).visible, isFalse);
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.note);
+    await tester.pumpAndSettle();
+    expect(container.read(commentsShownProvider).visible, isTrue);
+  });
+
+  testWidgets('Show comments is off in a file that cannot switch them', (
+    tester,
+  ) async {
+    const repaired = OpenedDocument(
+      id: _document,
+      pages: [PageInfo(width: 595, height: 842, handle: 100)],
+    );
+    final engine = FakeEngineService(documents: const {_path: repaired})
+      ..showCommentsFailure = const EngineException(
+        messageKey: 'unsupported',
+        kind: EngineErrorKind.unsupported,
+      );
+    final container = await _open(tester, engine);
+    final switched = tester.widget<Switch>(
+      find.byWidgetPredicate(
+        (widget) => widget is Switch && widget.label == 'Show comments',
+      ),
+    );
+    expect(switched.disabled, isTrue);
+    expect(switched.disabledReason, isNotNull);
+    expect(switched.onChanged, isNull);
+    // ⇧⌘H has no handler here; should it reach the engine, a toast answers.
+    await container.read(commentsShownProvider.notifier).show(visible: false);
+    await tester.pumpAndSettle();
+    expect(container.read(commentsShownProvider).visible, isTrue);
+    expect(find.byType(Toast), findsOneWidget);
+  });
+
+  testWidgets('a summary named .CSV is a CSV', (tester) async {
+    final engine = _engine();
+    final container = await _open(tester, engine);
+    (container.read(
+      filePickerServiceProvider,
+    ) as FakeFilePickerService).saveTo = '/docs/Yorumlar.CSV';
+    await container.read(commentCommandsProvider.notifier).exportSummary();
+    await tester.pump();
+    expect(engine.assembleJobs.last, 'summary csv /docs/Yorumlar.CSV');
   });
 }

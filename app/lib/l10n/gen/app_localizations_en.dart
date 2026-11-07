@@ -1303,7 +1303,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: 'all $pages pages',
       one: 'the only page',
     );
-    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.';
+    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i.';
   }
 
   @override
@@ -1314,8 +1314,15 @@ class AppLocalizationsEn extends AppLocalizations {
       other: 'all $pages pages',
       one: 'the only page',
     );
-    return 'Ferman searched $_temp0. Comments and form fields weren’t searched.';
+    return 'Ferman searched $_temp0.';
   }
+
+  @override
+  String get findNotSearchedFields => 'Form fields weren’t searched.';
+
+  @override
+  String get findNotSearchedBoth =>
+      'Comments and form fields weren’t searched.';
 
   @override
   String get sidebarSearchField => 'Search in document';

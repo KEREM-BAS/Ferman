@@ -214,6 +214,9 @@ class _MoreButtonState extends ConsumerState<_MoreButton> {
     final l10n = AppLocalizations.of(context);
     final shown = ref.watch(commentsShownProvider).visible;
     final any = ref.watch(documentThreadsProvider).isNotEmpty;
+    final switchable = ref.watch(
+      openDocumentProvider.select((d) => d?.layersSwitchable ?? false),
+    );
     return Popover(
       open: _open,
       surface: false,
@@ -246,6 +249,10 @@ class _MoreButtonState extends ConsumerState<_MoreButton> {
             id: 'hide',
             label: shown ? l10n.commentsHideAll : l10n.shellShowComments,
             icon: shown ? IconName.eyeOff : IconName.eye,
+            disabled: !switchable,
+            disabledReason: switchable
+                ? null
+                : Feature.layerVisibility.disabledReason(context),
           ),
         ],
         onClose: _close,
@@ -402,6 +409,7 @@ class _Threads extends ConsumerWidget {
           people: people,
           expanded: isSelected,
           composing: isSelected && selected!.composing && refusal == null,
+          refusal: refusal,
         ),
       );
     }
@@ -441,6 +449,7 @@ class _Card extends ConsumerWidget {
     required this.people,
     required this.expanded,
     required this.composing,
+    required this.refusal,
     super.key,
   });
 
@@ -449,6 +458,7 @@ class _Card extends ConsumerWidget {
   final List<String> people;
   final bool expanded;
   final bool composing;
+  final String? refusal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -517,7 +527,10 @@ class _Card extends ConsumerWidget {
         ref.read(viewerProvider.notifier).goToPage(page);
       },
       onResolve: () => unawaited(commands.resolve(top.handle, resolved: true)),
-      onReopen: () => unawaited(commands.resolve(top.handle, resolved: false)),
+      onReopen: refusal == null
+          ? () => unawaited(commands.resolve(top.handle, resolved: false))
+          : null,
+      reopenDisabledReason: refusal,
       onReply: (text) => unawaited(commands.reply(thread, text)),
     );
   }
@@ -530,7 +543,8 @@ class _Card extends ConsumerWidget {
       ..add(IntProperty('page', page))
       ..add(IterableProperty<String>('people', people))
       ..add(FlagProperty('expanded', value: expanded, ifTrue: 'expanded'))
-      ..add(FlagProperty('composing', value: composing, ifTrue: 'composing'));
+      ..add(FlagProperty('composing', value: composing, ifTrue: 'composing'))
+      ..add(StringProperty('refusal', refusal));
   }
 }
 

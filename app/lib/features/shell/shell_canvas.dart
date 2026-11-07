@@ -97,7 +97,13 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
       return false;
     }
     final selected = ref.read(commentSelectionProvider)?.handle;
-    if (selected == null) return false;
+    if (selected == null ||
+        !ref.read(commentsShownProvider).visible ||
+        !ref
+            .read(documentThreadsProvider)
+            .any((thread) => thread.top.handle == selected)) {
+      return false;
+    }
     switch (event.logicalKey) {
       case LogicalKeyboardKey.delete || LogicalKeyboardKey.backspace:
         if (ref.read(commentRefusalProvider) == null) {

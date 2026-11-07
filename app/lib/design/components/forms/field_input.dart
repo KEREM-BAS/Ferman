@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// The single-line text control inside a field box (`.fm-input__control`,
-/// `.fm-palette__field`), built on [EditableText], never on the Material
-/// text field (ADR 0011).
+/// The text control inside a field box (`.fm-input__control`,
+/// `.fm-palette__field`), one line unless [maxLines] says otherwise, built on
+/// [EditableText], never on the Material text field (ADR 0011).
 ///
 /// It adds to [EditableText] what the browser's `<input>` gives the
 /// design: the [placeholder] in tertiary text while the field is empty
@@ -48,6 +48,7 @@ class FieldInput extends StatefulWidget {
     this.onEditingComplete,
     this.mouseCursor,
     this.obscureText = false,
+    this.maxLines = 1,
   });
 
   /// The text being edited.
@@ -100,6 +101,9 @@ class FieldInput extends StatefulWidget {
   /// Whether the text is masked (a password or PIN): no suggestions,
   /// autocorrect, copy or cut, and screen readers hear it as obscured.
   final bool obscureText;
+
+  /// The most lines it grows to; null has no limit.
+  final int? maxLines;
 
   /// The caret width (a 1 px browser caret).
   static const double caretWidth = 1;
@@ -178,6 +182,7 @@ class _FieldInputState extends State<FieldInput>
       selectionColor: theme.pageColors.editSelection,
       readOnly: widget.readOnly || !widget.enabled,
       obscureText: widget.obscureText,
+      maxLines: widget.maxLines,
       autocorrect: !widget.obscureText,
       enableSuggestions: !widget.obscureText,
       showCursor: !widget.readOnly && widget.enabled,

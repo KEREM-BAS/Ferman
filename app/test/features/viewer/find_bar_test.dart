@@ -245,7 +245,7 @@ void main() {
     expect(
       find.text(
         'Ferman searched all 3 pages, ignoring accents and dotted/dotless i. '
-        'Comments and form fields weren’t searched.',
+        'Form fields weren’t searched.',
       ),
       findsOneWidget,
     );

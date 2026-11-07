@@ -687,6 +687,9 @@ class _CommentTools extends ConsumerWidget {
     final live = ref.watch(viewerProvider.select((view) => view != null));
     final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
     final shown = ref.watch(commentsShownProvider).visible;
+    final switchable = ref.watch(
+      openDocumentProvider.select((d) => d?.layersSwitchable ?? false),
+    );
     final menus = ref.read(commentToolMenusProvider.notifier);
     final yourName =
         ref.watch(settingsProvider.select((s) => s.commenterName)) ??
@@ -736,8 +739,11 @@ class _CommentTools extends ConsumerWidget {
           child: Switch(
             value: shown,
             label: l10n.shellShowComments,
-            disabled: !live,
-            onChanged: live
+            disabled: !live || !switchable,
+            disabledReason: live && !switchable
+                ? Feature.layerVisibility.disabledReason(context)
+                : null,
+            onChanged: live && switchable
                 ? (visible) => unawaited(
                     ref
                         .read(commentsShownProvider.notifier)

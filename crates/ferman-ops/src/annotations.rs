@@ -11,8 +11,9 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write as _;
 
-use ferman_core::annotations::{Annotation, AnnotationKind, LineEnd, MAX_TEXT};
+use ferman_core::annotations::{Annotation, AnnotationKind, LineEnd, MAX_TEXT, instant};
 use ferman_core::revision::RevisionStore;
+use ferman_core::structure::PdfDate;
 use ferman_core::write::{ObjectRef, Value, text_value};
 use ferman_core::{CoreError, Document, WriteError};
 use ferman_fonts::{
@@ -35,6 +36,9 @@ const MOST_POINTS: usize = 100_000;
 const FONT_SIZES: std::ops::RangeInclusive<f32> = 1.0..=288.0;
 /// What of a long text an appearance sets; the box could not show more, and `/Contents` keeps it.
 const MOST_SET_TEXT: usize = 32 * 1024;
+/// Points by which a box may change size without having been resized: a moved box's width and
+/// height pick up rounding, far below what anyone can see.
+const SAME_SIZE: f32 = 0.01;
 /// `/F`: printed.
 const PRINT: i64 = 4;
 /// `/F`: printed, with no zoom and no turn, as a reply is.
@@ -961,8 +965,19 @@ fn settable(text: &str) -> &str {
     text.get(..end).unwrap_or_default()
 }
 
-/// `text` wrapped in a box `width` by `height`, from its top: the lines that fit.
-pub(crate) fn wrapped(
+/// `text` wrapped in a box `width` by `height`, from its top, up to the most an appearance sets.
+fn wrapped(
+    faces: &mut Faces<'_>,
+    text: &str,
+    area: (f32, f32),
+    size: f32,
+    color: [f32; 3],
+) -> Result<Vec<SetLine>, OpsError> {
+    set_lines(faces, settable(text), area, size, color)
+}
+
+/// All of `text` wrapped in a box `width` by `height`, from its top: the lines that fit.
+pub(crate) fn set_lines(
     faces: &mut Faces<'_>,
     text: &str,
     (width, height): (f32, f32),
@@ -972,7 +987,7 @@ pub(crate) fn wrapped(
     let mut lines = Vec::new();
     let mut baseline = height - ASCENT * size;
     let room = (width / size).max(0.0);
-    for paragraph in settable(text).split(['\n', '\r']) {
+    for paragraph in text.split(['\n', '\r']) {
         let rtl = right_to_left(paragraph);
         let mut start = 0usize;
         let mut end = 0usize;
@@ -1370,6 +1385,7 @@ fn drawn(new: &NewAnnotation, kind: AnnotationKind, page: usize) -> Annotation {
         subject: None,
         contents: Some(new.contents.clone()),
         rich: false,
+        grouped: false,
         created: None,
         modified: None,
         unique_name: None,
@@ -1661,9 +1677,9 @@ pub fn update(
         set_geometry(&mut next, points)?;
     }
     let resized = (next.rect[2] - next.rect[0] - annotation.rect[2] + annotation.rect[0]).abs()
-        > f32::EPSILON
+        > SAME_SIZE
         || (next.rect[3] - next.rect[1] - annotation.rect[3] + annotation.rect[1]).abs()
-            > f32::EPSILON
+            > SAME_SIZE
         || change.points.is_some();
     if next.rect != annotation.rect || change.points.is_some() {
         moved = true;
@@ -1715,9 +1731,11 @@ pub fn delete(
 }
 
 /// Draws annotations `handles` into their pages' content and takes them, their replies and popups
-/// out, as one step (a4-5b). One with no appearance gets Ferman's first, when it would be drawn; a
-/// stamp or an unknown type with none has nothing to draw and stays as it came. Form widgets go
-/// straight to [`RevisionStore::flatten_annotations`]. A handle not listed is skipped.
+/// out, as one step (a4-5b). A reply carries no mark, so it goes undrawn, whatever a program gave
+/// it; one of a group (`/RT /Group`) is a mark. One with no appearance gets Ferman's first, when it
+/// would be drawn; a stamp or an unknown type with none has nothing to draw and stays as it came.
+/// Form widgets go straight to [`RevisionStore::flatten_annotations`]. A handle not listed is
+/// skipped.
 ///
 /// # Errors
 ///
@@ -1745,15 +1763,16 @@ pub fn flatten(
             break;
         }
     }
-    let mut pages: BTreeMap<usize, Vec<u64>> = BTreeMap::new();
+    let mut pages: BTreeMap<usize, (Vec<u64>, Vec<u64>)> = BTreeMap::new();
     // Last first, each given its object: a direct annotation's handle is its place among those
     // before it, which giving an earlier one an object would change.
     for annotation in list.iter().rev() {
         if !chosen.contains(&annotation.handle) {
             continue;
         }
+        let reply = annotation.replies_to.is_some() && !annotation.grouped;
         let drawn = annotation.flags & NOT_DRAWN == 0;
-        let needs_appearance = drawn && !annotation.has_appearance;
+        let needs_appearance = !reply && drawn && !annotation.has_appearance;
         if needs_appearance
             && matches!(
                 annotation.kind,
@@ -1774,10 +1793,11 @@ pub fn flatten(
                 vec![(b"AP".to_vec(), Some(appearance_entry(form)))],
             )?;
         }
-        pages.entry(annotation.page).or_default().push(handle);
+        let (to_draw, undrawn) = pages.entry(annotation.page).or_default();
+        if reply { undrawn } else { to_draw }.push(handle);
     }
-    for (page, handles) in pages {
-        revisions.flatten_annotations(document, page, &handles)?;
+    for (page, (to_draw, undrawn)) in pages {
+        revisions.flatten_annotations(document, page, &to_draw, &undrawn)?;
     }
     Ok(())
 }
@@ -1846,6 +1866,23 @@ pub fn reply(
     )
 }
 
+/// `date` as a PDF date, which reads back as the same moment.
+fn date_text(date: PdfDate) -> String {
+    let zone = match date.offset_minutes {
+        None => String::new(),
+        Some(0) => "Z".to_owned(),
+        Some(minutes) => {
+            let sign = if minutes < 0 { '-' } else { '+' };
+            let minutes = minutes.unsigned_abs();
+            format!("{sign}{:02}'{:02}'", minutes / 60, minutes % 60)
+        }
+    };
+    format!(
+        "D:{:04}{:02}{:02}{:02}{:02}{:02}{zone}",
+        date.year, date.month, date.day, date.hour, date.minute, date.second
+    )
+}
+
 /// Resolves or reopens `handle`'s thread as `author` (decision 9): a state reply with
 /// `/StateModel /Review`, `Completed` or `None`, so other readers see it. A thread already so
 /// writes nothing.
@@ -1870,12 +1907,26 @@ pub fn set_resolved(
         return Ok(());
     }
     let state = if resolved { "Completed" } else { "None" };
+    // The newest state counts and a later entry wins a tie, so a state dated after now (a clock
+    // ahead, or a date with no offset) must not outlive this one.
+    let newest = list
+        .iter()
+        .filter(|other| {
+            other.thread == top.handle
+                && other.replies_to.is_some()
+                && other.state.is_some()
+                && other.state_model.as_deref().unwrap_or("Review") == "Review"
+        })
+        .filter_map(|other| other.modified)
+        .max_by_key(instant)
+        .filter(|date| PdfDate::parse(now).is_some_and(|now| instant(date) > instant(&now)));
+    let date = newest.map_or_else(|| now.to_owned(), date_text);
     add_reply(
         document,
         revisions,
         handle,
         author,
-        now,
+        &date,
         vec![
             (b"State".to_vec(), text_value(state)),
             (b"StateModel".to_vec(), text_value("Review")),
@@ -1920,6 +1971,177 @@ mod tests {
             .into_iter()
             .find(|annotation| wanted(annotation))
             .unwrap()
+    }
+
+    /// What `store` adds to the file, for looking for what was written.
+    fn written(doc: &Document, base: &RevisionStore, store: &RevisionStore) -> Vec<u8> {
+        let before = base.incremental_update(doc).unwrap().len();
+        store.incremental_update(doc).unwrap().split_off(before)
+    }
+
+    fn has(bytes: &[u8], needle: &[u8]) -> bool {
+        bytes.windows(needle.len()).any(|window| window == needle)
+    }
+
+    #[test]
+    fn a_fractional_move_keeps_every_appearance() {
+        let (doc, base) = foreign();
+        let list = base.annotations(&doc).annotations;
+        let drawn: Vec<&Annotation> = list
+            .iter()
+            .filter(|a| {
+                a.has_appearance && a.replies_to.is_none() && a.kind != AnnotationKind::Other
+            })
+            .collect();
+        assert!(drawn.len() > 5);
+        for annotation in drawn {
+            // A hundred shifts: rounding gives some of them a width a few 1e-5 off.
+            for step in 0u16..100 {
+                let shift = 0.37 + f32::from(step) * 0.613;
+                let [left, bottom, right, top] = annotation.rect;
+                let mut store = base.clone();
+                store.begin().unwrap();
+                let change = AnnotationChange {
+                    rect: Some([left + shift, bottom - shift, right + shift, top - shift]),
+                    ..AnnotationChange::default()
+                };
+                // No library: a drawing made again would ask for one.
+                update(&doc, &mut store, annotation.handle, &change, NOW, None).unwrap();
+                store.commit().unwrap();
+                let after = pick(&doc, &store, |a| a.handle == annotation.handle);
+                assert_eq!(after.rich, annotation.rich);
+                assert!(
+                    !has(&written(&doc, &base, &store), b"BBox"),
+                    "{:?} moved by {shift} got a new drawing",
+                    annotation.kind
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn a_reply_is_flattened_away_undrawn_and_a_group_member_is_drawn() {
+        let (doc, base) = foreign();
+        let reply = pick(&doc, &base, |a| a.replies_to.is_some() && a.state.is_none());
+        let top = reply.replies_to.unwrap();
+        let mut store = base.clone();
+        store.begin().unwrap();
+        flatten(&doc, &mut store, &[top], None).unwrap();
+        store.commit().unwrap();
+        assert!(
+            store
+                .annotations(&doc)
+                .annotations
+                .iter()
+                .all(|a| a.handle != reply.handle && a.handle != top)
+        );
+        let bytes = written(&doc, &base, &store);
+        assert!(has(&bytes, b"FmFlat0"));
+        assert!(!has(&bytes, b"FmFlat1"), "a reply was drawn");
+
+        // The same reply as a member of a group is a mark of its own.
+        let mut store = base.clone();
+        store.begin().unwrap();
+        store
+            .change_annotation(
+                &doc,
+                reply.page,
+                reply.handle,
+                vec![(b"RT".to_vec(), Some(name(b"Group")))],
+            )
+            .unwrap();
+        store.commit().unwrap();
+        store.begin().unwrap();
+        flatten(&doc, &mut store, &[top], None).unwrap();
+        store.commit().unwrap();
+        assert!(
+            has(&written(&doc, &base, &store), b"FmFlat1"),
+            "a mark was lost"
+        );
+    }
+
+    #[test]
+    fn a_popup_entry_that_names_another_comment_does_not_take_it_along() {
+        let (doc, base) = foreign();
+        let list = base.annotations(&doc).annotations;
+        let mut tops = list.iter().filter(|a| {
+            a.page == 0 && a.replies_to.is_none() && a.kind == AnnotationKind::Highlight
+        });
+        let (first, other) = (tops.next().unwrap(), tops.next().unwrap());
+        let mut prepared = base.clone();
+        prepared.begin().unwrap();
+        let target = prepared
+            .annotation_object(&doc, other.page, other.handle)
+            .unwrap();
+        prepared
+            .change_annotation(
+                &doc,
+                first.page,
+                first.handle,
+                vec![(b"Popup".to_vec(), Some(Value::Reference(target)))],
+            )
+            .unwrap();
+        prepared.commit().unwrap();
+        let there = |store: &RevisionStore, handle| {
+            store
+                .annotations(&doc)
+                .annotations
+                .iter()
+                .any(|a| a.handle == handle)
+        };
+
+        let mut store = prepared.clone();
+        store.begin().unwrap();
+        delete(&doc, &mut store, first.handle).unwrap();
+        store.commit().unwrap();
+        assert!(!there(&store, first.handle));
+        assert!(there(&store, other.handle), "delete took the other along");
+
+        let mut store = prepared.clone();
+        store.begin().unwrap();
+        flatten(&doc, &mut store, &[first.handle], None).unwrap();
+        store.commit().unwrap();
+        assert!(!there(&store, first.handle));
+        assert!(there(&store, other.handle), "flatten took the other along");
+    }
+
+    #[test]
+    fn a_state_dated_ahead_does_not_outlive_a_reopen() {
+        let (doc, mut store) = foreign();
+        let note = pick(&doc, &store, |a| a.resolved.is_some());
+        let state = pick(&doc, &store, |a| {
+            a.thread == note.handle && a.state.as_deref() == Some("Completed")
+        });
+        for date in [
+            "D:20991013150000",
+            "D:20991013150000+03'00'",
+            "D:20991013150000Z",
+        ] {
+            let mut store = store.clone();
+            store.begin().unwrap();
+            store
+                .change_annotation(
+                    &doc,
+                    state.page,
+                    state.handle,
+                    vec![(b"M".to_vec(), Some(text_value(date)))],
+                )
+                .unwrap();
+            store.commit().unwrap();
+            store.begin().unwrap();
+            set_resolved(&doc, &mut store, note.handle, "Elif", false, NOW).unwrap();
+            store.commit().unwrap();
+            let after = pick(&doc, &store, |a| a.handle == note.handle);
+            assert!(after.resolved.is_none(), "{date}");
+        }
+        // With no such date the reply says now.
+        store.begin().unwrap();
+        set_resolved(&doc, &mut store, note.handle, "Elif", false, NOW).unwrap();
+        store.commit().unwrap();
+        let reopened = pick(&doc, &store, |a| {
+            a.thread == note.handle && a.author.as_deref() == Some("Elif")
+        });
+        assert_eq!(reopened.modified.unwrap().year, 2026);
     }
 
     #[test]

@@ -242,7 +242,7 @@ final class CommentToolProvider
   }
 }
 
-String _$commentToolHash() => r'edd74c2695095499099b822f2244554bbca525d2';
+String _$commentToolHash() => r'7e0f573db66f2ef4e72eca6c7214aafa23059905';
 
 /// The Comment row's state, as `commentToolProvider`.
 
@@ -266,19 +266,40 @@ abstract class _$CommentTool extends $Notifier<CommentTools> {
 
 /// The comment selected on the page and in the panel, as
 /// `commentSelectionProvider`. It holds through any change around it; one the
-/// list no longer has selects nothing.
+/// list no longer has selects nothing, nor does anything while comments are
+/// hidden.
+///
+/// The handle of an annotation written directly in the file's page names its
+/// place, which a step on its neighbour or an undo gives to another, so any
+/// such step drops it.
+// shortcut: a reply or resolve on such a mark drops the selection instead of
+// following the mark to its new handle; those calls return no thread handle.
 
 @ProviderFor(CommentSelection)
 final commentSelectionProvider = CommentSelectionProvider._();
 
 /// The comment selected on the page and in the panel, as
 /// `commentSelectionProvider`. It holds through any change around it; one the
-/// list no longer has selects nothing.
+/// list no longer has selects nothing, nor does anything while comments are
+/// hidden.
+///
+/// The handle of an annotation written directly in the file's page names its
+/// place, which a step on its neighbour or an undo gives to another, so any
+/// such step drops it.
+// shortcut: a reply or resolve on such a mark drops the selection instead of
+// following the mark to its new handle; those calls return no thread handle.
 final class CommentSelectionProvider
     extends $NotifierProvider<CommentSelection, CommentSelected?> {
   /// The comment selected on the page and in the panel, as
   /// `commentSelectionProvider`. It holds through any change around it; one the
-  /// list no longer has selects nothing.
+  /// list no longer has selects nothing, nor does anything while comments are
+  /// hidden.
+  ///
+  /// The handle of an annotation written directly in the file's page names its
+  /// place, which a step on its neighbour or an undo gives to another, so any
+  /// such step drops it.
+  // shortcut: a reply or resolve on such a mark drops the selection instead of
+  // following the mark to its new handle; those calls return no thread handle.
   CommentSelectionProvider._()
     : super(
         from: null,
@@ -306,11 +327,18 @@ final class CommentSelectionProvider
   }
 }
 
-String _$commentSelectionHash() => r'1d357c43c4e5bac1da749af29d3a2ebb01b376e3';
+String _$commentSelectionHash() => r'f7c851977aecf36c5a76587dd19eda09438bf16f';
 
 /// The comment selected on the page and in the panel, as
 /// `commentSelectionProvider`. It holds through any change around it; one the
-/// list no longer has selects nothing.
+/// list no longer has selects nothing, nor does anything while comments are
+/// hidden.
+///
+/// The handle of an annotation written directly in the file's page names its
+/// place, which a step on its neighbour or an undo gives to another, so any
+/// such step drops it.
+// shortcut: a reply or resolve on such a mark drops the selection instead of
+// following the mark to its new handle; those calls return no thread handle.
 
 abstract class _$CommentSelection extends $Notifier<CommentSelected?> {
   CommentSelected? build();
@@ -431,7 +459,7 @@ final class CommentsShownProvider
   }
 }
 
-String _$commentsShownHash() => r'88048ceee675ee56c25b6dc30009c1a3d9648cde';
+String _$commentsShownHash() => r'b2f61ebe42169b3a6b057f9d1da057fe8ae45909';
 
 /// Show comments (⇧⌘H, a4-5), as `commentsShownProvider`: render-only, never
 /// saved, and each document keeps its own, as its layers do.
@@ -493,7 +521,7 @@ final class CommentCommandsProvider
   }
 }
 
-String _$commentCommandsHash() => r'8a0d2e3774b7b28fcdce188eb51da0c4bebebcb0';
+String _$commentCommandsHash() => r'42568e916ffdddcefb460e450e431ad1e889b723';
 
 /// What the comment tools do, each one step of the history (a4-1, a4-2), as
 /// `commentCommandsProvider`. A signed document asks first (a3-16a).

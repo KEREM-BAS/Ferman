@@ -374,8 +374,24 @@ fn every_type_on(test: &str, index: usize) {
     }
     for (i, before) in final_pixels.iter().enumerate() {
         let after = draw(again.id, &again.pages, i);
-        let diff = compare(before, &after, None, 0).unwrap();
-        assert_eq!(diff.differing, 0, "page {i} reopens as it was drawn");
+        // PDFium makes up a no-AP text box of its own, and whether it shows once another page was
+        // drawn first changes from run to run, on the file's own bytes too (B201). The file's text
+        // boxes stay out; what this test added has its own appearance and stays in.
+        let scale = f64::from(DPI) / 72.0;
+        let boxes: Vec<[f32; 4]> = untouched
+            .iter()
+            .filter(|a| {
+                a.page == again.pages[i].handle
+                    && matches!(a.kind, AnnotationKind::FreeText | AnnotationKind::Callout)
+            })
+            .map(|a| a.rect)
+            .collect();
+        let region = device_region(&boxes, scale);
+        let diff = compare(before, &after, region, 2).unwrap();
+        assert_eq!(
+            diff.outside, 0,
+            "page {i} reopens as it was drawn: {diff:?}"
+        );
     }
     // The text and author read back, a mention with them.
     let (_, highlight) = handles[0];

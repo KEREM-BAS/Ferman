@@ -371,7 +371,9 @@ impl From<ferman_core::CoreError> for ApiError {
             // A block inside a form needs its placement, which the rewriter does not give yet;
             // a repaired document is saved as a repaired copy, later.
             CoreError::Write(
-                ferman_core::WriteError::Placement | ferman_core::WriteError::Repaired,
+                ferman_core::WriteError::Placement
+                | ferman_core::WriteError::Repaired
+                | ferman_core::WriteError::PageStateLeaks,
             ) => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
             // a11-7, a11-7b and a11-7d draw their own sentences for these kinds; the keys are
             // the nearest of the open's until those screens bring theirs.
@@ -588,7 +590,11 @@ mod tests {
             let err = ApiError::from(CoreError::Write(write));
             assert_eq!(err.kind, ErrorKind::InvalidInput, "{write:?}");
         }
-        for write in [WriteError::Placement, WriteError::Repaired] {
+        for write in [
+            WriteError::Placement,
+            WriteError::Repaired,
+            WriteError::PageStateLeaks,
+        ] {
             let err = ApiError::from(CoreError::Write(write));
             assert_eq!(err.kind, ErrorKind::Unsupported, "{write:?}");
         }

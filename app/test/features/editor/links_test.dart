@@ -329,6 +329,50 @@ void main() {
     expect(find.byType(BlockEditor), findsNothing);
   });
 
+  testWidgets('a3-1c: Highlight counts characters as the engine does', (
+    tester,
+  ) async {
+    await pumpDocument(tester, links: const []);
+    await containerOf(tester)
+        .read(engineServiceProvider)
+        .textBlocks(document.id, 0);
+    final at = onPage(tester, const Offset(100, 306));
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: at);
+    await mouse.moveTo(at);
+    await tester.pump();
+    await tester.pump();
+    await mouse.down(at);
+    await mouse.up();
+    await mouse.removePointer();
+    await pumps(tester);
+    final field = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(BlockEditor),
+        matching: find.byType(EditableText),
+      ),
+    );
+    // Two characters outside the BMP before the selection: four code units.
+    field.controller.value = const TextEditingValue(
+      text: '😀😀 sözleşme',
+      selection: TextSelection(baseOffset: 5, extentOffset: 8),
+    );
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FormatBar),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is IconButton && widget.icon == IconName.highlighter,
+        ),
+      ),
+    );
+    await pumps(tester);
+    expect(engine.selectionRequests.last, (3, 6));
+  });
+
   testWidgets('a web link asks first, showing all of it, and only then opens', (
     tester,
   ) async {

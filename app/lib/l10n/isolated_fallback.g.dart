@@ -1325,6 +1325,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.findNoneBodyExact(count, pages));
 
   @override
+  String get findNotSearchedFields => isolate(super.findNotSearchedFields);
+
+  @override
+  String get findNotSearchedBoth => isolate(super.findNotSearchedBoth);
+
+  @override
   String get sidebarSearchField => isolate(super.sidebarSearchField);
 
   @override

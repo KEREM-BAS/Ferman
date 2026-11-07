@@ -1507,9 +1507,13 @@ class FakeEngineService implements EngineService {
   /// The requests of every [showComments], oldest first.
   final List<bool> commentRequests = [];
 
+  /// What the next [showComments] fails with.
+  EngineException? showCommentsFailure;
+
   @override
   Future<int> showComments(int document, {required bool visible}) async {
     commentRequests.add(visible);
+    if (showCommentsFailure case final failure?) throw failure;
     _pageKeys.remove(document);
     return _renderKeys[document] = ++_lastRenderKey;
   }
@@ -2365,6 +2369,9 @@ class FakeEngineService implements EngineService {
     return BlockCaret(index: best.index, rect: best.rect);
   }
 
+  /// The character indices of every selection, oldest first.
+  final List<(int, int)> selectionRequests = [];
+
   /// The blocks between [anchor] and [focus] in reading order.
   @override
   Future<PageSelection> selection(
@@ -2373,6 +2380,7 @@ class FakeEngineService implements EngineService {
     BlockPosition anchor,
     BlockPosition focus,
   ) async {
+    selectionRequests.add((anchor.index, focus.index));
     final blocks = _blocks(document, page).blocks;
     int order(BlockPosition at) => blocks.indexWhere(
       (block) => block.id == _block(document, page, at.block).id,

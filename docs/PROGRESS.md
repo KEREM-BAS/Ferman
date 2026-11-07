@@ -20,8 +20,8 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 | Application code | in `main` since the M1 merge: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
 | Questions | 25 entries: Q01 to Q20 answered (the last ones on 2026-10-16, as proposed, with the release files for macOS, Windows and Linux on GitHub Releases, [Q15](QUESTIONS.md#q15)); [Q22](QUESTIONS.md#q22) and [Q24](QUESTIONS.md#q24) answered with the M4 plan on 2026-11-06; [Q21](QUESTIONS.md#q21) (memory-mapping files over 256 MB) open since 2026-10-17, [Q23](QUESTIONS.md#q23) (an amendment of ADR 0011 for per-document tab state) and [Q25](QUESTIONS.md#q25) (right-to-left lines the bidi algorithm cannot read back, in M3) since 2026-11-01; see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | none waiting. The [M4 plan](#m4-plan)'s amendments of 0003, 0009, 0015 and 0019 and its answer in 0008 were approved on 2026-11-06. 0020 (test corpus) and 0021 (opening files from the OS), and the details the M2 plan adds to 0008, 0009 and 0010, were approved with the [M2 plan](#m2-plan) on 2026-10-17. The crash-log placeholders of 0010 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) were approved on 2026-10-17; 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, and the reading of "GPL-compatible" in 0016 on 2026-10-16 (see [ADR status](#adr-status)) |
-| Design gaps | 158 recorded: 135 Decided, 0 Needs owner, 23 Resolved (G166 to G168 with W2's app; G160 to G165 with Organize; G159 with the assembler; G158 with W0's fonts; G142 to G157 from the M4 plan, recorded in W0; G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part; G100 to G111 were found while planning M2, G112 with the app icons, G113 with the corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop and G118 with the recent files, G119 with the error tabs, which resolved G116, G120 and G121 with the tab state and closing) |
-| Backlog | 116 open and 66 done (2026-11-07, W2 shipped B044 and B050, added B197 to B200; Organize shipped B019, B020, B056, B104 and B190 and added B191, B195 and B196; the assembler shipped B187 and added B188 and B189; W0 shipped B183, B011, B089 and B131's image part, and added B187; B175 to B186 added with the M4 plan, B150, B151, B081, B165 and B166 moved to P2; B135 built with B168 to B174 added; B098 shipped and B164 added and closed at the close of M3, B136 moved to P2, B165 to B167 added). As of 2026-11-04: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it), B107 and B108 from the app icons, B109 from the API commit, B110 and B111 from the sidebar, B112 from text extraction, B113 and B114 from search, B115 to B118 from opening, B119 and B120 from the error tabs, B121 from the restricted bar, B122 from the properties dialog, B123 from the progressive open; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1, B018 (opening files), B028 (the "+N" menu), B010 (desktop file drops) B115 (error tabs and the unlock dialog), B091 (sidebar state per document), B029 (closing documents), B117 (showing every open document) and B119 (Show in folder) in M2 |
+| Design gaps | 160 recorded: 137 Decided, 0 Needs owner, 23 Resolved (G166 to G170 with W2's app; G160 to G165 with Organize; G159 with the assembler; G158 with W0's fonts; G142 to G157 from the M4 plan, recorded in W0; G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part; G100 to G111 were found while planning M2, G112 with the app icons, G113 with the corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop and G118 with the recent files, G119 with the error tabs, which resolved G116, G120 and G121 with the tab state and closing) |
+| Backlog | 118 open and 67 done (2026-11-07, W2 shipped B044 and B050, added B197 to B202; Organize shipped B019, B020, B056, B104 and B190 and added B191, B195 and B196; the assembler shipped B187 and added B188 and B189; W0 shipped B183, B011, B089 and B131's image part, and added B187; B175 to B186 added with the M4 plan, B150, B151, B081, B165 and B166 moved to P2; B135 built with B168 to B174 added; B098 shipped and B164 added and closed at the close of M3, B136 moved to P2, B165 to B167 added). As of 2026-11-04: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it), B107 and B108 from the app icons, B109 from the API commit, B110 and B111 from the sidebar, B112 from text extraction, B113 and B114 from search, B115 to B118 from opening, B119 and B120 from the error tabs, B121 from the restricted bar, B122 from the properties dialog, B123 from the progressive open; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1, B018 (opening files), B028 (the "+N" menu), B010 (desktop file drops) B115 (error tabs and the unlock dialog), B091 (sidebar state per document), B029 (closing documents), B117 (showing every open document) and B119 (Show in folder) in M2 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-11-06 |
 
@@ -628,10 +628,36 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     not been run (no integration test or build on this Mac); the prompt and the Links panel are
     commit 17, so `links` and `comments` stay in the registry. **For the owner:** file and GoToR
     links are refused, narrower than decision 13's "ask first" (G145).
-    **Known flake, not from this commit:** `every_type_is_added_and_edited_on_a_turned_page` in
-    `tests/annotations.rs` fails about one run in three, also at `b3487f1`: on reopening, a box of
-    33,156 pixels on page 0 differs. The tests' comments suspect PDFium's no-`/AP` text box; not
-    investigated further.
+    **A flake, found and filed by W2's review:** `every_type_is_added_and_edited_on_a_turned_page`
+    in `tests/annotations.rs` failed about one run in three: PDFium's own drawing of a no-`/AP`
+    callout varies when another page was drawn first, on the original bytes with no write by
+    Ferman (B201). The test leaves such boxes out.
+  - W2's review (2026-11-07), 40 findings, all fixed at the root but for what follows.
+    **Engine:** a moved box keeps its appearance (0.01 pt, not `f32::EPSILON`); flatten refuses a
+    page that leaks state past a `Q` too many (B202); replies go undrawn, a `/RT /Group` member
+    stays a mark; `/Popup` only names a real popup of its own; a state dated ahead no longer
+    outlives Resolve or Reopen (a new state takes that date, and a later entry wins a tie, so its
+    "resolved at" can show the future date); the summary sets a long comment whole; quotes have a
+    budget of 64 areas and 50 M tests per list; `offered` refuses every format character. New corpus
+    file `kira-tr-comments-only`. The fuzz target now sets text boxes and flattens: 120 s, 3,297
+    runs, no crash. **Measured** on `long-500`, on the owner's M5 Pro, so not R1: an annotation add
+    2.8 ms, a move 2.6 ms, through the facade (`cargo bench -p ferman-api --bench edit_and_save --
+    annotation`). The owner's check on R1 and R2 stays.
+    **App:** a click in Comment mode follows no link; a click inside the on-page editor keeps it,
+    which is now `FieldInput` with mouse selection and the UI's direction; a draft is committed
+    against its own document when the view goes away; hidden comments and a handle no longer listed
+    select nothing; an open note stays on the canvas; Open comment and a3-1c's Comment bring the
+    panel; a pin drags and takes a right click (G46's menu did not survive the view's press handler
+    before); Reopen shows the refusal; a resolved card has no Resolve; a mark tool turns hidden
+    comments back on (G170); Show comments is off where the engine refuses it (B111); a2-4d's copy
+    follows Look in (G169); a `.CSV` name writes a CSV; a3-1c counts code points; the Arabic plurals.
+    **Direct annotations:** a step drops the selection of one, instead of it moving to a neighbour.
+    A reply or resolve on one therefore clears the selection rather than following it (code
+    `shortcut:`), since those calls return no thread handle.
+    **Not run:** goldens (`comment_name` is new and the stamp menus now open the real row's popover,
+    so `comments` and `stamps` need new references from Linux CI); the OC and NoRotate case has a
+    unit test on its box, not a PDFium run, since no corpus file combines them. The Arabic plurals
+    wait for the native-speaker review.
   - W2, the app (commit 17, 2026-11-07), built by three agents and joined on `m4-comments-forms`:
     `features/comments/` (overlay, style bar, FmComments, search hits, the name dialog),
     `features/stamps/` (the Shapes and Stamp menus, the library, a4-3b, placement) and
@@ -642,8 +668,9 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     one menu; `AnnotationTools.toolMenus` the one way to hang it; `CommentCommands.add` the one
     commit, for the name (G46), the selection and Keep tool selected. Its keys (Enter places
     mid-page, Backspace takes a corner back) are why that overlay won.
-    **Not built, though the Waves row names them:** the panel's Flatten (a4-5b, B198) and the
-    summary's dialog (a4-4, B199). Their engine is done and both stay disabled through the registry.
+    **Not built, though the Waves row names them:** the panel's Flatten (a4-5b, B198), disabled
+    through the registry with its engine done, and the summary's dialog (a4-4, B199): More › Export
+    summary works, with a4-4's defaults and no dialog.
     **Goldens still to do:** `comments`, `stamps` and `links` have no reference PNG yet, so CI's
     golden step stays red until the `goldens-linux` artifact is committed. Then add the compare-map
     pairs: `comment_selected` to a4-1, `comment_note` to a4-1d, `comment_thread` to a4-2,

@@ -1,15 +1,19 @@
 //! The annotation reader (`ferman_core::annotations`) and the appearance generators
 //! (`ferman_ops::annotations`) on what it reads: the input as a file, and as objects from 10 on under
 //! a page whose `/Annots` is object 10. Huge arrays, cycles and deep `/IRT` chains stop at the limits;
-//! a reply's thread is in the list; and changing or deleting what was read never panics.
+//! a reply's thread is in the list; and changing, deleting or flattening what was read never panics,
+//! a text box's text set in a bundled font so hostile `/DA` sizes, `/RD` insets and rects reach the
+//! text layout.
 #![no_main]
 
 use std::collections::HashSet;
+use std::sync::OnceLock;
 
 use ferman_core::limits::Limits;
 use ferman_core::revision::RevisionStore;
 use ferman_core::{OpenOptions, Source, open};
-use ferman_ops::annotations::{AnnotationChange, delete, reply, set_resolved, update};
+use ferman_fonts::{FontLibrary, FontOrigin};
+use ferman_ops::annotations::{AnnotationChange, delete, flatten, reply, set_resolved, update};
 use libfuzzer_sys::fuzz_target;
 
 const HEAD: &[u8] = b"%PDF-1.7\n\
@@ -20,6 +24,20 @@ const HEAD: &[u8] = b"%PDF-1.7\n\
 /// The annotations changed per input: each writes a transaction.
 const MOST_CHANGED: usize = 32;
 const NOW: &str = "D:20261106120000Z";
+
+/// A library with one bundled face, once for all inputs.
+fn library() -> &'static FontLibrary {
+    static LIBRARY: OnceLock<FontLibrary> = OnceLock::new();
+    LIBRARY.get_or_init(|| {
+        let mut library = FontLibrary::new();
+        let face =
+            include_bytes!("../../app/assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf").to_vec();
+        library
+            .add_bytes(face, FontOrigin::Bundled)
+            .expect("a bundled font");
+        library
+    })
+}
 
 fuzz_target!(|input: &[u8]| {
     let mut wrapped = HEAD.to_vec();
@@ -73,7 +91,14 @@ fuzz_target!(|input: &[u8]| {
             for change in &changes {
                 let mut working = store.clone();
                 if working.begin().is_ok() {
-                    let _ = update(&document, &mut working, handle, change, NOW, None);
+                    let _ = update(
+                        &document,
+                        &mut working,
+                        handle,
+                        change,
+                        NOW,
+                        Some(library()),
+                    );
                     let _ = working.commit();
                     let _ = working.annotations(&document);
                 }
@@ -86,6 +111,13 @@ fuzz_target!(|input: &[u8]| {
                 let _ = working.commit();
                 let _ = working.annotations(&document);
             }
+        }
+        let mut working = store.clone();
+        if working.begin().is_ok() {
+            let handles: Vec<u64> = list.annotations.iter().map(|a| a.handle).collect();
+            let _ = flatten(&document, &mut working, &handles, Some(library()));
+            let _ = working.commit();
+            let _ = working.annotations(&document);
         }
     }
 });

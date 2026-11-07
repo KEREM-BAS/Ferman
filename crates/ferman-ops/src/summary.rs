@@ -13,7 +13,9 @@ use ferman_core::{CoreError, Document, WriteError};
 use ferman_fonts::FontLibrary;
 
 use crate::OpsError;
-use crate::annotations::{FaceCodes, Faces, LINE_HEIGHT, Ops, SetLine, flatten, text_ops, wrapped};
+use crate::annotations::{
+    FaceCodes, Faces, LINE_HEIGHT, Ops, SetLine, flatten, set_lines, text_ops,
+};
 use crate::combine::Assembly;
 
 /// The margin of a summary page, in points.
@@ -296,7 +298,7 @@ impl Flow<'_> {
             &mut self.regular
         };
         let width = self.column.1 - indent;
-        let lines = wrapped(faces, value, (width, UNBOUNDED), size, color)?;
+        let lines = set_lines(faces, value, (width, UNBOUNDED), size, color)?;
         for mut line in lines {
             if self.y - size * LINE_HEIGHT < MARGIN || self.sheets.is_empty() {
                 self.sheet();

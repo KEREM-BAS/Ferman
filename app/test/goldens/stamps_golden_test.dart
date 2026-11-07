@@ -4,6 +4,7 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -11,9 +12,6 @@ import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/stamps/create_stamp_dialog.dart';
 import 'package:ferman/features/stamps/stamp_clock.dart';
 import 'package:ferman/features/stamps/stamp_design.dart';
-import 'package:ferman/features/stamps/stamp_library.dart';
-import 'package:ferman/l10n/gen/app_localizations.dart';
-import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,11 +33,6 @@ const StampDesign _mine = StampDesign(
   withName: true,
 );
 
-/// A popover where its board draws it: until the comment row joins these, a
-/// window golden has no button to hang it from.
-Widget _shown(double start, Widget child) =>
-    PositionedDirectional(top: 120, start: start, child: child);
-
 /// a4-1's Shapes menu, a4-3's library and a4-3b's dialog in light and dark ×
 /// en, tr and ar. Goldens run on Linux CI only.
 Future<void> main() async {
@@ -47,12 +40,17 @@ Future<void> main() async {
   for (final screen in screens) {
     for (final theme in GoldenTheme.values) {
       for (final language in GoldenLanguage.matrix) {
-        OverlayEntry? entry;
         await windowGoldenTest(
           screen: screen,
           chrome: GoldenChrome.mac,
           theme: theme,
           language: language,
+          board: theme == GoldenTheme.light && language == GoldenLanguage.en
+              ? const {
+                  'stamp_shapes_menu': 'a4-1',
+                  'stamp_library': 'a4-3',
+                }[screen]
+              : null,
           settings: goldenSettings(
             theme: theme,
             language: language,
@@ -64,9 +62,8 @@ Future<void> main() async {
               () => DateTime(2026, 10, 13, 14, 36),
             ),
           ],
-          // A Dialog hides while tickers are muted.
-          muteTickers: screen != 'stamp_create',
-          cleanUp: (_) async => entry?.remove(),
+          // A Dialog and a popover hide while tickers are muted.
+          muteTickers: false,
           open: (tester) async {
             final context = tester.element(find.byType(FermanApp));
             final container = ProviderScope.containerOf(context);
@@ -81,29 +78,12 @@ Future<void> main() async {
                   .show(const CreateStampDialog(yourName: _name));
             } else {
               menus.chooseStamp(turkishStamps.first);
-              final added = OverlayEntry(
-                builder: (context) => screen == 'stamp_library'
-                    ? _shown(
-                        700,
-                        StampLibrary(yourName: _name, onChosen: (_) {}),
-                      )
-                    : _shown(
-                        648,
-                        SizedBox(
-                          width: shapesMenuWidth,
-                          child: Menu(
-                            items: shapeMenuItems(
-                              AppLocalizations.of(context),
-                              container.read(commentToolMenusProvider),
-                            ),
-                          ),
-                        ),
-                      ),
-              );
-              entry = added;
-              tester
-                  .state<OverlayState>(find.byType(Overlay).first)
-                  .insert(added);
+              final tool = screen == 'stamp_library'
+                  ? AnnotationTool.stamp
+                  : AnnotationTool.shapes;
+              container.read(commentToolProvider.notifier).pick(tool);
+              await tester.pumpAndSettle();
+              menus.show(tool);
             }
             await tester.pumpAndSettle();
           },

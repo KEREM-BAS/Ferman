@@ -2473,14 +2473,26 @@ abstract class AppLocalizations {
   /// No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.
   ///
   /// In en, this message translates to:
-  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.'**
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i.'**
   String findNoneBody(int count, String pages);
 
   /// No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.
   ///
   /// In en, this message translates to:
-  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.'**
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}.'**
   String findNoneBodyExact(int count, String pages);
+
+  /// a2-4d: after findNoneBody, with Comments ticked in Look in.
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields weren’t searched.'**
+  String get findNotSearchedFields;
+
+  /// a2-4d: after findNoneBody, with Comments not ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments and form fields weren’t searched.'**
+  String get findNotSearchedBoth;
 
   /// Sidebar › Search results: the field's accessible name (a2-3e).
   ///

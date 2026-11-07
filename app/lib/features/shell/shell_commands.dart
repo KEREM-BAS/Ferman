@@ -175,11 +175,12 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.draw: () => tool.pick(AnnotationTool.pen),
         ShellCommand.shapes: () => tool.pick(AnnotationTool.shapes),
       },
-      ShellCommand.showComments: () => unawaited(
-        ref
-            .read(commentsShownProvider.notifier)
-            .show(visible: !ref.read(commentsShownProvider).visible),
-      ),
+      if (ref.read(openDocumentProvider)?.layersSwitchable ?? false)
+        ShellCommand.showComments: () => unawaited(
+          ref
+              .read(commentsShownProvider.notifier)
+              .show(visible: !ref.read(commentsShownProvider).visible),
+        ),
     };
   }
 

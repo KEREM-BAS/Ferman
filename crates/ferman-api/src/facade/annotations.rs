@@ -229,9 +229,15 @@ fn quoted(kind: AnnotationKind) -> bool {
 /// The most characters of a quote.
 const MAX_QUOTE: usize = 200;
 
+/// The most areas of one annotation a quote looks in: far more than a quote's characters need.
+const MAX_QUOTE_AREAS: usize = 64;
+
+/// The most character-in-area tests of one list: tenths of a second, for a hostile file's sake.
+const MAX_QUOTE_CHECKS: usize = 50_000_000;
+
 /// The characters of `text` whose middle lies in `shown`'s quads, or else its box, with white space
-/// made single.
-fn quote_of(text: &PageText, shown: &AnnotationInfo) -> Option<String> {
+/// made single. None once it would pass the tests left in `checks`, which then stay spent.
+fn quote_of(text: &PageText, shown: &AnnotationInfo, checks: &mut usize) -> Option<String> {
     let bounds = |part: &Vec<[f32; 2]>| {
         part.iter().fold(
             [f32::MAX, f32::MAX, f32::MIN, f32::MIN],
@@ -245,10 +251,21 @@ fn quote_of(text: &PageText, shown: &AnnotationInfo) -> Option<String> {
             | AnnotationKind::StrikeOut
             | AnnotationKind::Squiggly
     ) {
-        shown.points.iter().map(bounds).collect()
+        shown
+            .points
+            .iter()
+            .take(MAX_QUOTE_AREAS)
+            .map(bounds)
+            .collect()
     } else {
         vec![shown.rect]
     };
+    let cost = text.boxes.len().saturating_mul(areas.len());
+    if cost > *checks {
+        *checks = 0;
+        return None;
+    }
+    *checks -= cost;
     let mut quote = String::new();
     let mut gap = false;
     for (character, frame) in text.text.chars().zip(&text.boxes) {
@@ -330,24 +347,26 @@ impl Engine {
                 let revised = model.revised();
                 (Arc::clone(&revised.store), revised.generation)
             };
+            let mut checks = MAX_QUOTE_CHECKS;
+            let annotations = list
+                .annotations
+                .into_iter()
+                .filter_map(|annotation| {
+                    let at = u32::try_from(annotation.page).ok()?;
+                    let mut shown = info(pages.get(annotation.page)?, annotation);
+                    // shortcut: each list reads the text of the pages with marks, through the
+                    // search's cache; ask for quotes per card if a heavily marked file is slow.
+                    if quoted(shown.kind) {
+                        let text = page_text(&model, &revised, generation, at);
+                        shown.quote = quote_of(&text, &shown, &mut checks);
+                    }
+                    Some(shown)
+                })
+                .collect();
             Ok(AnnotationList {
-                annotations: list
-                    .annotations
-                    .into_iter()
-                    .filter_map(|annotation| {
-                        let at = u32::try_from(annotation.page).ok()?;
-                        let mut shown = info(pages.get(annotation.page)?, annotation);
-                        // shortcut: each list reads the text of the pages with marks, through the
-                        // search's cache; ask for quotes per card if a heavily marked file is slow.
-                        if quoted(shown.kind) {
-                            let text = page_text(&model, &revised, generation, at);
-                            shown.quote = quote_of(&text, &shown);
-                        }
-                        Some(shown)
-                    })
-                    .collect(),
+                annotations,
                 people: list.people,
-                truncated: list.truncated,
+                truncated: list.truncated || checks == 0,
             })
         })
         .await
@@ -626,7 +645,8 @@ impl Engine {
     /// # Errors
     ///
     /// `NotEditable` for a document that cannot be edited, `InvalidInput` when `copy` exists, and
-    /// `NotFound`. A copy that cannot be written fails the job.
+    /// `NotFound`. A copy that cannot be written fails the job, and the change fails with
+    /// `Unsupported` on a page whose content leaks a state past a `Q` too many (B202).
     pub fn flatten_annotations_job(
         &self,
         document: DocumentId,
@@ -759,6 +779,49 @@ fn exists() -> ApiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_quote_stops_at_its_budget() {
+        let text = PageText {
+            text: "ab".to_owned(),
+            boxes: vec![Some([0.0, 0.0, 1.0, 1.0]), Some([1.0, 0.0, 2.0, 1.0])],
+        };
+        let quad = vec![[0.0, 0.0], [2.0, 0.0], [0.0, 1.0], [2.0, 1.0]];
+        let shown = AnnotationInfo {
+            handle: 1,
+            page: 1,
+            kind: AnnotationKind::Highlight,
+            subtype: "Highlight".to_owned(),
+            rect: [0.0, 0.0, 2.0, 1.0],
+            points: vec![quad; 200_000],
+            arrow: false,
+            color: None,
+            opacity: 1.0,
+            stroke: 1.0,
+            font_size: None,
+            author: None,
+            contents: None,
+            quote: None,
+            rich: false,
+            created: None,
+            modified: None,
+            icon: None,
+            replies_to: None,
+            thread: 1,
+            state: None,
+            resolved: false,
+            resolved_by: None,
+            resolved_at: None,
+            mentions: Vec::new(),
+        };
+        // However many quads: only the first few are looked at.
+        let mut checks = 1000;
+        assert_eq!(quote_of(&text, &shown, &mut checks).as_deref(), Some("ab"));
+        assert_eq!(checks, 1000 - 2 * MAX_QUOTE_AREAS);
+        let mut checks = 2 * MAX_QUOTE_AREAS - 1;
+        assert_eq!(quote_of(&text, &shown, &mut checks), None);
+        assert_eq!(checks, 0);
+    }
 
     #[test]
     fn a_pdf_date_reads_back() {

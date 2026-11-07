@@ -1308,7 +1308,7 @@ class AppLocalizationsTr extends AppLocalizations {
       other: '$pages sayfanın tamamında',
       one: 'tek sayfada',
     );
-    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.';
+    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı.';
   }
 
   @override
@@ -1319,8 +1319,14 @@ class AppLocalizationsTr extends AppLocalizations {
       other: '$pages sayfanın tamamında',
       one: 'tek sayfada',
     );
-    return 'Ferman $_temp0 aradı. Yorumlar ve form alanları aranmadı.';
+    return 'Ferman $_temp0 aradı.';
   }
+
+  @override
+  String get findNotSearchedFields => 'Form alanları aranmadı.';
+
+  @override
+  String get findNotSearchedBoth => 'Yorumlar ve form alanları aranmadı.';
 
   @override
   String get sidebarSearchField => 'Belgede ara';

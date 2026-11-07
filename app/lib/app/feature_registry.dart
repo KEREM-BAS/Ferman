@@ -134,8 +134,8 @@ enum Feature {
   /// Regular expressions in search: the find bar's toggle and option.
   searchRegex('B113'),
 
-  /// Searching comments and form fields: the find bar's Look in options
-  /// Comments and Form fields, and a2-4d's action.
+  /// Searching form fields: the find bar's Look in options Form fields and
+  /// Page text, and a2-4d's action.
   searchScopes('B128'),
 
   /// Page marks: watermark, header and footer, Bates numbering and page

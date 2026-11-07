@@ -319,6 +319,12 @@ class AnnotationColor {
   Color get color => Color.from(alpha: 1, red: red, green: green, blue: blue);
 }
 
+/// Whether [handle] names an annotation written directly in the file's page:
+/// the engine's bit for those, whose handle is their place among the page's, so
+/// a change to a neighbour or an undo can give it to another (ferman-core's
+/// `direct_handle`).
+bool isDirectAnnotationHandle(int handle) => handle >= 4503599627370496;
+
 /// One annotation, in displayed points.
 @immutable
 class AnnotationInfo {

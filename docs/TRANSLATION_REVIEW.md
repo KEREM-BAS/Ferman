@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1267 messages in `app_en.arb`; translated: Turkish 1267, Arabic 1267.
+1269 messages in `app_en.arb`; translated: Turkish 1269, Arabic 1269.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -451,8 +451,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `statusSearching` | Searching | Aranıyor | جارٍ البحث | The status bar's inline task while a search runs (FmWindow task, B124), before "Page N of M". |
 | `findSearching` | Searching · page {page} of {pages} | Aranıyor · sayfa {page} / {pages} | جارٍ البحث · الصفحة {page} من {pages} | A long search's progress (a2-4c); numbers in the region's format. |
 | `findNoneTitle` | No results for “{query}” | “{query}” için sonuç yok | لا نتائج لـ«{query}» | No results: the title, with the query as typed (a2-4d). |
-| `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
-| `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNotSearchedFields` | Form fields weren’t searched. | Form alanları aranmadı. | لم يُبحث في حقول النماذج. | a2-4d: after findNoneBody, with Comments ticked in Look in. |
+| `findNotSearchedBoth` | Comments and form fields weren’t searched. | Yorumlar ve form alanları aranmadı. | لم يُبحث في التعليقات وحقول النماذج. | a2-4d: after findNoneBody, with Comments not ticked. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
 | `sidebarSearchBookmark` | Bookmark: {title} | Yer imi: {title} | إشارة مرجعية: {title} | Accessible name of a search result found in a bookmark's title (Look in › Bookmarks). |
 | `sidebarSearchNoTextTitle` | No text to search | Aranacak metin yok | لا يوجد نص للبحث فيه | Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m). |
@@ -1166,7 +1168,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `commentsExportSummary` | Export summary… | Özeti dışa aktar… | تصدير الملخص… | FmComments: More. |
 | `commentsFlatten` | Flatten… | Düzleştir… | تسطيح… | FmComments: More. |
 | `commentsHideAll` | Hide all | Tümünü gizle | إخفاء الكل | FmComments: More. |
-| `commentsHidden` | {count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}} | {count, plural, other{{shown} yorum gizli}} | {count, plural, =1{تعليق واحد مخفي} other{{shown} من التعليقات مخفية}} | a4-5's notice. |
+| `commentsHidden` | {count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}} | {count, plural, other{{shown} yorum gizli}} | {count, plural, =1{تعليق واحد مخفي} =2{تعليقان مخفيان} few{{shown} تعليقات مخفية} many{{shown} تعليقًا مخفيًا} other{{shown} تعليق مخفي}} | a4-5's notice. |
 | `commentKindHighlight` | Highlight | Vurgu | تمييز | A kind of annotation. |
 | `commentKindUnderline` | Underline | Altı çizili | تسطير | A kind of annotation. |
 | `commentKindStrikeOut` | Strikethrough | Üstü çizili | يتوسطه خط | A kind of annotation. |
@@ -1196,10 +1198,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `commentReopen` | Reopen | Yeniden aç | إعادة فتح | a4-2's Reopen. |
 | `commentPeople` | People in this document | Bu belgedeki kişiler | الأشخاص في هذا المستند | a4-2's mention list. |
 | `commentQuote` | “{text}” | “{text}” | «{text}» | The annotated text on a card. |
-| `commentReplies` | {count, plural, =1{{shown} reply} other{{shown} replies}} | {count, plural, other{{shown} yanıt}} | {count, plural, =1{رد واحد} other{{shown} من الردود}} | FmComments: collapsed replies. |
+| `commentReplies` | {count, plural, =1{{shown} reply} other{{shown} replies}} | {count, plural, other{{shown} yanıt}} | {count, plural, =1{رد واحد} =2{ردّان} few{{shown} ردود} many{{shown} ردًا} other{{shown} رد}} | FmComments: collapsed replies. |
 | `commentResolvedBy` | Resolved by {name} · {time} | {name} çözdü · {time} | حلّها {name} · {time} | FmComments: a resolved card. |
 | `commentYesterday` | Yesterday | Dün | أمس | FmComments: a comment's time. |
-| `commentCardLabel` | {author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}} | {author}, {page}. sayfada {kind}{resolved, plural, =0{} other{, çözüldü}}{count, plural, =0{} other{, {shown} yanıt}} | {author}، {kind} في الصفحة {page}{resolved, plural, =0{} other{، محلولة}}{count, plural, =0{} =1{، رد واحد} other{، {shown} من الردود}} | a4-2: how a card is announced. |
+| `commentCardLabel` | {author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}} | {author}, {page}. sayfada {kind}{resolved, plural, =0{} other{, çözüldü}}{count, plural, =0{} other{, {shown} yanıt}} | {author}، {kind} في الصفحة {page}{resolved, plural, =0{} other{، محلولة}}{count, plural, =0{} =1{، رد واحد} =2{، ردّان} few{، {shown} ردود} many{، {shown} ردًا} other{، {shown} رد}} | a4-2: how a card is announced. |
 | `commentStepAdd` | Add comment | Yorum ekle | إضافة تعليق | History step. |
 | `commentStepChange` | Change comment | Yorumu değiştir | تغيير التعليق | History step. |
 | `commentStepDelete` | Delete comment | Yorumu sil | حذف التعليق | History step. |

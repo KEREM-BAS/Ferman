@@ -13,10 +13,11 @@ use std::time::Duration;
 use ferman_api::facade::{
     AnnotationInfo, AnnotationKind, DocumentId, Engine, EngineConfig, ErrorKind, FontSettings,
     JobEvent, JobId, JobResult, JobSink, LinkLook, LinkTarget, NewAnnotation, NewLink,
-    NewLinkDestination, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary, RefusedLink,
+    NewLinkDestination, OpGate, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary, RefusedLink,
     SummaryFormat, SummaryLabels, SummaryLayout, SummaryOptions, SummarySort, block_on, compare,
     device_region,
 };
+use ferman_core::DocumentOp;
 
 const DPI: u32 = 110;
 const FILE: &str = "annots-other-producer";
@@ -379,6 +380,16 @@ fn the_copy_comes_first_and_a_failed_one_changes_nothing() {
 fn flattening_a_certified_file_asks_even_where_comments_keep_it() {
     let (dir, path) = copy("signed", "cert-p3");
     let doc = open(&path).id;
+    // A comment keeps this signature; what flattening takes, the edit gate, does not.
+    for (op, gate) in [
+        (DocumentOp::Comment, OpGate::KeepsSignatures),
+        (DocumentOp::EditText, OpGate::BreaksSignatures),
+    ] {
+        assert_eq!(
+            block_on(engine().op_gate(doc, op, Vec::new())).unwrap(),
+            gate
+        );
+    }
     let (job, result) = flatten(doc, Vec::new(), None);
     assert!(matches!(result, JobResult::Done { .. }), "{result:?}");
     let err = block_on(engine().apply_job_change(job)).unwrap_err();
@@ -386,6 +397,35 @@ fn flattening_a_certified_file_asks_even_where_comments_keep_it() {
     // The change waits for the answer.
     block_on(engine().confirm_edit_signed(doc)).unwrap();
     block_on(engine().apply_job_change(job)).unwrap();
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn flattening_takes_the_edit_gate_where_comments_are_allowed() {
+    let (dir, path) = copy("comments-only", "kira-tr-comments-only");
+    let opened = open(&path);
+    let doc = opened.id;
+    let mark = block_on(engine().add_annotation(
+        doc,
+        opened.pages[0].handle,
+        draft(AnnotationKind::Square, [60.0, 60.0, 160.0, 160.0], vec![]),
+        "Square".to_owned(),
+    ))
+    .unwrap();
+    let (sink, _events) = sink();
+    let err = engine()
+        .flatten_annotations_job(
+            doc,
+            vec![mark.handle],
+            None,
+            None,
+            "Flatten".to_owned(),
+            sink,
+        )
+        .err()
+        .unwrap();
+    assert_eq!(err.kind, ErrorKind::NotEditable);
     let _ = std::fs::remove_dir_all(dir);
 }
 
@@ -484,6 +524,38 @@ fn summary(doc: DocumentId, format: SummaryFormat, options: SummaryOptions, out:
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_summary_sets_a_long_comment_whole() {
+    let (dir, path) = copy("summary-long", "kira-tr");
+    let opened = open(&path);
+    let doc = opened.id;
+    let mut long = "kelime ".repeat(10_000);
+    long.push_str("SONKELIME");
+    assert!(long.len() > 64 * 1024);
+    let mut note = draft(AnnotationKind::Note, [40.0, 40.0, 64.0, 64.0], vec![]);
+    note.contents = long;
+    block_on(engine().add_annotation(doc, opened.pages[0].handle, note, String::new())).unwrap();
+    let out = dir.join("long.pdf");
+    summary(
+        doc,
+        SummaryFormat::Pdf(SummaryLayout::CommentsOnly, 595.0, 842.0),
+        options(),
+        out.clone(),
+    );
+    let pdf = open(&out);
+    let last = u32::try_from(pdf.pages.len() - 1).unwrap();
+    let blocks = block_on(engine().text_blocks(pdf.id, last)).unwrap().blocks;
+    assert!(
+        blocks
+            .iter()
+            .flat_map(|block| &block.lines)
+            .any(|line| line.text.contains("SONKELIME"))
+    );
+    block_on(engine().close(pdf.id)).unwrap();
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn a_summary_of_a_hundred_comments() {
     const COMMENTS: usize = 100;
     let (dir, path) = copy("summary", "kira-tr");
@@ -574,7 +646,7 @@ fn a_summary_of_a_hundred_comments() {
     let out = dir.join("none.pdf");
     summary(
         doc,
-        SummaryFormat::Pdf(SummaryLayout::CommentsOnly, A4.0, A4.1),
+        SummaryFormat::Pdf(SummaryLayout::CommentsOnly, 595.0, 842.0),
         none,
         out.clone(),
     );

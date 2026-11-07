@@ -360,6 +360,14 @@ void toggleShellSide(WidgetRef ref, ShellSide side, {ShellPanels? shown}) {
   if (opens) ref.read(shellPanelPreferenceProvider.notifier).prefer(side);
 }
 
+/// Shows the right panel where the shell has room for a panel: it opens and
+/// becomes the one kept, so in a narrow window the sidebar steps aside. [read]
+/// is a `ref.read`.
+void revealShellPanel(T Function<T>(ProviderListenable<T>) read) {
+  read(shellPanelOpenProvider.notifier).open();
+  read(shellPanelPreferenceProvider.notifier).prefer(ShellSide.panel);
+}
+
 /// The tabs of the sidebar, in the drawn order (FmSidebar `tabOptions`).
 enum SidebarTab {
   /// Page thumbnails (`files`).

@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-155 entries: 132 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1.
+160 entries: 137 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1, G166 to G170 with Comment in its W2.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -230,6 +230,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G166](#g166) | missing state | M4 | Comment: placing shapes and stamps | a4-1 and a4-3 draw the menus, not the keyboard's way, the stamp file or the size limits | Decided |
 | [G167](#g167) | missing state | M4 | Links: copy | a3-6 says "a web link or a file", draws no Add link title, empty panel or prompt | Decided |
 | [G168](#g168) | missing state | M4 | Comments: what the engine writes | No board or brief line says how replies draw, which zone dates use or whether notes turn | Decided |
+| [G169](#g169) | copy conflict | M4 | Find | a2-4d says comments were not searched, and they are; the sentence follows Look in | Decided |
+| [G170](#g170) | missing state | M4 | Comments: Show comments | A comment tool while comments are hidden turns them back on | Decided |
 
 ## Entries
 
@@ -2323,3 +2325,29 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A reply draws an empty form, so no reader puts an icon over the mark. Dates are written in UTC, as no clock zone crosses the bridge. New notes do not set NoRotate: their appearance is upright already.
 - **Status:** Decided.
 - **Evidence:** `crates/ferman-ops/src/annotations.rs`; [ARCHITECTURE §5.8](ARCHITECTURE.md#58-pages-annotations-and-forms-m4).
+
+<a id="g169"></a>
+
+### G169 · What a2-4d says was not searched
+
+- **Type:** copy conflict
+- **Milestone:** M4
+- **Area:** Find
+- **Artboards:** `a2-4d`
+- **Gap or conflict:** a2-4d draws "Comments and form fields weren't searched", but comments are searched by default since W2 (Look in › Comments).
+- **Decision:** The sentence follows Look in: "Form fields weren't searched" with Comments ticked, the board's words without.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/viewer/find_bar.dart` (`findNoneText`).
+
+<a id="g170"></a>
+
+### G170 · A comment tool while comments are hidden
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Comments: Show comments
+- **Artboards:** `a4-1`, `a4-5`
+- **Gap or conflict:** a4-5 draws comments hidden, and no board says what the tool row does then; a tool that marks would otherwise do nothing, with no explanation.
+- **Decision:** Choosing any tool but Select turns comments back on. Select stays as it is.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/comments/comment_state.dart` (`CommentTool.pick`).

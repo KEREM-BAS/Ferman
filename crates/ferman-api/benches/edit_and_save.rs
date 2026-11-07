@@ -13,6 +13,9 @@
 //! 1 MB and so not committed: `cargo run --manifest-path tools/corpus/Cargo.toml -- generate`
 //! makes it. Without either the benchmark says so and measures nothing.
 //!
+//! - **Annotation commits:** adding a square and moving it on a page of `long-500`, each one step
+//!   (M4 decision 16). No budget of its own yet: ROADMAP §8 asks for the measurement.
+//!
 //! With `FERMAN_BENCH_GUARD=1` (CI) it then times the slowest of 20 edits of each file and one
 //! cold save and fails above the budgets: a guard against a gross regression, since a CI runner
 //! is not R1 or R2.
@@ -35,8 +38,9 @@ use std::time::{Duration, Instant};
 
 use criterion::Criterion;
 use ferman_api::facade::{
-    BlockInfo, DocumentId, Engine, EngineConfig, Item, PageSize, PdfiumLibrary, Priority,
-    TilePosition, TileRequest, ViewEvent, ViewSink, Wanted, ZoomBucket, block_on,
+    AnnotationChange, AnnotationKind, BlockInfo, DocumentId, Engine, EngineConfig, Item,
+    NewAnnotation, PageSize, PdfiumLibrary, Priority, TilePosition, TileRequest, ViewEvent,
+    ViewSink, Wanted, ZoomBucket, block_on,
 };
 
 /// The engine's part of edit-to-render (ARCHITECTURE §14).
@@ -240,6 +244,50 @@ fn save(engine: &Engine, source: &Path, dir: &Path) -> Duration {
     elapsed
 }
 
+/// A square added on a page of the open document, then undone, which is not timed.
+fn annotation_add(engine: &Engine, document: DocumentId, page: u64) -> Duration {
+    let start = Instant::now();
+    block_on(engine.add_annotation(document, page, square(), "Square".to_owned())).unwrap();
+    let elapsed = start.elapsed();
+    block_on(engine.undo(document)).unwrap();
+    elapsed
+}
+
+/// A square moved by a fractional amount, once it is there; only the move is timed.
+fn annotation_move(engine: &Engine, document: DocumentId, page: u64) -> Duration {
+    let made =
+        block_on(engine.add_annotation(document, page, square(), "Square".to_owned())).unwrap();
+    let change = AnnotationChange {
+        rect: Some([72.37, 72.61, 172.37, 172.61]),
+        ..AnnotationChange::default()
+    };
+    let start = Instant::now();
+    block_on(engine.update_annotation(document, made.handle, change, "Move".to_owned())).unwrap();
+    let elapsed = start.elapsed();
+    block_on(engine.undo(document)).unwrap();
+    block_on(engine.undo(document)).unwrap();
+    elapsed
+}
+
+fn square() -> NewAnnotation {
+    NewAnnotation {
+        kind: AnnotationKind::Square,
+        rect: [72.0, 72.0, 172.0, 172.0],
+        points: Vec::new(),
+        color: [0.85, 0.22, 0.17],
+        stroke: 2.0,
+        opacity: 1.0,
+        contents: String::new(),
+        author: "Bench".to_owned(),
+        font_size: 12.0,
+        arrow: false,
+        label: String::new(),
+        meta: None,
+        tilt: 0.0,
+        icon: None,
+    }
+}
+
 fn main() {
     let Some(library) = std::env::var_os("FERMAN_PDFIUM_PATH").filter(|path| !path.is_empty())
     else {
@@ -286,6 +334,14 @@ fn main() {
     timed("edit_to_render/kira_tr", &|| edit_to_render(&engine, &kira));
     timed("edit_to_render/long_500", &|| {
         edit_to_render(&engine, &handbook)
+    });
+    let marked = block_on(engine.open(dir.join("long-500.pdf"), None)).unwrap();
+    let marked_page = marked.pages[250].handle;
+    timed("annotation/add/long_500", &|| {
+        annotation_add(&engine, marked.id, marked_page)
+    });
+    timed("annotation/move/long_500", &|| {
+        annotation_move(&engine, marked.id, marked_page)
     });
     timed("save/20_mb_500_pages_10_edits", &|| {
         save(&engine, &source, &dir)

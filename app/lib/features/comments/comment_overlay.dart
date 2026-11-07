@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:ferman/design/components/annotations/annotation_color.dart'
     as design;
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
+import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/comments/comment_model.dart';
@@ -46,22 +47,25 @@ final class _Reshaping extends _Gesture {
 }
 
 /// Text being typed on the page: a new note, text box or callout, or the text
-/// of [existing]. Commits on blur, never per keystroke (decision 16).
-@immutable
+/// of [existing]. Commits on blur, or when the view goes away, never per
+/// keystroke (decision 16).
 final class _Draft {
-  const new({
+  new({
     required this.page,
     required this.box,
     required this.kind,
     this.existing,
     this.leader = const [],
-  });
+  }) : typed = existing?.contents ?? '';
 
   final int page;
   final Rect box;
   final AnnotationKind kind;
   final AnnotationInfo? existing;
   final List<Offset> leader;
+
+  /// The text so far.
+  String typed;
 }
 
 /// Comment mode's layer over the pages (a4-1, a4-1d, a4-2): it finds the marks
@@ -74,13 +78,21 @@ final class _Draft {
 /// bars and cards follow [uiDirection].
 class CommentOverlay extends ConsumerStatefulWidget {
   /// The layer over [view].
-  const new({required this.view, required this.uiDirection, super.key});
+  const new({
+    required this.view,
+    required this.uiDirection,
+    this.draftKey,
+    super.key,
+  });
 
   /// The canvas as it stands.
   final ViewerState view;
 
   /// The UI's direction.
   final TextDirection uiDirection;
+
+  /// Names the box of the text being typed, whose clicks are its own.
+  final GlobalKey? draftKey;
 
   /// The drawn size of a click's new text box, and the smallest drag that
   /// counts, in points.
@@ -109,7 +121,8 @@ class CommentOverlay extends ConsumerStatefulWidget {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty<ViewerState>('view', view))
-      ..add(EnumProperty<TextDirection>('uiDirection', uiDirection));
+      ..add(EnumProperty<TextDirection>('uiDirection', uiDirection))
+      ..add(DiagnosticsProperty<GlobalKey?>('draftKey', draftKey));
   }
 }
 
@@ -118,6 +131,52 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
   _Draft? _draft;
   Duration? _lastClick;
   bool _overMark = false;
+
+  /// What [dispose] needs, when `ref` and `context` no longer answer.
+  late final CommentCommands _keptCommands;
+  AnnotationColor? _draftColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _keptCommands = _commands;
+    ref.listenManual(documentAnnotationsProvider, (_, next) {
+      final list = next.value;
+      if (!next.isLoading && list != null) _selection.listed(list.annotations);
+    }, fireImmediately: true);
+  }
+
+  /// A view keyed by its document goes when another document shows, and with it
+  /// what was being typed unless it is committed here.
+  @override
+  void dispose() {
+    final draft = _draft;
+    final color = _draftColor;
+    if (draft != null && color != null) {
+      final document = _document.id;
+      final existing = draft.existing;
+      if (existing != null) {
+        if (draft.typed != (existing.contents ?? '')) {
+          unawaited(
+            _keptCommands.updateLeft(
+              document,
+              existing.handle,
+              AnnotationChange(contents: draft.typed),
+            ),
+          );
+        }
+      } else if (draft.typed.trim().isNotEmpty) {
+        unawaited(
+          _keptCommands.addLeft(
+            document,
+            _document.pageHandle(draft.page),
+            (author) => _annotationOf(draft, draft.typed, color, author),
+          ),
+        );
+      }
+    }
+    super.dispose();
+  }
 
   ViewerState get _view => widget.view;
 
@@ -258,11 +317,13 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     }
   }
 
-  void _move(PointerMoveEvent event) {
+  void _move(PointerMoveEvent event) => _moveTo(event.localPosition);
+
+  void _moveTo(Offset local) {
     final gesture = _gesture;
     switch (gesture) {
       case _Drawing(:final page, :final points):
-        final at = _onPage(page, event.localPosition);
+        final at = _onPage(page, local);
         final pen = ref.read(commentToolProvider).tool == AnnotationTool.pen;
         setState(() {
           if (!pen) {
@@ -275,7 +336,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
           }
         });
       case _Reshaping(:final page, :final annotation, :final handle):
-        final at = _onPage(page, event.localPosition);
+        final at = _onPage(page, local);
         setState(() {
           gesture.box = handle == null
               ? _kept(page, annotation.rect.shift(at - gesture.start))
@@ -306,7 +367,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     );
   }
 
-  void _up(PointerUpEvent event) {
+  void _up(PointerEvent _) {
     final gesture = _gesture;
     switch (gesture) {
       case _Drawing():
@@ -386,6 +447,31 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     });
   }
 
+  /// The annotation [draft] makes of [text].
+  static NewAnnotation _annotationOf(
+    _Draft draft,
+    String text,
+    AnnotationColor color,
+    String author,
+  ) {
+    final isNote = draft.kind == AnnotationKind.note;
+    return NewAnnotation(
+      kind: draft.kind,
+      color: color,
+      author: author,
+      rect: draft.box,
+      contents: text,
+      points: draft.leader.isEmpty ? const [] : [draft.leader],
+      stroke: isNote ? 1 : 2,
+      arrow: draft.kind == AnnotationKind.callout,
+      icon: isNote ? 'Comment' : null,
+    );
+  }
+
+  AnnotationColor _colorOf(_Draft draft) => draft.kind == AnnotationKind.note
+      ? _toolColor()
+      : markColorOf(context.ferman.ramps.annotRed);
+
   void _commitDraft(_Draft draft, String text) {
     setState(() => _draft = null);
     final existing = draft.existing;
@@ -398,30 +484,45 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
       return;
     }
     if (text.trim().isEmpty) return;
-    final color = _toolColor();
-    final isNote = draft.kind == AnnotationKind.note;
+    final color = _colorOf(draft);
     unawaited(
       _commands.add(
         _document.pageHandle(draft.page),
-        (author) => NewAnnotation(
-          kind: draft.kind,
-          color: isNote ? color : markColorOf(context.ferman.ramps.annotRed),
-          author: author,
-          rect: draft.box,
-          contents: text,
-          points: draft.leader.isEmpty ? const [] : [draft.leader],
-          stroke: isNote ? 1 : 2,
-          arrow: draft.kind == AnnotationKind.callout,
-          icon: isNote ? 'Comment' : null,
-        ),
+        (author) => _annotationOf(draft, text, color, author),
       ),
     );
   }
 
+  /// A press on the pin of [note], which sits above this layer: a drag moves
+  /// it, and a right click opens G46's menu; a click is the pin's own.
+  void _pinDown(AnnotationInfo note, int page, PointerDownEvent event) {
+    if (event.kind != PointerDeviceKind.mouse) return;
+    if (event.buttons == kSecondaryMouseButton) {
+      _menu(note, event.position);
+      return;
+    }
+    final at = _overlayPoint(event.position);
+    if (event.buttons != kPrimaryMouseButton ||
+        ref.read(commentToolProvider).tool != AnnotationTool.select ||
+        _refused) {
+      return;
+    }
+    _selection.select(note.handle);
+    setState(() {
+      _gesture = _Reshaping(page, note, null, _onPage(page, at), note.rect);
+    });
+  }
+
+  Offset _overlayPoint(Offset global) =>
+      (context.findRenderObject()! as RenderBox).globalToLocal(global);
+
   /// G46's context menu on the mark under the pointer.
   void _context(int page, Offset point, Offset position) {
     final hit = _at(page, point);
-    if (hit == null) return;
+    if (hit != null) _menu(hit, position);
+  }
+
+  void _menu(AnnotationInfo hit, Offset position) {
     _selection.select(hit.handle);
     showCommentMenu(
       context,
@@ -453,6 +554,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     final topPage = top == null ? null : _document.pageIndexOf(top.page);
     final gesture = _gesture;
     final draft = _draft;
+    if (draft != null) _draftColor = _colorOf(draft);
     final reshaped = gesture is _Reshaping ? gesture : null;
     final box = topPage == null || top == null
         ? null
@@ -513,22 +615,45 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
           for (final each in threads)
             if (each.top.kind == AnnotationKind.note)
               if (_document.pageIndexOf(each.top.page) case final page?)
-                if (_toLocal(page, each.top.rect) case final at
+                if (_toLocal(
+                      page,
+                      reshaped?.annotation.handle == each.top.handle
+                          ? reshaped!.box
+                          : each.top.rect,
+                    )
+                    case final at
                     when at.overlaps(Offset.zero & viewport) ||
                         selected?.handle == each.top.handle)
-                  PositionedDirectional(
+                  Positioned.fill(
                     key: ValueKey<int>(each.top.handle),
-                    start: at.left,
-                    top: at.top,
-                    child: Directionality(
-                      textDirection: widget.uiDirection,
-                      child: _Note(
-                        thread: each,
-                        page: page,
-                        open:
+                    child: CustomSingleChildLayout(
+                      delegate: _NoteLayout(
+                        at.topLeft,
+                        kept:
                             selected?.handle == each.top.handle &&
                             selected!.noteOpen,
-                        onEditText: () => _editText(each.top),
+                      ),
+                      child: Listener(
+                        onPointerDown:
+                            selected?.handle == each.top.handle &&
+                                selected!.noteOpen
+                            ? null
+                            : (event) => _pinDown(each.top, page, event),
+                        onPointerMove: (event) =>
+                            _moveTo(_overlayPoint(event.position)),
+                        onPointerUp: _up,
+                        onPointerCancel: (_) => setState(() => _gesture = null),
+                        child: Directionality(
+                          textDirection: widget.uiDirection,
+                          child: _Note(
+                            thread: each,
+                            page: page,
+                            open:
+                                selected?.handle == each.top.handle &&
+                                selected!.noteOpen,
+                            onEditText: () => _editText(each.top),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -539,6 +664,8 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
               top: at.top,
               child: _TextDraft(
                 key: ObjectKey(draft),
+                boxKey: widget.draftKey,
+                direction: widget.uiDirection,
                 draft: draft,
                 box: draft.kind == AnnotationKind.note
                     ? _newText(Offset.zero).size
@@ -575,6 +702,31 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
         ],
         _ => const [],
       };
+}
+
+/// Where a note sits: at [at], with [kept] (it is open, a card far bigger than
+/// its pin) moved back inside the canvas, which scrolls only so far.
+class _NoteLayout extends SingleChildLayoutDelegate {
+  const new(this.at, {required this.kept});
+
+  final Offset at;
+  final bool kept;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) => kept
+      ? Offset(
+          at.dx.clamp(0, math.max(0, size.width - childSize.width)),
+          at.dy.clamp(0, math.max(0, size.height - childSize.height)),
+        )
+      : at;
+
+  @override
+  bool shouldRelayout(_NoteLayout oldDelegate) =>
+      at != oldDelegate.at || kept != oldDelegate.kept;
 }
 
 /// A note's pin, or the note open on the page with its replies (a4-1d). Esc
@@ -679,18 +831,22 @@ design.AnnotationColor nearestDesignColor(
   return best;
 }
 
-/// G46's on-page text editor: a text annotation's own, multi-line. Blur or
-/// ⌘↵ commits, Esc drops.
+/// G46's on-page text editor: a text annotation's own, multi-line, in the UI's
+/// direction. Blur or ⌘↵ commits, Esc drops.
 class _TextDraft extends StatefulWidget {
   const new({
+    required this.direction,
     required this.draft,
     required this.box,
     required this.scale,
     required this.onDone,
     required this.onCancel,
+    this.boxKey,
     super.key,
   });
 
+  final TextDirection direction;
+  final GlobalKey? boxKey;
   final _Draft draft;
   final Size box;
   final double scale;
@@ -704,6 +860,8 @@ class _TextDraft extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
+      ..add(EnumProperty<TextDirection>('direction', direction))
+      ..add(DiagnosticsProperty<GlobalKey?>('boxKey', boxKey))
       ..add(DiagnosticsProperty<_Draft>('draft', draft))
       ..add(DiagnosticsProperty<Size>('box', box))
       ..add(DoubleProperty('scale', scale))
@@ -773,6 +931,7 @@ class _TextDraftState extends State<_TextDraft> {
       textField: true,
       label: l10n.commentTextField,
       child: Container(
+        key: widget.boxKey,
         constraints: BoxConstraints(
           minWidth: widget.box.width,
           maxWidth: widget.box.width,
@@ -791,15 +950,15 @@ class _TextDraftState extends State<_TextDraft> {
           skipTraversal: true,
           includeSemantics: false,
           onKeyEvent: _onKey,
-          child: EditableText(
-            controller: _text,
-            focusNode: _focus,
-            maxLines: null,
-            style: theme.typography.body.copyWith(fontSize: size, color: ink),
-            cursorColor: ink,
-            backgroundCursorColor: ink,
-            selectionColor: theme.pageColors.editSelection,
-            textDirection: Directionality.of(context),
+          child: Directionality(
+            textDirection: widget.direction,
+            child: FieldInput(
+              controller: _text,
+              focusNode: _focus,
+              maxLines: null,
+              style: theme.typography.body.copyWith(fontSize: size, color: ink),
+              onChanged: (text) => widget.draft.typed = text,
+            ),
           ),
         ),
       ),

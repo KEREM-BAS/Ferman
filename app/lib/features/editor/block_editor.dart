@@ -307,6 +307,10 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
       _barDone();
       return;
     }
+    // The engine counts in code points, the field in UTF-16.
+    final text = _controller.text;
+    final start = text.substring(0, selection.start).runes.length;
+    final end = text.substring(0, selection.end).runes.length;
     unawaited(() async {
       final editor = ref.read(documentEditorProvider.notifier);
       final commands = ref.read(commentCommandsProvider.notifier);
@@ -319,8 +323,8 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
       await commands.markBlockText(
         edit.page,
         block.id,
-        selection.start,
-        selection.end,
+        start,
+        end,
         color,
         composing: composing,
       );

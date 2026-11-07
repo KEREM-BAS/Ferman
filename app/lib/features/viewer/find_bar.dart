@@ -12,6 +12,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// a2-4d's sentences when [find] found nothing: what was searched and what was
+/// not, as the options say.
+String findNoneText(
+  AppLocalizations l10n,
+  FindState find,
+  RegionFormat format,
+) {
+  final pages = find.options.ignoreAccents
+      ? l10n.findNoneBody
+      : l10n.findNoneBodyExact;
+  final left = find.options.comments
+      ? l10n.findNotSearchedFields
+      : l10n.findNotSearchedBoth;
+  return '${pages(find.pages, format.integer(find.pages))} $left';
+}
+
 /// The find bar over the canvas (a2-4a to a2-4d): the `SearchReplaceBar`,
 /// and under it the search options, a long search's progress (a2-4c) or
 /// what a search that found nothing searched (a2-4d), in that place.
@@ -381,9 +397,7 @@ class _NoResults extends ConsumerWidget {
           style: theme.typography.bodyStrong,
         ),
         Text(
-          (find.options.ignoreAccents
-              ? l10n.findNoneBody
-              : l10n.findNoneBodyExact)(find.pages, format.integer(find.pages)),
+          findNoneText(l10n, find, format),
           style: theme.typography.caption.copyWith(
             color: theme.colors.textSecondary,
           ),

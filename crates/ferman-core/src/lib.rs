@@ -304,6 +304,9 @@ pub enum WriteError {
     /// An annotation change that cannot apply: geometry its kind cannot take, a style on a kind
     /// whose drawing Ferman does not make, a value out of range.
     AnnotationPlan,
+    /// A page that cannot be flattened: its content changes the graphics state and then closes
+    /// more states than it opened, which a reader ignores and flattening's padding would not.
+    PageStateLeaks,
 }
 
 impl std::fmt::Display for WriteError {
@@ -326,6 +329,7 @@ impl std::fmt::Display for WriteError {
             Self::PagePlan => f.write_str("a page operation that cannot apply"),
             Self::NoSuchAnnotation => f.write_str("no such annotation"),
             Self::AnnotationPlan => f.write_str("an annotation change that cannot apply"),
+            Self::PageStateLeaks => f.write_str("a page whose content closes too many states"),
         }
     }
 }

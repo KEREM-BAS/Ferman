@@ -1301,7 +1301,7 @@ class AppLocalizationsAr extends AppLocalizations {
       two: 'الصفحتين كلتيهما',
       one: 'الصفحة الوحيدة',
     );
-    return 'بحث Ferman في $_temp0، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج.';
+    return 'بحث Ferman في $_temp0، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة.';
   }
 
   @override
@@ -1313,8 +1313,14 @@ class AppLocalizationsAr extends AppLocalizations {
       two: 'الصفحتين كلتيهما',
       one: 'الصفحة الوحيدة',
     );
-    return 'بحث Ferman في $_temp0. لم يُبحث في التعليقات وحقول النماذج.';
+    return 'بحث Ferman في $_temp0.';
   }
+
+  @override
+  String get findNotSearchedFields => 'لم يُبحث في حقول النماذج.';
+
+  @override
+  String get findNotSearchedBoth => 'لم يُبحث في التعليقات وحقول النماذج.';
 
   @override
   String get sidebarSearchField => 'البحث في المستند';
@@ -4394,7 +4400,10 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$shown من التعليقات مخفية',
+      other: '$shown تعليق مخفي',
+      many: '$shown تعليقًا مخفيًا',
+      few: '$shown تعليقات مخفية',
+      two: 'تعليقان مخفيان',
       one: 'تعليق واحد مخفي',
     );
     return '$_temp0';
@@ -4498,7 +4507,10 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$shown من الردود',
+      other: '$shown رد',
+      many: '$shown ردًا',
+      few: '$shown ردود',
+      two: 'ردّان',
       one: 'رد واحد',
     );
     return '$_temp0';
@@ -4530,7 +4542,10 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp1 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '، $shown من الردود',
+      other: '، $shown رد',
+      many: '، $shown ردًا',
+      few: '، $shown ردود',
+      two: '، ردّان',
       one: '، رد واحد',
       zero: '',
     );

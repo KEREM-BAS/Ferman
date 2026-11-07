@@ -13,13 +13,13 @@ use std::fmt::Write as _;
 
 use lopdf::{Dictionary, Object, ObjectId};
 
-use crate::annotations::{MAX_PER_PAGE, direct_handle, handle_of};
+use crate::annotations::{MAX_PER_PAGE, direct_handle, handle_of, popup_of};
 use crate::content;
 use crate::limits::Limits;
 use crate::revision::{RevisionStore, compressed, decoded, free};
 use crate::structure::{Scope, number};
 use crate::write::Value;
-use crate::{CoreError, Document};
+use crate::{CoreError, Document, WriteError};
 
 /// `/F`: hidden and no view, which a reader does not draw on screen.
 const NOT_DRAWN: i64 = 2 | 32;
@@ -29,7 +29,8 @@ const NO_ROTATE: i64 = 16;
 /// One appearance to draw.
 struct Draw {
     form: ObjectId,
-    rect: [f32; 4],
+    /// Where it lands on the page, the box of a form that carries `layer`.
+    bounds: [f32; 4],
     matrix: [f32; 6],
     /// `/OC` of the annotation, which the appearance on the page must keep obeying.
     layer: Option<Object>,
@@ -151,19 +152,89 @@ fn upright(matrix: [f32; 6], rect: [f32; 4], rotation: u16) -> [f32; 6] {
     ]
 }
 
+/// Whether `q`/`Q` have nothing to bring back after this operator: it paints, builds a path, moves
+/// within a text object or marks content. Any other, unknown ones too, counts as changing the state.
+fn keeps_state(operator: &[u8]) -> bool {
+    matches!(
+        operator,
+        b"m" | b"l"
+            | b"c"
+            | b"v"
+            | b"y"
+            | b"h"
+            | b"re"
+            | b"S"
+            | b"s"
+            | b"f"
+            | b"F"
+            | b"f*"
+            | b"B"
+            | b"B*"
+            | b"b"
+            | b"b*"
+            | b"n"
+            | b"BT"
+            | b"ET"
+            | b"Td"
+            | b"TD"
+            | b"Tm"
+            | b"T*"
+            | b"Tj"
+            | b"TJ"
+            | b"'"
+            | b"\""
+            | b"Do"
+            | b"sh"
+            | b"BI"
+            | b"ID"
+            | b"EI"
+            | b"MP"
+            | b"DP"
+            | b"BMC"
+            | b"BDC"
+            | b"EMC"
+            | b"BX"
+            | b"EX"
+    )
+}
+
+/// The bounds of `rect` turned as [`upright`] turns what lands on it.
+fn upright_bounds(rect: [f32; 4], rotation: u16) -> [f32; 4] {
+    let [l, b, r, t] = rect;
+    let [a, tb, tc, d, e, f] = upright([1.0, 0.0, 0.0, 1.0, 0.0, 0.0], rect, rotation);
+    #[allow(clippy::arithmetic_side_effects)] // Floats.
+    let corners =
+        [(l, b), (r, b), (l, t), (r, t)].map(|(x, y)| (a * x + tc * y + e, tb * x + d * y + f));
+    corners.iter().fold(
+        [f32::MAX, f32::MAX, f32::MIN, f32::MIN],
+        |[x0, y0, x1, y1], (x, y)| [x0.min(*x), y0.min(*y), x1.max(*x), y1.max(*y)],
+    )
+}
+
 /// `q` and `Q` for the page's content, so that it starts and ends each stream's state at the same
 /// level whatever it leaves open or closes too often: how many `q` before it, and `Q` after.
+///
+/// A reader ignores a `Q` with nothing to restore, while here it restores a padding `q`. That is the
+/// same only while the state is still the one the page starts with.
+///
+/// # Errors
+///
+/// [`WriteError::PageStateLeaks`] when it is not, and those of reading the content.
 fn balance(data: &[u8], limits: &Limits) -> Result<(usize, usize), CoreError> {
     let mut depth = 0isize;
     let mut least = 0isize;
+    let mut changed = false;
     for operator in content::operators(data, limits)? {
         match operator.name.as_slice() {
             b"q" => depth = depth.saturating_add(1),
             b"Q" => {
+                if depth == least && changed {
+                    return Err(CoreError::Write(WriteError::PageStateLeaks));
+                }
                 depth = depth.saturating_sub(1);
                 least = least.min(depth);
             }
-            _ => {}
+            name => changed |= depth == least && !keeps_state(name),
         }
     }
     let open = least.unsigned_abs().saturating_add(1);
@@ -180,24 +251,27 @@ fn numbers(out: &mut String, values: &[f32]) {
 
 impl RevisionStore {
     /// Draws annotations `handles` of page `index` into its content, in `/Annots` order, and takes
-    /// them and their popups out of `/Annots`, in the open transaction. One that has no normal
-    /// appearance, is hidden or has no view draws nothing. A handle the page does not name is
-    /// skipped. The page gets its own `/Resources`; other pages and every content stream stay.
+    /// them and their popups out of `/Annots`, in the open transaction; those in `undrawn` too go
+    /// without being drawn. One that has no normal appearance, is hidden or has no view draws
+    /// nothing. A handle the page does not name is skipped. The page gets its own `/Resources`;
+    /// other pages and every content stream stay.
     ///
     /// # Errors
     ///
     /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`], [`WriteError::ObjectNumbers`],
-    /// and those of reading the page's content within the document's limits.
+    /// [`WriteError::PageStateLeaks`], and those of reading the page's content within the
+    /// document's limits.
     pub fn flatten_annotations(
         &mut self,
         doc: &Document,
         index: usize,
         handles: &[u64],
+        undrawn: &[u64],
     ) -> Result<(), CoreError> {
         self.transaction_open()?;
         let page = self.page_id(doc, index)?;
         let rotation = self.pages(doc).get(index).map_or(0, |page| page.rotation);
-        let selected: BTreeSet<u64> = handles.iter().copied().collect();
+        let selected: BTreeSet<u64> = handles.iter().chain(undrawn).copied().collect();
         let mut draws = Vec::new();
         let mut gone = BTreeSet::new();
         let mut gone_direct = BTreeSet::new();
@@ -231,15 +305,11 @@ impl RevisionStore {
                 let Some(annotation) = scope.dict(item) else {
                     continue;
                 };
-                if let Some(popup) = annotation
-                    .get(b"Popup")
-                    .ok()
-                    .and_then(|popup| popup.as_reference().ok())
-                {
+                if let Some(popup) = popup_of(&scope, annotation, id) {
                     gone.insert(popup);
                 }
                 let flags = scope.get_int(annotation, b"F").unwrap_or(0);
-                if flags & NOT_DRAWN != 0 {
+                if flags & NOT_DRAWN != 0 || undrawn.contains(&handle) {
                     continue;
                 }
                 let Some(form) = normal_appearance(&scope, annotation) else {
@@ -251,12 +321,14 @@ impl RevisionStore {
                 let Some(mut matrix) = placement(&scope, form, rect) else {
                     continue;
                 };
+                let mut bounds = rect;
                 if flags & NO_ROTATE != 0 {
                     matrix = upright(matrix, rect, rotation);
+                    bounds = upright_bounds(rect, rotation);
                 }
                 draws.push(Draw {
                     form,
-                    rect,
+                    bounds,
                     matrix,
                     layer: annotation.get(b"OC").ok().cloned(),
                 });
@@ -372,7 +444,7 @@ impl RevisionStore {
         dict.set("Subtype", Object::Name(b"Form".to_vec()));
         dict.set(
             "BBox",
-            draw.rect
+            draw.bounds
                 .iter()
                 .copied()
                 .map(Object::Real)
@@ -399,5 +471,35 @@ mod tests {
         assert_eq!(balance(b"q 1 w Q", &limits).unwrap(), (1, 1));
         assert_eq!(balance(b"q q", &limits).unwrap(), (1, 3));
         assert_eq!(balance(b"Q Q q", &limits).unwrap(), (3, 2));
+    }
+
+    #[test]
+    fn balance_refuses_a_q_too_many_after_a_change_a_reader_would_keep() {
+        let limits = Limits::default();
+        let refused = |data: &[u8]| {
+            matches!(
+                balance(data, &limits),
+                Err(CoreError::Write(WriteError::PageStateLeaks))
+            )
+        };
+        assert!(refused(b"0.5 0 0 0.5 100 100 cm Q 0 0 200 200 re f"));
+        assert!(refused(b"1 0 0 rg q Q Q"));
+        assert!(refused(b"Q 1 0 0 rg Q"));
+        // Nothing to bring back, or brought back by the page's own Q.
+        assert_eq!(balance(b"0 0 9 9 re f Q", &limits).unwrap(), (2, 1));
+        assert_eq!(balance(b"q 1 0 0 rg Q Q", &limits).unwrap(), (2, 1));
+        assert_eq!(balance(b"Q q 1 0 0 rg Q", &limits).unwrap(), (2, 1));
+    }
+
+    #[test]
+    fn upright_bounds_hold_the_rect_turned_about_its_top_left() {
+        assert_eq!(
+            upright_bounds([100.0, 200.0, 200.0, 240.0], 90),
+            [100.0, 240.0, 140.0, 340.0]
+        );
+        assert_eq!(
+            upright_bounds([100.0, 200.0, 200.0, 240.0], 0),
+            [100.0, 200.0, 200.0, 240.0]
+        );
     }
 }

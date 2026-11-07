@@ -48,8 +48,8 @@ pub enum Offered {
 }
 
 /// Whether `target` may be offered to the user to open, and as what: `http://` or `https://` with
-/// a host, or `mailto:` with an address. Control characters, white space and direction controls
-/// are refused anywhere: they make a target read as something else in the prompt, and a browser
+/// a host, or `mailto:` with an address. Control characters, white space and format characters,
+/// the direction controls among them, are refused anywhere: they make a target read as something else in the prompt, and a browser
 /// strips some of them before it reads the scheme.
 #[must_use]
 pub fn offered(target: &str) -> Option<Offered> {
@@ -58,10 +58,19 @@ pub fn offered(target: &str) -> Option<Offered> {
             || c.is_whitespace()
             || matches!(
                 c,
-                '\u{200B}'..='\u{200F}'
+                '\u{AD}'
+                    | '\u{600}'..='\u{605}'
+                    | '\u{61C}'
+                    | '\u{6DD}'
+                    | '\u{70F}'
+                    | '\u{8E2}'
+                    | '\u{180E}'
+                    | '\u{200B}'..='\u{200F}'
                     | '\u{202A}'..='\u{202E}'
-                    | '\u{2060}'..='\u{2069}'
+                    | '\u{2060}'..='\u{206F}'
                     | '\u{FEFF}'
+                    | '\u{FFF9}'..='\u{FFFB}'
+                    | '\u{E0000}'..='\u{E007F}'
             )
     };
     if target.chars().any(tricky) {
@@ -340,6 +349,9 @@ mod tests {
             "https://@/",
             "https:\\\\example.org",
             "https://exam\u{202E}ple.org",
+            "https://1.2\u{61C}.3.4/",
+            "https://exam\u{AD}ple.org",
+            "https://example.org/\u{E0041}",
             "https://example.org\n",
             "mailto:",
             "example.org",

@@ -8,6 +8,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/viewer/find_bar.dart' show findNoneText;
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/page_thumbnails.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -856,13 +857,7 @@ class _SidebarSearchState extends ConsumerState<SidebarSearch> {
                 : EmptyState(
                     icon: IconName.search,
                     title: l10n.findNoneTitle(find.query.trim()),
-                    body:
-                        (find.options.ignoreAccents
-                        ? l10n.findNoneBody
-                        : l10n.findNoneBodyExact)(
-                          find.pages,
-                          format.integer(find.pages),
-                        ),
+                    body: findNoneText(l10n, find, format),
                   ),
           ),
         ],

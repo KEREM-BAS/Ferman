@@ -108,8 +108,13 @@ class CommentTool extends _$CommentTool {
   @override
   CommentTools build() => const CommentTools();
 
-  /// Picks [tool].
-  void pick(AnnotationTool tool) => state = state.copyWith(tool: tool);
+  /// Picks [tool]; a tool that marks needs the comments it marks to show.
+  void pick(AnnotationTool tool) {
+    state = state.copyWith(tool: tool);
+    if (tool != AnnotationTool.select) {
+      unawaited(ref.read(commentsShownProvider.notifier).show(visible: true));
+    }
+  }
 
   /// Picks [color] for new marks.
   void color(design.AnnotationColor color) =>
@@ -146,12 +151,30 @@ final class CommentSelected {
 
 /// The comment selected on the page and in the panel, as
 /// `commentSelectionProvider`. It holds through any change around it; one the
-/// list no longer has selects nothing.
+/// list no longer has selects nothing, nor does anything while comments are
+/// hidden.
+///
+/// The handle of an annotation written directly in the file's page names its
+/// place, which a step on its neighbour or an undo gives to another, so any
+/// such step drops it.
+// shortcut: a reply or resolve on such a mark drops the selection instead of
+// following the mark to its new handle; those calls return no thread handle.
 @Riverpod(keepAlive: true)
 class CommentSelection extends _$CommentSelection {
   @override
   CommentSelected? build() {
-    ref.watch(openDocumentProvider.select((document) => document?.id));
+    ref
+      ..watch(openDocumentProvider.select((document) => document?.id))
+      ..listen(commentsShownProvider.select((shown) => shown.visible), (
+        _,
+        visible,
+      ) {
+        if (!visible) state = null;
+      })
+      ..listen(documentEditorProvider.select((s) => s.history.current), (_, _) {
+        final handle = stateOrNull?.handle;
+        if (handle != null && isDirectAnnotationHandle(handle)) state = null;
+      });
     return null;
   }
 
@@ -161,6 +184,14 @@ class CommentSelection extends _$CommentSelection {
 
   /// Selects nothing.
   void clear() => state = null;
+
+  /// The list changed: one it no longer has selects nothing.
+  void listed(List<AnnotationInfo> annotations) {
+    final handle = stateOrNull?.handle;
+    if (handle != null && !annotations.any((each) => each.handle == handle)) {
+      state = null;
+    }
+  }
 
   /// A first change gave the file's direct annotation [to] in place of [from].
   void follow(int from, int to) {
@@ -216,13 +247,26 @@ class CommentsShown extends _$CommentsShown {
     return memory.recall<CommentsVisibility>() ?? const CommentsVisibility();
   }
 
-  /// Shows or hides them; nothing changes if the engine refuses.
+  /// Shows or hides them; if the engine refuses, a toast says why and nothing
+  /// changes.
   Future<void> show({required bool visible}) async {
     final document = ref.read(openDocumentProvider)?.id;
     if (document == null || visible == state.visible) return;
-    final key = await ref
-        .read(engineServiceProvider)
-        .showComments(document, visible: visible);
+    final int key;
+    try {
+      key = await ref
+          .read(engineServiceProvider)
+          .showComments(document, visible: visible);
+    } on EngineException catch (error) {
+      if (ref.mounted) {
+        showPageChangeFailure(
+          ref.read(toastNoticesProvider.notifier),
+          error,
+          ref.read(shellDocumentsProvider).active?.name ?? '',
+        );
+      }
+      return;
+    }
     if (!ref.mounted) return;
     final shown = CommentsVisibility(visible: visible, renderKey: key);
     if (ref.read(openDocumentProvider)?.id == document) {
@@ -232,6 +276,9 @@ class CommentsShown extends _$CommentsShown {
     }
   }
 }
+
+/// A file name a summary is written to as a CSV.
+final RegExp _csvName = RegExp(r'\.csv$', caseSensitive: false);
 
 /// What the comment tools do, each one step of the history (a4-1, a4-2), as
 /// `commentCommandsProvider`. A signed document asks first (a3-16a).
@@ -269,12 +316,14 @@ class CommentCommands extends _$CommentCommands {
     return await answer.future;
   }
 
-  /// Takes [change] as a step, or says why not in a toast.
+  /// Takes [change] as a step of [on], else the open document, or says why not
+  /// in a toast.
   Future<void> _commit(
     Future<RevisionInfo> Function(int document) change, {
     void Function()? committed,
+    int? on,
   }) async {
-    final document = ref.read(openDocumentProvider)?.id;
+    final document = on ?? ref.read(openDocumentProvider)?.id;
     if (document == null) return;
     final failure = await ref
         .read(documentEditorProvider.notifier)
@@ -316,9 +365,43 @@ class CommentCommands extends _$CommentCommands {
             .read(commentSelectionProvider.notifier)
             .select(handle!, composing: composing);
         ref.read(commentToolProvider.notifier).placed();
+        if (composing) revealShellPanel(ref.read);
       },
     );
   }
+
+  /// What was being typed on the page when its view went away, perhaps for
+  /// another document's: [draft] on page [page] of [document], selecting
+  /// nothing.
+  Future<void> addLeft(
+    int document,
+    int page,
+    NewAnnotation Function(String author) draft,
+  ) async {
+    final author = await _author();
+    if (author == null || !ref.mounted) return;
+    await _commit(
+      on: document,
+      (document) async => (await _engine.addAnnotation(
+        document,
+        page,
+        draft(author),
+        _l10n.commentStepAdd,
+      )).revision,
+    );
+  }
+
+  /// [addLeft] for [change] of annotation [handle].
+  Future<void> updateLeft(int document, int handle, AnnotationChange change) =>
+      _commit(
+        on: document,
+        (document) async => (await _engine.updateAnnotation(
+          document,
+          handle,
+          change,
+          _l10n.commentStepChange,
+        )).revision,
+      );
 
   /// Marks the text of [selection] as [kind] in [color].
   Future<void> markText(
@@ -467,7 +550,7 @@ class CommentCommands extends _$CommentCommands {
         .commentSummary(
           document.id,
           output: output,
-          format: output.endsWith('.csv')
+          format: _csvName.hasMatch(output)
               ? SummaryFormat.csv
               : SummaryFormat.pageAndComments,
           options: SummaryOptions(

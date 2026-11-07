@@ -166,6 +166,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
 
   /// The inline editor's key, new for each block edited, and its edit.
   GlobalKey _editorKey = GlobalKey();
+
+  /// The text box of [CommentOverlay]'s draft.
+  final GlobalKey _commentDraftKey = GlobalKey();
   final GlobalKey _linkPopover = GlobalKey();
 
   /// Where a press that may be a click on a link began.
@@ -460,15 +463,24 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   }
 
   void _down(PointerDownEvent event) {
-    // A click in the open editor is the text field's.
+    // A click in the open editor, or in a comment's text being typed, is the
+    // text field's.
     if (widget.edit && _inEditor(event.position)) return;
+    if (widget.comment && _inCommentDraft(event.position)) return;
     if (_inLinkPopover(event.position)) return;
     Focus.maybeOf(context)?.requestFocus();
-    ContextMenuController.removeAny();
-    // A click follows a link, or marks it with the Link tool (a3-6).
+    // Comment mode's layer, nearer the pointer, has just opened its own menu.
+    if (!widget.comment || event.buttons != kSecondaryMouseButton) {
+      ContextMenuController.removeAny();
+    }
+    // A click follows a link, or marks it with the Link tool (a3-6); in Comment
+    // mode a click is the comment tools'.
     _press =
         event.buttons == kPrimaryButton &&
-            (_linkTool || (!widget.edit && _tool != ViewerTool.marquee))
+            (_linkTool ||
+                (!widget.edit &&
+                    !widget.comment &&
+                    _tool != ViewerTool.marquee))
         ? event.localPosition
         : null;
     if (event.kind != PointerDeviceKind.mouse) return;
@@ -672,6 +684,14 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
         (Offset.zero & box.size)
             .inflate(TextEditBox.marginX + TextEditBox.handleOffset)
             .contains(box.globalToLocal(position));
+  }
+
+  /// Whether [position] (global) is over a comment's text being typed.
+  bool _inCommentDraft(Offset position) {
+    final box = _commentDraftKey.currentContext?.findRenderObject();
+    return box is RenderBox &&
+        box.hasSize &&
+        (Offset.zero & box.size).contains(box.globalToLocal(position));
   }
 
   /// Opens the inline editor on [target]'s block with the engine's caret
@@ -955,6 +975,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                       child: CommentOverlay(
                         view: state,
                         uiDirection: widget.uiDirection,
+                        draftKey: _commentDraftKey,
                       ),
                     ),
                   // Shapes and stamps, inside the Listener so the wheel still

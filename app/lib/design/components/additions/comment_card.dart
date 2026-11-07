@@ -73,6 +73,7 @@ class CommentCard extends StatefulWidget {
     this.onResolve,
     this.onReply,
     this.onReopen,
+    this.reopenDisabledReason,
     this.iconColor,
     this.repliesLabel,
     this.replyPlaceholder,
@@ -151,6 +152,9 @@ class CommentCard extends StatefulWidget {
 
   /// Called when Reopen is pressed; null disables it.
   final VoidCallback? onReopen;
+
+  /// Why [onReopen] is null, when it is.
+  final String? reopenDisabledReason;
 
   /// The collapsed replies count, such as "2 replies"; null shows none.
   /// Not in the spec.
@@ -718,13 +722,14 @@ class _CommentCardState extends State<CommentCard> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 spacing: theme.space.space1_5,
                 children: [
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.sm,
-                    icon: IconName.check,
-                    onPressed: widget.onResolve,
-                    child: Text(widget.resolveLabel),
-                  ),
+                  if (widget.resolvedBy == null)
+                    Button(
+                      variant: ButtonVariant.ghost,
+                      size: ButtonSize.sm,
+                      icon: IconName.check,
+                      onPressed: widget.onResolve,
+                      child: Text(widget.resolveLabel),
+                    ),
                   Button(
                     variant: ButtonVariant.primary,
                     size: ButtonSize.sm,
@@ -756,6 +761,8 @@ class _CommentCardState extends State<CommentCard> {
                 size: ButtonSize.sm,
                 icon: IconName.rotateCcw,
                 onPressed: widget.onReopen,
+                disabled: widget.onReopen == null,
+                disabledReason: widget.reopenDisabledReason,
                 child: Text(widget.reopenLabel),
               ),
             ],

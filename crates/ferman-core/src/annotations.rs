@@ -172,6 +172,8 @@ pub struct Annotation {
     pub contents: Option<String>,
     /// Whether it has `/RC`, kept as it came until its text is replaced.
     pub rich: bool,
+    /// `/RT /Group`: its `/IRT` groups it with a mark as one, and it draws like any other.
+    pub grouped: bool,
     /// `/CreationDate`.
     pub created: Option<PdfDate>,
     /// `/M`.
@@ -236,6 +238,24 @@ pub(crate) fn handle_of(id: ObjectId) -> u64 {
 pub(crate) fn direct_handle(page: ObjectId, ordinal: usize) -> u64 {
     let ordinal = u64::try_from(ordinal).unwrap_or(u64::MAX) & 0xFF_FFFF;
     DIRECT | ((u64::from(page.0) & 0x0FFF_FFFF) << 24) | ordinal
+}
+
+/// The popup of `annotation`, whose object is `owner` when it has one: what `/Popup` names, if that
+/// is a popup and does not say it belongs to another annotation.
+pub(crate) fn popup_of(
+    scope: &Scope<'_>,
+    annotation: &Dictionary,
+    owner: Option<ObjectId>,
+) -> Option<ObjectId> {
+    let id = annotation.get(b"Popup").ok()?.as_reference().ok()?;
+    let popup = scope.dictionary(id)?;
+    if scope.get_name(popup, b"Subtype") != Some(b"Popup") {
+        return None;
+    }
+    match popup.get(b"Parent") {
+        Ok(parent) if parent.as_reference().ok() != owner => None,
+        _ => Some(id),
+    }
 }
 
 impl ObjectRef {
@@ -492,6 +512,7 @@ fn read_one(
         subject: text(scope, dict, b"Subj", budget),
         contents: text(scope, dict, b"Contents", budget),
         rich: dict.has(b"RC"),
+        grouped: scope.get_name(dict, b"RT") == Some(b"Group"),
         created: short_date(scope, dict, b"CreationDate"),
         modified: short_date(scope, dict, b"M"),
         unique_name: text(scope, dict, b"NM", budget),
@@ -813,14 +834,12 @@ impl RevisionStore {
             Err(CoreError::Write(WriteError::NoSuchAnnotation)) => return Ok(false),
             Err(err) => return Err(err),
         };
-        let popup = |dict: &Dictionary| {
-            dict.get(b"Popup")
-                .ok()
-                .and_then(|popup| popup.as_reference().ok())
-        };
         match located {
             Located::Object(id) => {
-                let popup = self.scope(doc).dictionary(id).and_then(popup);
+                let scope = self.scope(doc);
+                let popup = scope
+                    .dictionary(id)
+                    .and_then(|dict| popup_of(&scope, dict, Some(id)));
                 self.change_annots(doc, index, |items| {
                     items.retain(|item| {
                         let target = item.as_reference().ok();
@@ -830,7 +849,7 @@ impl RevisionStore {
                 })
             }
             Located::Direct(place, dict) => {
-                let popup = popup(&dict);
+                let popup = popup_of(&self.scope(doc), &dict, None);
                 self.change_annots(doc, index, |items| {
                     replace_direct(items, place, None);
                     items.retain(|item| popup.is_none() || item.as_reference().ok() != popup);

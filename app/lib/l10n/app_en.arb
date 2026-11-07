@@ -1698,7 +1698,7 @@
       }
     }
   },
-  "findNoneBody": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.",
+  "findNoneBody": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i.",
   "@findNoneBody": {
     "description": "No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.",
     "placeholders": {
@@ -1710,7 +1710,7 @@
       }
     }
   },
-  "findNoneBodyExact": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.",
+  "findNoneBodyExact": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}.",
   "@findNoneBodyExact": {
     "description": "No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.",
     "placeholders": {
@@ -1721,6 +1721,14 @@
         "type": "String"
       }
     }
+  },
+  "findNotSearchedFields": "Form fields weren’t searched.",
+  "@findNotSearchedFields": {
+    "description": "a2-4d: after findNoneBody, with Comments ticked in Look in."
+  },
+  "findNotSearchedBoth": "Comments and form fields weren’t searched.",
+  "@findNotSearchedBoth": {
+    "description": "a2-4d: after findNoneBody, with Comments not ticked."
   },
   "sidebarSearchField": "Search in document",
   "@sidebarSearchField": {

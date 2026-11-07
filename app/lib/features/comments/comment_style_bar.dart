@@ -10,6 +10,7 @@ import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_time.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -195,6 +196,7 @@ void openComment(WidgetRef ref, AnnotationInfo annotation) {
         composing: annotation.kind != AnnotationKind.note,
         noteOpen: annotation.kind == AnnotationKind.note,
       );
+  if (annotation.kind != AnnotationKind.note) revealShellPanel(ref.read);
 }
 
 /// G46's context menu on [annotation] at [position] (global): the style bar's
