@@ -55,7 +55,9 @@ bool ShowInExplorer(const std::string& path) {
 bool OpenUrl(const std::string& url) {
   std::string scheme = url.substr(0, url.find(':'));
   std::transform(scheme.begin(), scheme.end(), scheme.begin(),
-                 [](unsigned char c) { return std::tolower(c); });
+                 [](unsigned char c) {
+                   return static_cast<char>(std::tolower(c));
+                 });
   if (scheme != "http" && scheme != "https" && scheme != "mailto") {
     return false;
   }
