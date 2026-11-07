@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1390 messages in `app_en.arb`; translated: Turkish 1390, Arabic 1390.
+1425 messages in `app_en.arb`; translated: Turkish 1425, Arabic 1425.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1228,6 +1228,41 @@ The table below is generated from the ARB files by `tools/l10n`
 | `jobSummaryRunningTitle` | Writing {name} | {name} yazılıyor | جارٍ كتابة {name} | Task drawer: the summary. |
 | `jobSummaryDoneTitle` | Wrote {name} | {name} yazıldı | تمت كتابة {name} | Task drawer: the summary. |
 | `jobSummaryFailedTitle` | Couldn’t write {name} | {name} yazılamadı | تعذرت كتابة {name} | Task drawer: the summary. |
+| `commentSummaryCsvFile` | Comments.csv | Yorumlar.csv | التعليقات.csv | The summary’s suggested file name as a CSV (a4-4). |
+| `summaryTitle` | Export comment summary | Yorum özetini dışa aktar | تصدير ملخص التعليقات | a4-4: the dialog’s title. |
+| `summaryFormat` | Format | Biçim | التنسيق | a4-4: the format control’s label. |
+| `summaryCsv` | CSV | CSV | CSV | a4-4: a format. |
+| `summaryLayout` | Layout | Düzen | التخطيط | a4-4: the layout cards’ group name, for screen readers. |
+| `summaryPageAndComments` | Page and comments | Sayfa ve yorumlar | الصفحة والتعليقات | a4-4: a layout. |
+| `summaryPageAndCommentsHint` | Numbered markers beside each page | Her sayfanın yanında numaralı işaretler | علامات مرقمة بجانب كل صفحة | a4-4: the layout’s line. |
+| `summaryCommentsOnly` | Comments only | Yalnızca yorumlar | التعليقات فقط | a4-4: a layout. |
+| `summaryCommentsOnlyHint` | A list, grouped by page | Sayfaya göre gruplanmış liste | قائمة مجمّعة حسب الصفحة | a4-4: the layout’s line. |
+| `summaryPageThenList` | Page, then list | Önce sayfa, sonra liste | الصفحة ثم القائمة | a4-4: a layout. |
+| `summaryPageThenListHint` | Full page followed by its comments | Sayfanın tamamı, ardından yorumları | الصفحة كاملة تليها تعليقاتها | a4-4: the layout’s line. |
+| `summaryOpen` | Open comments ({count}) | Açık yorumlar ({count}) | التعليقات المفتوحة ({count}) | a4-4: what the summary holds; {count} is formatted. |
+| `summaryReplies` | Replies | Yanıtlar | الردود | a4-4: what the summary holds. |
+| `summaryResolved` | Resolved comments ({count}) | Çözülen yorumlar ({count}) | التعليقات المحلولة ({count}) | a4-4: what the summary holds; {count} is formatted. |
+| `summaryEmptyPages` | Pages without comments | Yorumsuz sayfalar | الصفحات التي بلا تعليقات | a4-4: what the summary holds. |
+| `summarySortBy` | Sort by | Sıralama | الترتيب حسب | a4-4: the order’s label. |
+| `summarySortPage` | Page order | Sayfa sırası | ترتيب الصفحات | a4-4: an order; the others are the Date and Author columns. |
+| `summaryPaper` | Paper | Kâğıt | الورق | a4-4: the paper’s label. |
+| `summaryPreview` | Preview | Önizleme | معاينة | a4-4: the preview’s label. |
+| `summaryExport` | Export summary… | Özeti dışa aktar… | تصدير الملخص… | a4-4: the action; the save panel follows. |
+| `jobSummaryPageUnsupported` | A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works. | Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır. | رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV. | Task drawer: a summary that failed on a page whose content Ferman cannot copy yet (B202). |
+| `flattenTitle` | {count, plural, =1{Flatten 1 comment into the pages?} other{Flatten {formatted} comments into the pages?}} | {count, plural, =1{1 yorum sayfalara düzleştirilsin mi?} other{{formatted} yorum sayfalara düzleştirilsin mi?}} | {count, plural, =0{هل تريد تسطيح التعليقات في الصفحات؟} =1{هل تريد تسطيح تعليق واحد في الصفحات؟} =2{هل تريد تسطيح تعليقين في الصفحات؟} few{هل تريد تسطيح {formatted} تعليقات في الصفحات؟} many{هل تريد تسطيح {formatted} تعليقًا في الصفحات؟} other{هل تريد تسطيح {formatted} تعليق في الصفحات؟}} | a4-5b: the title. |
+| `flattenBody` | They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did. | Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür. | تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت. | a4-5b: the consequence; the last sentence is about appearance, not a signature’s validity (G146). |
+| `flattenAll` | {count, plural, =1{1 comment} other{All {formatted} comments}} | {count, plural, =1{1 yorum} other{{formatted} yorumun tümü}} | {count, plural, =0{كل التعليقات} =1{التعليق الوحيد} =2{التعليقان كلاهما} few{كل التعليقات الـ{formatted}} many{كل التعليقات الـ{formatted}} other{كل التعليقات الـ{formatted}}} | a4-5b: a choice. |
+| `flattenResolved` | {count, plural, =0{No resolved comments} =1{Only the 1 resolved comment} other{Only the {formatted} resolved comments}} | {count, plural, =0{Çözülen yorum yok} =1{Yalnızca çözülen 1 yorum} other{Yalnızca çözülen {formatted} yorum}} | {count, plural, =0{لا توجد تعليقات محلولة} =1{التعليق المحلول فقط} =2{التعليقان المحلولان فقط} few{التعليقات المحلولة الـ{formatted} فقط} many{التعليقات المحلولة الـ{formatted} فقط} other{التعليقات المحلولة الـ{formatted} فقط}} | a4-5b: a choice. |
+| `flattenKeepCopy` | Keep a copy with comments | Yorumlu bir kopya sakla | الاحتفاظ بنسخة مع التعليقات | a4-5b: the copy written first (G146). |
+| `flattenKeepCopyHint` | Saved as “{name}” next to the original. | Özgün dosyanın yanına “{name}” olarak kaydedilir. | تُحفظ باسم «{name}» بجانب الأصل. | a4-5b: the copy’s name. |
+| `flattenCopyName` | {stem} — with comments | {stem} — yorumlu | {stem} — مع التعليقات | a4-5b: the copy’s file name without its extension. |
+| `flattenCopyNameNumbered` | {stem} — with comments {number} | {stem} — yorumlu {number} | {stem} — مع التعليقات {number} | a4-5b: the same, when that name is taken; {number} is 2 or more. |
+| `flattenAction` | {count, plural, =1{Flatten 1 comment} other{Flatten {formatted} comments}} | {count, plural, =1{1 yorumu düzleştir} other{{formatted} yorumu düzleştir}} | {count, plural, =0{تسطيح التعليقات} =1{تسطيح تعليق واحد} =2{تسطيح تعليقين} few{تسطيح {formatted} تعليقات} many{تسطيح {formatted} تعليقًا} other{تسطيح {formatted} تعليق}} | a4-5b: the action. |
+| `commentStepFlatten` | Flatten comments | Yorumları düzleştir | تسطيح التعليقات | History: the flatten step (a4-5b). |
+| `jobFlatteningTitle` | Flattening comments in {name} | {name} içindeki yorumlar düzleştiriliyor | جارٍ تسطيح التعليقات في {name} | Task drawer: flatten. |
+| `jobFlattenedTitle` | Flattened comments in {name} | {name} içindeki yorumlar düzleştirildi | سُطّحت التعليقات في {name} | Task drawer: flatten. |
+| `jobFlattenFailedTitle` | Couldn’t flatten comments in {name} | {name} içindeki yorumlar düzleştirilemedi | تعذر تسطيح التعليقات في {name} | Task drawer: flatten; nothing in the document changed. |
+| `jobFlattenPageUnsupported` | A page is drawn in a way Ferman can’t flatten into yet. Nothing changed. | Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi. | رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء. | Task drawer: a flatten that failed on a page whose content Ferman cannot change yet (B202). |
 | `sidebarSearchComment` | Comment: {text} | Yorum: {text} | تعليق: {text} | Search results: a match in a comment (B128). |
 | `stampsTitle` | Stamps | Damgalar | الأختام | Name of the stamp library popover for screen readers (a4-3). |
 | `stampsSearch` | Search stamps | Damga ara | البحث في الأختام | Search field of the stamp library (a4-3). |

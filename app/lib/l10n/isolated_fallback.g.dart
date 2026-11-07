@@ -3829,6 +3829,123 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.jobSummaryFailedTitle(name));
 
   @override
+  String get commentSummaryCsvFile => isolate(super.commentSummaryCsvFile);
+
+  @override
+  String get summaryTitle => isolate(super.summaryTitle);
+
+  @override
+  String get summaryFormat => isolate(super.summaryFormat);
+
+  @override
+  String get summaryCsv => isolate(super.summaryCsv);
+
+  @override
+  String get summaryLayout => isolate(super.summaryLayout);
+
+  @override
+  String get summaryPageAndComments => isolate(super.summaryPageAndComments);
+
+  @override
+  String get summaryPageAndCommentsHint =>
+      isolate(super.summaryPageAndCommentsHint);
+
+  @override
+  String get summaryCommentsOnly => isolate(super.summaryCommentsOnly);
+
+  @override
+  String get summaryCommentsOnlyHint => isolate(super.summaryCommentsOnlyHint);
+
+  @override
+  String get summaryPageThenList => isolate(super.summaryPageThenList);
+
+  @override
+  String get summaryPageThenListHint => isolate(super.summaryPageThenListHint);
+
+  @override
+  String summaryOpen(String count) => isolate(super.summaryOpen(count));
+
+  @override
+  String get summaryReplies => isolate(super.summaryReplies);
+
+  @override
+  String summaryResolved(String count) => isolate(super.summaryResolved(count));
+
+  @override
+  String get summaryEmptyPages => isolate(super.summaryEmptyPages);
+
+  @override
+  String get summarySortBy => isolate(super.summarySortBy);
+
+  @override
+  String get summarySortPage => isolate(super.summarySortPage);
+
+  @override
+  String get summaryPaper => isolate(super.summaryPaper);
+
+  @override
+  String get summaryPreview => isolate(super.summaryPreview);
+
+  @override
+  String get summaryExport => isolate(super.summaryExport);
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      isolate(super.jobSummaryPageUnsupported);
+
+  @override
+  String flattenTitle(int count, String formatted) =>
+      isolate(super.flattenTitle(count, formatted));
+
+  @override
+  String get flattenBody => isolate(super.flattenBody);
+
+  @override
+  String flattenAll(int count, String formatted) =>
+      isolate(super.flattenAll(count, formatted));
+
+  @override
+  String flattenResolved(int count, String formatted) =>
+      isolate(super.flattenResolved(count, formatted));
+
+  @override
+  String get flattenKeepCopy => isolate(super.flattenKeepCopy);
+
+  @override
+  String flattenKeepCopyHint(String name) =>
+      isolate(super.flattenKeepCopyHint(name));
+
+  @override
+  String flattenCopyName(String stem) => isolate(super.flattenCopyName(stem));
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) =>
+      isolate(super.flattenCopyNameNumbered(stem, number));
+
+  @override
+  String flattenAction(int count, String formatted) =>
+      isolate(super.flattenAction(count, formatted));
+
+  @override
+  String get commentStepFlatten => isolate(super.commentStepFlatten);
+
+  @override
+  String jobFlatteningTitle(String name) =>
+      isolate(super.jobFlatteningTitle(name));
+
+  @override
+  String jobFlattenedTitle(String name) =>
+      isolate(super.jobFlattenedTitle(name));
+
+  @override
+  String jobFlattenFailedTitle(String name) =>
+      isolate(super.jobFlattenFailedTitle(name));
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      isolate(super.jobFlattenPageUnsupported);
+
+  @override
   String sidebarSearchComment(String text) =>
       isolate(super.sidebarSearchComment(text));
 

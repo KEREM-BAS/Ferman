@@ -2,6 +2,7 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/comments/comment_dialogs.dart';
 import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/commenter_name_dialog.dart';
@@ -127,7 +128,8 @@ Future<void> _opened(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Comment mode (a4-1, a4-1d, a4-2, a4-5) and its name dialog (G46) in light
+/// Comment mode (a4-1, a4-1d, a4-2, a4-5), its name dialog (G46), the summary
+/// (a4-4) and flatten (a4-5b) dialogs in light
 /// and dark × en, tr and ar. Goldens run on Linux CI only.
 Future<void> main() async {
   final screens = <String, Future<void> Function(WidgetTester)>{
@@ -166,6 +168,20 @@ Future<void> main() async {
           .show(visible: false);
       await tester.pumpAndSettle();
     },
+    'comment_summary': (tester) async {
+      await _opened(tester);
+      _container(tester)
+          .read(organizeDialogProvider.notifier)
+          .show(const CommentSummaryDialog());
+      await tester.pumpAndSettle();
+    },
+    'comment_flatten': (tester) async {
+      await _opened(tester);
+      _container(tester)
+          .read(organizeDialogProvider.notifier)
+          .show(const FlattenCommentsDialog(document: _kira));
+      await tester.pumpAndSettle();
+    },
     'comment_name': (tester) async {
       await _opened(tester);
       _container(tester)
@@ -179,6 +195,8 @@ Future<void> main() async {
     'comment_note': 'a4-1d',
     'comment_thread': 'a4-2',
     'comment_hidden': 'a4-5',
+    'comment_summary': 'a4-4',
+    'comment_flatten': 'a4-5b',
   };
   for (final MapEntry(key: screen, value: open) in screens.entries) {
     for (final theme in GoldenTheme.values) {
@@ -198,7 +216,11 @@ Future<void> main() async {
           ).copyWith(commenterName: 'Av. Deniz Aksoy'),
           engine: _engine(),
           // A Dialog hides while tickers are muted.
-          muteTickers: screen != 'comment_name',
+          muteTickers: !const {
+            'comment_name',
+            'comment_summary',
+            'comment_flatten',
+          }.contains(screen),
           open: open,
         );
       }

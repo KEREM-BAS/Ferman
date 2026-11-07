@@ -4461,6 +4461,168 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get commentSummaryCsvFile => 'Yorumlar.csv';
+
+  @override
+  String get summaryTitle => 'Yorum özetini dışa aktar';
+
+  @override
+  String get summaryFormat => 'Biçim';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'Düzen';
+
+  @override
+  String get summaryPageAndComments => 'Sayfa ve yorumlar';
+
+  @override
+  String get summaryPageAndCommentsHint =>
+      'Her sayfanın yanında numaralı işaretler';
+
+  @override
+  String get summaryCommentsOnly => 'Yalnızca yorumlar';
+
+  @override
+  String get summaryCommentsOnlyHint => 'Sayfaya göre gruplanmış liste';
+
+  @override
+  String get summaryPageThenList => 'Önce sayfa, sonra liste';
+
+  @override
+  String get summaryPageThenListHint => 'Sayfanın tamamı, ardından yorumları';
+
+  @override
+  String summaryOpen(String count) {
+    return 'Açık yorumlar ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'Yanıtlar';
+
+  @override
+  String summaryResolved(String count) {
+    return 'Çözülen yorumlar ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'Yorumsuz sayfalar';
+
+  @override
+  String get summarySortBy => 'Sıralama';
+
+  @override
+  String get summarySortPage => 'Sayfa sırası';
+
+  @override
+  String get summaryPaper => 'Kâğıt';
+
+  @override
+  String get summaryPreview => 'Önizleme';
+
+  @override
+  String get summaryExport => 'Özeti dışa aktar…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorum sayfalara düzleştirilsin mi?',
+      one: '1 yorum sayfalara düzleştirilsin mi?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorumun tümü',
+      one: '1 yorum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yalnızca çözülen $formatted yorum',
+      one: 'Yalnızca çözülen 1 yorum',
+      zero: 'Çözülen yorum yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'Yorumlu bir kopya sakla';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'Özgün dosyanın yanına “$name” olarak kaydedilir.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — yorumlu';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — yorumlu $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorumu düzleştir',
+      one: '1 yorumu düzleştir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'Yorumları düzleştir';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return '$name içindeki yorumlar düzleştiriliyor';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return '$name içindeki yorumlar düzleştirildi';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return '$name içindeki yorumlar düzleştirilemedi';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi.';
+
+  @override
   String sidebarSearchComment(String text) {
     return 'Yorum: $text';
   }

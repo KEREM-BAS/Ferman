@@ -7144,6 +7144,216 @@ abstract class AppLocalizations {
   /// **'Couldn’t write {name}'**
   String jobSummaryFailedTitle(String name);
 
+  /// The summary’s suggested file name as a CSV (a4-4).
+  ///
+  /// In en, this message translates to:
+  /// **'Comments.csv'**
+  String get commentSummaryCsvFile;
+
+  /// a4-4: the dialog’s title.
+  ///
+  /// In en, this message translates to:
+  /// **'Export comment summary'**
+  String get summaryTitle;
+
+  /// a4-4: the format control’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get summaryFormat;
+
+  /// a4-4: a format.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get summaryCsv;
+
+  /// a4-4: the layout cards’ group name, for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get summaryLayout;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Page and comments'**
+  String get summaryPageAndComments;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbered markers beside each page'**
+  String get summaryPageAndCommentsHint;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments only'**
+  String get summaryCommentsOnly;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'A list, grouped by page'**
+  String get summaryCommentsOnlyHint;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Page, then list'**
+  String get summaryPageThenList;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'Full page followed by its comments'**
+  String get summaryPageThenListHint;
+
+  /// a4-4: what the summary holds; {count} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Open comments ({count})'**
+  String summaryOpen(String count);
+
+  /// a4-4: what the summary holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get summaryReplies;
+
+  /// a4-4: what the summary holds; {count} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved comments ({count})'**
+  String summaryResolved(String count);
+
+  /// a4-4: what the summary holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages without comments'**
+  String get summaryEmptyPages;
+
+  /// a4-4: the order’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get summarySortBy;
+
+  /// a4-4: an order; the others are the Date and Author columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Page order'**
+  String get summarySortPage;
+
+  /// a4-4: the paper’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper'**
+  String get summaryPaper;
+
+  /// a4-4: the preview’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get summaryPreview;
+
+  /// a4-4: the action; the save panel follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Export summary…'**
+  String get summaryExport;
+
+  /// Task drawer: a summary that failed on a page whose content Ferman cannot copy yet (B202).
+  ///
+  /// In en, this message translates to:
+  /// **'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.'**
+  String get jobSummaryPageUnsupported;
+
+  /// a4-5b: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Flatten 1 comment into the pages?} other{Flatten {formatted} comments into the pages?}}'**
+  String flattenTitle(int count, String formatted);
+
+  /// a4-5b: the consequence; the last sentence is about appearance, not a signature’s validity (G146).
+  ///
+  /// In en, this message translates to:
+  /// **'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.'**
+  String get flattenBody;
+
+  /// a4-5b: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 comment} other{All {formatted} comments}}'**
+  String flattenAll(int count, String formatted);
+
+  /// a4-5b: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No resolved comments} =1{Only the 1 resolved comment} other{Only the {formatted} resolved comments}}'**
+  String flattenResolved(int count, String formatted);
+
+  /// a4-5b: the copy written first (G146).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a copy with comments'**
+  String get flattenKeepCopy;
+
+  /// a4-5b: the copy’s name.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as “{name}” next to the original.'**
+  String flattenKeepCopyHint(String name);
+
+  /// a4-5b: the copy’s file name without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} — with comments'**
+  String flattenCopyName(String stem);
+
+  /// a4-5b: the same, when that name is taken; {number} is 2 or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} — with comments {number}'**
+  String flattenCopyNameNumbered(String stem, int number);
+
+  /// a4-5b: the action.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Flatten 1 comment} other{Flatten {formatted} comments}}'**
+  String flattenAction(int count, String formatted);
+
+  /// History: the flatten step (a4-5b).
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten comments'**
+  String get commentStepFlatten;
+
+  /// Task drawer: flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Flattening comments in {name}'**
+  String jobFlatteningTitle(String name);
+
+  /// Task drawer: flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Flattened comments in {name}'**
+  String jobFlattenedTitle(String name);
+
+  /// Task drawer: flatten; nothing in the document changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t flatten comments in {name}'**
+  String jobFlattenFailedTitle(String name);
+
+  /// Task drawer: a flatten that failed on a page whose content Ferman cannot change yet (B202).
+  ///
+  /// In en, this message translates to:
+  /// **'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.'**
+  String get jobFlattenPageUnsupported;
+
   /// Search results: a match in a comment (B128).
   ///
   /// In en, this message translates to:

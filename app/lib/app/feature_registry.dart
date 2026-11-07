@@ -148,9 +148,6 @@ enum Feature {
 
   // Comments, forms and signatures.
 
-  /// Flatten comments: the Comments panel's More › Flatten (a4-5b).
-  flattenComments('B198'),
-
   /// Measure and calibrate: Comment › Measure and Tools › Measure.
   measure('B051'),
 

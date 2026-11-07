@@ -277,9 +277,6 @@ class CommentsShown extends _$CommentsShown {
   }
 }
 
-/// A file name a summary is written to as a CSV.
-final RegExp _csvName = RegExp(r'\.csv$', caseSensitive: false);
-
 /// What the comment tools do, each one step of the history (a4-1, a4-2), as
 /// `commentCommandsProvider`. A signed document asks first (a3-16a).
 @Riverpod(keepAlive: true)
@@ -525,40 +522,41 @@ class CommentCommands extends _$CommentCommands {
     );
   }
 
-  /// The Comments panel's summary entry: asks where to write, then writes the
-  /// open comments and their replies as a job, a CSV by the name's extension,
-  /// otherwise a PDF of a4-4's first layout.
-  // shortcut: the defaults of a4-4, without its dialog; the entry opens that
-  // dialog once it lands (B199).
-  Future<void> exportSummary() async {
+  /// a4-4's Export summary: asks where to write, then writes the comments of
+  /// the open document as [format] and the choices say, as a job.
+  Future<void> exportSummary(
+    SummaryFormat format, {
+    required bool open,
+    required bool resolved,
+    required bool replies,
+    required bool emptyPages,
+    required SummarySort sort,
+    required PaperSize paper,
+  }) async {
     final document = ref.read(openDocumentProvider);
-    final tab = ref.read(shellDocumentsProvider).active;
-    if (document == null || tab == null) return;
+    if (document == null) return;
     final l10n = _l10n;
     final output = await ref
         .read(filePickerServiceProvider)
-        .saveFile(suggestedName: l10n.commentSummaryFile);
+        .saveFile(
+          suggestedName: format == SummaryFormat.csv
+              ? l10n.commentSummaryCsvFile
+              : l10n.commentSummaryFile,
+        );
     if (output == null || !ref.mounted) return;
-    final region = ref.read(regionProvider);
-    final format = RegionFormat.forRegion(region.region);
-    final (width, height) = switch (region.paperSize) {
-      PaperSize.a4 => (595.28, 841.89),
-      PaperSize.letter => (612.0, 792.0),
-    };
+    final dates = RegionFormat.forRegion(ref.read(regionProvider).region);
     await ref
         .read(backgroundJobsProvider.notifier)
         .commentSummary(
           document.id,
           output: output,
-          format: _csvName.hasMatch(output)
-              ? SummaryFormat.csv
-              : SummaryFormat.pageAndComments,
+          format: format,
           options: SummaryOptions(
-            open: true,
-            resolved: false,
-            replies: true,
-            emptyPages: false,
-            sort: SummarySort.page,
+            open: open,
+            resolved: resolved,
+            replies: replies,
+            emptyPages: emptyPages,
+            sort: sort,
             pageLabel: l10n.sidebarPage('{n}'),
             columns: [
               l10n.commentColumnPage,
@@ -576,9 +574,9 @@ class CommentCommands extends _$CommentCommands {
             openLabel: l10n.commentStatusOpen,
             resolvedLabel: l10n.commentStatusResolved,
             noComments: l10n.commentsEmptyTitle,
-            datePattern: format.numericDateTimePattern,
-            paperWidth: width,
-            paperHeight: height,
+            datePattern: dates.numericDateTimePattern,
+            paperWidth: paper.widthPoints,
+            paperHeight: paper.heightPoints,
           ),
         );
   }

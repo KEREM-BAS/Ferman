@@ -6060,6 +6060,222 @@
       }
     }
   },
+  "commentSummaryCsvFile": "Comments.csv",
+  "@commentSummaryCsvFile": {
+    "description": "The summary’s suggested file name as a CSV (a4-4)."
+  },
+  "summaryTitle": "Export comment summary",
+  "@summaryTitle": {
+    "description": "a4-4: the dialog’s title."
+  },
+  "summaryFormat": "Format",
+  "@summaryFormat": {
+    "description": "a4-4: the format control’s label."
+  },
+  "summaryCsv": "CSV",
+  "@summaryCsv": {
+    "description": "a4-4: a format."
+  },
+  "summaryLayout": "Layout",
+  "@summaryLayout": {
+    "description": "a4-4: the layout cards’ group name, for screen readers."
+  },
+  "summaryPageAndComments": "Page and comments",
+  "@summaryPageAndComments": {
+    "description": "a4-4: a layout."
+  },
+  "summaryPageAndCommentsHint": "Numbered markers beside each page",
+  "@summaryPageAndCommentsHint": {
+    "description": "a4-4: the layout’s line."
+  },
+  "summaryCommentsOnly": "Comments only",
+  "@summaryCommentsOnly": {
+    "description": "a4-4: a layout."
+  },
+  "summaryCommentsOnlyHint": "A list, grouped by page",
+  "@summaryCommentsOnlyHint": {
+    "description": "a4-4: the layout’s line."
+  },
+  "summaryPageThenList": "Page, then list",
+  "@summaryPageThenList": {
+    "description": "a4-4: a layout."
+  },
+  "summaryPageThenListHint": "Full page followed by its comments",
+  "@summaryPageThenListHint": {
+    "description": "a4-4: the layout’s line."
+  },
+  "summaryOpen": "Open comments ({count})",
+  "@summaryOpen": {
+    "description": "a4-4: what the summary holds; {count} is formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryReplies": "Replies",
+  "@summaryReplies": {
+    "description": "a4-4: what the summary holds."
+  },
+  "summaryResolved": "Resolved comments ({count})",
+  "@summaryResolved": {
+    "description": "a4-4: what the summary holds; {count} is formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryEmptyPages": "Pages without comments",
+  "@summaryEmptyPages": {
+    "description": "a4-4: what the summary holds."
+  },
+  "summarySortBy": "Sort by",
+  "@summarySortBy": {
+    "description": "a4-4: the order’s label."
+  },
+  "summarySortPage": "Page order",
+  "@summarySortPage": {
+    "description": "a4-4: an order; the others are the Date and Author columns."
+  },
+  "summaryPaper": "Paper",
+  "@summaryPaper": {
+    "description": "a4-4: the paper’s label."
+  },
+  "summaryPreview": "Preview",
+  "@summaryPreview": {
+    "description": "a4-4: the preview’s label."
+  },
+  "summaryExport": "Export summary…",
+  "@summaryExport": {
+    "description": "a4-4: the action; the save panel follows."
+  },
+  "jobSummaryPageUnsupported": "A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.",
+  "@jobSummaryPageUnsupported": {
+    "description": "Task drawer: a summary that failed on a page whose content Ferman cannot copy yet (B202)."
+  },
+  "flattenTitle": "{count, plural, =1{Flatten 1 comment into the pages?} other{Flatten {formatted} comments into the pages?}}",
+  "@flattenTitle": {
+    "description": "a4-5b: the title.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "flattenBody": "They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.",
+  "@flattenBody": {
+    "description": "a4-5b: the consequence; the last sentence is about appearance, not a signature’s validity (G146)."
+  },
+  "flattenAll": "{count, plural, =1{1 comment} other{All {formatted} comments}}",
+  "@flattenAll": {
+    "description": "a4-5b: a choice.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "flattenResolved": "{count, plural, =0{No resolved comments} =1{Only the 1 resolved comment} other{Only the {formatted} resolved comments}}",
+  "@flattenResolved": {
+    "description": "a4-5b: a choice.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "flattenKeepCopy": "Keep a copy with comments",
+  "@flattenKeepCopy": {
+    "description": "a4-5b: the copy written first (G146)."
+  },
+  "flattenKeepCopyHint": "Saved as “{name}” next to the original.",
+  "@flattenKeepCopyHint": {
+    "description": "a4-5b: the copy’s name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "flattenCopyName": "{stem} — with comments",
+  "@flattenCopyName": {
+    "description": "a4-5b: the copy’s file name without its extension.",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      }
+    }
+  },
+  "flattenCopyNameNumbered": "{stem} — with comments {number}",
+  "@flattenCopyNameNumbered": {
+    "description": "a4-5b: the same, when that name is taken; {number} is 2 or more.",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "flattenAction": "{count, plural, =1{Flatten 1 comment} other{Flatten {formatted} comments}}",
+  "@flattenAction": {
+    "description": "a4-5b: the action.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "commentStepFlatten": "Flatten comments",
+  "@commentStepFlatten": {
+    "description": "History: the flatten step (a4-5b)."
+  },
+  "jobFlatteningTitle": "Flattening comments in {name}",
+  "@jobFlatteningTitle": {
+    "description": "Task drawer: flatten.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobFlattenedTitle": "Flattened comments in {name}",
+  "@jobFlattenedTitle": {
+    "description": "Task drawer: flatten.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobFlattenFailedTitle": "Couldn’t flatten comments in {name}",
+  "@jobFlattenFailedTitle": {
+    "description": "Task drawer: flatten; nothing in the document changed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobFlattenPageUnsupported": "A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.",
+  "@jobFlattenPageUnsupported": {
+    "description": "Task drawer: a flatten that failed on a page whose content Ferman cannot change yet (B202)."
+  },
   "sidebarSearchComment": "Comment: {text}",
   "@sidebarSearchComment": {
     "description": "Search results: a match in a comment (B128).",

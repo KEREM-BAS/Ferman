@@ -43,6 +43,9 @@ enum BackgroundJobKind {
 
   /// A comment summary written as a new file (a4-4).
   commentSummary,
+
+  /// Comments drawn into the pages, after an optional copy (a4-5b).
+  flattenComments,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -105,6 +108,7 @@ final class BackgroundJob {
     BackgroundJobKind.combine => IconName.merge,
     BackgroundJobKind.create => IconName.filePlus2,
     BackgroundJobKind.commentSummary => IconName.messageSquare,
+    BackgroundJobKind.flattenComments => IconName.layers,
   };
 
   /// The row's title in [state].
@@ -166,6 +170,15 @@ final class BackgroundJob {
         l10n.jobSummaryDoneTitle(name),
       (BackgroundJobKind.commentSummary, TaskState.error) =>
         l10n.jobSummaryFailedTitle(name),
+      (
+        BackgroundJobKind.flattenComments,
+        TaskState.running || TaskState.paused,
+      ) =>
+        l10n.jobFlatteningTitle(name),
+      (BackgroundJobKind.flattenComments, TaskState.done) =>
+        l10n.jobFlattenedTitle(name),
+      (BackgroundJobKind.flattenComments, TaskState.error) =>
+        l10n.jobFlattenFailedTitle(name),
     };
   }
 
@@ -176,6 +189,13 @@ final class BackgroundJob {
       return switch (error.kind) {
         EngineErrorKind.diskFull => l10n.jobFailedDiskFull,
         EngineErrorKind.permissionDenied => l10n.errorFilePermissionDenied,
+        // B202: a page whose content leaks a state past a `Q` too many.
+        EngineErrorKind.unsupported
+            when kind == BackgroundJobKind.commentSummary =>
+          l10n.jobSummaryPageUnsupported,
+        EngineErrorKind.unsupported
+            when kind == BackgroundJobKind.flattenComments =>
+          l10n.jobFlattenPageUnsupported,
         _ => engineMessage(l10n, error, bidiIsolate(name)),
       };
     }
@@ -423,16 +443,18 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
         };
 
   /// Reads the file [name] through [updates] as a job of [kind], then commits
-  /// the change it prepared to [document] as one step.
+  /// the change it prepared to [document] as one step; [staging] holds a file
+  /// the job writes on the way.
   void pagesFromFile(
     BackgroundJobKind kind,
     int document,
     String name,
-    Stream<JobUpdate> updates,
-  ) => _start(
+    Stream<JobUpdate> updates, {
+    String? staging,
+  }) => _start(
     kind,
     name,
-    null,
+    staging,
     updates,
     then: (done) => ref
         .read(documentEditorProvider.notifier)
@@ -514,6 +536,38 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
             output: output,
             staging: staging,
           ),
+    );
+  }
+
+  /// Draws the comments [handles] of [document], named [name], into its pages
+  /// as a job (a4-5b), then commits that as the step [step]; with [copy] it
+  /// first writes the document as it stands to that new file, and if that
+  /// fails nothing changes (G146). Ask for a signed document's confirmation
+  /// first (`afterSigned`).
+  Future<void> flattenComments(
+    int document,
+    String name,
+    List<int> handles, {
+    required String step,
+    String? copy,
+  }) async {
+    final staging = copy == null
+        ? null
+        : await ref.read(fileAccessProvider).staging(copy);
+    pagesFromFile(
+      BackgroundJobKind.flattenComments,
+      document,
+      name,
+      ref
+          .read(engineServiceProvider)
+          .flattenAnnotationsJob(
+            document,
+            handles,
+            name: step,
+            copy: copy,
+            staging: staging,
+          ),
+      staging: staging,
     );
   }
 

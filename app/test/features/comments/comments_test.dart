@@ -1,6 +1,8 @@
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/comments/comment_dialogs.dart';
+import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_overlay.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_style_bar.dart';
@@ -824,14 +826,145 @@ void main() {
     expect(find.byType(Toast), findsOneWidget);
   });
 
-  testWidgets('a summary named .CSV is a CSV', (tester) async {
+  Future<void> more(WidgetTester tester, String item) async {
+    await tester.tap(find.bySemanticsLabel(RegExp('^More')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(item));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Export summary asks for the format, then where to write', (
+    tester,
+  ) async {
     final engine = _engine();
     final container = await _open(tester, engine);
-    (container.read(
-      filePickerServiceProvider,
-    ) as FakeFilePickerService).saveTo = '/docs/Yorumlar.CSV';
-    await container.read(commentCommandsProvider.notifier).exportSummary();
+    final picker =
+        container.read(filePickerServiceProvider) as FakeFilePickerService
+          ..saveTo = '/docs/Comments.csv';
+    await more(tester, 'Export summary…');
+    expect(find.byType(CommentSummaryDialog), findsOneWidget);
+    expect(find.text('Open comments (2)'), findsOneWidget);
+    expect(find.text('Resolved comments (1)'), findsOneWidget);
+    // The preview lists the first page's open comment, not the resolved one.
+    expect(
+      find.descendant(
+        of: find.byType(CommentSummaryDialog),
+        matching: find.textContaining('TBK m. 342', findRichText: true),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('CSV'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Export summary…').last);
     await tester.pump();
-    expect(engine.assembleJobs.last, 'summary csv /docs/Yorumlar.CSV');
+    expect(find.byType(CommentSummaryDialog), findsNothing);
+    expect(picker.saves.last, 'Comments.csv');
+    expect(engine.assembleJobs.last, 'summary csv /docs/Comments.csv');
+  });
+
+  test('a summary orders by page, date or author, the file breaking ties', () {
+    final early = DateTime(2026);
+    final late = DateTime(2026, 2);
+    final threads = commentThreads(const [
+      _rectangle,
+      _note,
+      _reply,
+      _resolved,
+    ]);
+    int? pageOf(int handle) => handle - 100;
+    List<int> order(SummarySort sort, {bool resolved = true}) => [
+      for (final (_, thread) in summaryThreads(
+        threads,
+        pageOf,
+        open: true,
+        resolved: resolved,
+        sort: sort,
+      ))
+        thread.top.handle,
+    ];
+    expect(order(SummarySort.page), [1, 4, 2]);
+    expect(order(SummarySort.page, resolved: false), [1, 2]);
+    // Mert Kaya's two after Av. Deniz Aksoy's, each author by page.
+    expect(order(SummarySort.author), [1, 4, 2]);
+    final dated = commentThreads([
+      AnnotationInfo(
+        handle: 1,
+        page: 100,
+        kind: AnnotationKind.note,
+        rect: Rect.zero,
+        thread: 1,
+        created: late,
+      ),
+      AnnotationInfo(
+        handle: 2,
+        page: 101,
+        kind: AnnotationKind.note,
+        rect: Rect.zero,
+        thread: 2,
+        created: early,
+      ),
+    ]);
+    expect(
+      [
+        for (final (_, thread) in summaryThreads(
+          dated,
+          pageOf,
+          open: true,
+          resolved: true,
+          sort: SummarySort.date,
+        ))
+          thread.top.handle,
+      ],
+      [2, 1],
+    );
+  });
+
+  testWidgets('Flatten draws every comment in, a copy kept beside first', (
+    tester,
+  ) async {
+    final engine = _engine();
+    await _open(tester, engine);
+    await more(tester, 'Flatten…');
+    expect(find.text('Flatten 3 comments into the pages?'), findsOneWidget);
+    expect(
+      find.text(
+        'Saved as “\u2068kira — with comments.pdf\u2069” next to '
+        'the original.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Flatten 3 comments'));
+    await tester.pump();
+    expect(find.byType(FlattenCommentsDialog), findsNothing);
+    expect(
+      engine.assembleJobs.last,
+      'flatten 3 /docs/kira — with comments.pdf',
+    );
+  });
+
+  testWidgets('Flatten can take only the resolved ones, without a copy', (
+    tester,
+  ) async {
+    final engine = _engine();
+    await _open(tester, engine);
+    await more(tester, 'Flatten…');
+    await tester.tap(find.text('Only the 1 resolved comment'));
+    await tester.tap(find.text('Keep a copy with comments'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Flatten 1 comment'));
+    await tester.pump();
+    expect(engine.assembleJobs.last, 'flatten 1 null');
+  });
+
+  testWidgets('Flatten waits for a document with comments', (tester) async {
+    final engine = _engine(annotations: const []);
+    await _open(tester, engine);
+    await tester.tap(find.bySemanticsLabel(RegExp('^More')));
+    await tester.pumpAndSettle();
+    final flatten = tester
+        .widget<Menu>(find.byType(Menu))
+        .items
+        .firstWhere((item) => item.id == 'flatten');
+    expect(flatten.disabled, isTrue);
   });
 }

@@ -521,7 +521,7 @@ final class CommentCommandsProvider
   }
 }
 
-String _$commentCommandsHash() => r'42568e916ffdddcefb460e450e431ad1e889b723';
+String _$commentCommandsHash() => r'56c0b1f428c1a3b4d8b28df5f45eb9159b7adb13';
 
 /// What the comment tools do, each one step of the history (a4-1, a4-2), as
 /// `commentCommandsProvider`. A signed document asks first (a3-16a).

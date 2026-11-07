@@ -4485,6 +4485,167 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get commentSummaryCsvFile => 'Comments.csv';
+
+  @override
+  String get summaryTitle => 'Export comment summary';
+
+  @override
+  String get summaryFormat => 'Format';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'Layout';
+
+  @override
+  String get summaryPageAndComments => 'Page and comments';
+
+  @override
+  String get summaryPageAndCommentsHint => 'Numbered markers beside each page';
+
+  @override
+  String get summaryCommentsOnly => 'Comments only';
+
+  @override
+  String get summaryCommentsOnlyHint => 'A list, grouped by page';
+
+  @override
+  String get summaryPageThenList => 'Page, then list';
+
+  @override
+  String get summaryPageThenListHint => 'Full page followed by its comments';
+
+  @override
+  String summaryOpen(String count) {
+    return 'Open comments ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'Replies';
+
+  @override
+  String summaryResolved(String count) {
+    return 'Resolved comments ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'Pages without comments';
+
+  @override
+  String get summarySortBy => 'Sort by';
+
+  @override
+  String get summarySortPage => 'Page order';
+
+  @override
+  String get summaryPaper => 'Paper';
+
+  @override
+  String get summaryPreview => 'Preview';
+
+  @override
+  String get summaryExport => 'Export summary…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Flatten $formatted comments into the pages?',
+      one: 'Flatten 1 comment into the pages?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $formatted comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Only the $formatted resolved comments',
+      one: 'Only the 1 resolved comment',
+      zero: 'No resolved comments',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'Keep a copy with comments';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'Saved as “$name” next to the original.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — with comments';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — with comments $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Flatten $formatted comments',
+      one: 'Flatten 1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'Flatten comments';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return 'Flattening comments in $name';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return 'Flattened comments in $name';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return 'Couldn’t flatten comments in $name';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.';
+
+  @override
   String sidebarSearchComment(String text) {
     return 'Comment: $text';
   }

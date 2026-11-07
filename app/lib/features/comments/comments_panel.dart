@@ -4,9 +4,11 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_dialogs.dart';
 import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_time.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
@@ -214,6 +216,7 @@ class _MoreButtonState extends ConsumerState<_MoreButton> {
     final l10n = AppLocalizations.of(context);
     final shown = ref.watch(commentsShownProvider).visible;
     final any = ref.watch(documentThreadsProvider).isNotEmpty;
+    final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
     final switchable = ref.watch(
       openDocumentProvider.select((d) => d?.layersSwitchable ?? false),
     );
@@ -242,8 +245,8 @@ class _MoreButtonState extends ConsumerState<_MoreButton> {
             id: 'flatten',
             label: l10n.commentsFlatten,
             icon: IconName.layers,
-            disabled: true,
-            disabledReason: Feature.flattenComments.disabledReason(context),
+            disabled: !any || refusal != null,
+            disabledReason: any ? refusal : l10n.commentsEmptyTitle,
           ),
           MenuItem(
             id: 'hide',
@@ -260,9 +263,15 @@ class _MoreButtonState extends ConsumerState<_MoreButton> {
           _close();
           switch (item.id) {
             case 'summary':
-              unawaited(
-                ref.read(commentCommandsProvider.notifier).exportSummary(),
-              );
+              ref
+                  .read(organizeDialogProvider.notifier)
+                  .show(const CommentSummaryDialog());
+            case 'flatten':
+              if (ref.read(openDocumentProvider) case final document?) {
+                ref
+                    .read(organizeDialogProvider.notifier)
+                    .show(FlattenCommentsDialog(document: document));
+              }
             case 'hide':
               unawaited(
                 ref.read(commentsShownProvider.notifier).show(visible: !shown),

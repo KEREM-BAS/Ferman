@@ -4638,6 +4638,182 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get commentSummaryCsvFile => 'التعليقات.csv';
+
+  @override
+  String get summaryTitle => 'تصدير ملخص التعليقات';
+
+  @override
+  String get summaryFormat => 'التنسيق';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'التخطيط';
+
+  @override
+  String get summaryPageAndComments => 'الصفحة والتعليقات';
+
+  @override
+  String get summaryPageAndCommentsHint => 'علامات مرقمة بجانب كل صفحة';
+
+  @override
+  String get summaryCommentsOnly => 'التعليقات فقط';
+
+  @override
+  String get summaryCommentsOnlyHint => 'قائمة مجمّعة حسب الصفحة';
+
+  @override
+  String get summaryPageThenList => 'الصفحة ثم القائمة';
+
+  @override
+  String get summaryPageThenListHint => 'الصفحة كاملة تليها تعليقاتها';
+
+  @override
+  String summaryOpen(String count) {
+    return 'التعليقات المفتوحة ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'الردود';
+
+  @override
+  String summaryResolved(String count) {
+    return 'التعليقات المحلولة ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'الصفحات التي بلا تعليقات';
+
+  @override
+  String get summarySortBy => 'الترتيب حسب';
+
+  @override
+  String get summarySortPage => 'ترتيب الصفحات';
+
+  @override
+  String get summaryPaper => 'الورق';
+
+  @override
+  String get summaryPreview => 'معاينة';
+
+  @override
+  String get summaryExport => 'تصدير الملخص…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هل تريد تسطيح $formatted تعليق في الصفحات؟',
+      many: 'هل تريد تسطيح $formatted تعليقًا في الصفحات؟',
+      few: 'هل تريد تسطيح $formatted تعليقات في الصفحات؟',
+      two: 'هل تريد تسطيح تعليقين في الصفحات؟',
+      one: 'هل تريد تسطيح تعليق واحد في الصفحات؟',
+      zero: 'هل تريد تسطيح التعليقات في الصفحات؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل التعليقات الـ$formatted',
+      many: 'كل التعليقات الـ$formatted',
+      few: 'كل التعليقات الـ$formatted',
+      two: 'التعليقان كلاهما',
+      one: 'التعليق الوحيد',
+      zero: 'كل التعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'التعليقات المحلولة الـ$formatted فقط',
+      many: 'التعليقات المحلولة الـ$formatted فقط',
+      few: 'التعليقات المحلولة الـ$formatted فقط',
+      two: 'التعليقان المحلولان فقط',
+      one: 'التعليق المحلول فقط',
+      zero: 'لا توجد تعليقات محلولة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'الاحتفاظ بنسخة مع التعليقات';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'تُحفظ باسم «$name» بجانب الأصل.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — مع التعليقات';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — مع التعليقات $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تسطيح $formatted تعليق',
+      many: 'تسطيح $formatted تعليقًا',
+      few: 'تسطيح $formatted تعليقات',
+      two: 'تسطيح تعليقين',
+      one: 'تسطيح تعليق واحد',
+      zero: 'تسطيح التعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'تسطيح التعليقات';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return 'جارٍ تسطيح التعليقات في $name';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return 'سُطّحت التعليقات في $name';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return 'تعذر تسطيح التعليقات في $name';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء.';
+
+  @override
   String sidebarSearchComment(String text) {
     return 'تعليق: $text';
   }
