@@ -52,6 +52,8 @@
 //!   back after a crash ([`list`](recovery::list), [`restore`](recovery::restore)).
 //! - `rewrite` (private): the full rewrite, [`RevisionStore::full_rewrite`](revision::RevisionStore::full_rewrite),
 //!   for Optimize and clean and a repaired document's copy (§7.3).
+//! - [`forms`]: form fields in the revisions, with limits, and the literal `AF*` arguments (M4 plan,
+//!   W3).
 //! - `platform` (private): the few file-system calls the standard library lacks
 //!   (`ReplaceFileW`, `fcopyfile`, free space, link counts), the crate's only unsafe code
 //!   (ADR 0010).
@@ -78,6 +80,7 @@ mod content;
 pub mod document;
 pub mod filters;
 mod flatten;
+pub mod forms;
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzzing;

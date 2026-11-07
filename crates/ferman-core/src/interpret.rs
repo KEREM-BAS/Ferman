@@ -1037,7 +1037,7 @@ fn matrix(operands: &[Object]) -> Option<Matrix> {
 /// revision or the time per page.
 ///
 /// [`Limits::max_usecmap_depth`]: crate::limits::Limits::max_usecmap_depth
-fn font_resource(
+pub(crate) fn font_resource(
     scope: &Scope<'_>,
     dict: &Dictionary,
     key: u64,

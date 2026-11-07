@@ -434,6 +434,33 @@ abstract interface class EngineService {
     required String name,
   });
 
+  /// The form of [document] as its committed revisions leave it, in tab order
+  /// (a5-1). Reading generates nothing, so opening changes nothing.
+  Future<FormInfo> formFields(int document);
+
+  /// Sets field [handle] to [values] as the one step [name]: text, export
+  /// values or a button's on-state, none to empty it. Call it on blur, on Tab
+  /// or at the end of a drag, never per keystroke (M4 decision 16).
+  /// [missing] answers Ask each time; null follows the font settings. Throws
+  /// an [EngineException] as [addAnnotation] does, with
+  /// [EngineErrorKind.invalidInput] for a read-only field or a value it cannot
+  /// hold; ask [opGate] with [DocumentOp.fill] and the field's name first.
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  });
+
+  /// Empties every field that holds a value and can change, as one step.
+  /// Signatures stay.
+  Future<RevisionInfo> clearForm(int document, String name);
+
+  /// Finish (G47): every field becomes page content as it looks, as one step;
+  /// a digitally signed field stays. It asks what editing asks.
+  Future<RevisionInfo> finishForm(int document, String name);
+
   /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
   /// quarter turns, clockwise when positive, as the one step [name] of its
   /// history. Throws an [EngineException] with [EngineErrorKind.notEditable]
@@ -921,6 +948,26 @@ class UnavailableEngineService implements EngineService {
     int page,
     int block,
   ) async => throw error;
+
+  @override
+  Future<FormInfo> formFields(int document) async => throw error;
+
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> clearForm(int document, String name) async =>
+      throw error;
+
+  @override
+  Future<RevisionInfo> finishForm(int document, String name) async =>
+      throw error;
 
   @override
   Future<AnnotationList> annotations(int document) async => throw error;

@@ -13,7 +13,7 @@ use std::sync::{OnceLock, mpsc};
 use ferman_api::facade::{
     AnnotationChange, AnnotationInfo, AnnotationKind, DocumentId, Engine, EngineConfig, ErrorKind,
     FontSettings, NewAnnotation, OpGate, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary,
-    SearchEvent, SearchOptions, SearchSink, block_on, compare, device_region,
+    SearchEvent, SearchOptions, SearchPlaces, SearchSink, block_on, compare, device_region,
 };
 use ferman_core::DocumentOp;
 
@@ -714,8 +714,10 @@ fn a_mark_quotes_its_text_and_a_comment_is_found() {
                     ignore_accents: true,
                     ..SearchOptions::default()
                 },
-                false,
-                comments,
+                SearchPlaces {
+                    comments,
+                    ..SearchPlaces::default()
+                },
                 Box::new(Found(events)),
             )
             .unwrap();

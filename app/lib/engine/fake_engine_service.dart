@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_service.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 
 /// An [EngineService] for widget tests and goldens: no native library.
 class FakeEngineService implements EngineService {
@@ -1348,6 +1349,125 @@ class FakeEngineService implements EngineService {
     label: label,
     handle: ++_lastPageHandle,
   );
+
+  /// Each document's fields by the history's place they were left at; undo
+  /// and redo walk them with the steps.
+  final Map<int, Map<int, List<FieldInfo>>> _fieldVersions = {};
+
+  /// The fields a test gives a document before any step.
+  final Map<int, List<FieldInfo>> initialFields = {};
+
+  List<FieldInfo> _fieldsNow(int document) {
+    final versions = _fieldVersions[document] ?? const {};
+    for (var at = _history(document).current; at > 0; at--) {
+      final version = versions[at];
+      if (version != null) return version;
+    }
+    return initialFields[document] ?? const [];
+  }
+
+  /// One step named [name] that leaves [after], on [pages] by handle.
+  RevisionInfo _fieldStep(
+    int document,
+    String name,
+    List<int> pages,
+    List<FieldInfo> after,
+  ) {
+    final info = _pagesChanged(document, name, pages, (all) => [...all]);
+    final versions = _fieldVersions[document] ??= {};
+    final at = _history(document).current;
+    versions
+      ..removeWhere((step, _) => step >= at)
+      ..[at] = after;
+    return info;
+  }
+
+  @override
+  Future<FormInfo> formFields(int document) async {
+    final fields = _fieldsNow(document);
+    final required = fields.where((f) => f.required && !f.readOnly);
+    return FormInfo(
+      fields: fields,
+      required: required.length,
+      requiredLeft: required.where((f) => !f.filled).length,
+      problems: fields.where((f) => f.problem != null).length,
+    );
+  }
+
+  /// Sets a value as the engine would, without its validation: a read-only,
+  /// push-button or signature field is refused.
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) async {
+    final fields = _fieldsNow(document);
+    final at = fields.indexWhere((field) => field.handle == handle);
+    final field = at < 0 ? null : fields[at];
+    if (field == null ||
+        field.readOnly ||
+        field.kind == FieldKind.push ||
+        field.kind == FieldKind.signature) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    if (listEquals(field.values, values)) {
+      return FieldCommit(
+        revision: RevisionInfo(current: _history(document).current),
+      );
+    }
+    final revision = _fieldStep(
+      document,
+      name,
+      {for (final widget in field.widgets) widget.page}.toList(),
+      [...fields]..[at] = field.withValues(values),
+    );
+    return FieldCommit(revision: revision);
+  }
+
+  @override
+  Future<RevisionInfo> clearForm(int document, String name) async {
+    final fields = _fieldsNow(document);
+    return _fieldStep(
+      document,
+      name,
+      [
+        for (final field in fields)
+          for (final widget in field.widgets) widget.page,
+      ],
+      [
+        for (final field in fields)
+          if (field.readOnly ||
+              field.kind == FieldKind.signature ||
+              field.kind == FieldKind.push)
+            field
+          else
+            field.withValues(const []),
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> finishForm(int document, String name) async {
+    final fields = _fieldsNow(document);
+    return _fieldStep(
+      document,
+      name,
+      [
+        for (final field in fields)
+          for (final widget in field.widgets) widget.page,
+      ],
+      [
+        for (final field in fields)
+          if (field.signed) field,
+      ],
+    );
+  }
 
   /// Each document's annotations by the history's place they were left at;
   /// undo and redo walk them with the steps.

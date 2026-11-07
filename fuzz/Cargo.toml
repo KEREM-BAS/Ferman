@@ -207,6 +207,13 @@ doc = false
 bench = false
 
 [[bin]]
+name = "form_fields"
+path = "fuzz_targets/form_fields.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "image_layer"
 path = "fuzz_targets/image_layer.rs"
 test = false

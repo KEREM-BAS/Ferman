@@ -778,9 +778,11 @@ async fn parse(
                 // The first page's text, for the Scanned badge and the first search; a page
                 // that cannot be read says nothing.
                 let first = (model.page_count() > 0)
-                    .then(|| ferman_text::extract::page_layout(&model, 0).ok())
+                    .then(|| {
+                        ferman_text::text_page(&model, 0, &ferman_text::EditContext::default()).ok()
+                    })
                     .flatten()
-                    .map(Arc::new);
+                    .map(|page| Arc::new(super::search::in_reading_order(&page)));
                 Ok((source, model, first))
             });
             // The caller may have stopped waiting; then nobody needs the result.

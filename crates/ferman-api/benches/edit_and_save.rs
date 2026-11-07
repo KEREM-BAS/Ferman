@@ -15,6 +15,9 @@
 //!
 //! - **Annotation commits:** adding a square and moving it on a page of `long-500`, each one step
 //!   (M4 decision 16). No budget of its own yet: ROADMAP §8 asks for the measurement.
+//! - **Form commits:** a text field's value set on a page of `long-500` as the app sends it on blur
+//!   or Tab, one step (decision 16), once in the field's own font and once in bundled Plex. The
+//!   field is added here by an incremental update of the copy. No budget of its own yet.
 //!
 //! With `FERMAN_BENCH_GUARD=1` (CI) it then times the slowest of 20 edits of each file and one
 //! cold save and fails above the budgets: a guard against a gross regression, since a CI runner
@@ -38,8 +41,8 @@ use std::time::{Duration, Instant};
 
 use criterion::Criterion;
 use ferman_api::facade::{
-    AnnotationChange, AnnotationKind, BlockInfo, DocumentId, Engine, EngineConfig, Item,
-    NewAnnotation, PageSize, PdfiumLibrary, Priority, TilePosition, TileRequest, ViewEvent,
+    AnnotationChange, AnnotationKind, BlockInfo, DocumentId, Engine, EngineConfig, FontSettings,
+    Item, NewAnnotation, PageSize, PdfiumLibrary, Priority, TilePosition, TileRequest, ViewEvent,
     ViewSink, Wanted, ZoomBucket, block_on,
 };
 
@@ -119,6 +122,94 @@ fn padded(long: &[u8]) -> Vec<u8> {
         .as_bytes(),
     );
     out
+}
+
+/// `long` with a text field on page 251 (index 250) by an incremental update: the page, the catalog
+/// with its form, the field and its font.
+fn with_form(long: &[u8], path: &Path) -> Vec<u8> {
+    let document = ferman_core::open(
+        &ferman_core::Source::from_bytes(long.to_vec().into()),
+        &ferman_core::OpenOptions::default(),
+    )
+    .unwrap();
+    let store = ferman_core::revision::RevisionStore::new(&document);
+    let page = store.page_refs(&document, &[250]).unwrap()[0].handle() >> 16;
+    let text = String::from_utf8_lossy(long).into_owned();
+    let tail = &text[text.len() - 512..];
+    let trailer = tail.rsplit_once("trailer").unwrap().1;
+    let (dict, rest) = trailer.split_once("startxref").unwrap();
+    let previous: usize = rest.split_whitespace().next().unwrap().parse().unwrap();
+    let (dict, size) = dict.trim().rsplit_once("/Size ").unwrap();
+    let size: usize = size.trim_end_matches(">>").parse().unwrap();
+    let root: usize = dict
+        .split_once("/Root ")
+        .unwrap()
+        .1
+        .split_whitespace()
+        .next()
+        .unwrap()
+        .parse()
+        .unwrap();
+    let body = |number: u64| -> String {
+        let start = text.find(&format!("\n{number} 0 obj\n")).unwrap() + 1;
+        let open = text[start..].find("<<").unwrap() + start;
+        let end = text[open..].find("\nendobj").unwrap() + open;
+        text[open..end].trim_end().trim_end_matches(">>").to_owned()
+    };
+    let (field, font) = (size, size + 1);
+    let objects = [
+        (page, format!("{}/Annots[{field} 0 R]>>", body(page))),
+        (
+            root as u64,
+            format!(
+                "{}/AcroForm<</Fields[{field} 0 R]/DR<</Font<</Helv {font} 0 R>>>>/DA(/Helv 0 Tf 0 g)>>>>",
+                body(root as u64)
+            ),
+        ),
+        (
+            field as u64,
+            format!(
+                "<</Type/Annot/Subtype/Widget/FT/Tx/T(ad)/Rect[72 700 300 720]/F 4/P {page} 0 R/DA(/Helv 10 Tf 0 g)>>"
+            ),
+        ),
+        (
+            font as u64,
+            "<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>".to_owned(),
+        ),
+    ];
+    let mut out = long.to_vec();
+    let mut xref = String::from("xref\n");
+    for (number, object) in objects {
+        writeln!(xref, "{number} 1\n{:010} 00000 n ", out.len()).unwrap();
+        out.extend_from_slice(format!("{number} 0 obj\n{object}\nendobj\n").as_bytes());
+    }
+    let at = out.len();
+    out.extend_from_slice(
+        format!(
+            "{xref}trailer\n{dict}/Size {}/Prev {previous}>>\nstartxref\n{at}\n%%EOF\n",
+            size + 2
+        )
+        .as_bytes(),
+    );
+    std::fs::write(path, &out).unwrap();
+    out
+}
+
+/// A field's value set, as one step; only the commit is timed.
+fn field_set(engine: &Engine, document: DocumentId, value: &str) -> Duration {
+    let field = block_on(engine.form_fields(document)).unwrap().fields[0].handle;
+    let start = Instant::now();
+    block_on(engine.set_field_value(
+        document,
+        field,
+        vec![value.to_owned()],
+        None,
+        "Fill".to_owned(),
+    ))
+    .unwrap();
+    let elapsed = start.elapsed();
+    block_on(engine.undo(document)).unwrap();
+    elapsed
 }
 
 /// One edit of a block on an open document.
@@ -342,6 +433,21 @@ fn main() {
     });
     timed("annotation/move/long_500", &|| {
         annotation_move(&engine, marked.id, marked_page)
+    });
+    // The bundled fonts, for the value its field's font cannot draw.
+    block_on(engine.set_font_settings(FontSettings {
+        bundled_dir: Some(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../app/assets/fonts")),
+        ..FontSettings::default()
+    }))
+    .unwrap();
+    let form_path = dir.join("long-500-form.pdf");
+    with_form(&long, &form_path);
+    let form = block_on(engine.open(form_path, None)).unwrap();
+    timed("form/set/long_500", &|| {
+        field_set(&engine, form.id, "Mehmet Kaya")
+    });
+    timed("form/set_bundled/long_500", &|| {
+        field_set(&engine, form.id, "Ayşe Yılmaz")
     });
     timed("save/20_mb_500_pages_10_edits", &|| {
         save(&engine, &source, &dir)

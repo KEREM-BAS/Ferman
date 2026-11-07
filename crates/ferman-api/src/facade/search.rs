@@ -14,11 +14,12 @@ use std::sync::{Arc, PoisonError};
 use std::thread;
 
 use ferman_core::Document;
+use ferman_core::forms::FieldKind;
 use ferman_core::revision::RevisionStore;
 use ferman_core::structure::OutlineItem;
 use ferman_render::DocumentId;
-use ferman_text::SearchOptions;
 use ferman_text::extract::{CharBox, PageText};
+use ferman_text::{EditContext, SearchOptions};
 
 use super::annotations::rect_to_display;
 use super::document::Model;
@@ -68,6 +69,9 @@ pub struct SearchMatch {
     /// The annotation whose text it is in, not the page text: the snippet is that text's line and
     /// the rectangle the annotation's box.
     pub comment: Option<u64>,
+    /// The form field whose value it is in, not the page text: the snippet is that value's line
+    /// and the rectangle the field's first widget.
+    pub field: Option<u64>,
 }
 
 /// What a search reports, in order: `Started`, then `Matches` and `Progress` as pages are read,
@@ -102,10 +106,10 @@ pub trait SearchSink: Send {
 }
 
 impl Engine {
-    /// Searches `document` for `query` with `options` on a thread of its own, and the bookmarks'
-    /// titles and the annotations' text too with `bookmarks` and `comments` (a2-4a's Look in);
-    /// `sink` receives `Started` before any match. A bookmark's matches come with its page's,
-    /// before the page text's, and a comment's after them (G110).
+    /// Searches `document` for `query` with `options` on a thread of its own, over the text
+    /// model's reading order (B163), and what `places` adds (a2-4a's Look in); `sink` receives
+    /// `Started` before any match. A bookmark's matches come with its page's, before the page
+    /// text's, and a comment's and a field's after them (G110).
     ///
     /// # Errors
     ///
@@ -116,8 +120,7 @@ impl Engine {
         document: DocumentId,
         query: String,
         mut options: SearchOptions,
-        bookmarks: bool,
-        comments: bool,
+        places: SearchPlaces,
         mut sink: Box<dyn SearchSink>,
     ) -> Result<SearchId, ApiError> {
         // The state a panic could leave is the searches' map, whose lock is taken as it is.
@@ -151,10 +154,6 @@ impl Engine {
                 .spawn(move || {
                     // A panic ends the search; the sink is dropped and the stream ends.
                     let _ = guard(AssertUnwindSafe(|| {
-                        let places = Places {
-                            bookmarks,
-                            comments,
-                        };
                         run(&model, &query, &options, places, &cancel, sink.as_mut());
                         Ok(())
                     }));
@@ -175,10 +174,14 @@ impl Engine {
 }
 
 /// What a search looks in beside the page text.
-#[derive(Clone, Copy)]
-struct Places {
-    bookmarks: bool,
-    comments: bool,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SearchPlaces {
+    /// The bookmarks' titles.
+    pub bookmarks: bool,
+    /// The annotations' text.
+    pub comments: bool,
+    /// The form fields' values.
+    pub fields: bool,
 }
 
 /// The search itself.
@@ -186,7 +189,7 @@ fn run(
     model: &Model,
     query: &str,
     options: &SearchOptions,
-    places: Places,
+    places: SearchPlaces,
     cancel: &AtomicBool,
     sink: &mut dyn SearchSink,
 ) {
@@ -204,6 +207,11 @@ fn run(
     };
     let comments = if places.comments {
         comments_by_page(&store, document)
+    } else {
+        Vec::new()
+    };
+    let fields = if places.fields {
+        fields_by_page(&store, document)
     } else {
         Vec::new()
     };
@@ -242,6 +250,22 @@ fn run(
                         ferman_text::find(&comment.text, query, options)
                             .into_iter()
                             .map(move |range| in_comment(page, comment, range))
+                    }),
+            )
+            .chain(
+                fields
+                    .get(usize::try_from(page).unwrap_or(usize::MAX))
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|field| {
+                        ferman_text::find(&field.text, query, options)
+                            .into_iter()
+                            .map(move |range| {
+                                let mut found = in_comment(page, field, range);
+                                found.comment = None;
+                                found.field = Some(field.handle);
+                                found
+                            })
                     }),
             )
             .collect();
@@ -309,6 +333,48 @@ fn comments_by_page(store: &RevisionStore, document: &Document) -> Vec<Vec<Comme
     by_page
 }
 
+/// The fields' shown values by the page of their first widget. The reader's limits bound the walk.
+/// A button holds no text, and a password's value is not looked in.
+fn fields_by_page(store: &RevisionStore, document: &Document) -> Vec<Vec<CommentText>> {
+    let pages = store.pages(document);
+    let mut by_page: Vec<Vec<CommentText>> = Vec::new();
+    for field in store.form_fields(document).fields {
+        if !matches!(
+            field.kind,
+            FieldKind::Text | FieldKind::Combo | FieldKind::List
+        ) || field.password
+        {
+            continue;
+        }
+        let Some(widget) = field.widgets.first() else {
+            continue;
+        };
+        let Some(page) = pages.get(widget.page) else {
+            continue;
+        };
+        let rect = rect_to_display(page, widget.rect);
+        if by_page.len() <= widget.page {
+            by_page.resize_with(widget.page.saturating_add(1), Vec::new);
+        }
+        let Some(list) = by_page.get_mut(widget.page) else {
+            continue;
+        };
+        for value in &field.values {
+            let shown = field
+                .options
+                .iter()
+                .find(|option| option.export == *value)
+                .map_or(value, |option| &option.display);
+            list.push(CommentText {
+                handle: field.handle,
+                rect,
+                text: shown.clone(),
+            });
+        }
+    }
+    by_page
+}
+
 /// A match of `range`'s characters in `comment`'s text, shown by the line it starts on.
 fn in_comment(page: u32, comment: &CommentText, range: Range<usize>) -> SearchMatch {
     let chars: Vec<char> = comment.text.chars().collect();
@@ -332,6 +398,7 @@ fn in_comment(page: u32, comment: &CommentText, range: Range<usize>) -> SearchMa
         snippet_range: offset(range.start)..offset(range.end.min(line_end)),
         bookmark: false,
         comment: Some(comment.handle),
+        field: None,
     }
 }
 
@@ -345,6 +412,7 @@ fn in_title(page: u32, title: &str, range: Range<usize>) -> SearchMatch {
         snippet_range: offset(range.start)..offset(range.end),
         bookmark: true,
         comment: None,
+        field: None,
     }
 }
 
@@ -369,12 +437,17 @@ pub(super) fn page_text(
             return Arc::clone(text);
         }
     }
+    let context = EditContext {
+        document: model.read_only,
+        ..EditContext::default()
+    };
     let text = Arc::new(
-        ferman_text::extract::page_layout_revised(&model.document, store, index).unwrap_or_else(
+        ferman_text::text_page_revised(&model.document, store, index, &context).map_or_else(
             |err| {
                 tracing::warn!(page, error = %err, "a page's text could not be read");
                 PageText::default()
             },
+            |laid_out| in_reading_order(&laid_out),
         ),
     );
     let mut revised = model.revised();
@@ -382,6 +455,22 @@ pub(super) fn page_text(
         revised.texts.insert(handle, Arc::clone(&text));
     }
     text
+}
+
+/// The text model's blocks as one text in reading order (B163): a line feed between lines.
+pub(super) fn in_reading_order(page: &ferman_text::layout::PageText) -> PageText {
+    let mut out = PageText::default();
+    for line in page.blocks.iter().flat_map(|block| &block.lines) {
+        if !out.text.is_empty() {
+            out.text.push('\n');
+            out.boxes.push(None);
+        }
+        for character in &line.chars {
+            out.text.push(character.ch);
+            out.boxes.push(character.bbox);
+        }
+    }
+    out
 }
 
 /// A match of `range`'s characters on `page`: a rectangle per line, and its first line.
@@ -430,5 +519,6 @@ fn found(page: u32, text: &PageText, range: Range<usize>) -> SearchMatch {
         snippet_range: offset(range.start)..offset(range.end.min(line_end)),
         bookmark: false,
         comment: None,
+        field: None,
     }
 }

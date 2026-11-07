@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1489562571;
+  int get rustContentHash => 205561340;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -140,6 +140,11 @@ abstract class FermanBridgeApi extends BaseApi {
     required String postscriptName,
   });
 
+  Future<RevisionInfo> crateFrbClearForm({
+    required BigInt document,
+    required String name,
+  });
+
   Future<void> crateFrbClose({
     required BigInt document,
     required bool discardRecovery,
@@ -205,6 +210,11 @@ abstract class FermanBridgeApi extends BaseApi {
 
   Future<EngineInfo> crateFrbEngineInfo();
 
+  Future<RevisionInfo> crateFrbFinishForm({
+    required BigInt document,
+    required String name,
+  });
+
   Future<bool> crateFrbFinishSave({
     required BigInt document,
     required bool swapped,
@@ -214,6 +224,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required String letters,
   });
+
+  Future<FormInfo> crateFrbFormFields({required BigInt document});
 
   Future<History> crateFrbHistory({required BigInt document});
 
@@ -401,6 +413,14 @@ abstract class FermanBridgeApi extends BaseApi {
   Future<EditPreview> crateFrbSetBlockStyle({
     required BigInt transaction,
     required BlockStyle style,
+  });
+
+  Future<FieldCommit> crateFrbSetFieldValue({
+    required BigInt document,
+    required BigInt handle,
+    required List<String> values,
+    MissingFont? missing,
+    required String name,
   });
 
   Future<void> crateFrbSetFontSettings({required FontSettings settings});
@@ -911,6 +931,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<RevisionInfo> crateFrbClearForm({
+    required BigInt document,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_String(name);
+          return wire.wire__crate__frb__clear_form(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbClearFormConstMeta,
+        argValues: [document, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbClearFormConstMeta => const TaskConstMeta(
+    debugName: "clear_form",
+    argNames: ["document", "name"],
+  );
+
+  @override
   Future<void> crateFrbClose({
     required BigInt document,
     required bool discardRecovery,
@@ -1321,6 +1369,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "engine_info", argNames: []);
 
   @override
+  Future<RevisionInfo> crateFrbFinishForm({
+    required BigInt document,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_String(name);
+          return wire.wire__crate__frb__finish_form(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbFinishFormConstMeta,
+        argValues: [document, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbFinishFormConstMeta => const TaskConstMeta(
+    debugName: "finish_form",
+    argNames: ["document", "name"],
+  );
+
+  @override
   Future<bool> crateFrbFinishSave({
     required BigInt document,
     required bool swapped,
@@ -1375,6 +1451,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "font_coverage",
     argNames: ["document", "letters"],
   );
+
+  @override
+  Future<FormInfo> crateFrbFormFields({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__form_fields(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_form_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbFormFieldsConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbFormFieldsConstMeta =>
+      const TaskConstMeta(debugName: "form_fields", argNames: ["document"]);
 
   @override
   Future<History> crateFrbHistory({required BigInt document}) {
@@ -2518,6 +2616,47 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbSetBlockStyleConstMeta => const TaskConstMeta(
     debugName: "set_block_style",
     argNames: ["transaction", "style"],
+  );
+
+  @override
+  Future<FieldCommit> crateFrbSetFieldValue({
+    required BigInt document,
+    required BigInt handle,
+    required List<String> values,
+    MissingFont? missing,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_list_String(values);
+          var arg3 = cst_encode_opt_box_autoadd_missing_font(missing);
+          var arg4 = cst_encode_String(name);
+          return wire.wire__crate__frb__set_field_value(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_field_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSetFieldValueConstMeta,
+        argValues: [document, handle, values, missing, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSetFieldValueConstMeta => const TaskConstMeta(
+    debugName: "set_field_value",
+    argNames: ["document", "handle", "values", "missing", "name"],
   );
 
   @override
@@ -3703,9 +3842,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double dco_decode_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_fail_reason(raw);
+  }
+
+  @protected
+  FieldProblem dco_decode_box_autoadd_field_problem(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_field_problem(raw);
   }
 
   @protected
@@ -3722,6 +3873,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int dco_decode_box_autoadd_i_16(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
   }
@@ -3748,6 +3905,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   LinkLook dco_decode_box_autoadd_link_look(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_link_look(raw);
+  }
+
+  @protected
+  MissingFont dco_decode_box_autoadd_missing_font(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_missing_font(raw);
   }
 
   @protected
@@ -4079,9 +4242,123 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double dco_decode_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
   FailReason dco_decode_fail_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return FailReason.values[raw as int];
+  }
+
+  @protected
+  FieldCommit dco_decode_field_commit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return FieldCommit(
+      revision: dco_decode_revision_info(arr[0]),
+      problem: dco_decode_opt_box_autoadd_field_problem(arr[1]),
+      fonts: dco_decode_list_String(arr[2]),
+      marked: dco_decode_bool(arr[3]),
+      xfaRemoved: dco_decode_bool(arr[4]),
+      asksFont: dco_decode_bool(arr[5]),
+    );
+  }
+
+  @protected
+  FieldFormatKind dco_decode_field_format_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FieldFormatKind.values[raw as int];
+  }
+
+  @protected
+  FieldInfo dco_decode_field_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 24)
+      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
+    return FieldInfo(
+      handle: dco_decode_u_64(arr[0]),
+      name: dco_decode_String(arr[1]),
+      label: dco_decode_opt_String(arr[2]),
+      kind: dco_decode_field_kind(arr[3]),
+      readOnly: dco_decode_bool(arr[4]),
+      required_: dco_decode_bool(arr[5]),
+      multiline: dco_decode_bool(arr[6]),
+      password: dco_decode_bool(arr[7]),
+      comb: dco_decode_bool(arr[8]),
+      multiSelect: dco_decode_bool(arr[9]),
+      editable: dco_decode_bool(arr[10]),
+      values: dco_decode_list_String(arr[11]),
+      options: dco_decode_list_field_option(arr[12]),
+      maxLen: dco_decode_opt_box_autoadd_u_32(arr[13]),
+      widgets: dco_decode_list_field_widget(arr[14]),
+      format: dco_decode_field_format_kind(arr[15]),
+      datePattern: dco_decode_opt_String(arr[16]),
+      decimals: dco_decode_opt_box_autoadd_i_32(arr[17]),
+      min: dco_decode_opt_box_autoadd_f_64(arr[18]),
+      max: dco_decode_opt_box_autoadd_f_64(arr[19]),
+      problem: dco_decode_opt_box_autoadd_field_problem(arr[20]),
+      signed: dco_decode_bool(arr[21]),
+      signature: dco_decode_opt_box_autoadd_u_64(arr[22]),
+      filled: dco_decode_bool(arr[23]),
+    );
+  }
+
+  @protected
+  FieldKind dco_decode_field_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FieldKind.values[raw as int];
+  }
+
+  @protected
+  FieldOption dco_decode_field_option(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FieldOption(
+      export_: dco_decode_String(arr[0]),
+      display: dco_decode_String(arr[1]),
+    );
+  }
+
+  @protected
+  FieldProblem dco_decode_field_problem(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return FieldProblem(
+      kind: dco_decode_field_problem_kind(arr[0]),
+      maxLen: dco_decode_opt_box_autoadd_u_32(arr[1]),
+      pattern: dco_decode_opt_String(arr[2]),
+      min: dco_decode_opt_box_autoadd_f_64(arr[3]),
+      max: dco_decode_opt_box_autoadd_f_64(arr[4]),
+    );
+  }
+
+  @protected
+  FieldProblemKind dco_decode_field_problem_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FieldProblemKind.values[raw as int];
+  }
+
+  @protected
+  FieldWidget dco_decode_field_widget(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FieldWidget(
+      page: dco_decode_u_64(arr[0]),
+      rect: dco_decode_page_rect(arr[1]),
+      onState: dco_decode_opt_String(arr[2]),
+    );
   }
 
   @protected
@@ -4178,6 +4455,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   FontType dco_decode_font_type(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return FontType.values[raw as int];
+  }
+
+  @protected
+  FormInfo dco_decode_form_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return FormInfo(
+      fields: dco_decode_list_field_info(arr[0]),
+      required_: dco_decode_u_32(arr[1]),
+      requiredLeft: dco_decode_u_32(arr[2]),
+      problems: dco_decode_u_32(arr[3]),
+      hasXfa: dco_decode_bool(arr[4]),
+      truncated: dco_decode_bool(arr[5]),
+    );
   }
 
   @protected
@@ -4456,6 +4749,24 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FieldInfo> dco_decode_list_field_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_field_info).toList();
+  }
+
+  @protected
+  List<FieldOption> dco_decode_list_field_option(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_field_option).toList();
+  }
+
+  @protected
+  List<FieldWidget> dco_decode_list_field_widget(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_field_widget).toList();
+  }
+
+  @protected
   List<FontCandidate> dco_decode_list_font_candidate(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_font_candidate).toList();
@@ -4644,6 +4955,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  MissingFont dco_decode_missing_font(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MissingFont.values[raw as int];
+  }
+
+  @protected
   MissingGlyphs dco_decode_missing_glyphs(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -4809,9 +5126,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_f_64(raw);
+  }
+
+  @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_fail_reason(raw);
+  }
+
+  @protected
+  FieldProblem? dco_decode_opt_box_autoadd_field_problem(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_field_problem(raw);
   }
 
   @protected
@@ -4824,6 +5153,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   int? dco_decode_opt_box_autoadd_i_16(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_i_16(raw);
+  }
+
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_i_32(raw);
   }
 
   @protected
@@ -4842,6 +5177,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   LinkLook? dco_decode_opt_box_autoadd_link_look(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_link_look(raw);
+  }
+
+  @protected
+  MissingFont? dco_decode_opt_box_autoadd_missing_font(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_missing_font(raw);
   }
 
   @protected
@@ -5221,8 +5562,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchMatch dco_decode_search_match(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
     return SearchMatch(
       page: dco_decode_u_32(arr[0]),
       rects: dco_decode_list_page_rect(arr[1]),
@@ -5231,6 +5572,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       snippetEnd: dco_decode_u_32(arr[4]),
       bookmark: dco_decode_bool(arr[5]),
       comment: dco_decode_opt_box_autoadd_u_64(arr[6]),
+      field: dco_decode_opt_box_autoadd_u_64(arr[7]),
     );
   }
 
@@ -5238,14 +5580,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchOptions dco_decode_search_options(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return SearchOptions(
       matchCase: dco_decode_bool(arr[0]),
       wholeWords: dco_decode_bool(arr[1]),
       ignoreAccents: dco_decode_bool(arr[2]),
       bookmarks: dco_decode_bool(arr[3]),
       comments: dco_decode_bool(arr[4]),
+      fields: dco_decode_bool(arr[5]),
     );
   }
 
@@ -5861,9 +6204,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_f_64(deserializer));
+  }
+
+  @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_fail_reason(deserializer));
+  }
+
+  @protected
+  FieldProblem sse_decode_box_autoadd_field_problem(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_field_problem(deserializer));
   }
 
   @protected
@@ -5886,6 +6243,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   int sse_decode_box_autoadd_i_16(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_i_16(deserializer));
+  }
+
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_i_32(deserializer));
   }
 
   @protected
@@ -5912,6 +6275,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   LinkLook sse_decode_box_autoadd_link_look(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_link_look(deserializer));
+  }
+
+  @protected
+  MissingFont sse_decode_box_autoadd_missing_font(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_missing_font(deserializer));
   }
 
   @protected
@@ -6279,10 +6650,145 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double sse_decode_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat64();
+  }
+
+  @protected
   FailReason sse_decode_fail_reason(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return FailReason.values[inner];
+  }
+
+  @protected
+  FieldCommit sse_decode_field_commit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_revision = sse_decode_revision_info(deserializer);
+    var var_problem = sse_decode_opt_box_autoadd_field_problem(deserializer);
+    var var_fonts = sse_decode_list_String(deserializer);
+    var var_marked = sse_decode_bool(deserializer);
+    var var_xfaRemoved = sse_decode_bool(deserializer);
+    var var_asksFont = sse_decode_bool(deserializer);
+    return FieldCommit(
+      revision: var_revision,
+      problem: var_problem,
+      fonts: var_fonts,
+      marked: var_marked,
+      xfaRemoved: var_xfaRemoved,
+      asksFont: var_asksFont,
+    );
+  }
+
+  @protected
+  FieldFormatKind sse_decode_field_format_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FieldFormatKind.values[inner];
+  }
+
+  @protected
+  FieldInfo sse_decode_field_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_handle = sse_decode_u_64(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_label = sse_decode_opt_String(deserializer);
+    var var_kind = sse_decode_field_kind(deserializer);
+    var var_readOnly = sse_decode_bool(deserializer);
+    var var_required_ = sse_decode_bool(deserializer);
+    var var_multiline = sse_decode_bool(deserializer);
+    var var_password = sse_decode_bool(deserializer);
+    var var_comb = sse_decode_bool(deserializer);
+    var var_multiSelect = sse_decode_bool(deserializer);
+    var var_editable = sse_decode_bool(deserializer);
+    var var_values = sse_decode_list_String(deserializer);
+    var var_options = sse_decode_list_field_option(deserializer);
+    var var_maxLen = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_widgets = sse_decode_list_field_widget(deserializer);
+    var var_format = sse_decode_field_format_kind(deserializer);
+    var var_datePattern = sse_decode_opt_String(deserializer);
+    var var_decimals = sse_decode_opt_box_autoadd_i_32(deserializer);
+    var var_min = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_max = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_problem = sse_decode_opt_box_autoadd_field_problem(deserializer);
+    var var_signed = sse_decode_bool(deserializer);
+    var var_signature = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_filled = sse_decode_bool(deserializer);
+    return FieldInfo(
+      handle: var_handle,
+      name: var_name,
+      label: var_label,
+      kind: var_kind,
+      readOnly: var_readOnly,
+      required_: var_required_,
+      multiline: var_multiline,
+      password: var_password,
+      comb: var_comb,
+      multiSelect: var_multiSelect,
+      editable: var_editable,
+      values: var_values,
+      options: var_options,
+      maxLen: var_maxLen,
+      widgets: var_widgets,
+      format: var_format,
+      datePattern: var_datePattern,
+      decimals: var_decimals,
+      min: var_min,
+      max: var_max,
+      problem: var_problem,
+      signed: var_signed,
+      signature: var_signature,
+      filled: var_filled,
+    );
+  }
+
+  @protected
+  FieldKind sse_decode_field_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FieldKind.values[inner];
+  }
+
+  @protected
+  FieldOption sse_decode_field_option(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_export_ = sse_decode_String(deserializer);
+    var var_display = sse_decode_String(deserializer);
+    return FieldOption(export_: var_export_, display: var_display);
+  }
+
+  @protected
+  FieldProblem sse_decode_field_problem(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_field_problem_kind(deserializer);
+    var var_maxLen = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_pattern = sse_decode_opt_String(deserializer);
+    var var_min = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_max = sse_decode_opt_box_autoadd_f_64(deserializer);
+    return FieldProblem(
+      kind: var_kind,
+      maxLen: var_maxLen,
+      pattern: var_pattern,
+      min: var_min,
+      max: var_max,
+    );
+  }
+
+  @protected
+  FieldProblemKind sse_decode_field_problem_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FieldProblemKind.values[inner];
+  }
+
+  @protected
+  FieldWidget sse_decode_field_widget(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_page = sse_decode_u_64(deserializer);
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_onState = sse_decode_opt_String(deserializer);
+    return FieldWidget(page: var_page, rect: var_rect, onState: var_onState);
   }
 
   @protected
@@ -6395,6 +6901,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return FontType.values[inner];
+  }
+
+  @protected
+  FormInfo sse_decode_form_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_fields = sse_decode_list_field_info(deserializer);
+    var var_required_ = sse_decode_u_32(deserializer);
+    var var_requiredLeft = sse_decode_u_32(deserializer);
+    var var_problems = sse_decode_u_32(deserializer);
+    var var_hasXfa = sse_decode_bool(deserializer);
+    var var_truncated = sse_decode_bool(deserializer);
+    return FormInfo(
+      fields: var_fields,
+      required_: var_required_,
+      requiredLeft: var_requiredLeft,
+      problems: var_problems,
+      hasXfa: var_hasXfa,
+      truncated: var_truncated,
+    );
   }
 
   @protected
@@ -6761,6 +7286,42 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FieldInfo> sse_decode_list_field_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FieldInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_field_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<FieldOption> sse_decode_list_field_option(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FieldOption>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_field_option(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<FieldWidget> sse_decode_list_field_widget(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FieldWidget>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_field_widget(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<FontCandidate> sse_decode_list_font_candidate(
     SseDeserializer deserializer,
   ) {
@@ -7118,6 +7679,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  MissingFont sse_decode_missing_font(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return MissingFont.values[inner];
+  }
+
+  @protected
   MissingGlyphs sse_decode_missing_glyphs(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_chars = sse_decode_list_missing_char(deserializer);
@@ -7388,6 +7956,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_f_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
     SseDeserializer deserializer,
   ) {
@@ -7395,6 +7974,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_fail_reason(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  FieldProblem? sse_decode_opt_box_autoadd_field_problem(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_field_problem(deserializer));
     } else {
       return null;
     }
@@ -7419,6 +8011,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_i_16(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_i_32(deserializer));
     } else {
       return null;
     }
@@ -7454,6 +8057,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_link_look(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  MissingFont? sse_decode_opt_box_autoadd_missing_font(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_missing_font(deserializer));
     } else {
       return null;
     }
@@ -7952,6 +8568,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_snippetEnd = sse_decode_u_32(deserializer);
     var var_bookmark = sse_decode_bool(deserializer);
     var var_comment = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_field = sse_decode_opt_box_autoadd_u_64(deserializer);
     return SearchMatch(
       page: var_page,
       rects: var_rects,
@@ -7960,6 +8577,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       snippetEnd: var_snippetEnd,
       bookmark: var_bookmark,
       comment: var_comment,
+      field: var_field,
     );
   }
 
@@ -7971,12 +8589,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_ignoreAccents = sse_decode_bool(deserializer);
     var var_bookmarks = sse_decode_bool(deserializer);
     var var_comments = sse_decode_bool(deserializer);
+    var var_fields = sse_decode_bool(deserializer);
     return SearchOptions(
       matchCase: var_matchCase,
       wholeWords: var_wholeWords,
       ignoreAccents: var_ignoreAccents,
       bookmarks: var_bookmarks,
       comments: var_comments,
+      fields: var_fields,
     );
   }
 
@@ -8304,7 +8924,31 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  double cst_encode_f_64(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
   int cst_encode_fail_reason(FailReason raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_field_format_kind(FieldFormatKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_field_kind(FieldKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_field_problem_kind(FieldProblemKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -8371,6 +9015,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_link_look(LinkLook raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_missing_font(MissingFont raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -8844,12 +9494,27 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_fail_reason(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_field_problem(
+    FieldProblem self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_field_problem(self, serializer);
   }
 
   @protected
@@ -8874,6 +9539,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_i_16(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_16(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self, serializer);
   }
 
   @protected
@@ -8910,6 +9581,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_link_look(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_missing_font(
+    MissingFont self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_missing_font(self, serializer);
   }
 
   @protected
@@ -9241,9 +9921,104 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat64(self);
+  }
+
+  @protected
   void sse_encode_fail_reason(FailReason self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_field_commit(FieldCommit self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_revision_info(self.revision, serializer);
+    sse_encode_opt_box_autoadd_field_problem(self.problem, serializer);
+    sse_encode_list_String(self.fonts, serializer);
+    sse_encode_bool(self.marked, serializer);
+    sse_encode_bool(self.xfaRemoved, serializer);
+    sse_encode_bool(self.asksFont, serializer);
+  }
+
+  @protected
+  void sse_encode_field_format_kind(
+    FieldFormatKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_field_info(FieldInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.handle, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_opt_String(self.label, serializer);
+    sse_encode_field_kind(self.kind, serializer);
+    sse_encode_bool(self.readOnly, serializer);
+    sse_encode_bool(self.required_, serializer);
+    sse_encode_bool(self.multiline, serializer);
+    sse_encode_bool(self.password, serializer);
+    sse_encode_bool(self.comb, serializer);
+    sse_encode_bool(self.multiSelect, serializer);
+    sse_encode_bool(self.editable, serializer);
+    sse_encode_list_String(self.values, serializer);
+    sse_encode_list_field_option(self.options, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.maxLen, serializer);
+    sse_encode_list_field_widget(self.widgets, serializer);
+    sse_encode_field_format_kind(self.format, serializer);
+    sse_encode_opt_String(self.datePattern, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.decimals, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.min, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.max, serializer);
+    sse_encode_opt_box_autoadd_field_problem(self.problem, serializer);
+    sse_encode_bool(self.signed, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.signature, serializer);
+    sse_encode_bool(self.filled, serializer);
+  }
+
+  @protected
+  void sse_encode_field_kind(FieldKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_field_option(FieldOption self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.export_, serializer);
+    sse_encode_String(self.display, serializer);
+  }
+
+  @protected
+  void sse_encode_field_problem(FieldProblem self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_field_problem_kind(self.kind, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.maxLen, serializer);
+    sse_encode_opt_String(self.pattern, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.min, serializer);
+    sse_encode_opt_box_autoadd_f_64(self.max, serializer);
+  }
+
+  @protected
+  void sse_encode_field_problem_kind(
+    FieldProblemKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_field_widget(FieldWidget self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.page, serializer);
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_opt_String(self.onState, serializer);
   }
 
   @protected
@@ -9318,6 +10093,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   void sse_encode_font_type(FontType self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_form_info(FormInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_field_info(self.fields, serializer);
+    sse_encode_u_32(self.required_, serializer);
+    sse_encode_u_32(self.requiredLeft, serializer);
+    sse_encode_u_32(self.problems, serializer);
+    sse_encode_bool(self.hasXfa, serializer);
+    sse_encode_bool(self.truncated, serializer);
   }
 
   @protected
@@ -9594,6 +10380,42 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_dependent_cell(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_field_info(
+    List<FieldInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_field_info(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_field_option(
+    List<FieldOption> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_field_option(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_field_widget(
+    List<FieldWidget> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_field_widget(item, serializer);
     }
   }
 
@@ -9944,6 +10766,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_missing_font(MissingFont self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_missing_glyphs(MissingGlyphs self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_missing_char(self.chars, serializer);
@@ -10153,6 +10981,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_f_64(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
     SseSerializer serializer,
@@ -10162,6 +11000,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_fail_reason(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_field_problem(
+    FieldProblem? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_field_problem(self, serializer);
     }
   }
 
@@ -10185,6 +11036,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_i_16(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_i_32(self, serializer);
     }
   }
 
@@ -10224,6 +11085,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_link_look(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_missing_font(
+    MissingFont? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_missing_font(self, serializer);
     }
   }
 
@@ -10642,6 +11516,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_32(self.snippetEnd, serializer);
     sse_encode_bool(self.bookmark, serializer);
     sse_encode_opt_box_autoadd_u_64(self.comment, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.field, serializer);
   }
 
   @protected
@@ -10652,6 +11527,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self.ignoreAccents, serializer);
     sse_encode_bool(self.bookmarks, serializer);
     sse_encode_bool(self.comments, serializer);
+    sse_encode_bool(self.fields, serializer);
   }
 
   @protected

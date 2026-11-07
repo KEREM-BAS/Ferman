@@ -571,6 +571,328 @@ class AnnotationCommit {
   final RevisionInfo revision;
 }
 
+/// What a form field is.
+enum FieldKind {
+  /// A text field.
+  text,
+
+  /// A check box.
+  check,
+
+  /// A radio group.
+  radio,
+
+  /// A push button: nothing to fill.
+  push,
+
+  /// A combo box.
+  combo,
+
+  /// A list box.
+  list,
+
+  /// A signature field.
+  signature,
+
+  /// An unknown type.
+  other,
+}
+
+/// The format a field's scripts declare (M4 decision 17): read, never run.
+enum FieldFormatKind {
+  /// None.
+  none,
+
+  /// A date in [FieldInfo.datePattern].
+  date,
+
+  /// A number with [FieldInfo.decimals].
+  number,
+
+  /// A percentage with [FieldInfo.decimals].
+  percent,
+}
+
+/// Why a value does not meet what its field declares.
+enum FieldProblemKind {
+  /// Past [FieldProblem.maxLen].
+  tooLong,
+
+  /// Not a date in [FieldProblem.pattern].
+  notADate,
+
+  /// Not a number.
+  notANumber,
+
+  /// Outside [FieldProblem.min] and [FieldProblem.max].
+  outOfRange,
+}
+
+/// A value's problem with its parameters (a5-2).
+@immutable
+class FieldProblem {
+  /// Creates a problem.
+  const new({
+    required this.kind,
+    this.maxLen,
+    this.pattern,
+    this.min,
+    this.max,
+  });
+
+  /// What it is.
+  final FieldProblemKind kind;
+
+  /// The most characters, for [FieldProblemKind.tooLong].
+  final int? maxLen;
+
+  /// The date pattern, for [FieldProblemKind.notADate].
+  final String? pattern;
+
+  /// The least value, for [FieldProblemKind.outOfRange].
+  final double? min;
+
+  /// The greatest value, for [FieldProblemKind.outOfRange].
+  final double? max;
+}
+
+/// One choice of a combo or list box.
+@immutable
+class FieldOption {
+  /// Creates an option.
+  const new({required this.export, required this.display});
+
+  /// What the value holds.
+  final String export;
+
+  /// What the field shows.
+  final String display;
+}
+
+/// One place of a field on a page.
+@immutable
+class FieldWidget {
+  /// Creates a widget.
+  const new({required this.page, required this.rect, this.onState});
+
+  /// Its page, by [PageInfo.handle].
+  final int page;
+
+  /// Its box, in the page's displayed points (y down).
+  final Rect rect;
+
+  /// The value that turns a check box or radio button on.
+  final String? onState;
+}
+
+/// One form field, in tab order (a5-1).
+@immutable
+class FieldInfo {
+  /// Creates a field.
+  const new({
+    required this.handle,
+    required this.name,
+    required this.kind,
+    this.label,
+    this.readOnly = false,
+    this.required = false,
+    this.multiline = false,
+    this.password = false,
+    this.comb = false,
+    this.multiSelect = false,
+    this.editable = false,
+    this.values = const [],
+    this.options = const [],
+    this.maxLen,
+    this.widgets = const [],
+    this.format = FieldFormatKind.none,
+    this.datePattern,
+    this.decimals,
+    this.min,
+    this.max,
+    this.problem,
+    this.signed = false,
+    this.signature,
+    this.filled = false,
+  });
+
+  /// Its identity; it stays through edits, undo and saves.
+  final int handle;
+
+  /// Its full name.
+  final String name;
+
+  /// The name a reader shows (`/TU`).
+  final String? label;
+
+  /// What it is.
+  final FieldKind kind;
+
+  /// It cannot be changed.
+  final bool readOnly;
+
+  /// It counts in the required count.
+  final bool required;
+
+  /// A text field of many lines.
+  final bool multiline;
+
+  /// A text field that hides what is typed.
+  final bool password;
+
+  /// A comb of [maxLen] cells.
+  final bool comb;
+
+  /// A list box that takes several values.
+  final bool multiSelect;
+
+  /// A combo box that takes any text.
+  final bool editable;
+
+  /// Its value: text, export values, or the on-state of a button.
+  final List<String> values;
+
+  /// A choice's options.
+  final List<FieldOption> options;
+
+  /// The most characters.
+  final int? maxLen;
+
+  /// Its places, in tab order.
+  final List<FieldWidget> widgets;
+
+  /// The format it declares.
+  final FieldFormatKind format;
+
+  /// The date pattern it declares.
+  final String? datePattern;
+
+  /// The decimals it declares.
+  final int? decimals;
+
+  /// The least value it declares.
+  final double? min;
+
+  /// The greatest value it declares.
+  final double? max;
+
+  /// How its value fails what it declares.
+  final FieldProblem? problem;
+
+  /// A signature field holds a digital signature.
+  final bool signed;
+
+  /// The stamp of the simple signature on it (M4 decisions 20 and 21).
+  final int? signature;
+
+  /// It counts as filled.
+  final bool filled;
+
+  /// The same field holding [values].
+  FieldInfo withValues(List<String> values) => FieldInfo(
+    handle: handle,
+    name: name,
+    kind: kind,
+    label: label,
+    readOnly: readOnly,
+    required: required,
+    multiline: multiline,
+    password: password,
+    comb: comb,
+    multiSelect: multiSelect,
+    editable: editable,
+    values: values,
+    options: options,
+    maxLen: maxLen,
+    widgets: widgets,
+    format: format,
+    datePattern: datePattern,
+    decimals: decimals,
+    min: min,
+    max: max,
+    signed: signed,
+    signature: signature,
+    filled: values.isNotEmpty || signed || signature != null,
+  );
+}
+
+/// A document's form.
+@immutable
+class FormInfo {
+  /// Creates a form.
+  const new({
+    this.fields = const [],
+    this.required = 0,
+    this.requiredLeft = 0,
+    this.problems = 0,
+    this.hasXfa = false,
+    this.truncated = false,
+  });
+
+  /// In tab order.
+  final List<FieldInfo> fields;
+
+  /// Required fields.
+  final int required;
+
+  /// Required fields not yet filled (a5-1's "13 required left").
+  final int requiredLeft;
+
+  /// Fields whose value fails what they declare: Finish waits for none.
+  final int problems;
+
+  /// The form has XFA, which the first change removes with a notice.
+  final bool hasXfa;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// What setting a field's value returns.
+@immutable
+class FieldCommit {
+  /// Creates a commit.
+  const new({
+    required this.revision,
+    this.problem,
+    this.fonts = const [],
+    this.marked = false,
+    this.xfaRemoved = false,
+    this.asksFont = false,
+  });
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  /// How the new value fails what the field declares.
+  final FieldProblem? problem;
+
+  /// The families it was drawn in because its font could not: say so once.
+  final List<String> fonts;
+
+  /// What its font cannot draw was left out: mark the field.
+  final bool marked;
+
+  /// XFA left the form: say so.
+  final bool xfaRemoved;
+
+  /// Ask each time: nothing was written; ask, then call again with a choice.
+  final bool asksFont;
+}
+
+/// What to do when a value has characters its field's font cannot draw
+/// (a11-1c, M4 decision 18).
+enum MissingFont {
+  /// Bundled IBM Plex, said once.
+  bundled,
+
+  /// Ask first, writing nothing.
+  ask,
+
+  /// Keep the field's font and mark the field.
+  keep,
+}
+
 /// What each side of a page gives up, in displayed points.
 @immutable
 class PageMargins {
@@ -1605,6 +1927,7 @@ class SearchOptions {
     this.ignoreAccents = true,
     this.bookmarks = false,
     this.comments = true,
+    this.fields = false,
   });
 
   /// Match case.
@@ -1622,6 +1945,9 @@ class SearchOptions {
   /// Look in the annotations' text too (a2-4a, on by default, B128).
   final bool comments;
 
+  /// Look in the form fields' values too (a2-4a, B128).
+  final bool fields;
+
   @override
   bool operator ==(Object other) =>
       other is SearchOptions &&
@@ -1629,11 +1955,18 @@ class SearchOptions {
       other.wholeWords == wholeWords &&
       other.ignoreAccents == ignoreAccents &&
       other.bookmarks == bookmarks &&
-      other.comments == comments;
+      other.comments == comments &&
+      other.fields == fields;
 
   @override
-  int get hashCode =>
-      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks, comments);
+  int get hashCode => Object.hash(
+    matchCase,
+    wholeWords,
+    ignoreAccents,
+    bookmarks,
+    comments,
+    fields,
+  );
 }
 
 /// One match of a search.
@@ -1648,6 +1981,7 @@ class SearchMatch {
     required this.snippetEnd,
     this.bookmark = false,
     this.comment,
+    this.field,
   });
 
   /// Its page, from 0.
@@ -1673,6 +2007,10 @@ class SearchMatch {
   /// The annotation whose text it is in, [snippet] being that text's line and
   /// [rects] the annotation's box.
   final int? comment;
+
+  /// The form field whose value it is in, [snippet] being that value's line
+  /// and [rects] the field's first widget.
+  final int? field;
 }
 
 /// What a running search reports.

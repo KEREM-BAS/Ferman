@@ -741,6 +741,7 @@ fn upright(ops: &mut Ops, [l, b, r, t]: [f32; 4], turn: u16) -> (f32, f32) {
 
 /// A font program in use for an appearance.
 struct Face {
+    family: String,
     data: Vec<u8>,
     index: u32,
     shaper: ShapingFont,
@@ -781,6 +782,24 @@ impl<'a> Faces<'a> {
         }
     }
 
+    /// As [`new`](Self::new), IBM Plex Serif tried first, for a serif field (decision 18).
+    pub(crate) fn serif(library: &'a FontLibrary, weight: u16) -> Self {
+        let mut faces = Self::new(library, weight);
+        faces.bundled.insert(0, "IBM Plex Serif");
+        faces
+    }
+
+    /// The families in use that drew something.
+    pub(crate) fn families(&self) -> Vec<String> {
+        let mut families = Vec::new();
+        for face in self.faces.iter().filter(|face| !face.wanted.is_empty()) {
+            if !families.contains(&face.family) {
+                families.push(face.family.clone());
+            }
+        }
+        families
+    }
+
     fn open(&mut self, id: FaceId) -> Option<usize> {
         if !self.tried.insert(id) {
             return None;
@@ -790,6 +809,7 @@ impl<'a> Faces<'a> {
             .with_data(id, |data, index| (data.to_vec(), index))?;
         let shaper = ShapingFont::new(data.clone(), index).ok()?;
         self.faces.push(Face {
+            family: self.library.face(id)?.family,
             data,
             index,
             shaper,
@@ -919,7 +939,7 @@ impl<'a> Faces<'a> {
     }
 
     /// The width of `text` per unit of font size, without noting its glyphs.
-    fn measure(&mut self, text: &str, rtl: bool) -> Result<f32, OpsError> {
+    pub(crate) fn measure(&mut self, text: &str, rtl: bool) -> Result<f32, OpsError> {
         let marks: Vec<usize> = self.faces.iter().map(|face| face.wanted.len()).collect();
         let (_, width) = self.shape_line(text, rtl, 0.0)?;
         for (at, face) in self.faces.iter_mut().enumerate() {
@@ -947,7 +967,7 @@ pub(crate) struct SetLine {
 }
 
 /// Whether a paragraph reads right to left, by its first strong letter.
-fn right_to_left(text: &str) -> bool {
+pub(crate) fn right_to_left(text: &str) -> bool {
     text.chars().find(|c| c.is_alphabetic()).is_some_and(
         |c| matches!(u32::from(c), 0x0590..=0x08FF | 0xFB1D..=0xFDFF | 0xFE70..=0xFEFF),
     )

@@ -46,6 +46,7 @@
 //!   with its three choices and their amounts (§6.8).
 //! - [`fallback`] (since M3): missing-glyph steps 2 and 3, the same font installed or bundled,
 //!   else ranked similar fonts, and the [`Substitution`]s made; never silent (ADR 0006).
+//! - [`field`] (since M4): [`field::FieldFont`], the codes a form field's own font draws.
 //! - [`totals`] (since M3): [`dependent_cells`], the table cells whose value likely depends on an
 //!   edited one (a3-9), flagged, never changed.
 //! - [`style`] (since M3): a3-2's [`BlockStyle`], which [`rewrite_block_styled`] writes, and the
@@ -57,6 +58,7 @@ pub mod collate;
 pub mod editability;
 pub mod extract;
 pub mod fallback;
+pub mod field;
 pub mod hit;
 pub mod layout;
 pub mod linebreak;

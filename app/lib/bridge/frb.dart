@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -1338,6 +1338,61 @@ Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
 /// `NotFound` for a document that is not open.
 Future<bool> wouldBreakSignatures({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbWouldBreakSignatures(document: document);
+
+/// The form as the committed revisions leave it, in tab order. Reading generates nothing.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<FormInfo> formFields({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbFormFields(document: document);
+
+/// Sets field `handle` to `values` as one history step: text, export values or a button's
+/// on-state, none to empty it. Call it on blur, Tab or the end of a drag, never per keystroke.
+/// `missing` answers Ask each time; `None` follows the font settings.
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` and `NotFound`, as for an
+/// annotation.
+Future<FieldCommit> setFieldValue({
+  required BigInt document,
+  required BigInt handle,
+  required List<String> values,
+  MissingFont? missing,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetFieldValue(
+  document: document,
+  handle: handle,
+  values: values,
+  missing: missing,
+  name: name,
+);
+
+/// Empties every field that holds a value and can change, as one history step. Signatures stay.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+Future<RevisionInfo> clearForm({
+  required BigInt document,
+  required String name,
+}) =>
+    FermanBridge.instance.api.crateFrbClearForm(document: document, name: name);
+
+/// Finish: every field becomes page content as it looks, as one history step; a digitally signed
+/// field stays. It asks what editing asks.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+Future<RevisionInfo> finishForm({
+  required BigInt document,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbFinishForm(
+  document: document,
+  name: name,
+);
 
 /// What `op` may do to the document; `fields` are the form fields a fill fills, empty when not
 /// known yet.
@@ -2746,6 +2801,367 @@ enum FailReason {
   internal,
 }
 
+/// What setting a value returns.
+class FieldCommit {
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  /// How the new value fails what the field declares.
+  final FieldProblem? problem;
+
+  /// The families it was drawn in because its font could not: say so once.
+  final List<String> fonts;
+
+  /// What its font cannot draw was left out: mark the field.
+  final bool marked;
+
+  /// `/XFA` left the form: say so.
+  final bool xfaRemoved;
+
+  /// Ask each time: its font cannot draw the value and nothing was written. Call again with a
+  /// choice.
+  final bool asksFont;
+
+  const FieldCommit({
+    required this.revision,
+    this.problem,
+    required this.fonts,
+    required this.marked,
+    required this.xfaRemoved,
+    required this.asksFont,
+  });
+
+  @override
+  int get hashCode =>
+      revision.hashCode ^
+      problem.hashCode ^
+      fonts.hashCode ^
+      marked.hashCode ^
+      xfaRemoved.hashCode ^
+      asksFont.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldCommit &&
+          runtimeType == other.runtimeType &&
+          revision == other.revision &&
+          problem == other.problem &&
+          fonts == other.fonts &&
+          marked == other.marked &&
+          xfaRemoved == other.xfaRemoved &&
+          asksFont == other.asksFont;
+}
+
+/// What a field's scripts declare (decision 17): read, never run.
+enum FieldFormatKind {
+  /// No format.
+  none,
+
+  /// A date in `date_pattern`.
+  date,
+
+  /// A number with `decimals`.
+  number,
+
+  /// A percentage with `decimals`.
+  percent,
+}
+
+/// One form field, in tab order.
+class FieldInfo {
+  /// Its identity. It stays through edits, undo and saves.
+  final BigInt handle;
+
+  /// Its full name.
+  final String name;
+
+  /// The name a reader shows.
+  final String? label;
+
+  /// What it is.
+  final FieldKind kind;
+
+  /// It cannot be changed.
+  final bool readOnly;
+
+  /// It counts in the required count.
+  final bool required_;
+
+  /// A text field of many lines.
+  final bool multiline;
+
+  /// A text field that hides what is typed.
+  final bool password;
+
+  /// A comb of `max_len` cells.
+  final bool comb;
+
+  /// A list box that takes several values.
+  final bool multiSelect;
+
+  /// A combo box that takes any text.
+  final bool editable;
+
+  /// Its value: text, export values, or the on-state of a button.
+  final List<String> values;
+
+  /// A choice's options.
+  final List<FieldOption> options;
+
+  /// `/MaxLen`.
+  final int? maxLen;
+
+  /// Its places, in tab order.
+  final List<FieldWidget> widgets;
+
+  /// The format it declares.
+  final FieldFormatKind format;
+
+  /// The date pattern it declares.
+  final String? datePattern;
+
+  /// The decimals it declares.
+  final int? decimals;
+
+  /// The least value it declares.
+  final double? min;
+
+  /// The greatest value it declares.
+  final double? max;
+
+  /// How its value fails what it declares.
+  final FieldProblem? problem;
+
+  /// A signature field holds a digital signature.
+  final bool signed;
+
+  /// The stamp of the simple signature on it.
+  final BigInt? signature;
+
+  /// It counts as filled.
+  final bool filled;
+
+  const FieldInfo({
+    required this.handle,
+    required this.name,
+    this.label,
+    required this.kind,
+    required this.readOnly,
+    required this.required_,
+    required this.multiline,
+    required this.password,
+    required this.comb,
+    required this.multiSelect,
+    required this.editable,
+    required this.values,
+    required this.options,
+    this.maxLen,
+    required this.widgets,
+    required this.format,
+    this.datePattern,
+    this.decimals,
+    this.min,
+    this.max,
+    this.problem,
+    required this.signed,
+    this.signature,
+    required this.filled,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      name.hashCode ^
+      label.hashCode ^
+      kind.hashCode ^
+      readOnly.hashCode ^
+      required_.hashCode ^
+      multiline.hashCode ^
+      password.hashCode ^
+      comb.hashCode ^
+      multiSelect.hashCode ^
+      editable.hashCode ^
+      values.hashCode ^
+      options.hashCode ^
+      maxLen.hashCode ^
+      widgets.hashCode ^
+      format.hashCode ^
+      datePattern.hashCode ^
+      decimals.hashCode ^
+      min.hashCode ^
+      max.hashCode ^
+      problem.hashCode ^
+      signed.hashCode ^
+      signature.hashCode ^
+      filled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          name == other.name &&
+          label == other.label &&
+          kind == other.kind &&
+          readOnly == other.readOnly &&
+          required_ == other.required_ &&
+          multiline == other.multiline &&
+          password == other.password &&
+          comb == other.comb &&
+          multiSelect == other.multiSelect &&
+          editable == other.editable &&
+          values == other.values &&
+          options == other.options &&
+          maxLen == other.maxLen &&
+          widgets == other.widgets &&
+          format == other.format &&
+          datePattern == other.datePattern &&
+          decimals == other.decimals &&
+          min == other.min &&
+          max == other.max &&
+          problem == other.problem &&
+          signed == other.signed &&
+          signature == other.signature &&
+          filled == other.filled;
+}
+
+/// What a form field is.
+enum FieldKind {
+  /// A text field.
+  text,
+
+  /// A check box.
+  check,
+
+  /// A radio group.
+  radio,
+
+  /// A push button: nothing to fill.
+  push,
+
+  /// A combo box.
+  combo,
+
+  /// A list box.
+  list,
+
+  /// A signature field.
+  signature,
+
+  /// An unknown type.
+  other,
+}
+
+/// One choice of a combo or list box.
+class FieldOption {
+  /// What the value holds.
+  final String export_;
+
+  /// What the field shows.
+  final String display;
+
+  const FieldOption({required this.export_, required this.display});
+
+  @override
+  int get hashCode => export_.hashCode ^ display.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldOption &&
+          runtimeType == other.runtimeType &&
+          export_ == other.export_ &&
+          display == other.display;
+}
+
+/// A value's problem with its parameters.
+class FieldProblem {
+  /// What it is.
+  final FieldProblemKind kind;
+
+  /// `/MaxLen`, for `TooLong`.
+  final int? maxLen;
+
+  /// The pattern, for `NotADate`.
+  final String? pattern;
+
+  /// The least value, for `OutOfRange`.
+  final double? min;
+
+  /// The greatest value, for `OutOfRange`.
+  final double? max;
+
+  const FieldProblem({
+    required this.kind,
+    this.maxLen,
+    this.pattern,
+    this.min,
+    this.max,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      maxLen.hashCode ^
+      pattern.hashCode ^
+      min.hashCode ^
+      max.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldProblem &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          maxLen == other.maxLen &&
+          pattern == other.pattern &&
+          min == other.min &&
+          max == other.max;
+}
+
+/// Why a value does not meet what its field declares.
+enum FieldProblemKind {
+  /// Past `max_len`.
+  tooLong,
+
+  /// Not a date in the pattern.
+  notADate,
+
+  /// Not a number.
+  notANumber,
+
+  /// Outside `min` and `max`.
+  outOfRange,
+}
+
+/// One place of a field on a page, in displayed points.
+class FieldWidget {
+  /// Its page's handle.
+  final BigInt page;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// The value that turns a check box or radio button on.
+  final String? onState;
+
+  const FieldWidget({required this.page, required this.rect, this.onState});
+
+  @override
+  int get hashCode => page.hashCode ^ rect.hashCode ^ onState.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldWidget &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          rect == other.rect &&
+          onState == other.onState;
+}
+
 /// A font step 3 offers (a3-3b).
 class FontCandidate {
   /// Its group.
@@ -3036,6 +3452,57 @@ enum FontType {
 
   /// Anything else.
   other,
+}
+
+/// A document's form.
+class FormInfo {
+  /// In tab order.
+  final List<FieldInfo> fields;
+
+  /// Required fields.
+  final int required_;
+
+  /// Required fields not yet filled.
+  final int requiredLeft;
+
+  /// Fields whose value fails what they declare.
+  final int problems;
+
+  /// `/XFA` is there, and the first change removes it with a notice.
+  final bool hasXfa;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const FormInfo({
+    required this.fields,
+    required this.required_,
+    required this.requiredLeft,
+    required this.problems,
+    required this.hasXfa,
+    required this.truncated,
+  });
+
+  @override
+  int get hashCode =>
+      fields.hashCode ^
+      required_.hashCode ^
+      requiredLeft.hashCode ^
+      problems.hashCode ^
+      hasXfa.hashCode ^
+      truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FormInfo &&
+          runtimeType == other.runtimeType &&
+          fields == other.fields &&
+          required_ == other.required_ &&
+          requiredLeft == other.requiredLeft &&
+          problems == other.problems &&
+          hasXfa == other.hasXfa &&
+          truncated == other.truncated;
 }
 
 /// A document's history (a3-10).
@@ -3614,6 +4081,18 @@ class MissingChar {
           runtimeType == other.runtimeType &&
           text == other.text &&
           at == other.at;
+}
+
+/// What to do when a value has characters its field's font cannot draw.
+enum MissingFont {
+  /// Bundled Plex, said once.
+  bundled,
+
+  /// Ask first, writing nothing.
+  ask,
+
+  /// Keep the field's font and mark the field.
+  keep,
 }
 
 /// Missing-glyph step 3's characters and candidates.
@@ -4779,6 +5258,9 @@ class SearchMatch {
   /// The annotation whose text it is in (the snippet), with its box as the rectangle.
   final BigInt? comment;
 
+  /// The form field whose value it is in (the snippet), with its first widget as the rectangle.
+  final BigInt? field;
+
   const SearchMatch({
     required this.page,
     required this.rects,
@@ -4787,6 +5269,7 @@ class SearchMatch {
     required this.snippetEnd,
     required this.bookmark,
     this.comment,
+    this.field,
   });
 
   @override
@@ -4797,7 +5280,8 @@ class SearchMatch {
       snippetStart.hashCode ^
       snippetEnd.hashCode ^
       bookmark.hashCode ^
-      comment.hashCode;
+      comment.hashCode ^
+      field.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -4810,7 +5294,8 @@ class SearchMatch {
           snippetStart == other.snippetStart &&
           snippetEnd == other.snippetEnd &&
           bookmark == other.bookmark &&
-          comment == other.comment;
+          comment == other.comment &&
+          field == other.field;
 }
 
 /// How a search matches (a2-4a).
@@ -4830,12 +5315,16 @@ class SearchOptions {
   /// Search the annotations' text too (Look in › Comments).
   final bool comments;
 
+  /// Search the form fields' values too (Look in › Form fields).
+  final bool fields;
+
   const SearchOptions({
     required this.matchCase,
     required this.wholeWords,
     required this.ignoreAccents,
     required this.bookmarks,
     required this.comments,
+    required this.fields,
   });
 
   @override
@@ -4844,7 +5333,8 @@ class SearchOptions {
       wholeWords.hashCode ^
       ignoreAccents.hashCode ^
       bookmarks.hashCode ^
-      comments.hashCode;
+      comments.hashCode ^
+      fields.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -4855,7 +5345,8 @@ class SearchOptions {
           wholeWords == other.wholeWords &&
           ignoreAccents == other.ignoreAccents &&
           bookmarks == other.bookmarks &&
-          comments == other.comments;
+          comments == other.comments &&
+          fields == other.fields;
 }
 
 /// An encrypted document's security (a2-10a, a2-10b).

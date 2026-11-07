@@ -1130,6 +1130,20 @@ impl Session {
         self.fonts.library()
     }
 
+    /// What a11-1c's policy says for a value its field's font cannot draw (decision 18).
+    pub(super) fn missing_font(&self) -> ferman_ops::forms::MissingFont {
+        match self.fonts.cached().1 {
+            (true, ..) => ferman_ops::forms::MissingFont::Ask,
+            (_, true, _) => ferman_ops::forms::MissingFont::Keep,
+            _ => ferman_ops::forms::MissingFont::Bundled,
+        }
+    }
+
+    /// The form in the committed revisions.
+    pub(super) fn form(&self) -> ferman_core::forms::FormFields {
+        self.committed.form_fields(&self.model.document)
+    }
+
     /// Annotation `handle` in the committed revisions.
     pub(super) fn annotation(
         &self,

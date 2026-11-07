@@ -550,6 +550,8 @@ pub struct SearchOptions {
     pub bookmarks: bool,
     /// Search the annotations' text too (Look in › Comments).
     pub comments: bool,
+    /// Search the form fields' values too (Look in › Form fields).
+    pub fields: bool,
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -627,6 +629,8 @@ pub struct SearchMatch {
     pub bookmark: bool,
     /// The annotation whose text it is in (the snippet), with its box as the rectangle.
     pub comment: Option<u64>,
+    /// The form field whose value it is in (the snippet), with its first widget as the rectangle.
+    pub field: Option<u64>,
 }
 
 /// What a search event says.
@@ -1520,7 +1524,11 @@ pub async fn search(
     options: SearchOptions,
     sink: StreamSink<SearchEvent>,
 ) -> Result<(), ApiError> {
-    let (bookmarks, comments) = (options.bookmarks, options.comments);
+    let places = facade::SearchPlaces {
+        bookmarks: options.bookmarks,
+        comments: options.comments,
+        fields: options.fields,
+    };
     let options = facade::SearchOptions {
         match_case: options.match_case,
         whole_words: options.whole_words,
@@ -1532,8 +1540,7 @@ pub async fn search(
             facade::DocumentId::from_raw(document),
             query,
             options,
-            bookmarks,
-            comments,
+            places,
             Box::new(BridgeSearch(sink)),
         )
         .map(drop)
@@ -3926,6 +3933,368 @@ pub enum DocumentOp {
     Print,
 }
 
+/// What a form field is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldKind {
+    /// A text field.
+    Text,
+    /// A check box.
+    Check,
+    /// A radio group.
+    Radio,
+    /// A push button: nothing to fill.
+    Push,
+    /// A combo box.
+    Combo,
+    /// A list box.
+    List,
+    /// A signature field.
+    Signature,
+    /// An unknown type.
+    Other,
+}
+
+/// What a field's scripts declare (decision 17): read, never run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldFormatKind {
+    /// No format.
+    None,
+    /// A date in `date_pattern`.
+    Date,
+    /// A number with `decimals`.
+    Number,
+    /// A percentage with `decimals`.
+    Percent,
+}
+
+/// Why a value does not meet what its field declares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldProblemKind {
+    /// Past `max_len`.
+    TooLong,
+    /// Not a date in the pattern.
+    NotADate,
+    /// Not a number.
+    NotANumber,
+    /// Outside `min` and `max`.
+    OutOfRange,
+}
+
+/// A value's problem with its parameters.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldProblem {
+    /// What it is.
+    pub kind: FieldProblemKind,
+    /// `/MaxLen`, for `TooLong`.
+    pub max_len: Option<u32>,
+    /// The pattern, for `NotADate`.
+    pub pattern: Option<String>,
+    /// The least value, for `OutOfRange`.
+    pub min: Option<f64>,
+    /// The greatest value, for `OutOfRange`.
+    pub max: Option<f64>,
+}
+
+/// One choice of a combo or list box.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FieldOption {
+    /// What the value holds.
+    pub export: String,
+    /// What the field shows.
+    pub display: String,
+}
+
+/// One place of a field on a page, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldWidget {
+    /// Its page's handle.
+    pub page: u64,
+    /// Its box.
+    pub rect: PageRect,
+    /// The value that turns a check box or radio button on.
+    pub on_state: Option<String>,
+}
+
+/// One form field, in tab order.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldInfo {
+    /// Its identity. It stays through edits, undo and saves.
+    pub handle: u64,
+    /// Its full name.
+    pub name: String,
+    /// The name a reader shows.
+    pub label: Option<String>,
+    /// What it is.
+    pub kind: FieldKind,
+    /// It cannot be changed.
+    pub read_only: bool,
+    /// It counts in the required count.
+    pub required: bool,
+    /// A text field of many lines.
+    pub multiline: bool,
+    /// A text field that hides what is typed.
+    pub password: bool,
+    /// A comb of `max_len` cells.
+    pub comb: bool,
+    /// A list box that takes several values.
+    pub multi_select: bool,
+    /// A combo box that takes any text.
+    pub editable: bool,
+    /// Its value: text, export values, or the on-state of a button.
+    pub values: Vec<String>,
+    /// A choice's options.
+    pub options: Vec<FieldOption>,
+    /// `/MaxLen`.
+    pub max_len: Option<u32>,
+    /// Its places, in tab order.
+    pub widgets: Vec<FieldWidget>,
+    /// The format it declares.
+    pub format: FieldFormatKind,
+    /// The date pattern it declares.
+    pub date_pattern: Option<String>,
+    /// The decimals it declares.
+    pub decimals: Option<i32>,
+    /// The least value it declares.
+    pub min: Option<f64>,
+    /// The greatest value it declares.
+    pub max: Option<f64>,
+    /// How its value fails what it declares.
+    pub problem: Option<FieldProblem>,
+    /// A signature field holds a digital signature.
+    pub signed: bool,
+    /// The stamp of the simple signature on it.
+    pub signature: Option<u64>,
+    /// It counts as filled.
+    pub filled: bool,
+}
+
+/// A document's form.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FormInfo {
+    /// In tab order.
+    pub fields: Vec<FieldInfo>,
+    /// Required fields.
+    pub required: u32,
+    /// Required fields not yet filled.
+    pub required_left: u32,
+    /// Fields whose value fails what they declare.
+    pub problems: u32,
+    /// `/XFA` is there, and the first change removes it with a notice.
+    pub has_xfa: bool,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// What setting a value returns.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldCommit {
+    /// Where the history stands.
+    pub revision: RevisionInfo,
+    /// How the new value fails what the field declares.
+    pub problem: Option<FieldProblem>,
+    /// The families it was drawn in because its font could not: say so once.
+    pub fonts: Vec<String>,
+    /// What its font cannot draw was left out: mark the field.
+    pub marked: bool,
+    /// `/XFA` left the form: say so.
+    pub xfa_removed: bool,
+    /// Ask each time: its font cannot draw the value and nothing was written. Call again with a
+    /// choice.
+    pub asks_font: bool,
+}
+
+/// What to do when a value has characters its field's font cannot draw.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MissingFont {
+    /// Bundled Plex, said once.
+    Bundled,
+    /// Ask first, writing nothing.
+    Ask,
+    /// Keep the field's font and mark the field.
+    Keep,
+}
+
+fn field_problem_dto(problem: facade::FieldProblem) -> FieldProblem {
+    let empty = |kind| FieldProblem {
+        kind,
+        max_len: None,
+        pattern: None,
+        min: None,
+        max: None,
+    };
+    match problem {
+        facade::FieldProblem::TooLong { max } => FieldProblem {
+            max_len: Some(max),
+            ..empty(FieldProblemKind::TooLong)
+        },
+        facade::FieldProblem::NotADate { pattern } => FieldProblem {
+            pattern: Some(pattern),
+            ..empty(FieldProblemKind::NotADate)
+        },
+        facade::FieldProblem::NotANumber => empty(FieldProblemKind::NotANumber),
+        facade::FieldProblem::OutOfRange { min, max } => FieldProblem {
+            min,
+            max,
+            ..empty(FieldProblemKind::OutOfRange)
+        },
+    }
+}
+
+fn field_info_dto(field: facade::FieldInfo) -> FieldInfo {
+    let (format, date_pattern, decimals) = match field.format {
+        None => (FieldFormatKind::None, None, None),
+        Some(facade::FieldFormat::Date(pattern)) => (FieldFormatKind::Date, Some(pattern), None),
+        Some(facade::FieldFormat::Number(decimals)) => {
+            (FieldFormatKind::Number, None, Some(decimals))
+        }
+        Some(facade::FieldFormat::Percent(decimals)) => {
+            (FieldFormatKind::Percent, None, Some(decimals))
+        }
+    };
+    FieldInfo {
+        handle: field.handle,
+        name: field.name,
+        label: field.label,
+        kind: match field.kind {
+            facade::FieldKind::Text => FieldKind::Text,
+            facade::FieldKind::Check => FieldKind::Check,
+            facade::FieldKind::Radio => FieldKind::Radio,
+            facade::FieldKind::Push => FieldKind::Push,
+            facade::FieldKind::Combo => FieldKind::Combo,
+            facade::FieldKind::List => FieldKind::List,
+            facade::FieldKind::Signature => FieldKind::Signature,
+            facade::FieldKind::Other => FieldKind::Other,
+        },
+        read_only: field.read_only,
+        required: field.required,
+        multiline: field.multiline,
+        password: field.password,
+        comb: field.comb,
+        multi_select: field.multi_select,
+        editable: field.editable,
+        values: field.values,
+        options: field
+            .options
+            .into_iter()
+            .map(|(export, display)| FieldOption { export, display })
+            .collect(),
+        max_len: field.max_len,
+        widgets: field
+            .widgets
+            .into_iter()
+            .map(|widget| {
+                let [left, top, right, bottom] = widget.rect;
+                FieldWidget {
+                    page: widget.page,
+                    rect: PageRect {
+                        left,
+                        top,
+                        right,
+                        bottom,
+                    },
+                    on_state: widget.on_state,
+                }
+            })
+            .collect(),
+        format,
+        date_pattern,
+        decimals,
+        min: field.min,
+        max: field.max,
+        problem: field.problem.map(field_problem_dto),
+        signed: field.signed,
+        signature: field.signature,
+        filled: field.filled,
+    }
+}
+
+/// The form as the committed revisions leave it, in tab order. Reading generates nothing.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn form_fields(document: u64) -> Result<FormInfo, ApiError> {
+    let form = engine()?
+        .form_fields(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)?;
+    Ok(FormInfo {
+        fields: form.fields.into_iter().map(field_info_dto).collect(),
+        required: form.required,
+        required_left: form.required_left,
+        problems: form.problems,
+        has_xfa: form.has_xfa,
+        truncated: form.truncated,
+    })
+}
+
+/// Sets field `handle` to `values` as one history step: text, export values or a button's
+/// on-state, none to empty it. Call it on blur, Tab or the end of a drag, never per keystroke.
+/// `missing` answers Ask each time; `None` follows the font settings.
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` and `NotFound`, as for an
+/// annotation.
+pub async fn set_field_value(
+    document: u64,
+    handle: u64,
+    values: Vec<String>,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
+    let missing = missing.map(|missing| match missing {
+        MissingFont::Bundled => facade::MissingFont::Bundled,
+        MissingFont::Ask => facade::MissingFont::Ask,
+        MissingFont::Keep => facade::MissingFont::Keep,
+    });
+    let commit = engine()?
+        .set_field_value(
+            facade::DocumentId::from_raw(document),
+            handle,
+            values,
+            missing,
+            name,
+        )
+        .await
+        .map_err(api_error_dto)?;
+    Ok(FieldCommit {
+        revision: revision_dto(commit.revision),
+        problem: commit.problem.map(field_problem_dto),
+        fonts: commit.fonts,
+        marked: commit.marked,
+        xfa_removed: commit.xfa_removed,
+        asks_font: commit.asks_font,
+    })
+}
+
+/// Empties every field that holds a value and can change, as one history step. Signatures stay.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+pub async fn clear_form(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .clear_form(facade::DocumentId::from_raw(document), name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Finish: every field becomes page content as it looks, as one history step; a digitally signed
+/// field stays. It asks what editing asks.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+pub async fn finish_form(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .finish_form(facade::DocumentId::from_raw(document), name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// What an operation may do to a document as it stands (G35).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpGate {
@@ -4155,6 +4524,7 @@ impl facade::SearchSink for BridgeSearch {
                         snippet_end: found.snippet_range.end,
                         bookmark: found.bookmark,
                         comment: found.comment,
+                        field: found.field,
                     })
                     .collect(),
                 ..empty

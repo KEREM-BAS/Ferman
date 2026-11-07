@@ -86,7 +86,7 @@ impl Value {
 
     /// This value for the model's `object`, a stream's data decoded within `doc`'s limits, or left
     /// encoded under a filter ferman-core does not decode.
-    fn of(object: &Object, doc: &Document) -> Result<Self, CoreError> {
+    pub(crate) fn of(object: &Object, doc: &Document) -> Result<Self, CoreError> {
         Ok(match object {
             Object::Null => Self::Null,
             Object::Boolean(value) => Self::Boolean(*value),

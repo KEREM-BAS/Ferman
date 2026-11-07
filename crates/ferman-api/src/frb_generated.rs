@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1489562571;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 205561340;
 
 // Section: executor
 
@@ -397,6 +397,32 @@ fn wire__crate__frb__choose_font_impl(
                             api_postscript_name,
                         )
                         .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__clear_form_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "clear_form",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::clear_form(api_document, api_name).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -797,6 +823,32 @@ fn wire__crate__frb__engine_info_impl(port_: flutter_rust_bridge::for_generated:
         },
     )
 }
+fn wire__crate__frb__finish_form_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "finish_form",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::finish_form(api_document, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__finish_save_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -842,6 +894,30 @@ fn wire__crate__frb__font_coverage_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::font_coverage(api_document, api_letters).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__form_fields_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "form_fields",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::form_fields(api_document).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1963,6 +2039,45 @@ fn wire__crate__frb__set_block_style_impl(
         },
     )
 }
+fn wire__crate__frb__set_field_value_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    values: impl CstDecode<Vec<String>>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_field_value",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_values = values.cst_decode();
+            let api_missing = missing.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_field_value(
+                            api_document,
+                            api_handle,
+                            api_values,
+                            api_missing,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__set_font_settings_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     settings: impl CstDecode<crate::frb::FontSettings>,
@@ -2847,6 +2962,12 @@ impl CstDecode<f32> for f32 {
         self
     }
 }
+impl CstDecode<f64> for f64 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> f64 {
+        self
+    }
+}
 impl CstDecode<crate::frb::FailReason> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::FailReason {
@@ -2857,6 +2978,46 @@ impl CstDecode<crate::frb::FailReason> for i32 {
             3 => crate::frb::FailReason::OutOfMemory,
             4 => crate::frb::FailReason::Internal,
             _ => unreachable!("Invalid variant for FailReason: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldFormatKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldFormatKind {
+        match self {
+            0 => crate::frb::FieldFormatKind::None,
+            1 => crate::frb::FieldFormatKind::Date,
+            2 => crate::frb::FieldFormatKind::Number,
+            3 => crate::frb::FieldFormatKind::Percent,
+            _ => unreachable!("Invalid variant for FieldFormatKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldKind {
+        match self {
+            0 => crate::frb::FieldKind::Text,
+            1 => crate::frb::FieldKind::Check,
+            2 => crate::frb::FieldKind::Radio,
+            3 => crate::frb::FieldKind::Push,
+            4 => crate::frb::FieldKind::Combo,
+            5 => crate::frb::FieldKind::List,
+            6 => crate::frb::FieldKind::Signature,
+            7 => crate::frb::FieldKind::Other,
+            _ => unreachable!("Invalid variant for FieldKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldProblemKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldProblemKind {
+        match self {
+            0 => crate::frb::FieldProblemKind::TooLong,
+            1 => crate::frb::FieldProblemKind::NotADate,
+            2 => crate::frb::FieldProblemKind::NotANumber,
+            3 => crate::frb::FieldProblemKind::OutOfRange,
+            _ => unreachable!("Invalid variant for FieldProblemKind: {}", self),
         }
     }
 }
@@ -2994,6 +3155,17 @@ impl CstDecode<crate::frb::LinkLook> for i32 {
             1 => crate::frb::LinkLook::Underline,
             2 => crate::frb::LinkLook::Box,
             _ => unreachable!("Invalid variant for LinkLook: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::MissingFont> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::MissingFont {
+        match self {
+            0 => crate::frb::MissingFont::Bundled,
+            1 => crate::frb::MissingFont::Ask,
+            2 => crate::frb::MissingFont::Keep,
+            _ => unreachable!("Invalid variant for MissingFont: {}", self),
         }
     }
 }
@@ -3870,6 +4042,13 @@ impl SseDecode for f32 {
     }
 }
 
+impl SseDecode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_f64::<NativeEndian>().unwrap()
+    }
+}
+
 impl SseDecode for crate::frb::FailReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3881,6 +4060,172 @@ impl SseDecode for crate::frb::FailReason {
             3 => crate::frb::FailReason::OutOfMemory,
             4 => crate::frb::FailReason::Internal,
             _ => unreachable!("Invalid variant for FailReason: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_revision = <crate::frb::RevisionInfo>::sse_decode(deserializer);
+        let mut var_problem = <Option<crate::frb::FieldProblem>>::sse_decode(deserializer);
+        let mut var_fonts = <Vec<String>>::sse_decode(deserializer);
+        let mut var_marked = <bool>::sse_decode(deserializer);
+        let mut var_xfaRemoved = <bool>::sse_decode(deserializer);
+        let mut var_asksFont = <bool>::sse_decode(deserializer);
+        return crate::frb::FieldCommit {
+            revision: var_revision,
+            problem: var_problem,
+            fonts: var_fonts,
+            marked: var_marked,
+            xfa_removed: var_xfaRemoved,
+            asks_font: var_asksFont,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldFormatKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldFormatKind::None,
+            1 => crate::frb::FieldFormatKind::Date,
+            2 => crate::frb::FieldFormatKind::Number,
+            3 => crate::frb::FieldFormatKind::Percent,
+            _ => unreachable!("Invalid variant for FieldFormatKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_handle = <u64>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_label = <Option<String>>::sse_decode(deserializer);
+        let mut var_kind = <crate::frb::FieldKind>::sse_decode(deserializer);
+        let mut var_readOnly = <bool>::sse_decode(deserializer);
+        let mut var_required_ = <bool>::sse_decode(deserializer);
+        let mut var_multiline = <bool>::sse_decode(deserializer);
+        let mut var_password = <bool>::sse_decode(deserializer);
+        let mut var_comb = <bool>::sse_decode(deserializer);
+        let mut var_multiSelect = <bool>::sse_decode(deserializer);
+        let mut var_editable = <bool>::sse_decode(deserializer);
+        let mut var_values = <Vec<String>>::sse_decode(deserializer);
+        let mut var_options = <Vec<crate::frb::FieldOption>>::sse_decode(deserializer);
+        let mut var_maxLen = <Option<u32>>::sse_decode(deserializer);
+        let mut var_widgets = <Vec<crate::frb::FieldWidget>>::sse_decode(deserializer);
+        let mut var_format = <crate::frb::FieldFormatKind>::sse_decode(deserializer);
+        let mut var_datePattern = <Option<String>>::sse_decode(deserializer);
+        let mut var_decimals = <Option<i32>>::sse_decode(deserializer);
+        let mut var_min = <Option<f64>>::sse_decode(deserializer);
+        let mut var_max = <Option<f64>>::sse_decode(deserializer);
+        let mut var_problem = <Option<crate::frb::FieldProblem>>::sse_decode(deserializer);
+        let mut var_signed = <bool>::sse_decode(deserializer);
+        let mut var_signature = <Option<u64>>::sse_decode(deserializer);
+        let mut var_filled = <bool>::sse_decode(deserializer);
+        return crate::frb::FieldInfo {
+            handle: var_handle,
+            name: var_name,
+            label: var_label,
+            kind: var_kind,
+            read_only: var_readOnly,
+            required: var_required_,
+            multiline: var_multiline,
+            password: var_password,
+            comb: var_comb,
+            multi_select: var_multiSelect,
+            editable: var_editable,
+            values: var_values,
+            options: var_options,
+            max_len: var_maxLen,
+            widgets: var_widgets,
+            format: var_format,
+            date_pattern: var_datePattern,
+            decimals: var_decimals,
+            min: var_min,
+            max: var_max,
+            problem: var_problem,
+            signed: var_signed,
+            signature: var_signature,
+            filled: var_filled,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldKind::Text,
+            1 => crate::frb::FieldKind::Check,
+            2 => crate::frb::FieldKind::Radio,
+            3 => crate::frb::FieldKind::Push,
+            4 => crate::frb::FieldKind::Combo,
+            5 => crate::frb::FieldKind::List,
+            6 => crate::frb::FieldKind::Signature,
+            7 => crate::frb::FieldKind::Other,
+            _ => unreachable!("Invalid variant for FieldKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldOption {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_export_ = <String>::sse_decode(deserializer);
+        let mut var_display = <String>::sse_decode(deserializer);
+        return crate::frb::FieldOption {
+            export: var_export_,
+            display: var_display,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldProblem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::FieldProblemKind>::sse_decode(deserializer);
+        let mut var_maxLen = <Option<u32>>::sse_decode(deserializer);
+        let mut var_pattern = <Option<String>>::sse_decode(deserializer);
+        let mut var_min = <Option<f64>>::sse_decode(deserializer);
+        let mut var_max = <Option<f64>>::sse_decode(deserializer);
+        return crate::frb::FieldProblem {
+            kind: var_kind,
+            max_len: var_maxLen,
+            pattern: var_pattern,
+            min: var_min,
+            max: var_max,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldProblemKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldProblemKind::TooLong,
+            1 => crate::frb::FieldProblemKind::NotADate,
+            2 => crate::frb::FieldProblemKind::NotANumber,
+            3 => crate::frb::FieldProblemKind::OutOfRange,
+            _ => unreachable!("Invalid variant for FieldProblemKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldWidget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_page = <u64>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_onState = <Option<String>>::sse_decode(deserializer);
+        return crate::frb::FieldWidget {
+            page: var_page,
+            rect: var_rect,
+            on_state: var_onState,
         };
     }
 }
@@ -4022,6 +4367,26 @@ impl SseDecode for crate::frb::FontType {
             4 => crate::frb::FontType::Type3,
             5 => crate::frb::FontType::Other,
             _ => unreachable!("Invalid variant for FontType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FormInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_fields = <Vec<crate::frb::FieldInfo>>::sse_decode(deserializer);
+        let mut var_required_ = <u32>::sse_decode(deserializer);
+        let mut var_requiredLeft = <u32>::sse_decode(deserializer);
+        let mut var_problems = <u32>::sse_decode(deserializer);
+        let mut var_hasXfa = <bool>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        return crate::frb::FormInfo {
+            fields: var_fields,
+            required: var_required_,
+            required_left: var_requiredLeft,
+            problems: var_problems,
+            has_xfa: var_hasXfa,
+            truncated: var_truncated,
         };
     }
 }
@@ -4449,6 +4814,42 @@ impl SseDecode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::FieldInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FieldOption> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldOption>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FieldWidget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldWidget>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::FontCandidate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4809,6 +5210,19 @@ impl SseDecode for crate::frb::MissingChar {
     }
 }
 
+impl SseDecode for crate::frb::MissingFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::MissingFont::Bundled,
+            1 => crate::frb::MissingFont::Ask,
+            2 => crate::frb::MissingFont::Keep,
+            _ => unreachable!("Invalid variant for MissingFont: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::MissingGlyphs {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -5091,11 +5505,33 @@ impl SseDecode for Option<f32> {
     }
 }
 
+impl SseDecode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::FailReason>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::FieldProblem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::FieldProblem>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -5118,6 +5554,17 @@ impl SseDecode for Option<i16> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<i16>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -5151,6 +5598,17 @@ impl SseDecode for Option<crate::frb::LinkLook> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::LinkLook>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::MissingFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::MissingFont>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -5706,6 +6164,7 @@ impl SseDecode for crate::frb::SearchMatch {
         let mut var_snippetEnd = <u32>::sse_decode(deserializer);
         let mut var_bookmark = <bool>::sse_decode(deserializer);
         let mut var_comment = <Option<u64>>::sse_decode(deserializer);
+        let mut var_field = <Option<u64>>::sse_decode(deserializer);
         return crate::frb::SearchMatch {
             page: var_page,
             rects: var_rects,
@@ -5714,6 +6173,7 @@ impl SseDecode for crate::frb::SearchMatch {
             snippet_end: var_snippetEnd,
             bookmark: var_bookmark,
             comment: var_comment,
+            field: var_field,
         };
     }
 }
@@ -5726,12 +6186,14 @@ impl SseDecode for crate::frb::SearchOptions {
         let mut var_ignoreAccents = <bool>::sse_decode(deserializer);
         let mut var_bookmarks = <bool>::sse_decode(deserializer);
         let mut var_comments = <bool>::sse_decode(deserializer);
+        let mut var_fields = <bool>::sse_decode(deserializer);
         return crate::frb::SearchOptions {
             match_case: var_matchCase,
             whole_words: var_wholeWords,
             ignore_accents: var_ignoreAccents,
             bookmarks: var_bookmarks,
             comments: var_comments,
+            fields: var_fields,
         };
     }
 }
@@ -6775,6 +7237,178 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::FailReason> for crate::frb::F
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldCommit {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.revision.into_into_dart().into_dart(),
+            self.problem.into_into_dart().into_dart(),
+            self.fonts.into_into_dart().into_dart(),
+            self.marked.into_into_dart().into_dart(),
+            self.xfa_removed.into_into_dart().into_dart(),
+            self.asks_font.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldCommit {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldCommit> for crate::frb::FieldCommit {
+    fn into_into_dart(self) -> crate::frb::FieldCommit {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldFormatKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::None => 0.into_dart(),
+            Self::Date => 1.into_dart(),
+            Self::Number => 2.into_dart(),
+            Self::Percent => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldFormatKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldFormatKind>
+    for crate::frb::FieldFormatKind
+{
+    fn into_into_dart(self) -> crate::frb::FieldFormatKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.handle.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.label.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.read_only.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+            self.multiline.into_into_dart().into_dart(),
+            self.password.into_into_dart().into_dart(),
+            self.comb.into_into_dart().into_dart(),
+            self.multi_select.into_into_dart().into_dart(),
+            self.editable.into_into_dart().into_dart(),
+            self.values.into_into_dart().into_dart(),
+            self.options.into_into_dart().into_dart(),
+            self.max_len.into_into_dart().into_dart(),
+            self.widgets.into_into_dart().into_dart(),
+            self.format.into_into_dart().into_dart(),
+            self.date_pattern.into_into_dart().into_dart(),
+            self.decimals.into_into_dart().into_dart(),
+            self.min.into_into_dart().into_dart(),
+            self.max.into_into_dart().into_dart(),
+            self.problem.into_into_dart().into_dart(),
+            self.signed.into_into_dart().into_dart(),
+            self.signature.into_into_dart().into_dart(),
+            self.filled.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldInfo> for crate::frb::FieldInfo {
+    fn into_into_dart(self) -> crate::frb::FieldInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Text => 0.into_dart(),
+            Self::Check => 1.into_dart(),
+            Self::Radio => 2.into_dart(),
+            Self::Push => 3.into_dart(),
+            Self::Combo => 4.into_dart(),
+            Self::List => 5.into_dart(),
+            Self::Signature => 6.into_dart(),
+            Self::Other => 7.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldKind> for crate::frb::FieldKind {
+    fn into_into_dart(self) -> crate::frb::FieldKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldOption {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.export.into_into_dart().into_dart(),
+            self.display.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldOption {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldOption> for crate::frb::FieldOption {
+    fn into_into_dart(self) -> crate::frb::FieldOption {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldProblem {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.max_len.into_into_dart().into_dart(),
+            self.pattern.into_into_dart().into_dart(),
+            self.min.into_into_dart().into_dart(),
+            self.max.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldProblem {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldProblem> for crate::frb::FieldProblem {
+    fn into_into_dart(self) -> crate::frb::FieldProblem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldProblemKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::TooLong => 0.into_dart(),
+            Self::NotADate => 1.into_dart(),
+            Self::NotANumber => 2.into_dart(),
+            Self::OutOfRange => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldProblemKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldProblemKind>
+    for crate::frb::FieldProblemKind
+{
+    fn into_into_dart(self) -> crate::frb::FieldProblemKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldWidget {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.page.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.on_state.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldWidget {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldWidget> for crate::frb::FieldWidget {
+    fn into_into_dart(self) -> crate::frb::FieldWidget {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::FontCandidate {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -6928,6 +7562,26 @@ impl flutter_rust_bridge::IntoDart for crate::frb::FontType {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontType {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontType> for crate::frb::FontType {
     fn into_into_dart(self) -> crate::frb::FontType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FormInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.fields.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+            self.required_left.into_into_dart().into_dart(),
+            self.problems.into_into_dart().into_dart(),
+            self.has_xfa.into_into_dart().into_dart(),
+            self.truncated.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FormInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FormInfo> for crate::frb::FormInfo {
+    fn into_into_dart(self) -> crate::frb::FormInfo {
         self
     }
 }
@@ -7267,6 +7921,23 @@ impl flutter_rust_bridge::IntoDart for crate::frb::MissingChar {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingChar {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingChar> for crate::frb::MissingChar {
     fn into_into_dart(self) -> crate::frb::MissingChar {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::MissingFont {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Bundled => 0.into_dart(),
+            Self::Ask => 1.into_dart(),
+            Self::Keep => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingFont {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingFont> for crate::frb::MissingFont {
+    fn into_into_dart(self) -> crate::frb::MissingFont {
         self
     }
 }
@@ -7890,6 +8561,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchMatch {
             self.snippet_end.into_into_dart().into_dart(),
             self.bookmark.into_into_dart().into_dart(),
             self.comment.into_into_dart().into_dart(),
+            self.field.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -7909,6 +8581,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchOptions {
             self.ignore_accents.into_into_dart().into_dart(),
             self.bookmarks.into_into_dart().into_dart(),
             self.comments.into_into_dart().into_dart(),
+            self.fields.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -8747,6 +9420,13 @@ impl SseEncode for f32 {
     }
 }
 
+impl SseEncode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_f64::<NativeEndian>(self).unwrap();
+    }
+}
+
 impl SseEncode for crate::frb::FailReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -8763,6 +9443,134 @@ impl SseEncode for crate::frb::FailReason {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::FieldCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::RevisionInfo>::sse_encode(self.revision, serializer);
+        <Option<crate::frb::FieldProblem>>::sse_encode(self.problem, serializer);
+        <Vec<String>>::sse_encode(self.fonts, serializer);
+        <bool>::sse_encode(self.marked, serializer);
+        <bool>::sse_encode(self.xfa_removed, serializer);
+        <bool>::sse_encode(self.asks_font, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldFormatKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldFormatKind::None => 0,
+                crate::frb::FieldFormatKind::Date => 1,
+                crate::frb::FieldFormatKind::Number => 2,
+                crate::frb::FieldFormatKind::Percent => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.handle, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.label, serializer);
+        <crate::frb::FieldKind>::sse_encode(self.kind, serializer);
+        <bool>::sse_encode(self.read_only, serializer);
+        <bool>::sse_encode(self.required, serializer);
+        <bool>::sse_encode(self.multiline, serializer);
+        <bool>::sse_encode(self.password, serializer);
+        <bool>::sse_encode(self.comb, serializer);
+        <bool>::sse_encode(self.multi_select, serializer);
+        <bool>::sse_encode(self.editable, serializer);
+        <Vec<String>>::sse_encode(self.values, serializer);
+        <Vec<crate::frb::FieldOption>>::sse_encode(self.options, serializer);
+        <Option<u32>>::sse_encode(self.max_len, serializer);
+        <Vec<crate::frb::FieldWidget>>::sse_encode(self.widgets, serializer);
+        <crate::frb::FieldFormatKind>::sse_encode(self.format, serializer);
+        <Option<String>>::sse_encode(self.date_pattern, serializer);
+        <Option<i32>>::sse_encode(self.decimals, serializer);
+        <Option<f64>>::sse_encode(self.min, serializer);
+        <Option<f64>>::sse_encode(self.max, serializer);
+        <Option<crate::frb::FieldProblem>>::sse_encode(self.problem, serializer);
+        <bool>::sse_encode(self.signed, serializer);
+        <Option<u64>>::sse_encode(self.signature, serializer);
+        <bool>::sse_encode(self.filled, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldKind::Text => 0,
+                crate::frb::FieldKind::Check => 1,
+                crate::frb::FieldKind::Radio => 2,
+                crate::frb::FieldKind::Push => 3,
+                crate::frb::FieldKind::Combo => 4,
+                crate::frb::FieldKind::List => 5,
+                crate::frb::FieldKind::Signature => 6,
+                crate::frb::FieldKind::Other => 7,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldOption {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.export, serializer);
+        <String>::sse_encode(self.display, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldProblem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::FieldProblemKind>::sse_encode(self.kind, serializer);
+        <Option<u32>>::sse_encode(self.max_len, serializer);
+        <Option<String>>::sse_encode(self.pattern, serializer);
+        <Option<f64>>::sse_encode(self.min, serializer);
+        <Option<f64>>::sse_encode(self.max, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldProblemKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldProblemKind::TooLong => 0,
+                crate::frb::FieldProblemKind::NotADate => 1,
+                crate::frb::FieldProblemKind::NotANumber => 2,
+                crate::frb::FieldProblemKind::OutOfRange => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldWidget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.page, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Option<String>>::sse_encode(self.on_state, serializer);
     }
 }
 
@@ -8878,6 +9686,18 @@ impl SseEncode for crate::frb::FontType {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::FormInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::FieldInfo>>::sse_encode(self.fields, serializer);
+        <u32>::sse_encode(self.required, serializer);
+        <u32>::sse_encode(self.required_left, serializer);
+        <u32>::sse_encode(self.problems, serializer);
+        <bool>::sse_encode(self.has_xfa, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
     }
 }
 
@@ -9235,6 +10055,36 @@ impl SseEncode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::FieldInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FieldOption> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldOption>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FieldWidget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldWidget>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::FontCandidate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -9533,6 +10383,23 @@ impl SseEncode for crate::frb::MissingChar {
     }
 }
 
+impl SseEncode for crate::frb::MissingFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::MissingFont::Bundled => 0,
+                crate::frb::MissingFont::Ask => 1,
+                crate::frb::MissingFont::Keep => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::MissingGlyphs {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -9759,12 +10626,32 @@ impl SseEncode for Option<f32> {
     }
 }
 
+impl SseEncode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f64>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::FailReason>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::FieldProblem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::FieldProblem>::sse_encode(value, serializer);
         }
     }
 }
@@ -9785,6 +10672,16 @@ impl SseEncode for Option<i16> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <i16>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
         }
     }
 }
@@ -9815,6 +10712,16 @@ impl SseEncode for Option<crate::frb::LinkLook> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::LinkLook>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::MissingFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::MissingFont>::sse_encode(value, serializer);
         }
     }
 }
@@ -10287,6 +11194,7 @@ impl SseEncode for crate::frb::SearchMatch {
         <u32>::sse_encode(self.snippet_end, serializer);
         <bool>::sse_encode(self.bookmark, serializer);
         <Option<u64>>::sse_encode(self.comment, serializer);
+        <Option<u64>>::sse_encode(self.field, serializer);
     }
 }
 
@@ -10298,6 +11206,7 @@ impl SseEncode for crate::frb::SearchOptions {
         <bool>::sse_encode(self.ignore_accents, serializer);
         <bool>::sse_encode(self.bookmarks, serializer);
         <bool>::sse_encode(self.comments, serializer);
+        <bool>::sse_encode(self.fields, serializer);
     }
 }
 
@@ -10886,11 +11795,24 @@ mod io {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
+    impl CstDecode<f64> for *mut f64 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
     impl CstDecode<crate::frb::FailReason> for *mut i32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FailReason {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::FailReason>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem> for *mut wire_cst_field_problem {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::FieldProblem>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::FontEmbedding> for *mut i32 {
@@ -10910,6 +11832,12 @@ mod io {
     impl CstDecode<i16> for *mut i16 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> i16 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<i32> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
@@ -10939,6 +11867,13 @@ mod io {
         fn cst_decode(self) -> crate::frb::LinkLook {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::LinkLook>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingFont> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingFont {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::MissingFont>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::MissingGlyphs> for *mut wire_cst_missing_glyphs {
@@ -11213,6 +12148,81 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::FieldCommit> for wire_cst_field_commit {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldCommit {
+            crate::frb::FieldCommit {
+                revision: self.revision.cst_decode(),
+                problem: self.problem.cst_decode(),
+                fonts: self.fonts.cst_decode(),
+                marked: self.marked.cst_decode(),
+                xfa_removed: self.xfa_removed.cst_decode(),
+                asks_font: self.asks_font.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldInfo> for wire_cst_field_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldInfo {
+            crate::frb::FieldInfo {
+                handle: self.handle.cst_decode(),
+                name: self.name.cst_decode(),
+                label: self.label.cst_decode(),
+                kind: self.kind.cst_decode(),
+                read_only: self.read_only.cst_decode(),
+                required: self.required.cst_decode(),
+                multiline: self.multiline.cst_decode(),
+                password: self.password.cst_decode(),
+                comb: self.comb.cst_decode(),
+                multi_select: self.multi_select.cst_decode(),
+                editable: self.editable.cst_decode(),
+                values: self.values.cst_decode(),
+                options: self.options.cst_decode(),
+                max_len: self.max_len.cst_decode(),
+                widgets: self.widgets.cst_decode(),
+                format: self.format.cst_decode(),
+                date_pattern: self.date_pattern.cst_decode(),
+                decimals: self.decimals.cst_decode(),
+                min: self.min.cst_decode(),
+                max: self.max.cst_decode(),
+                problem: self.problem.cst_decode(),
+                signed: self.signed.cst_decode(),
+                signature: self.signature.cst_decode(),
+                filled: self.filled.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldOption> for wire_cst_field_option {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldOption {
+            crate::frb::FieldOption {
+                export: self.export.cst_decode(),
+                display: self.display.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem> for wire_cst_field_problem {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            crate::frb::FieldProblem {
+                kind: self.kind.cst_decode(),
+                max_len: self.max_len.cst_decode(),
+                pattern: self.pattern.cst_decode(),
+                min: self.min.cst_decode(),
+                max: self.max.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldWidget> for wire_cst_field_widget {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldWidget {
+            crate::frb::FieldWidget {
+                page: self.page.cst_decode(),
+                rect: self.rect.cst_decode(),
+                on_state: self.on_state.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontCandidate> for wire_cst_font_candidate {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FontCandidate {
@@ -11273,6 +12283,19 @@ mod io {
                 to_font: self.to_font.cst_decode(),
                 origin: self.origin.cst_decode(),
                 announced: self.announced.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FormInfo> for wire_cst_form_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FormInfo {
+            crate::frb::FormInfo {
+                fields: self.fields.cst_decode(),
+                required: self.required.cst_decode(),
+                required_left: self.required_left.cst_decode(),
+                problems: self.problems.cst_decode(),
+                has_xfa: self.has_xfa.cst_decode(),
+                truncated: self.truncated.cst_decode(),
             }
         }
     }
@@ -11497,6 +12520,36 @@ mod io {
     impl CstDecode<Vec<crate::frb::DependentCell>> for *mut wire_cst_list_dependent_cell {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::DependentCell> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldInfo>> for *mut wire_cst_list_field_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldInfo> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldOption>> for *mut wire_cst_list_field_option {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldOption> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldWidget>> for *mut wire_cst_list_field_widget {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldWidget> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -12076,6 +13129,7 @@ mod io {
                 snippet_end: self.snippet_end.cst_decode(),
                 bookmark: self.bookmark.cst_decode(),
                 comment: self.comment.cst_decode(),
+                field: self.field.cst_decode(),
             }
         }
     }
@@ -12088,6 +13142,7 @@ mod io {
                 ignore_accents: self.ignore_accents.cst_decode(),
                 bookmarks: self.bookmarks.cst_decode(),
                 comments: self.comments.cst_decode(),
+                fields: self.fields.cst_decode(),
             }
         }
     }
@@ -12652,6 +13707,101 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_field_commit {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                revision: Default::default(),
+                problem: core::ptr::null_mut(),
+                fonts: core::ptr::null_mut(),
+                marked: Default::default(),
+                xfa_removed: Default::default(),
+                asks_font: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_commit {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                handle: Default::default(),
+                name: core::ptr::null_mut(),
+                label: core::ptr::null_mut(),
+                kind: Default::default(),
+                read_only: Default::default(),
+                required: Default::default(),
+                multiline: Default::default(),
+                password: Default::default(),
+                comb: Default::default(),
+                multi_select: Default::default(),
+                editable: Default::default(),
+                values: core::ptr::null_mut(),
+                options: core::ptr::null_mut(),
+                max_len: core::ptr::null_mut(),
+                widgets: core::ptr::null_mut(),
+                format: Default::default(),
+                date_pattern: core::ptr::null_mut(),
+                decimals: core::ptr::null_mut(),
+                min: core::ptr::null_mut(),
+                max: core::ptr::null_mut(),
+                problem: core::ptr::null_mut(),
+                signed: Default::default(),
+                signature: core::ptr::null_mut(),
+                filled: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_option {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                export: core::ptr::null_mut(),
+                display: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_option {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_problem {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                max_len: core::ptr::null_mut(),
+                pattern: core::ptr::null_mut(),
+                min: core::ptr::null_mut(),
+                max: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_problem {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_widget {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                page: Default::default(),
+                rect: Default::default(),
+                on_state: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_widget {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_font_candidate {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -12731,6 +13881,23 @@ mod io {
         }
     }
     impl Default for wire_cst_font_substitution {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_form_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                fields: core::ptr::null_mut(),
+                required: Default::default(),
+                required_left: Default::default(),
+                problems: Default::default(),
+                has_xfa: Default::default(),
+                truncated: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_form_info {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -13280,6 +14447,7 @@ mod io {
                 snippet_end: Default::default(),
                 bookmark: Default::default(),
                 comment: core::ptr::null_mut(),
+                field: core::ptr::null_mut(),
             }
         }
     }
@@ -13296,6 +14464,7 @@ mod io {
                 ignore_accents: Default::default(),
                 bookmarks: Default::default(),
                 comments: Default::default(),
+                fields: Default::default(),
             }
         }
     }
@@ -13614,6 +14783,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__clear_form(
+        port_: i64,
+        document: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__clear_form_impl(port_, document, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__close(
         port_: i64,
         document: u64,
@@ -13737,6 +14915,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_form(
+        port_: i64,
+        document: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__finish_form_impl(port_, document, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_save(
         port_: i64,
         document: u64,
@@ -13752,6 +14939,11 @@ mod io {
         letters: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__font_coverage_impl(port_, document, letters)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__form_fields(port_: i64, document: u64) {
+        wire__crate__frb__form_fields_impl(port_, document)
     }
 
     #[unsafe(no_mangle)]
@@ -14100,6 +15292,18 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_field_value(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        values: *mut wire_cst_list_String,
+        missing: *mut i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__set_field_value_impl(port_, document, handle, values, missing, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__set_font_settings(
         port_: i64,
         settings: *mut wire_cst_font_settings,
@@ -14430,8 +15634,21 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_f_64(value: f64) -> *mut f64 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_fail_reason(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_field_problem()
+    -> *mut wire_cst_field_problem {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_field_problem::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -14449,6 +15666,11 @@ mod io {
 
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_i_16(value: i16) -> *mut i16 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_i_32(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
@@ -14474,6 +15696,11 @@ mod io {
 
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_link_look(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_font(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
@@ -14723,6 +15950,48 @@ mod io {
         let wrap = wire_cst_list_dependent_cell {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_dependent_cell>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_info(
+        len: i32,
+    ) -> *mut wire_cst_list_field_info {
+        let wrap = wire_cst_list_field_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_info>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_option(
+        len: i32,
+    ) -> *mut wire_cst_list_field_option {
+        let wrap = wire_cst_list_field_option {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_option>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_widget(
+        len: i32,
+    ) -> *mut wire_cst_list_field_widget {
+        let wrap = wire_cst_list_field_widget {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_widget>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -15361,6 +16630,66 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_field_commit {
+        revision: wire_cst_revision_info,
+        problem: *mut wire_cst_field_problem,
+        fonts: *mut wire_cst_list_String,
+        marked: bool,
+        xfa_removed: bool,
+        asks_font: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_info {
+        handle: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+        label: *mut wire_cst_list_prim_u_8_strict,
+        kind: i32,
+        read_only: bool,
+        required: bool,
+        multiline: bool,
+        password: bool,
+        comb: bool,
+        multi_select: bool,
+        editable: bool,
+        values: *mut wire_cst_list_String,
+        options: *mut wire_cst_list_field_option,
+        max_len: *mut u32,
+        widgets: *mut wire_cst_list_field_widget,
+        format: i32,
+        date_pattern: *mut wire_cst_list_prim_u_8_strict,
+        decimals: *mut i32,
+        min: *mut f64,
+        max: *mut f64,
+        problem: *mut wire_cst_field_problem,
+        signed: bool,
+        signature: *mut u64,
+        filled: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_option {
+        export: *mut wire_cst_list_prim_u_8_strict,
+        display: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_problem {
+        kind: i32,
+        max_len: *mut u32,
+        pattern: *mut wire_cst_list_prim_u_8_strict,
+        min: *mut f64,
+        max: *mut f64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_widget {
+        page: u64,
+        rect: wire_cst_page_rect,
+        on_state: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_font_candidate {
         origin: i32,
         postscript_name: *mut wire_cst_list_prim_u_8_strict,
@@ -15406,6 +16735,16 @@ mod io {
         to_font: *mut wire_cst_list_prim_u_8_strict,
         origin: i32,
         announced: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_form_info {
+        fields: *mut wire_cst_list_field_info,
+        required: u32,
+        required_left: u32,
+        problems: u32,
+        has_xfa: bool,
+        truncated: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -15560,6 +16899,24 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_dependent_cell {
         ptr: *mut wire_cst_dependent_cell,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_info {
+        ptr: *mut wire_cst_field_info,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_option {
+        ptr: *mut wire_cst_field_option,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_widget {
+        ptr: *mut wire_cst_field_widget,
         len: i32,
     }
     #[repr(C)]
@@ -15955,6 +17312,7 @@ mod io {
         snippet_end: u32,
         bookmark: bool,
         comment: *mut u64,
+        field: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -15964,6 +17322,7 @@ mod io {
         ignore_accents: bool,
         bookmarks: bool,
         comments: bool,
+        fields: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -16734,6 +18093,136 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::FieldCommit>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldCommit {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldCommit {
+                revision: self_.get(0).cst_decode(),
+                problem: self_.get(1).cst_decode(),
+                fonts: self_.get(2).cst_decode(),
+                marked: self_.get(3).cst_decode(),
+                xfa_removed: self_.get(4).cst_decode(),
+                asks_font: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                24,
+                "Expected 24 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldInfo {
+                handle: self_.get(0).cst_decode(),
+                name: self_.get(1).cst_decode(),
+                label: self_.get(2).cst_decode(),
+                kind: self_.get(3).cst_decode(),
+                read_only: self_.get(4).cst_decode(),
+                required: self_.get(5).cst_decode(),
+                multiline: self_.get(6).cst_decode(),
+                password: self_.get(7).cst_decode(),
+                comb: self_.get(8).cst_decode(),
+                multi_select: self_.get(9).cst_decode(),
+                editable: self_.get(10).cst_decode(),
+                values: self_.get(11).cst_decode(),
+                options: self_.get(12).cst_decode(),
+                max_len: self_.get(13).cst_decode(),
+                widgets: self_.get(14).cst_decode(),
+                format: self_.get(15).cst_decode(),
+                date_pattern: self_.get(16).cst_decode(),
+                decimals: self_.get(17).cst_decode(),
+                min: self_.get(18).cst_decode(),
+                max: self_.get(19).cst_decode(),
+                problem: self_.get(20).cst_decode(),
+                signed: self_.get(21).cst_decode(),
+                signature: self_.get(22).cst_decode(),
+                filled: self_.get(23).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldOption>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldOption {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldOption {
+                export: self_.get(0).cst_decode(),
+                display: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                5,
+                "Expected 5 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldProblem {
+                kind: self_.get(0).cst_decode(),
+                max_len: self_.get(1).cst_decode(),
+                pattern: self_.get(2).cst_decode(),
+                min: self_.get(3).cst_decode(),
+                max: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldWidget>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldWidget {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldWidget {
+                page: self_.get(0).cst_decode(),
+                rect: self_.get(1).cst_decode(),
+                on_state: self_.get(2).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontCandidate>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -16849,6 +18338,28 @@ mod web {
                 to_font: self_.get(3).cst_decode(),
                 origin: self_.get(4).cst_decode(),
                 announced: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FormInfo> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FormInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FormInfo {
+                fields: self_.get(0).cst_decode(),
+                required: self_.get(1).cst_decode(),
+                required_left: self_.get(2).cst_decode(),
+                problems: self_.get(3).cst_decode(),
+                has_xfa: self_.get(4).cst_decode(),
+                truncated: self_.get(5).cst_decode(),
             }
         }
     }
@@ -17198,6 +18709,42 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::DependentCell> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldOption>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldOption> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldWidget>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldWidget> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -18057,8 +19604,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                7,
-                "Expected 7 elements, got {}",
+                8,
+                "Expected 8 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchMatch {
@@ -18069,6 +19616,7 @@ mod web {
                 snippet_end: self_.get(4).cst_decode(),
                 bookmark: self_.get(5).cst_decode(),
                 comment: self_.get(6).cst_decode(),
+                field: self_.get(7).cst_decode(),
             }
         }
     }
@@ -18082,8 +19630,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                5,
-                "Expected 5 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchOptions {
@@ -18092,6 +19640,7 @@ mod web {
                 ignore_accents: self_.get(2).cst_decode(),
                 bookmarks: self_.get(3).cst_decode(),
                 comments: self_.get(4).cst_decode(),
+                fields: self_.get(5).cst_decode(),
             }
         }
     }
@@ -18488,11 +20037,41 @@ mod web {
             self.unchecked_into_f64() as _
         }
     }
+    impl CstDecode<f64> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            self.unchecked_into_f64() as _
+        }
+    }
     impl CstDecode<crate::frb::FailReason>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FailReason {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldFormatKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldFormatKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblemKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblemKind {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -18600,6 +20179,14 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingFont>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingFont {
+            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<crate::frb::MissingReasonKind>
@@ -18878,6 +20465,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__clear_form(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__clear_form_impl(port_, document, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__close(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -19007,6 +20603,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__finish_form(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__finish_form_impl(port_, document, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__finish_save(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -19022,6 +20627,14 @@ mod web {
         letters: String,
     ) {
         wire__crate__frb__font_coverage_impl(port_, document, letters)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__form_fields(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__form_fields_impl(port_, document)
     }
 
     #[wasm_bindgen]
@@ -19393,6 +21006,18 @@ mod web {
         style: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__set_block_style_impl(port_, transaction, style)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__set_field_value(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        values: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__set_field_value_impl(port_, document, handle, values, missing, name)
     }
 
     #[wasm_bindgen]

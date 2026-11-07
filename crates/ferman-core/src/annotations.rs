@@ -341,7 +341,7 @@ fn short_text(scope: &Scope<'_>, dict: &Dictionary, key: &[u8]) -> Option<String
 }
 
 /// The font size and colour a `/DA` string sets.
-fn default_appearance(da: &[u8]) -> (Option<f32>, Option<[f32; 3]>) {
+pub(crate) fn default_appearance(da: &[u8]) -> (Option<f32>, Option<[f32; 3]>) {
     const LONGEST: usize = 4096;
     let (mut size, mut color) = (None, None);
     let mut operands: Vec<f32> = Vec::new();

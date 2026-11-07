@@ -127,6 +127,22 @@ fn child(dir: &Path) -> ! {
         "Square".to_owned(),
     ))
     .unwrap();
+    let filled = block_on(engine().open(dir.join("filled.pdf"), None)).unwrap();
+    let field = block_on(engine().form_fields(filled.id))
+        .unwrap()
+        .fields
+        .into_iter()
+        .find(|field| field.name == "adi")
+        .unwrap();
+    block_on(engine().set_field_value(
+        filled.id,
+        field.handle,
+        // In the field's own font: this engine has no bundled fonts.
+        vec!["Mehmet".to_owned()],
+        None,
+        "Fill".to_owned(),
+    ))
+    .unwrap();
     // Past the one-second sync of the actor's tick.
     std::thread::sleep(Duration::from_millis(2500));
     std::fs::write(dir.join("ready"), b"").unwrap();
@@ -157,6 +173,8 @@ fn a_killed_instance_is_restored_from_its_journal() {
     std::fs::write(dir.join("arranged.pdf"), &tree).unwrap();
     let notes = std::fs::read(corpus("annots-other-producer")).unwrap();
     std::fs::write(dir.join("commented.pdf"), &notes).unwrap();
+    let form = std::fs::read(corpus("form-aks1-tr")).unwrap();
+    std::fs::write(dir.join("filled.pdf"), &form).unwrap();
 
     let mut child = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--ignored", "--exact", TEST, "--test-threads", "1"])
@@ -182,7 +200,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let root = dir.join("Recovery");
     block_on(engine().start_recovery(root.clone())).unwrap();
     let listed = block_on(engine().list_recoverable()).unwrap();
-    assert_eq!(listed.len(), 7, "{listed:?}");
+    assert_eq!(listed.len(), 8, "{listed:?}");
     let named = |name: &str| {
         listed
             .iter()
@@ -245,6 +263,24 @@ fn a_killed_instance_is_restored_from_its_journal() {
             .any(|note| note.contents.as_deref() == Some("Bak")
                 && note.author.as_deref() == Some("Ayşe")),
         "the new square is back"
+    );
+    assert!(block_on(engine().undo(restored.opened.id)).is_ok());
+
+    // A field's value comes back the same way.
+    let found = named("filled.pdf");
+    let restored = block_on(engine().restore_recovered(
+        found.session.clone(),
+        found.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap();
+    let form = block_on(engine().form_fields(restored.opened.id)).unwrap();
+    assert!(
+        form.fields
+            .iter()
+            .any(|field| field.name == "adi" && field.values == ["Mehmet"]),
+        "the value is back"
     );
     assert!(block_on(engine().undo(restored.opened.id)).is_ok());
 

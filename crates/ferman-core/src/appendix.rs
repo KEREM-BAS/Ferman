@@ -211,11 +211,18 @@ impl RevisionStore {
             .map(|(id, _)| *id)
             .collect();
         changed.extend(then.keys().filter(|id| !now.contains_key(*id)));
-        // shortcut: any change to the catalog counts for every page, because of /OCProperties;
-        // compare that entry alone if the outline writer (W6) makes this slow.
-        let root = doc.xref().trailer.get(b"Root").ok()?.as_reference().ok();
-        if root.is_some_and(|root| changed.contains(&root)) {
-            return None;
+        // A catalog that changed only in /AcroForm draws the same: its fonts and fields reach a page
+        // through the widgets, and the walk below finds those.
+        let root = doc.xref().trailer.get(b"Root").ok()?.as_reference().ok()?;
+        if changed.contains(&root) {
+            let without_form = |store: &Self| {
+                let mut catalog = store.scope(doc).dictionary(root)?.clone();
+                catalog.remove(b"AcroForm");
+                Some(catalog)
+            };
+            if without_form(self)? != without_form(before)? {
+                return None;
+            }
         }
         let scope = self.scope(doc);
         let mut walk = Walk {

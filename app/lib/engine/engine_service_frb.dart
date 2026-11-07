@@ -331,6 +331,7 @@ class FrbEngineService implements EngineService {
           ignoreAccents: options.ignoreAccents,
           bookmarks: options.bookmarks,
           comments: options.comments,
+          fields: options.fields,
         ),
       )
       .handleError(
@@ -353,6 +354,7 @@ class FrbEngineService implements EngineService {
                 snippetEnd: _units(found.snippet, found.snippetEnd),
                 bookmark: found.bookmark,
                 comment: found.comment?.toInt(),
+                field: found.field?.toInt(),
               ),
           ]),
           bridge.SearchEventKind.progress => SearchProgress(
@@ -1102,6 +1104,123 @@ class FrbEngineService implements EngineService {
   @override
   Future<RevisionInfo> rollbackEdit(int transaction) => _revision(
     () => bridge.rollbackEdit(transaction: BigInt.from(transaction)),
+  );
+
+  @override
+  Future<FormInfo> formFields(int document) async {
+    try {
+      final form = await bridge.formFields(document: BigInt.from(document));
+      return FormInfo(
+        fields: [for (final field in form.fields) _field(field)],
+        required: form.required_,
+        requiredLeft: form.requiredLeft,
+        problems: form.problems,
+        hasXfa: form.hasXfa,
+        truncated: form.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) async {
+    bridge.FieldCommit? commit;
+    final revision = await _revision(() async {
+      final made = await bridge.setFieldValue(
+        document: BigInt.from(document),
+        handle: BigInt.from(handle),
+        values: values,
+        missing: switch (missing) {
+          null => null,
+          final missing => bridge.MissingFont.values.byName(missing.name),
+        },
+        name: name,
+      );
+      commit = made;
+      return made.revision;
+    });
+    final made = commit!;
+    return FieldCommit(
+      revision: revision,
+      problem: switch (made.problem) {
+        null => null,
+        final problem => _problem(problem),
+      },
+      fonts: made.fonts,
+      marked: made.marked,
+      xfaRemoved: made.xfaRemoved,
+      asksFont: made.asksFont,
+    );
+  }
+
+  @override
+  Future<RevisionInfo> clearForm(int document, String name) => _revision(
+    () => bridge.clearForm(document: BigInt.from(document), name: name),
+  );
+
+  @override
+  Future<RevisionInfo> finishForm(int document, String name) => _revision(
+    () => bridge.finishForm(document: BigInt.from(document), name: name),
+  );
+
+  static FieldProblem _problem(bridge.FieldProblem problem) => FieldProblem(
+    kind: FieldProblemKind.values.byName(problem.kind.name),
+    maxLen: problem.maxLen,
+    pattern: problem.pattern,
+    min: problem.min,
+    max: problem.max,
+  );
+
+  static FieldInfo _field(bridge.FieldInfo field) => FieldInfo(
+    handle: field.handle.toInt(),
+    name: field.name,
+    label: field.label,
+    kind: FieldKind.values.byName(field.kind.name),
+    readOnly: field.readOnly,
+    required: field.required_,
+    multiline: field.multiline,
+    password: field.password,
+    comb: field.comb,
+    multiSelect: field.multiSelect,
+    editable: field.editable,
+    values: field.values,
+    options: [
+      for (final option in field.options)
+        FieldOption(export: option.export_, display: option.display),
+    ],
+    maxLen: field.maxLen,
+    widgets: [
+      for (final widget in field.widgets)
+        FieldWidget(
+          page: widget.page.toInt(),
+          rect: Rect.fromLTRB(
+            widget.rect.left,
+            widget.rect.top,
+            widget.rect.right,
+            widget.rect.bottom,
+          ),
+          onState: widget.onState,
+        ),
+    ],
+    format: FieldFormatKind.values.byName(field.format.name),
+    datePattern: field.datePattern,
+    decimals: field.decimals,
+    min: field.min,
+    max: field.max,
+    problem: switch (field.problem) {
+      null => null,
+      final problem => _problem(problem),
+    },
+    signed: field.signed,
+    signature: field.signature?.toInt(),
+    filled: field.filled,
   );
 
   @override
