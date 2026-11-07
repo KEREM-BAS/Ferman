@@ -4587,10 +4587,10 @@ abstract class AppLocalizations {
   /// **'Keep versions'**
   String get settingsKeepVersions;
 
-  /// a11-1c: the option shown, while version history waits (B060).
+  /// a11-1c: the option that keeps a version at each save, for 30 days in the app data directory (ADR 0022; the board says next to the file).
   ///
   /// In en, this message translates to:
-  /// **'30 days, next to the file'**
+  /// **'Kept for 30 days'**
   String get settingsKeepVersions30;
 
   /// a11-1c.
@@ -9441,6 +9441,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore the default shortcut'**
   String get shortcutsReset;
+
+  /// Settings search (a11-1, G50): title of the empty state when no pane matches.
+  ///
+  /// In en, this message translates to:
+  /// **'No settings match'**
+  String get settingsSearchNoMatch;
+
+  /// Settings search and Settings › Licences: body of the empty state when nothing matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another word.'**
+  String get settingsSearchNoMatchBody;
+
+  /// The last row of the settings pane list and its heading: the third-party notices (M4 plan question 7; a11-5 names its button so).
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get settingsPaneLicences;
+
+  /// Settings › Editing › Keep versions (a11-1c): the option that keeps none.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t keep versions'**
+  String get settingsKeepVersionsOff;
+
+  /// Settings › Fonts (a11-1d): placeholder of the search field; {count} is the number of families, formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {count} installed fonts'**
+  String settingsFontsSearch(String count);
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search fonts'**
+  String get settingsFontsSearchLabel;
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the filter select.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get settingsFontsFilter;
+
+  /// Settings › Fonts (a11-1d): filter option, the fonts that draw every Turkish letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers Turkish'**
+  String get settingsFontsFilterTurkish;
+
+  /// Settings › Fonts (a11-1d): filter option.
+  ///
+  /// In en, this message translates to:
+  /// **'All fonts'**
+  String get settingsFontsFilterAll;
+
+  /// Settings › Fonts (a11-1d): filter option, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Used in open documents'**
+  String get settingsFontsFilterOpen;
+
+  /// Settings › Fonts (a11-1d): where a font comes from, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Included with Ferman'**
+  String get settingsFontsBundled;
+
+  /// Settings › Fonts (a11-1d): where a font comes from, under its name: installed on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get settingsFontsInstalled;
+
+  /// Settings › Fonts (a11-1d): the legend of the coverage chips. The codes stay in Latin letters.
+  ///
+  /// In en, this message translates to:
+  /// **'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.'**
+  String get settingsFontsLegend;
+
+  /// Settings › Fonts (a11-1d): tooltip of a coverage chip; {script} is its code, such as TR.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers {script}'**
+  String settingsFontsCovers(String script);
+
+  /// Settings › Fonts (a11-1d): tooltip of a struck-through coverage chip; {script} is its code.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn’t cover {script}'**
+  String settingsFontsMissing(String script);
+
+  /// Settings › Fonts (a11-1d): title of the empty state when no font matches the search and filter.
+  ///
+  /// In en, this message translates to:
+  /// **'No fonts match'**
+  String get settingsFontsNoMatch;
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the spinner while the fonts are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the fonts on this computer…'**
+  String get settingsFontsLoading;
+
+  /// Settings › Signatures and certificates (a11-1e): label of the saved signatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signatures · on this device only'**
+  String get settingsSavedSignatures;
+
+  /// Settings › Signatures and certificates (a11-1e): shown when nothing is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved signatures yet. Fill & Sign › Sign makes one.'**
+  String get settingsSavedSignaturesNone;
+
+  /// Settings › Signatures and certificates (a11-1e): under a typed saved signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed'**
+  String get settingsSignatureTyped;
+
+  /// Settings › Signatures and certificates: tooltip and screen-reader name of a saved signature’s delete button.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete saved signature'**
+  String get settingsDeleteSignature;
+
+  /// Settings › Signatures and certificates (a11-1e): label of the certificates.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get settingsCertificates;
+
+  /// Settings › Signatures and certificates (a11-1e): button, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Add certificate file…'**
+  String get settingsAddCertificate;
+
+  /// Settings › Signatures and certificates (a11-1e): select, disabled in this version. e-imza is the Turkish name of the qualified signature.
+  ///
+  /// In en, this message translates to:
+  /// **'e-imza card driver (PKCS#11)'**
+  String get settingsCardDriver;
+
+  /// Settings › Signatures and certificates (a11-1e): the card driver select’s option.
+  ///
+  /// In en, this message translates to:
+  /// **'Find automatically'**
+  String get settingsCardDriverAuto;
+
+  /// Settings › Signatures and certificates (a11-1e): select, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Timestamp server'**
+  String get settingsTimestampServer;
+
+  /// Settings › Signatures and certificates (a11-1e): the timestamp server select’s option while nothing connects.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get settingsTimestampNone;
+
+  /// Settings › Signatures and certificates (a11-1e): switch, off and disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Check revocation online when opening signed files'**
+  String get settingsCheckRevocation;
+
+  /// Settings › Advanced (a11-1k): switch, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the graphics card to draw pages'**
+  String get settingsGpu;
+
+  /// Settings › Advanced (a11-1k): select of the memory kept for drawn pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Page cache'**
+  String get settingsPageCache;
+
+  /// Settings › Advanced (a11-1k): select.
+  ///
+  /// In en, this message translates to:
+  /// **'Thumbnails'**
+  String get settingsThumbnails;
+
+  /// Settings › Advanced (a11-1k): thumbnails option.
+  ///
+  /// In en, this message translates to:
+  /// **'Make as needed'**
+  String get settingsThumbnailsAuto;
+
+  /// Settings › Advanced (a11-1k): thumbnails option, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Make all when opening'**
+  String get settingsThumbnailsAll;
+
+  /// Settings › Advanced (a11-1k): switch, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the PDF object inspector (for developers)'**
+  String get settingsObjectInspector;
+
+  /// Settings › Advanced (a11-1k): button; opens the system save panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export settings…'**
+  String get settingsExport;
+
+  /// Settings › Advanced (a11-1k): button; opens the system open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Import settings…'**
+  String get settingsImport;
+
+  /// Settings › Advanced (a11-1k): button, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Show log files'**
+  String get settingsShowLogs;
+
+  /// Settings › Advanced (a11-1k): the danger box’s text.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset every setting to its default. Saved signatures and certificates stay.'**
+  String get settingsReset;
+
+  /// Settings › Advanced (a11-1k): the danger button; asks first.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset settings…'**
+  String get settingsResetButton;
+
+  /// Settings › Advanced: title of the reset confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Reset every setting?'**
+  String get settingsResetTitle;
+
+  /// Settings › Advanced: body of the reset confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.'**
+  String get settingsResetBody;
+
+  /// Settings › Advanced: the reset confirmation’s danger button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settingsResetConfirm;
+
+  /// Settings › Advanced: title of the import confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your settings?'**
+  String get settingsImportTitle;
+
+  /// Settings › Advanced: body of the import confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'The settings in the file replace yours. Saved signatures and the documents you have open stay.'**
+  String get settingsImportBody;
+
+  /// Settings › Advanced: the import confirmation’s button.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get settingsImportConfirm;
+
+  /// Settings › Advanced: toast title when the chosen file is not a settings file (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t import the settings'**
+  String get settingsImportFailed;
+
+  /// Settings › Advanced: toast text when the chosen file is not a settings file.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t a Ferman settings file.'**
+  String get settingsImportFailedBody;
+
+  /// Settings › Advanced: toast after Export settings….
+  ///
+  /// In en, this message translates to:
+  /// **'Settings exported'**
+  String get settingsExported;
+
+  /// Settings › Advanced: toast when the file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t export the settings'**
+  String get settingsExportFailed;
+
+  /// Settings › Advanced: the file name the save panel suggests, without its extension .json.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman settings'**
+  String get settingsExportName;
+
+  /// Settings › Advanced: the open panel’s filter name for Import settings….
+  ///
+  /// In en, this message translates to:
+  /// **'Settings file'**
+  String get settingsSettingsFile;
+
+  /// Settings › Licences: the first line (G13: the licence is Apache-2.0).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.'**
+  String get licencesIntro;
+
+  /// Settings › Licences: placeholder and screen-reader name of the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search licences'**
+  String get licencesSearch;
+
+  /// Settings › Licences: screen-reader name of the spinner while the licences are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the licences…'**
+  String get licencesLoading;
+
+  /// Settings › Licences: title of the empty state when the search finds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No licences match'**
+  String get licencesNoMatch;
 }
 
 class _AppLocalizationsDelegate

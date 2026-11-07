@@ -341,6 +341,9 @@ abstract class FermanBridgeApiImplPlatform
   FontOrigin dco_decode_font_origin(dynamic raw);
 
   @protected
+  FontScript dco_decode_font_script(dynamic raw);
+
+  @protected
   FontSettings dco_decode_font_settings(dynamic raw);
 
   @protected
@@ -375,6 +378,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   InputStatus dco_decode_input_status(dynamic raw);
+
+  @protected
+  InstalledFont dco_decode_installed_font(dynamic raw);
 
   @protected
   ItemKind dco_decode_item_kind(dynamic raw);
@@ -473,6 +479,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
+  List<FontScript> dco_decode_list_font_script(dynamic raw);
+
+  @protected
   List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw);
 
   @protected
@@ -480,6 +489,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<HistoryStep> dco_decode_list_history_step(dynamic raw);
+
+  @protected
+  List<InstalledFont> dco_decode_list_installed_font(dynamic raw);
 
   @protected
   List<JobOutput> dco_decode_list_job_output(dynamic raw);
@@ -1241,6 +1253,9 @@ abstract class FermanBridgeApiImplPlatform
   FontOrigin sse_decode_font_origin(SseDeserializer deserializer);
 
   @protected
+  FontScript sse_decode_font_script(SseDeserializer deserializer);
+
+  @protected
   FontSettings sse_decode_font_settings(SseDeserializer deserializer);
 
   @protected
@@ -1275,6 +1290,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   InputStatus sse_decode_input_status(SseDeserializer deserializer);
+
+  @protected
+  InstalledFont sse_decode_installed_font(SseDeserializer deserializer);
 
   @protected
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
@@ -1391,6 +1409,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> sse_decode_list_font_entry(SseDeserializer deserializer);
 
   @protected
+  List<FontScript> sse_decode_list_font_script(SseDeserializer deserializer);
+
+  @protected
   List<FontSubstitution> sse_decode_list_font_substitution(
     SseDeserializer deserializer,
   );
@@ -1402,6 +1423,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer);
+
+  @protected
+  List<InstalledFont> sse_decode_list_installed_font(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<JobOutput> sse_decode_list_job_output(SseDeserializer deserializer);
@@ -2733,6 +2759,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_installed_font(InstalledFont raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.family),
+      cst_encode_font_origin(raw.origin),
+      cst_encode_list_font_script(raw.scripts),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_job_event(JobEvent raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -2944,6 +2980,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_font_script(List<FontScript> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_font_script).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_font_substitution(List<FontSubstitution> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_font_substitution).toList().jsify()!;
@@ -2959,6 +3001,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_history_step(List<HistoryStep> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_history_step).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_installed_font(List<InstalledFont> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_installed_font).toList().jsify()!;
   }
 
   @protected
@@ -3919,6 +3967,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_font_origin(FontOrigin raw);
 
   @protected
+  int cst_encode_font_script(FontScript raw);
+
+  @protected
   int cst_encode_font_type(FontType raw);
 
   @protected
@@ -4510,6 +4561,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_font_origin(FontOrigin self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_script(FontScript self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_settings(FontSettings self, SseSerializer serializer);
 
   @protected
@@ -4550,6 +4604,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_input_status(InputStatus self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_installed_font(InstalledFont self, SseSerializer serializer);
 
   @protected
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
@@ -4699,6 +4756,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_font_script(
+    List<FontScript> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_font_substitution(
     List<FontSubstitution> self,
     SseSerializer serializer,
@@ -4713,6 +4776,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_history_step(
     List<HistoryStep> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_installed_font(
+    List<InstalledFont> self,
     SseSerializer serializer,
   );
 
@@ -5578,6 +5647,11 @@ class FermanBridgeWire implements BaseWire {
     height,
     name,
   );
+
+  void wire__crate__frb__installed_fonts(
+    NativePortType port_,
+    String? bundled_dir,
+  ) => wasmModule.wire__crate__frb__installed_fonts(port_, bundled_dir);
 
   void wire__crate__frb__keep_as_is(NativePortType port_, JSAny transaction) =>
       wasmModule.wire__crate__frb__keep_as_is(port_, transaction);
@@ -6538,6 +6612,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     double width,
     double height,
     String name,
+  );
+
+  external void wire__crate__frb__installed_fonts(
+    NativePortType port_,
+    String? bundled_dir,
   );
 
   external void wire__crate__frb__keep_as_is(

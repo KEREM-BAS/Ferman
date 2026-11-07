@@ -3662,9 +3662,9 @@
   "@settingsKeepVersions": {
     "description": "a11-1c."
   },
-  "settingsKeepVersions30": "30 days, next to the file",
+  "settingsKeepVersions30": "Kept for 30 days",
   "@settingsKeepVersions30": {
-    "description": "a11-1c: the option shown, while version history waits (B060)."
+    "description": "a11-1c: the option that keeps a version at each save, for 30 days in the app data directory (ADR 0022; the board says next to the file)."
   },
   "settingsReflow": "Let paragraphs reflow inside their frame while typing",
   "@settingsReflow": {
@@ -8040,5 +8040,240 @@
   "shortcutsReset": "Restore the default shortcut",
   "@shortcutsReset": {
     "description": "Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back."
+  },
+  "settingsSearchNoMatch": "No settings match",
+  "@settingsSearchNoMatch": {
+    "description": "Settings search (a11-1, G50): title of the empty state when no pane matches."
+  },
+  "settingsSearchNoMatchBody": "Try another word.",
+  "@settingsSearchNoMatchBody": {
+    "description": "Settings search and Settings › Licences: body of the empty state when nothing matches."
+  },
+  "settingsPaneLicences": "Licences",
+  "@settingsPaneLicences": {
+    "description": "The last row of the settings pane list and its heading: the third-party notices (M4 plan question 7; a11-5 names its button so)."
+  },
+  "settingsKeepVersionsOff": "Don’t keep versions",
+  "@settingsKeepVersionsOff": {
+    "description": "Settings › Editing › Keep versions (a11-1c): the option that keeps none."
+  },
+  "settingsFontsSearch": "Search {count} installed fonts",
+  "@settingsFontsSearch": {
+    "description": "Settings › Fonts (a11-1d): placeholder of the search field; {count} is the number of families, formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsSearchLabel": "Search fonts",
+  "@settingsFontsSearchLabel": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the search field."
+  },
+  "settingsFontsFilter": "Filter",
+  "@settingsFontsFilter": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the filter select."
+  },
+  "settingsFontsFilterTurkish": "Covers Turkish",
+  "@settingsFontsFilterTurkish": {
+    "description": "Settings › Fonts (a11-1d): filter option, the fonts that draw every Turkish letter."
+  },
+  "settingsFontsFilterAll": "All fonts",
+  "@settingsFontsFilterAll": {
+    "description": "Settings › Fonts (a11-1d): filter option."
+  },
+  "settingsFontsFilterOpen": "Used in open documents",
+  "@settingsFontsFilterOpen": {
+    "description": "Settings › Fonts (a11-1d): filter option, disabled in this version."
+  },
+  "settingsFontsBundled": "Included with Ferman",
+  "@settingsFontsBundled": {
+    "description": "Settings › Fonts (a11-1d): where a font comes from, under its name."
+  },
+  "settingsFontsInstalled": "Installed",
+  "@settingsFontsInstalled": {
+    "description": "Settings › Fonts (a11-1d): where a font comes from, under its name: installed on this computer."
+  },
+  "settingsFontsLegend": "TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.",
+  "@settingsFontsLegend": {
+    "description": "Settings › Fonts (a11-1d): the legend of the coverage chips. The codes stay in Latin letters."
+  },
+  "settingsFontsCovers": "Covers {script}",
+  "@settingsFontsCovers": {
+    "description": "Settings › Fonts (a11-1d): tooltip of a coverage chip; {script} is its code, such as TR.",
+    "placeholders": {
+      "script": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsMissing": "Doesn’t cover {script}",
+  "@settingsFontsMissing": {
+    "description": "Settings › Fonts (a11-1d): tooltip of a struck-through coverage chip; {script} is its code.",
+    "placeholders": {
+      "script": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsNoMatch": "No fonts match",
+  "@settingsFontsNoMatch": {
+    "description": "Settings › Fonts (a11-1d): title of the empty state when no font matches the search and filter."
+  },
+  "settingsFontsLoading": "Reading the fonts on this computer…",
+  "@settingsFontsLoading": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the spinner while the fonts are read."
+  },
+  "settingsSavedSignatures": "Saved signatures · on this device only",
+  "@settingsSavedSignatures": {
+    "description": "Settings › Signatures and certificates (a11-1e): label of the saved signatures."
+  },
+  "settingsSavedSignaturesNone": "No saved signatures yet. Fill & Sign › Sign makes one.",
+  "@settingsSavedSignaturesNone": {
+    "description": "Settings › Signatures and certificates (a11-1e): shown when nothing is saved."
+  },
+  "settingsSignatureTyped": "Typed",
+  "@settingsSignatureTyped": {
+    "description": "Settings › Signatures and certificates (a11-1e): under a typed saved signature."
+  },
+  "settingsDeleteSignature": "Delete saved signature",
+  "@settingsDeleteSignature": {
+    "description": "Settings › Signatures and certificates: tooltip and screen-reader name of a saved signature’s delete button."
+  },
+  "settingsCertificates": "Certificates",
+  "@settingsCertificates": {
+    "description": "Settings › Signatures and certificates (a11-1e): label of the certificates."
+  },
+  "settingsAddCertificate": "Add certificate file…",
+  "@settingsAddCertificate": {
+    "description": "Settings › Signatures and certificates (a11-1e): button, disabled in this version."
+  },
+  "settingsCardDriver": "e-imza card driver (PKCS#11)",
+  "@settingsCardDriver": {
+    "description": "Settings › Signatures and certificates (a11-1e): select, disabled in this version. e-imza is the Turkish name of the qualified signature."
+  },
+  "settingsCardDriverAuto": "Find automatically",
+  "@settingsCardDriverAuto": {
+    "description": "Settings › Signatures and certificates (a11-1e): the card driver select’s option."
+  },
+  "settingsTimestampServer": "Timestamp server",
+  "@settingsTimestampServer": {
+    "description": "Settings › Signatures and certificates (a11-1e): select, disabled in this version."
+  },
+  "settingsTimestampNone": "None",
+  "@settingsTimestampNone": {
+    "description": "Settings › Signatures and certificates (a11-1e): the timestamp server select’s option while nothing connects."
+  },
+  "settingsCheckRevocation": "Check revocation online when opening signed files",
+  "@settingsCheckRevocation": {
+    "description": "Settings › Signatures and certificates (a11-1e): switch, off and disabled in this version."
+  },
+  "settingsGpu": "Use the graphics card to draw pages",
+  "@settingsGpu": {
+    "description": "Settings › Advanced (a11-1k): switch, disabled in this version."
+  },
+  "settingsPageCache": "Page cache",
+  "@settingsPageCache": {
+    "description": "Settings › Advanced (a11-1k): select of the memory kept for drawn pages."
+  },
+  "settingsThumbnails": "Thumbnails",
+  "@settingsThumbnails": {
+    "description": "Settings › Advanced (a11-1k): select."
+  },
+  "settingsThumbnailsAuto": "Make as needed",
+  "@settingsThumbnailsAuto": {
+    "description": "Settings › Advanced (a11-1k): thumbnails option."
+  },
+  "settingsThumbnailsAll": "Make all when opening",
+  "@settingsThumbnailsAll": {
+    "description": "Settings › Advanced (a11-1k): thumbnails option, disabled in this version."
+  },
+  "settingsObjectInspector": "Show the PDF object inspector (for developers)",
+  "@settingsObjectInspector": {
+    "description": "Settings › Advanced (a11-1k): switch, disabled in this version."
+  },
+  "settingsExport": "Export settings…",
+  "@settingsExport": {
+    "description": "Settings › Advanced (a11-1k): button; opens the system save panel."
+  },
+  "settingsImport": "Import settings…",
+  "@settingsImport": {
+    "description": "Settings › Advanced (a11-1k): button; opens the system open panel."
+  },
+  "settingsShowLogs": "Show log files",
+  "@settingsShowLogs": {
+    "description": "Settings › Advanced (a11-1k): button, disabled in this version."
+  },
+  "settingsReset": "Reset every setting to its default. Saved signatures and certificates stay.",
+  "@settingsReset": {
+    "description": "Settings › Advanced (a11-1k): the danger box’s text."
+  },
+  "settingsResetButton": "Reset settings…",
+  "@settingsResetButton": {
+    "description": "Settings › Advanced (a11-1k): the danger button; asks first."
+  },
+  "settingsResetTitle": "Reset every setting?",
+  "@settingsResetTitle": {
+    "description": "Settings › Advanced: title of the reset confirmation (G50)."
+  },
+  "settingsResetBody": "Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.",
+  "@settingsResetBody": {
+    "description": "Settings › Advanced: body of the reset confirmation (G50)."
+  },
+  "settingsResetConfirm": "Reset",
+  "@settingsResetConfirm": {
+    "description": "Settings › Advanced: the reset confirmation’s danger button."
+  },
+  "settingsImportTitle": "Replace your settings?",
+  "@settingsImportTitle": {
+    "description": "Settings › Advanced: title of the import confirmation (G50)."
+  },
+  "settingsImportBody": "The settings in the file replace yours. Saved signatures and the documents you have open stay.",
+  "@settingsImportBody": {
+    "description": "Settings › Advanced: body of the import confirmation (G50)."
+  },
+  "settingsImportConfirm": "Import",
+  "@settingsImportConfirm": {
+    "description": "Settings › Advanced: the import confirmation’s button."
+  },
+  "settingsImportFailed": "Couldn’t import the settings",
+  "@settingsImportFailed": {
+    "description": "Settings › Advanced: toast title when the chosen file is not a settings file (G50)."
+  },
+  "settingsImportFailedBody": "The file isn’t a Ferman settings file.",
+  "@settingsImportFailedBody": {
+    "description": "Settings › Advanced: toast text when the chosen file is not a settings file."
+  },
+  "settingsExported": "Settings exported",
+  "@settingsExported": {
+    "description": "Settings › Advanced: toast after Export settings…."
+  },
+  "settingsExportFailed": "Couldn’t export the settings",
+  "@settingsExportFailed": {
+    "description": "Settings › Advanced: toast when the file could not be written."
+  },
+  "settingsExportName": "Ferman settings",
+  "@settingsExportName": {
+    "description": "Settings › Advanced: the file name the save panel suggests, without its extension .json."
+  },
+  "settingsSettingsFile": "Settings file",
+  "@settingsSettingsFile": {
+    "description": "Settings › Advanced: the open panel’s filter name for Import settings…."
+  },
+  "licencesIntro": "Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.",
+  "@licencesIntro": {
+    "description": "Settings › Licences: the first line (G13: the licence is Apache-2.0)."
+  },
+  "licencesSearch": "Search licences",
+  "@licencesSearch": {
+    "description": "Settings › Licences: placeholder and screen-reader name of the search field."
+  },
+  "licencesLoading": "Reading the licences…",
+  "@licencesLoading": {
+    "description": "Settings › Licences: screen-reader name of the spinner while the licences are read."
+  },
+  "licencesNoMatch": "No licences match",
+  "@licencesNoMatch": {
+    "description": "Settings › Licences: title of the empty state when the search finds nothing."
   }
 }

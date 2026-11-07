@@ -2,13 +2,13 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 
-/// The 11 panes of Settings, in the order of a11-1's pane list
-/// (`FmSettings.dc.html` `NAV`).
+/// The panes of Settings: a11-1's 11 in the order of its pane list
+/// (`FmSettings.dc.html` `NAV`), then Licences (question 7 of the M4 plan).
 ///
-/// M1 builds General, Language and region and a Privacy skeleton, M3 Editing;
-/// the other panes name their [feature] in the feature registry and are listed
-/// and disabled with "Available in a future version" while it is there
-/// (G10).
+/// M1 builds General, Language and region and a Privacy skeleton, M3 Editing,
+/// M4 Fonts, Signatures and certificates, Advanced and Licences; the other
+/// panes name their [feature] in the feature registry and are listed and
+/// disabled with "Available in a future version" while it is there (G10).
 enum SettingsPane {
   /// General (a11-1): theme and viewing defaults.
   general('general', IconName.settings),
@@ -19,16 +19,12 @@ enum SettingsPane {
   /// Editing (a11-1c).
   editing('editing', IconName.filePenLine),
 
-  /// Fonts (a11-1d): M4 (coverage and system fonts arrive in M3).
-  fonts('fonts', IconName.type, feature: Feature.settingsFonts),
+  /// Fonts (a11-1d): the fonts bundled and installed, with their scripts.
+  fonts('fonts', IconName.type),
 
-  /// Signatures and certificates (a11-1e): M4 (saved signatures, W5) and P3
-  /// (certificates, e-imza).
-  signatures(
-    'signatures',
-    IconName.signature,
-    feature: Feature.settingsSignatures,
-  ),
+  /// Signatures and certificates (a11-1e): the saved signatures; the
+  /// certificates, e-imza and timestamps are P3.
+  signatures('signatures', IconName.signature),
 
   /// Text recognition (OCR) (a11-1f): P3.
   ocr('ocr', IconName.scanText, feature: Feature.ocr),
@@ -36,7 +32,7 @@ enum SettingsPane {
   /// AI assistant (a11-1g): P4.
   ai('ai', IconName.sparkles, feature: Feature.aiAssistant),
 
-  /// Privacy (a11-1h): a skeleton in M1.
+  /// Privacy (a11-1h).
   privacy('privacy', IconName.eyeOff),
 
   /// Updates (a11-1i): M5.
@@ -45,8 +41,13 @@ enum SettingsPane {
   /// Keyboard shortcuts (a11-1j).
   shortcuts('shortcuts', IconName.keyboard),
 
-  /// Advanced (a11-1k): M4.
-  advanced('advanced', IconName.wrench, feature: Feature.settingsAdvanced);
+  /// Advanced (a11-1k).
+  advanced('advanced', IconName.wrench),
+
+  /// Licences: the third-party notices (question 7 of the M4 plan, G14),
+  /// the last row; no board draws it. a11-5's Licences button opens it from
+  /// M5.
+  licences('licences', IconName.fileText);
 
   new(this.path, this.icon, {this.feature});
 
@@ -76,7 +77,80 @@ enum SettingsPane {
     updates => l10n.settingsPaneUpdates,
     shortcuts => l10n.settingsPaneShortcuts,
     advanced => l10n.settingsPaneAdvanced,
+    licences => l10n.settingsPaneLicences,
   };
+
+  /// What the settings search finds the pane by: its name and the names of
+  /// its settings (a11-1: "Search filters every pane"). A pane not built
+  /// yet is found by its name alone.
+  List<String> searchTerms(AppLocalizations l10n) => [
+    label(l10n),
+    ...switch (this) {
+      general => [
+        l10n.settingsTheme,
+        l10n.settingsThemeSystem,
+        l10n.settingsThemeLight,
+        l10n.settingsThemeDark,
+        l10n.settingsPageTheme,
+        l10n.settingsPagePaper,
+        l10n.settingsPageDimmed,
+        l10n.settingsPageDark,
+        l10n.settingsPageLayout,
+        l10n.settingsZoom,
+        l10n.settingsReopen,
+        l10n.settingsMakeDefault,
+        l10n.settingsCommenterName,
+      ],
+      language => [
+        l10n.languageAppLanguage,
+        l10n.settingsDocumentLanguages,
+        l10n.regionFormats,
+        l10n.regionPaperSize,
+        l10n.regionUnits,
+        l10n.regionFirstDay,
+      ],
+      editing => [
+        l10n.settingsEditMarks,
+        l10n.settingsMissingGlyphs,
+        l10n.settingsFontForNewText,
+        l10n.settingsKeepVersions,
+        l10n.settingsReflow,
+        l10n.settingsRecoveryCopies,
+        l10n.settingsSaving,
+        l10n.settingsOptimize,
+        l10n.settingsRecoveryFolder,
+      ],
+      fonts => [l10n.settingsFontsSearchLabel, l10n.settingsFontsFilterTurkish],
+      signatures => [
+        l10n.settingsSavedSignatures,
+        l10n.settingsCertificates,
+        l10n.settingsCardDriver,
+        l10n.settingsTimestampServer,
+        l10n.settingsCheckRevocation,
+      ],
+      privacy => [
+        l10n.settingsPrivacyStatement,
+        l10n.settingsNetUpdates,
+        l10n.settingsNetSignatureChecks,
+        l10n.settingsNetTimestamps,
+        l10n.settingsNetDownloads,
+        l10n.settingsNetAiProvider,
+        l10n.settingsNetworkActivity,
+      ],
+      advanced => [
+        l10n.settingsGpu,
+        l10n.settingsPageCache,
+        l10n.settingsThumbnails,
+        l10n.settingsObjectInspector,
+        l10n.settingsExport,
+        l10n.settingsImport,
+        l10n.settingsShowLogs,
+        l10n.settingsResetButton,
+      ],
+      licences => [l10n.licencesIntro],
+      ocr || ai || updates || shortcuts => const <String>[],
+    },
+  ];
 
   /// The available pane with the path segment [path]; General for any
   /// other path, a pane not built yet included.

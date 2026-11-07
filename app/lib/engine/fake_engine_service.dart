@@ -122,6 +122,9 @@ class FakeEngineService implements EngineService {
   /// The settings [setFontSettings] was given last.
   FontSettings fontSettings = const FontSettings();
 
+  /// What [installedFonts] lists.
+  List<InstalledFont> installed = const [];
+
   /// The fonts named by a committed substitution, by step.
   final Set<(SubstitutionKind, String)> _announced = {};
 
@@ -806,6 +809,9 @@ class FakeEngineService implements EngineService {
   Future<void> setFontSettings(FontSettings settings) async {
     fontSettings = settings;
   }
+
+  @override
+  Future<List<InstalledFont>> installedFonts() async => installed;
 
   /// Draws step 3's characters in the candidate [postscriptName] of [origin]
   /// of [missingGlyphs]; one that is not usable is refused.

@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 607021020;
+  int get rustContentHash => -2046181084;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -269,6 +269,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required double height,
     required String name,
   });
+
+  Future<List<InstalledFont>> crateFrbInstalledFonts({String? bundledDir});
 
   Future<EditPreview> crateFrbKeepAsIs({required BigInt transaction});
 
@@ -1826,6 +1828,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbInsertBlankPagesConstMeta => const TaskConstMeta(
     debugName: "insert_blank_pages",
     argNames: ["document", "after", "count", "width", "height", "name"],
+  );
+
+  @override
+  Future<List<InstalledFont>> crateFrbInstalledFonts({String? bundledDir}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_opt_String(bundledDir);
+          return wire.wire__crate__frb__installed_fonts(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_installed_font,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbInstalledFontsConstMeta,
+        argValues: [bundledDir],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbInstalledFontsConstMeta => const TaskConstMeta(
+    debugName: "installed_fonts",
+    argNames: ["bundledDir"],
   );
 
   @override
@@ -5226,6 +5252,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  FontScript dco_decode_font_script(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FontScript.values[raw as int];
+  }
+
+  @protected
   FontSettings dco_decode_font_settings(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -5358,6 +5390,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   InputStatus dco_decode_input_status(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return InputStatus.values[raw as int];
+  }
+
+  @protected
+  InstalledFont dco_decode_installed_font(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return InstalledFont(
+      family: dco_decode_String(arr[0]),
+      origin: dco_decode_font_origin(arr[1]),
+      scripts: dco_decode_list_font_script(arr[2]),
+    );
   }
 
   @protected
@@ -5629,6 +5674,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FontScript> dco_decode_list_font_script(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_font_script).toList();
+  }
+
+  @protected
   List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_font_substitution).toList();
@@ -5644,6 +5695,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<HistoryStep> dco_decode_list_history_step(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_history_step).toList();
+  }
+
+  @protected
+  List<InstalledFont> dco_decode_list_installed_font(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_installed_font).toList();
   }
 
   @protected
@@ -7954,6 +8011,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  FontScript sse_decode_font_script(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FontScript.values[inner];
+  }
+
+  @protected
   FontSettings sse_decode_font_settings(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_bundledDir = sse_decode_opt_String(deserializer);
@@ -8099,6 +8163,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return InputStatus.values[inner];
+  }
+
+  @protected
+  InstalledFont sse_decode_installed_font(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_family = sse_decode_String(deserializer);
+    var var_origin = sse_decode_font_origin(deserializer);
+    var var_scripts = sse_decode_list_font_script(deserializer);
+    return InstalledFont(
+      family: var_family,
+      origin: var_origin,
+      scripts: var_scripts,
+    );
   }
 
   @protected
@@ -8506,6 +8583,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FontScript> sse_decode_list_font_script(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FontScript>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_font_script(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<FontSubstitution> sse_decode_list_font_substitution(
     SseDeserializer deserializer,
   ) {
@@ -8541,6 +8630,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <HistoryStep>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_history_step(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<InstalledFont> sse_decode_list_installed_font(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <InstalledFont>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_installed_font(deserializer));
     }
     return ans_;
   }
@@ -10313,6 +10416,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_font_script(FontScript raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_font_type(FontType raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -11531,6 +11640,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_font_script(FontScript self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_font_settings(FontSettings self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_opt_String(self.bundledDir, serializer);
@@ -11634,6 +11749,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   void sse_encode_input_status(InputStatus self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_installed_font(InstalledFont self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.family, serializer);
+    sse_encode_font_origin(self.origin, serializer);
+    sse_encode_list_font_script(self.scripts, serializer);
   }
 
   @protected
@@ -11965,6 +12088,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_font_script(
+    List<FontScript> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_font_script(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_font_substitution(
     List<FontSubstitution> self,
     SseSerializer serializer,
@@ -11997,6 +12132,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_history_step(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_installed_font(
+    List<InstalledFont> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_installed_font(item, serializer);
     }
   }
 

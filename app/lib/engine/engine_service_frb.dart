@@ -846,6 +846,37 @@ class FrbEngineService implements EngineService {
     }
   }
 
+  @override
+  Future<List<InstalledFont>> installedFonts() async {
+    try {
+      final fonts = await bridge.installedFonts(
+        bundledDir: bundledFontsDirectory(),
+      );
+      return [
+        for (final font in fonts)
+          InstalledFont(
+            family: font.family,
+            origin: _origin(font.origin),
+            scripts: {
+              for (final script in font.scripts)
+                switch (script) {
+                  bridge.FontScript.turkish => FontScript.turkish,
+                  bridge.FontScript.latinExtended => FontScript.latinExtended,
+                  bridge.FontScript.cyrillic => FontScript.cyrillic,
+                  bridge.FontScript.greek => FontScript.greek,
+                  bridge.FontScript.arabic => FontScript.arabic,
+                  bridge.FontScript.hebrew => FontScript.hebrew,
+                  bridge.FontScript.devanagari => FontScript.devanagari,
+                  bridge.FontScript.cjk => FontScript.cjk,
+                },
+            },
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
   static FontOrigin _origin(bridge.FontOrigin origin) => switch (origin) {
     bridge.FontOrigin.embedded => FontOrigin.embedded,
     bridge.FontOrigin.installed => FontOrigin.installed,

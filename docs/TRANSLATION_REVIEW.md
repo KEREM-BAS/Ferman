@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1467 messages in `app_en.arb`; translated: Turkish 1467, Arabic 1467.
+1610 messages in `app_en.arb`; translated: Turkish 1610, Arabic 1610.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -729,8 +729,8 @@ The table below is generated from the ARB files by `tools/l10n`
 | `saveAsWeb` | Optimized for web | Web için optimize edilmiş | محسّن للويب | Save as sheet (a1-11): the web format, disabled until M4 (G111). |
 | `saveAsCopy` | Save as a copy | Kopya olarak kaydet | حفظ كنسخة | Save as sheet (a1-11): the checkbox that saves a copy and leaves the document as it was. |
 | `saveAsCopyDescription` | “{name}” stays open and unchanged; the copy is saved in {folder}. | “{name}” açık ve değişmeden kalır; kopya {folder} klasörüne kaydedilir. | يبقى «{name}» مفتوحًا دون تغيير، وتُحفظ النسخة في {folder}. | Save as sheet (a1-11b): the line under Save as a copy. {name} is the open file's name, {folder} the folder chosen in Where. |
-| `saveAsComments` | Include comments and markup | Yorumları ve işaretlemeleri dâhil et | تضمين التعليقات والتعليقات التوضيحية | Save as sheet (a1-11): a checkbox, disabled until saving without comments works. |
-| `saveAsHistory` | Remove edit history from the file | Düzenleme geçmişini dosyadan kaldır | إزالة سجل التحرير من الملف | Save as sheet (a1-11): a checkbox, disabled until version history arrives. |
+| `saveAsComments` | Include comments and markup | Yorumları ve işaretlemeleri dâhil et | تضمين التعليقات والتعليقات التوضيحية | Save as sheet (a1-11): a checkbox; without it the file is a copy without comments (B138). |
+| `saveAsHistory` | Remove edit history from the file | Düzenleme geçmişini dosyadan kaldır | إزالة سجل التحرير من الملف | Save as sheet (a1-11): a checkbox; with it the file is rewritten whole (B138). |
 | `saveAsCancel` | Cancel | İptal | إلغاء | Save as sheet: the button that closes it without saving. |
 | `saveAsClose` | Close | Kapat | إغلاق | Save dialogs: the name of the close button and of the backdrop. |
 | `saveFailedTitle` | Couldn’t save “{name}” | “{name}” kaydedilemedi | تعذّر حفظ «{name}» | Save failure dialog (a11-7, a11-7d): the title. {name} is the file name. |
@@ -803,7 +803,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsFontForNewText` | Font for new text | Yeni metnin yazı tipi | خط النص الجديد | a11-1c. |
 | `settingsFontForNewTextMatch` | Match surrounding text | Çevredeki metinle aynı | مطابقة النص المحيط | a11-1c: the option shown, while Add text waits (B042). |
 | `settingsKeepVersions` | Keep versions | Sürümleri sakla | الاحتفاظ بالإصدارات | a11-1c. |
-| `settingsKeepVersions30` | 30 days, next to the file | 30 gün, dosyanın yanında | 30 يومًا، بجانب الملف | a11-1c: the option shown, while version history waits (B060). |
+| `settingsKeepVersions30` | Kept for 30 days | 30 gün saklanır | تُحفظ لمدة 30 يومًا | a11-1c: the option that keeps a version at each save, for 30 days in the app data directory (ADR 0022; the board says next to the file). |
 | `settingsReflow` | Let paragraphs reflow inside their frame while typing | Yazarken paragraflar çerçevelerinin içinde yeniden aksın | السماح بإعادة تدفق الفقرات داخل إطارها أثناء الكتابة | a11-1c. |
 | `settingsRecoveryCopies` | Save a recovery copy every minute | Her dakika bir kurtarma kopyası kaydet | حفظ نسخة استرداد كل دقيقة | a11-1c: the switch the engine follows. |
 | `settingsSaving` | Saving | Kaydetme | الحفظ | a11-1c: the group of G43. |
@@ -951,7 +951,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `organizeToastMoved` | {count, plural, =1{{n} page moved} other{{n} pages moved}} | {count, plural, other{{n} sayfa taşındı}} | {count, plural, =1{نُقلت صفحة واحدة} =2{نُقلت صفحتان} few{نُقلت {n} صفحات} other{نُقلت {n} صفحة}} | Toast (a6-1b) and history step: after moving pages. |
 | `organizeToastInserted` | {count, plural, =1{{n} page inserted} other{{n} pages inserted}} | {count, plural, other{{n} sayfa eklendi}} | {count, plural, =1{أُدرجت صفحة واحدة} =2{أُدرجت صفحتان} few{أُدرجت {n} صفحات} other{أُدرجت {n} صفحة}} | Toast: after a drop on the page grid inserted a file's pages. |
 | `organizeToastPages` | {count, plural, =1{Page {pages}} other{Pages {pages}}} | {count, plural, =1{Sayfa {pages}} other{Sayfalar {pages}}} | {count, plural, =1{الصفحة {pages}} other{الصفحات {pages}}} | Toast (a11-6): the pages a command acted on, such as 4–6. |
-| `organizeToastDeletedNote` | {count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}} | {count, plural, other{{pages}. Optimize et ve temizle’yi seçene kadar dosyada kalır.}} | {count, plural, =1{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».} other{{pages}. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».}} | Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command. |
+| `organizeToastDeletedNote` | {count, plural, =1{{pages}. It stays in the file until you save with Remove edit history or run Optimize and clean.} other{{pages}. They stay in the file until you save with Remove edit history or run Optimize and clean.}} | {count, plural, other{{pages}. Düzenleme geçmişini kaldırarak kaydedene ya da Optimize et ve temizle’yi seçene kadar dosyada kalır.}} | {count, plural, =1{{pages}. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».} other{{pages}. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».}} | Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the names of Save as's Remove edit history and of Optimize and clean. |
 | `organizeStepInsert` | Insert {name} | {name} ekle | إدراج {name} | History step: inserted the file {name}. |
 | `organizeFailed` | The pages weren’t changed | Sayfalar değiştirilmedi | لم تتغير الصفحات | Toast: a page command failed; the document is as it was. |
 | `organizeInsertFailed` | Couldn’t insert {name} | {name} eklenemedi | تعذّر إدراج {name} | Toast: a dropped file's pages could not go in. |
@@ -1481,6 +1481,94 @@ The table below is generated from the ARB files by `tools/l10n`
 | `fillInkBlue` | Blue (#1A3170) | Mavi (#1A3170) | أزرق (#1A3170) | Fill anything's ink: blue. |
 | `findNotSearchedComments` | Comments weren’t searched. | Yorumlar aranmadı. | لم يُبحث في التعليقات. | a2-4d: after findNoneBody, with Form fields ticked and Comments not. |
 | `sidebarSearchFormField` | Form field: {text} | Form alanı: {text} | حقل نموذج: {text} | Search results: a match in a form field's value (B128). |
+| `jobCompressingTitle` | Compressing {name} | {name} sıkıştırılıyor | جارٍ ضغط {name} | Task drawer: Compress (a9-1) while it runs. |
+| `jobCompressedTitle` | Compressed {name} | {name} sıkıştırıldı | ضُغط {name} | Task drawer: Compress, done. |
+| `jobCompressFailedTitle` | Couldn’t compress {name} | {name} sıkıştırılamadı | تعذر ضغط {name} | Task drawer: Compress failed; nothing was written. |
+| `jobCompressNotSmaller` | It can’t get smaller, so nothing was written. The original stays as it is. | Daha küçük olamıyor, bu yüzden hiçbir şey yazılmadı. Asıl dosya olduğu gibi kalıyor. | لا يمكن أن يصغر أكثر، لذا لم يُكتب شيء. يبقى الأصل كما هو. | Task drawer: Compress done, but the result was not smaller (decision 25). |
+| `jobCompressedSizes` | {before} → {after} | {before} → {after} | {before} ← {after} | Task drawer: Compress done; the sizes before and after, such as 24,6 MB → 6,8 MB. |
+| `printForbidden` | The author doesn’t allow printing | Yazar yazdırmaya izin vermiyor | لا يسمح المؤلف بالطباعة | Tooltip of Print (B121) when the document's permissions forbid printing. |
+| `printSent` | Sent {name} to the printer | {name} yazıcıya gönderildi | أُرسل {name} إلى الطابعة | Toast after a print was handed to the system. |
+| `printFailed` | Couldn’t print {name} | {name} yazdırılamadı | تعذرت طباعة {name} | Toast when a print failed. |
+| `printTitle` | Print “{name}” | “{name}” belgesini yazdır | طباعة “{name}” | Print dialog (a9-6): the title; {name} is the file name. |
+| `printSystemDialog` | Use system dialog… | Sistem penceresini kullan… | استخدام نافذة النظام… | Print dialog: opens the system print dialog for the whole document. |
+| `printAction` | Print | Yazdır | طباعة | Print dialog: the primary button, which opens the system print dialog. |
+| `printPrinter` | Printer | Yazıcı | الطابعة | Print dialog: the printer menu, set in the system dialog. |
+| `printPrinterSystem` | Chosen in the system dialog | Sistem penceresinde seçilir | تُختار في نافذة النظام | Print dialog: the printer menu's only entry. |
+| `printCopies` | Copies | Kopya | النسخ | Print dialog: the number of copies, set in the system dialog. |
+| `printPages` | Pages | Sayfalar | الصفحات | Print dialog: the pages field. |
+| `printPagesAll` | All | Tümü | الكل | Print dialog: the pages field's placeholder; empty prints every page. |
+| `printLayout` | Layout | Düzen | التخطيط | Print dialog: the layout choice. |
+| `printLayoutPages` | Pages | Sayfalar | الصفحات | Print dialog: one page per sheet. |
+| `printLayoutBooklet` | Booklet | Kitapçık | كتيّب | Print dialog: booklet layout (P5). |
+| `printLayoutPoster` | Poster | Poster | ملصق | Print dialog: poster tiling (P5). |
+| `printBothSides` | Both sides | Çift taraflı | على الوجهين | Print dialog: duplex, set in the system dialog. |
+| `printLongEdge` | Long edge | Uzun kenar | الحافة الطويلة | Print dialog: duplex along the long edge. |
+| `printShortEdge` | Short edge | Kısa kenar | الحافة القصيرة | Print dialog: duplex along the short edge. |
+| `printOneSide` | One side | Tek taraf | وجه واحد | Print dialog: no duplex. |
+| `printScale` | Scale | Ölçek | المقياس | Print dialog: the scale menu. |
+| `printScaleFit` | Fit to printable area | Yazdırılabilir alana sığdır | ملاءمة المساحة القابلة للطباعة | Print dialog: scale to the printable area. |
+| `printScaleActual` | Actual size (100%) | Gerçek boyut (%100) | الحجم الفعلي (100٪) | Print dialog: print at the page's own size. |
+| `printScaleCustom` | Custom… | Özel… | مخصص… | Print dialog: a custom scale (later). |
+| `printInclude` | Include | Dâhil et | تضمين | Print dialog: the heading of what prints. |
+| `printComments` | {count, plural, =1{Comments and stamps ({n})} other{Comments and stamps ({n})}} | {count, plural, other{Yorumlar ve damgalar ({n})}} | {count, plural, other{التعليقات والأختام ({n})}} | Print dialog: whether comments and stamps print; {n} is how many. |
+| `printFormFields` | Form field contents | Form alanlarının içeriği | محتوى حقول النموذج | Print dialog: form fields, which always print. |
+| `printHiddenLayers` | Hidden layers | Gizli katmanlar | الطبقات المخفية | Print dialog: hidden layers (later). |
+| `printPreviousSheet` | Previous sheet | Önceki yaprak | الورقة السابقة | Print dialog: the preview's previous sheet. |
+| `printNextSheet` | Next sheet | Sonraki yaprak | الورقة التالية | Print dialog: the preview's next sheet. |
+| `printSheetOf` | Sheet {sheet} of {sheets} · {paper} | Yaprak {sheet} / {sheets} · {paper} | الورقة {sheet} من {sheets} · {paper} | Print dialog: under the preview; {paper} is the region's paper, A4 or Letter. |
+| `compressFileName` | {name}, compressed | {name}, sıkıştırılmış | {name}، مضغوط | Compress: the suggested file name, without .pdf; {name} is the document's. |
+| `compressTitle` | Compress | Sıkıştır | ضغط | Compress panel (a9-1): the title. |
+| `compressPreset` | Preset | Ön ayar | الإعداد المسبق | Compress panel: the presets' group name for screen readers. |
+| `compressHighQuality` | High quality | Yüksek kalite | جودة عالية | Compress preset. |
+| `compressBalanced` | Balanced | Dengeli | متوازن | Compress preset. |
+| `compressSmallest` | Smallest | En küçük | الأصغر | Compress preset. |
+| `compressHighQualityDescription` | Images at 300 ppi, for printing. | Görseller 300 ppi, baskı için. | الصور بدقة 300 ppi، للطباعة. | Compress preset's line. |
+| `compressBalancedDescription` | Images at 150 ppi, for sharing and reading on screen. | Görseller 150 ppi, paylaşmak ve ekranda okumak için. | الصور بدقة 150 ppi، للمشاركة والقراءة على الشاشة. | Compress preset's line. |
+| `compressSmallestDescription` | Images at 96 ppi, for e-mail. Text stays sharp. | Görseller 96 ppi, e-posta için. Metin keskin kalır. | الصور بدقة 96 ppi، للبريد الإلكتروني. يبقى النص حادًا. | Compress preset's line. |
+| `compressCustom` | Custom… | Özel… | مخصص… | Compress: the custom preset (later, B182). |
+| `compressCustomDescription` | Set image resolution, quality and what to remove. | Görsel çözünürlüğünü, kaliteyi ve neyin kaldırılacağını ayarlayın. | اضبط دقة الصور والجودة وما يُزال. | Compress: the custom preset's line. |
+| `compressAbout` | ≈ {size} | ≈ {size} | ≈ {size} | Compress: an estimated size, such as ≈ 6,8 MB. |
+| `compressNow` | Now | Şimdi | الآن | Compress: the size now. |
+| `compressAfter` | After | Sonra | بعد | Compress: the estimated size after. |
+| `compressEstimateSampled` | {count, plural, =1{Estimated from {n} sample image. The exact size is shown after saving.} other{Estimated from {n} sample images. The exact size is shown after saving.}} | {count, plural, other{{n} örnek görselden tahmin edildi. Kesin boyut kaydettikten sonra gösterilir.}} | {count, plural, =1{قُدّر من صورة عيّنة واحدة. يظهر الحجم الدقيق بعد الحفظ.} other{قُدّر من {n} من الصور العيّنة. يظهر الحجم الدقيق بعد الحفظ.}} | Compress: under the sizes; the estimate samples images by their bytes (decision 26). |
+| `compressEstimateExact` | Measured on every image. The exact size is shown after saving. | Her görselde ölçüldü. Kesin boyut kaydettikten sonra gösterilir. | قيس على كل صورة. يظهر الحجم الدقيق بعد الحفظ. | Compress: under the sizes when every image was measured. |
+| `compressDoes` | What {preset} does | {preset} ne yapar | ما يفعله {preset} | Compress: the section's title; {preset} is the preset's name. |
+| `compressDoesImages` | {count, plural, =1{Recompresses {n} image to {ppi} ppi} other{Recompresses {n} images to {ppi} ppi}} | {count, plural, other{{n} görseli {ppi} ppi olarak yeniden sıkıştırır}} | {count, plural, =1{يعيد ضغط صورة واحدة إلى {ppi} ppi} other{يعيد ضغط {n} من الصور إلى {ppi} ppi}} | Compress: what the preset does. |
+| `compressDoesFonts` | {count, plural, =1{Merges {n} duplicate font copy} other{Merges {n} duplicate font copies}} | {count, plural, other{{n} yinelenen yazı tipi kopyasını birleştirir}} | {count, plural, =1{يدمج نسخة خط مكررة واحدة} other{يدمج {n} من نسخ الخطوط المكررة}} | Compress: what the preset does. |
+| `compressDoesUnused` | Removes unused objects and thumbnails | Kullanılmayan nesneleri ve küçük resimleri kaldırır | يزيل الكائنات غير المستخدمة والصور المصغّرة | Compress: what the preset does. |
+| `compressDoesLeft` | {count, plural, =1{Leaves {n} image as it is: Ferman can’t recompress it} other{Leaves {n} images as they are: Ferman can’t recompress them}} | {count, plural, other{{n} görseli olduğu gibi bırakır: Ferman bunları yeniden sıkıştıramaz}} | {count, plural, =1{يترك صورة واحدة كما هي: لا يستطيع Ferman إعادة ضغطها} other{يترك {n} من الصور كما هي: لا يستطيع Ferman إعادة ضغطها}} | Compress: images in formats, masks or patterns it does not recompress (decision 26). |
+| `compressDoesKeeps` | Keeps text, links, bookmarks and forms | Metni, bağlantıları, yer imlerini ve formları korur | يحتفظ بالنص والروابط والإشارات المرجعية والنماذج | Compress: what the preset never changes. |
+| `compressSignedTitle` | This document is signed | Bu belge imzalı | هذا المستند موقّع | Compress: the warning on a signed document (decision 25). |
+| `compressSignedBody` | The compressed copy has no signatures. The signed original stays as it is. | Sıkıştırılmış kopyada imza olmaz. İmzalı asıl dosya olduğu gibi kalır. | لا تحتوي النسخة المضغوطة على تواقيع. يبقى الأصل الموقّع كما هو. | Compress: the warning's text. |
+| `compressAction` | Compress and save as… | Sıkıştır ve farklı kaydet… | ضغط وحفظ باسم… | Compress: the primary button; the system save panel asks where. |
+| `saveAsCommentsOff` | The file is saved as a copy without them; {name} stays open with its comments. | Dosya onlarsız bir kopya olarak kaydedilir; {name} yorumlarıyla açık kalır. | يُحفظ الملف نسخةً من دونها؛ ويبقى {name} مفتوحًا بتعليقاته. | Save as sheet: under Include comments when it is unchecked; {name} is the file name. |
+| `saveAsHistoryOn` | The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid. | Dosya baştan yazılır; önceki düzeltmeler ve silinen sayfalar olmadan. İmzalar geçersiz olur. | يُكتب الملف من جديد، من دون المراجعات السابقة أو الصفحات المحذوفة. تفقد التواقيع صلاحيتها. | Save as sheet: under Remove edit history when it is checked (B138). |
+| `saveAsHistoryOff` | Deleted pages and earlier text stay in the file and can be recovered from it. | Silinen sayfalar ve önceki metin dosyada kalır ve oradan geri alınabilir. | تبقى الصفحات المحذوفة والنص السابق في الملف ويمكن استعادتها منه. | Save as sheet: under Remove edit history when it is unchecked (M4 plan question 5). |
+| `versionTitle` | Version history | Sürüm geçmişi | سجل الإصدارات | Version history (a9-8): the panel's title. |
+| `versionCount` | {count, plural, =1{{n} version} other{{n} versions}} | {count, plural, other{{n} sürüm}} | {count, plural, =0{لا إصدارات} =1{إصدار واحد} =2{إصداران} few{{n} إصدارات} other{{n} إصدار}} | Version history: how many versions. |
+| `versionList` | Versions | Sürümler | الإصدارات | Version history: the list's name for screen readers. |
+| `versionNone` | No versions yet. Each save keeps one. | Henüz sürüm yok. Her kayıt bir sürüm saklar. | لا إصدارات بعد. يحتفظ كل حفظ بإصدار. | Version history: the empty list. |
+| `versionKept` | Kept for 30 days on this device. Change in Settings › Editing. | Bu aygıtta 30 gün saklanır. Ayarlar › Düzenleme’den değiştirin. | تُحفظ لمدة 30 يومًا على هذا الجهاز. غيّر ذلك من الإعدادات › التحرير. | Version history: the foot (ADR 0022: versions live in the app data directory). |
+| `versionNow` | Now | Şimdi | الآن | Version history: the current, unsaved state. |
+| `versionUnsaved` | unsaved | kaydedilmedi | غير محفوظ | Version history: Now's time. |
+| `versionNowDetail` | {count, plural, =0{Changes since the last save} =1{{n} edit since the last save} other{{n} edits since the last save}} | {count, plural, =0{Son kayıttan bu yana değişiklikler} other{Son kayıttan bu yana {n} düzenleme}} | {count, plural, =0{تغييرات منذ آخر حفظ} =1{تعديل واحد منذ آخر حفظ} other{{n} من التعديلات منذ آخر حفظ}} | Version history: Now's line. |
+| `versionOpened` | Opened | Açıldı | فُتح | Version history: the file as it was opened. |
+| `versionOpenedDetail` | The file as it was opened | Dosyanın açıldığı hâli | الملف كما فُتح | Version history: the opened version's line. |
+| `versionSaved` | Saved | Kaydedildi | حُفظ | Version history: a save. |
+| `versionSigned` | Signed | İmzalandı | وُقّع | Version history: a save with a new signature. |
+| `versionUnsavedWork` | Unsaved work | Kaydedilmemiş çalışma | عمل غير محفوظ | Version history: unsaved work kept before a restore. |
+| `versionRestored` | Restored | Geri yüklendi | استُعيد | Version history: a restore. |
+| `versionEdits` | {count, plural, =1{{n} edit} other{{n} edits}} | {count, plural, other{{n} düzenleme}} | {count, plural, =1{تعديل واحد} other{{n} من التعديلات}} | Version history: a version's line. |
+| `versionEditsNamed` | {count, plural, =1{{n} edit · {names}} other{{n} edits · {names}}} | {count, plural, other{{n} düzenleme · {names}}} | {count, plural, =1{تعديل واحد · {names}} other{{n} من التعديلات · {names}}} | Version history: a version's line; {names} lists the edits. |
+| `versionViewing` | Viewing the version from {time}. | {time} sürümü görüntüleniyor. | تعرض الإصدار من {time}. | Version history: the preview's bar; {time} is a time or a date. |
+| `versionReadOnly` | Read-only. Your current document is unchanged. | Salt okunur. Geçerli belgeniz değişmedi. | للقراءة فقط. لم يتغيّر مستندك الحالي. | Version history: the preview's bar. |
+| `versionBack` | Back to current | Geçerli sürüme dön | العودة إلى الحالي | Version history: leaves the preview. |
+| `versionRestoreThis` | Restore this version… | Bu sürümü geri yükle… | استعادة هذا الإصدار… | Version history: the preview bar's restore. |
+| `versionRestoreShort` | Restore… | Geri yükle… | استعادة… | Version history: the chosen row's restore. |
+| `versionCompare` | Compare with current | Geçerli sürümle karşılaştır | مقارنة بالحالي | Version history: compare (P3). |
+| `versionRestoreTitle` | Restore the version from {time}? | {time} sürümü geri yüklensin mi? | هل تريد استعادة الإصدار من {time}؟ | Version history: the restore question's title. |
+| `versionRestoreBody` | Your current file, with any unsaved edits, is kept as a version first, so nothing is lost. | Geçerli dosyanız, kaydedilmemiş düzenlemeleriyle birlikte önce bir sürüm olarak saklanır; hiçbir şey kaybolmaz. | يُحفظ ملفك الحالي، مع أي تعديلات غير محفوظة، كإصدار أولًا، فلا يضيع شيء. | Version history: the restore question (decision 27). |
+| `versionRestore` | Restore | Geri yükle | استعادة | Version history: the restore question's button. |
 | `commandPalette` | Command palette | Komut paleti | لوحة الأوامر | The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2). |
 | `commandShowShortcuts` | Show keyboard shortcuts | Klavye kısayollarını göster | عرض اختصارات لوحة المفاتيح | The command that shows the cheat sheet (a11-1j, a11-3). |
 | `commandSaveCopy` | Save a copy | Kopya kaydet | حفظ نسخة | The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3). |
@@ -1523,5 +1611,60 @@ The table below is generated from the ARB files by `tools/l10n`
 | `shortcutsNone` | No shortcut | Kısayol yok | بلا اختصار | Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33). |
 | `shortcutsChange` | Change the shortcut of {command} | {command} kısayolunu değiştir | تغيير اختصار {command} | Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name. |
 | `shortcutsReset` | Restore the default shortcut | Varsayılan kısayolu geri yükle | استعادة الاختصار الافتراضي | Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back. |
+| `settingsSearchNoMatch` | No settings match | Eşleşen ayar yok | لا توجد إعدادات مطابقة | Settings search (a11-1, G50): title of the empty state when no pane matches. |
+| `settingsSearchNoMatchBody` | Try another word. | Başka bir sözcük deneyin. | جرّب كلمة أخرى. | Settings search and Settings › Licences: body of the empty state when nothing matches. |
+| `settingsPaneLicences` | Licences | Lisanslar | التراخيص | The last row of the settings pane list and its heading: the third-party notices (M4 plan question 7; a11-5 names its button so). |
+| `settingsKeepVersionsOff` | Don’t keep versions | Sürümleri saklama | عدم الاحتفاظ بالإصدارات | Settings › Editing › Keep versions (a11-1c): the option that keeps none. |
+| `settingsFontsSearch` | Search {count} installed fonts | {count} yüklü yazı tipinde ara | البحث في {count} من الخطوط المثبّتة | Settings › Fonts (a11-1d): placeholder of the search field; {count} is the number of families, formatted. |
+| `settingsFontsSearchLabel` | Search fonts | Yazı tiplerinde ara | البحث في الخطوط | Settings › Fonts (a11-1d): screen-reader name of the search field. |
+| `settingsFontsFilter` | Filter | Süz | تصفية | Settings › Fonts (a11-1d): screen-reader name of the filter select. |
+| `settingsFontsFilterTurkish` | Covers Turkish | Türkçeyi kapsar | تدعم التركية | Settings › Fonts (a11-1d): filter option, the fonts that draw every Turkish letter. |
+| `settingsFontsFilterAll` | All fonts | Tüm yazı tipleri | كل الخطوط | Settings › Fonts (a11-1d): filter option. |
+| `settingsFontsFilterOpen` | Used in open documents | Açık belgelerde kullanılanlar | المستخدمة في المستندات المفتوحة | Settings › Fonts (a11-1d): filter option, disabled in this version. |
+| `settingsFontsBundled` | Included with Ferman | Ferman ile birlikte gelir | مضمّن مع Ferman | Settings › Fonts (a11-1d): where a font comes from, under its name. |
+| `settingsFontsInstalled` | Installed | Yüklü | مثبّت | Settings › Fonts (a11-1d): where a font comes from, under its name: installed on this computer. |
+| `settingsFontsLegend` | TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script. | TR Türkçe · LX Genişletilmiş Latin · CY Kiril · GR Yunan · AR Arapça · HE İbranice · DV Devanagari · CJK Çince, Japonca, Korece. Üstü çizili bir kod, yazı tipinin o yazıyı çizemediğini gösterir. | TR التركية · LX اللاتينية الموسّعة · CY السيريلية · GR اليونانية · AR العربية · HE العبرية · DV الديفاناغارية · CJK الصينية واليابانية والكورية. يعني الرمز المشطوب أن الخط لا يستطيع رسم تلك الكتابة. | Settings › Fonts (a11-1d): the legend of the coverage chips. The codes stay in Latin letters. |
+| `settingsFontsCovers` | Covers {script} | {script} kapsanır | يدعم {script} | Settings › Fonts (a11-1d): tooltip of a coverage chip; {script} is its code, such as TR. |
+| `settingsFontsMissing` | Doesn’t cover {script} | {script} kapsanmaz | لا يدعم {script} | Settings › Fonts (a11-1d): tooltip of a struck-through coverage chip; {script} is its code. |
+| `settingsFontsNoMatch` | No fonts match | Eşleşen yazı tipi yok | لا توجد خطوط مطابقة | Settings › Fonts (a11-1d): title of the empty state when no font matches the search and filter. |
+| `settingsFontsLoading` | Reading the fonts on this computer… | Bu bilgisayardaki yazı tipleri okunuyor… | جارٍ قراءة الخطوط على هذا الجهاز… | Settings › Fonts (a11-1d): screen-reader name of the spinner while the fonts are read. |
+| `settingsSavedSignatures` | Saved signatures · on this device only | Kayıtlı imzalar · yalnızca bu cihazda | التوقيعات المحفوظة · على هذا الجهاز فقط | Settings › Signatures and certificates (a11-1e): label of the saved signatures. |
+| `settingsSavedSignaturesNone` | No saved signatures yet. Fill &amp; Sign › Sign makes one. | Henüz kayıtlı imza yok. Doldur ve İmzala › İmzala ile bir tane oluşturabilirsiniz. | لا توجد توقيعات محفوظة بعد. يمكنك إنشاء واحد من التعبئة والتوقيع › توقيع. | Settings › Signatures and certificates (a11-1e): shown when nothing is saved. |
+| `settingsSignatureTyped` | Typed | Yazılmış | مكتوب | Settings › Signatures and certificates (a11-1e): under a typed saved signature. |
+| `settingsDeleteSignature` | Delete saved signature | Kayıtlı imzayı sil | حذف التوقيع المحفوظ | Settings › Signatures and certificates: tooltip and screen-reader name of a saved signature’s delete button. |
+| `settingsCertificates` | Certificates | Sertifikalar | الشهادات | Settings › Signatures and certificates (a11-1e): label of the certificates. |
+| `settingsAddCertificate` | Add certificate file… | Sertifika dosyası ekle… | إضافة ملف شهادة… | Settings › Signatures and certificates (a11-1e): button, disabled in this version. |
+| `settingsCardDriver` | e-imza card driver (PKCS#11) | e-imza kart sürücüsü (PKCS#11) | برنامج تشغيل بطاقة e-imza (PKCS#11) | Settings › Signatures and certificates (a11-1e): select, disabled in this version. e-imza is the Turkish name of the qualified signature. |
+| `settingsCardDriverAuto` | Find automatically | Otomatik bul | البحث تلقائيًا | Settings › Signatures and certificates (a11-1e): the card driver select’s option. |
+| `settingsTimestampServer` | Timestamp server | Zaman damgası sunucusu | خادم الطوابع الزمنية | Settings › Signatures and certificates (a11-1e): select, disabled in this version. |
+| `settingsTimestampNone` | None | Yok | لا شيء | Settings › Signatures and certificates (a11-1e): the timestamp server select’s option while nothing connects. |
+| `settingsCheckRevocation` | Check revocation online when opening signed files | İmzalı dosyaları açarken iptal durumunu çevrimiçi denetle | التحقق من الإبطال عبر الإنترنت عند فتح الملفات الموقّعة | Settings › Signatures and certificates (a11-1e): switch, off and disabled in this version. |
+| `settingsGpu` | Use the graphics card to draw pages | Sayfaları çizmek için ekran kartını kullan | استخدام بطاقة الرسوميات لرسم الصفحات | Settings › Advanced (a11-1k): switch, disabled in this version. |
+| `settingsPageCache` | Page cache | Sayfa önbelleği | ذاكرة التخزين المؤقت للصفحات | Settings › Advanced (a11-1k): select of the memory kept for drawn pages. |
+| `settingsThumbnails` | Thumbnails | Küçük resimler | الصور المصغّرة | Settings › Advanced (a11-1k): select. |
+| `settingsThumbnailsAuto` | Make as needed | Gerektikçe oluştur | إنشاء عند الحاجة | Settings › Advanced (a11-1k): thumbnails option. |
+| `settingsThumbnailsAll` | Make all when opening | Açarken tümünü oluştur | إنشاء الكل عند الفتح | Settings › Advanced (a11-1k): thumbnails option, disabled in this version. |
+| `settingsObjectInspector` | Show the PDF object inspector (for developers) | PDF nesne denetçisini göster (geliştiriciler için) | إظهار فاحص كائنات PDF (للمطوّرين) | Settings › Advanced (a11-1k): switch, disabled in this version. |
+| `settingsExport` | Export settings… | Ayarları dışa aktar… | تصدير الإعدادات… | Settings › Advanced (a11-1k): button; opens the system save panel. |
+| `settingsImport` | Import settings… | Ayarları içe aktar… | استيراد الإعدادات… | Settings › Advanced (a11-1k): button; opens the system open panel. |
+| `settingsShowLogs` | Show log files | Günlük dosyalarını göster | إظهار ملفات السجل | Settings › Advanced (a11-1k): button, disabled in this version. |
+| `settingsReset` | Reset every setting to its default. Saved signatures and certificates stay. | Tüm ayarları varsayılanlarına döndürün. Kayıtlı imzalar ve sertifikalar korunur. | أعِد كل إعداد إلى قيمته الافتراضية. تبقى التوقيعات والشهادات المحفوظة. | Settings › Advanced (a11-1k): the danger box’s text. |
+| `settingsResetButton` | Reset settings… | Ayarları sıfırla… | إعادة ضبط الإعدادات… | Settings › Advanced (a11-1k): the danger button; asks first. |
+| `settingsResetTitle` | Reset every setting? | Tüm ayarlar sıfırlansın mı? | إعادة ضبط كل الإعدادات؟ | Settings › Advanced: title of the reset confirmation (G50). |
+| `settingsResetBody` | Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay. | Tema, dil, bölge ve diğer tüm seçimler varsayılanlarına döner. Kayıtlı imzalar, damgalarınız ve açık belgeleriniz korunur. | تعود السمة واللغة والمنطقة وكل الخيارات الأخرى إلى قيمها الافتراضية. تبقى التوقيعات المحفوظة وأختامك والمستندات المفتوحة. | Settings › Advanced: body of the reset confirmation (G50). |
+| `settingsResetConfirm` | Reset | Sıfırla | إعادة الضبط | Settings › Advanced: the reset confirmation’s danger button. |
+| `settingsImportTitle` | Replace your settings? | Ayarlarınız değiştirilsin mi? | استبدال إعداداتك؟ | Settings › Advanced: title of the import confirmation (G50). |
+| `settingsImportBody` | The settings in the file replace yours. Saved signatures and the documents you have open stay. | Dosyadaki ayarlar sizinkilerin yerini alır. Kayıtlı imzalar ve açık belgeleriniz korunur. | تحلّ الإعدادات الموجودة في الملف محلّ إعداداتك. تبقى التوقيعات المحفوظة والمستندات المفتوحة. | Settings › Advanced: body of the import confirmation (G50). |
+| `settingsImportConfirm` | Import | İçe aktar | استيراد | Settings › Advanced: the import confirmation’s button. |
+| `settingsImportFailed` | Couldn’t import the settings | Ayarlar içe aktarılamadı | تعذّر استيراد الإعدادات | Settings › Advanced: toast title when the chosen file is not a settings file (G50). |
+| `settingsImportFailedBody` | The file isn’t a Ferman settings file. | Dosya bir Ferman ayar dosyası değil. | الملف ليس ملف إعدادات Ferman. | Settings › Advanced: toast text when the chosen file is not a settings file. |
+| `settingsExported` | Settings exported | Ayarlar dışa aktarıldı | تم تصدير الإعدادات | Settings › Advanced: toast after Export settings…. |
+| `settingsExportFailed` | Couldn’t export the settings | Ayarlar dışa aktarılamadı | تعذّر تصدير الإعدادات | Settings › Advanced: toast when the file could not be written. |
+| `settingsExportName` | Ferman settings | Ferman ayarları | إعدادات Ferman | Settings › Advanced: the file name the save panel suggests, without its extension .json. |
+| `settingsSettingsFile` | Settings file | Ayar dosyası | ملف الإعدادات | Settings › Advanced: the open panel’s filter name for Import settings…. |
+| `licencesIntro` | Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence. | Ferman, Apache Lisansı 2.0 ile sunulan özgür bir yazılımdır. Aşağıdaki çalışmalar üzerine kuruludur ve her biri kendi lisansını korur. | Ferman برنامج حر مرخّص بموجب رخصة Apache 2.0. وهو مبني على الأعمال أدناه، ويحتفظ كل جزء منها برخصته. | Settings › Licences: the first line (G13: the licence is Apache-2.0). |
+| `licencesSearch` | Search licences | Lisanslarda ara | البحث في التراخيص | Settings › Licences: placeholder and screen-reader name of the search field. |
+| `licencesLoading` | Reading the licences… | Lisanslar okunuyor… | جارٍ قراءة التراخيص… | Settings › Licences: screen-reader name of the spinner while the licences are read. |
+| `licencesNoMatch` | No licences match | Eşleşen lisans yok | لا توجد تراخيص مطابقة | Settings › Licences: title of the empty state when the search finds nothing. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

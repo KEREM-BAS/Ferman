@@ -2726,7 +2726,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsKeepVersions => 'Keep versions';
 
   @override
-  String get settingsKeepVersions30 => '30 days, next to the file';
+  String get settingsKeepVersions30 => 'Kept for 30 days';
 
   @override
   String get settingsReflow =>
@@ -5939,4 +5939,185 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortcutsReset => 'Restore the default shortcut';
+
+  @override
+  String get settingsSearchNoMatch => 'No settings match';
+
+  @override
+  String get settingsSearchNoMatchBody => 'Try another word.';
+
+  @override
+  String get settingsPaneLicences => 'Licences';
+
+  @override
+  String get settingsKeepVersionsOff => 'Don’t keep versions';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return 'Search $count installed fonts';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'Search fonts';
+
+  @override
+  String get settingsFontsFilter => 'Filter';
+
+  @override
+  String get settingsFontsFilterTurkish => 'Covers Turkish';
+
+  @override
+  String get settingsFontsFilterAll => 'All fonts';
+
+  @override
+  String get settingsFontsFilterOpen => 'Used in open documents';
+
+  @override
+  String get settingsFontsBundled => 'Included with Ferman';
+
+  @override
+  String get settingsFontsInstalled => 'Installed';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return 'Covers $script';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return 'Doesn’t cover $script';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'No fonts match';
+
+  @override
+  String get settingsFontsLoading => 'Reading the fonts on this computer…';
+
+  @override
+  String get settingsSavedSignatures =>
+      'Saved signatures · on this device only';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'No saved signatures yet. Fill & Sign › Sign makes one.';
+
+  @override
+  String get settingsSignatureTyped => 'Typed';
+
+  @override
+  String get settingsDeleteSignature => 'Delete saved signature';
+
+  @override
+  String get settingsCertificates => 'Certificates';
+
+  @override
+  String get settingsAddCertificate => 'Add certificate file…';
+
+  @override
+  String get settingsCardDriver => 'e-imza card driver (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'Find automatically';
+
+  @override
+  String get settingsTimestampServer => 'Timestamp server';
+
+  @override
+  String get settingsTimestampNone => 'None';
+
+  @override
+  String get settingsCheckRevocation =>
+      'Check revocation online when opening signed files';
+
+  @override
+  String get settingsGpu => 'Use the graphics card to draw pages';
+
+  @override
+  String get settingsPageCache => 'Page cache';
+
+  @override
+  String get settingsThumbnails => 'Thumbnails';
+
+  @override
+  String get settingsThumbnailsAuto => 'Make as needed';
+
+  @override
+  String get settingsThumbnailsAll => 'Make all when opening';
+
+  @override
+  String get settingsObjectInspector =>
+      'Show the PDF object inspector (for developers)';
+
+  @override
+  String get settingsExport => 'Export settings…';
+
+  @override
+  String get settingsImport => 'Import settings…';
+
+  @override
+  String get settingsShowLogs => 'Show log files';
+
+  @override
+  String get settingsReset =>
+      'Reset every setting to its default. Saved signatures and certificates stay.';
+
+  @override
+  String get settingsResetButton => 'Reset settings…';
+
+  @override
+  String get settingsResetTitle => 'Reset every setting?';
+
+  @override
+  String get settingsResetBody =>
+      'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.';
+
+  @override
+  String get settingsResetConfirm => 'Reset';
+
+  @override
+  String get settingsImportTitle => 'Replace your settings?';
+
+  @override
+  String get settingsImportBody =>
+      'The settings in the file replace yours. Saved signatures and the documents you have open stay.';
+
+  @override
+  String get settingsImportConfirm => 'Import';
+
+  @override
+  String get settingsImportFailed => 'Couldn’t import the settings';
+
+  @override
+  String get settingsImportFailedBody =>
+      'The file isn’t a Ferman settings file.';
+
+  @override
+  String get settingsExported => 'Settings exported';
+
+  @override
+  String get settingsExportFailed => 'Couldn’t export the settings';
+
+  @override
+  String get settingsExportName => 'Ferman settings';
+
+  @override
+  String get settingsSettingsFile => 'Settings file';
+
+  @override
+  String get licencesIntro =>
+      'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.';
+
+  @override
+  String get licencesSearch => 'Search licences';
+
+  @override
+  String get licencesLoading => 'Reading the licences…';
+
+  @override
+  String get licencesNoMatch => 'No licences match';
 }

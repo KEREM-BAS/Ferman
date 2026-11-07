@@ -2789,7 +2789,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsKeepVersions => 'الاحتفاظ بالإصدارات';
 
   @override
-  String get settingsKeepVersions30 => '30 يومًا، بجانب الملف';
+  String get settingsKeepVersions30 => 'تُحفظ لمدة 30 يومًا';
 
   @override
   String get settingsReflow =>
@@ -6120,4 +6120,183 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get shortcutsReset => 'استعادة الاختصار الافتراضي';
+
+  @override
+  String get settingsSearchNoMatch => 'لا توجد إعدادات مطابقة';
+
+  @override
+  String get settingsSearchNoMatchBody => 'جرّب كلمة أخرى.';
+
+  @override
+  String get settingsPaneLicences => 'التراخيص';
+
+  @override
+  String get settingsKeepVersionsOff => 'عدم الاحتفاظ بالإصدارات';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return 'البحث في $count من الخطوط المثبّتة';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'البحث في الخطوط';
+
+  @override
+  String get settingsFontsFilter => 'تصفية';
+
+  @override
+  String get settingsFontsFilterTurkish => 'تدعم التركية';
+
+  @override
+  String get settingsFontsFilterAll => 'كل الخطوط';
+
+  @override
+  String get settingsFontsFilterOpen => 'المستخدمة في المستندات المفتوحة';
+
+  @override
+  String get settingsFontsBundled => 'مضمّن مع Ferman';
+
+  @override
+  String get settingsFontsInstalled => 'مثبّت';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR التركية · LX اللاتينية الموسّعة · CY السيريلية · GR اليونانية · AR العربية · HE العبرية · DV الديفاناغارية · CJK الصينية واليابانية والكورية. يعني الرمز المشطوب أن الخط لا يستطيع رسم تلك الكتابة.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return 'يدعم $script';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return 'لا يدعم $script';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'لا توجد خطوط مطابقة';
+
+  @override
+  String get settingsFontsLoading => 'جارٍ قراءة الخطوط على هذا الجهاز…';
+
+  @override
+  String get settingsSavedSignatures =>
+      'التوقيعات المحفوظة · على هذا الجهاز فقط';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'لا توجد توقيعات محفوظة بعد. يمكنك إنشاء واحد من التعبئة والتوقيع › توقيع.';
+
+  @override
+  String get settingsSignatureTyped => 'مكتوب';
+
+  @override
+  String get settingsDeleteSignature => 'حذف التوقيع المحفوظ';
+
+  @override
+  String get settingsCertificates => 'الشهادات';
+
+  @override
+  String get settingsAddCertificate => 'إضافة ملف شهادة…';
+
+  @override
+  String get settingsCardDriver => 'برنامج تشغيل بطاقة e-imza (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'البحث تلقائيًا';
+
+  @override
+  String get settingsTimestampServer => 'خادم الطوابع الزمنية';
+
+  @override
+  String get settingsTimestampNone => 'لا شيء';
+
+  @override
+  String get settingsCheckRevocation =>
+      'التحقق من الإبطال عبر الإنترنت عند فتح الملفات الموقّعة';
+
+  @override
+  String get settingsGpu => 'استخدام بطاقة الرسوميات لرسم الصفحات';
+
+  @override
+  String get settingsPageCache => 'ذاكرة التخزين المؤقت للصفحات';
+
+  @override
+  String get settingsThumbnails => 'الصور المصغّرة';
+
+  @override
+  String get settingsThumbnailsAuto => 'إنشاء عند الحاجة';
+
+  @override
+  String get settingsThumbnailsAll => 'إنشاء الكل عند الفتح';
+
+  @override
+  String get settingsObjectInspector => 'إظهار فاحص كائنات PDF (للمطوّرين)';
+
+  @override
+  String get settingsExport => 'تصدير الإعدادات…';
+
+  @override
+  String get settingsImport => 'استيراد الإعدادات…';
+
+  @override
+  String get settingsShowLogs => 'إظهار ملفات السجل';
+
+  @override
+  String get settingsReset =>
+      'أعِد كل إعداد إلى قيمته الافتراضية. تبقى التوقيعات والشهادات المحفوظة.';
+
+  @override
+  String get settingsResetButton => 'إعادة ضبط الإعدادات…';
+
+  @override
+  String get settingsResetTitle => 'إعادة ضبط كل الإعدادات؟';
+
+  @override
+  String get settingsResetBody =>
+      'تعود السمة واللغة والمنطقة وكل الخيارات الأخرى إلى قيمها الافتراضية. تبقى التوقيعات المحفوظة وأختامك والمستندات المفتوحة.';
+
+  @override
+  String get settingsResetConfirm => 'إعادة الضبط';
+
+  @override
+  String get settingsImportTitle => 'استبدال إعداداتك؟';
+
+  @override
+  String get settingsImportBody =>
+      'تحلّ الإعدادات الموجودة في الملف محلّ إعداداتك. تبقى التوقيعات المحفوظة والمستندات المفتوحة.';
+
+  @override
+  String get settingsImportConfirm => 'استيراد';
+
+  @override
+  String get settingsImportFailed => 'تعذّر استيراد الإعدادات';
+
+  @override
+  String get settingsImportFailedBody => 'الملف ليس ملف إعدادات Ferman.';
+
+  @override
+  String get settingsExported => 'تم تصدير الإعدادات';
+
+  @override
+  String get settingsExportFailed => 'تعذّر تصدير الإعدادات';
+
+  @override
+  String get settingsExportName => 'إعدادات Ferman';
+
+  @override
+  String get settingsSettingsFile => 'ملف الإعدادات';
+
+  @override
+  String get licencesIntro =>
+      'Ferman برنامج حر مرخّص بموجب رخصة Apache 2.0. وهو مبني على الأعمال أدناه، ويحتفظ كل جزء منها برخصته.';
+
+  @override
+  String get licencesSearch => 'البحث في التراخيص';
+
+  @override
+  String get licencesLoading => 'جارٍ قراءة التراخيص…';
+
+  @override
+  String get licencesNoMatch => 'لا توجد تراخيص مطابقة';
 }

@@ -270,6 +270,10 @@ abstract interface class EngineService {
   /// (a11-1c). The fonts are indexed again the next time an edit needs them.
   Future<void> setFontSettings(FontSettings settings);
 
+  /// The font families bundled with Ferman and installed on this computer,
+  /// bundled first and then by name, scanned off the UI isolate (a11-1d).
+  Future<List<InstalledFont>> installedFonts();
+
   /// Draws the characters missing-glyph step 3 offers candidates for in the
   /// candidate [postscriptName] of [origin] (a3-3b); the choice holds for
   /// the rest of the [transaction].
@@ -1050,6 +1054,9 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> setFontSettings(FontSettings settings) async => throw error;
+
+  @override
+  Future<List<InstalledFont>> installedFonts() async => throw error;
 
   @override
   Future<EditPreview> chooseFont(

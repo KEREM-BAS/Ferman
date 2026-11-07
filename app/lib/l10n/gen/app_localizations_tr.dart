@@ -2720,7 +2720,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsKeepVersions => 'Sürümleri sakla';
 
   @override
-  String get settingsKeepVersions30 => '30 gün, dosyanın yanında';
+  String get settingsKeepVersions30 => '30 gün saklanır';
 
   @override
   String get settingsReflow =>
@@ -5905,4 +5905,183 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get shortcutsReset => 'Varsayılan kısayolu geri yükle';
+
+  @override
+  String get settingsSearchNoMatch => 'Eşleşen ayar yok';
+
+  @override
+  String get settingsSearchNoMatchBody => 'Başka bir sözcük deneyin.';
+
+  @override
+  String get settingsPaneLicences => 'Lisanslar';
+
+  @override
+  String get settingsKeepVersionsOff => 'Sürümleri saklama';
+
+  @override
+  String settingsFontsSearch(String count) {
+    return '$count yüklü yazı tipinde ara';
+  }
+
+  @override
+  String get settingsFontsSearchLabel => 'Yazı tiplerinde ara';
+
+  @override
+  String get settingsFontsFilter => 'Süz';
+
+  @override
+  String get settingsFontsFilterTurkish => 'Türkçeyi kapsar';
+
+  @override
+  String get settingsFontsFilterAll => 'Tüm yazı tipleri';
+
+  @override
+  String get settingsFontsFilterOpen => 'Açık belgelerde kullanılanlar';
+
+  @override
+  String get settingsFontsBundled => 'Ferman ile birlikte gelir';
+
+  @override
+  String get settingsFontsInstalled => 'Yüklü';
+
+  @override
+  String get settingsFontsLegend =>
+      'TR Türkçe · LX Genişletilmiş Latin · CY Kiril · GR Yunan · AR Arapça · HE İbranice · DV Devanagari · CJK Çince, Japonca, Korece. Üstü çizili bir kod, yazı tipinin o yazıyı çizemediğini gösterir.';
+
+  @override
+  String settingsFontsCovers(String script) {
+    return '$script kapsanır';
+  }
+
+  @override
+  String settingsFontsMissing(String script) {
+    return '$script kapsanmaz';
+  }
+
+  @override
+  String get settingsFontsNoMatch => 'Eşleşen yazı tipi yok';
+
+  @override
+  String get settingsFontsLoading => 'Bu bilgisayardaki yazı tipleri okunuyor…';
+
+  @override
+  String get settingsSavedSignatures => 'Kayıtlı imzalar · yalnızca bu cihazda';
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      'Henüz kayıtlı imza yok. Doldur ve İmzala › İmzala ile bir tane oluşturabilirsiniz.';
+
+  @override
+  String get settingsSignatureTyped => 'Yazılmış';
+
+  @override
+  String get settingsDeleteSignature => 'Kayıtlı imzayı sil';
+
+  @override
+  String get settingsCertificates => 'Sertifikalar';
+
+  @override
+  String get settingsAddCertificate => 'Sertifika dosyası ekle…';
+
+  @override
+  String get settingsCardDriver => 'e-imza kart sürücüsü (PKCS#11)';
+
+  @override
+  String get settingsCardDriverAuto => 'Otomatik bul';
+
+  @override
+  String get settingsTimestampServer => 'Zaman damgası sunucusu';
+
+  @override
+  String get settingsTimestampNone => 'Yok';
+
+  @override
+  String get settingsCheckRevocation =>
+      'İmzalı dosyaları açarken iptal durumunu çevrimiçi denetle';
+
+  @override
+  String get settingsGpu => 'Sayfaları çizmek için ekran kartını kullan';
+
+  @override
+  String get settingsPageCache => 'Sayfa önbelleği';
+
+  @override
+  String get settingsThumbnails => 'Küçük resimler';
+
+  @override
+  String get settingsThumbnailsAuto => 'Gerektikçe oluştur';
+
+  @override
+  String get settingsThumbnailsAll => 'Açarken tümünü oluştur';
+
+  @override
+  String get settingsObjectInspector =>
+      'PDF nesne denetçisini göster (geliştiriciler için)';
+
+  @override
+  String get settingsExport => 'Ayarları dışa aktar…';
+
+  @override
+  String get settingsImport => 'Ayarları içe aktar…';
+
+  @override
+  String get settingsShowLogs => 'Günlük dosyalarını göster';
+
+  @override
+  String get settingsReset =>
+      'Tüm ayarları varsayılanlarına döndürün. Kayıtlı imzalar ve sertifikalar korunur.';
+
+  @override
+  String get settingsResetButton => 'Ayarları sıfırla…';
+
+  @override
+  String get settingsResetTitle => 'Tüm ayarlar sıfırlansın mı?';
+
+  @override
+  String get settingsResetBody =>
+      'Tema, dil, bölge ve diğer tüm seçimler varsayılanlarına döner. Kayıtlı imzalar, damgalarınız ve açık belgeleriniz korunur.';
+
+  @override
+  String get settingsResetConfirm => 'Sıfırla';
+
+  @override
+  String get settingsImportTitle => 'Ayarlarınız değiştirilsin mi?';
+
+  @override
+  String get settingsImportBody =>
+      'Dosyadaki ayarlar sizinkilerin yerini alır. Kayıtlı imzalar ve açık belgeleriniz korunur.';
+
+  @override
+  String get settingsImportConfirm => 'İçe aktar';
+
+  @override
+  String get settingsImportFailed => 'Ayarlar içe aktarılamadı';
+
+  @override
+  String get settingsImportFailedBody => 'Dosya bir Ferman ayar dosyası değil.';
+
+  @override
+  String get settingsExported => 'Ayarlar dışa aktarıldı';
+
+  @override
+  String get settingsExportFailed => 'Ayarlar dışa aktarılamadı';
+
+  @override
+  String get settingsExportName => 'Ferman ayarları';
+
+  @override
+  String get settingsSettingsFile => 'Ayar dosyası';
+
+  @override
+  String get licencesIntro =>
+      'Ferman, Apache Lisansı 2.0 ile sunulan özgür bir yazılımdır. Aşağıdaki çalışmalar üzerine kuruludur ve her biri kendi lisansını korur.';
+
+  @override
+  String get licencesSearch => 'Lisanslarda ara';
+
+  @override
+  String get licencesLoading => 'Lisanslar okunuyor…';
+
+  @override
+  String get licencesNoMatch => 'Eşleşen lisans yok';
 }

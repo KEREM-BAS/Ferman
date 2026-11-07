@@ -44,6 +44,7 @@ pub mod encoding;
 mod instance;
 pub mod matching;
 pub mod program;
+pub mod scripts;
 pub mod shape;
 pub mod subset;
 pub mod system;
@@ -56,6 +57,7 @@ pub use matching::{
     rank_similar, strip_subset_tag,
 };
 pub use program::{FontProgram, GlyphId};
+pub use scripts::{Script, scripts_of};
 pub use shape::{Direction, FeatureSetting, ShapeRequest, ShapedGlyph, ShapedRun, ShapingFont};
 pub use subset::{Descriptor, Embedding, Subset, SubsetGlyph, SubsetProgram, subset, subset_at};
 pub use system::{

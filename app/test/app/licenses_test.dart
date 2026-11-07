@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ferman/app/licenses.dart';
@@ -23,9 +24,10 @@ List<String> _pubspecAssets() {
   return assets;
 }
 
-/// Whether [asset] is a licence text by its place in `app/assets/`.
+/// Whether [asset] is a licence text by its place in `app/assets/`; the
+/// Rust notices are a list of texts of their own ([rustNotices]).
 bool _isLicenseAsset(String asset) =>
-    asset.startsWith('assets/licenses/') ||
+    (asset.startsWith('assets/licenses/') && asset != rustNotices) ||
     RegExp(r'^assets/fonts/[^/]+/LICENSE\.txt$').hasMatch(asset) ||
     RegExp(r'^assets/icons/LICENSE-[^/]+\.txt$').hasMatch(asset);
 
@@ -101,7 +103,8 @@ void main() {
     test('makes LicenseRegistry yield every bundled licence text', () async {
       registerLicenses();
       final entries = await LicenseRegistry.licenses.toList();
-      expect(entries, hasLength(bundledLicenses.length));
+      final rust = _rustLicences();
+      expect(entries, hasLength(bundledLicenses.length + rust.length));
       for (final (index, license) in bundledLicenses.indexed) {
         final entry = entries[index];
         expect(entry.packages, license.packages, reason: license.asset);
@@ -117,6 +120,21 @@ void main() {
                 .join(' ');
         expect(text, contains(firstWords), reason: license.asset);
       }
+    });
+
+    test('adds each Rust licence text under its crates, by name', () async {
+      registerLicenses();
+      final entries = await LicenseRegistry.licenses.toList();
+      final rust = entries.skip(bundledLicenses.length).toList();
+      for (final (index, licence) in _rustLicences().indexed) {
+        final crates = [
+          for (final crate in licence['crates']! as List<Object?>)
+            (crate! as String).split(' ').first,
+        ];
+        expect(rust[index].packages.toSet(), crates.toSet());
+      }
+      final lopdf = rust.where((entry) => entry.packages.contains('lopdf'));
+      expect(lopdf, isNotEmpty);
     });
 
     test('shows the OFL, ISC and MIT texts by name', () async {
@@ -138,4 +156,61 @@ void main() {
       expect(textOf('FreeType'), contains('copyright \u00A9 <year>'));
     });
   });
+
+  group('what ships', () {
+    test('the Rust notices are declared and carry no build paths', () {
+      expect(_pubspecAssets(), contains(rustNotices));
+      final text = File(rustNotices).readAsStringSync();
+      expect(text, isNot(contains('/Users/')));
+      expect(text, isNot(contains('.cargo')));
+      expect(_rustLicences(), isNotEmpty);
+    });
+
+    test('devOnlyPackages are the pubspec.lock packages that do not ship', () {
+      // `dart pub deps` reads pubspec.lock: the packages the app's own
+      // dependencies reach ship, the others only build and test it. The
+      // count of the licences shown follows from this list (ships).
+      final result = Process.runSync('dart', [
+        'pub',
+        'deps',
+        '--json',
+      ], runInShell: true);
+      expect(result.exitCode, 0, reason: '${result.stderr}');
+      final deps = jsonDecode(result.stdout as String) as Map<String, Object?>;
+      final packages = {
+        for (final package in deps['packages']! as List<Object?>)
+          (package! as Map<String, Object?>)['name']! as String:
+              package as Map<String, Object?>,
+      };
+      final root = packages[deps['root']]!;
+      final shipped = <String>{};
+      final queue = [...root['directDependencies']! as List<Object?>];
+      while (queue.isNotEmpty) {
+        final name = queue.removeLast()! as String;
+        if (shipped.add(name)) {
+          queue.addAll(packages[name]!['dependencies']! as List<Object?>);
+        }
+      }
+      final all = packages.keys.toSet()..remove(deps['root']);
+      expect(devOnlyPackages, all.difference(shipped));
+      expect(
+        ships(const LicenseEntryWithLineBreaks(['alchemist'], 'MIT')),
+        isFalse,
+      );
+      expect(
+        ships(const LicenseEntryWithLineBreaks(['alchemist', 'skia'], 'x')),
+        isTrue,
+      );
+    });
+  });
+}
+
+/// The licences of [rustNotices], in order.
+List<Map<String, Object?>> _rustLicences() {
+  final notices =
+      jsonDecode(File(rustNotices).readAsStringSync()) as Map<String, Object?>;
+  return [
+    for (final licence in notices['licences']! as List<Object?>)
+      licence! as Map<String, Object?>,
+  ];
 }

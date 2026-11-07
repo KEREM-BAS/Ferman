@@ -5039,6 +5039,179 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get shortcutsReset => isolate(super.shortcutsReset);
+
+  @override
+  String get settingsSearchNoMatch => isolate(super.settingsSearchNoMatch);
+
+  @override
+  String get settingsSearchNoMatchBody =>
+      isolate(super.settingsSearchNoMatchBody);
+
+  @override
+  String get settingsPaneLicences => isolate(super.settingsPaneLicences);
+
+  @override
+  String get settingsKeepVersionsOff => isolate(super.settingsKeepVersionsOff);
+
+  @override
+  String settingsFontsSearch(String count) =>
+      isolate(super.settingsFontsSearch(count));
+
+  @override
+  String get settingsFontsSearchLabel =>
+      isolate(super.settingsFontsSearchLabel);
+
+  @override
+  String get settingsFontsFilter => isolate(super.settingsFontsFilter);
+
+  @override
+  String get settingsFontsFilterTurkish =>
+      isolate(super.settingsFontsFilterTurkish);
+
+  @override
+  String get settingsFontsFilterAll => isolate(super.settingsFontsFilterAll);
+
+  @override
+  String get settingsFontsFilterOpen => isolate(super.settingsFontsFilterOpen);
+
+  @override
+  String get settingsFontsBundled => isolate(super.settingsFontsBundled);
+
+  @override
+  String get settingsFontsInstalled => isolate(super.settingsFontsInstalled);
+
+  @override
+  String get settingsFontsLegend => isolate(super.settingsFontsLegend);
+
+  @override
+  String settingsFontsCovers(String script) =>
+      isolate(super.settingsFontsCovers(script));
+
+  @override
+  String settingsFontsMissing(String script) =>
+      isolate(super.settingsFontsMissing(script));
+
+  @override
+  String get settingsFontsNoMatch => isolate(super.settingsFontsNoMatch);
+
+  @override
+  String get settingsFontsLoading => isolate(super.settingsFontsLoading);
+
+  @override
+  String get settingsSavedSignatures => isolate(super.settingsSavedSignatures);
+
+  @override
+  String get settingsSavedSignaturesNone =>
+      isolate(super.settingsSavedSignaturesNone);
+
+  @override
+  String get settingsSignatureTyped => isolate(super.settingsSignatureTyped);
+
+  @override
+  String get settingsDeleteSignature => isolate(super.settingsDeleteSignature);
+
+  @override
+  String get settingsCertificates => isolate(super.settingsCertificates);
+
+  @override
+  String get settingsAddCertificate => isolate(super.settingsAddCertificate);
+
+  @override
+  String get settingsCardDriver => isolate(super.settingsCardDriver);
+
+  @override
+  String get settingsCardDriverAuto => isolate(super.settingsCardDriverAuto);
+
+  @override
+  String get settingsTimestampServer => isolate(super.settingsTimestampServer);
+
+  @override
+  String get settingsTimestampNone => isolate(super.settingsTimestampNone);
+
+  @override
+  String get settingsCheckRevocation => isolate(super.settingsCheckRevocation);
+
+  @override
+  String get settingsGpu => isolate(super.settingsGpu);
+
+  @override
+  String get settingsPageCache => isolate(super.settingsPageCache);
+
+  @override
+  String get settingsThumbnails => isolate(super.settingsThumbnails);
+
+  @override
+  String get settingsThumbnailsAuto => isolate(super.settingsThumbnailsAuto);
+
+  @override
+  String get settingsThumbnailsAll => isolate(super.settingsThumbnailsAll);
+
+  @override
+  String get settingsObjectInspector => isolate(super.settingsObjectInspector);
+
+  @override
+  String get settingsExport => isolate(super.settingsExport);
+
+  @override
+  String get settingsImport => isolate(super.settingsImport);
+
+  @override
+  String get settingsShowLogs => isolate(super.settingsShowLogs);
+
+  @override
+  String get settingsReset => isolate(super.settingsReset);
+
+  @override
+  String get settingsResetButton => isolate(super.settingsResetButton);
+
+  @override
+  String get settingsResetTitle => isolate(super.settingsResetTitle);
+
+  @override
+  String get settingsResetBody => isolate(super.settingsResetBody);
+
+  @override
+  String get settingsResetConfirm => isolate(super.settingsResetConfirm);
+
+  @override
+  String get settingsImportTitle => isolate(super.settingsImportTitle);
+
+  @override
+  String get settingsImportBody => isolate(super.settingsImportBody);
+
+  @override
+  String get settingsImportConfirm => isolate(super.settingsImportConfirm);
+
+  @override
+  String get settingsImportFailed => isolate(super.settingsImportFailed);
+
+  @override
+  String get settingsImportFailedBody =>
+      isolate(super.settingsImportFailedBody);
+
+  @override
+  String get settingsExported => isolate(super.settingsExported);
+
+  @override
+  String get settingsExportFailed => isolate(super.settingsExportFailed);
+
+  @override
+  String get settingsExportName => isolate(super.settingsExportName);
+
+  @override
+  String get settingsSettingsFile => isolate(super.settingsSettingsFile);
+
+  @override
+  String get licencesIntro => isolate(super.licencesIntro);
+
+  @override
+  String get licencesSearch => isolate(super.licencesSearch);
+
+  @override
+  String get licencesLoading => isolate(super.licencesLoading);
+
+  @override
+  String get licencesNoMatch => isolate(super.licencesNoMatch);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -33,6 +33,7 @@ final class AppSettings {
     this.recoveryCopies = true,
     this.reflow = true,
     this.markEdited = true,
+    this.keepVersions = true,
     this.commenterName,
     this.myStamps = const [],
     this.shortcuts = const {},
@@ -83,6 +84,7 @@ final class AppSettings {
       recoveryCopies: json[_recoveryCopies] != false,
       reflow: json[_reflow] != false,
       markEdited: json[_markEdited] != false,
+      keepVersions: json[_keepVersions] != false,
       commenterName: switch (json[_commenterName]) {
         final String name => name,
         _ => null,
@@ -139,6 +141,7 @@ final class AppSettings {
   static const String _recoveryCopies = 'recoveryCopies';
   static const String _reflow = 'reflow';
   static const String _markEdited = 'markEdited';
+  static const String _keepVersions = 'keepVersions';
   static const String _commenterName = 'commenterName';
   static const Set<String> _known = {
     _version,
@@ -159,6 +162,7 @@ final class AppSettings {
     _recoveryCopies,
     _reflow,
     _markEdited,
+    _keepVersions,
     _commenterName,
     _myStamps,
     _shortcuts,
@@ -226,6 +230,10 @@ final class AppSettings {
   /// marks on the canvas, which never reach the file.
   final bool markEdited;
 
+  /// Settings → Editing → Keep versions (a11-1c, ADR 0022): each save keeps
+  /// a version for 30 days.
+  final bool keepVersions;
+
   /// The name on comments (G46, "Your name for comments"); null until the
   /// first comment asks. It may be empty.
   final String? commenterName;
@@ -269,10 +277,67 @@ final class AppSettings {
     _recoveryCopies: recoveryCopies,
     _reflow: reflow,
     _markEdited: markEdited,
+    _keepVersions: keepVersions,
     _commenterName: ?commenterName,
     _myStamps: myStamps,
     _shortcuts: shortcuts,
   };
+
+  /// The JSON form Settings › Advanced › Export settings… writes (decision
+  /// 34): [toJson] without [lastDocuments], whose paths stay on this device.
+  Map<String, Object?> toExport() => toJson()..remove(_lastDocuments);
+
+  /// The settings of an exported [json] file, read at a trust boundary
+  /// (decision 34, G50), or null when it is not one this version can read:
+  /// not a JSON object, or no format version up to [currentVersion]. Values
+  /// that are unreadable or out of bounds take their defaults, keys this
+  /// version does not know are dropped, and what the file must not change
+  /// comes from [current]: the open documents and whether first run is done.
+  static AppSettings? imported(Object? json, AppSettings current) {
+    if (json is! Map<String, Object?>) return null;
+    final version = json[_version];
+    if (version is! int || version < 1 || version > currentVersion) return null;
+    final read = AppSettings.fromJson({
+      for (final MapEntry(:key, :value) in json.entries)
+        if (_known.contains(key)) key: value,
+    });
+    bool code(String? value) =>
+        value == null || RegExp(r'^[A-Za-z]{2,8}$').hasMatch(value);
+    final name = read.commenterName;
+    return AppSettings(
+      themeMode: read.themeMode,
+      languageCode: code(read.languageCode) ? read.languageCode : null,
+      regionCode: code(read.regionCode) ? read.regionCode : null,
+      paperSize: read.paperSize,
+      lengthUnit: read.lengthUnit,
+      firstDayOfWeek: read.firstDayOfWeek,
+      onboardingCompleted: current.onboardingCompleted,
+      reopenDocuments: read.reopenDocuments,
+      lastDocuments: current.lastDocuments,
+      askDefaultApp: read.askDefaultApp,
+      pageLook: read.pageLook,
+      pageLayout: read.pageLayout,
+      zoom: read.zoom,
+      missingGlyphs: read.missingGlyphs,
+      recoveryCopies: read.recoveryCopies,
+      reflow: read.reflow,
+      markEdited: read.markEdited,
+      keepVersions: read.keepVersions,
+      commenterName: name == null || name.length > largestImportedText
+          ? null
+          : name,
+      // Each stamp is read again, within its own limits, by `myStampsProvider`.
+      myStamps: read.myStamps,
+      // Validated where they are read, by `ShortcutBindings.fromSettings`.
+      shortcuts: read.shortcuts,
+    );
+  }
+
+  /// The longest name an imported file may set.
+  static const int largestImportedText = 256;
+
+  /// The largest settings file Import settings… reads.
+  static const int largestImport = 4 * 1024 * 1024;
 
   /// A copy with the given values. The nullable choices take a function so
   /// they can be set back to null ("follow the system", "region default").
@@ -294,6 +359,7 @@ final class AppSettings {
     bool? recoveryCopies,
     bool? reflow,
     bool? markEdited,
+    bool? keepVersions,
     String? commenterName,
     List<String>? myStamps,
     Map<String, List<String>>? shortcuts,
@@ -317,6 +383,7 @@ final class AppSettings {
     recoveryCopies: recoveryCopies ?? this.recoveryCopies,
     reflow: reflow ?? this.reflow,
     markEdited: markEdited ?? this.markEdited,
+    keepVersions: keepVersions ?? this.keepVersions,
     commenterName: commenterName ?? this.commenterName,
     myStamps: myStamps ?? this.myStamps,
     shortcuts: shortcuts ?? this.shortcuts,
@@ -344,6 +411,7 @@ final class AppSettings {
       other.recoveryCopies == recoveryCopies &&
       other.reflow == reflow &&
       other.markEdited == markEdited &&
+      other.keepVersions == keepVersions &&
       other.commenterName == commenterName &&
       listEquals(other.myStamps, myStamps) &&
       _sameShortcuts(other.shortcuts, shortcuts) &&
@@ -374,6 +442,7 @@ final class AppSettings {
       commenterName,
       Object.hashAll(myStamps),
       Object.hashAllUnordered(shortcuts.keys),
+      keepVersions,
     ),
     version,
     Object.hashAllUnordered(unknown.keys),

@@ -2072,6 +2072,76 @@ pub async fn set_font_settings(settings: FontSettings) -> Result<(), ApiError> {
         .map_err(api_error_dto)
 }
 
+/// A script of Settings › Fonts' coverage chips (a11-1d), in their order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontScript {
+    /// TR: the Turkish letters.
+    Turkish,
+    /// LX: Latin Extended-A.
+    LatinExtended,
+    /// CY: Cyrillic.
+    Cyrillic,
+    /// GR: Greek.
+    Greek,
+    /// AR: Arabic.
+    Arabic,
+    /// HE: Hebrew.
+    Hebrew,
+    /// DV: Devanagari.
+    Devanagari,
+    /// CJK: Chinese, Japanese and Korean.
+    Cjk,
+}
+
+/// A family of Settings › Fonts (a11-1d).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstalledFont {
+    /// The family name.
+    pub family: String,
+    /// Bundled with Ferman or installed on this computer.
+    pub origin: FontOrigin,
+    /// The scripts its regular face covers, read from its file.
+    pub scripts: Vec<FontScript>,
+}
+
+/// The font families bundled in `bundled_dir` and installed on this computer, bundled first and
+/// then by name, scanned off the calling thread (a11-1d).
+///
+/// See [`facade::Engine::installed_fonts`].
+///
+/// # Errors
+///
+/// Only an internal error.
+pub async fn installed_fonts(bundled_dir: Option<String>) -> Result<Vec<InstalledFont>, ApiError> {
+    engine()?
+        .installed_fonts(bundled_dir.map(PathBuf::from))
+        .await
+        .map(|fonts| {
+            fonts
+                .into_iter()
+                .map(|font| InstalledFont {
+                    family: font.family,
+                    origin: origin_dto(font.origin),
+                    scripts: font
+                        .scripts
+                        .into_iter()
+                        .map(|script| match script {
+                            facade::Script::Turkish => FontScript::Turkish,
+                            facade::Script::LatinExtended => FontScript::LatinExtended,
+                            facade::Script::Cyrillic => FontScript::Cyrillic,
+                            facade::Script::Greek => FontScript::Greek,
+                            facade::Script::Arabic => FontScript::Arabic,
+                            facade::Script::Hebrew => FontScript::Hebrew,
+                            facade::Script::Devanagari => FontScript::Devanagari,
+                            facade::Script::Cjk => FontScript::Cjk,
+                        })
+                        .collect(),
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
 /// Draws step 3's characters in the candidate `postscript_name` of `origin` (a3-3b).
 ///
 /// See [`facade::Engine::choose_font`].

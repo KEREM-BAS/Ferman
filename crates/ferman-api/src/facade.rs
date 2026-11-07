@@ -24,6 +24,7 @@ mod document;
 mod edit;
 mod engine;
 mod error;
+mod fonts;
 mod forms;
 mod guard;
 mod info;
@@ -51,6 +52,7 @@ pub use edit::{
 };
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
+pub use fonts::InstalledFont;
 pub use forms::{FieldCommit, FieldFormat, FieldInfo, FieldWidget, FormInfo};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
@@ -80,7 +82,7 @@ pub use ferman_core::versions::VersionKind;
 pub use ferman_core::{
     DocumentOp, Method, Password, Permissions, Repair, RepairReport, XrefProblem,
 };
-pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
+pub use ferman_fonts::{Coverage, Embedding, FontOrigin, Script};
 pub use ferman_ops::annotations::{AnnotationChange, NewAnnotation};
 pub use ferman_ops::compress::{Estimate, Preset};
 pub use ferman_ops::fill::TargetKind;

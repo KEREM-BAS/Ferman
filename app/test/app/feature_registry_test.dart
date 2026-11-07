@@ -68,8 +68,12 @@ void main() {
         SettingsPane.general,
         SettingsPane.language,
         SettingsPane.editing,
+        SettingsPane.fonts,
+        SettingsPane.signatures,
         SettingsPane.privacy,
         SettingsPane.shortcuts,
+        SettingsPane.advanced,
+        SettingsPane.licences,
       ],
     );
   });

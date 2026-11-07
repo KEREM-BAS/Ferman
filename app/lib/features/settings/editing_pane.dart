@@ -20,9 +20,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// Mark edited text works and is stored; the canvas follows it. What a
 /// missing character does (G36), the reflow switch and "Save a recovery copy
-/// every minute" work and are stored too, and the engine follows them
-/// (`documentEditorProvider`). Font for new text (B042) and Keep versions
-/// (B060) are drawn and disabled through the feature registry. There is no
+/// every minute", and Keep versions (ADR 0022), work and are stored too, and
+/// the engine follows them (`documentEditorProvider`). Font for new text
+/// (B042) is drawn and disabled through the feature registry. There is no
 /// overflow default and no switch for the signed-document warning (G43).
 ///
 /// The Saving group explains saving, and names the folder of the recovery
@@ -87,13 +87,19 @@ class EditingPane extends ConsumerWidget {
       disabled: true,
       disabledReason: Feature.addingTextBoxes.disabledReason(context),
     );
-    final keepVersions = Select<String>(
+    // a11-1c's "7 days" is left out: versions are kept for 30 days, a
+    // retention the engine does not change (ADR 0022).
+    final keepVersions = Select<bool>(
       label: l10n.settingsKeepVersions,
       size: FieldSize.sm,
-      value: '30',
-      options: [SelectOption(value: '30', label: l10n.settingsKeepVersions30)],
-      disabled: true,
-      disabledReason: Feature.keepVersions.disabledReason(context),
+      value: settings.keepVersions,
+      options: [
+        SelectOption(value: true, label: l10n.settingsKeepVersions30),
+        SelectOption(value: false, label: l10n.settingsKeepVersionsOff),
+      ],
+      onChanged: (keep) => unawaited(
+        changeSetting(ref, (current) => current.copyWith(keepVersions: keep)),
+      ),
     );
 
     return Column(

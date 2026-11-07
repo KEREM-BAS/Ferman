@@ -339,6 +339,9 @@ abstract class FermanBridgeApiImplPlatform
   FontOrigin dco_decode_font_origin(dynamic raw);
 
   @protected
+  FontScript dco_decode_font_script(dynamic raw);
+
+  @protected
   FontSettings dco_decode_font_settings(dynamic raw);
 
   @protected
@@ -373,6 +376,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   InputStatus dco_decode_input_status(dynamic raw);
+
+  @protected
+  InstalledFont dco_decode_installed_font(dynamic raw);
 
   @protected
   ItemKind dco_decode_item_kind(dynamic raw);
@@ -471,6 +477,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
+  List<FontScript> dco_decode_list_font_script(dynamic raw);
+
+  @protected
   List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw);
 
   @protected
@@ -478,6 +487,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<HistoryStep> dco_decode_list_history_step(dynamic raw);
+
+  @protected
+  List<InstalledFont> dco_decode_list_installed_font(dynamic raw);
 
   @protected
   List<JobOutput> dco_decode_list_job_output(dynamic raw);
@@ -1239,6 +1251,9 @@ abstract class FermanBridgeApiImplPlatform
   FontOrigin sse_decode_font_origin(SseDeserializer deserializer);
 
   @protected
+  FontScript sse_decode_font_script(SseDeserializer deserializer);
+
+  @protected
   FontSettings sse_decode_font_settings(SseDeserializer deserializer);
 
   @protected
@@ -1273,6 +1288,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   InputStatus sse_decode_input_status(SseDeserializer deserializer);
+
+  @protected
+  InstalledFont sse_decode_installed_font(SseDeserializer deserializer);
 
   @protected
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
@@ -1389,6 +1407,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> sse_decode_list_font_entry(SseDeserializer deserializer);
 
   @protected
+  List<FontScript> sse_decode_list_font_script(SseDeserializer deserializer);
+
+  @protected
   List<FontSubstitution> sse_decode_list_font_substitution(
     SseDeserializer deserializer,
   );
@@ -1400,6 +1421,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer);
+
+  @protected
+  List<InstalledFont> sse_decode_list_installed_font(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<JobOutput> sse_decode_list_job_output(SseDeserializer deserializer);
@@ -2518,6 +2544,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_font_script> cst_encode_list_font_script(
+    List<FontScript> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_font_script(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_font_script(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_font_substitution>
   cst_encode_list_font_substitution(List<FontSubstitution> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
@@ -2547,6 +2585,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_history_step(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_history_step(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_installed_font> cst_encode_list_installed_font(
+    List<InstalledFont> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_installed_font(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_installed_font(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -3949,6 +3999,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_installed_font(
+    InstalledFont apiObj,
+    wire_cst_installed_font wireObj,
+  ) {
+    wireObj.family = cst_encode_String(apiObj.family);
+    wireObj.origin = cst_encode_font_origin(apiObj.origin);
+    wireObj.scripts = cst_encode_list_font_script(apiObj.scripts);
+  }
+
+  @protected
   void cst_api_fill_to_wire_job_event(
     JobEvent apiObj,
     wire_cst_job_event wireObj,
@@ -4677,6 +4737,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_font_origin(FontOrigin raw);
 
   @protected
+  int cst_encode_font_script(FontScript raw);
+
+  @protected
   int cst_encode_font_type(FontType raw);
 
   @protected
@@ -5268,6 +5331,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_font_origin(FontOrigin self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_script(FontScript self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_settings(FontSettings self, SseSerializer serializer);
 
   @protected
@@ -5308,6 +5374,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_input_status(InputStatus self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_installed_font(InstalledFont self, SseSerializer serializer);
 
   @protected
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
@@ -5457,6 +5526,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_font_script(
+    List<FontScript> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_font_substitution(
     List<FontSubstitution> self,
     SseSerializer serializer,
@@ -5471,6 +5546,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_history_step(
     List<HistoryStep> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_installed_font(
+    List<InstalledFont> self,
     SseSerializer serializer,
   );
 
@@ -6983,6 +7064,28 @@ class FermanBridgeWire implements BaseWire {
               double,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
+          >();
+
+  void wire__crate__frb__installed_fonts(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> bundled_dir,
+  ) {
+    return _wire__crate__frb__installed_fonts(port_, bundled_dir);
+  }
+
+  late final _wire__crate__frb__installed_fontsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__installed_fonts');
+  late final _wire__crate__frb__installed_fonts =
+      _wire__crate__frb__installed_fontsPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
   void wire__crate__frb__keep_as_is(int port_, int transaction) {
@@ -9858,6 +9961,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_font_entry = _cst_new_list_font_entryPtr
       .asFunction<ffi.Pointer<wire_cst_list_font_entry> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_font_script> cst_new_list_font_script(int len) {
+    return _cst_new_list_font_script(len);
+  }
+
+  late final _cst_new_list_font_scriptPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_font_script> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_font_script');
+  late final _cst_new_list_font_script = _cst_new_list_font_scriptPtr
+      .asFunction<ffi.Pointer<wire_cst_list_font_script> Function(int)>();
+
   ffi.Pointer<wire_cst_list_font_substitution> cst_new_list_font_substitution(
     int len,
   ) {
@@ -9906,6 +10022,21 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_history_step');
   late final _cst_new_list_history_step = _cst_new_list_history_stepPtr
       .asFunction<ffi.Pointer<wire_cst_list_history_step> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_installed_font> cst_new_list_installed_font(
+    int len,
+  ) {
+    return _cst_new_list_installed_font(len);
+  }
+
+  late final _cst_new_list_installed_fontPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_installed_font> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_installed_font');
+  late final _cst_new_list_installed_font = _cst_new_list_installed_fontPtr
+      .asFunction<ffi.Pointer<wire_cst_list_installed_font> Function(int)>();
 
   ffi.Pointer<wire_cst_list_job_output> cst_new_list_job_output(int len) {
     return _cst_new_list_job_output(len);
@@ -11495,6 +11626,13 @@ final class wire_cst_list_font_entry extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_list_font_script extends ffi.Struct {
+  external ffi.Pointer<ffi.Int32> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_font_substitution extends ffi.Struct {
   @ffi.Int32()
   external int kind;
@@ -11555,6 +11693,22 @@ final class wire_cst_history_step extends ffi.Struct {
 
 final class wire_cst_list_history_step extends ffi.Struct {
   external ffi.Pointer<wire_cst_history_step> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_installed_font extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> family;
+
+  @ffi.Int32()
+  external int origin;
+
+  external ffi.Pointer<wire_cst_list_font_script> scripts;
+}
+
+final class wire_cst_list_installed_font extends ffi.Struct {
+  external ffi.Pointer<wire_cst_installed_font> ptr;
 
   @ffi.Int32()
   external int len;

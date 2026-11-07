@@ -63,7 +63,7 @@ final Finder _regionSelect = find.byType(Select<String>);
 
 void main() {
   group('Settings (a11-1)', () {
-    testWidgets('lists the 11 panes; only the built ones are enabled', (
+    testWidgets('lists the 12 panes; only the built ones are enabled', (
       tester,
     ) async {
       await pumpFermanApp(tester);
@@ -80,6 +80,7 @@ void main() {
         'Updates',
         'Keyboard shortcuts',
         'Advanced',
+        'Licences',
       ]) {
         expect(_navRow(label), findsOneWidget, reason: label);
       }
@@ -97,6 +98,7 @@ void main() {
         'Updates',
         'Keyboard shortcuts',
         'Advanced',
+        'Licences',
       ];
       for (final (index, pane) in SettingsPane.values.indexed) {
         final row = tester.widget<FermanInteractive>(_navRow(labels[index]));
@@ -105,16 +107,45 @@ void main() {
       }
       expect(
         SettingsPane.values.where((pane) => !pane.available),
-        hasLength(6),
+        hasLength(3),
       );
     });
 
-    testWidgets('the search is disabled with the reason', (tester) async {
+    testWidgets('the search filters the panes by their settings, and says '
+        'when none matches', (tester) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester);
-      final field = tester.widget<TextField>(find.byType(TextField).first);
-      expect(field.disabled, isTrue);
-      expect(field.disabledReason, _future);
+      await tester.enterText(find.byType(EditableText).first, 'RECOVERY');
+      await tester.pumpAndSettle();
+      // Editing has "Save a recovery copy every minute"; the heading stays.
+      expect(_navRow('Editing'), findsOneWidget);
+      expect(_navRow('Privacy'), findsNothing);
+      expect(_navRow('Fonts'), findsNothing);
+      await tester.enterText(find.byType(EditableText).first, 'zzz');
+      await tester.pumpAndSettle();
+      for (final label in ['General', 'Editing', 'Advanced', 'Licences']) {
+        expect(_navRow(label), findsNothing, reason: label);
+      }
+      expect(find.text('No settings match'), findsOneWidget);
+      await tester.enterText(find.byType(EditableText).first, '');
+      await tester.pumpAndSettle();
+      expect(_navRow('Advanced'), findsOneWidget);
+    });
+
+    testWidgets('the search folds Turkish capitals', (tester) async {
+      await pumpFermanApp(
+        tester,
+        settings: const AppSettings(
+          onboardingCompleted: true,
+          languageCode: 'tr',
+        ),
+      );
+      await _openAndSettle(tester);
+      // "İmzalar ve sertifikalar", found by its capital İ.
+      await tester.enterText(find.byType(EditableText).first, 'İMZA');
+      await tester.pumpAndSettle();
+      expect(_navRow('İmzalar ve sertifikalar'), findsOneWidget);
+      expect(_navRow('Genel'), findsNothing);
     });
 
     testWidgets('switches panes', (tester) async {
@@ -127,7 +158,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Region formats'), findsOneWidget);
       // A pane not built yet stays where it was.
-      await tester.tap(find.text('Fonts'));
+      await tester.tap(find.text('Updates'));
       await tester.pumpAndSettle();
       expect(find.text('Region formats'), findsOneWidget);
     });
@@ -138,7 +169,8 @@ void main() {
       await pumpFermanApp(tester);
       await _openAndSettle(tester, 'privacy');
       expect(find.text('Ferman collects nothing.'), findsOneWidget);
-      expect(SettingsPane.fromPath('fonts'), SettingsPane.general);
+      expect(SettingsPane.fromPath('updates'), SettingsPane.general);
+      expect(SettingsPane.fromPath('licences'), SettingsPane.licences);
       expect(SettingsPane.fromPath('language'), SettingsPane.language);
       expect(SettingsPane.fromPath(null), SettingsPane.general);
     });
@@ -209,8 +241,8 @@ void main() {
           order.add(inNav(FocusManager.instance.primaryFocus!.rect));
         }
         final firstPane = order.indexOf(false);
-        // The search field and the 11 panes come first, all of them …
-        expect(firstPane, 12, reason: '$order');
+        // The search field and the 12 panes come first, all of them …
+        expect(firstPane, 13, reason: '$order');
         // … then the pane's controls, not back and forth.
         expect(order.sublist(firstPane, firstPane + 6), everyElement(isFalse));
       });

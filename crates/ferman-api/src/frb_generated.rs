@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 607021020;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2046181084;
 
 // Section: executor
 
@@ -1163,6 +1163,30 @@ fn wire__crate__frb__insert_blank_pages_impl(
                             api_name,
                         )
                         .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__installed_fonts_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    bundled_dir: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "installed_fonts",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_bundled_dir = bundled_dir.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::installed_fonts(api_bundled_dir).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -3641,6 +3665,22 @@ impl CstDecode<crate::frb::FontOrigin> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::FontScript> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FontScript {
+        match self {
+            0 => crate::frb::FontScript::Turkish,
+            1 => crate::frb::FontScript::LatinExtended,
+            2 => crate::frb::FontScript::Cyrillic,
+            3 => crate::frb::FontScript::Greek,
+            4 => crate::frb::FontScript::Arabic,
+            5 => crate::frb::FontScript::Hebrew,
+            6 => crate::frb::FontScript::Devanagari,
+            7 => crate::frb::FontScript::Cjk,
+            _ => unreachable!("Invalid variant for FontScript: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::FontType> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::FontType {
@@ -5040,6 +5080,24 @@ impl SseDecode for crate::frb::FontOrigin {
     }
 }
 
+impl SseDecode for crate::frb::FontScript {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FontScript::Turkish,
+            1 => crate::frb::FontScript::LatinExtended,
+            2 => crate::frb::FontScript::Cyrillic,
+            3 => crate::frb::FontScript::Greek,
+            4 => crate::frb::FontScript::Arabic,
+            5 => crate::frb::FontScript::Hebrew,
+            6 => crate::frb::FontScript::Devanagari,
+            7 => crate::frb::FontScript::Cjk,
+            _ => unreachable!("Invalid variant for FontScript: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::FontSettings {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -5215,6 +5273,20 @@ impl SseDecode for crate::frb::InputStatus {
             4 => crate::frb::InputStatus::BadRange,
             5 => crate::frb::InputStatus::Unreadable,
             _ => unreachable!("Invalid variant for InputStatus: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::InstalledFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_family = <String>::sse_decode(deserializer);
+        let mut var_origin = <crate::frb::FontOrigin>::sse_decode(deserializer);
+        let mut var_scripts = <Vec<crate::frb::FontScript>>::sse_decode(deserializer);
+        return crate::frb::InstalledFont {
+            family: var_family,
+            origin: var_origin,
+            scripts: var_scripts,
         };
     }
 }
@@ -5663,6 +5735,18 @@ impl SseDecode for Vec<crate::frb::FontEntry> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::FontScript> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FontScript>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::FontSubstitution> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -5694,6 +5778,18 @@ impl SseDecode for Vec<crate::frb::HistoryStep> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::HistoryStep>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::InstalledFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::InstalledFont>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -8600,6 +8696,28 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontOrigin> for crate::frb::F
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontScript {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Turkish => 0.into_dart(),
+            Self::LatinExtended => 1.into_dart(),
+            Self::Cyrillic => 2.into_dart(),
+            Self::Greek => 3.into_dart(),
+            Self::Arabic => 4.into_dart(),
+            Self::Hebrew => 5.into_dart(),
+            Self::Devanagari => 6.into_dart(),
+            Self::Cjk => 7.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontScript {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontScript> for crate::frb::FontScript {
+    fn into_into_dart(self) -> crate::frb::FontScript {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::FontSettings {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -8773,6 +8891,23 @@ impl flutter_rust_bridge::IntoDart for crate::frb::InputStatus {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::InputStatus {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::InputStatus> for crate::frb::InputStatus {
     fn into_into_dart(self) -> crate::frb::InputStatus {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::InstalledFont {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.family.into_into_dart().into_dart(),
+            self.origin.into_into_dart().into_dart(),
+            self.scripts.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::InstalledFont {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::InstalledFont> for crate::frb::InstalledFont {
+    fn into_into_dart(self) -> crate::frb::InstalledFont {
         self
     }
 }
@@ -11035,6 +11170,28 @@ impl SseEncode for crate::frb::FontOrigin {
     }
 }
 
+impl SseEncode for crate::frb::FontScript {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FontScript::Turkish => 0,
+                crate::frb::FontScript::LatinExtended => 1,
+                crate::frb::FontScript::Cyrillic => 2,
+                crate::frb::FontScript::Greek => 3,
+                crate::frb::FontScript::Arabic => 4,
+                crate::frb::FontScript::Hebrew => 5,
+                crate::frb::FontScript::Devanagari => 6,
+                crate::frb::FontScript::Cjk => 7,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::FontSettings {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -11170,6 +11327,15 @@ impl SseEncode for crate::frb::InputStatus {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::InstalledFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.family, serializer);
+        <crate::frb::FontOrigin>::sse_encode(self.origin, serializer);
+        <Vec<crate::frb::FontScript>>::sse_encode(self.scripts, serializer);
     }
 }
 
@@ -11543,6 +11709,16 @@ impl SseEncode for Vec<crate::frb::FontEntry> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::FontScript> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FontScript>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::FontSubstitution> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -11569,6 +11745,16 @@ impl SseEncode for Vec<crate::frb::HistoryStep> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::HistoryStep>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::InstalledFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::InstalledFont>::sse_encode(item, serializer);
         }
     }
 }
@@ -14006,6 +14192,16 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::InstalledFont> for wire_cst_installed_font {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::InstalledFont {
+            crate::frb::InstalledFont {
+                family: self.family.cst_decode(),
+                origin: self.origin.cst_decode(),
+                scripts: self.scripts.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::JobEvent> for wire_cst_job_event {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::JobEvent {
@@ -14289,6 +14485,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FontScript>> for *mut wire_cst_list_font_script {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontScript> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontSubstitution>> for *mut wire_cst_list_font_substitution {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontSubstitution> {
@@ -14312,6 +14518,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::HistoryStep>> for *mut wire_cst_list_history_step {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::HistoryStep> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::InstalledFont>> for *mut wire_cst_list_installed_font {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::InstalledFont> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -15862,6 +16078,20 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_installed_font {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                family: core::ptr::null_mut(),
+                origin: Default::default(),
+                scripts: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_installed_font {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_job_event {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -17059,6 +17289,14 @@ mod io {
         wire__crate__frb__insert_blank_pages_impl(
             port_, document, after, count, width, height, name,
         )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__installed_fonts(
+        port_: i64,
+        bundled_dir: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__installed_fonts_impl(port_, bundled_dir)
     }
 
     #[unsafe(no_mangle)]
@@ -18313,6 +18551,17 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_font_script(
+        len: i32,
+    ) -> *mut wire_cst_list_font_script {
+        let wrap = wire_cst_list_font_script {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_font_substitution(
         len: i32,
     ) -> *mut wire_cst_list_font_substitution {
@@ -18347,6 +18596,20 @@ mod io {
         let wrap = wire_cst_list_history_step {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_history_step>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_installed_font(
+        len: i32,
+    ) -> *mut wire_cst_list_installed_font {
+        let wrap = wire_cst_list_installed_font {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_installed_font>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -19154,6 +19417,13 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_installed_font {
+        family: *mut wire_cst_list_prim_u_8_strict,
+        origin: i32,
+        scripts: *mut wire_cst_list_font_script,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_job_event {
         job: u64,
         state: i32,
@@ -19338,6 +19608,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_font_script {
+        ptr: *mut i32,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_font_substitution {
         ptr: *mut wire_cst_font_substitution,
         len: i32,
@@ -19352,6 +19628,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_history_step {
         ptr: *mut wire_cst_history_step,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_installed_font {
+        ptr: *mut wire_cst_installed_font,
         len: i32,
     }
     #[repr(C)]
@@ -21043,6 +21325,27 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::InstalledFont>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::InstalledFont {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::InstalledFont {
+                family: self_.get(0).cst_decode(),
+                origin: self_.get(1).cst_decode(),
+                scripts: self_.get(2).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::JobEvent> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::JobEvent {
@@ -21447,6 +21750,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FontScript>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontScript> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontSubstitution>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -21476,6 +21791,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::HistoryStep> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::InstalledFont>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::InstalledFont> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -22987,6 +23314,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::FontScript>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontScript {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::frb::FontType> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FontType {
@@ -23628,6 +23963,14 @@ mod web {
         wire__crate__frb__insert_blank_pages_impl(
             port_, document, after, count, width, height, name,
         )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__installed_fonts(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        bundled_dir: Option<String>,
+    ) {
+        wire__crate__frb__installed_fonts_impl(port_, bundled_dir)
     }
 
     #[wasm_bindgen]

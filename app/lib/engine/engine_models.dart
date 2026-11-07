@@ -2437,6 +2437,53 @@ enum FontOrigin {
   bundled,
 }
 
+/// A script of Settings › Fonts' coverage chips (a11-1d), in their order.
+enum FontScript {
+  /// TR: the Turkish letters.
+  turkish,
+
+  /// LX: Latin Extended-A.
+  latinExtended,
+
+  /// CY: Cyrillic.
+  cyrillic,
+
+  /// GR: Greek.
+  greek,
+
+  /// AR: Arabic.
+  arabic,
+
+  /// HE: Hebrew.
+  hebrew,
+
+  /// DV: Devanagari.
+  devanagari,
+
+  /// CJK: Chinese, Japanese and Korean.
+  cjk,
+}
+
+/// A family of Settings › Fonts (a11-1d).
+@immutable
+final class InstalledFont {
+  /// The family [family] of [origin], covering [scripts].
+  const new({
+    required this.family,
+    required this.origin,
+    this.scripts = const {},
+  });
+
+  /// The family name.
+  final String family;
+
+  /// Bundled with Ferman or installed on this computer.
+  final FontOrigin origin;
+
+  /// The scripts its regular face covers, read from its file.
+  final Set<FontScript> scripts;
+}
+
 /// A font's embedding permission (`OS/2.fsType`, ADR 0006).
 enum FontEmbedding {
   /// Installable embedding.

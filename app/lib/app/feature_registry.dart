@@ -155,10 +155,6 @@ enum Feature {
   /// defaults, which has no entry yet).
   formDataExport('B207'),
 
-  /// Managing saved signatures: Settings › Signatures and certificates, and
-  /// the Sign menu's Manage saved signatures….
-  settingsSignatures('B208'),
-
   /// Signing on the phone, which has no shell yet: the phone home's quick
   /// tool Sign.
   phoneSign('B209'),
@@ -238,27 +234,34 @@ enum Feature {
   /// layers (a9-6).
   printMoreOptions('B216'),
 
-  /// Settings › Editing › Keep versions (a11-1c); versions are kept from M4
-  /// W4 (ADR 0022).
-  keepVersions('B213'),
-
   /// The AI assistant: the mode bar's AI button, Tools › AI assistant,
   /// Settings › AI assistant and Settings › Privacy › Your AI provider.
   aiAssistant('B032'),
 
   // Settings and first run.
 
-  /// Searching Settings.
-  settingsSearch('B073'),
-
-  /// Settings › Fonts.
-  settingsFonts('B075'),
-
   /// Settings › Keyboard shortcuts › Preset: Like Acrobat and Like Preview.
-  shortcutPresets('B217'),
+  shortcutPresets('B181'),
 
-  /// Settings › Advanced.
-  settingsAdvanced('B077'),
+  /// Settings › Fonts' filter "Used in open documents" (a11-1d).
+  fontsInOpenDocuments('B220'),
+
+  /// Drawing pages on the graphics card: Settings › Advanced's switch.
+  gpuRendering('B178'),
+
+  /// Page cache sizes other than the engine's: Settings › Advanced › Page
+  /// cache's other options.
+  pageCacheSize('B218'),
+
+  /// Making every thumbnail when a document opens: Settings › Advanced ›
+  /// Thumbnails' second option.
+  thumbnailsUpfront('B219'),
+
+  /// The PDF object inspector: Settings › Advanced's switch.
+  objectInspector('B179'),
+
+  /// Log files on the device: Settings › Advanced › Show log files.
+  logFiles('B180'),
 
   /// Spacing before and after a block in the text panel (a3-2): Spacing ›
   /// Before and After.
