@@ -8,8 +8,9 @@ use std::sync::mpsc;
 use std::time::Duration;
 
 use ferman_api::facade::{
-    DocumentId, Engine, EngineConfig, ErrorKind, JobEvent, JobResult, JobSink, OpenedDocument,
-    PRINT_DPI, PdfiumLibrary, Preset, PrintPage, PrintSink, SaveOptions, VersionKind, block_on,
+    DocumentId, Engine, EngineConfig, ErrorKind, JobEvent, JobResult, JobSink, LOW_PRINT_DPI,
+    OpenedDocument, PRINT_DPI, PdfiumLibrary, Preset, PrintPage, PrintSink, SaveOptions,
+    VersionKind, block_on,
 };
 
 fn engine() -> &'static Engine {
@@ -408,4 +409,33 @@ fn printing_streams_pages_and_follows_the_print_permission() {
     drop(pages);
     block_on(engine().print_pages(kira.id, Vec::new(), true, Box::new(Pages(sender)))).unwrap();
     block_on(engine().close(kira.id)).unwrap();
+
+    // Printing forbidden: refused until the owner password lifts it.
+    let locked = block_on(engine().open(pdf("kira-tr-no-print"), None)).unwrap();
+    let (sender, pages) = mpsc::channel();
+    let refused =
+        block_on(engine().print_pages(locked.id, Vec::new(), true, Box::new(Pages(sender))));
+    assert_eq!(refused.unwrap_err().kind, ErrorKind::NotEditable);
+    assert_eq!(pages.try_iter().count(), 0);
+    block_on(engine().unlock_owner(
+        locked.id,
+        ferman_api::facade::Password::new("Kaya-Moda-18".to_owned()),
+    ))
+    .unwrap();
+    let (sender, pages) = mpsc::channel();
+    let handle = locked.pages[0].handle;
+    block_on(engine().print_pages(locked.id, vec![handle], true, Box::new(Pages(sender)))).unwrap();
+    assert_eq!(pages.try_iter().next().unwrap().dpi, PRINT_DPI);
+    block_on(engine().close(locked.id)).unwrap();
+
+    // Low quality only: pages come at LOW_PRINT_DPI.
+    let low = block_on(engine().open(pdf("kira-tr-low-print"), None)).unwrap();
+    let (sender, pages) = mpsc::channel();
+    let handle = low.pages[0].handle;
+    block_on(engine().print_pages(low.id, vec![handle], true, Box::new(Pages(sender)))).unwrap();
+    let page = pages.try_iter().next().unwrap();
+    assert_eq!(page.dpi, LOW_PRINT_DPI);
+    let width = (f64::from(page.size.width) * f64::from(LOW_PRINT_DPI) / 72.0).ceil();
+    assert!((f64::from(page.width) - width).abs() <= 1.0);
+    block_on(engine().close(low.id)).unwrap();
 }

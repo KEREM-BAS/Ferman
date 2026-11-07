@@ -3712,6 +3712,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.producer = cst_encode_opt_String(apiObj.producer);
     wireObj.created = cst_encode_opt_box_autoadd_pdf_date(apiObj.created);
     wireObj.modified = cst_encode_opt_box_autoadd_pdf_date(apiObj.modified);
+    wireObj.editable = cst_encode_bool(apiObj.editable);
   }
 
   @protected
@@ -11095,6 +11096,9 @@ final class wire_cst_document_info extends ffi.Struct {
   external ffi.Pointer<wire_cst_pdf_date> created;
 
   external ffi.Pointer<wire_cst_pdf_date> modified;
+
+  @ffi.Bool()
+  external bool editable;
 }
 
 final class wire_cst_document_structure extends ffi.Struct {

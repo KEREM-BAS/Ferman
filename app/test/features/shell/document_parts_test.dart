@@ -125,6 +125,7 @@ void main() {
       WidgetTester tester, {
       List<Signature> signatures = const [],
       OpGate? organize,
+      DocumentInfo info = const DocumentInfo(title: 'Kira sözleşmesi'),
     }) async {
       engine = FakeEngineService(
         documents: {
@@ -133,7 +134,7 @@ void main() {
             pages: _pages,
             outline: _outline,
             signatures: signatures,
-            info: const DocumentInfo(title: 'Kira sözleşmesi'),
+            info: info,
           ),
         },
       );
@@ -357,6 +358,19 @@ void main() {
         'Konut Kira Sözleşmesi',
       );
       expect(find.textContaining('Konut Kira Sözleşmesi'), findsOneWidget);
+    });
+
+    testWidgets('a file without an /Info object shows its metadata read-only '
+        '(B221)', (tester) async {
+      final container = await open(
+        tester,
+        info: const DocumentInfo(title: 'Kira sözleşmesi', editable: false),
+      );
+      container.read(documentPropertiesRequestProvider.notifier).request();
+      await settle(tester);
+      await tester.tap(find.textContaining('Kira sözleşmesi').last);
+      await settle(tester);
+      expect(find.byType(InlineNameField), findsNothing);
     });
   });
 }

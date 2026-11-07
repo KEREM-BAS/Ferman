@@ -4578,6 +4578,7 @@ impl SseDecode for crate::frb::DocumentInfo {
         let mut var_producer = <Option<String>>::sse_decode(deserializer);
         let mut var_created = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
         let mut var_modified = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
+        let mut var_editable = <bool>::sse_decode(deserializer);
         return crate::frb::DocumentInfo {
             title: var_title,
             author: var_author,
@@ -4587,6 +4588,7 @@ impl SseDecode for crate::frb::DocumentInfo {
             producer: var_producer,
             created: var_created,
             modified: var_modified,
+            editable: var_editable,
         };
     }
 }
@@ -8151,6 +8153,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::DocumentInfo {
             self.producer.into_into_dart().into_dart(),
             self.created.into_into_dart().into_dart(),
             self.modified.into_into_dart().into_dart(),
+            self.editable.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -10754,6 +10757,7 @@ impl SseEncode for crate::frb::DocumentInfo {
         <Option<String>>::sse_encode(self.producer, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.created, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.modified, serializer);
+        <bool>::sse_encode(self.editable, serializer);
     }
 }
 
@@ -13910,6 +13914,7 @@ mod io {
                 producer: self.producer.cst_decode(),
                 created: self.created.cst_decode(),
                 modified: self.modified.cst_decode(),
+                editable: self.editable.cst_decode(),
             }
         }
     }
@@ -15703,6 +15708,7 @@ mod io {
                 producer: core::ptr::null_mut(),
                 created: core::ptr::null_mut(),
                 modified: core::ptr::null_mut(),
+                editable: Default::default(),
             }
         }
     }
@@ -19201,6 +19207,7 @@ mod io {
         producer: *mut wire_cst_list_prim_u_8_strict,
         created: *mut wire_cst_pdf_date,
         modified: *mut wire_cst_pdf_date,
+        editable: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -20794,8 +20801,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                8,
-                "Expected 8 elements, got {}",
+                9,
+                "Expected 9 elements, got {}",
                 self_.length()
             );
             crate::frb::DocumentInfo {
@@ -20807,6 +20814,7 @@ mod web {
                 producer: self_.get(5).cst_decode(),
                 created: self_.get(6).cst_decode(),
                 modified: self_.get(7).cst_decode(),
+                editable: self_.get(8).cst_decode(),
             }
         }
     }

@@ -213,6 +213,14 @@ fn items<'a>(
         let Some(item) = scope.dict(link) else {
             break;
         };
+        // A link to a page, the page tree, the catalog or an outline root is no item: the
+        // outline writer would make it one.
+        if matches!(
+            scope.get_name(item, b"Type"),
+            Some(b"Page" | b"Pages" | b"Catalog" | b"Outlines")
+        ) {
+            break;
+        }
         out.push(OutlineItem {
             title: scope.get_text(item, b"Title").unwrap_or_default(),
             page: named.target(scope, item),

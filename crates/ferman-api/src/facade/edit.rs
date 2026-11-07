@@ -1517,7 +1517,7 @@ impl Session {
             let stamp = ferman_core::save::save_pdf(&path, bytes, original, expected)
                 .map_err(|err| self.save_failure(err))?;
             if let Some(kind) = version {
-                self.keep_version(&path, bytes, kind);
+                self.keep_version(&path, bytes, kind, original.is_some());
             }
             self.wrote(path, stamp, written, revision);
             return Ok(None);
@@ -1531,7 +1531,7 @@ impl Session {
         }
         // Kept now, while the bytes are at hand; it goes if the swap does not happen.
         let version = version.and_then(|kind| {
-            let kept = self.keep_version(&path, bytes, kind)?;
+            let kept = self.keep_version(&path, bytes, kind, original.is_some())?;
             Some((path.clone(), ferman_core::versions::sha256(bytes), kept))
         });
         self.staged = Some(Staged {
@@ -1547,9 +1547,23 @@ impl Session {
 
     /// Keeps `bytes`, which the file at `path` holds now, as a version of `kind`, after the file
     /// as opened if no save kept it yet, and purges the versions past [`KEEP`]. Returns the new
-    /// version's id. A failure is logged and never fails the save.
-    fn keep_version(&mut self, path: &Path, bytes: &[u8], kind: VersionKind) -> Option<u64> {
-        let versions = self.versions.store()?;
+    /// version's id. A failure is logged and never fails the save. A save that is a rewrite
+    /// (not `incremental`) removes the file's earlier revisions, so the file as opened, which
+    /// holds them, is not kept. A restore's own versions are kept with the switch off too.
+    fn keep_version(
+        &mut self,
+        path: &Path,
+        bytes: &[u8],
+        kind: VersionKind,
+        incremental: bool,
+    ) -> Option<u64> {
+        let versions = match kind {
+            VersionKind::Unsaved | VersionKind::Restored => self.versions.kept(),
+            _ => self.versions.store(),
+        }?;
+        if !incremental && kind == VersionKind::Saved {
+            self.opened_kept = true;
+        }
         let encrypted = self.model.document.encryption().is_some();
         // The folder of the file the document had: by its hash only when the path is its own.
         let last = if same_file(path, &self.path) {
@@ -1608,7 +1622,7 @@ impl Session {
 
     /// Deletes a version kept for a staged write that was not swapped in.
     fn forget_version(&self, version: Option<(PathBuf, [u8; 32], u64)>) {
-        if let (Some((path, sha, id)), Some(versions)) = (version, self.versions.store())
+        if let (Some((path, sha, id)), Some(versions)) = (version, self.versions.kept())
             && let Err(err) = versions.remove(&path, &sha, id)
         {
             tracing::warn!(error = %err, "a version of a write that failed stays");
@@ -1719,6 +1733,9 @@ impl Session {
             )
         };
         let (written, version) = match (moves, options.remove_history) {
+            // Its own file without the comments the document keeps is no save of its revisions:
+            // marked saved, the next save would put the comments back.
+            (true, _) if !options.include_comments => (Written::Stamped, Some(VersionKind::Saved)),
             (true, true) => (Written::Rewritten, Some(VersionKind::Saved)),
             (true, false) => (Written::Saved, Some(VersionKind::Saved)),
             (false, _) => (Written::Elsewhere, None),
@@ -1788,9 +1805,9 @@ impl Session {
         staging: Option<&Path>,
     ) -> Result<Option<PathBuf>, ApiError> {
         self.closed()?;
-        let versions = self.versions.store().ok_or_else(|| {
+        let versions = self.versions.kept().ok_or_else(|| {
             ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL)
-                .with_details("version history is off")
+                .with_details("no versions folder")
         })?;
         let bytes = versions
             .read(&self.path, &self.stamp.sha256, id)
@@ -1804,7 +1821,7 @@ impl Session {
         if unsaved {
             let current = self.bytes()?;
             let path = self.path.clone();
-            self.keep_version(&path, &current, VersionKind::Unsaved);
+            self.keep_version(&path, &current, VersionKind::Unsaved, true);
         }
         let path = self.path.clone();
         let staged = self.put(
@@ -2762,11 +2779,11 @@ impl Engine {
         name: String,
     ) -> Result<RevisionInfo, ApiError> {
         guard_async(async move {
-            let data = super::assemble::off_the_worker(move || {
-                std::fs::read(&path)
-                    .map_err(|err| ApiError::from(ferman_core::CoreError::Io { kind: err.kind() }))
-            })
-            .await?;
+            // The documents open with the default limits, which attach_file checks again.
+            let max = ferman_core::OpenOptions::default()
+                .limits
+                .max_revision_decoded;
+            let data = super::assemble::off_the_worker(move || read_capped(&path, max)).await?;
             let modified =
                 super::annotations::pdf_date(u64::try_from(now_millis() / 1000).unwrap_or(0));
             let file = ferman_core::attach::NewAttachment {
@@ -3380,6 +3397,27 @@ impl Engine {
             structure,
         }
     }
+}
+
+/// The file at `path`, read no further than `max` bytes: a larger one is refused before it is
+/// read whole.
+fn read_capped(path: &Path, max: u64) -> Result<Vec<u8>, ApiError> {
+    use std::io::Read as _;
+    let io = |err: std::io::Error| ApiError::from(CoreError::Io { kind: err.kind() });
+    let mut data = Vec::new();
+    std::fs::File::open(path)
+        .map_err(io)?
+        .take(max.saturating_add(1))
+        .read_to_end(&mut data)
+        .map_err(io)?;
+    if u64::try_from(data.len()).unwrap_or(u64::MAX) > max {
+        return Err(CoreError::ResourceLimit {
+            limit: ferman_core::limits::LimitKind::RevisionDecodedSize,
+            max,
+        }
+        .into());
+    }
+    Ok(data)
 }
 
 #[cfg(test)]
@@ -4627,6 +4665,91 @@ mod tests {
         );
         assert_eq!(std::fs::read(&own).unwrap(), written);
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn an_attachment_past_the_limit_is_refused_before_it_is_read_whole() {
+        let dir = temp_dir("attach-cap");
+        let path = dir.join("big.bin");
+        std::fs::write(&path, [7u8; 100]).unwrap();
+        assert_eq!(read_capped(&path, 100).unwrap().len(), 100);
+        let refused = read_capped(&path, 99).unwrap_err();
+        assert_eq!(refused.kind, ErrorKind::ResourceLimit);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    fn kinds(session: &Session) -> Vec<VersionKind> {
+        let (path, sha) = session.version_key();
+        session
+            .versions
+            .kept()
+            .unwrap()
+            .list(&path, &sha)
+            .iter()
+            .map(|version| version.kind)
+            .collect()
+    }
+
+    #[test]
+    fn a_save_without_history_keeps_no_version_of_the_file_as_opened() {
+        let (mut session, own) = copied("edit-e15-helvetica", "versions-clean", "own.pdf");
+        let root = own.parent().unwrap().join("Versions");
+        session.versions = Arc::new(VersionConfig::at(root, true));
+        turn(&mut session, DocumentOp::Organize).unwrap();
+        let options = SaveOptions {
+            include_comments: true,
+            remove_history: true,
+        };
+        session.save(file(), options, None).unwrap();
+        turn(&mut session, DocumentOp::Organize).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
+        assert_eq!(kinds(&session), [VersionKind::Saved, VersionKind::Saved]);
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn a_kept_version_is_restored_with_the_switch_off() {
+        let (mut session, own) = copied("edit-e15-helvetica", "versions-off", "own.pdf");
+        let original = std::fs::read(&own).unwrap();
+        let root = own.parent().unwrap().join("Versions");
+        session.versions = Arc::new(VersionConfig::at(root.clone(), true));
+        turn(&mut session, DocumentOp::Organize).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
+        session.versions = Arc::new(VersionConfig::at(root, false));
+        let (path, sha) = session.version_key();
+        let opened = session.versions.kept().unwrap().list(&path, &sha)[1].id;
+        turn(&mut session, DocumentOp::Organize).unwrap();
+        session.restore_version(opened, None).unwrap();
+        assert_eq!(std::fs::read(&own).unwrap(), original);
+        assert_eq!(
+            kinds(&session),
+            [
+                VersionKind::Restored,
+                VersionKind::Unsaved,
+                VersionKind::Saved,
+                VersionKind::Opened
+            ]
+        );
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn its_own_file_without_comments_is_written_but_not_saved() {
+        let (mut session, own) = copied("annots-other-producer", "no-comments", "own.pdf");
+        turn(&mut session, DocumentOp::Organize).unwrap();
+        for remove_history in [false, true] {
+            let options = SaveOptions {
+                include_comments: false,
+                remove_history,
+            };
+            session
+                .save(SaveTarget::Copy(own.clone()), options, None)
+                .unwrap();
+            assert_ne!(session.saved, Some(session.committed.current()));
+            assert!(!session.rewritten);
+            assert!(!session.external_change().unwrap());
+        }
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
     }
 
     #[test]

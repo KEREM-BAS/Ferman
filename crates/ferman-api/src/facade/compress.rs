@@ -205,8 +205,10 @@ impl Engine {
 
     /// Streams `pages` of `document` (by handle, in order; all of them when empty) to `sink` for
     /// the platform's print channel, one rendered page at a time, with the revisions as they
-    /// stand and, without `include_comments`, its markup annotations hidden. The rendering is a copy of the document in PDFium, in memory,
-    /// closed at the end, and nothing reaches disk. Stops when the sink stops listening.
+    /// stand, the annotations a reader prints (their Print flag) and, without
+    /// `include_comments`, its markup annotations hidden. The rendering is a copy of the document
+    /// in PDFium, in memory, closed at the end, and nothing reaches disk. Stops when the sink
+    /// stops listening.
     ///
     /// # Errors
     ///
@@ -249,12 +251,9 @@ impl Engine {
                     })?
             };
             let appendix = off_the_worker(move || {
-                Ok(snapshot.store().render_appendix(
-                    snapshot.base(),
-                    None,
-                    !include_comments,
-                    true,
-                )?)
+                Ok(snapshot
+                    .store()
+                    .print_appendix(snapshot.base(), !include_comments)?)
             })
             .await?;
             let render = self.render()?;

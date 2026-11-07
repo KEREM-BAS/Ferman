@@ -52,6 +52,10 @@ pub const ALL: i32 = -4;
 pub const PRINT_ONLY: i32 = -3904 | 4 | 512 | 2048;
 /// [`PRINT_ONLY`] and adding comments: still no changes to the content.
 pub const COMMENTS_ONLY: i32 = PRINT_ONLY | 32;
+/// Extraction for accessibility only: not even printing.
+pub const NOTHING: i32 = -3904 | 512;
+/// [`NOTHING`] and printing at low quality only (bit 3 without bit 12).
+pub const LOW_PRINT: i32 = NOTHING | 4;
 
 fn md5(parts: &[&[u8]]) -> [u8; 16] {
     let mut hasher = Md5::new();

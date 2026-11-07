@@ -268,6 +268,11 @@ pub struct Info {
     pub created: Option<PdfDate>,
     /// `/ModDate`.
     pub modified: Option<PdfDate>,
+    /// Whether the trailer names an `/Info` object, which a2-7 can edit.
+    // shortcut: the writers copy the original trailer, so a file without an /Info object cannot
+    // get one and a2-7 shows its fields read-only (B221); give the store a trailer entry when
+    // such files turn up.
+    pub editable: bool,
 }
 
 /// Everything the structure scan found.
@@ -963,6 +968,7 @@ fn info(scope: &Scope<'_>) -> Info {
         producer: scope.get_text(dict, b"Producer"),
         created: scope.get_date(dict, b"CreationDate"),
         modified: scope.get_date(dict, b"ModDate"),
+        editable: matches!(scope.doc.trailer.get(b"Info"), Ok(Object::Reference(_))),
     }
 }
 

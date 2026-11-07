@@ -30,8 +30,13 @@ struct _MyApplication {
   FlMethodCall* print_begin;
   // A page Dart sent before GTK asked for it.
   FlMethodCall* print_page;
-  // The page GTK asked for before Dart sent it, deferred.
+  // The page just drawn, answered with the page GTK asks for next.
+  FlMethodCall* print_drawn;
+  // The page GTK asked for before Dart sent it, deferred, and its number.
   GtkPrintContext* print_context;
+  gint print_wanted;
+  // The pages of the print.
+  gint print_count;
   // Whether pages are scaled to the printable area, or printed at their size.
   gboolean print_fit;
 };
@@ -185,6 +190,18 @@ static void respond_print(FlMethodCall* method_call, gboolean done) {
   }
 }
 
+// Answers a "page" call with the number of the page GTK wants next (from 0;
+// the page count once the print is complete). GTK picks the pages, their
+// order and the copies it makes itself from its dialog's Range, Only print,
+// Reverse and Copies, so Dart sends the page it names.
+static void respond_print_next(FlMethodCall* method_call, gint next) {
+  g_autoptr(FlValue) result = fl_value_new_int(next);
+  g_autoptr(GError) error = nullptr;
+  if (!fl_method_call_respond_success(method_call, result, &error)) {
+    g_warning("ferman/print: failed to respond: %s", error->message);
+  }
+}
+
 // Answers the waiting "begin" with |done|.
 static void print_answer_begin(MyApplication* self, gboolean done) {
   if (self->print_begin == nullptr) {
@@ -261,25 +278,54 @@ static gboolean print_draw(MyApplication* self, GtkPrintContext* context,
   return TRUE;
 }
 
+// The page number Dart gave a "page" call, or -1.
+static gint print_index(FlMethodCall* method_call) {
+  FlValue* args = fl_method_call_get_args(method_call);
+  FlValue* index = fl_value_get_type(args) == FL_VALUE_TYPE_MAP
+                       ? fl_value_lookup_string(args, "index")
+                       : nullptr;
+  if (index == nullptr || fl_value_get_type(index) != FL_VALUE_TYPE_INT ||
+      fl_value_get_int(index) < 0 || fl_value_get_int(index) > G_MAXINT) {
+    return -1;
+  }
+  return static_cast<gint>(fl_value_get_int(index));
+}
+
 // The dialog was accepted: Dart starts sending pages.
 static void print_begin_cb(GtkPrintOperation* operation,
                            GtkPrintContext* context, gpointer user_data) {
   print_answer_begin(MY_APPLICATION(user_data), TRUE);
 }
 
-// GTK wants the next page: drawn now when Dart sent it, deferred otherwise.
+// GTK wants page |page_nr|: the page drawn before learns it is next; drawn
+// now when Dart sent it, deferred otherwise, and a page Dart sent that is not
+// this one is answered with the one GTK wants.
 static void print_draw_page_cb(GtkPrintOperation* operation,
                                GtkPrintContext* context, gint page_nr,
                                gpointer user_data) {
   MyApplication* self = MY_APPLICATION(user_data);
+  if (self->print_drawn != nullptr) {
+    g_autoptr(FlMethodCall) drawn = self->print_drawn;
+    self->print_drawn = nullptr;
+    respond_print_next(drawn, page_nr);
+  }
   if (self->print_page != nullptr) {
     g_autoptr(FlMethodCall) page = self->print_page;
     self->print_page = nullptr;
-    respond_print(page, print_draw(self, context, page));
-    return;
+    if (print_index(page) != page_nr) {
+      respond_print_next(page, page_nr);
+    } else if (print_draw(self, context, page)) {
+      self->print_drawn = FL_METHOD_CALL(g_object_ref(page));
+      return;
+    } else {
+      respond_print(page, FALSE);
+      gtk_print_operation_cancel(operation);
+      return;
+    }
   }
   gtk_print_operation_set_defer_drawing(operation);
   self->print_context = context;
+  self->print_wanted = page_nr;
 }
 
 // The print ended, sent, cancelled or failed: whatever still waits hears so.
@@ -290,6 +336,15 @@ static void print_done_cb(GtkPrintOperation* operation,
   if (self->print_page != nullptr) {
     respond_print(self->print_page, FALSE);
     g_clear_object(&self->print_page);
+  }
+  // The last page drawn: complete, or stopped.
+  if (self->print_drawn != nullptr) {
+    if (result == GTK_PRINT_OPERATION_RESULT_APPLY) {
+      respond_print_next(self->print_drawn, self->print_count);
+    } else {
+      respond_print(self->print_drawn, FALSE);
+    }
+    g_clear_object(&self->print_drawn);
   }
   self->print_context = nullptr;
   if (self->print_operation == operation) {
@@ -305,9 +360,10 @@ static FlValue* print_argument(FlValue* args, const gchar* key) {
 }
 
 // Handles a call on the "ferman/print" channel (decision 29): "begin" shows
-// the GTK print dialog for "pages" pages, "page" draws one page as Dart sends
-// it, after the one before, so a long document never waits in memory, "end"
-// lets GTK send what was drawn and "abort" cancels.
+// the GTK print dialog for "pages" pages, "page" draws page "index" as Dart
+// sends it, after the one before, so a long document never waits in memory,
+// and answers with the page GTK wants next, "end" lets GTK send what was
+// drawn and "abort" cancels.
 static void print_method_call_cb(FlMethodChannel* channel,
                                  FlMethodCall* method_call,
                                  gpointer user_data) {
@@ -326,6 +382,7 @@ static void print_method_call_cb(FlMethodChannel* channel,
       respond_print(method_call, FALSE);
       return;
     }
+    self->print_count = static_cast<gint>(fl_value_get_int(pages));
     self->print_fit = fit == nullptr ||
                       fl_value_get_type(fit) != FL_VALUE_TYPE_BOOL ||
                       fl_value_get_bool(fit);
@@ -354,15 +411,25 @@ static void print_method_call_cb(FlMethodChannel* channel,
     return;
   }
   if (g_strcmp0(method, "page") == 0) {
-    if (self->print_operation == nullptr || self->print_page != nullptr) {
+    if (self->print_operation == nullptr || self->print_page != nullptr ||
+        self->print_drawn != nullptr || print_index(method_call) < 0) {
       respond_print(method_call, FALSE);
-    } else if (self->print_context != nullptr) {
+    } else if (self->print_context == nullptr) {
+      self->print_page = FL_METHOD_CALL(g_object_ref(method_call));
+    } else if (print_index(method_call) != self->print_wanted) {
+      respond_print_next(method_call, self->print_wanted);
+    } else {
       GtkPrintContext* context = self->print_context;
       self->print_context = nullptr;
-      respond_print(method_call, print_draw(self, context, method_call));
-      gtk_print_operation_draw_page_finish(self->print_operation);
-    } else {
-      self->print_page = FL_METHOD_CALL(g_object_ref(method_call));
+      if (print_draw(self, context, method_call)) {
+        // Answered at the next draw-page, or when the print is done.
+        self->print_drawn = FL_METHOD_CALL(g_object_ref(method_call));
+        gtk_print_operation_draw_page_finish(self->print_operation);
+      } else {
+        respond_print(method_call, FALSE);
+        gtk_print_operation_draw_page_finish(self->print_operation);
+        gtk_print_operation_cancel(self->print_operation);
+      }
     }
     return;
   }
@@ -596,6 +663,7 @@ static void my_application_dispose(GObject* object) {
   g_clear_object(&self->print_channel);
   g_clear_object(&self->print_begin);
   g_clear_object(&self->print_page);
+  g_clear_object(&self->print_drawn);
   g_clear_object(&self->print_operation);
   g_clear_pointer(&self->kept_paths, g_ptr_array_unref);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);

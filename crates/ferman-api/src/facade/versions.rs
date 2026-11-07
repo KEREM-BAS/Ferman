@@ -6,7 +6,8 @@
 //! [`Engine::versions`] lists a document's versions, [`Engine::open_version`] opens one read-only
 //! from its bytes for the preview, and [`Engine::restore_version`] makes one the file again
 //! (decision 27 of the M4 plan). "Keep versions" (a11-1c) is [`Engine::set_versions_enabled`]:
-//! off, nothing is kept, and what was kept stays until it is purged.
+//! off, saves keep nothing, and what was kept stays until it is purged and can still be restored
+//! (the restore keeps its own two versions then too).
 
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
@@ -77,10 +78,19 @@ impl VersionConfig {
         }
     }
 
-    /// The versions in the folder, whatever the switch says: what was kept stays listed.
-    fn kept(&self) -> Option<Versions> {
+    /// The versions in the folder, whatever the switch says: what was kept stays listed and can
+    /// be restored.
+    pub(super) fn kept(&self) -> Option<Versions> {
         let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         state.0.clone().map(Versions::new)
+    }
+
+    /// A folder at `root` with the switch `enabled`.
+    #[cfg(test)]
+    pub(super) fn at(root: PathBuf, enabled: bool) -> Self {
+        Self {
+            state: Mutex::new((Some(root), enabled)),
+        }
     }
 
     /// Purges old versions on a thread of its own, so an open never waits for it.

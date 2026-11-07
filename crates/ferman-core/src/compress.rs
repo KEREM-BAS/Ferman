@@ -21,6 +21,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 use sha2::{Digest, Sha256};
 
 use crate::content;
+use crate::flatten::{four, placement};
 use crate::revision::{RevisionStore, decoded};
 use crate::structure::{Scope, inherited};
 use crate::write::ObjectRef;
@@ -129,6 +130,16 @@ fn matrix_of(operands: &[Object]) -> Option<Matrix> {
         .filter(|matrix| matrix.iter().all(|value| value.is_finite()))
 }
 
+/// A form XObject's `/Matrix`.
+fn form_matrix(scope: &Scope<'_>, dict: &Dictionary) -> Matrix {
+    dict.get(b"Matrix")
+        .ok()
+        .and_then(|matrix| scope.resolve(matrix))
+        .and_then(|matrix| matrix.as_array().ok())
+        .and_then(|matrix| matrix_of(matrix))
+        .unwrap_or(IDENTITY)
+}
+
 impl Walk<'_> {
     /// Walks `data` drawn with `resources` under `ctm`.
     fn content(
@@ -195,15 +206,7 @@ impl Walk<'_> {
                 }
             }
             Some(b"Form") => {
-                let matrix = stream
-                    .dict
-                    .get(b"Matrix")
-                    .ok()
-                    .and_then(|matrix| scope.resolve(matrix))
-                    .and_then(|matrix| matrix.as_array().ok())
-                    .and_then(|matrix| matrix_of(matrix))
-                    .unwrap_or(IDENTITY);
-                let ctm = multiply(&matrix, &ctm);
+                let ctm = multiply(&form_matrix(&scope, &stream.dict), &ctm);
                 self.form(
                     id,
                     stream.dict.get(b"Resources").ok(),
@@ -412,10 +415,11 @@ impl RevisionStore {
             }
             let resources = inherited(&scope, dict, b"Resources").and_then(|r| scope.dict(r));
             walk.content(&data, resources, IDENTITY, 0)?;
-            // Annotation appearances, in their own space.
+            // Annotation appearances, placed on their /Rect as a reader draws them.
             for annotation in scope.get_array(dict, b"Annots").into_iter().flatten() {
-                let appearance = scope
-                    .dict(annotation)
+                let annotation = scope.dict(annotation);
+                let rect = annotation.and_then(|annotation| four(&scope, annotation, b"Rect"));
+                let appearance = annotation
                     .and_then(|annotation| scope.get_dict(annotation, b"AP"))
                     .and_then(|ap| ap.get(b"N").ok());
                 let mut forms: Vec<ObjectId> = Vec::new();
@@ -433,11 +437,15 @@ impl RevisionStore {
                     _ => {}
                 }
                 for form in forms {
-                    let own = match scope.object(form) {
-                        Some(Object::Stream(stream)) => stream.dict.get(b"Resources").ok(),
-                        _ => None,
+                    let Some(Object::Stream(stream)) = scope.object(form) else {
+                        continue;
                     };
-                    walk.form(form, own, None, IDENTITY, 0)?;
+                    let matrix = form_matrix(&scope, &stream.dict);
+                    let placed = rect
+                        .and_then(|rect| placement(&scope, form, rect))
+                        .unwrap_or(IDENTITY);
+                    let own = stream.dict.get(b"Resources").ok();
+                    walk.form(form, own, None, multiply(&matrix, &placed), 0)?;
                 }
             }
         }
@@ -602,6 +610,49 @@ mod tests {
         for image in &scan.images {
             assert!(image.drawn.0 > 0.0 && image.drawn.1 > 0.0, "{image:?}");
         }
+    }
+
+    #[test]
+    fn an_appearance_image_is_measured_as_placed_on_its_rect() {
+        use lopdf::{Stream, dictionary};
+        let mut model = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let image = model.add_object(Stream::new(
+            dictionary! {
+                "Type" => "XObject", "Subtype" => "Image", "Width" => 2, "Height" => 2,
+                "ColorSpace" => "DeviceGray", "BitsPerComponent" => 8,
+            },
+            vec![0, 255, 255, 0],
+        ));
+        // Drawn over its 100 × 50 box, which /Matrix halves and the 400 × 200 /Rect enlarges.
+        let form = model.add_object(Stream::new(
+            dictionary! {
+                "Type" => "XObject", "Subtype" => "Form",
+                "BBox" => vec![0.into(), 0.into(), 200.into(), 100.into()],
+                "Matrix" => vec![0.5.into(), 0.into(), 0.into(), 0.5.into(), 0.into(), 0.into()],
+                "Resources" => dictionary! { "XObject" => dictionary! { "Im" => image } },
+            },
+            b"q 200 0 0 100 0 0 cm /Im Do Q".to_vec(),
+        ));
+        let annotation = model.add_object(dictionary! {
+            "Type" => "Annot", "Subtype" => "Stamp",
+            "Rect" => vec![0.into(), 0.into(), 400.into(), 200.into()],
+            "AP" => dictionary! { "N" => form },
+        });
+        let page = model.page_iter().next().unwrap();
+        model
+            .get_dictionary_mut(page)
+            .unwrap()
+            .set("Annots", vec![annotation.into()]);
+        let mut bytes = Vec::new();
+        model.save_to(&mut bytes).unwrap();
+        let doc = open(&Source::from_bytes(bytes.into()), &OpenOptions::default()).unwrap();
+        let scan = RevisionStore::new(&doc).image_scan(&doc).unwrap();
+        assert_eq!(scan.images.len(), 1, "{scan:?}");
+        let (width, height) = scan.images[0].drawn;
+        assert!(
+            (width - 400.0).abs() < 0.01 && (height - 200.0).abs() < 0.01,
+            "{scan:?}"
+        );
     }
 
     #[test]

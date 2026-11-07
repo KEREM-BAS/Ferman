@@ -109,20 +109,26 @@ final class VersionPreview {
 
 /// The version a9-8 shows instead of the current document, as
 /// `versionPreviewProvider`; the preview's document closes when another is
-/// chosen and when the view goes.
+/// chosen, when the view goes and when another document shows.
 @riverpod
 class VersionPreviewNotifier extends _$VersionPreviewNotifier {
   @override
   VersionPreview? build() {
+    // A version of the document shown: another tab ends the preview.
+    ref.watch(openDocumentProvider.select((d) => d?.id));
+    // Read now: a dispose callback may not use ref.
+    _engine = ref.read(engineServiceProvider);
     ref.onDispose(_closeOpen);
     return null;
   }
+
+  late EngineService _engine;
 
   OpenedDocument? _open;
 
   void _closeOpen() {
     if (_open case final open?) {
-      unawaited(ref.read(engineServiceProvider).close(open.id));
+      unawaited(_engine.close(open.id));
     }
     _open = null;
   }

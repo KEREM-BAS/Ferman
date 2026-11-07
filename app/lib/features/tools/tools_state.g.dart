@@ -320,19 +320,19 @@ String _$documentVersionsHash() => r'17f981242d8b50179ee34d435ac6add3c04ea510';
 
 /// The version a9-8 shows instead of the current document, as
 /// `versionPreviewProvider`; the preview's document closes when another is
-/// chosen and when the view goes.
+/// chosen, when the view goes and when another document shows.
 
 @ProviderFor(VersionPreviewNotifier)
 final versionPreviewProvider = VersionPreviewNotifierProvider._();
 
 /// The version a9-8 shows instead of the current document, as
 /// `versionPreviewProvider`; the preview's document closes when another is
-/// chosen and when the view goes.
+/// chosen, when the view goes and when another document shows.
 final class VersionPreviewNotifierProvider
     extends $NotifierProvider<VersionPreviewNotifier, VersionPreview?> {
   /// The version a9-8 shows instead of the current document, as
   /// `versionPreviewProvider`; the preview's document closes when another is
-  /// chosen and when the view goes.
+  /// chosen, when the view goes and when another document shows.
   VersionPreviewNotifierProvider._()
     : super(
         from: null,
@@ -361,11 +361,11 @@ final class VersionPreviewNotifierProvider
 }
 
 String _$versionPreviewNotifierHash() =>
-    r'10cdad8c3f6536694764025d2c5a48f643769460';
+    r'658712dbb62deb6cae87f2b7b820977be34eacf0';
 
 /// The version a9-8 shows instead of the current document, as
 /// `versionPreviewProvider`; the preview's document closes when another is
-/// chosen and when the view goes.
+/// chosen, when the view goes and when another document shows.
 
 abstract class _$VersionPreviewNotifier extends $Notifier<VersionPreview?> {
   VersionPreview? build();

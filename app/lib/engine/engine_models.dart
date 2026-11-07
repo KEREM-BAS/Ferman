@@ -1132,6 +1132,7 @@ class DocumentInfo {
     this.producer,
     this.created,
     this.modified,
+    this.editable = true,
   });
 
   /// `/Title`.
@@ -1157,6 +1158,10 @@ class DocumentInfo {
 
   /// `/ModDate`, as the file writes it.
   final DateTime? modified;
+
+  /// Whether a2-7 can edit title, author, subject and keywords: the file
+  /// has an `/Info` object (BACKLOG B221).
+  final bool editable;
 }
 
 /// A font's type (a2-7's Type column).

@@ -197,6 +197,7 @@ and Shift for ⇧.
 | B218 | Page cache sizes | `a11-1k` | Settings › Advanced › Page cache: 512 MB, 1 GB and 2 GB (disabled, `Feature.pageCacheSize`); the select shows the engine's 256 MB | P2 | ferman-render fixes its tile cache at start (256 MiB, ARCHITECTURE §4); resizing it while the app runs, and the 25 % clamp of RAM (Still Proposed), need an engine call and a RAM query. |
 | B219 | Thumbnails made when a document opens | `a11-1k` | Settings › Advanced › Thumbnails › Make all when opening (disabled, `Feature.thumbnailsUpfront`) | P2 | The Pages tab asks only for the thumbnails it shows; the engine has no call that makes them all up front. |
 | B220 | Fonts used in open documents | `a11-1d` | Settings › Fonts › filter › Used in open documents (disabled, `Feature.fontsInOpenDocuments`) | P2 | A document names its fonts by PostScript name and subset tag; matching them to installed families needs the engine's font list per document. |
+| B221 | Document information on a file without `/Info` | `a2-7` | Document properties › Summary › Title, Author, Subject, Keywords: shown read-only when the file's trailer names no `/Info` object (`DocumentInfo.editable`) | P2 | The writers copy the original trailer, so they cannot give a file a new `/Info` (PDF 2.0 files and XMP-only producers leave it out); the store needs a trailer entry of its own. |
 
 ## Done
 

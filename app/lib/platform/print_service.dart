@@ -20,8 +20,12 @@ abstract interface class PrintService {
     required bool fit,
   });
 
-  /// Draws [page] on the next sheet; false when the print stopped.
-  Future<bool> page(PrintPage page);
+  /// Draws [page], the print's page [at] (from 0), when the system asks for
+  /// it; the print's page the system wants next, `at + 1` when it takes them
+  /// in order and the page count once the print is complete, or null when
+  /// the print stopped. Linux's dialog picks pages, reverses them and repeats
+  /// them for copies itself, so its runner names the page it wants.
+  Future<int?> page(PrintPage page, {required int at});
 
   /// Sends what was drawn to the printer.
   Future<void> end();
@@ -43,7 +47,7 @@ final class NoPrintService implements PrintService {
   }) async => false;
 
   @override
-  Future<bool> page(PrintPage page) async => false;
+  Future<int?> page(PrintPage page, {required int at}) async => null;
 
   @override
   Future<void> end() async {}
@@ -82,14 +86,30 @@ final class PlatformPrintService implements PrintService {
     required bool fit,
   }) => _call('begin', {'name': name, 'pages': pages, 'fit': fit});
 
+  /// A runner that answers `true` takes the pages in order; one that
+  /// answers a number names the page it wants next.
   @override
-  Future<bool> page(PrintPage page) => _call('page', {
-    'width': page.width,
-    'height': page.height,
-    'widthPoints': page.widthPoints,
-    'heightPoints': page.heightPoints,
-    'pixels': page.pixels,
-  });
+  Future<int?> page(PrintPage page, {required int at}) async {
+    try {
+      final answer = await _channel.invokeMethod<Object?>('page', {
+        'index': at,
+        'width': page.width,
+        'height': page.height,
+        'widthPoints': page.widthPoints,
+        'heightPoints': page.heightPoints,
+        'pixels': page.pixels,
+      });
+      return switch (answer) {
+        final int next when next >= 0 => next,
+        true => at + 1,
+        _ => null,
+      };
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
 
   @override
   Future<void> end() => _call('end');

@@ -294,6 +294,48 @@ mod tests {
         .unwrap()
     }
 
+    /// A broken file whose last item's /Next is a page: the page is no bookmark, and an edit of
+    /// the outline leaves it a page.
+    #[test]
+    fn a_page_linked_as_an_item_stays_a_page() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let page = doc.page_iter().next().unwrap();
+        let root = doc.new_object_id();
+        let one = doc.add_object(dictionary! {
+            "Title" => Object::string_literal("Bir"), "Parent" => root, "Next" => page,
+        });
+        doc.objects.insert(
+            root,
+            Object::Dictionary(
+                dictionary! { "Type" => "Outlines", "First" => one, "Last" => page, "Count" => 2 },
+            ),
+        );
+        let catalog = doc.trailer.get(b"Root").unwrap().as_reference().unwrap();
+        doc.get_dictionary_mut(catalog)
+            .unwrap()
+            .set("Outlines", root);
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).unwrap();
+        let doc = open(
+            &Source::from_bytes(Arc::from(bytes)),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        assert_eq!(doc.structure().outline.len(), 1);
+        let mut store = RevisionStore::new(&doc);
+        store.begin().unwrap();
+        store
+            .set_outline(&doc, &[edit(Some(0), None, "Bir (2)", 0)])
+            .unwrap();
+        store.commit().unwrap();
+        let written = store.dictionary(&doc, page).unwrap();
+        assert!(!written.has(b"Title"));
+        assert_ne!(
+            written.get(b"Parent").unwrap().as_reference().unwrap(),
+            root
+        );
+    }
+
     fn edit(item: Option<usize>, page: Option<usize>, title: &str, depth: u32) -> OutlineEdit {
         OutlineEdit {
             item,

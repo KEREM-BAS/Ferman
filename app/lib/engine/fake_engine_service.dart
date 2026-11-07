@@ -1821,6 +1821,7 @@ class FakeEngineService implements EngineService {
         producer: before.producer,
         created: before.created,
         modified: before.modified,
+        editable: before.editable,
       ),
     );
   }

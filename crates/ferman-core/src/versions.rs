@@ -10,8 +10,9 @@
 //!     └── <id>.pdf                  its bytes, as the file held them
 //! ```
 //!
-//! A document's folder is found by its file's path, then, after a rename or a move, by the hash of
-//! the bytes it last saved, which is the file's own hash until something else writes it. Every
+//! A document's folder is found by its file's path, then, after a rename or a move (the path it
+//! recorded is gone), by the hash of the bytes it last saved, which is the file's own hash until
+//! something else writes it; a copy of the file next to it starts a folder of its own. Every
 //! file is written with [`safe_write`](crate::save::safe_write). A version's bytes are the file's,
 //! so an encrypted document's stay encrypted; its rows keep counts only, never the names of its
 //! edits, which are document text (decision 28 of the M4 plan). The id of a version is its time in
@@ -23,6 +24,7 @@
 use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, PoisonError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use sha2::{Digest, Sha256};
@@ -40,6 +42,9 @@ pub const KEEP_DAYS: u64 = 30;
 pub const KEEP: Duration = Duration::from_secs(KEEP_DAYS * 24 * 60 * 60);
 
 const MANIFEST: &str = "manifest.json";
+
+/// Keeps a purge from deleting a folder while a version is written into it.
+static WRITING: Mutex<()> = Mutex::new(());
 
 /// What made a version.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -223,7 +228,8 @@ impl Versions {
     }
 
     /// The folder of the file at `path` whose bytes hash to `sha256`: the one with that path,
-    /// else the one whose last saved bytes have that hash.
+    /// else the one whose last saved bytes have that hash and whose file is gone (renamed or
+    /// moved; a copy does not take over the original's history).
     #[must_use]
     pub fn find(&self, path: &Path, sha256: &[u8; 32]) -> Option<PathBuf> {
         let manifests: Vec<(PathBuf, PathBuf, [u8; 32])> = self
@@ -234,7 +240,11 @@ impl Versions {
         manifests
             .iter()
             .find(|(_, file, _)| file == path)
-            .or_else(|| manifests.iter().find(|(_, _, sha)| sha == sha256))
+            .or_else(|| {
+                manifests
+                    .iter()
+                    .find(|(_, file, sha)| sha == sha256 && !file.exists())
+            })
             .map(|(dir, _, _)| dir.clone())
     }
 
@@ -288,6 +298,7 @@ impl Versions {
         now: SystemTime,
     ) -> Result<Option<Version>, CoreError> {
         let sha = sha256(bytes);
+        let _writing = WRITING.lock().unwrap_or_else(PoisonError::into_inner);
         let dir = match self.find(path, last) {
             Some(dir) => dir,
             None => {
@@ -338,7 +349,10 @@ impl Versions {
         // A name never holds a line break: the edit's name as the UI gave it, on one line.
         json_string(&mut json, &row.names.join("\n"));
         json.push_str(&format!(",\n  \"sha256\": \"{}\"\n}}\n", hex(&sha)));
-        safe_write(&dir.join(format!("{id}.json")), json.as_bytes(), None)?;
+        if let Err(err) = safe_write(&dir.join(format!("{id}.json")), json.as_bytes(), None) {
+            let _ = fs::remove_file(dir.join(format!("{id}.pdf")));
+            return Err(err);
+        }
         if version.kind != VersionKind::Unsaved {
             write_manifest(&dir, path, &sha)?;
         }
@@ -351,6 +365,7 @@ impl Versions {
     ///
     /// [`CoreError::Io`].
     pub fn remove(&self, path: &Path, sha256: &[u8; 32], id: u64) -> Result<(), CoreError> {
+        let _writing = WRITING.lock().unwrap_or_else(PoisonError::into_inner);
         let Some(dir) = self.find(path, sha256) else {
             return Ok(());
         };
@@ -363,9 +378,12 @@ impl Versions {
         Ok(())
     }
 
-    /// Deletes every version older than `keep` at `now`, and a folder left with none.
+    /// Deletes every version older than `keep` at `now`, a copy without its row (an add cut off
+    /// before it) older than that by its file's time, and a folder left with none.
     pub fn purge(&self, now: SystemTime, keep: Duration) {
+        let _writing = WRITING.lock().unwrap_or_else(PoisonError::into_inner);
         let oldest = now_millis(now).saturating_sub(u64::try_from(keep.as_millis()).unwrap_or(0));
+        let cut_off = now.checked_sub(keep).unwrap_or(UNIX_EPOCH);
         for dir in self.folders() {
             let mut removed = false;
             for id in version_ids(&dir) {
@@ -373,6 +391,21 @@ impl Versions {
                 if old {
                     let _ = fs::remove_file(dir.join(format!("{id}.json")));
                     let _ = fs::remove_file(dir.join(format!("{id}.pdf")));
+                    removed = true;
+                }
+            }
+            for entry in fs::read_dir(&dir).into_iter().flatten().flatten() {
+                let name = entry.file_name();
+                let orphan = name
+                    .to_str()
+                    .and_then(|name| name.strip_suffix(".pdf"))
+                    .is_some_and(|id| !dir.join(format!("{id}.json")).exists());
+                let old = entry
+                    .metadata()
+                    .and_then(|meta| meta.modified())
+                    .is_ok_and(|time| time < cut_off);
+                if orphan && old {
+                    let _ = fs::remove_file(entry.path());
                     removed = true;
                 }
             }
@@ -462,6 +495,54 @@ mod tests {
         versions.purge(start + KEEP + Duration::from_secs(61), KEEP);
         assert!(versions.list(&file, &[0; 32]).is_empty());
         assert!(versions.folders().is_empty());
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn a_copy_of_the_file_does_not_take_over_its_history() {
+        let root = temp("copy");
+        let versions = Versions::new(root.join("versions"));
+        let original = root.join("Template.pdf");
+        let copy = root.join("Client A.pdf");
+        let bytes = b"%PDF-1.7 template".to_vec();
+        fs::create_dir_all(&root).unwrap();
+        fs::write(&original, &bytes).unwrap();
+        fs::write(&copy, &bytes).unwrap();
+        let sha = sha256(&bytes);
+        versions
+            .add(&original, &sha, &bytes, &saved(1, &[]), SystemTime::now())
+            .unwrap();
+        assert!(versions.list(&copy, &sha).is_empty());
+        assert_eq!(versions.list(&original, &sha).len(), 1);
+        // Once the original is gone, the same bytes are its file renamed.
+        fs::remove_file(&original).unwrap();
+        assert_eq!(versions.list(&copy, &sha).len(), 1);
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn a_copy_left_without_its_row_is_purged_by_its_age() {
+        let root = temp("orphan");
+        let versions = Versions::new(root.clone());
+        let file = PathBuf::from("/docs/Kira.pdf");
+        let now = SystemTime::now();
+        let row = versions
+            .add(&file, &[0; 32], b"%PDF-1.7 kept", &saved(0, &[]), now)
+            .unwrap()
+            .unwrap();
+        let dir = versions.find(&file, &[0; 32]).unwrap();
+        let stray = dir.join("17.pdf");
+        fs::write(&stray, b"%PDF-1.7 cut off").unwrap();
+        versions.purge(now + Duration::from_secs(60), KEEP);
+        assert!(stray.exists(), "younger than KEEP");
+        let later = now + KEEP;
+        versions
+            .add(&file, &[0; 32], b"%PDF-1.7 later", &saved(1, &[]), later)
+            .unwrap();
+        versions.purge(later + Duration::from_secs(60), KEEP);
+        assert!(!stray.exists());
+        assert!(!dir.join(format!("{}.pdf", row.id)).exists());
+        assert_eq!(versions.list(&file, &[0; 32]).len(), 1);
         let _ = fs::remove_dir_all(root);
     }
 

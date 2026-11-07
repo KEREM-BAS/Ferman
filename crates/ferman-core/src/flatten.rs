@@ -36,7 +36,7 @@ struct Draw {
     layer: Option<Object>,
 }
 
-fn four(scope: &Scope<'_>, dict: &Dictionary, key: &[u8]) -> Option<[f32; 4]> {
+pub(crate) fn four(scope: &Scope<'_>, dict: &Dictionary, key: &[u8]) -> Option<[f32; 4]> {
     let items = dict
         .get(key)
         .ok()
@@ -74,7 +74,7 @@ fn normal_appearance(scope: &Scope<'_>, annotation: &Dictionary) -> Option<Objec
 
 /// How `form` lands on `rect`: `/BBox` through `/Matrix`, the box that gives scaled and moved onto
 /// `rect`, as PDFium's `MatchRect` does it with a side under 0.001 kept at scale 1.
-fn placement(scope: &Scope<'_>, form: ObjectId, rect: [f32; 4]) -> Option<[f32; 6]> {
+pub(crate) fn placement(scope: &Scope<'_>, form: ObjectId, rect: [f32; 4]) -> Option<[f32; 6]> {
     let Some(Object::Stream(stream)) = scope.object(form) else {
         return None;
     };

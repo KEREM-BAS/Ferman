@@ -41,6 +41,7 @@ use crate::limits::{LimitKind, Limits};
 use crate::revision::RevisionStore;
 use crate::security::{Random, system_random};
 use crate::structure::Scope;
+use crate::structure::navigation::names;
 use crate::{CoreError, Document, WriteError};
 
 impl RevisionStore {
@@ -120,8 +121,19 @@ impl RevisionStore {
         }
         let encryption = doc.decrypter();
         let encrypt_id = encryption.and_then(|(_, id)| id);
-        // The pages in the tree: a page object reached otherwise is a deleted one.
-        let live: BTreeSet<ObjectId> = self.pages(doc).iter().map(|page| page.id).collect();
+        // The pages in the tree, and the templates a form spawns pages from (named in /Templates
+        // or /Pages of /Names): a page object reached otherwise is a deleted one.
+        let mut live: BTreeSet<ObjectId> = self.pages(doc).iter().map(|page| page.id).collect();
+        {
+            let scope = self.scope(doc);
+            for key in [&b"Templates"[..], b"Pages"] {
+                live.extend(
+                    names(&scope, key)
+                        .into_iter()
+                        .filter_map(|(_, value)| value.as_reference().ok()),
+                );
+            }
+        }
         let dead_page = |value: &Object| match value {
             Object::Dictionary(dict) => {
                 dict.get(b"Type").and_then(Object::as_name).ok() == Some(b"Page".as_slice())
@@ -667,6 +679,35 @@ mod tests {
                 .write_full(&again, &mut fixed, true)
                 .unwrap();
             assert_eq!(opened(twice, password).page_count(), doc.page_count());
+        }
+    }
+
+    #[test]
+    fn a_template_page_outside_the_tree_stays() {
+        use lopdf::dictionary;
+        let mut model = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let template = model.add_object(dictionary! {
+            "Type" => "Page", "MediaBox" => vec![0.into(), 0.into(), 100.into(), 100.into()],
+        });
+        let catalog = model.trailer.get(b"Root").unwrap().as_reference().unwrap();
+        model.get_dictionary_mut(catalog).unwrap().set(
+            "Names",
+            dictionary! { "Templates" => dictionary! {
+                "Names" => vec![Object::string_literal("Ek"), template.into()],
+            } },
+        );
+        let mut bytes = Vec::new();
+        model.save_to(&mut bytes).unwrap();
+        let doc = opened(bytes, None);
+        let store = RevisionStore::new(&doc);
+        for packed in [false, true] {
+            let again = opened(store.write_full(&doc, &mut fixed, packed).unwrap(), None);
+            let scope = RevisionStore::new(&again);
+            let scope = scope.scope(&again);
+            let found = names(&scope, b"Templates");
+            assert_eq!(found.len(), 1);
+            let page = scope.dict(found[0].1).unwrap();
+            assert_eq!(scope.get_name(page, b"Type"), Some(&b"Page"[..]));
         }
     }
 

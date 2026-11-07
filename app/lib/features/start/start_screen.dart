@@ -91,8 +91,8 @@ class FmStart extends ConsumerWidget {
     final onOpen = openFiles(context, ref);
     final failed = ref.watch(documentOpenerProvider);
     final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
-    // ⌘O and ⌘N have keys on every system.
-    final open = keys.caps(ShellCommand.open)!;
+    // None when the person gave Open's keys to another command.
+    final open = keys.caps(ShellCommand.open);
     final actions = [
       (
         onOpen,
@@ -241,7 +241,7 @@ class FmStart extends ConsumerWidget {
             subtitle: l10n.startDropSubtitle,
             openLabel: l10n.startOpenPdf,
             createLabel: l10n.startNewBlankPdf,
-            shortcut: open,
+            shortcut: open ?? const [],
             footnote: l10n.startDropFootnote,
             minHeight: dropMinHeight,
             onOpen: onOpen,

@@ -2470,6 +2470,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_String(raw.producer),
       cst_encode_opt_box_autoadd_pdf_date(raw.created),
       cst_encode_opt_box_autoadd_pdf_date(raw.modified),
+      cst_encode_bool(raw.editable),
     ].jsify()!;
   }
 

@@ -1203,18 +1203,22 @@ pub(crate) fn merge_names(
         .get_dict(catalog, b"Names")
         .cloned()
         .unwrap_or_default();
-    let mut tree: BTreeMap<Vec<u8>, Object> = scope
+    // Duplicate keys a file already has all stay: each is an entry the user sees.
+    let mut tree: Vec<(Vec<u8>, Object)> = scope
         .get_dict(&names, name)
         .map(|root| name_tree(&scope, root))
         .unwrap_or_default()
         .into_iter()
         .map(|(key, value)| (key.to_vec(), value.clone()))
         .collect();
+    let mut taken: BTreeSet<Vec<u8>> = tree.iter().map(|(key, _)| key.clone()).collect();
     for (key, value) in entries {
-        if let Some(key) = free_key(&key, |candidate| tree.contains_key(candidate)) {
-            tree.insert(key, value);
+        if let Some(key) = free_key(&key, |candidate| taken.contains(candidate)) {
+            taken.insert(key.clone());
+            tree.push((key, value));
         }
     }
+    tree.sort_by(|a, b| a.0.cmp(&b.0));
     let mut pairs = Vec::with_capacity(tree.len().saturating_mul(2));
     for (key, value) in tree {
         pairs.push(Object::String(key, StringFormat::Literal));

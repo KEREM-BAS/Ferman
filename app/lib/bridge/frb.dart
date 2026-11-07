@@ -2848,6 +2848,9 @@ class DocumentInfo {
   /// `/ModDate`.
   final PdfDate? modified;
 
+  /// Whether a2-7 can edit it: the file has an `/Info` object.
+  final bool editable;
+
   const DocumentInfo({
     this.title,
     this.author,
@@ -2857,6 +2860,7 @@ class DocumentInfo {
     this.producer,
     this.created,
     this.modified,
+    required this.editable,
   });
 
   @override
@@ -2868,7 +2872,8 @@ class DocumentInfo {
       creator.hashCode ^
       producer.hashCode ^
       created.hashCode ^
-      modified.hashCode;
+      modified.hashCode ^
+      editable.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2882,7 +2887,8 @@ class DocumentInfo {
           creator == other.creator &&
           producer == other.producer &&
           created == other.created &&
-          modified == other.modified;
+          modified == other.modified &&
+          editable == other.editable;
 }
 
 /// What the user asks to do to a document.

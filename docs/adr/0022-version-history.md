@@ -32,9 +32,11 @@ atomic writes.
    version's time in milliseconds, made unique in its folder. JSON is the flat format of the
    recovery manifest. Every file is written through `safe_write` (ADR 0008).
 3. **Finding a document's versions.** By the file's path first; after a rename or a move, by the
-   SHA-256 of the bytes it last saved, which is the file's own hash until something else writes it.
-   The next version then records the new path. A Save as to another path starts that path's own
-   folder and never takes over the old file's.
+   SHA-256 of the bytes it last saved, which is the file's own hash until something else writes it,
+   and only while the path the folder recorded no longer exists: a copy made beside the file (a
+   Finder or Explorer duplicate has the same bytes) starts a folder of its own. The next version
+   then records the new path. A Save as to another path starts that path's own folder and never
+   takes over the old file's.
 4. **What becomes a version** (ferman-core `versions`, called by the document actor in ferman-api):
    - the file as it was opened (kind `opened`), before the first save of a session that keeps a
      version, unless the newest version already holds those bytes (also an imported file's first
@@ -43,6 +45,9 @@ atomic writes.
      save after a simple signature is `signed` (M4's signature is the simple one; P3 and P4 add the
      certificate and e-imza kinds);
    - unsaved work kept before a restore (`unsaved`) and the restore itself (`restored`).
+   A save that rewrites the file whole (Remove edit history, Optimize and clean) keeps no `opened`
+   version, which would hold the earlier revisions it removes; versions kept before it stay, and
+   still hold them, until they are purged.
    A copy to another file (Save a copy, Compress, Extract) is not a version of the document. Bytes
    equal to the newest version's add no row. A staged save (sandbox) keeps its version when it is
    staged and deletes it if the swap fails.
@@ -56,9 +61,13 @@ atomic writes.
    sequence, the recovery journal is cleaned, and the restore becomes a version. The app then opens
    the file again, as Reload does; the document's revisions in memory are not changed in place.
 8. **Retention.** 30 days (`versions::KEEP`, Still Proposed at the M4 review). Purged at each open
-   (on a thread of its own) and after each save; a folder left empty is deleted.
-9. **Off.** "Keep versions" off (`Engine::set_versions_enabled(false)`) keeps nothing new; what was
-   kept stays listed until purged.
+   (on a thread of its own) and after each save; a folder left empty is deleted. A version's row is
+   written after its copy, and a copy without its row (a write cut off) is purged by its file's
+   age. Writing a version, removing one and purging take one lock, so a purge never deletes a
+   folder a version is being written to.
+9. **Off.** "Keep versions" off (`Engine::set_versions_enabled(false)`) keeps nothing new on a
+   save; what was kept stays listed until purged and can still be restored, and such a restore
+   keeps its `unsaved` and `restored` versions as §7 says.
 10. **Copy.** The boards' "next to the file" becomes "Kept for 30 days" in a9-8, a11-1c,
     `settingsKeepVersions30` and onboarding (W5 and the a9-8 screen; ADR 0008 repeats it).
 

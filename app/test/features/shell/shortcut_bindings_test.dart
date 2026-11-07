@@ -47,10 +47,9 @@ void main() {
       // Save as has Ctrl+Shift+S in every mode, Add signature works in
       // Fill & Sign: they meet there.
       const keys = ShortcutBindings(linux);
-      expect(
-        keys.holder(ShellCommand.addSignature, ctrlShiftS),
+      expect(keys.holders(ShellCommand.addSignature, ctrlShiftS), [
         ShellCommand.saveAs,
-      );
+      ]);
       final next = keys.rebind(ShellCommand.addSignature, ctrlShiftS);
       expect(next.of(ShellCommand.addSignature), [ctrlShiftS]);
       expect(next.of(ShellCommand.saveAs), isEmpty);
@@ -63,9 +62,23 @@ void main() {
       // H is the Hand tool in View and Highlight in Comment.
       const h = KeyBinding(LogicalKeyboardKey.keyH);
       const keys = ShortcutBindings(linux);
-      expect(keys.holder(ShellCommand.highlight, h), isNull);
-      expect(keys.holder(ShellCommand.handTool, h), isNull);
-      expect(keys.holder(ShellCommand.selectTool, h), ShellCommand.handTool);
+      expect(keys.holders(ShellCommand.highlight, h), isEmpty);
+      expect(keys.holders(ShellCommand.handTool, h), isEmpty);
+      expect(keys.holders(ShellCommand.selectTool, h), [ShellCommand.handTool]);
+    });
+
+    test('a command of every mode names each command that loses the key', () {
+      const h = KeyBinding(LogicalKeyboardKey.keyH);
+      const keys = ShortcutBindings(linux);
+      final holders = keys.holders(ShellCommand.save, h);
+      expect(
+        holders,
+        containsAll([ShellCommand.handTool, ShellCommand.highlight]),
+      );
+      final next = keys.rebind(ShellCommand.save, h);
+      for (final holder in holders) {
+        expect(next.of(holder), isNot(contains(h)), reason: holder.name);
+      }
     });
 
     test('reset gives the table keys back and takes them from whoever has '

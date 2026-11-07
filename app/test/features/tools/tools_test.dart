@@ -8,6 +8,7 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/tools/print_dialog.dart';
 import 'package:ferman/features/tools/tools_state.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations_en.dart';
 import 'package:ferman/l10n/region.dart';
@@ -36,6 +37,10 @@ final class _Printer implements PrintService {
   /// What each call asked, in order: "begin 2 fit", "page 0", "end", "abort".
   final List<String> calls = [];
 
+  /// The page the system wants after page `at`, as Linux's runner names
+  /// it; the next one when null.
+  int Function(int at)? wants;
+
   @override
   Future<bool> begin({
     required String name,
@@ -47,9 +52,9 @@ final class _Printer implements PrintService {
   }
 
   @override
-  Future<bool> page(PrintPage page) async {
-    calls.add('page ${page.index}');
-    return true;
+  Future<int?> page(PrintPage page, {required int at}) async {
+    calls.add('page $at');
+    return wants?.call(at) ?? at + 1;
   }
 
   @override
@@ -201,6 +206,34 @@ void main() {
       );
     });
 
+    testWidgets("the system dialog's reverse order and copies get the pages "
+        'it asks for', (tester) async {
+      await open(tester);
+      await tester.tap(tool('Print'));
+      await settle(tester);
+      await tester.enterText(find.widgetWithText(TextField, 'Pages'), '2–3');
+      await settle(tester);
+      // Linux: GTK asks for pages 2–3 reversed, two copies collated: 3, 2,
+      // 3, 2. A page it does not want now is answered with the one it does.
+      const order = [1, 0, 1, 0];
+      var wanted = 0;
+      printer.wants = (at) {
+        if (wanted < order.length && at == order[wanted]) wanted++;
+        return wanted < order.length ? order[wanted] : 2;
+      };
+      await tester.tap(find.widgetWithText(Button, 'Print'));
+      await settle(tester);
+      expect(printer.calls, [
+        'begin 2 fit',
+        'page 0',
+        'page 1',
+        'page 0',
+        'page 1',
+        'page 0',
+        'end',
+      ]);
+    });
+
     testWidgets('a cancelled system dialog prints nothing', (tester) async {
       final container = await open(tester);
       printer.accept = false;
@@ -332,6 +365,18 @@ void main() {
         find.widgetWithText(Button, 'Compare with current'),
       );
       expect(compare.disabledReason, futureVersion);
+
+      // Another document ends the preview.
+      container
+          .read(openDocumentProvider.notifier)
+          .show(const OpenedDocument(id: 2, pages: _pages));
+      await settle(tester);
+      expect(container.read(versionPreviewProvider), isNull);
+      container.invalidate(openDocumentProvider);
+      await settle(tester);
+      await tester.tap(find.text('Saved'));
+      await settle(tester);
+      expect(container.read(versionPreviewProvider)?.document?.id, 9);
 
       await tester.tap(find.widgetWithText(Button, 'Restore…'));
       await settle(tester);

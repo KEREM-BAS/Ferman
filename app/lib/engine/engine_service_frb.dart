@@ -2937,6 +2937,7 @@ DocumentInfo _info(bridge.DocumentInfo info) => DocumentInfo(
   producer: info.producer,
   created: _date(info.created),
   modified: _date(info.modified),
+  editable: info.editable,
 );
 
 DateTime? _date(bridge.PdfDate? date) => date == null

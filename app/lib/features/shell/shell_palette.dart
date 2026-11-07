@@ -216,7 +216,8 @@ class _ShellPaletteState extends ConsumerState<ShellPalette> {
             ref.read(documentOpenerProvider.notifier).openRecent(file),
           ),
           icon: IconName.fileText,
-          hint: _folderOf(file.path),
+          // A path reads left to right in an Arabic row too.
+          hint: bidiIsolate(_folderOf(file.path)),
         ),
     ];
 

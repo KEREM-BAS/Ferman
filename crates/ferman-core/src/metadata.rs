@@ -47,8 +47,7 @@ impl RevisionStore {
     /// trailer names no `/Info` object, and those of decoding the XMP within the limits.
     pub fn set_info(&mut self, doc: &Document, info: &InfoEdit) -> Result<(), CoreError> {
         self.transaction_open()?;
-        // shortcut: the writers copy the original trailer, so a file without an /Info object
-        // cannot get one; give the store a trailer entry if such files turn up.
+        // A file without an /Info object cannot get one (Info::editable).
         let id = doc
             .model()
             .trailer
@@ -316,6 +315,7 @@ mod tests {
         };
         store.set_info(&doc, &same).unwrap();
         assert_eq!(store.commit().unwrap(), 0);
+        assert!(doc.structure().info.editable);
 
         let plain = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
         let mut bytes = Vec::new();
@@ -325,6 +325,7 @@ mod tests {
             &OpenOptions::default(),
         )
         .unwrap();
+        assert!(!plain.structure().info.editable, "a2-7 shows it read-only");
         let mut store = RevisionStore::new(&plain);
         store.begin().unwrap();
         assert!(matches!(

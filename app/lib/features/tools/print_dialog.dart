@@ -31,8 +31,9 @@ void showPrintDialog(WidgetRef ref) {
 
 /// Prints [pages] of [document], by handle (all when empty), through the
 /// system's print dialog (decision 29): the dialog first, then each page
-/// rendered in memory and handed over once the one before is drawn. Says how
-/// it went in a toast; a print the person cancelled says nothing.
+/// rendered in memory and handed over once the one before is drawn, in the
+/// order the system asks for them. Says how it went in a toast; a print the
+/// person cancelled says nothing.
 Future<void> printDocument(
   WidgetRef ref,
   OpenedDocument document, {
@@ -51,21 +52,50 @@ Future<void> printDocument(
           .firstOrNull
           ?.name ??
       '';
-  final count = pages.isEmpty ? document.pages.length : pages.length;
+  final job = pages.isEmpty
+      ? [
+          for (var index = 0; index < document.pages.length; index++)
+            document.pageHandle(index),
+        ]
+      : pages;
+  final count = job.length;
   if (!await printer.begin(name: name, pages: count, fit: fit)) return;
   EngineException? failure;
-  var sent = true;
+  var sent = false;
   try {
-    await for (final page in engine.printPages(
-      document.id,
-      pages: pages,
-      includeComments: includeComments,
-    )) {
-      if (!await printer.page(page)) {
-        sent = false;
-        break;
+    // The pages from [next] on, rendered again from the one the system wants
+    // when it leaves the order (Linux's ranges, reverse order and copies).
+    var next = 0;
+    var stopped = false;
+    while (next < count && !stopped) {
+      final from = next;
+      var at = from;
+      final rendered = StreamIterator(
+        engine.printPages(
+          document.id,
+          pages: from == 0 ? pages : job.sublist(from),
+          includeComments: includeComments,
+        ),
+      );
+      try {
+        while (await rendered.moveNext()) {
+          final wanted = await printer.page(rendered.current, at: at);
+          if (wanted == null) {
+            stopped = true;
+            break;
+          }
+          next = wanted;
+          if (wanted != at + 1) break;
+          at++;
+        }
+      } finally {
+        // Not awaited: the rendering stops on its own once nobody listens.
+        unawaited(rendered.cancel());
       }
+      // A stream that ends early gives nothing more to send.
+      stopped |= next == from && at == from;
     }
+    sent = !stopped && next >= count;
   } on EngineException catch (error) {
     failure = error;
   }

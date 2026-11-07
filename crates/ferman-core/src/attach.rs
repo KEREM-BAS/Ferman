@@ -94,11 +94,14 @@ impl RevisionStore {
     /// attachments or a file attachment annotation's.
     pub fn remove_attachment(&mut self, doc: &Document, index: usize) -> Result<(), CoreError> {
         self.transaction_open()?;
-        let key = self
+        // Only an entry of the tree; its position, as a file may hold one key twice.
+        if self
             .attachments(doc)
             .get(index)
-            .and_then(|attachment| attachment.key.clone())
-            .ok_or(CoreError::Write(WriteError::StructurePlan))?;
+            .is_none_or(|attachment| attachment.key.is_none())
+        {
+            return Err(CoreError::Write(WriteError::StructurePlan));
+        }
         let (root, mut catalog) = self.catalog(doc)?;
         let kept: Vec<Object> = {
             let scope = self.scope(doc);
@@ -111,7 +114,17 @@ impl RevisionStore {
                 .map(|tree| name_tree(&scope, tree))
                 .unwrap_or_default()
                 .into_iter()
-                .filter(|(name, _)| *name != key.as_slice())
+                // Counted as the list counts them: entries whose value is a file specification.
+                .scan(0usize, |position, (name, value)| {
+                    let at = scope.dict(value).map(|_| {
+                        let at = *position;
+                        *position = position.saturating_add(1);
+                        at
+                    });
+                    Some((name, value, at))
+                })
+                .filter(|(_, _, at)| *at != Some(index))
+                .map(|(name, value, _)| (name, value))
                 .flat_map(|(name, value)| {
                     [
                         Object::String(name.to_vec(), StringFormat::Literal),
@@ -184,6 +197,52 @@ mod tests {
             media_type: Some("text/csv".to_owned()),
             modified: Some("D:20261107120000Z".to_owned()),
         }
+    }
+
+    /// A tree that holds one key twice: removing one leaves the other, attaching keeps both.
+    #[test]
+    fn a_key_held_twice_keeps_both_entries() {
+        let mut model = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let spec = |model: &mut lopdf::Document, size: i64| {
+            let file = model.add_object(lopdf::Stream::new(
+                dictionary! { "Type" => "EmbeddedFile", "Params" => dictionary! { "Size" => size } },
+                vec![b'x'; usize::try_from(size).unwrap()],
+            ));
+            model.add_object(dictionary! {
+                "Type" => "Filespec", "F" => lopdf::Object::string_literal("invoice.pdf"),
+                "EF" => dictionary! { "F" => file },
+            })
+        };
+        let (first, second) = (spec(&mut model, 1), spec(&mut model, 2));
+        let key = || lopdf::Object::string_literal("invoice.pdf");
+        let catalog = model.trailer.get(b"Root").unwrap().as_reference().unwrap();
+        model.get_dictionary_mut(catalog).unwrap().set(
+            "Names",
+            dictionary! { "EmbeddedFiles" => dictionary! {
+                "Names" => vec![key(), first.into(), key(), second.into()],
+            } },
+        );
+        let mut bytes = Vec::new();
+        model.save_to(&mut bytes).unwrap();
+        let doc = open(
+            &Source::from_bytes(Arc::from(bytes)),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        let mut store = RevisionStore::new(&doc);
+        assert_eq!(store.attachments(&doc).len(), 2);
+        store.begin().unwrap();
+        store
+            .attach_file(&doc, file("bütçe.csv", b"a,b\n"))
+            .unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.attachments(&doc).len(), 3);
+        store.begin().unwrap();
+        store.remove_attachment(&doc, 0).unwrap();
+        store.commit().unwrap();
+        let sizes: Vec<_> = store.attachments(&doc).iter().map(|a| a.size).collect();
+        assert_eq!(sizes.len(), 2);
+        assert!(sizes.contains(&Some(2)), "{sizes:?}");
     }
 
     #[test]

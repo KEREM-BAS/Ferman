@@ -635,18 +635,18 @@ class _DocumentPropertiesDialogState
     );
   }
 
-  /// Metadata entry [entry] labelled [label], edited in place unless
-  /// [refusal] says why not.
+  /// Metadata entry [entry] labelled [label], edited in place when
+  /// [editable].
   Widget _metadata(
     BuildContext context,
     DocumentFacts facts,
     int entry,
     String label,
     String? value, {
-    required String? refusal,
+    required bool editable,
   }) {
     const width = DocumentPropertiesDialog.summaryLabelWidth;
-    if (refusal != null) {
+    if (!editable) {
       return _pair(context, width, (label, facts.orNone(value)));
     }
     final theme = context.ferman;
@@ -862,6 +862,7 @@ class _DocumentPropertiesDialogState
     final casing = LocaleCasing.of(context);
     const label = DocumentPropertiesDialog.summaryLabelWidth;
     final refusal = ref.watch(modifyRefusalProvider)?.call(l10n);
+    final editable = refusal == null && info.editable;
     final metadata = [
       (l10n.propertiesTitle, info.title),
       (l10n.propertiesAuthor, info.author),
@@ -942,7 +943,7 @@ class _DocumentPropertiesDialogState
                           row,
                           metadata[row].$1,
                           metadata[row].$2,
-                          refusal: refusal,
+                          editable: editable,
                         )
                       : _pair(context, label, start),
                 ),

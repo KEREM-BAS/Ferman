@@ -4919,8 +4919,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   DocumentInfo dco_decode_document_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return DocumentInfo(
       title: dco_decode_opt_String(arr[0]),
       author: dco_decode_opt_String(arr[1]),
@@ -4930,6 +4930,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       producer: dco_decode_opt_String(arr[5]),
       created: dco_decode_opt_box_autoadd_pdf_date(arr[6]),
       modified: dco_decode_opt_box_autoadd_pdf_date(arr[7]),
+      editable: dco_decode_bool(arr[8]),
     );
   }
 
@@ -7636,6 +7637,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_producer = sse_decode_opt_String(deserializer);
     var var_created = sse_decode_opt_box_autoadd_pdf_date(deserializer);
     var var_modified = sse_decode_opt_box_autoadd_pdf_date(deserializer);
+    var var_editable = sse_decode_bool(deserializer);
     return DocumentInfo(
       title: var_title,
       author: var_author,
@@ -7645,6 +7647,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       producer: var_producer,
       created: var_created,
       modified: var_modified,
+      editable: var_editable,
     );
   }
 
@@ -11373,6 +11376,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.producer, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.created, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.modified, serializer);
+    sse_encode_bool(self.editable, serializer);
   }
 
   @protected

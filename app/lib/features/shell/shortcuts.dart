@@ -1005,18 +1005,16 @@ final class ShortcutBindings {
       (name: command.name, bindings: of(command), modes: command.modes),
   ]);
 
-  /// The command other than [command] that has [binding] in a mode where
-  /// both work, or null when the key is free for it.
-  ShellCommand? holder(ShellCommand command, KeyBinding binding) {
-    for (final other in ShellCommand.values) {
+  /// The commands other than [command] that have [binding] in a mode where
+  /// both work, which [rebind] takes it from; empty when the key is free for
+  /// it.
+  List<ShellCommand> holders(ShellCommand command, KeyBinding binding) => [
+    for (final other in ShellCommand.values)
       if (other != command &&
           other.meets(command) &&
-          of(other).contains(binding)) {
-        return other;
-      }
-    }
-    return null;
-  }
+          of(other).contains(binding))
+        other,
+  ];
 
   /// Whether [binding] belongs to the system or to focus and cannot go to
   /// [command]: the window's own keys (⌘Q, Alt+F4…), Esc, Enter, Tab and
@@ -1069,8 +1067,7 @@ final class ShortcutBindings {
       changes: {...changes}..remove(command),
     );
     for (final binding in command.defaultsFor(platform)) {
-      final holder = next.holder(command, binding);
-      if (holder != null) {
+      for (final holder in next.holders(command, binding)) {
         next = ShortcutBindings(
           platform,
           changes: _normalized({

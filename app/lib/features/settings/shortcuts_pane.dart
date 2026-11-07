@@ -154,12 +154,15 @@ class _ShortcutsPaneState extends ConsumerState<ShortcutsPane> {
       });
       return KeyEventResult.handled;
     }
-    final holder = keys.holder(command, binding);
-    if (holder == null) {
+    final holders = keys.holders(command, binding);
+    if (holders.isEmpty) {
       _store(keys.rebind(command, binding));
       return KeyEventResult.handled;
     }
-    final name = l10n.commandLabel(holder, format);
+    // Every command Enter takes the keys from, each in the message's quotes.
+    final name = [
+      for (final holder in holders) l10n.commandLabel(holder, format),
+    ].join('”, “');
     final current = keys.caps(command);
     setState(() {
       _pending = binding;

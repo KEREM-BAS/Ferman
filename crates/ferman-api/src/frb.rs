@@ -264,6 +264,8 @@ pub struct DocumentInfo {
     pub created: Option<PdfDate>,
     /// `/ModDate`.
     pub modified: Option<PdfDate>,
+    /// Whether a2-7 can edit it: the file has an `/Info` object.
+    pub editable: bool,
 }
 
 /// A font's type (a2-7's Type column).
@@ -5962,6 +5964,7 @@ fn info_dto(info: facade::Info) -> DocumentInfo {
         producer: info.producer,
         created: info.created.map(pdf_date_dto),
         modified: info.modified.map(pdf_date_dto),
+        editable: info.editable,
     }
 }
 

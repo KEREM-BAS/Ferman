@@ -23,6 +23,10 @@ const MAX_WALK: usize = 2_000_000;
 
 /// `/F`: hidden.
 const HIDDEN: i64 = 2;
+/// `/F`: printed.
+const PRINT: i64 = 4;
+/// `/F`: not shown on screen, though it may print.
+const NO_VIEW: i64 = 32;
 
 /// The subtype a widget gets in the appendix. PDFium's render path draws no `/Widget` (only its
 /// form-fill overlay does, which takes no matrix, so no tile), but it draws any other annotation
@@ -71,7 +75,33 @@ impl RevisionStore {
         hide_comments: bool,
         widgets: bool,
     ) -> Result<Vec<u8>, CoreError> {
-        let annotations = self.annotations_rendered(doc, hide_comments, widgets);
+        self.appendix(doc, visible, hide_comments, widgets, false)
+    }
+
+    /// [`render_appendix`](Self::render_appendix) for paper, with every widget drawn: an
+    /// annotation prints by its Print flag, NoView or not, as a reader prints it (PDFium renders
+    /// tiles with screen flags, which go by NoView).
+    ///
+    /// # Errors
+    ///
+    /// The errors of [`incremental_update`](Self::incremental_update).
+    pub fn print_appendix(
+        &self,
+        doc: &Document,
+        hide_comments: bool,
+    ) -> Result<Vec<u8>, CoreError> {
+        self.appendix(doc, None, hide_comments, true, true)
+    }
+
+    fn appendix(
+        &self,
+        doc: &Document,
+        visible: Option<&[bool]>,
+        hide_comments: bool,
+        widgets: bool,
+        print: bool,
+    ) -> Result<Vec<u8>, CoreError> {
+        let annotations = self.annotations_rendered(doc, hide_comments, widgets, print);
         let bytes = if visible.is_some() || !annotations.is_empty() {
             let mut shown = self.clone();
             shown.begin()?;
@@ -154,21 +184,34 @@ impl RevisionStore {
         doc: &Document,
         hide_comments: bool,
         widgets: bool,
+        print: bool,
     ) -> Vec<(ObjectId, Object)> {
         let scope = self.scope(doc);
         let hidden = |annotation: &Dictionary| -> Option<Dictionary> {
             let subtype = scope.get_name(annotation, b"Subtype")?;
-            if widgets && subtype == b"Widget" {
-                let mut annotation = annotation.clone();
-                annotation.set("Subtype", Object::Name(DRAWN_WIDGET.to_vec()));
-                return Some(annotation);
-            }
+            let widget = widgets && subtype == b"Widget";
             let flags = scope.get_int(annotation, b"F").unwrap_or(0);
-            if !hide_comments || !MARKUP.contains(&subtype) || flags & HIDDEN != 0 {
+            let mut shown = flags;
+            if print {
+                shown = if flags & PRINT == 0 {
+                    shown | HIDDEN
+                } else {
+                    shown & !NO_VIEW
+                };
+            }
+            if hide_comments && MARKUP.contains(&subtype) {
+                shown |= HIDDEN;
+            }
+            if !widget && shown == flags {
                 return None;
             }
             let mut annotation = annotation.clone();
-            annotation.set("F", flags | HIDDEN);
+            if widget {
+                annotation.set("Subtype", Object::Name(DRAWN_WIDGET.to_vec()));
+            }
+            if shown != flags {
+                annotation.set("F", shown);
+            }
             Some(annotation)
         };
         let mut queued = Vec::new();
@@ -704,6 +747,51 @@ mod tests {
                 .unwrap()
                 .is_empty()
         );
+    }
+
+    /// Paper shows what has the Print flag, NoView or not, and nothing else.
+    #[test]
+    fn print_goes_by_the_print_flag() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let page = doc.page_iter().next().unwrap();
+        let button = doc.add_object(dictionary! { "Subtype" => "Widget", "FT" => "Btn" });
+        let stamp = doc.add_object(dictionary! { "Subtype" => "Stamp", "F" => 4 | 32 });
+        let note = doc.add_object(dictionary! { "Subtype" => "Text", "F" => 0 });
+        doc.get_dictionary_mut(page).unwrap().set(
+            "Annots",
+            vec![
+                Object::Reference(button),
+                Object::Reference(stamp),
+                Object::Reference(note),
+            ],
+        );
+        let mut original = Vec::new();
+        doc.save_to(&mut original).unwrap();
+        let document = opened(&original);
+        let store = RevisionStore::new(&document);
+        let mut copy = original.clone();
+        copy.extend(store.print_appendix(&document, false).unwrap());
+        let printed = opened(&copy);
+        let flags = |id| {
+            printed
+                .model()
+                .get_dictionary(id)
+                .unwrap()
+                .get(b"F")
+                .unwrap()
+                .as_i64()
+                .unwrap()
+        };
+        assert_eq!(flags(button), 2, "a button without Print stays off paper");
+        assert_eq!(flags(stamp), 4, "a print-only stamp prints");
+        assert_eq!(flags(note), 2);
+        let subtype = printed
+            .model()
+            .get_dictionary(button)
+            .unwrap()
+            .get(b"Subtype")
+            .unwrap();
+        assert_eq!(subtype, &Object::Name(b"FermanWidget".to_vec()));
     }
 
     fn opened(bytes: &[u8]) -> Document {

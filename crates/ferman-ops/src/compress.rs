@@ -319,6 +319,17 @@ fn recompressed(
         (Value::Stream { dict, data }, ImageFilter::Flate | ImageFilter::None) => (dict, data),
         _ => return Err(OpsError::UnreadableImage),
     };
+    // A JPEG whose components differ from its /ColorSpace (some scanners write them) stays.
+    let components: u64 = match facts.colour {
+        ImageColour::Gray => 1,
+        ImageColour::Rgb => 3,
+    };
+    let expected = u64::from(facts.width)
+        .saturating_mul(u64::from(facts.height))
+        .saturating_mul(components);
+    if u64::try_from(samples.len()).ok() != Some(expected) {
+        return Err(OpsError::UnreadableImage);
+    }
     let (new_width, new_height) = (width.unwrap_or(facts.width), height.unwrap_or(facts.height));
     let mut jpeg = Vec::new();
     let encoder = JpegEncoder::new_with_quality(&mut jpeg, preset.quality());
@@ -438,6 +449,29 @@ mod tests {
             assert_eq!(rescan.unreadable, plan.scan.unreadable + done.unreadable);
             assert_eq!(rescan.masks, plan.scan.masks);
             assert_eq!(rescan.patterns, plan.scan.patterns);
+        }
+    }
+
+    #[test]
+    fn a_jpeg_whose_components_differ_from_its_colour_space_stays() {
+        let doc = opened("images-compress");
+        let store = RevisionStore::new(&doc);
+        let plan = plan(&doc, &store).unwrap();
+        let limits = OpenOptions::default().limits;
+        let mut facts = plan
+            .scan
+            .images
+            .iter()
+            .find(|facts| facts.filter == ImageFilter::Dct && facts.colour == ImageColour::Rgb)
+            .unwrap()
+            .clone();
+        facts.colour = ImageColour::Gray;
+        for drawn in [(1.0e4, 1.0e4), (1.0, 1.0)] {
+            facts.drawn = drawn;
+            assert!(matches!(
+                recompressed(&doc, &store, &facts, Preset::HighQuality, &limits),
+                Err(OpsError::UnreadableImage)
+            ));
         }
     }
 

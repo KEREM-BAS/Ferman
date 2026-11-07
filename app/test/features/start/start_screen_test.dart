@@ -47,6 +47,20 @@ void main() {
     expect(find.textContaining('Word'), findsNothing);
   });
 
+  testWidgets("Open's keys given to another command leave the start screen "
+      'without them', (tester) async {
+    await pumpFermanApp(
+      tester,
+      settings: const AppSettings(
+        onboardingCompleted: true,
+        shortcuts: {'mac.open': [], 'windows.open': [], 'linux.open': []},
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(find.byType(DropZone), findsOneWidget);
+    expect(tester.widget<DropZone>(find.byType(DropZone)).shortcut, isEmpty);
+  });
+
   testWidgets('what does not work yet is disabled with the reason (G10)', (
     tester,
   ) async {

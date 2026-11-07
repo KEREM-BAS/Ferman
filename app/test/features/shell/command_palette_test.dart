@@ -120,6 +120,16 @@ void main() {
     expect(find.byType(ShellPalette), findsOneWidget);
   });
 
+  testWidgets("a recent file's folder keeps its direction in Arabic", (
+    tester,
+  ) async {
+    await open(tester, language: 'ar');
+    await keys(tester, LogicalKeyboardKey.keyK);
+    final recent = rows(tester)
+        .firstWhere((item) => item.id == 'recent-$_path');
+    expect(recent.hint, '\u2068/Belgeler\u2069');
+  });
+
   testWidgets('lists the commands that work and those held back with their '
       'reason', (tester) async {
     await open(tester);
@@ -148,20 +158,13 @@ void main() {
     expect(app.read(backgroundJobsProvider).open, isTrue);
   });
 
-  testWidgets('folds Turkish case and finds pages on long-500 within 100 ms', (
-    tester,
-  ) async {
+  testWidgets('folds Turkish case and finds pages on long-500', (tester) async {
     final app = await open(tester, language: 'tr');
     await keys(tester, LogicalKeyboardKey.keyK);
-    final watch = Stopwatch()..start();
     await tester.enterText(field(), 'imza');
     await tester.pump();
-    watch.stop();
     // "imza" finds "İmzalar" (a11-2 note).
     expect(find.text('Sayfa 3 · İmzalar'), findsOneWidget);
-    // shortcut: a debug-mode test timing on the machine running the tests,
-    // not R1; the profile-mode figure is an owner check.
-    expect(watch.elapsedMilliseconds, lessThan(100));
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await settle(tester);
     expect(app.read(viewerProvider)?.currentPage, 2);
@@ -171,6 +174,19 @@ void main() {
     await tester.pump();
     expect(rows(tester).any((item) => item.id == 'page-419'), isTrue);
   });
+
+  // shortcut: a debug-mode timing on the machine at hand, not R1, and skipped
+  // in CI (dart_test.yaml's `perf`); the profile-mode figure is an owner
+  // check. Run with `flutter test --tags perf --run-skipped`.
+  testWidgets('filters long-500 within 100 ms', (tester) async {
+    await open(tester, language: 'tr');
+    await keys(tester, LogicalKeyboardKey.keyK);
+    final watch = Stopwatch()..start();
+    await tester.enterText(field(), 'imza');
+    await tester.pump();
+    watch.stop();
+    expect(watch.elapsedMilliseconds, lessThan(100));
+  }, tags: ['perf']);
 
   testWidgets('with no match, Enter searches the document instead', (
     tester,
@@ -293,6 +309,20 @@ void main() {
       expect(bindings.caps(ShellCommand.saveAs), isNull);
       // Save a copy has none on Linux already.
       expect(find.text('No shortcut'), findsNWidgets(2));
+    });
+
+    testWidgets('a key two commands hold names both', (tester) async {
+      await pane(tester);
+      await tester.ensureVisible(keysOf('Present'));
+      await tester.pump();
+      await tester.tap(keysOf('Present'));
+      await settle(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyH);
+      await settle(tester);
+      expect(
+        find.textContaining('H is already “Hand”, “Highlight”.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Esc keeps the keys; system keys are refused', (tester) async {
