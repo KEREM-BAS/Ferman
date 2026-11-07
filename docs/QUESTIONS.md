@@ -92,6 +92,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
 | [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Answered 2026-11-06: (a) |
 | [Q25](#q25) | Right-to-left lines drawn in an order the bidi algorithm does not give: M3 instead of M2 | the M2 review | Open |
+| [Q26](#q26) | Form fields on the canvas outside Fill & Sign: ferman-render draws widgets, or the app's overlay shows them in every mode | the M4 review | Open |
 
 ## Questions
 
@@ -920,4 +921,24 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Needed by:** the M2 review.
 - **Status:** Open
 - **Related:** ROADMAP §6 step 5, BACKLOG B112, `crates/ferman-text/src/extract.rs`
+- **Answer:** none yet
+
+<a id="q26"></a>
+
+### Q26 · Form fields on the canvas outside Fill & Sign
+
+- **Question:** PDFium's tiles draw no form widget (BACKLOG B203). In Fill & Sign the app's overlay
+  draws every field with its value. Should the other modes show fields too, and if so, through
+  ferman-render (an `FPDF_FFLDraw` call per tile with the tile's offset and scale, or the
+  render-only appendix giving widgets to PDFium as annotations) or through the app's overlay?
+- **Why it matters:** a filled form looks empty in View, Edit and the other modes, and in the
+  thumbnails. A render-path change touches PDFium's use in `ferman-render`, which the owner
+  decides.
+- **Options:** (a) the render-only appendix: widgets become annotations PDFium draws, for every
+  mode and the thumbnails; (b) `FPDF_FFLDraw` per tile; (c) the app's overlay in every mode.
+- **Proposal:** (a), measured first on `long-500`.
+- **Meanwhile:** fields show in Fill & Sign only (B203).
+- **Needed by:** the M4 review.
+- **Status:** Open
+- **Related:** BACKLOG B203, `crates/ferman-api/tests/forms.rs`, `app/lib/features/forms/form_overlay.dart`
 - **Answer:** none yet

@@ -7,6 +7,7 @@ import 'package:ferman/features/forms/form_overlay.dart';
 import 'package:ferman/features/forms/form_panel.dart';
 import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/signatures/add_signature_dialog.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/settings/settings_providers.dart';
@@ -296,6 +297,20 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
     await tester.pumpAndSettle();
     expect(container.read(fillToolsStateProvider).tool, FillTool.cross);
+  });
+
+  testWidgets('Fill anything’s Signature opens the signature dialog', (
+    tester,
+  ) async {
+    await _open(tester, _engine(fields: const []));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FillAnythingPanel),
+        matching: find.text('Signature'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(AddSignatureDialog), findsOneWidget);
   });
 
   for (final locale in const [Locale('tr', 'TR'), Locale('ar', 'SA')]) {
