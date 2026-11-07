@@ -84,6 +84,59 @@ impl RevisionStore {
             .to_vec())
     }
 
+    /// Takes every markup annotation, and the pop-ups they own, out of the pages' `/Annots` in
+    /// the open transaction (Save as without "Include comments and markup", a1-11): widgets,
+    /// links and signatures stay. How many it took out; a rewrite then leaves them out of the
+    /// file, while an incremental update keeps their objects in the earlier revision.
+    ///
+    /// # Errors
+    ///
+    /// [`crate::WriteError::NoTransaction`].
+    pub fn remove_markup(&mut self, doc: &Document) -> Result<u32, CoreError> {
+        self.transaction_open()?;
+        let mut removed = 0u32;
+        for index in 0..self.pages(doc).len() {
+            let gone: Vec<bool> = {
+                let scope = self.scope(doc);
+                let Some(dict) = self
+                    .pages(doc)
+                    .get(index)
+                    .and_then(|page| scope.dictionary(page.id))
+                else {
+                    continue;
+                };
+                let markup = |annotation: &Dictionary| {
+                    scope
+                        .get_name(annotation, b"Subtype")
+                        .is_some_and(|subtype| MARKUP.contains(&subtype))
+                };
+                scope
+                    .get_array(dict, b"Annots")
+                    .into_iter()
+                    .flatten()
+                    .map(|item| {
+                        scope.dict(item).is_some_and(|annotation| {
+                            markup(annotation)
+                                || (scope.get_name(annotation, b"Subtype") == Some(b"Popup")
+                                    && scope.get_dict(annotation, b"Parent").is_some_and(markup))
+                        })
+                    })
+                    .collect()
+            };
+            let count = gone.iter().filter(|&&gone| gone).count();
+            if count == 0 {
+                continue;
+            }
+            let mut flags = gone.into_iter();
+            self.change_annots(doc, index, |items| {
+                items.retain(|_| !flags.next().unwrap_or(false));
+                true
+            })?;
+            removed = removed.saturating_add(u32::try_from(count).unwrap_or(u32::MAX));
+        }
+        Ok(removed)
+    }
+
     /// The objects that hide every markup annotation still drawn: each one's own object, and a
     /// page's dictionary for those written directly in its `/Annots`.
     fn markup_hidden(&self, doc: &Document) -> Vec<(ObjectId, Object)> {

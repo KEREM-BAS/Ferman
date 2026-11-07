@@ -37,3 +37,13 @@ String? recoveryDirectory({
   }
   return null;
 }
+
+/// Where the engine keeps version history (ADR 0022): beside the recovery
+/// folder [recovery] in the app data directory, `Versions` or `versions` as
+/// its name is cased.
+String versionsDirectory(String recovery) {
+  final cut = recovery.lastIndexOf(RegExp(r'[/\\]'));
+  final name = recovery.substring(cut + 1);
+  final folder = recovery.substring(0, cut + 1);
+  return '$folder${name == 'recovery' ? 'versions' : 'Versions'}';
+}

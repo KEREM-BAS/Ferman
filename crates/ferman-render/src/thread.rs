@@ -137,6 +137,11 @@ enum Message {
         password: Option<Password>,
         reply: oneshot::Sender<Result<OpenedDocument, RenderError>>,
     },
+    OpenCopy {
+        of: DocumentId,
+        appendix: Arc<[u8]>,
+        reply: oneshot::Sender<Result<OpenedDocument, RenderError>>,
+    },
     Close {
         document: DocumentId,
         reply: oneshot::Sender<Result<(), RenderError>>,
@@ -234,6 +239,28 @@ impl RenderThread {
         let reply = self.ask(|reply| Message::Open {
             bytes,
             password,
+            reply,
+        });
+        async move { flatten(reply?.await) }
+    }
+
+    /// Loads a second document from the bytes `of` was opened from, with its password and a
+    /// render-only `appendix` after them, such as the revisions and hidden comments of a print
+    /// (a9-6): the password never leaves the render thread, and the bytes never reach disk. Close
+    /// it like any other.
+    ///
+    /// # Errors
+    ///
+    /// The future resolves to [`RenderError::NotFound`] when `of` is not open, and to the errors
+    /// of [`open_document`](Self::open_document).
+    pub fn open_copy(
+        &self,
+        of: DocumentId,
+        appendix: Arc<[u8]>,
+    ) -> impl Future<Output = Result<OpenedDocument, RenderError>> + Send + 'static {
+        let reply = self.ask(|reply| Message::OpenCopy {
+            of,
+            appendix,
             reply,
         });
         async move { flatten(reply?.await) }
@@ -492,6 +519,16 @@ impl<'p> State<'p> {
                     self.close(unclaimed.id);
                 }
             }
+            Message::OpenCopy {
+                of,
+                appendix,
+                reply,
+            } => {
+                let opened = self.open_copy(of, appendix);
+                if let Err(Ok(unclaimed)) = reply.send(opened) {
+                    self.close(unclaimed.id);
+                }
+            }
             Message::Close { document, reply } => {
                 let closed = if self.documents.contains_key(&document) {
                     self.close(document);
@@ -567,6 +604,23 @@ impl<'p> State<'p> {
         })?;
         let document =
             LoadedDocument::load(pdfium, bytes, Arc::from([]), password, self.loaded_pages)?;
+        let pages = document.sizes().to_vec();
+        let id = DocumentId(self.next_id());
+        self.documents.insert(id, document);
+        Ok(OpenedDocument { id, pages })
+    }
+
+    fn open_copy(
+        &mut self,
+        of: DocumentId,
+        appendix: Arc<[u8]>,
+    ) -> Result<OpenedDocument, RenderError> {
+        let (Some(pdfium), Some(loaded)) = (self.pdfium, self.documents.get(&of)) else {
+            return Err(RenderError::NotFound { what: "document" });
+        };
+        let bytes = Arc::clone(loaded.bytes());
+        let password = loaded.password().cloned();
+        let document = LoadedDocument::load(pdfium, bytes, appendix, password, self.loaded_pages)?;
         let pages = document.sizes().to_vec();
         let id = DocumentId(self.next_id());
         self.documents.insert(id, document);

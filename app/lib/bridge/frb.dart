@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `preset`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `save_options`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgePrint`, `BridgeSearch`, `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -1279,7 +1279,8 @@ Future<String?> saveOverChange({required BigInt document, String? staging}) =>
       staging: staging,
     );
 
-/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+/// Saves a copy of `document` as the file at `path` with Save as's `options`; later saves still
+/// write to its own file.
 ///
 /// See [`facade::Engine::save_copy`].
 ///
@@ -1289,10 +1290,12 @@ Future<String?> saveOverChange({required BigInt document, String? staging}) =>
 Future<String?> saveCopy({
   required BigInt document,
   required String path,
+  required SaveAsOptions options,
   String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveCopy(
   document: document,
   path: path,
+  options: options,
   staging: staging,
 );
 
@@ -1316,18 +1319,138 @@ Future<String?> saveRepairedCopy({
   staging: staging,
 );
 
-/// Optimize and clean: the document's file rewritten whole.
+/// Optimize and clean as a background job: the document's file rewritten whole. The stream's
+/// first event has the job's handle; its last says how it ended, with the document's file as its
+/// output (staged under the sandbox, for [`finish_save`]).
 ///
-/// See [`facade::Engine::optimize_and_clean`].
+/// See [`facade::Engine::optimize_and_clean_job`].
 ///
 /// # Errors
 ///
-/// As [`save`]; `Unsupported` for a repaired document.
-Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
-    FermanBridge.instance.api.crateFrbOptimizeAndClean(
-      document: document,
-      staging: staging,
-    );
+/// `NotFound` for a document that is not open; the job fails with `ConfirmationRequired`,
+/// `Unsupported` for a repaired document and the save failures.
+Stream<JobEvent> startOptimizeAndCleanJob({
+  required BigInt document,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartOptimizeAndCleanJob(
+  document: document,
+  staging: staging,
+);
+
+/// What Compress would do to `document` as it stands, with each preset's estimate.
+///
+/// See [`facade::Engine::compress_analysis`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the writer's errors.
+Future<CompressAnalysis> compressAnalysis({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbCompressAnalysis(document: document);
+
+/// Compresses `document` with `preset` into the new file `output` as a background job. The last
+/// event's parameters are facts with no message key: `before`, `after`, `written`,
+/// `recompressed` and `unreadable`.
+///
+/// See [`facade::Engine::compress_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `ConfirmationRequired` for a signed document without
+/// `unsign`, `NotFound`.
+Stream<JobEvent> startCompressJob({
+  required BigInt document,
+  required CompressPreset preset,
+  required bool unsign,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCompressJob(
+  document: document,
+  preset: preset,
+  unsign: unsign,
+  output: output,
+  staging: staging,
+);
+
+/// Streams `pages` of `document` (by handle; all when empty) rendered one by one for the print
+/// channel, without its markup annotations unless `include_comments`. The stream ends after the
+/// last page; cancelling it ends the print.
+///
+/// See [`facade::Engine::print_pages`].
+///
+/// # Errors
+///
+/// `NotEditable` when the document forbids printing, `InvalidInput`, `NotFound`, and the render
+/// thread's errors.
+Stream<PrintPage> printPages({
+  required BigInt document,
+  required Uint64List pages,
+  required bool includeComments,
+}) => FermanBridge.instance.api.crateFrbPrintPages(
+  document: document,
+  pages: pages,
+  includeComments: includeComments,
+);
+
+/// Names the versions folder in the app data directory, at launch (ADR 0022).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<void> startVersions({required String root}) =>
+    FermanBridge.instance.api.crateFrbStartVersions(root: root);
+
+/// "Keep versions" (a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<void> setVersionsEnabled({required bool enabled}) =>
+    FermanBridge.instance.api.crateFrbSetVersionsEnabled(enabled: enabled);
+
+/// The versions of `document`'s file, newest first.
+///
+/// See [`facade::Engine::versions`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<List<VersionInfo>> versions({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbVersions(document: document);
+
+/// Opens version `version` of `document` read-only for the preview; an encrypted document's needs
+/// its `password` again.
+///
+/// See [`facade::Engine::open_version`].
+///
+/// # Errors
+///
+/// `NotFound` for a version it does not have, and what [`open`] returns.
+Future<OpenedDocument> openVersion({
+  required BigInt document,
+  required BigInt version,
+  String? password,
+}) => FermanBridge.instance.api.crateFrbOpenVersion(
+  document: document,
+  version: version,
+  password: password,
+);
+
+/// Makes version `version` the file of `document` again; the app then opens the file again.
+///
+/// See [`facade::Engine::restore_version`].
+///
+/// # Errors
+///
+/// `NotFound`, `FileChangedOnDisk` and the save failures.
+Future<String?> restoreVersion({
+  required BigInt document,
+  required BigInt version,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbRestoreVersion(
+  document: document,
+  version: version,
+  staging: staging,
+);
 
 /// Whether Optimize and clean would break the document's signatures.
 ///
@@ -1547,7 +1670,8 @@ Future<String?> saveUnsignedCopy({
 Future<bool> checkExternalChange({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbCheckExternalChange(document: document);
 
-/// Saves `document` as the file at `path`; later saves write there.
+/// Saves `document` as the file at `path` with Save as's `options`; later saves write there,
+/// unless the comments are left out.
 ///
 /// See [`facade::Engine::save_as`].
 ///
@@ -1557,10 +1681,12 @@ Future<bool> checkExternalChange({required BigInt document}) =>
 Future<String?> saveAs({
   required BigInt document,
   required String path,
+  required SaveAsOptions options,
   String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveAs(
   document: document,
   path: path,
+  options: options,
   staging: staging,
 );
 
@@ -2432,6 +2558,123 @@ class CombinePreview {
           files == other.files &&
           pages == other.pages &&
           bytes == other.bytes;
+}
+
+/// What Compress would do to a document (a9-1).
+class CompressAnalysis {
+  /// The size now, in bytes.
+  final BigInt before;
+
+  /// High quality, Balanced and Smallest, in that order.
+  final List<CompressEstimate> estimates;
+
+  /// The images it may recompress.
+  final int images;
+
+  /// Images in a format or colour it does not decode, left as they are.
+  final int unreadable;
+
+  /// Masks and images with a colour-key mask, left as they are.
+  final int masks;
+
+  /// Images drawn only through patterns, left as they are.
+  final int patterns;
+
+  /// Duplicate font copies merged.
+  final int duplicateFonts;
+
+  /// Pages whose thumbnail goes.
+  final int thumbnails;
+
+  /// Whether the document is signed: the warning comes first, and the copy has no signatures.
+  final bool signed;
+
+  const CompressAnalysis({
+    required this.before,
+    required this.estimates,
+    required this.images,
+    required this.unreadable,
+    required this.masks,
+    required this.patterns,
+    required this.duplicateFonts,
+    required this.thumbnails,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      before.hashCode ^
+      estimates.hashCode ^
+      images.hashCode ^
+      unreadable.hashCode ^
+      masks.hashCode ^
+      patterns.hashCode ^
+      duplicateFonts.hashCode ^
+      thumbnails.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompressAnalysis &&
+          runtimeType == other.runtimeType &&
+          before == other.before &&
+          estimates == other.estimates &&
+          images == other.images &&
+          unreadable == other.unreadable &&
+          masks == other.masks &&
+          patterns == other.patterns &&
+          duplicateFonts == other.duplicateFonts &&
+          thumbnails == other.thumbnails &&
+          signed == other.signed;
+}
+
+/// A preset's estimated result.
+class CompressEstimate {
+  /// The preset.
+  final CompressPreset preset;
+
+  /// The estimated size after, in bytes.
+  final BigInt after;
+
+  /// Whether every image was recompressed for it, so it is exact but for rounding.
+  final bool exact;
+
+  /// How many images it recompressed.
+  final int sampled;
+
+  const CompressEstimate({
+    required this.preset,
+    required this.after,
+    required this.exact,
+    required this.sampled,
+  });
+
+  @override
+  int get hashCode =>
+      preset.hashCode ^ after.hashCode ^ exact.hashCode ^ sampled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompressEstimate &&
+          runtimeType == other.runtimeType &&
+          preset == other.preset &&
+          after == other.after &&
+          exact == other.exact &&
+          sampled == other.sampled;
+}
+
+/// a9-1's presets.
+enum CompressPreset {
+  /// Images at 300 ppi, for printing.
+  highQuality,
+
+  /// Images at 150 ppi, for sharing and reading on screen.
+  balanced,
+
+  /// Images at 96 ppi, for e-mail.
+  smallest,
 }
 
 /// One engine crate and its version.
@@ -5173,6 +5416,63 @@ class PdfiumStatus {
           reason == other.reason;
 }
 
+/// One page of a print, rendered (a9-6).
+class PrintPage {
+  /// Its index in the document, from 0.
+  final int index;
+
+  /// Its width as displayed, in points.
+  final double widthPoints;
+
+  /// Its height as displayed, in points.
+  final double heightPoints;
+
+  /// The resolution it is rendered at.
+  final int dpi;
+
+  /// Its width in device pixels.
+  final int width;
+
+  /// Its height in device pixels.
+  final int height;
+
+  /// 8-bit BGRA, opaque, `width × 4` bytes per row, the top row first.
+  final Uint8List pixels;
+
+  const PrintPage({
+    required this.index,
+    required this.widthPoints,
+    required this.heightPoints,
+    required this.dpi,
+    required this.width,
+    required this.height,
+    required this.pixels,
+  });
+
+  @override
+  int get hashCode =>
+      index.hashCode ^
+      widthPoints.hashCode ^
+      heightPoints.hashCode ^
+      dpi.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      pixels.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrintPage &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          widthPoints == other.widthPoints &&
+          heightPoints == other.heightPoints &&
+          dpi == other.dpi &&
+          width == other.width &&
+          height == other.height &&
+          pixels == other.pixels;
+}
+
 /// How urgent a wanted item is, highest first (ARCHITECTURE §4.5).
 enum Priority {
   /// Tiles on screen.
@@ -5409,6 +5709,31 @@ class RevisionInfo {
           changedPages == other.changedPages &&
           substitutions == other.substitutions &&
           structure == other.structure;
+}
+
+/// Save as's options (a1-11).
+class SaveAsOptions {
+  /// "Include comments and markup"; without it the document keeps its own file.
+  final bool includeComments;
+
+  /// "Remove edit history from the file": the file is rewritten whole.
+  final bool removeHistory;
+
+  const SaveAsOptions({
+    required this.includeComments,
+    required this.removeHistory,
+  });
+
+  @override
+  int get hashCode => includeComments.hashCode ^ removeHistory.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SaveAsOptions &&
+          runtimeType == other.runtimeType &&
+          includeComments == other.includeComments &&
+          removeHistory == other.removeHistory;
 }
 
 /// A saved signature file: the app owns its format.
@@ -6127,6 +6452,75 @@ class TextPosition {
           runtimeType == other.runtimeType &&
           block == other.block &&
           index == other.index;
+}
+
+/// A version as a9-8's timeline shows it.
+class VersionInfo {
+  /// Its id.
+  final BigInt id;
+
+  /// What made it.
+  final VersionKind kind;
+
+  /// When, in milliseconds since the Unix epoch.
+  final BigInt time;
+
+  /// Its size in bytes.
+  final BigInt size;
+
+  /// How many edits it holds since the version before.
+  final int edits;
+
+  /// Their names; empty for an encrypted document.
+  final List<String> names;
+
+  const VersionInfo({
+    required this.id,
+    required this.kind,
+    required this.time,
+    required this.size,
+    required this.edits,
+    required this.names,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      kind.hashCode ^
+      time.hashCode ^
+      size.hashCode ^
+      edits.hashCode ^
+      names.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VersionInfo &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          kind == other.kind &&
+          time == other.time &&
+          size == other.size &&
+          edits == other.edits &&
+          names == other.names;
+}
+
+/// What made a version (a9-8).
+enum VersionKind {
+  /// The file as it was opened, before the first save.
+  opened,
+
+  /// A save.
+  saved,
+
+  /// A save with a new simple signature.
+  signed,
+
+  /// Unsaved work kept before a restore.
+  unsaved,
+
+  /// A restore.
+  restored,
 }
 
 /// An event of a view's stream. The stream ends when the view closes, with its document or when

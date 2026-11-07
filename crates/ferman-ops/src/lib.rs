@@ -27,12 +27,16 @@
 //! - [`forms`]: AcroForm filling, appearance generation and validation without running scripts.
 //! - [`fill`]: Fill anything's lines, boxes and combs on a page without fields.
 //! - [`signatures`]: simple typed, drawn and image signatures.
-//! - `compress`: presets, image recompression and unused-object removal, as a job.
-//! - `history`: version-history snapshots.
+//! - [`compress`]: presets, the estimate, image recompression and unused-object removal; the job
+//!   is ferman-api's.
+//!
+//! Version history needs no operation here: ferman-core's `versions` keeps the saved bytes, and
+//! ferman-api's actor calls it from its saves (ADR 0022).
 #![forbid(unsafe_code)]
 
 pub mod annotations;
 pub mod combine;
+pub mod compress;
 pub mod fill;
 pub mod forms;
 pub mod images;

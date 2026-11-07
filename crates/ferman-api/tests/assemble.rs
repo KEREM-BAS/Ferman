@@ -553,7 +553,13 @@ fn a_replaced_page_keeps_its_place_and_what_went_to_it_and_undo_brings_it_back()
     assert!(same_page(&annex, 1, &current, target));
 
     let saved = dir.join("saved.pdf");
-    block_on(engine().save_as(tez.id, saved.clone(), None)).unwrap();
+    block_on(engine().save_as(
+        tez.id,
+        saved.clone(),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     let reopened = open(&saved);
     assert_eq!(reopened.pages.len(), 64);
     assert!(same_page(&annex, 1, &reopened, target));

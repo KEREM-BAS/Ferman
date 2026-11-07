@@ -55,6 +55,65 @@ void main() {
     });
   });
 
+  test('versions live beside the recovery folder (ADR 0022)', () {
+    expect(
+      versionsDirectory('/Users/a/Library/Application Support/x/Recovery'),
+      '/Users/a/Library/Application Support/x/Versions',
+    );
+    expect(
+      versionsDirectory(r'C:\Users\a\AppData\Local\Ferman\Recovery'),
+      r'C:\Users\a\AppData\Local\Ferman\Versions',
+    );
+    expect(
+      versionsDirectory('/home/a/.local/state/ferman/recovery'),
+      '/home/a/.local/state/ferman/versions',
+    );
+  });
+
+  group('FakeEngineService W4', () {
+    test('a signed document compresses only with unsign', () async {
+      final engine = FakeEngineService()..signed.add(7);
+      await expectLater(
+        engine.compressJob(
+          7,
+          preset: CompressPreset.smallest,
+          output: '/o.pdf',
+        ),
+        emitsError(isA<EngineException>()),
+      );
+      final updates = engine.compressJob(
+        7,
+        preset: CompressPreset.smallest,
+        output: '/o.pdf',
+        unsign: true,
+      );
+      expect((await updates.first).state, JobState.running);
+      expect(engine.compressJobs, ['smallest /o.pdf']);
+    });
+
+    test('Save as without comments records a copy', () async {
+      final engine = FakeEngineService();
+      await engine.saveAs(
+        7,
+        '/a.pdf',
+        options: const SaveAsOptions(includeComments: false),
+      );
+      expect(engine.copies, [(7, '/a.pdf')]);
+      expect(engine.saves, isEmpty);
+    });
+
+    test('a print streams a page per handle, unless forbidden', () async {
+      final engine = FakeEngineService();
+      final pages = await engine.printPages(7, pages: [3, 4]).toList();
+      expect(pages.map((page) => page.index), [0, 1]);
+      engine.printForbidden = true;
+      await expectLater(
+        engine.printPages(7),
+        emitsError(isA<EngineException>()),
+      );
+    });
+  });
+
   group('FakeEngineService recovery', () {
     FakeEngineService engine() => FakeEngineService()
       ..recoverable.addAll(const [

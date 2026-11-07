@@ -530,7 +530,8 @@ fn script_change(
 /// The incremental writer: `input` as a file when it opens clean, and as a script of changes to
 /// that file or to the built file or encrypted corpus file its first byte chooses. Two generations
 /// are written, each on the last: the file before stays an exact prefix, the update reopens without
-/// repair and with the same pages, and every object written reads back.
+/// repair and with the same pages, and every object written reads back. Each generation's packed
+/// rewrite reopens with its pages, and Compress's image scan of it stops at the limits.
 pub fn writer_round_trip(input: &[u8]) {
     const ENCRYPTED: [(&[u8], &str); 3] = [
         (
@@ -619,6 +620,21 @@ pub fn writer_round_trip(input: &[u8]) {
                 ),
                 Err(err) => panic!("object {id:?} does not read back: {err}"),
             }
+        }
+        // The packed rewrite (Compress, Optimize and clean) of the same revisions reopens with
+        // the same pages, and Compress's scan of them stops at the limits.
+        match store.packed_rewrite(&doc) {
+            Ok(packed) => match open_with(&packed, password) {
+                Ok(again) => {
+                    assert!(again.repair().is_none(), "the packed file needs repair");
+                    assert_eq!(again.page_count(), store.pages(&doc).len(), "packed pages");
+                }
+                Err(err) => assert!(expected(&err), "the packed file: {err}"),
+            },
+            Err(err) => assert!(expected(&err), "the packed writer: {err}"),
+        }
+        if let Err(err) = store.image_scan(&doc) {
+            assert!(expected(&err), "the image scan: {err}");
         }
         bytes = saved;
     }

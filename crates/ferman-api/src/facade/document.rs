@@ -334,6 +334,8 @@ impl Engine {
     ) -> Result<OpenedDocument, ApiError> {
         guard_async(async move {
             self.render()?;
+            // Versions past 30 days go at each open (ADR 0022).
+            self.versions.purge_soon();
             let (source, model, first) = parse(path.clone(), password.clone()).await?;
             self.register(path, password, &source, model, first, |_| {})
                 .await

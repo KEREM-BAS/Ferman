@@ -3427,3 +3427,184 @@ class SavedSignatureFile {
   /// What the app wrote.
   final Uint8List bytes;
 }
+
+/// Save as's options (a1-11, B138).
+@immutable
+class SaveAsOptions {
+  /// Creates options; the default writes what Save writes.
+  const new({this.includeComments = true, this.removeHistory = false});
+
+  /// "Include comments and markup". Without it the file has no markup
+  /// annotations and the document keeps its own file, as for a copy.
+  final bool includeComments;
+
+  /// "Remove edit history from the file": rewritten whole, without earlier
+  /// revisions or deleted pages; it breaks signatures.
+  final bool removeHistory;
+}
+
+/// a9-1's presets; Custom… has no form drawn (B182).
+enum CompressPreset {
+  /// Images at 300 ppi, for printing.
+  highQuality,
+
+  /// Images at 150 ppi, for sharing and reading on screen.
+  balanced,
+
+  /// Images at 96 ppi, for e-mail.
+  smallest,
+}
+
+/// A preset's estimated result.
+@immutable
+class CompressEstimate {
+  /// Creates an estimate.
+  const new({
+    required this.preset,
+    required this.after,
+    this.exact = false,
+    this.sampled = 0,
+  });
+
+  /// The preset.
+  final CompressPreset preset;
+
+  /// The estimated size after, in bytes.
+  final int after;
+
+  /// Whether every image was recompressed for it.
+  final bool exact;
+
+  /// How many images it recompressed ("Estimated from …").
+  final int sampled;
+}
+
+/// What Compress would do to a document (a9-1).
+@immutable
+class CompressAnalysis {
+  /// Creates an analysis.
+  const new({
+    required this.before,
+    this.estimates = const [],
+    this.images = 0,
+    this.unreadable = 0,
+    this.masks = 0,
+    this.patterns = 0,
+    this.duplicateFonts = 0,
+    this.thumbnails = 0,
+    this.signed = false,
+  });
+
+  /// The size now, in bytes.
+  final int before;
+
+  /// High quality, Balanced and Smallest, in that order.
+  final List<CompressEstimate> estimates;
+
+  /// The images it may recompress.
+  final int images;
+
+  /// Images in a format or colour it does not decode, left as they are.
+  final int unreadable;
+
+  /// Masks and images with a colour-key mask, left as they are.
+  final int masks;
+
+  /// Images drawn only through patterns, left as they are.
+  final int patterns;
+
+  /// Duplicate font copies merged.
+  final int duplicateFonts;
+
+  /// Pages whose thumbnail goes.
+  final int thumbnails;
+
+  /// Whether the document is signed: warn first; the copy has no signatures.
+  final bool signed;
+}
+
+/// What made a version (a9-8).
+enum VersionKind {
+  /// The file as it was opened, before the first save.
+  opened,
+
+  /// A save.
+  saved,
+
+  /// A save with a new simple signature.
+  signed,
+
+  /// Unsaved work kept before a restore.
+  unsaved,
+
+  /// A restore.
+  restored,
+}
+
+/// A version as a9-8's timeline shows it.
+@immutable
+class VersionInfo {
+  /// Creates a version.
+  const new({
+    required this.id,
+    required this.kind,
+    required this.time,
+    required this.size,
+    this.edits = 0,
+    this.names = const [],
+  });
+
+  /// Its id.
+  final int id;
+
+  /// What made it.
+  final VersionKind kind;
+
+  /// When, in milliseconds since the Unix epoch.
+  final int time;
+
+  /// Its size in bytes.
+  final int size;
+
+  /// How many edits it holds since the version before.
+  final int edits;
+
+  /// Their names; empty for an encrypted document (decision 28).
+  final List<String> names;
+}
+
+/// One rendered page of a print (a9-6), for the platform's print channel.
+@immutable
+class PrintPage {
+  /// Creates a page.
+  const new({
+    required this.index,
+    required this.widthPoints,
+    required this.heightPoints,
+    required this.dpi,
+    required this.width,
+    required this.height,
+    required this.pixels,
+  });
+
+  /// Its index in the document, from 0.
+  final int index;
+
+  /// Its width as displayed, in points.
+  final double widthPoints;
+
+  /// Its height as displayed, in points.
+  final double heightPoints;
+
+  /// The resolution it is rendered at.
+  final int dpi;
+
+  /// Its width in device pixels.
+  final int width;
+
+  /// Its height in device pixels.
+  final int height;
+
+  /// 8-bit BGRA, opaque, the top row first.
+  final Uint8List pixels;
+}

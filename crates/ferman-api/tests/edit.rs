@@ -12,8 +12,8 @@ use std::path::PathBuf;
 use std::sync::OnceLock;
 
 use ferman_api::facade::{
-    Engine, EngineConfig, ErrorKind, MessageKey, PageBlocks, Password, PdfiumLibrary, block_on,
-    compare,
+    Engine, EngineConfig, ErrorKind, JobEvent, JobResult, JobSink, MessageKey, PageBlocks,
+    Password, PdfiumLibrary, block_on, compare,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -31,6 +31,27 @@ fn corpus(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/corpus/generated")
         .join(format!("{name}.pdf"))
+}
+
+struct Events(std::sync::mpsc::Sender<JobEvent>);
+
+impl JobSink for Events {
+    fn deliver(&mut self, event: JobEvent) {
+        let _ = self.0.send(event);
+    }
+}
+
+/// Optimize and clean as its job, to its end.
+fn optimized(doc: ferman_api::facade::DocumentId) -> JobResult {
+    let (sender, events) = std::sync::mpsc::channel();
+    engine()
+        .optimize_and_clean_job(doc, None, Box::new(Events(sender)))
+        .unwrap();
+    loop {
+        if let Some(result) = events.recv().unwrap().result {
+            return result;
+        }
+    }
 }
 
 fn lines(page: &PageBlocks) -> String {
@@ -362,7 +383,9 @@ fn a_signed_document_commits_only_after_its_confirmation() {
     // Closing ends the confirmation: the file still counts as signed and asks again.
     let reopened = block_on(engine().open(path.clone(), None)).unwrap();
     assert!(reopened.signed);
-    let err = block_on(engine().optimize_and_clean(reopened.id, None)).unwrap_err();
+    let JobResult::Failed(err) = optimized(reopened.id) else {
+        panic!("Optimize and clean ran without the confirmation");
+    };
     assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
 
     // "Edit a copy": the working copy is another file, unsigned, and asks nothing.

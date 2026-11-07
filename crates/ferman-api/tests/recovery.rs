@@ -79,7 +79,13 @@ fn child(dir: &Path) -> ! {
         .unwrap()
         .id;
     edit(doc, "18.500", "19.500");
-    block_on(engine().save_copy(doc, dir.join("expected.pdf"), None)).unwrap();
+    block_on(engine().save_copy(
+        doc,
+        dir.join("expected.pdf"),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     let payslip = block_on(engine().open(
         dir.join("payslip.pdf"),
         Some(Password::new(USER.to_owned())),
@@ -303,7 +309,13 @@ fn a_killed_instance_is_restored_from_its_journal() {
     let doc = restored.opened.id;
     assert_eq!(block_on(engine().history(doc)).unwrap().current, 1);
     assert!(text(&block_on(engine().text_blocks(doc, 0)).unwrap()).contains("19.500"));
-    block_on(engine().save_copy(doc, dir.join("restored.pdf"), None)).unwrap();
+    block_on(engine().save_copy(
+        doc,
+        dir.join("restored.pdf"),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     assert_eq!(
         without_id(&std::fs::read(dir.join("restored.pdf")).unwrap()),
         without_id(&std::fs::read(dir.join("expected.pdf")).unwrap()),

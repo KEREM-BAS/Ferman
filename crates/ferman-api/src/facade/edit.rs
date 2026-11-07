@@ -79,6 +79,7 @@ use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
 use ferman_core::structure::{LabelRange, OpGate};
+use ferman_core::versions::{KEEP, NewVersion, VersionKind};
 use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_ops::pages::{Margins, PageFit};
@@ -96,6 +97,7 @@ use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
 use super::recovery::Recovery;
 use super::text::{PageBlocks, page_blocks_info};
+use super::versions::VersionConfig;
 
 /// The stack of an actor thread: the interpreter recurses into nested objects, bounded by the
 /// limits, as the open and layout threads do.
@@ -369,11 +371,35 @@ pub struct Reverted {
 }
 
 /// A message to an actor: a call to run on its session.
-type Job = Box<dyn FnOnce(&mut Session) + Send>;
+pub(super) type Job = Box<dyn FnOnce(&mut Session) + Send>;
 
 /// An actor's mailbox. Dropping it ends the thread after the job it is running.
 #[derive(Debug)]
 pub(super) struct Actor(mpsc::Sender<Job>);
+
+/// Save as's options (a1-11).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SaveOptions {
+    /// "Include comments and markup": without it the file is written without its markup
+    /// annotations and their pop-ups, and the document keeps its own file, as for a copy.
+    // shortcut: a save without comments does not move the document, because its revisions still
+    // hold them; move it once leaving them out is a step of the history the UI can name.
+    pub include_comments: bool,
+    /// "Remove edit history from the file": the file is rewritten whole (packed), without earlier
+    /// revisions, unused objects or deleted pages (B138, question 5 of the M4 plan), and later
+    /// saves of a document that moved to it rewrite it too. It breaks signatures, as Optimize and
+    /// clean does.
+    pub remove_history: bool,
+}
+
+impl Default for SaveOptions {
+    fn default() -> Self {
+        Self {
+            include_comments: true,
+            remove_history: false,
+        }
+    }
+}
 
 /// Where a save writes.
 pub(super) enum SaveTarget {
@@ -405,6 +431,9 @@ struct Staged {
     stamp: FileStamp,
     written: Written,
     revision: usize,
+    /// The version kept for it, which goes when the swap does not happen: its file's path, the
+    /// hash its folder answers to and its id.
+    version: Option<(PathBuf, [u8; 32], u64)>,
 }
 
 /// Whether `a` and `b` name the same file, links resolved. On Unix the file's identity decides:
@@ -464,6 +493,13 @@ pub(super) struct Session {
     confirmation: Option<ConfirmationToken>,
     /// The write waiting for its swap.
     staged: Option<Staged>,
+    /// Version history's folder and switch, shared by the actors (ADR 0022).
+    versions: Arc<VersionConfig>,
+    /// Whether the file as opened is kept as a version, which the first save does.
+    opened_kept: bool,
+    /// Whether a simple signature was committed since the last save: the next save's version is
+    /// a signature's (a9-8).
+    signed_since_save: bool,
 }
 
 /// The open transaction.
@@ -498,13 +534,14 @@ struct Open {
 impl Session {
     #[cfg(test)]
     pub(super) fn new(model: Arc<Model>) -> Self {
-        Self::with_engine(model, Arc::default(), Arc::default())
+        Self::with_engine(model, Arc::default(), Arc::default(), Arc::default())
     }
 
     pub(super) fn with_engine(
         model: Arc<Model>,
         fonts: Arc<Fonts>,
         recovery_config: Arc<Recovery>,
+        versions: Arc<VersionConfig>,
     ) -> Self {
         let committed = Arc::clone(&model.revised().store);
         let path = model.path.clone();
@@ -545,6 +582,9 @@ impl Session {
             recovery_failed: false,
             confirmation: None,
             staged: None,
+            versions,
+            opened_kept: false,
+            signed_since_save: false,
         }
     }
 
@@ -1458,6 +1498,8 @@ impl Session {
 
     /// Writes `bytes` as the file at `path`, checking the document's stamp with `check`: at once,
     /// or with `staging` as far as the swap, whose staged path it returns.
+    /// `version` is the kind of version the written file becomes (ADR 0022), kept once it is
+    /// written; `None` for a file that is not the document's.
     fn put(
         &mut self,
         path: PathBuf,
@@ -1465,12 +1507,16 @@ impl Session {
         check: bool,
         staging: Option<&Path>,
         written: Written,
+        version: Option<VersionKind>,
     ) -> Result<Option<PathBuf>, ApiError> {
         let expected = check.then_some(&self.stamp);
         let revision = self.committed.current();
         let Some(staging) = staging else {
             let stamp = ferman_core::save::save_pdf(&path, bytes, original, expected)
                 .map_err(|err| self.save_failure(err))?;
+            if let Some(kind) = version {
+                self.keep_version(&path, bytes, kind);
+            }
             self.wrote(path, stamp, written, revision);
             return Ok(None);
         };
@@ -1479,15 +1525,97 @@ impl Session {
                 .map_err(|err| self.save_failure(err))?;
         if let Some(earlier) = self.staged.take() {
             let _ = std::fs::remove_file(earlier.staged);
+            self.forget_version(earlier.version);
         }
+        // Kept now, while the bytes are at hand; it goes if the swap does not happen.
+        let version = version.and_then(|kind| {
+            let kept = self.keep_version(&path, bytes, kind)?;
+            Some((path.clone(), ferman_core::versions::sha256(bytes), kept))
+        });
         self.staged = Some(Staged {
             staged: staged.clone(),
             path,
             stamp,
             written,
             revision,
+            version,
         });
         Ok(Some(staged))
+    }
+
+    /// Keeps `bytes`, which the file at `path` holds now, as a version of `kind`, after the file
+    /// as opened if no save kept it yet, and purges the versions past [`KEEP`]. Returns the new
+    /// version's id. A failure is logged and never fails the save.
+    fn keep_version(&mut self, path: &Path, bytes: &[u8], kind: VersionKind) -> Option<u64> {
+        let versions = self.versions.store()?;
+        let encrypted = self.model.document.encryption().is_some();
+        // The folder of the file the document had: by its hash only when the path is its own.
+        let last = if same_file(path, &self.path) {
+            self.stamp.sha256
+        } else {
+            [0; 32]
+        };
+        let now = SystemTime::now();
+        if !self.opened_kept && kind != VersionKind::Unsaved {
+            self.opened_kept = true;
+            let source = self.model.document.source().bytes();
+            let opened = NewVersion {
+                kind: VersionKind::Opened,
+                edits: 0,
+                names: Vec::new(),
+                encrypted,
+            };
+            if let Err(err) = versions.add(path, &last, source, &opened, now) {
+                tracing::warn!(error = %err, "the version before the first save was not kept");
+            }
+        }
+        let since = self.saved.unwrap_or(0).min(self.committed.current());
+        let names: Vec<String> = self
+            .steps
+            .get(since..self.committed.current())
+            .unwrap_or_default()
+            .iter()
+            .map(|step| step.name.clone())
+            .filter(|name| !name.is_empty())
+            .collect();
+        let kind = if kind == VersionKind::Saved && self.signed_since_save {
+            VersionKind::Signed
+        } else {
+            kind
+        };
+        let edits = self.committed.current().saturating_sub(since);
+        let version = NewVersion {
+            kind,
+            edits: u32::try_from(edits).unwrap_or(u32::MAX),
+            names,
+            encrypted,
+        };
+        let kept = match versions.add(path, &last, bytes, &version, now) {
+            Ok(kept) => kept.map(|kept| kept.id),
+            Err(err) => {
+                tracing::warn!(error = %err, "a version was not kept");
+                None
+            }
+        };
+        if kind != VersionKind::Unsaved {
+            self.signed_since_save = false;
+        }
+        versions.purge(now, KEEP);
+        kept
+    }
+
+    /// Deletes a version kept for a staged write that was not swapped in.
+    fn forget_version(&self, version: Option<(PathBuf, [u8; 32], u64)>) {
+        if let (Some((path, sha, id)), Some(versions)) = (version, self.versions.store())
+            && let Err(err) = versions.remove(&path, &sha, id)
+        {
+            tracing::warn!(error = %err, "a version of a write that failed stays");
+        }
+    }
+
+    /// Notes a simple signature, which makes the next save's version a signature's.
+    pub(super) fn signed_now(&mut self) {
+        self.signed_since_save = true;
     }
 
     /// What a write that reached `path` changes.
@@ -1517,14 +1645,17 @@ impl Session {
             self.wrote(staged.path, stamp, staged.written, staged.revision);
         } else {
             let _ = std::fs::remove_file(staged.staged);
+            self.forget_version(staged.version);
         }
         Ok(self.recovery_failed)
     }
 
-    /// Writes the committed revisions as `target` says. An open transaction is not saved.
+    /// Writes the committed revisions as `target` says, with Save as's `options`. An open
+    /// transaction is not saved.
     pub(super) fn save(
         &mut self,
         target: SaveTarget,
+        options: SaveOptions,
         staging: Option<&Path>,
     ) -> Result<Option<PathBuf>, ApiError> {
         let own_file = match &target {
@@ -1532,9 +1663,17 @@ impl Session {
             SaveTarget::As(path) | SaveTarget::Copy(path) => same_file(path, &self.path),
         };
         // The unchanged file copied elsewhere keeps its signature valid.
-        if own_file || self.committed.current() > 0 || self.rewritten {
+        if own_file
+            || self.committed.current() > 0
+            || self.rewritten
+            || options != SaveOptions::default()
+        {
             self.confirmed()?;
         }
+        let target = match target {
+            SaveTarget::As(path) if !options.include_comments => SaveTarget::Copy(path),
+            target => target,
+        };
         let (path, check, moves) = match target {
             SaveTarget::File { over_change } => (self.path.clone(), !over_change, true),
             SaveTarget::As(path) => {
@@ -1548,43 +1687,139 @@ impl Session {
             }
         };
         let model = Arc::clone(&self.model);
-        let (bytes, original) = if self.rewritten {
+        let rewrite = self.rewritten || options.remove_history;
+        if rewrite && model.document.repair().is_some() {
+            return Err(self.unwritten(CoreError::Write(WriteError::Repaired)));
+        }
+        let mut store = Arc::clone(&self.committed);
+        if !options.include_comments {
+            let working = Arc::make_mut(&mut store);
+            let removed = working
+                .begin()
+                .and_then(|()| working.remove_markup(&model.document))
+                .and_then(|_| working.commit().map(drop));
+            removed.map_err(|err| self.unwritten(err))?;
+        }
+        let (bytes, original) = if rewrite {
             (
-                self.committed
-                    .full_rewrite(&model.document)
+                store
+                    .packed_rewrite(&model.document)
                     .map_err(|err| self.unwritten(err))?,
                 None,
             )
         } else {
             let original: &[u8] = model.document.source().bytes();
             (
-                self.bytes().map_err(|err| self.unwritten(err))?,
+                store
+                    .incremental_update(&model.document)
+                    .map_err(|err| self.unwritten(err))?,
                 Some(original),
             )
         };
-        let written = if moves {
-            Written::Saved
-        } else {
-            Written::Elsewhere
+        let (written, version) = match (moves, options.remove_history) {
+            (true, true) => (Written::Rewritten, Some(VersionKind::Saved)),
+            (true, false) => (Written::Saved, Some(VersionKind::Saved)),
+            (false, _) => (Written::Elsewhere, None),
         };
-        self.put(path, (&bytes, original), check, staging, written)
+        self.put(path, (&bytes, original), check, staging, written, version)
     }
 
-    /// Optimize and clean: the document's file rewritten whole (docs/ARCHITECTURE.md §7.3).
+    /// Optimize and clean at once, as its job does it in two parts.
+    #[cfg(test)]
     pub(super) fn optimize_and_clean(
         &mut self,
         staging: Option<&Path>,
     ) -> Result<Option<PathBuf>, ApiError> {
+        self.may_rewrite()?;
+        let bytes = self
+            .committed
+            .packed_rewrite(&self.model.document)
+            .map_err(|err| self.unwritten(err))?;
+        let generation = self.published_generation();
+        self.write_rewritten(&bytes, generation, staging)
+    }
+
+    /// Whether Optimize and clean may run: not on a repaired document, and on a signed one only
+    /// after its confirmation.
+    pub(super) fn may_rewrite(&self) -> Result<(), ApiError> {
         self.confirmed()?;
         if self.model.document.repair().is_some() {
             return Err(CoreError::Write(WriteError::Repaired).into());
         }
-        let bytes = self
-            .committed
-            .full_rewrite(&self.model.document)
-            .map_err(|err| self.unwritten(err))?;
+        Ok(())
+    }
+
+    /// Optimize and clean's write (docs/ARCHITECTURE.md §7.3): `bytes`, the committed revisions
+    /// as published at `generation` rewritten whole by its job, as the document's file; later
+    /// saves rewrite it too. Refused with [`JOB_STALE`](super::jobs::JOB_STALE) when the document
+    /// moved since.
+    pub(super) fn write_rewritten(
+        &mut self,
+        bytes: &[u8],
+        generation: u64,
+        staging: Option<&Path>,
+    ) -> Result<Option<PathBuf>, ApiError> {
+        self.closed()?;
+        self.may_rewrite()?;
+        if self.published_generation() != generation {
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details(super::jobs::JOB_STALE));
+        }
         let path = self.path.clone();
-        self.put(path, (&bytes, None), true, staging, Written::Rewritten)
+        self.put(
+            path,
+            (bytes, None),
+            true,
+            staging,
+            Written::Rewritten,
+            Some(VersionKind::Saved),
+        )
+    }
+
+    /// Restores version `id` of the document's file (a9-8, decision 27): unsaved work becomes a
+    /// version first, then the version's bytes replace the file whole after the external-change
+    /// check, the recovery journal goes, and the restore is a version of its own. The document's
+    /// revisions stay as they were: the app opens the file again.
+    pub(super) fn restore_version(
+        &mut self,
+        id: u64,
+        staging: Option<&Path>,
+    ) -> Result<Option<PathBuf>, ApiError> {
+        self.closed()?;
+        let versions = self.versions.store().ok_or_else(|| {
+            ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL)
+                .with_details("version history is off")
+        })?;
+        let bytes = versions
+            .read(&self.path, &self.stamp.sha256, id)
+            .map_err(ApiError::from)?;
+        if self.stamp.changed(&self.path)? {
+            return Err(self.unwritten(CoreError::Save(ferman_core::SaveError::ChangedOnDisk)));
+        }
+        let unsaved = self
+            .saved
+            .is_none_or(|saved| saved != self.committed.current());
+        if unsaved {
+            let current = self.bytes()?;
+            let path = self.path.clone();
+            self.keep_version(&path, &current, VersionKind::Unsaved);
+        }
+        let path = self.path.clone();
+        let staged = self.put(
+            path,
+            (&bytes, None),
+            true,
+            staging,
+            Written::Stamped,
+            Some(VersionKind::Restored),
+        )?;
+        self.discard_recovery();
+        Ok(staged)
+    }
+
+    /// The file's path and the hash its versions are found by.
+    pub(super) fn version_key(&self) -> (PathBuf, [u8; 32]) {
+        (self.path.clone(), self.stamp.sha256)
     }
 
     /// A repaired document rewritten whole as the file at `path`; its own file only with
@@ -1610,7 +1845,14 @@ impl Session {
         } else {
             Written::Elsewhere
         };
-        self.put(path.to_owned(), (&bytes, None), original, staging, written)
+        self.put(
+            path.to_owned(),
+            (&bytes, None),
+            original,
+            staging,
+            written,
+            None,
+        )
     }
 
     /// The working copy of "Edit a copy": the committed revisions rewritten whole and unsigned
@@ -1634,6 +1876,7 @@ impl Session {
             false,
             staging,
             Written::Elsewhere,
+            None,
         )
     }
 
@@ -1798,6 +2041,25 @@ impl Session {
             Arc::clone(&self.committed),
         )))
     }
+}
+
+/// Runs `job` on the actor of `mailbox` and waits for it, from a thread that is no FRB worker
+/// (a job's).
+pub(super) fn ask_blocking<T: Send + 'static>(
+    mailbox: &mpsc::Sender<Job>,
+    job: impl FnOnce(&mut Session) -> Result<T, ApiError> + Send + 'static,
+) -> Result<T, ApiError> {
+    let (reply, receiver) = mpsc::channel();
+    let job: Job = Box::new(move |session| {
+        let result = guard(AssertUnwindSafe(|| job(session)));
+        let _ = reply.send(result);
+    });
+    mailbox
+        .send(job)
+        .map_err(|_| ApiError::internal("the edit actor stopped"))?;
+    receiver
+        .recv()
+        .map_err(|_| ApiError::internal("the edit actor stopped"))?
 }
 
 /// Now, in milliseconds since the Unix epoch.
@@ -2554,8 +2816,13 @@ impl Engine {
         document: DocumentId,
         staging: Option<PathBuf>,
     ) -> Result<Option<PathBuf>, ApiError> {
-        self.save_to(document, SaveTarget::File { over_change: false }, staging)
-            .await
+        self.save_to(
+            document,
+            SaveTarget::File { over_change: false },
+            SaveOptions::default(),
+            staging,
+        )
+        .await
     }
 
     /// Saves as [`save`](Self::save) does, over a file that changed on disk ("Keep mine",
@@ -2569,23 +2836,33 @@ impl Engine {
         document: DocumentId,
         staging: Option<PathBuf>,
     ) -> Result<Option<PathBuf>, ApiError> {
-        self.save_to(document, SaveTarget::File { over_change: true }, staging)
-            .await
+        self.save_to(
+            document,
+            SaveTarget::File { over_change: true },
+            SaveOptions::default(),
+            staging,
+        )
+        .await
     }
 
-    /// Saves the committed revisions as the file at `path`, as [`save`](Self::save) does; later
-    /// saves write to `path`.
+    /// Saves the committed revisions as the file at `path`, as [`save`](Self::save) does, with
+    /// Save as's `options` (a1-11); later saves write to `path`, unless the options leave the
+    /// comments out ([`SaveOptions::include_comments`]).
     ///
     /// # Errors
     ///
-    /// As [`save`](Self::save); `FileChangedOnDisk` only when `path` is the document's file.
+    /// As [`save`](Self::save); `FileChangedOnDisk` only when `path` is the document's file;
+    /// `Unsupported` for Remove edit history on a repaired document. Options other than the
+    /// default ask a signed document's confirmation.
     pub async fn save_as(
         &self,
         document: DocumentId,
         path: PathBuf,
+        options: SaveOptions,
         staging: Option<PathBuf>,
     ) -> Result<Option<PathBuf>, ApiError> {
-        self.save_to(document, SaveTarget::As(path), staging).await
+        self.save_to(document, SaveTarget::As(path), options, staging)
+            .await
     }
 
     /// Saves a copy of the committed revisions as the file at `path`; later saves still write
@@ -2598,9 +2875,10 @@ impl Engine {
         &self,
         document: DocumentId,
         path: PathBuf,
+        options: SaveOptions,
         staging: Option<PathBuf>,
     ) -> Result<Option<PathBuf>, ApiError> {
-        self.save_to(document, SaveTarget::Copy(path), staging)
+        self.save_to(document, SaveTarget::Copy(path), options, staging)
             .await
     }
 
@@ -2608,11 +2886,12 @@ impl Engine {
         &self,
         document: DocumentId,
         target: SaveTarget,
+        options: SaveOptions,
         staging: Option<PathBuf>,
     ) -> Result<Option<PathBuf>, ApiError> {
         guard_async(async move {
             self.ask(document, move |session| {
-                session.save(target, staging.as_deref())
+                session.save(target, options, staging.as_deref())
             })
             .await
         })
@@ -2635,28 +2914,47 @@ impl Engine {
         .await
     }
 
-    /// Optimize and clean (docs/ARCHITECTURE.md §7.3): the document's file rewritten whole,
-    /// without earlier revisions and unreferenced objects, streams compressed, encrypted with
-    /// its own key; later saves rewrite it whole too. It breaks signatures, so the UI asks
+    /// Optimize and clean (docs/ARCHITECTURE.md §7.3) as a job (ADR 0009): the document's file
+    /// rewritten whole, without earlier revisions, unreferenced objects or deleted pages, objects
+    /// packed into object streams, encrypted with its own key; later saves rewrite it whole too.
+    /// The job writes the bytes off the actor from the revisions as published when it starts, and
+    /// the actor puts them in place through the save sequence, refused if the document moved
+    /// since. It breaks signatures, so the UI asks
     /// [`would_break_signatures`](Self::would_break_signatures) and warns first, and on a signed
-    /// document it needs [`confirm_edit_signed`](Self::confirm_edit_signed).
+    /// document it needs [`confirm_edit_signed`](Self::confirm_edit_signed). The job's output is
+    /// the document's file, staged in `staging` when given, for [`finish_save`](Self::finish_save).
     ///
     /// # Errors
     ///
-    /// As [`save`](Self::save), `ConfirmationRequired` even for an unchanged document;
-    /// `Unsupported` for a repaired document.
-    pub async fn optimize_and_clean(
+    /// `NotFound` for a document that is not open. The job fails with `ConfirmationRequired`,
+    /// `Unsupported` for a repaired document, and what [`save`](Self::save) fails with.
+    pub fn optimize_and_clean_job(
         &self,
         document: DocumentId,
         staging: Option<PathBuf>,
-    ) -> Result<Option<PathBuf>, ApiError> {
-        guard_async(async move {
-            self.ask(document, move |session| {
-                session.optimize_and_clean(staging.as_deref())
+        sink: Box<dyn super::jobs::JobSink>,
+    ) -> Result<super::jobs::JobId, ApiError> {
+        guard(AssertUnwindSafe(|| {
+            let mailbox = self.actor(document)?;
+            let snapshot = self.job_snapshot(document)?;
+            let generation = snapshot.generation();
+            let read = snapshot.clone();
+            self.start_job(Some(&read), sink, move |run| {
+                ask_blocking(&mailbox, |session| session.may_rewrite())?;
+                run.checkpoint()?;
+                let bytes = snapshot
+                    .store()
+                    .packed_rewrite(snapshot.base())
+                    .map_err(ApiError::from)?;
+                run.checkpoint()?;
+                let (path, staged) = ask_blocking(&mailbox, move |session| {
+                    let staged = session.write_rewritten(&bytes, generation, staging.as_deref())?;
+                    Ok((session.version_key().0, staged))
+                })?;
+                run.done_output(path, staged);
+                Ok(None)
             })
-            .await
-        })
-        .await
+        }))
     }
 
     /// Writes a repaired document (a1-9) rewritten whole as the file at `path` (B103). Its own
@@ -2818,7 +3116,7 @@ impl Engine {
     }
 
     /// The mailbox of `document`'s actor, which starts with its first call.
-    fn actor(&self, document: DocumentId) -> Result<mpsc::Sender<Job>, ApiError> {
+    pub(super) fn actor(&self, document: DocumentId) -> Result<mpsc::Sender<Job>, ApiError> {
         let mut actors = self.actors.lock().unwrap_or_else(PoisonError::into_inner);
         if let Some(Actor(mailbox)) = actors.get(&document) {
             return Ok(mailbox.clone());
@@ -2830,12 +3128,13 @@ impl Engine {
             .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
         let fonts = Arc::clone(&self.fonts);
         let recovery = Arc::clone(&self.recovery);
+        let versions = Arc::clone(&self.versions);
         let (mailbox, inbox) = mpsc::channel::<Job>();
         thread::Builder::new()
             .name("ferman-edit".to_owned())
             .stack_size(ACTOR_STACK)
             .spawn(move || {
-                let mut session = Session::with_engine(model, fonts, recovery);
+                let mut session = Session::with_engine(model, fonts, recovery, versions);
                 loop {
                     match inbox.recv_timeout(SYNC_INTERVAL) {
                         Ok(job) => job(&mut session),
@@ -3216,17 +3515,27 @@ mod tests {
         let tx = session.begin(0, block.id).unwrap();
         assert_eq!(session.commit(tx, "Nothing".to_owned()).unwrap().0, 0);
 
-        refused(session.save(SaveTarget::File { over_change: false }, None));
-        refused(session.save(SaveTarget::File { over_change: true }, None));
-        refused(session.save(SaveTarget::As(path.clone()), None));
-        refused(session.save(SaveTarget::Copy(path.clone()), None));
+        refused(session.save(
+            SaveTarget::File { over_change: false },
+            SaveOptions::default(),
+            None,
+        ));
+        refused(session.save(
+            SaveTarget::File { over_change: true },
+            SaveOptions::default(),
+            None,
+        ));
+        refused(session.save(SaveTarget::As(path.clone()), SaveOptions::default(), None));
+        refused(session.save(SaveTarget::Copy(path.clone()), SaveOptions::default(), None));
         refused(session.optimize_and_clean(None));
         refused(session.save_repaired_copy(&dir.join("fixed.pdf"), false, None));
         assert_eq!(std::fs::read(&path).unwrap(), before);
 
         // The unchanged file copied elsewhere keeps its signature valid.
         let copy = dir.join("copy.pdf");
-        session.save(SaveTarget::Copy(copy.clone()), None).unwrap();
+        session
+            .save(SaveTarget::Copy(copy.clone()), SaveOptions::default(), None)
+            .unwrap();
         assert_eq!(std::fs::read(&copy).unwrap(), before);
 
         // The working copy is unsigned, and never the original.
@@ -3247,7 +3556,11 @@ mod tests {
         edit(&mut session, "18.500", "19.500", "Edited");
         assert!(session.history().signature_invalidated);
         session
-            .save(SaveTarget::File { over_change: false }, None)
+            .save(
+                SaveTarget::File { over_change: false },
+                SaveOptions::default(),
+                None,
+            )
             .unwrap();
         let saved = std::fs::read(&path).unwrap();
         assert_eq!(saved.get(..before.len()), Some(before.as_slice()));
@@ -3269,9 +3582,13 @@ mod tests {
         let mut restored = Session::new(Arc::clone(&session.model));
         assert_eq!(restored.current(), 1);
         assert!(restored.history().signature_invalidated);
-        refused(restored.save(SaveTarget::File { over_change: false }, None));
+        refused(restored.save(
+            SaveTarget::File { over_change: false },
+            SaveOptions::default(),
+            None,
+        ));
         let copy = dir.join("copy.pdf");
-        refused(restored.save(SaveTarget::Copy(copy.clone()), None));
+        refused(restored.save(SaveTarget::Copy(copy.clone()), SaveOptions::default(), None));
         assert!(!copy.exists());
         assert_eq!(std::fs::read(&path).unwrap(), before);
         std::fs::remove_dir_all(&dir).unwrap();
@@ -4100,7 +4417,7 @@ mod tests {
             std::fs::read(&own).unwrap()
         );
         // A save deletes them; an undo past it makes them again.
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         assert!(!dir.exists());
         session.undo().unwrap();
         assert!(dir.join("journal.log").is_file());
@@ -4138,9 +4455,11 @@ mod tests {
         let dir = own.parent().unwrap().to_path_buf();
         let original = std::fs::read(&own).unwrap();
         edit(&mut session, "Monday", "Friday", "Edited text");
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         // A copy over its own file is a save: the next save does not see a change on disk.
-        session.save(SaveTarget::Copy(own.clone()), None).unwrap();
+        session
+            .save(SaveTarget::Copy(own.clone()), SaveOptions::default(), None)
+            .unwrap();
         assert!(!session.external_change().unwrap());
         let written = std::fs::read(&own).unwrap();
         assert_eq!(written.get(..original.len()), Some(original.as_slice()));
@@ -4157,14 +4476,18 @@ mod tests {
 
         // A copy does not move the document's file.
         let copy = dir.join("copy.pdf");
-        session.save(SaveTarget::Copy(copy.clone()), None).unwrap();
+        session
+            .save(SaveTarget::Copy(copy.clone()), SaveOptions::default(), None)
+            .unwrap();
         assert_eq!(std::fs::read(&copy).unwrap().len(), written.len());
         assert_eq!(session.path, own);
 
         let other = dir.join("other.pdf");
-        session.save(SaveTarget::As(other.clone()), None).unwrap();
+        session
+            .save(SaveTarget::As(other.clone()), SaveOptions::default(), None)
+            .unwrap();
         session.undo().unwrap();
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         assert_eq!(
             std::fs::read(&other).unwrap(),
             original,
@@ -4181,13 +4504,15 @@ mod tests {
         edit(&mut session, "Monday", "Friday", "Edited text");
         let link = own.with_file_name("link.pdf");
         std::fs::hard_link(&own, &link).unwrap();
-        let err = session.save(file(), None).unwrap_err();
+        let err = session
+            .save(file(), SaveOptions::default(), None)
+            .unwrap_err();
         assert_eq!(err.kind, ErrorKind::HardLinked);
         assert!(err.offer_save_as);
         assert_eq!(std::fs::read(&own).unwrap(), original);
         assert_eq!(session.current(), 1, "the edit is kept");
         std::fs::remove_file(&link).unwrap();
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         let text = ferman_text::extract::page_text(
             &ferman_core::open(
                 &ferman_core::Source::read(&own).unwrap(),
@@ -4212,7 +4537,10 @@ mod tests {
         edit(&mut session, "Monday", "Friday", "Edited text");
 
         // Stage: the file, the stamp and the saved revision stay until the swap.
-        let staged = session.save(file(), Some(&staging)).unwrap().unwrap();
+        let staged = session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap()
+            .unwrap();
         assert_eq!(staged.parent(), Some(staging.as_path()));
         assert_eq!(std::fs::read(&own).unwrap(), original);
         assert_eq!(session.stamp, stamp);
@@ -4233,7 +4561,10 @@ mod tests {
         );
 
         // The swap, then the finish: the next save sees its own file.
-        let staged = session.save(file(), Some(&staging)).unwrap().unwrap();
+        let staged = session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap()
+            .unwrap();
         let written = std::fs::read(&staged).unwrap();
         std::fs::rename(&staged, &own).unwrap();
         assert_eq!(session.saved, Some(0), "not recorded yet");
@@ -4242,12 +4573,19 @@ mod tests {
         assert_eq!(session.saved, Some(1));
         assert!(!session.external_change().unwrap());
         assert!(written.starts_with(&original));
-        assert_eq!(session.save(file(), None).unwrap(), None);
+        assert_eq!(
+            session.save(file(), SaveOptions::default(), None).unwrap(),
+            None
+        );
 
         // Save as moves the document only at the finish; a copy elsewhere never does.
         let other = dir.join("other.pdf");
         let staged = session
-            .save(SaveTarget::As(other.clone()), Some(&staging))
+            .save(
+                SaveTarget::As(other.clone()),
+                SaveOptions::default(),
+                Some(&staging),
+            )
             .unwrap()
             .unwrap();
         assert_eq!(session.path, own);
@@ -4256,7 +4594,11 @@ mod tests {
         assert_eq!(session.path, other);
         let copy = dir.join("copy.pdf");
         let staged = session
-            .save(SaveTarget::Copy(copy.clone()), Some(&staging))
+            .save(
+                SaveTarget::Copy(copy.clone()),
+                SaveOptions::default(),
+                Some(&staging),
+            )
             .unwrap()
             .unwrap();
         std::fs::rename(&staged, &copy).unwrap();
@@ -4282,11 +4624,17 @@ mod tests {
         session.recovery_config = Arc::new(Recovery::started(&root.join("Recovery")));
         edit(&mut session, "Monday", "Friday", "Edited text");
         let dir = session.recovery.as_ref().unwrap().dir().to_path_buf();
-        session.save(file(), Some(&staging)).unwrap().unwrap();
+        session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap()
+            .unwrap();
         assert!(dir.join("journal.log").is_file(), "after the stage");
         session.finish_save(false).unwrap();
         assert!(dir.join("journal.log").is_file(), "after a failed swap");
-        let staged = session.save(file(), Some(&staging)).unwrap().unwrap();
+        let staged = session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap()
+            .unwrap();
         std::fs::rename(&staged, &own).unwrap();
         session.finish_save(true).unwrap();
         assert!(!dir.exists(), "after the swap");
@@ -4301,7 +4649,9 @@ mod tests {
         std::fs::create_dir(&staging).unwrap();
         edit(&mut session, "Monday", "Friday", "Edited text");
         std::fs::write(&own, b"someone else's").unwrap();
-        let err = session.save(file(), Some(&staging)).unwrap_err();
+        let err = session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap_err();
         assert_eq!(err.kind, ErrorKind::FileChangedOnDisk);
         assert_eq!(std::fs::read_dir(&staging).unwrap().count(), 0);
         assert!(session.staged.is_none());
@@ -4322,7 +4672,9 @@ mod tests {
         edit(&mut session, "Monday", "Friday", "Edited text");
         let link = own.with_file_name("link.pdf");
         std::fs::hard_link(&own, &link).unwrap();
-        let err = session.save(file(), None).unwrap_err();
+        let err = session
+            .save(file(), SaveOptions::default(), None)
+            .unwrap_err();
         assert_eq!(err.kind, ErrorKind::HardLinked);
         assert!(err.no_recovery_copy);
 
@@ -4330,13 +4682,20 @@ mod tests {
         std::fs::remove_file(&link).unwrap();
         let staging = dir.join("staging");
         std::fs::create_dir(&staging).unwrap();
-        session.save(file(), Some(&staging)).unwrap();
+        session
+            .save(file(), SaveOptions::default(), Some(&staging))
+            .unwrap();
         assert!(session.finish_save(false).unwrap());
 
         // Once saved, nothing is at risk.
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         std::fs::hard_link(&own, &link).unwrap();
-        assert!(!session.save(file(), None).unwrap_err().no_recovery_copy);
+        assert!(
+            !session
+                .save(file(), SaveOptions::default(), None)
+                .unwrap_err()
+                .no_recovery_copy
+        );
         std::fs::remove_dir_all(dir).unwrap();
     }
 
@@ -4348,7 +4707,12 @@ mod tests {
         edit(&mut session, "Monday", "Friday", "Edited text");
         let link = own.with_file_name("link.pdf");
         std::fs::hard_link(&own, &link).unwrap();
-        assert!(!session.save(file(), None).unwrap_err().no_recovery_copy);
+        assert!(
+            !session
+                .save(file(), SaveOptions::default(), None)
+                .unwrap_err()
+                .no_recovery_copy
+        );
         std::fs::remove_dir_all(dir).unwrap();
     }
 
@@ -4365,7 +4729,9 @@ mod tests {
         );
         std::fs::write(&own, &theirs).unwrap();
         assert!(session.external_change().unwrap());
-        let err = session.save(file(), None).unwrap_err();
+        let err = session
+            .save(file(), SaveOptions::default(), None)
+            .unwrap_err();
         assert_eq!(err.kind, ErrorKind::FileChangedOnDisk);
         assert!(!err.offer_save_as);
         assert!(!err.details.unwrap_or_default().contains("Friday"));
@@ -4373,7 +4739,11 @@ mod tests {
         assert_eq!(session.current(), 1);
         // Keep mine.
         session
-            .save(SaveTarget::File { over_change: true }, None)
+            .save(
+                SaveTarget::File { over_change: true },
+                SaveOptions::default(),
+                None,
+            )
             .unwrap();
         assert!(!session.external_change().unwrap());
         assert_ne!(std::fs::read(&own).unwrap(), theirs);
@@ -4385,7 +4755,7 @@ mod tests {
         let (mut session, own) = copied("edit-e15-helvetica", "edit-clean", "own.pdf");
         let original = std::fs::read(&own).unwrap();
         edit(&mut session, "Monday", "Friday", "Edited text");
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         session.optimize_and_clean(None).unwrap();
         let cleaned = std::fs::read(&own).unwrap();
         assert!(!cleaned.starts_with(&original), "a new file, not an update");
@@ -4400,7 +4770,7 @@ mod tests {
         assert!(text.contains("Friday") && !text.contains("Monday"));
         // The next save rewrites again: the revisions before the clean do not come back.
         session.undo().unwrap();
-        session.save(file(), None).unwrap();
+        session.save(file(), SaveOptions::default(), None).unwrap();
         let saved = std::fs::read(&own).unwrap();
         assert!(!saved.starts_with(&original));
         let text = ferman_text::extract::page_text(
@@ -4423,7 +4793,7 @@ mod tests {
         let damaged = std::fs::read(&own).unwrap();
         let target = own.with_file_name("repaired.pdf");
         let err = session
-            .save(SaveTarget::As(target.clone()), None)
+            .save(SaveTarget::As(target.clone()), SaveOptions::default(), None)
             .unwrap_err();
         assert_eq!(err.kind, ErrorKind::Unsupported);
         assert!(!target.exists());

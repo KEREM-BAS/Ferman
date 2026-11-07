@@ -3837,7 +3837,24 @@ pub async fn save_over_change(
         .map_err(api_error_dto)
 }
 
-/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+/// Save as's options (a1-11).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SaveAsOptions {
+    /// "Include comments and markup"; without it the document keeps its own file.
+    pub include_comments: bool,
+    /// "Remove edit history from the file": the file is rewritten whole.
+    pub remove_history: bool,
+}
+
+fn save_options(options: SaveAsOptions) -> facade::SaveOptions {
+    facade::SaveOptions {
+        include_comments: options.include_comments,
+        remove_history: options.remove_history,
+    }
+}
+
+/// Saves a copy of `document` as the file at `path` with Save as's `options`; later saves still
+/// write to its own file.
 ///
 /// See [`facade::Engine::save_copy`].
 ///
@@ -3847,12 +3864,14 @@ pub async fn save_over_change(
 pub async fn save_copy(
     document: u64,
     path: String,
+    options: SaveAsOptions,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
         .save_copy(
             facade::DocumentId::from_raw(document),
             PathBuf::from(path),
+            save_options(options),
             staging.map(PathBuf::from),
         )
         .await
@@ -3886,20 +3905,344 @@ pub async fn save_repaired_copy(
         .map_err(api_error_dto)
 }
 
-/// Optimize and clean: the document's file rewritten whole.
+/// Optimize and clean as a background job: the document's file rewritten whole. The stream's
+/// first event has the job's handle; its last says how it ended, with the document's file as its
+/// output (staged under the sandbox, for [`finish_save`]).
 ///
-/// See [`facade::Engine::optimize_and_clean`].
+/// See [`facade::Engine::optimize_and_clean_job`].
 ///
 /// # Errors
 ///
-/// As [`save`]; `Unsupported` for a repaired document.
-pub async fn optimize_and_clean(
+/// `NotFound` for a document that is not open; the job fails with `ConfirmationRequired`,
+/// `Unsupported` for a repaired document and the save failures.
+pub async fn start_optimize_and_clean_job(
     document: u64,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .optimize_and_clean_job(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// a9-1's presets.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompressPreset {
+    /// Images at 300 ppi, for printing.
+    HighQuality,
+    /// Images at 150 ppi, for sharing and reading on screen.
+    Balanced,
+    /// Images at 96 ppi, for e-mail.
+    Smallest,
+}
+
+/// A preset's estimated result.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CompressEstimate {
+    /// The preset.
+    pub preset: CompressPreset,
+    /// The estimated size after, in bytes.
+    pub after: u64,
+    /// Whether every image was recompressed for it, so it is exact but for rounding.
+    pub exact: bool,
+    /// How many images it recompressed.
+    pub sampled: u32,
+}
+
+/// What Compress would do to a document (a9-1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CompressAnalysis {
+    /// The size now, in bytes.
+    pub before: u64,
+    /// High quality, Balanced and Smallest, in that order.
+    pub estimates: Vec<CompressEstimate>,
+    /// The images it may recompress.
+    pub images: u32,
+    /// Images in a format or colour it does not decode, left as they are.
+    pub unreadable: u32,
+    /// Masks and images with a colour-key mask, left as they are.
+    pub masks: u32,
+    /// Images drawn only through patterns, left as they are.
+    pub patterns: u32,
+    /// Duplicate font copies merged.
+    pub duplicate_fonts: u32,
+    /// Pages whose thumbnail goes.
+    pub thumbnails: u32,
+    /// Whether the document is signed: the warning comes first, and the copy has no signatures.
+    pub signed: bool,
+}
+
+fn preset(preset: CompressPreset) -> facade::Preset {
+    match preset {
+        CompressPreset::HighQuality => facade::Preset::HighQuality,
+        CompressPreset::Balanced => facade::Preset::Balanced,
+        CompressPreset::Smallest => facade::Preset::Smallest,
+    }
+}
+
+/// What Compress would do to `document` as it stands, with each preset's estimate.
+///
+/// See [`facade::Engine::compress_analysis`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the writer's errors.
+pub async fn compress_analysis(document: u64) -> Result<CompressAnalysis, ApiError> {
+    engine()?
+        .compress_analysis(facade::DocumentId::from_raw(document))
+        .await
+        .map(|analysis| CompressAnalysis {
+            before: analysis.before,
+            estimates: analysis
+                .estimates
+                .into_iter()
+                .map(|(preset, estimate)| CompressEstimate {
+                    preset: match preset {
+                        facade::Preset::HighQuality => CompressPreset::HighQuality,
+                        facade::Preset::Balanced => CompressPreset::Balanced,
+                        facade::Preset::Smallest => CompressPreset::Smallest,
+                    },
+                    after: estimate.after,
+                    exact: estimate.exact,
+                    sampled: estimate.sampled,
+                })
+                .collect(),
+            images: analysis.images,
+            unreadable: analysis.unreadable,
+            masks: analysis.masks,
+            patterns: analysis.patterns,
+            duplicate_fonts: analysis.duplicate_fonts,
+            thumbnails: analysis.thumbnails,
+            signed: analysis.signed,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Compresses `document` with `preset` into the new file `output` as a background job. The last
+/// event's parameters are facts with no message key: `before`, `after`, `written`,
+/// `recompressed` and `unreadable`.
+///
+/// See [`facade::Engine::compress_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `ConfirmationRequired` for a signed document without
+/// `unsign`, `NotFound`.
+pub async fn start_compress_job(
+    document: u64,
+    preset: CompressPreset,
+    unsign: bool,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .compress_job(
+            facade::DocumentId::from_raw(document),
+            self::preset(preset),
+            unsign,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// One page of a print, rendered (a9-6).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PrintPage {
+    /// Its index in the document, from 0.
+    pub index: u32,
+    /// Its width as displayed, in points.
+    pub width_points: f32,
+    /// Its height as displayed, in points.
+    pub height_points: f32,
+    /// The resolution it is rendered at.
+    pub dpi: u32,
+    /// Its width in device pixels.
+    pub width: u32,
+    /// Its height in device pixels.
+    pub height: u32,
+    /// 8-bit BGRA, opaque, `width × 4` bytes per row, the top row first.
+    pub pixels: Vec<u8>,
+}
+
+/// Streams `pages` of `document` (by handle; all when empty) rendered one by one for the print
+/// channel, without its markup annotations unless `include_comments`. The stream ends after the
+/// last page; cancelling it ends the print.
+///
+/// See [`facade::Engine::print_pages`].
+///
+/// # Errors
+///
+/// `NotEditable` when the document forbids printing, `InvalidInput`, `NotFound`, and the render
+/// thread's errors.
+pub async fn print_pages(
+    document: u64,
+    pages: Vec<u64>,
+    include_comments: bool,
+    sink: StreamSink<PrintPage>,
+) -> Result<(), ApiError> {
+    engine()?
+        .print_pages(
+            facade::DocumentId::from_raw(document),
+            pages,
+            include_comments,
+            Box::new(BridgePrint(sink)),
+        )
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Hands a print's pages to its Dart stream.
+struct BridgePrint(StreamSink<PrintPage>);
+
+impl facade::PrintSink for BridgePrint {
+    fn deliver(&mut self, page: facade::PrintPage) -> bool {
+        self.0
+            .add(PrintPage {
+                index: page.index,
+                width_points: page.size.width,
+                height_points: page.size.height,
+                dpi: page.dpi,
+                width: page.width,
+                height: page.height,
+                pixels: page.pixels,
+            })
+            .is_ok()
+    }
+}
+
+/// What made a version (a9-8).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VersionKind {
+    /// The file as it was opened, before the first save.
+    Opened,
+    /// A save.
+    Saved,
+    /// A save with a new simple signature.
+    Signed,
+    /// Unsaved work kept before a restore.
+    Unsaved,
+    /// A restore.
+    Restored,
+}
+
+/// A version as a9-8's timeline shows it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VersionInfo {
+    /// Its id.
+    pub id: u64,
+    /// What made it.
+    pub kind: VersionKind,
+    /// When, in milliseconds since the Unix epoch.
+    pub time: u64,
+    /// Its size in bytes.
+    pub size: u64,
+    /// How many edits it holds since the version before.
+    pub edits: u32,
+    /// Their names; empty for an encrypted document.
+    pub names: Vec<String>,
+}
+
+/// Names the versions folder in the app data directory, at launch (ADR 0022).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn start_versions(root: String) -> Result<(), ApiError> {
+    engine()?.start_versions(PathBuf::from(root));
+    Ok(())
+}
+
+/// "Keep versions" (a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn set_versions_enabled(enabled: bool) -> Result<(), ApiError> {
+    engine()?.set_versions_enabled(enabled);
+    Ok(())
+}
+
+/// The versions of `document`'s file, newest first.
+///
+/// See [`facade::Engine::versions`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn versions(document: u64) -> Result<Vec<VersionInfo>, ApiError> {
+    engine()?
+        .versions(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| {
+            list.into_iter()
+                .map(|version| VersionInfo {
+                    id: version.id,
+                    kind: match version.kind {
+                        facade::VersionKind::Opened => VersionKind::Opened,
+                        facade::VersionKind::Saved => VersionKind::Saved,
+                        facade::VersionKind::Signed => VersionKind::Signed,
+                        facade::VersionKind::Unsaved => VersionKind::Unsaved,
+                        facade::VersionKind::Restored => VersionKind::Restored,
+                    },
+                    time: version.time,
+                    size: version.size,
+                    edits: version.edits,
+                    names: version.names,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Opens version `version` of `document` read-only for the preview; an encrypted document's needs
+/// its `password` again.
+///
+/// See [`facade::Engine::open_version`].
+///
+/// # Errors
+///
+/// `NotFound` for a version it does not have, and what [`open`] returns.
+pub async fn open_version(
+    document: u64,
+    version: u64,
+    password: Option<String>,
+) -> Result<OpenedDocument, ApiError> {
+    engine()?
+        .open_version(
+            facade::DocumentId::from_raw(document),
+            version,
+            password.map(facade::Password::new),
+        )
+        .await
+        .map(opened_document_dto)
+        .map_err(api_error_dto)
+}
+
+/// Makes version `version` the file of `document` again; the app then opens the file again.
+///
+/// See [`facade::Engine::restore_version`].
+///
+/// # Errors
+///
+/// `NotFound`, `FileChangedOnDisk` and the save failures.
+pub async fn restore_version(
+    document: u64,
+    version: u64,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
-        .optimize_and_clean(
+        .restore_version(
             facade::DocumentId::from_raw(document),
+            version,
             staging.map(PathBuf::from),
         )
         .await
@@ -4668,7 +5011,8 @@ pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
         .map_err(api_error_dto)
 }
 
-/// Saves `document` as the file at `path`; later saves write there.
+/// Saves `document` as the file at `path` with Save as's `options`; later saves write there,
+/// unless the comments are left out.
 ///
 /// See [`facade::Engine::save_as`].
 ///
@@ -4678,12 +5022,14 @@ pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
 pub async fn save_as(
     document: u64,
     path: String,
+    options: SaveAsOptions,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
         .save_as(
             facade::DocumentId::from_raw(document),
             PathBuf::from(path),
+            save_options(options),
             staging.map(PathBuf::from),
         )
         .await

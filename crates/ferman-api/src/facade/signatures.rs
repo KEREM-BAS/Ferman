@@ -221,6 +221,8 @@ impl Engine {
                             Ok(())
                         },
                     )?;
+                    // The next save's version is a signature's (a9-8).
+                    session.signed_now();
                     Ok((current, reload, handle))
                 })
                 .await?;

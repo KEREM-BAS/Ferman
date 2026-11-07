@@ -18,6 +18,7 @@
 mod annotations;
 mod assemble;
 mod blocking;
+mod compress;
 mod debug;
 mod document;
 mod edit;
@@ -33,6 +34,7 @@ mod search;
 mod signatures;
 mod text;
 mod version;
+mod versions;
 
 pub use annotations::{AnnotationCommit, AnnotationInfo, AnnotationList, SummaryFormat};
 pub use assemble::{
@@ -40,11 +42,12 @@ pub use assemble::{
     SplitPreview,
 };
 pub use blocking::block_on;
+pub use compress::{CompressAnalysis, LOW_PRINT_DPI, PRINT_DPI, PrintPage, PrintSink};
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{DocumentStructure, OpenedDocument, PageInfo, ReadOnly, Security};
 pub use edit::{
     ConfirmationToken, DependentCell, EditPreview, FontSettings, FontSubstitution, History,
-    HistoryStep, MissingGlyphInfo, Reverted, RevisionInfo, TransactionId,
+    HistoryStep, MissingGlyphInfo, Reverted, RevisionInfo, SaveOptions, TransactionId,
 };
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
@@ -61,6 +64,7 @@ pub use search::{SearchEvent, SearchId, SearchMatch, SearchPlaces, SearchSink};
 pub use signatures::{FillTarget, FillTargets, MAX_SAVED, MAX_SAVED_BYTES, SavedSignature};
 pub use text::{BlockInfo, Caret, FontCoverage, LineInfo, PageBlocks, Selection, TextPosition};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
+pub use versions::VersionInfo;
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
 pub use ferman_core::annotations::AnnotationKind;
@@ -70,11 +74,13 @@ pub use ferman_core::structure::{
     Agreement, Attachment, Direction, FontKind, FontUse, Info, LabelRange, LabelStyle, Layer,
     OpGate, OutlineItem, PdfDate, Scripts, Signature,
 };
+pub use ferman_core::versions::VersionKind;
 pub use ferman_core::{
     DocumentOp, Method, Password, Permissions, Repair, RepairReport, XrefProblem,
 };
 pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
 pub use ferman_ops::annotations::{AnnotationChange, NewAnnotation};
+pub use ferman_ops::compress::{Estimate, Preset};
 pub use ferman_ops::fill::TargetKind;
 pub use ferman_ops::forms::{FieldProblem, MissingFont};
 pub use ferman_ops::images::Paper;

@@ -12,7 +12,15 @@
 //! it: every string and stream is encrypted again for its
 //! new object number, AES with a random initialisation vector, and `/ID` keeps its first string,
 //! from which the key was derived. Signatures do not survive a rewrite, which is why the UI warns
-//! first. Duplicate streams are not merged.
+//! first. Duplicate streams are not merged here (Compress merges byte-identical font programs
+//! first). A page object that is no longer in the page tree is not written, so a bookmark, link or
+//! destination that still names a deleted page reads `null` there and the page's content leaves
+//! the file (question 5 of the M4 plan).
+//!
+//! [`RevisionStore::packed_rewrite`] is the same file with its objects packed into object streams
+//! and a cross-reference stream (PDF 1.5) instead of the table: what Compress, Optimize and clean
+//! and Save as's Remove edit history write. Streams stay on their own; in an encrypted document
+//! each object stream is encrypted as a whole, and the objects in it are not encrypted again.
 //!
 //! [`RevisionStore::without_signatures`] is the same rewrite for the working copy of a signed
 //! document (a3-16a, G35): the signature fields stay, empty, and nothing in the copy claims a
@@ -46,7 +54,17 @@ impl RevisionStore {
     /// [`CoreError::Unsupported`] past the 4 GiB a cross-reference offset can address, and
     /// [`CoreError::OutOfMemory`].
     pub fn full_rewrite(&self, doc: &Document) -> Result<Vec<u8>, CoreError> {
-        self.write_full(doc, &mut system_random)
+        self.write_full(doc, &mut system_random, false)
+    }
+
+    /// [`full_rewrite`](Self::full_rewrite) with the objects that are not streams packed into
+    /// object streams, and a cross-reference stream (PDF 1.5).
+    ///
+    /// # Errors
+    ///
+    /// As [`full_rewrite`](Self::full_rewrite).
+    pub fn packed_rewrite(&self, doc: &Document) -> Result<Vec<u8>, CoreError> {
+        self.write_full(doc, &mut system_random, true)
     }
 
     /// `doc` with the current revision written as [`full_rewrite`](Self::full_rewrite) does,
@@ -57,20 +75,33 @@ impl RevisionStore {
     ///
     /// As [`full_rewrite`](Self::full_rewrite).
     pub fn without_signatures(&self, doc: &Document) -> Result<Vec<u8>, CoreError> {
+        self.unsigned(doc)?.full_rewrite(doc)
+    }
+
+    /// These revisions with one more that takes the signatures away, as
+    /// [`without_signatures`](Self::without_signatures) writes them; for a rewrite of another
+    /// kind, such as Compress's [`packed_rewrite`](Self::packed_rewrite).
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::TransactionOpen`].
+    pub fn unsigned(&self, doc: &Document) -> Result<Self, CoreError> {
         let mut unsigned = self.clone();
         unsigned.begin()?;
         for (id, object) in unsigned_objects(&self.scope(doc), doc) {
             unsigned.put(id, object)?;
         }
         unsigned.commit()?;
-        unsigned.full_rewrite(doc)
+        Ok(unsigned)
     }
 
-    /// [`full_rewrite`](Self::full_rewrite) with the random bytes from `random`.
+    /// [`full_rewrite`](Self::full_rewrite), or [`packed_rewrite`](Self::packed_rewrite) when
+    /// `packed`, with the random bytes from `random`.
     pub(crate) fn write_full(
         &self,
         doc: &Document,
         random: &mut Random<'_>,
+        packed: bool,
     ) -> Result<Vec<u8>, CoreError> {
         self.closed()?;
         let limits = doc.limits();
@@ -89,6 +120,14 @@ impl RevisionStore {
         }
         let encryption = doc.decrypter();
         let encrypt_id = encryption.and_then(|(_, id)| id);
+        // The pages in the tree: a page object reached otherwise is a deleted one.
+        let live: BTreeSet<ObjectId> = self.pages(doc).iter().map(|page| page.id).collect();
+        let dead_page = |value: &Object| match value {
+            Object::Dictionary(dict) => {
+                dict.get(b"Type").and_then(Object::as_name).ok() == Some(b"Page".as_slice())
+            }
+            _ => false,
+        };
 
         // Every live object, numbered in the order it is reached.
         let mut numbers: BTreeMap<ObjectId, u32> = BTreeMap::new();
@@ -107,6 +146,9 @@ impl RevisionStore {
             let Some(value) = get(id) else {
                 continue;
             };
+            if !live.contains(&id) && dead_page(value) {
+                continue;
+            }
             let number = u32::try_from(order.len())
                 .ok()
                 .and_then(|count| count.checked_add(1))
@@ -121,14 +163,37 @@ impl RevisionStore {
             .map_err(|_| CoreError::OutOfMemory {
                 context: "a full rewrite",
             })?;
-        let _ = write!(out, "%PDF-{}\n%\u{e2}\u{e3}\u{cf}\u{d3}\n", doc.version());
-        let mut offsets = Vec::with_capacity(order.len());
+        let version = if packed && older_than_1_5(doc.version()) {
+            "1.5"
+        } else {
+            doc.version()
+        };
+        let _ = write!(out, "%PDF-{version}\n%\u{e2}\u{e3}\u{cf}\u{d3}\n");
+        // Where each object number is, from 1.
+        let mut entries: Vec<Entry> = Vec::with_capacity(order.len());
+        // Objects waiting for their object stream, which is written once full.
+        let mut batch: Vec<(u32, Object)> = Vec::new();
+        let mut streams: u32 = 0;
+        let mut pending: Vec<(u32, Vec<(u32, Object)>)> = Vec::new();
         for (old, number) in order.iter().zip(1u32..) {
             let Some(value) = get(*old) else {
                 continue;
             };
             let mut value = value.clone();
             renumber(&mut value, &numbers, 0, limits)?;
+            if packed && !matches!(value, Object::Stream(_)) {
+                // Its place is known once the object streams are numbered, after every object.
+                entries.push(Entry::Packed(
+                    streams,
+                    u32::try_from(batch.len()).unwrap_or(0),
+                ));
+                batch.push((number, value));
+                if batch.len() >= OBJECTS_PER_STREAM {
+                    pending.push((streams, std::mem::take(&mut batch)));
+                    streams = streams.saturating_add(1);
+                }
+                continue;
+            }
             let id = (number, 0);
             if let Object::Stream(stream) = &mut value {
                 compress(stream)?;
@@ -136,32 +201,51 @@ impl RevisionStore {
             if let Some((decrypter, _)) = encryption {
                 decrypter.encrypt_object(id, &mut value, random, limits)?;
             }
-            offsets.push(offset(0, out.len())?);
+            entries.push(Entry::At(offset(0, out.len())?));
             indirect(&mut out, id, &value);
+        }
+        if !batch.is_empty() {
+            pending.push((streams, batch));
+        }
+        let next = |entries: &[Entry]| {
+            u32::try_from(entries.len())
+                .ok()
+                .and_then(|count| count.checked_add(1))
+                .ok_or(CoreError::Write(WriteError::ObjectNumbers))
+        };
+        // The object streams, numbered after the objects.
+        let mut stream_numbers = Vec::with_capacity(pending.len());
+        for (_, objects) in pending {
+            let number = next(&entries)?;
+            stream_numbers.push(number);
+            let mut value = Object::Stream(object_stream(&objects)?);
+            if let Some((decrypter, _)) = encryption {
+                decrypter.encrypt_object((number, 0), &mut value, random, limits)?;
+            }
+            entries.push(Entry::At(offset(0, out.len())?));
+            indirect(&mut out, (number, 0), &value);
+        }
+        for entry in &mut entries {
+            if let Entry::Packed(stream, index) = *entry {
+                let number = stream_numbers
+                    .get(usize::try_from(stream).unwrap_or(usize::MAX))
+                    .copied()
+                    .ok_or(CoreError::Internal {
+                        context: "an object stream that was not written",
+                    })?;
+                *entry = Entry::In(number, index);
+            }
         }
         // The encryption dictionary last, as the file has it.
         let mut encrypt = None;
         if let Some(dict) = doc.encryption_dictionary() {
-            let number = u32::try_from(offsets.len())
-                .ok()
-                .and_then(|count| count.checked_add(1))
-                .ok_or(CoreError::Write(WriteError::ObjectNumbers))?;
-            offsets.push(offset(0, out.len())?);
+            let number = next(&entries)?;
+            entries.push(Entry::At(offset(0, out.len())?));
             indirect(&mut out, (number, 0), &Object::Dictionary(dict.clone()));
             encrypt = Some(Object::Reference((number, 0)));
         }
 
-        let size = u32::try_from(offsets.len())
-            .ok()
-            .and_then(|count| count.checked_add(1))
-            .ok_or(CoreError::Write(WriteError::ObjectNumbers))?;
-        let xref_at = offset(0, out.len())?;
-        let _ = write!(out, "xref\n0 {size}\n0000000000 65535 f\r\n");
-        for position in offsets {
-            let _ = write!(out, "{position:010} 00000 n\r\n");
-        }
         let mut new_trailer = lopdf::Dictionary::new();
-        new_trailer.set("Size", i64::from(size));
         for key in [&b"Root"[..], b"Info"] {
             if let Ok(value) = trailer.get(key) {
                 let mut value = value.clone();
@@ -177,11 +261,102 @@ impl RevisionStore {
         if let Some(ids) = new_id(trailer.get(b"ID").ok(), encryption.is_some(), random)? {
             new_trailer.set("ID", ids);
         }
+        if packed {
+            // The cross-reference stream names itself, never encrypted.
+            let number = next(&entries)?;
+            let xref_at = offset(0, out.len())?;
+            entries.push(Entry::At(xref_at));
+            let size = number
+                .checked_add(1)
+                .ok_or(CoreError::Write(WriteError::ObjectNumbers))?;
+            new_trailer.set("Type", "XRef");
+            new_trailer.set("Size", i64::from(size));
+            new_trailer.set(
+                "W",
+                vec![Object::Integer(1), Object::Integer(4), Object::Integer(2)],
+            );
+            let mut rows = Vec::with_capacity(entries.len().saturating_add(1).saturating_mul(7));
+            rows.extend_from_slice(&[0, 0, 0, 0, 0, 0xFF, 0xFF]);
+            for entry in &entries {
+                let (kind, field, index) = match *entry {
+                    Entry::At(at) => (1u8, at, 0u16),
+                    Entry::In(stream, index) => {
+                        (2, stream, u16::try_from(index).unwrap_or(u16::MAX))
+                    }
+                    Entry::Packed(..) => {
+                        return Err(CoreError::Internal {
+                            context: "an object without its object stream",
+                        });
+                    }
+                };
+                rows.push(kind);
+                rows.extend_from_slice(&field.to_be_bytes());
+                rows.extend_from_slice(&index.to_be_bytes());
+            }
+            let mut stream = Stream::new(new_trailer, rows);
+            compress(&mut stream)?;
+            indirect(&mut out, (number, 0), &Object::Stream(stream));
+            let _ = write!(out, "startxref\n{xref_at}\n%%EOF\n");
+            return Ok(out);
+        }
+        let size = next(&entries)?;
+        new_trailer.set("Size", i64::from(size));
+        let xref_at = offset(0, out.len())?;
+        let _ = write!(out, "xref\n0 {size}\n0000000000 65535 f\r\n");
+        for entry in &entries {
+            if let Entry::At(position) = entry {
+                let _ = write!(out, "{position:010} 00000 n\r\n");
+            }
+        }
         out.extend_from_slice(b"trailer\n");
         object(&mut out, &Object::Dictionary(new_trailer));
         let _ = write!(out, "\nstartxref\n{xref_at}\n%%EOF\n");
         Ok(out)
     }
+}
+
+/// How many objects one object stream holds.
+const OBJECTS_PER_STREAM: usize = 100;
+
+/// Where an object of the new file is.
+#[derive(Debug, Clone, Copy)]
+enum Entry {
+    /// At this offset.
+    At(u32),
+    /// In the object stream that is the `n`th written, at this index: before they are numbered.
+    Packed(u32, u32),
+    /// In the object stream with this number, at this index.
+    In(u32, u32),
+}
+
+/// Whether a header's version is before 1.5, which has no object streams.
+fn older_than_1_5(version: &str) -> bool {
+    let mut parts = version.split('.');
+    let major = parts.next().and_then(|part| part.parse::<u32>().ok());
+    let minor = parts.next().and_then(|part| part.parse::<u32>().ok());
+    matches!((major, minor), (Some(1), Some(minor)) if minor < 5)
+}
+
+/// The object stream of `objects`, by number, compressed.
+fn object_stream(objects: &[(u32, Object)]) -> Result<Stream, CoreError> {
+    let mut header = Vec::new();
+    let mut body = Vec::new();
+    for (number, value) in objects {
+        let _ = write!(header, "{number} {} ", body.len());
+        object(&mut body, value);
+        body.push(b'\n');
+    }
+    let first = i64::try_from(header.len()).map_err(|_| CoreError::OutOfMemory {
+        context: "an object stream",
+    })?;
+    header.extend_from_slice(&body);
+    let mut dict = Dictionary::new();
+    dict.set("Type", "ObjStm");
+    dict.set("N", i64::try_from(objects.len()).unwrap_or(i64::MAX));
+    dict.set("First", first);
+    let mut stream = Stream::new(dict, header);
+    compress(&mut stream)?;
+    Ok(stream)
 }
 
 /// The objects that change when `doc`'s signatures go: the catalog, the form and every signature
@@ -380,8 +555,11 @@ mod tests {
         let original = corpus("kira-tr");
         let doc = opened(original.clone(), None);
         let store = RevisionStore::new(&doc);
-        let rewritten = store.write_full(&doc, &mut fixed).unwrap();
-        assert_eq!(rewritten, store.write_full(&doc, &mut fixed).unwrap());
+        let rewritten = store.write_full(&doc, &mut fixed, false).unwrap();
+        assert_eq!(
+            rewritten,
+            store.write_full(&doc, &mut fixed, false).unwrap()
+        );
         assert!(rewritten.starts_with(b"%PDF-"));
         let again = opened(rewritten, None);
         assert!(
@@ -453,5 +631,106 @@ mod tests {
         let again = opened(rewritten, None);
         assert!(again.repair().is_none());
         assert_eq!(again.page_count(), doc.page_count());
+    }
+
+    #[test]
+    fn a_packed_rewrite_reads_back_with_its_objects_in_streams() {
+        for (name, password) in [
+            ("kira-tr", None),
+            ("tez-tr", None),
+            ("payslip-aes256", Some("Eylül2026maaşı")),
+            ("payslip-aes128", Some("bordro2026")),
+        ] {
+            let doc = opened(corpus(name), password);
+            let store = RevisionStore::new(&doc);
+            let packed = store.write_full(&doc, &mut fixed, true).unwrap();
+            assert!(
+                packed.windows(7).any(|window| window == b"/ObjStm"),
+                "{name}"
+            );
+            assert!(
+                !packed.windows(6).any(|window| window == b"\nxref\n"),
+                "{name}"
+            );
+            let again = opened(packed.clone(), password);
+            assert!(again.repair().is_none(), "{name} reads without repair");
+            assert_eq!(again.page_count(), doc.page_count(), "{name}");
+            assert_eq!(again.structure().outline, doc.structure().outline, "{name}");
+            assert_eq!(
+                again.structure().attachments.len(),
+                doc.structure().attachments.len(),
+                "{name}"
+            );
+            assert_eq!(again.encryption().is_some(), password.is_some(), "{name}");
+            // The same file written again from what it reads.
+            let twice = RevisionStore::new(&again)
+                .write_full(&again, &mut fixed, true)
+                .unwrap();
+            assert_eq!(opened(twice, password).page_count(), doc.page_count());
+        }
+    }
+
+    #[test]
+    fn a_deleted_page_named_by_a_bookmark_leaves_the_rewrite() {
+        let doc = opened(corpus("kira-tr"), None);
+        let mut store = RevisionStore::new(&doc);
+        let last = store.pages(&doc).last().map(|page| page.id).unwrap();
+        // A link's destination to the last page, then the page leaves the tree.
+        store.begin().unwrap();
+        let dest = Object::Array(vec![Object::Reference(last), Object::Name(b"Fit".to_vec())]);
+        let marker = Object::String(b"DEAD-PAGE-DEST".to_vec(), lopdf::StringFormat::Literal);
+        let mut holder = Dictionary::new();
+        holder.set("D", dest);
+        holder.set("M", marker);
+        let root = doc
+            .xref()
+            .trailer
+            .get(b"Root")
+            .unwrap()
+            .as_reference()
+            .unwrap();
+        let mut catalog = store
+            .scope(&doc)
+            .object(root)
+            .unwrap()
+            .as_dict()
+            .unwrap()
+            .clone();
+        catalog.set("FermanTest", holder);
+        store.put(root, Object::Dictionary(catalog)).unwrap();
+        store.commit().unwrap();
+        let count = store.pages(&doc).len();
+        store.begin().unwrap();
+        let order: Vec<_> = (0..count - 1).map(crate::pages::PageSlot::Page).collect();
+        store.arrange_pages(&doc, &order).unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.pages(&doc).len(), count - 1);
+        for packed in [false, true] {
+            let bytes = store.write_full(&doc, &mut fixed, packed).unwrap();
+            let again = opened(bytes, None);
+            assert_eq!(again.page_count(), count - 1);
+            let pages = again
+                .model()
+                .objects
+                .values()
+                .filter(|value| {
+                    value.as_dict().is_ok_and(|dict| {
+                        dict.get(b"Type").and_then(Object::as_name).ok() == Some(b"Page".as_slice())
+                    })
+                })
+                .count();
+            assert_eq!(pages, count - 1, "the deleted page is not written");
+            let root = again
+                .xref()
+                .trailer
+                .get(b"Root")
+                .unwrap()
+                .as_reference()
+                .unwrap();
+            let catalog = again.model().get_object(root).unwrap().as_dict().unwrap();
+            let held = catalog.get(b"FermanTest").unwrap().as_dict().unwrap();
+            let dest = held.get(b"D").unwrap().as_array().unwrap();
+            assert_eq!(dest.first(), Some(&Object::Null));
+        }
     }
 }
