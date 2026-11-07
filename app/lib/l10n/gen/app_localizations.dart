@@ -7173,6 +7173,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Comment: {text}'**
   String sidebarSearchComment(String text);
+
+  /// Name of the stamp library popover for screen readers (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps'**
+  String get stampsTitle;
+
+  /// Search field of the stamp library (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Search stamps'**
+  String get stampsSearch;
+
+  /// Stamp library: a search with no result. No board draws it.
+  ///
+  /// In en, this message translates to:
+  /// **'No stamps match your search'**
+  String get stampsNoMatch;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get stampGroupStandard;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'With name and date'**
+  String get stampGroupNamed;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'My stamps'**
+  String get stampGroupMine;
+
+  /// Stamp library: opens the Create stamp dialog (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Create stamp…'**
+  String get stampCreate;
+
+  /// Stamp library: asks for a stamp file (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Import…'**
+  String get stampImport;
+
+  /// Menu of a stamp in My stamps: writes it to a file (G153).
+  ///
+  /// In en, this message translates to:
+  /// **'Export…'**
+  String get stampExport;
+
+  /// Menu of a stamp in My stamps: removes it (G153).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get stampDelete;
+
+  /// File type in the open panel for a stamp file.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman stamps'**
+  String get stampFileFilter;
+
+  /// Toast title: the chosen file is no stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'This stamp can’t be imported'**
+  String get stampImportFailed;
+
+  /// Toast message: the chosen file is no stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t a Ferman stamp, or it is damaged.'**
+  String get stampImportFailedBody;
+
+  /// Toast title: the stamp's file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'The stamp couldn’t be exported'**
+  String get stampExportFailed;
+
+  /// Toast title: the limit of saved stamps is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'My stamps is full. Delete one first.'**
+  String get stampsFull;
+
+  /// Title of the Create stamp dialog (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Create stamp'**
+  String get createStampTitle;
+
+  /// Create stamp: the field for the stamp's text (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get createStampText;
+
+  /// Create stamp: heading of the second line's choices (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Second line'**
+  String get createStampSecondLine;
+
+  /// Create stamp: the second line has the name (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'My name'**
+  String get createStampMyName;
+
+  /// Create stamp: the second line has the date (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get createStampDate;
+
+  /// Create stamp: the second line has the time (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get createStampTime;
+
+  /// Create stamp: accessible name of the name field (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Name on the stamp'**
+  String get createStampName;
+
+  /// Create stamp: heading of the ink choice (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get createStampColour;
+
+  /// Create stamp: the seal-red ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Seal'**
+  String get stampToneSeal;
+
+  /// Create stamp: the blue ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Ink'**
+  String get stampToneInk;
+
+  /// Create stamp: the green ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get stampToneGreen;
+
+  /// Create stamp: the grey ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get stampToneGrey;
+
+  /// Create stamp: the language whose rules make the capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Language for capitals'**
+  String get createStampCaps;
+
+  /// Create stamp: a language for capitals, with a sample (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Turkish (İNCELENDİ)'**
+  String get createStampLanguageTurkish;
+
+  /// Create stamp: a language for capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get createStampLanguageEnglish;
+
+  /// Create stamp: a language for capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get createStampLanguageGerman;
+
+  /// Create stamp: heading of the preview (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get createStampPreview;
+
+  /// Create stamp: the note under the preview (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My stamps on this device.'**
+  String get createStampSavedNote;
+
+  /// Create stamp: the primary button (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Save stamp'**
+  String get createStampSave;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get shapeRectangle;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Ellipse'**
+  String get shapeEllipse;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Arrow'**
+  String get shapeArrow;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get shapeLine;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get shapePolygon;
+
+  /// Shapes menu: a placed shape leaves the tool on (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tool selected'**
+  String get shapesKeepTool;
+
+  /// Name of the history step that adds a shape.
+  ///
+  /// In en, this message translates to:
+  /// **'Add shape'**
+  String get stepAddShape;
+
+  /// Name of the history step that adds a stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stamp'**
+  String get stepAddStamp;
+
+  /// Screen readers: the page while a stamp is being placed.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the page to place the stamp, or press Enter to place it mid-page.'**
+  String get placeStampHint;
+
+  /// Screen readers: the page while a shape is being drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag on the page to draw the shape, or press Enter to place it mid-page.'**
+  String get placeShapeHint;
+
+  /// Screen readers: the page while a polygon is being drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Click each corner of the polygon, then press Enter or click the first corner.'**
+  String get placePolygonHint;
 }
 
 class _AppLocalizationsDelegate

@@ -27,6 +27,7 @@ void main() {
         'recoveryCopies': true,
         'reflow': true,
         'markEdited': true,
+        'myStamps': <String>[],
       });
     });
 
@@ -60,6 +61,7 @@ void main() {
         'recoveryCopies': true,
         'reflow': true,
         'markEdited': true,
+        'myStamps': <String>[],
       });
     });
 

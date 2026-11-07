@@ -2,6 +2,7 @@ import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/annotations/annotation_color.dart';
 import 'package:ferman/design/components/annotations/annotation_tool.dart';
+import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/components/navigation/roving_focus.dart';
@@ -12,6 +13,28 @@ import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+
+/// The menu of a tool with one ([AnnotationTool.hasMenu]), placed by the
+/// caller around the tool's button. Not a design-system class: the bundle has
+/// no menus.
+@immutable
+class AnnotationToolMenu {
+  /// A menu.
+  const new({
+    required this.items,
+    required this.onSelected,
+    required this.around,
+  });
+
+  /// Its entries as a submenu of the overflow menu.
+  final List<MenuItem> items;
+
+  /// Called with the entry chosen in that submenu.
+  final ValueChanged<MenuItem> onSelected;
+
+  /// The tool's button with the menu around it, usually a [Popover].
+  final Widget Function(Widget button) around;
+}
 
 /// The Comment mode's tool row, the design-system `AnnotationTools`
 /// component (`AnnotationTools.jsx`; `components/annotations/annotations.css`,
@@ -55,8 +78,8 @@ import 'package:flutter/widgets.dart';
 /// moves too, as a "Color" submenu ([colorsSemanticLabel]) of the colours
 /// with the current one checked, disabled with [colorsDisabledReason] when
 /// the group is. A tool in the menu shows its shortcut, is checked when it
-/// is the active tool and keeps its disabled reason; a tool with its own menu
-/// comes through [toolItem], whose [ToolbarItem] gives its submenu there.
+/// is the active tool and keeps its disabled reason; a tool in [toolMenus]
+/// offers its menu there as a submenu (B093).
 class AnnotationTools extends StatefulWidget {
   /// The tool row for [tools], with [tool] active and [color] current.
   const new({
@@ -76,6 +99,7 @@ class AnnotationTools extends StatefulWidget {
     this.colorsDisabledReason,
     this.onToolMenuRequested,
     this.toolItem,
+    this.toolMenus = const {},
     this.overflowLabel,
   });
 
@@ -132,6 +156,9 @@ class AnnotationTools extends StatefulWidget {
   /// menu's entry for the overflow menu (B093); null, or a null result, leaves
   /// the plain button. Not a design-system prop.
   final Widget? Function(AnnotationTool tool, ToolButton button)? toolItem;
+
+  /// The menus of the tools that have one built. Not a design-system prop.
+  final Map<AnnotationTool, AnnotationToolMenu> toolMenus;
 
   /// The name of the overflow button of a narrow row, the localized "More
   /// tools" (G21); null gives the row no overflow menu. Not a
@@ -234,6 +261,25 @@ class _AnnotationToolsState extends State<AnnotationTools> {
     );
   }
 
+  /// [button] with the menu of [tool], when it has one built, and that menu as
+  /// the tool's submenu in the overflow menu (B093). A disabled tool has none.
+  Widget _withMenu(AnnotationTool tool, ToolButton button) {
+    final menu = widget.toolMenus[tool];
+    if (menu == null || button.disabled) return button;
+    return ToolbarItem(
+      collapsible: true,
+      menuItem: MenuItem(
+        id: button.label,
+        label: button.label,
+        icon: button.icon,
+        checked: button.active,
+        submenu: menu.items,
+      ),
+      onMenuSelected: menu.onSelected,
+      child: menu.around(button),
+    );
+  }
+
   KeyEventResult _onKey(FocusNode _, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     final keyboard = HardwareKeyboard.instance;
@@ -275,7 +321,7 @@ class _AnnotationToolsState extends State<AnnotationTools> {
           ? () => onMenu(tool)
           : null,
     );
-    return widget.toolItem?.call(tool, button) ?? button;
+    return widget.toolItem?.call(tool, button) ?? _withMenu(tool, button);
   }
 
   @override

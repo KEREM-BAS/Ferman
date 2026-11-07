@@ -6084,5 +6084,185 @@
         "type": "String"
       }
     }
+  },
+  "stampsTitle": "Stamps",
+  "@stampsTitle": {
+    "description": "Name of the stamp library popover for screen readers (a4-3)."
+  },
+  "stampsSearch": "Search stamps",
+  "@stampsSearch": {
+    "description": "Search field of the stamp library (a4-3)."
+  },
+  "stampsNoMatch": "No stamps match your search",
+  "@stampsNoMatch": {
+    "description": "Stamp library: a search with no result. No board draws it."
+  },
+  "stampGroupStandard": "Standard",
+  "@stampGroupStandard": {
+    "description": "Stamp library: a group heading, shown in capitals (a4-3)."
+  },
+  "stampGroupNamed": "With name and date",
+  "@stampGroupNamed": {
+    "description": "Stamp library: a group heading, shown in capitals (a4-3)."
+  },
+  "stampGroupMine": "My stamps",
+  "@stampGroupMine": {
+    "description": "Stamp library: a group heading, shown in capitals (a4-3)."
+  },
+  "stampCreate": "Create stamp…",
+  "@stampCreate": {
+    "description": "Stamp library: opens the Create stamp dialog (a4-3)."
+  },
+  "stampImport": "Import…",
+  "@stampImport": {
+    "description": "Stamp library: asks for a stamp file (a4-3)."
+  },
+  "stampExport": "Export…",
+  "@stampExport": {
+    "description": "Menu of a stamp in My stamps: writes it to a file (G153)."
+  },
+  "stampDelete": "Delete",
+  "@stampDelete": {
+    "description": "Menu of a stamp in My stamps: removes it (G153)."
+  },
+  "stampFileFilter": "Ferman stamps",
+  "@stampFileFilter": {
+    "description": "File type in the open panel for a stamp file."
+  },
+  "stampImportFailed": "This stamp can’t be imported",
+  "@stampImportFailed": {
+    "description": "Toast title: the chosen file is no stamp."
+  },
+  "stampImportFailedBody": "The file isn’t a Ferman stamp, or it is damaged.",
+  "@stampImportFailedBody": {
+    "description": "Toast message: the chosen file is no stamp."
+  },
+  "stampExportFailed": "The stamp couldn’t be exported",
+  "@stampExportFailed": {
+    "description": "Toast title: the stamp's file could not be written."
+  },
+  "stampsFull": "My stamps is full. Delete one first.",
+  "@stampsFull": {
+    "description": "Toast title: the limit of saved stamps is reached."
+  },
+  "createStampTitle": "Create stamp",
+  "@createStampTitle": {
+    "description": "Title of the Create stamp dialog (a4-3b)."
+  },
+  "createStampText": "Text",
+  "@createStampText": {
+    "description": "Create stamp: the field for the stamp's text (a4-3b)."
+  },
+  "createStampSecondLine": "Second line",
+  "@createStampSecondLine": {
+    "description": "Create stamp: heading of the second line's choices (a4-3b)."
+  },
+  "createStampMyName": "My name",
+  "@createStampMyName": {
+    "description": "Create stamp: the second line has the name (a4-3b)."
+  },
+  "createStampDate": "Date",
+  "@createStampDate": {
+    "description": "Create stamp: the second line has the date (a4-3b)."
+  },
+  "createStampTime": "Time",
+  "@createStampTime": {
+    "description": "Create stamp: the second line has the time (a4-3b)."
+  },
+  "createStampName": "Name on the stamp",
+  "@createStampName": {
+    "description": "Create stamp: accessible name of the name field (a4-3b)."
+  },
+  "createStampColour": "Colour",
+  "@createStampColour": {
+    "description": "Create stamp: heading of the ink choice (a4-3b)."
+  },
+  "stampToneSeal": "Seal",
+  "@stampToneSeal": {
+    "description": "Create stamp: the seal-red ink (a4-3b)."
+  },
+  "stampToneInk": "Ink",
+  "@stampToneInk": {
+    "description": "Create stamp: the blue ink (a4-3b)."
+  },
+  "stampToneGreen": "Green",
+  "@stampToneGreen": {
+    "description": "Create stamp: the green ink (a4-3b)."
+  },
+  "stampToneGrey": "Grey",
+  "@stampToneGrey": {
+    "description": "Create stamp: the grey ink (a4-3b)."
+  },
+  "createStampCaps": "Language for capitals",
+  "@createStampCaps": {
+    "description": "Create stamp: the language whose rules make the capitals (a4-3b)."
+  },
+  "createStampLanguageTurkish": "Turkish (İNCELENDİ)",
+  "@createStampLanguageTurkish": {
+    "description": "Create stamp: a language for capitals, with a sample (a4-3b)."
+  },
+  "createStampLanguageEnglish": "English",
+  "@createStampLanguageEnglish": {
+    "description": "Create stamp: a language for capitals (a4-3b)."
+  },
+  "createStampLanguageGerman": "German",
+  "@createStampLanguageGerman": {
+    "description": "Create stamp: a language for capitals (a4-3b)."
+  },
+  "createStampPreview": "Preview",
+  "@createStampPreview": {
+    "description": "Create stamp: heading of the preview (a4-3b)."
+  },
+  "createStampSavedNote": "Saved to My stamps on this device.",
+  "@createStampSavedNote": {
+    "description": "Create stamp: the note under the preview (a4-3b)."
+  },
+  "createStampSave": "Save stamp",
+  "@createStampSave": {
+    "description": "Create stamp: the primary button (a4-3b)."
+  },
+  "shapeRectangle": "Rectangle",
+  "@shapeRectangle": {
+    "description": "Shapes menu (a4-1)."
+  },
+  "shapeEllipse": "Ellipse",
+  "@shapeEllipse": {
+    "description": "Shapes menu (a4-1)."
+  },
+  "shapeArrow": "Arrow",
+  "@shapeArrow": {
+    "description": "Shapes menu (a4-1)."
+  },
+  "shapeLine": "Line",
+  "@shapeLine": {
+    "description": "Shapes menu (a4-1)."
+  },
+  "shapePolygon": "Polygon",
+  "@shapePolygon": {
+    "description": "Shapes menu (a4-1)."
+  },
+  "shapesKeepTool": "Keep tool selected",
+  "@shapesKeepTool": {
+    "description": "Shapes menu: a placed shape leaves the tool on (a4-1)."
+  },
+  "stepAddShape": "Add shape",
+  "@stepAddShape": {
+    "description": "Name of the history step that adds a shape."
+  },
+  "stepAddStamp": "Add stamp",
+  "@stepAddStamp": {
+    "description": "Name of the history step that adds a stamp."
+  },
+  "placeStampHint": "Click the page to place the stamp, or press Enter to place it mid-page.",
+  "@placeStampHint": {
+    "description": "Screen readers: the page while a stamp is being placed."
+  },
+  "placeShapeHint": "Drag on the page to draw the shape, or press Enter to place it mid-page.",
+  "@placeShapeHint": {
+    "description": "Screen readers: the page while a shape is being drawn."
+  },
+  "placePolygonHint": "Click each corner of the polygon, then press Enter or click the first corner.",
+  "@placePolygonHint": {
+    "description": "Screen readers: the page while a polygon is being drawn."
   }
 }

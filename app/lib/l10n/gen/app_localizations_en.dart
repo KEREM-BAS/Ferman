@@ -4499,4 +4499,143 @@ class AppLocalizationsEn extends AppLocalizations {
   String sidebarSearchComment(String text) {
     return 'Comment: $text';
   }
+
+  @override
+  String get stampsTitle => 'Stamps';
+
+  @override
+  String get stampsSearch => 'Search stamps';
+
+  @override
+  String get stampsNoMatch => 'No stamps match your search';
+
+  @override
+  String get stampGroupStandard => 'Standard';
+
+  @override
+  String get stampGroupNamed => 'With name and date';
+
+  @override
+  String get stampGroupMine => 'My stamps';
+
+  @override
+  String get stampCreate => 'Create stamp…';
+
+  @override
+  String get stampImport => 'Import…';
+
+  @override
+  String get stampExport => 'Export…';
+
+  @override
+  String get stampDelete => 'Delete';
+
+  @override
+  String get stampFileFilter => 'Ferman stamps';
+
+  @override
+  String get stampImportFailed => 'This stamp can’t be imported';
+
+  @override
+  String get stampImportFailedBody =>
+      'The file isn’t a Ferman stamp, or it is damaged.';
+
+  @override
+  String get stampExportFailed => 'The stamp couldn’t be exported';
+
+  @override
+  String get stampsFull => 'My stamps is full. Delete one first.';
+
+  @override
+  String get createStampTitle => 'Create stamp';
+
+  @override
+  String get createStampText => 'Text';
+
+  @override
+  String get createStampSecondLine => 'Second line';
+
+  @override
+  String get createStampMyName => 'My name';
+
+  @override
+  String get createStampDate => 'Date';
+
+  @override
+  String get createStampTime => 'Time';
+
+  @override
+  String get createStampName => 'Name on the stamp';
+
+  @override
+  String get createStampColour => 'Colour';
+
+  @override
+  String get stampToneSeal => 'Seal';
+
+  @override
+  String get stampToneInk => 'Ink';
+
+  @override
+  String get stampToneGreen => 'Green';
+
+  @override
+  String get stampToneGrey => 'Grey';
+
+  @override
+  String get createStampCaps => 'Language for capitals';
+
+  @override
+  String get createStampLanguageTurkish => 'Turkish (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'English';
+
+  @override
+  String get createStampLanguageGerman => 'German';
+
+  @override
+  String get createStampPreview => 'Preview';
+
+  @override
+  String get createStampSavedNote => 'Saved to My stamps on this device.';
+
+  @override
+  String get createStampSave => 'Save stamp';
+
+  @override
+  String get shapeRectangle => 'Rectangle';
+
+  @override
+  String get shapeEllipse => 'Ellipse';
+
+  @override
+  String get shapeArrow => 'Arrow';
+
+  @override
+  String get shapeLine => 'Line';
+
+  @override
+  String get shapePolygon => 'Polygon';
+
+  @override
+  String get shapesKeepTool => 'Keep tool selected';
+
+  @override
+  String get stepAddShape => 'Add shape';
+
+  @override
+  String get stepAddStamp => 'Add stamp';
+
+  @override
+  String get placeStampHint =>
+      'Click the page to place the stamp, or press Enter to place it mid-page.';
+
+  @override
+  String get placeShapeHint =>
+      'Drag on the page to draw the shape, or press Enter to place it mid-page.';
+
+  @override
+  String get placePolygonHint =>
+      'Click each corner of the polygon, then press Enter or click the first corner.';
 }

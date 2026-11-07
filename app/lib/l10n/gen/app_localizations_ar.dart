@@ -4644,4 +4644,142 @@ class AppLocalizationsAr extends AppLocalizations {
   String sidebarSearchComment(String text) {
     return 'تعليق: $text';
   }
+
+  @override
+  String get stampsTitle => 'الأختام';
+
+  @override
+  String get stampsSearch => 'البحث في الأختام';
+
+  @override
+  String get stampsNoMatch => 'لا توجد أختام تطابق بحثك';
+
+  @override
+  String get stampGroupStandard => 'قياسية';
+
+  @override
+  String get stampGroupNamed => 'بالاسم والتاريخ';
+
+  @override
+  String get stampGroupMine => 'أختامي';
+
+  @override
+  String get stampCreate => 'إنشاء ختم…';
+
+  @override
+  String get stampImport => 'استيراد…';
+
+  @override
+  String get stampExport => 'تصدير…';
+
+  @override
+  String get stampDelete => 'حذف';
+
+  @override
+  String get stampFileFilter => 'أختام Ferman';
+
+  @override
+  String get stampImportFailed => 'يتعذر استيراد هذا الختم';
+
+  @override
+  String get stampImportFailedBody => 'الملف ليس ختم Ferman أو أنه تالف.';
+
+  @override
+  String get stampExportFailed => 'تعذر تصدير الختم';
+
+  @override
+  String get stampsFull => 'قائمة «أختامي» ممتلئة. احذف أحدها أولاً.';
+
+  @override
+  String get createStampTitle => 'إنشاء ختم';
+
+  @override
+  String get createStampText => 'النص';
+
+  @override
+  String get createStampSecondLine => 'السطر الثاني';
+
+  @override
+  String get createStampMyName => 'اسمي';
+
+  @override
+  String get createStampDate => 'التاريخ';
+
+  @override
+  String get createStampTime => 'الوقت';
+
+  @override
+  String get createStampName => 'الاسم على الختم';
+
+  @override
+  String get createStampColour => 'اللون';
+
+  @override
+  String get stampToneSeal => 'أحمر الختم';
+
+  @override
+  String get stampToneInk => 'حبر';
+
+  @override
+  String get stampToneGreen => 'أخضر';
+
+  @override
+  String get stampToneGrey => 'رمادي';
+
+  @override
+  String get createStampCaps => 'لغة الأحرف الكبيرة';
+
+  @override
+  String get createStampLanguageTurkish => 'التركية (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'الإنجليزية';
+
+  @override
+  String get createStampLanguageGerman => 'الألمانية';
+
+  @override
+  String get createStampPreview => 'معاينة';
+
+  @override
+  String get createStampSavedNote => 'يُحفظ في «أختامي» على هذا الجهاز.';
+
+  @override
+  String get createStampSave => 'حفظ الختم';
+
+  @override
+  String get shapeRectangle => 'مستطيل';
+
+  @override
+  String get shapeEllipse => 'شكل بيضاوي';
+
+  @override
+  String get shapeArrow => 'سهم';
+
+  @override
+  String get shapeLine => 'خط';
+
+  @override
+  String get shapePolygon => 'مضلع';
+
+  @override
+  String get shapesKeepTool => 'إبقاء الأداة محددة';
+
+  @override
+  String get stepAddShape => 'إضافة شكل';
+
+  @override
+  String get stepAddStamp => 'إضافة ختم';
+
+  @override
+  String get placeStampHint =>
+      'انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة.';
+
+  @override
+  String get placeShapeHint =>
+      'اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة.';
+
+  @override
+  String get placePolygonHint =>
+      'انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى.';
 }

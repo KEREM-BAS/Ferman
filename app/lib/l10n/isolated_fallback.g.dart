@@ -3843,6 +3843,144 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String sidebarSearchComment(String text) =>
       isolate(super.sidebarSearchComment(text));
+
+  @override
+  String get stampsTitle => isolate(super.stampsTitle);
+
+  @override
+  String get stampsSearch => isolate(super.stampsSearch);
+
+  @override
+  String get stampsNoMatch => isolate(super.stampsNoMatch);
+
+  @override
+  String get stampGroupStandard => isolate(super.stampGroupStandard);
+
+  @override
+  String get stampGroupNamed => isolate(super.stampGroupNamed);
+
+  @override
+  String get stampGroupMine => isolate(super.stampGroupMine);
+
+  @override
+  String get stampCreate => isolate(super.stampCreate);
+
+  @override
+  String get stampImport => isolate(super.stampImport);
+
+  @override
+  String get stampExport => isolate(super.stampExport);
+
+  @override
+  String get stampDelete => isolate(super.stampDelete);
+
+  @override
+  String get stampFileFilter => isolate(super.stampFileFilter);
+
+  @override
+  String get stampImportFailed => isolate(super.stampImportFailed);
+
+  @override
+  String get stampImportFailedBody => isolate(super.stampImportFailedBody);
+
+  @override
+  String get stampExportFailed => isolate(super.stampExportFailed);
+
+  @override
+  String get stampsFull => isolate(super.stampsFull);
+
+  @override
+  String get createStampTitle => isolate(super.createStampTitle);
+
+  @override
+  String get createStampText => isolate(super.createStampText);
+
+  @override
+  String get createStampSecondLine => isolate(super.createStampSecondLine);
+
+  @override
+  String get createStampMyName => isolate(super.createStampMyName);
+
+  @override
+  String get createStampDate => isolate(super.createStampDate);
+
+  @override
+  String get createStampTime => isolate(super.createStampTime);
+
+  @override
+  String get createStampName => isolate(super.createStampName);
+
+  @override
+  String get createStampColour => isolate(super.createStampColour);
+
+  @override
+  String get stampToneSeal => isolate(super.stampToneSeal);
+
+  @override
+  String get stampToneInk => isolate(super.stampToneInk);
+
+  @override
+  String get stampToneGreen => isolate(super.stampToneGreen);
+
+  @override
+  String get stampToneGrey => isolate(super.stampToneGrey);
+
+  @override
+  String get createStampCaps => isolate(super.createStampCaps);
+
+  @override
+  String get createStampLanguageTurkish =>
+      isolate(super.createStampLanguageTurkish);
+
+  @override
+  String get createStampLanguageEnglish =>
+      isolate(super.createStampLanguageEnglish);
+
+  @override
+  String get createStampLanguageGerman =>
+      isolate(super.createStampLanguageGerman);
+
+  @override
+  String get createStampPreview => isolate(super.createStampPreview);
+
+  @override
+  String get createStampSavedNote => isolate(super.createStampSavedNote);
+
+  @override
+  String get createStampSave => isolate(super.createStampSave);
+
+  @override
+  String get shapeRectangle => isolate(super.shapeRectangle);
+
+  @override
+  String get shapeEllipse => isolate(super.shapeEllipse);
+
+  @override
+  String get shapeArrow => isolate(super.shapeArrow);
+
+  @override
+  String get shapeLine => isolate(super.shapeLine);
+
+  @override
+  String get shapePolygon => isolate(super.shapePolygon);
+
+  @override
+  String get shapesKeepTool => isolate(super.shapesKeepTool);
+
+  @override
+  String get stepAddShape => isolate(super.stepAddShape);
+
+  @override
+  String get stepAddStamp => isolate(super.stepAddStamp);
+
+  @override
+  String get placeStampHint => isolate(super.placeStampHint);
+
+  @override
+  String get placeShapeHint => isolate(super.placeShapeHint);
+
+  @override
+  String get placePolygonHint => isolate(super.placePolygonHint);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ferman/platform/file_picker_service.dart';
 
 /// A [FilePickerService] that answers the open panel with [picked] and
@@ -48,4 +50,25 @@ final class FakeFilePickerService implements FilePickerService {
 
   @override
   Future<String?> chooseFolder({String? initial}) async => folder;
+
+  /// What the stamp's open panel returns; null, as if cancelled, by default.
+  Uint8List? stampFile;
+
+  @override
+  Future<Uint8List?> openStamp({
+    required String filterLabel,
+    required String extension,
+    required int largest,
+  }) async {
+    requests.add(filterLabel);
+    return stampFile;
+  }
+
+  /// The files written, by path.
+  final Map<String, Uint8List> written = {};
+
+  @override
+  Future<void> writeFile(String path, Uint8List bytes) async {
+    written[path] = bytes;
+  }
 }

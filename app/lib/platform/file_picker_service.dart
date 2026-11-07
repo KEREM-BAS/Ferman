@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,6 +31,17 @@ abstract interface class FilePickerService {
   /// folder, null when cancelled. Under the macOS sandbox it grants the
   /// folder for the session (G143).
   Future<String?> chooseFolder({String? initial});
+
+  /// Shows the open panel for one file of [extension] and reads it: null when
+  /// cancelled, no bytes when it is larger than [largest].
+  Future<Uint8List?> openStamp({
+    required String filterLabel,
+    required String extension,
+    required int largest,
+  });
+
+  /// Writes [bytes] to the new file [path] the save panel gave.
+  Future<void> writeFile(String path, Uint8List bytes);
 }
 
 /// The pickers of file_selector: NSOpenPanel on macOS, IFileOpenDialog on
@@ -92,6 +105,27 @@ final class NativeFilePickerService implements FilePickerService {
     );
     return [for (final file in files) file.path];
   }
+
+  @override
+  Future<Uint8List?> openStamp({
+    required String filterLabel,
+    required String extension,
+    required int largest,
+  }) async {
+    final file = await openFile(
+      acceptedTypeGroups: [
+        XTypeGroup(label: filterLabel, extensions: [extension]),
+      ],
+    );
+    if (file == null) return null;
+    return await file.length() > largest
+        ? Uint8List(0)
+        : await file.readAsBytes();
+  }
+
+  @override
+  Future<void> writeFile(String path, Uint8List bytes) =>
+      XFile.fromData(bytes).saveTo(path);
 
   @override
   Future<String?> chooseFolder({String? initial}) =>

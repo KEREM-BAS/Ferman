@@ -34,6 +34,7 @@ final class AppSettings {
     this.reflow = true,
     this.markEdited = true,
     this.commenterName,
+    this.myStamps = const [],
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -85,6 +86,13 @@ final class AppSettings {
         final String name => name,
         _ => null,
       },
+      myStamps: switch (json[_myStamps]) {
+        final List<Object?> stamps => [
+          for (final stamp in stamps)
+            if (stamp is String) stamp,
+        ],
+        _ => const [],
+      },
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -99,6 +107,7 @@ final class AppSettings {
   /// The format version this build writes.
   static const int currentVersion = 1;
 
+  static const String _myStamps = 'myStamps';
   static const String _version = 'version';
   static const String _theme = 'theme';
   static const String _language = 'language';
@@ -138,6 +147,7 @@ final class AppSettings {
     _reflow,
     _markEdited,
     _commenterName,
+    _myStamps,
   };
 
   /// Settings → General → Theme.
@@ -205,6 +215,9 @@ final class AppSettings {
   /// The name on comments (G46, "Your name for comments"); null until the
   /// first comment asks. It may be empty.
   final String? commenterName;
+  /// Comment › Stamp › My stamps (a4-3): each stamp as JSON, read by
+  /// `myStampsProvider`.
+  final List<String> myStamps;
 
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
@@ -236,6 +249,7 @@ final class AppSettings {
     _reflow: reflow,
     _markEdited: markEdited,
     _commenterName: ?commenterName,
+    _myStamps: myStamps,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -259,6 +273,7 @@ final class AppSettings {
     bool? reflow,
     bool? markEdited,
     String? commenterName,
+    List<String>? myStamps,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -280,6 +295,7 @@ final class AppSettings {
     reflow: reflow ?? this.reflow,
     markEdited: markEdited ?? this.markEdited,
     commenterName: commenterName ?? this.commenterName,
+    myStamps: myStamps ?? this.myStamps,
     unknown: unknown,
     version: version,
   );
@@ -305,6 +321,7 @@ final class AppSettings {
       other.reflow == reflow &&
       other.markEdited == markEdited &&
       other.commenterName == commenterName &&
+      listEquals(other.myStamps, myStamps) &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -327,7 +344,8 @@ final class AppSettings {
     recoveryCopies,
     reflow,
     markEdited,
-    commenterName,
+    // Object.hash takes at most twenty values.
+    Object.hash(commenterName, Object.hashAll(myStamps)),
     version,
     Object.hashAllUnordered(unknown.keys),
   );

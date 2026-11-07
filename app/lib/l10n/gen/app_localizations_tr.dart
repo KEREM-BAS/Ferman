@@ -4476,4 +4476,143 @@ class AppLocalizationsTr extends AppLocalizations {
   String sidebarSearchComment(String text) {
     return 'Yorum: $text';
   }
+
+  @override
+  String get stampsTitle => 'Damgalar';
+
+  @override
+  String get stampsSearch => 'Damga ara';
+
+  @override
+  String get stampsNoMatch => 'Aramanızla eşleşen damga yok';
+
+  @override
+  String get stampGroupStandard => 'Standart';
+
+  @override
+  String get stampGroupNamed => 'Ad ve tarihli';
+
+  @override
+  String get stampGroupMine => 'Damgalarım';
+
+  @override
+  String get stampCreate => 'Damga oluştur…';
+
+  @override
+  String get stampImport => 'İçe aktar…';
+
+  @override
+  String get stampExport => 'Dışa aktar…';
+
+  @override
+  String get stampDelete => 'Sil';
+
+  @override
+  String get stampFileFilter => 'Ferman damgaları';
+
+  @override
+  String get stampImportFailed => 'Bu damga içe aktarılamıyor';
+
+  @override
+  String get stampImportFailedBody =>
+      'Dosya bir Ferman damgası değil ya da bozuk.';
+
+  @override
+  String get stampExportFailed => 'Damga dışa aktarılamadı';
+
+  @override
+  String get stampsFull => 'Damgalarım dolu. Önce birini silin.';
+
+  @override
+  String get createStampTitle => 'Damga oluştur';
+
+  @override
+  String get createStampText => 'Metin';
+
+  @override
+  String get createStampSecondLine => 'İkinci satır';
+
+  @override
+  String get createStampMyName => 'Adım';
+
+  @override
+  String get createStampDate => 'Tarih';
+
+  @override
+  String get createStampTime => 'Saat';
+
+  @override
+  String get createStampName => 'Damgadaki ad';
+
+  @override
+  String get createStampColour => 'Renk';
+
+  @override
+  String get stampToneSeal => 'Mühür';
+
+  @override
+  String get stampToneInk => 'Mürekkep';
+
+  @override
+  String get stampToneGreen => 'Yeşil';
+
+  @override
+  String get stampToneGrey => 'Gri';
+
+  @override
+  String get createStampCaps => 'Büyük harf dili';
+
+  @override
+  String get createStampLanguageTurkish => 'Türkçe (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'İngilizce';
+
+  @override
+  String get createStampLanguageGerman => 'Almanca';
+
+  @override
+  String get createStampPreview => 'Önizleme';
+
+  @override
+  String get createStampSavedNote => 'Bu cihazda Damgalarım’a kaydedilir.';
+
+  @override
+  String get createStampSave => 'Damgayı kaydet';
+
+  @override
+  String get shapeRectangle => 'Dikdörtgen';
+
+  @override
+  String get shapeEllipse => 'Elips';
+
+  @override
+  String get shapeArrow => 'Ok';
+
+  @override
+  String get shapeLine => 'Çizgi';
+
+  @override
+  String get shapePolygon => 'Çokgen';
+
+  @override
+  String get shapesKeepTool => 'Aracı seçili tut';
+
+  @override
+  String get stepAddShape => 'Şekil ekle';
+
+  @override
+  String get stepAddStamp => 'Damga ekle';
+
+  @override
+  String get placeStampHint =>
+      'Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın.';
+
+  @override
+  String get placeShapeHint =>
+      'Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın.';
+
+  @override
+  String get placePolygonHint =>
+      'Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın.';
 }
