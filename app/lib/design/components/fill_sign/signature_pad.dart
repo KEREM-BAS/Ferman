@@ -6,7 +6,6 @@ import 'package:ferman/design/components/forms/checkbox.dart';
 import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/forced_states.dart';
-import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/components/navigation/roving_focus.dart';
 import 'package:ferman/design/components/navigation/segmented_control.dart';
@@ -185,9 +184,9 @@ class SignaturePadLabels {
 ///   dialog around it.
 /// - **Type:** the name ([initialName] to start with) in the 40 px italic
 ///   signature face, in [ink]; "Type your name above the line" while empty.
-/// - **Image:** the dashed drop box with "Choose image…". Picking or
-///   dropping an image needs a file picker and drag and drop, neither in
-///   M1, so the button is disabled with "Available in a future version".
+/// - **Image:** the dashed box with "Choose image…", which calls
+///   [onChooseImage] (disabled without it); once an [image] is chosen it
+///   shows in the box instead, still with the button to choose another.
 ///
 /// The pad is controlled for [mode] ([onModeChanged]), [ink]
 /// ([onInkChanged]) and [saveForLater] ([onSaveForLaterChanged]); the
@@ -218,6 +217,8 @@ class SignaturePad extends StatefulWidget {
     this.onSaveForLaterChanged,
     this.onChanged,
     this.initialStrokes = const [],
+    this.onChooseImage,
+    this.image,
   });
 
   /// `INKS[0]`, Black: `#1F1D1A` (`--paper-900`, `--annot-ink`).
@@ -315,6 +316,13 @@ class SignaturePad extends StatefulWidget {
   /// The strokes to start with.
   final List<List<Offset>> initialStrokes;
 
+  /// Called by "Choose image…"; null disables it. Not a design-system prop.
+  final VoidCallback? onChooseImage;
+
+  /// The chosen image's encoded bytes, shown in image mode; with one the
+  /// pad is not empty there. Not a design-system prop.
+  final Uint8List? image;
+
   /// The localized texts. Not a design-system prop.
   final SignaturePadLabels labels;
 
@@ -395,7 +403,7 @@ class _SignaturePadState extends State<SignaturePad> {
   bool get _isEmpty => switch (widget.mode) {
     SignatureMode.draw => _strokes.isEmpty,
     SignatureMode.type => _typed.text.isEmpty,
-    SignatureMode.image => true,
+    SignatureMode.image => widget.image == null,
   };
 
   void _emit() {
@@ -407,11 +415,9 @@ class _SignaturePadState extends State<SignaturePad> {
         ]),
         text: _typed.text,
         ink: widget.ink,
-        // The bundle: draw mode is empty without strokes, the others without
-        // a typed name.
-        isEmpty: widget.mode == SignatureMode.draw
-            ? _strokes.isEmpty
-            : _typed.text.isEmpty,
+        // The bundle: draw mode is empty without strokes, type mode without a
+        // typed name; image mode without an image.
+        isEmpty: _isEmpty,
       ),
     );
   }
@@ -609,22 +615,33 @@ class _SignaturePadState extends State<SignaturePad> {
                   mainAxisSize: MainAxisSize.min,
                   spacing: theme.space.space2,
                   children: [
-                    Icon(
-                      IconName.image,
-                      size: SignaturePad.imageIconSize,
-                      color: ramps.paper600,
-                    ),
-                    Text(
-                      labels.imageHint,
-                      textAlign: TextAlign.center,
-                      style: caption.copyWith(color: ramps.paper600),
-                    ),
+                    if (widget.image case final image?)
+                      Flexible(
+                        child: Image.memory(
+                          image,
+                          key: const ValueKey<String>('SignaturePad.chosen'),
+                          fit: BoxFit.contain,
+                          gaplessPlayback: true,
+                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                        ),
+                      )
+                    else ...[
+                      Icon(
+                        IconName.image,
+                        size: SignaturePad.imageIconSize,
+                        color: ramps.paper600,
+                      ),
+                      Text(
+                        labels.imageHint,
+                        textAlign: TextAlign.center,
+                        style: caption.copyWith(color: ramps.paper600),
+                      ),
+                    ],
                     Button(
                       size: ButtonSize.sm,
                       icon: IconName.folderOpen,
-                      disabled: true,
-                      disabledReason: futureVersionReason(context),
-                      onPressed: () {},
+                      disabled: widget.onChooseImage == null,
+                      onPressed: widget.onChooseImage,
                       child: Text(labels.chooseImage),
                     ),
                   ],
@@ -763,7 +780,8 @@ class _SignaturePadState extends State<SignaturePad> {
           variant: ButtonVariant.ghost,
           size: ButtonSize.sm,
           icon: IconName.eraser,
-          disabled: _isEmpty,
+          // An image is replaced by choosing another.
+          disabled: _isEmpty || widget.mode == SignatureMode.image,
           onPressed: _clear,
           child: Text(labels.clear),
         ),

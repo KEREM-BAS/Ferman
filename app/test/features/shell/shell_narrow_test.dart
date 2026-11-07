@@ -606,6 +606,8 @@ void main() {
                     mode == FermanMode.organize &&
                         _organizing.contains(entry.label) ||
                     mode == FermanMode.comment && entry.label != 'Measure' ||
+                    mode == FermanMode.sign &&
+                        const {'Sign', 'Initials'}.contains(entry.label) ||
                     entry.label == 'Split' ||
                     entry.label == 'Combine files' ||
                     entry.label == 'Create PDF'

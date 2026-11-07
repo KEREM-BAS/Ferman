@@ -6505,6 +6505,154 @@
       }
     }
   },
+  "signPadMethod": "Signature method",
+  "@signPadMethod": {
+    "description": "a5-3: screen-reader name of the Draw, Type and Image choice in the signature pad."
+  },
+  "signPadDraw": "Draw",
+  "@signPadDraw": {
+    "description": "a5-3b: signature pad mode, drawing with a mouse, trackpad, pen or finger. A verb."
+  },
+  "signPadType": "Type",
+  "@signPadType": {
+    "description": "a5-3: signature pad mode, the name typed in a handwriting style. A verb."
+  },
+  "signPadImage": "Image",
+  "@signPadImage": {
+    "description": "a5-3c: signature pad mode, a photo or scan of a signature on paper; also the caption of such a saved signature in the Sign menu."
+  },
+  "signPadArea": "Signature drawing area. Draw with a mouse, trackpad, pen or finger.",
+  "@signPadArea": {
+    "description": "a5-3b: screen-reader name of the drawing area."
+  },
+  "signPadTypeName": "Type your name",
+  "@signPadTypeName": {
+    "description": "a5-3: screen-reader name of the name field in the signature pad."
+  },
+  "signPadNamePlaceholder": "Your name",
+  "@signPadNamePlaceholder": {
+    "description": "a5-3: placeholder of the name field in the signature pad."
+  },
+  "signPadDrawHint": "Sign above the line",
+  "@signPadDrawHint": {
+    "description": "a5-3b: hint in the empty drawing area."
+  },
+  "signPadTypeHint": "Type your name above the line",
+  "@signPadTypeHint": {
+    "description": "a5-3: hint under the empty name field."
+  },
+  "signPadImageHint": "Choose a photo or scan of your signature. Ferman removes the background.",
+  "@signPadImageHint": {
+    "description": "a5-3c: text in the empty image box. Ferman is the product name."
+  },
+  "signPadChooseImage": "Choose image…",
+  "@signPadChooseImage": {
+    "description": "a5-3c: button that opens the system panel to choose an image."
+  },
+  "signPadInk": "Ink color",
+  "@signPadInk": {
+    "description": "a5-3: screen-reader name of the ink colour choice."
+  },
+  "signPadBlack": "Black",
+  "@signPadBlack": {
+    "description": "a5-3: ink colour name, read by screen readers."
+  },
+  "signPadBlue": "Blue",
+  "@signPadBlue": {
+    "description": "a5-3: ink colour name, read by screen readers."
+  },
+  "signPadClear": "Clear",
+  "@signPadClear": {
+    "description": "a5-3b: button that removes every stroke or the typed name. A verb."
+  },
+  "signPadSave": "Save on this device",
+  "@signPadSave": {
+    "description": "a5-3: checkbox; a saved signature appears in the Sign menu next time."
+  },
+  "signDialogTitle": "Add signature",
+  "@signDialogTitle": {
+    "description": "a5-3: title and main button of the dialog that creates a signature."
+  },
+  "signDialogTitleInitials": "Add initials",
+  "@signDialogTitleInitials": {
+    "description": "a5-3: title and main button of the same dialog while it creates initials."
+  },
+  "signCreate": "Create",
+  "@signCreate": {
+    "description": "a5-3: screen-reader name of the Signature or Initials choice at the top of the dialog."
+  },
+  "signKindSignature": "Signature",
+  "@signKindSignature": {
+    "description": "a5-3: choice at the top of the dialog."
+  },
+  "signKindInitials": "Initials",
+  "@signKindInitials": {
+    "description": "a5-3: choice at the top of the dialog; also the heading of the initials in the Sign menu, shown in capitals."
+  },
+  "signHandwriting": "Handwriting style",
+  "@signHandwriting": {
+    "description": "a5-3: screen-reader name of the three handwriting style tiles."
+  },
+  "signNoStyle": "No handwriting style can write every letter of this name. Draw it or use an image instead.",
+  "@signNoStyle": {
+    "description": "a5-3: line shown instead of the style tiles when none of the three fonts has every letter of the typed name, as for an Arabic or Chinese name (design gap G149)."
+  },
+  "signSavedNote": "Saved only on this device.",
+  "@signSavedNote": {
+    "description": "a5-3: note at the start of the dialog's footer."
+  },
+  "signMenuLabel": "Saved signatures",
+  "@signMenuLabel": {
+    "description": "a5-3d: screen-reader name of the Sign menu."
+  },
+  "signMenuSignatures": "Signatures",
+  "@signMenuSignatures": {
+    "description": "a5-3d: heading of the saved signatures in the Sign menu, shown in capitals."
+  },
+  "signMenuAdd": "Add signature…",
+  "@signMenuAdd": {
+    "description": "a5-3d: Sign menu item that opens the dialog."
+  },
+  "signMenuCreate": "Create signature…",
+  "@signMenuCreate": {
+    "description": "Sign menu item that opens the dialog while nothing is saved yet (design gap G47)."
+  },
+  "signMenuManage": "Manage saved signatures…",
+  "@signMenuManage": {
+    "description": "a5-3d: Sign menu item that opens Settings › Signatures."
+  },
+  "signDrawn": "Drawn",
+  "@signDrawn": {
+    "description": "a5-3d: caption of a drawn signature in the Sign menu."
+  },
+  "signDelete": "Delete",
+  "@signDelete": {
+    "description": "Menu item of a saved signature in the Sign menu: deletes it from this device."
+  },
+  "signSaveFailed": "The signature couldn’t be saved on this device. It’s still ready to place.",
+  "@signSaveFailed": {
+    "description": "Toast when a new signature cannot be written to the app's data folder."
+  },
+  "signImageTooLarge": "This image is too large. Choose one under 6 MB.",
+  "@signImageTooLarge": {
+    "description": "Toast when the chosen signature image is too large."
+  },
+  "signImageFilter": "Images",
+  "@signImageFilter": {
+    "description": "Filter name in the system open panel for a signature image."
+  },
+  "stepAddSignature": "Add signature",
+  "@stepAddSignature": {
+    "description": "Name of the history step that places a signature."
+  },
+  "stepAddInitials": "Add initials",
+  "@stepAddInitials": {
+    "description": "Name of the history step that places initials."
+  },
+  "placeSignatureHint": "Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.",
+  "@placeSignatureHint": {
+    "description": "Screen-reader hint of the page while a signature is being placed (a5-3d)."
+  },
   "formPanelTitle": "Form",
   "@formPanelTitle": {
     "description": "FmFormPanel's heading (a5-1)."

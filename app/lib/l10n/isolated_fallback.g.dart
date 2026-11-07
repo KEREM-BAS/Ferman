@@ -4131,6 +4131,117 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.linkErrorPage(count, pages));
 
   @override
+  String get signPadMethod => isolate(super.signPadMethod);
+
+  @override
+  String get signPadDraw => isolate(super.signPadDraw);
+
+  @override
+  String get signPadType => isolate(super.signPadType);
+
+  @override
+  String get signPadImage => isolate(super.signPadImage);
+
+  @override
+  String get signPadArea => isolate(super.signPadArea);
+
+  @override
+  String get signPadTypeName => isolate(super.signPadTypeName);
+
+  @override
+  String get signPadNamePlaceholder => isolate(super.signPadNamePlaceholder);
+
+  @override
+  String get signPadDrawHint => isolate(super.signPadDrawHint);
+
+  @override
+  String get signPadTypeHint => isolate(super.signPadTypeHint);
+
+  @override
+  String get signPadImageHint => isolate(super.signPadImageHint);
+
+  @override
+  String get signPadChooseImage => isolate(super.signPadChooseImage);
+
+  @override
+  String get signPadInk => isolate(super.signPadInk);
+
+  @override
+  String get signPadBlack => isolate(super.signPadBlack);
+
+  @override
+  String get signPadBlue => isolate(super.signPadBlue);
+
+  @override
+  String get signPadClear => isolate(super.signPadClear);
+
+  @override
+  String get signPadSave => isolate(super.signPadSave);
+
+  @override
+  String get signDialogTitle => isolate(super.signDialogTitle);
+
+  @override
+  String get signDialogTitleInitials => isolate(super.signDialogTitleInitials);
+
+  @override
+  String get signCreate => isolate(super.signCreate);
+
+  @override
+  String get signKindSignature => isolate(super.signKindSignature);
+
+  @override
+  String get signKindInitials => isolate(super.signKindInitials);
+
+  @override
+  String get signHandwriting => isolate(super.signHandwriting);
+
+  @override
+  String get signNoStyle => isolate(super.signNoStyle);
+
+  @override
+  String get signSavedNote => isolate(super.signSavedNote);
+
+  @override
+  String get signMenuLabel => isolate(super.signMenuLabel);
+
+  @override
+  String get signMenuSignatures => isolate(super.signMenuSignatures);
+
+  @override
+  String get signMenuAdd => isolate(super.signMenuAdd);
+
+  @override
+  String get signMenuCreate => isolate(super.signMenuCreate);
+
+  @override
+  String get signMenuManage => isolate(super.signMenuManage);
+
+  @override
+  String get signDrawn => isolate(super.signDrawn);
+
+  @override
+  String get signDelete => isolate(super.signDelete);
+
+  @override
+  String get signSaveFailed => isolate(super.signSaveFailed);
+
+  @override
+  String get signImageTooLarge => isolate(super.signImageTooLarge);
+
+  @override
+  String get signImageFilter => isolate(super.signImageFilter);
+
+  @override
+  String get stepAddSignature => isolate(super.stepAddSignature);
+
+  @override
+  String get stepAddInitials => isolate(super.stepAddInitials);
+
+  @override
+  String get placeSignatureHint => isolate(super.placeSignatureHint);
+
+  @override
   String get formPanelTitle => isolate(super.formPanelTitle);
 
   @override

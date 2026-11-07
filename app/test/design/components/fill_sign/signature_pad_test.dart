@@ -4,7 +4,6 @@ import 'package:ferman/design/components/core/button.dart';
 import 'package:ferman/design/components/fill_sign/signature_pad.dart';
 import 'package:ferman/design/components/forms/checkbox.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
-import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/components/navigation/segmented_control.dart';
 import 'package:ferman/design/theme.dart';
@@ -61,6 +60,7 @@ void main() {
     ValueChanged<bool>? onSaveForLaterChanged,
     ValueChanged<SignatureValue>? onChanged,
     List<List<Offset>> initialStrokes = const [],
+    VoidCallback? onChooseImage,
   }) => SizedBox(
     width: 520,
     child: SignaturePad(
@@ -74,6 +74,7 @@ void main() {
       onSaveForLaterChanged: onSaveForLaterChanged,
       onChanged: onChanged,
       initialStrokes: initialStrokes,
+      onChooseImage: onChooseImage,
     ),
   );
 
@@ -324,10 +325,15 @@ void main() {
       expect(hint, findsNothing);
     });
 
-    testWidgets('image: choosing a file waits for a future version', (
+    testWidgets('image: Choose image asks the owner, and is off without it', (
       tester,
     ) async {
-      await tester.pumpWidget(componentHost(pad(mode: SignatureMode.image)));
+      var chosen = 0;
+      await tester.pumpWidget(
+        componentHost(
+          pad(mode: SignatureMode.image, onChooseImage: () => chosen++),
+        ),
+      );
       expect(
         find.text('Drop a photo or scan of your signature.'),
         findsOneWidget,
@@ -338,11 +344,9 @@ void main() {
           matching: find.byType(Button),
         ),
       );
-      expect(choose.disabled, isTrue);
-      expect(
-        choose.disabledReason,
-        futureVersionReason(tester.element(find.byType(SignaturePad))),
-      );
+      expect(choose.disabled, isFalse);
+      await tester.tap(find.text('Choose image…'));
+      expect(chosen, 1);
       expect(hint, findsNothing);
       expect(
         tester.renderObject(

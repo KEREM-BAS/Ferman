@@ -4790,6 +4790,123 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get signPadMethod => 'İmza yöntemi';
+
+  @override
+  String get signPadDraw => 'Çiz';
+
+  @override
+  String get signPadType => 'Yaz';
+
+  @override
+  String get signPadImage => 'Görüntü';
+
+  @override
+  String get signPadArea =>
+      'İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin.';
+
+  @override
+  String get signPadTypeName => 'Adınızı yazın';
+
+  @override
+  String get signPadNamePlaceholder => 'Adınız';
+
+  @override
+  String get signPadDrawHint => 'Çizginin üstüne imzalayın';
+
+  @override
+  String get signPadTypeHint => 'Adınızı çizginin üstüne yazın';
+
+  @override
+  String get signPadImageHint =>
+      'İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır.';
+
+  @override
+  String get signPadChooseImage => 'Görüntü seç…';
+
+  @override
+  String get signPadInk => 'Mürekkep rengi';
+
+  @override
+  String get signPadBlack => 'Siyah';
+
+  @override
+  String get signPadBlue => 'Mavi';
+
+  @override
+  String get signPadClear => 'Temizle';
+
+  @override
+  String get signPadSave => 'Bu cihaza kaydet';
+
+  @override
+  String get signDialogTitle => 'İmza ekle';
+
+  @override
+  String get signDialogTitleInitials => 'Paraf ekle';
+
+  @override
+  String get signCreate => 'Oluştur';
+
+  @override
+  String get signKindSignature => 'İmza';
+
+  @override
+  String get signKindInitials => 'Paraf';
+
+  @override
+  String get signHandwriting => 'El yazısı stili';
+
+  @override
+  String get signNoStyle =>
+      'Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın.';
+
+  @override
+  String get signSavedNote => 'Yalnızca bu cihaza kaydedilir.';
+
+  @override
+  String get signMenuLabel => 'Kayıtlı imzalar';
+
+  @override
+  String get signMenuSignatures => 'İmzalar';
+
+  @override
+  String get signMenuAdd => 'İmza ekle…';
+
+  @override
+  String get signMenuCreate => 'İmza oluştur…';
+
+  @override
+  String get signMenuManage => 'Kayıtlı imzaları yönet…';
+
+  @override
+  String get signDrawn => 'Çizilmiş';
+
+  @override
+  String get signDelete => 'Sil';
+
+  @override
+  String get signSaveFailed =>
+      'İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır.';
+
+  @override
+  String get signImageTooLarge =>
+      'Bu görüntü çok büyük. 6 MB’tan küçük birini seçin.';
+
+  @override
+  String get signImageFilter => 'Görüntüler';
+
+  @override
+  String get stepAddSignature => 'İmza ekle';
+
+  @override
+  String get stepAddInitials => 'Paraf ekle';
+
+  @override
+  String get placeSignatureHint =>
+      'Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın.';
+
+  @override
   String get formPanelTitle => 'Form';
 
   @override

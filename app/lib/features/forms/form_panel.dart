@@ -2,9 +2,12 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart' hide AnnotationColor;
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/signatures/add_signature_dialog.dart';
+import 'package:ferman/features/signatures/sign_tools.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -519,6 +522,8 @@ class FillAnythingPanel extends ConsumerWidget {
     final tool = choices.effective(form);
     final notifier = ref.read(fillToolsStateProvider.notifier);
     final refusal = ref.watch(fillRefusalProvider)?.call(l10n);
+    // A signature is a stamp annotation, behind the Comment gate (G148).
+    final signRefusal = ref.watch(commentRefusalProvider)?.call(l10n);
     Widget row(
       IconName icon,
       String label,
@@ -597,7 +602,11 @@ class FillAnythingPanel extends ConsumerWidget {
                 IconName.signature,
                 l10n.fillToolSignature,
                 ShellCommand.addSignature.caps(platform) ?? const [],
-                reason: Feature.simpleSignatures.disabledReason(context),
+                reason: signRefusal,
+                onPressed: signRefusal == null
+                    ? () =>
+                          showAddSignatureDialog(ref, yourName: yourNameOf(ref))
+                    : null,
               ),
             ],
           ),

@@ -158,9 +158,13 @@ enum Feature {
   /// defaults, which has no entry yet).
   formDataExport('B207'),
 
-  /// Simple signatures: Start › Sign, Fill & Sign › Sign and Initials, and
-  /// Settings › Signatures and certificates.
-  simpleSignatures('B024'),
+  /// Managing saved signatures: Settings › Signatures and certificates, and
+  /// the Sign menu's Manage saved signatures….
+  settingsSignatures('B208'),
+
+  /// Signing on the phone, which has no shell yet: the phone home's quick
+  /// tool Sign.
+  phoneSign('B209'),
 
   /// Certificate signatures: Fill & Sign › Digital signature, Settings ›
   /// Privacy › Timestamps and the first-run tile "e-imza and digital

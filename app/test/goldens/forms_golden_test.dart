@@ -108,9 +108,7 @@ List<FieldInfo> _fields() => [
     label: 'İmza',
     kind: FieldKind.signature,
     required: true,
-    widgets: [
-      FieldWidget(page: 100, rect: Rect.fromLTWH(70, 400, 180, 44)),
-    ],
+    widgets: [FieldWidget(page: 100, rect: Rect.fromLTWH(70, 400, 180, 44))],
   ),
 ];
 

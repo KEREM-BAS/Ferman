@@ -547,7 +547,14 @@ void main() {
         'Insert▾',
       };
       // Fill & Sign's tools that wait for a document.
-      const filling = {'Fill fields', 'Add text', 'Checkmark', 'Date'};
+      const filling = {
+        'Fill fields',
+        'Add text',
+        'Checkmark',
+        'Date',
+        'Sign▾',
+        'Initials',
+      };
       // Comment's tools that wait for a document.
       const commenting = {
         'Select',

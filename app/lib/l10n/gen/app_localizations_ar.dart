@@ -4968,6 +4968,123 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get signPadMethod => 'طريقة التوقيع';
+
+  @override
+  String get signPadDraw => 'رسم';
+
+  @override
+  String get signPadType => 'كتابة';
+
+  @override
+  String get signPadImage => 'صورة';
+
+  @override
+  String get signPadArea =>
+      'منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع.';
+
+  @override
+  String get signPadTypeName => 'اكتب اسمك';
+
+  @override
+  String get signPadNamePlaceholder => 'اسمك';
+
+  @override
+  String get signPadDrawHint => 'وقّع فوق الخط';
+
+  @override
+  String get signPadTypeHint => 'اكتب اسمك فوق الخط';
+
+  @override
+  String get signPadImageHint =>
+      'اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية.';
+
+  @override
+  String get signPadChooseImage => 'اختيار صورة…';
+
+  @override
+  String get signPadInk => 'لون الحبر';
+
+  @override
+  String get signPadBlack => 'أسود';
+
+  @override
+  String get signPadBlue => 'أزرق';
+
+  @override
+  String get signPadClear => 'مسح';
+
+  @override
+  String get signPadSave => 'الحفظ على هذا الجهاز';
+
+  @override
+  String get signDialogTitle => 'إضافة توقيع';
+
+  @override
+  String get signDialogTitleInitials => 'إضافة الأحرف الأولى';
+
+  @override
+  String get signCreate => 'إنشاء';
+
+  @override
+  String get signKindSignature => 'توقيع';
+
+  @override
+  String get signKindInitials => 'الأحرف الأولى';
+
+  @override
+  String get signHandwriting => 'نمط خط اليد';
+
+  @override
+  String get signNoStyle =>
+      'لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك.';
+
+  @override
+  String get signSavedNote => 'يُحفظ على هذا الجهاز فقط.';
+
+  @override
+  String get signMenuLabel => 'التواقيع المحفوظة';
+
+  @override
+  String get signMenuSignatures => 'التواقيع';
+
+  @override
+  String get signMenuAdd => 'إضافة توقيع…';
+
+  @override
+  String get signMenuCreate => 'إنشاء توقيع…';
+
+  @override
+  String get signMenuManage => 'إدارة التواقيع المحفوظة…';
+
+  @override
+  String get signDrawn => 'مرسوم';
+
+  @override
+  String get signDelete => 'حذف';
+
+  @override
+  String get signSaveFailed =>
+      'تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع.';
+
+  @override
+  String get signImageTooLarge =>
+      'هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت.';
+
+  @override
+  String get signImageFilter => 'الصور';
+
+  @override
+  String get stepAddSignature => 'إضافة توقيع';
+
+  @override
+  String get stepAddInitials => 'إضافة الأحرف الأولى';
+
+  @override
+  String get placeSignatureHint =>
+      'انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter.';
+
+  @override
   String get formPanelTitle => 'النموذج';
 
   @override

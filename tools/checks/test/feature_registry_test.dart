@@ -7,8 +7,6 @@ const String _registry = FeatureRegistryCheck.registryPath;
 const String _backlog = FeatureRegistryCheck.backlogPath;
 const String _stickyNote =
     'app/lib/design/components/annotations/sticky_note.dart';
-const String _signaturePad =
-    'app/lib/design/components/fill_sign/signature_pad.dart';
 
 /// A registry with [values], the text between `enum Feature {` and `;`.
 String _registryWith(String values) =>
@@ -80,7 +78,6 @@ String futureVersionReason(BuildContext context) =>
     AppLocalizations.of(context).availableInFutureVersion;
 ''')
   ..write(_stickyNote, 'Object more(Object c) => futureVersionReason(c);\n')
-  ..write(_signaturePad, 'Object image(Object c) => futureVersionReason(c);\n')
   ..write('app/lib/features/start/start_screen.dart', '''
 import 'package:ferman/app/feature_registry.dart';
 

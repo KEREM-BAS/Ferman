@@ -269,7 +269,6 @@ Size stampBox(String label, String? meta, double fontSize, TextStyle style) {
 
 /// [rect] moved as little as it takes to lie inside a page of [page]; a rect
 /// bigger than the page stays centred on it.
-@visibleForTesting
 Rect keptOnPage(Rect rect, Size page) {
   double along(double start, double length, double whole) =>
       length >= whole ? (whole - length) / 2 : start.clamp(0, whole - length);

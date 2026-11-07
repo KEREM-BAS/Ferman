@@ -18,6 +18,9 @@ import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/forms/fill_anything.dart';
 import 'package:ferman/features/forms/form_overlay.dart';
 import 'package:ferman/features/forms/form_state.dart';
+import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/signatures/saved_signatures.dart';
+import 'package:ferman/features/signatures/signature_placement_overlay.dart';
 import 'package:ferman/features/stamps/mark_placement_overlay.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
@@ -435,6 +438,14 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
 
   Viewer get _viewer => ref.read(viewerProvider.notifier);
 
+  /// Whether Fill & Sign is placing a signature over the pages.
+  bool get _signing =>
+      !widget.tools &&
+      !widget.edit &&
+      !widget.comment &&
+      ref.read(shellModeProvider) == FermanMode.sign &&
+      ref.read(signaturePlacementProvider) != null;
+
   ViewerTool get _tool => widget.tools
       ? (ref.read(viewerProvider)?.tool ?? ViewerTool.select)
       : ViewerTool.select;
@@ -473,6 +484,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   }
 
   void _down(PointerDownEvent event) {
+    // Placing a signature: the press is its overlay's.
+    if (_signing) return;
     // A click in the open editor, or in a comment's text being typed, is the
     // text field's.
     if (widget.edit && _inEditor(event.position)) return;
@@ -874,6 +887,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
         : hover?.empty;
     final linkTool = ref.watch(linkToolProvider);
     final linkOn = widget.edit && linkTool.on;
+    ref
+      ..watch(shellModeProvider)
+      ..watch(signaturePlacementProvider);
     final commentTools = ref.watch(commentToolProvider);
     final fillTool = widget.fill
         ? ref
@@ -1023,6 +1039,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                             .pick(AnnotationTool.select),
                       ),
                     ),
+                  // Fill & Sign's signatures and initials (a5-3d).
+                  if (_signing)
+                    const Positioned.fill(child: SignaturePlacementOverlay()),
                   if (marquee != null &&
                       marquee.longestSide >= Viewer.marqueeMinimum)
                     PositionedDirectional(

@@ -106,6 +106,9 @@ final Set<String> _waitForDocument = {
     if (tool != AnnotationTool.measure) _l10n.annotationToolLabel(tool),
   _l10n.shellShowComments,
   _l10n.shellColor,
+  // Fill & Sign's signature tools (B024).
+  'Sign',
+  'Initials',
   // Organize's tools that work with a document.
   'Insert',
   'Extract',

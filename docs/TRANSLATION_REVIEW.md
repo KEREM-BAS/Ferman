@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1353 messages in `app_en.arb`; translated: Turkish 1353, Arabic 1353.
+1390 messages in `app_en.arb`; translated: Turkish 1390, Arabic 1390.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1325,6 +1325,43 @@ The table below is generated from the ARB files by `tools/l10n`
 | `linkRefusedAction` | It does something Ferman doesn't know, so it stays in the file and doesn't run. | Ferman'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz. | يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ. | G145. |
 | `linksBrokenMeta` | {count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}} | {count, plural, other{Bozuk: bu belgede {pages} sayfa var}} | {count, plural, =1{معطّل: يحتوي هذا المستند على صفحة واحدة ({pages})} =2{معطّل: يحتوي هذا المستند على صفحتين ({pages})} few{معطّل: يحتوي هذا المستند على {pages} صفحات} other{معطّل: يحتوي هذا المستند على {pages} صفحة}} | a3-6: a link to a page the document does not have. |
 | `linkErrorPage` | {count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}} | {count, plural, other{1 ile {pages} arasında bir sayfa yazın.}} | {count, plural, =1{يحتوي هذا المستند على صفحة واحدة ({pages}).} other{اكتب صفحة من 1 إلى {pages}.}} | a3-6: the Page field's error. |
+| `signPadMethod` | Signature method | İmza yöntemi | طريقة التوقيع | a5-3: screen-reader name of the Draw, Type and Image choice in the signature pad. |
+| `signPadDraw` | Draw | Çiz | رسم | a5-3b: signature pad mode, drawing with a mouse, trackpad, pen or finger. A verb. |
+| `signPadType` | Type | Yaz | كتابة | a5-3: signature pad mode, the name typed in a handwriting style. A verb. |
+| `signPadImage` | Image | Görüntü | صورة | a5-3c: signature pad mode, a photo or scan of a signature on paper; also the caption of such a saved signature in the Sign menu. |
+| `signPadArea` | Signature drawing area. Draw with a mouse, trackpad, pen or finger. | İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin. | منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع. | a5-3b: screen-reader name of the drawing area. |
+| `signPadTypeName` | Type your name | Adınızı yazın | اكتب اسمك | a5-3: screen-reader name of the name field in the signature pad. |
+| `signPadNamePlaceholder` | Your name | Adınız | اسمك | a5-3: placeholder of the name field in the signature pad. |
+| `signPadDrawHint` | Sign above the line | Çizginin üstüne imzalayın | وقّع فوق الخط | a5-3b: hint in the empty drawing area. |
+| `signPadTypeHint` | Type your name above the line | Adınızı çizginin üstüne yazın | اكتب اسمك فوق الخط | a5-3: hint under the empty name field. |
+| `signPadImageHint` | Choose a photo or scan of your signature. Ferman removes the background. | İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır. | اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية. | a5-3c: text in the empty image box. Ferman is the product name. |
+| `signPadChooseImage` | Choose image… | Görüntü seç… | اختيار صورة… | a5-3c: button that opens the system panel to choose an image. |
+| `signPadInk` | Ink color | Mürekkep rengi | لون الحبر | a5-3: screen-reader name of the ink colour choice. |
+| `signPadBlack` | Black | Siyah | أسود | a5-3: ink colour name, read by screen readers. |
+| `signPadBlue` | Blue | Mavi | أزرق | a5-3: ink colour name, read by screen readers. |
+| `signPadClear` | Clear | Temizle | مسح | a5-3b: button that removes every stroke or the typed name. A verb. |
+| `signPadSave` | Save on this device | Bu cihaza kaydet | الحفظ على هذا الجهاز | a5-3: checkbox; a saved signature appears in the Sign menu next time. |
+| `signDialogTitle` | Add signature | İmza ekle | إضافة توقيع | a5-3: title and main button of the dialog that creates a signature. |
+| `signDialogTitleInitials` | Add initials | Paraf ekle | إضافة الأحرف الأولى | a5-3: title and main button of the same dialog while it creates initials. |
+| `signCreate` | Create | Oluştur | إنشاء | a5-3: screen-reader name of the Signature or Initials choice at the top of the dialog. |
+| `signKindSignature` | Signature | İmza | توقيع | a5-3: choice at the top of the dialog. |
+| `signKindInitials` | Initials | Paraf | الأحرف الأولى | a5-3: choice at the top of the dialog; also the heading of the initials in the Sign menu, shown in capitals. |
+| `signHandwriting` | Handwriting style | El yazısı stili | نمط خط اليد | a5-3: screen-reader name of the three handwriting style tiles. |
+| `signNoStyle` | No handwriting style can write every letter of this name. Draw it or use an image instead. | Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın. | لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك. | a5-3: line shown instead of the style tiles when none of the three fonts has every letter of the typed name, as for an Arabic or Chinese name (design gap G149). |
+| `signSavedNote` | Saved only on this device. | Yalnızca bu cihaza kaydedilir. | يُحفظ على هذا الجهاز فقط. | a5-3: note at the start of the dialog's footer. |
+| `signMenuLabel` | Saved signatures | Kayıtlı imzalar | التواقيع المحفوظة | a5-3d: screen-reader name of the Sign menu. |
+| `signMenuSignatures` | Signatures | İmzalar | التواقيع | a5-3d: heading of the saved signatures in the Sign menu, shown in capitals. |
+| `signMenuAdd` | Add signature… | İmza ekle… | إضافة توقيع… | a5-3d: Sign menu item that opens the dialog. |
+| `signMenuCreate` | Create signature… | İmza oluştur… | إنشاء توقيع… | Sign menu item that opens the dialog while nothing is saved yet (design gap G47). |
+| `signMenuManage` | Manage saved signatures… | Kayıtlı imzaları yönet… | إدارة التواقيع المحفوظة… | a5-3d: Sign menu item that opens Settings › Signatures. |
+| `signDrawn` | Drawn | Çizilmiş | مرسوم | a5-3d: caption of a drawn signature in the Sign menu. |
+| `signDelete` | Delete | Sil | حذف | Menu item of a saved signature in the Sign menu: deletes it from this device. |
+| `signSaveFailed` | The signature couldn’t be saved on this device. It’s still ready to place. | İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır. | تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع. | Toast when a new signature cannot be written to the app's data folder. |
+| `signImageTooLarge` | This image is too large. Choose one under 6 MB. | Bu görüntü çok büyük. 6 MB’tan küçük birini seçin. | هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت. | Toast when the chosen signature image is too large. |
+| `signImageFilter` | Images | Görüntüler | الصور | Filter name in the system open panel for a signature image. |
+| `stepAddSignature` | Add signature | İmza ekle | إضافة توقيع | Name of the history step that places a signature. |
+| `stepAddInitials` | Add initials | Paraf ekle | إضافة الأحرف الأولى | Name of the history step that places initials. |
+| `placeSignatureHint` | Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter. | Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın. | انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter. | Screen-reader hint of the page while a signature is being placed (a5-3d). |
 | `formPanelTitle` | Form | Form | النموذج | FmFormPanel's heading (a5-1). |
 | `formMore` | More: clear form, export data | Diğer: formu temizle, verileri dışa aktar | المزيد: مسح النموذج وتصدير البيانات | FmFormPanel: the More button. |
 | `formRequiredProgress` | {filled} of {total} required fields | {total} zorunlu alandan {filled} tanesi | {filled} من {total} من الحقول المطلوبة | FmFormPanel: the required count over its bar (a5-1). |

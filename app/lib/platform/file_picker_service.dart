@@ -40,6 +40,13 @@ abstract interface class FilePickerService {
     required int largest,
   });
 
+  /// Shows the open panel for one image a signature is made from (a5-3c) and
+  /// reads it: null when cancelled, no bytes when it is larger than [largest].
+  Future<Uint8List?> openImage({
+    required String filterLabel,
+    required int largest,
+  });
+
   /// Writes [bytes] to the new file [path] the save panel gave.
   Future<void> writeFile(String path, Uint8List bytes);
 }
@@ -126,6 +133,33 @@ final class NativeFilePickerService implements FilePickerService {
   @override
   Future<void> writeFile(String path, Uint8List bytes) =>
       XFile.fromData(bytes).saveTo(path);
+
+  @override
+  Future<Uint8List?> openImage({
+    required String filterLabel,
+    required int largest,
+  }) async {
+    final file = await openFile(
+      acceptedTypeGroups: [
+        XTypeGroup(
+          label: filterLabel,
+          extensions: const [
+            'png',
+            'jpg',
+            'jpeg',
+            'tif',
+            'tiff',
+            'webp',
+            'gif',
+          ],
+        ),
+      ],
+    );
+    if (file == null) return null;
+    return await file.length() > largest
+        ? Uint8List(0)
+        : await file.readAsBytes();
+  }
 
   @override
   Future<String?> chooseFolder({String? initial}) =>

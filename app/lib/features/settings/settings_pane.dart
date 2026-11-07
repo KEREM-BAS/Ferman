@@ -22,12 +22,12 @@ enum SettingsPane {
   /// Fonts (a11-1d): M4 (coverage and system fonts arrive in M3).
   fonts('fonts', IconName.type, feature: Feature.settingsFonts),
 
-  /// Signatures and certificates (a11-1e): M4 (simple signatures) and P3
+  /// Signatures and certificates (a11-1e): M4 (saved signatures, W5) and P3
   /// (certificates, e-imza).
   signatures(
     'signatures',
     IconName.signature,
-    feature: Feature.simpleSignatures,
+    feature: Feature.settingsSignatures,
   ),
 
   /// Text recognition (OCR) (a11-1f): P3.

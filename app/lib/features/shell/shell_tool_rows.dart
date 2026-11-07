@@ -25,6 +25,8 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/signatures/saved_signatures.dart';
+import 'package:ferman/features/signatures/sign_tools.dart';
 import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -790,6 +792,10 @@ class _SignTools extends ConsumerWidget {
       );
     }
 
+    // A signature is a stamp annotation, behind the Comment gate (G148).
+    final signRefusal = ref.watch(commentRefusalProvider)?.call(l10n);
+    final signs = live && signRefusal == null;
+    final saved = ref.watch(savedSignaturesProvider).value ?? const [];
     return Toolbar(
       semanticLabel: l10n.shellFillSignTools,
       overflowLabel: l10n.moreTools,
@@ -804,20 +810,26 @@ class _SignTools extends ConsumerWidget {
         // FmWindow draws Date without its keys (⇧D, Fill anything's).
         fill(FillTool.date, IconName.calendar, l10n.shellToolDate),
         const ToolbarSeparator(),
-        _future(
-          context,
-          feature: Feature.simpleSignatures,
-          icon: IconName.signature,
-          label: l10n.shellToolSign,
-          active: false,
-          hasMenu: true,
+        ToolbarItem(
+          menuItem: MenuItem(
+            id: l10n.shellToolSign,
+            label: l10n.shellToolSign,
+            icon: IconName.signature,
+            disabled: !signs,
+            submenu: signMenuItems(context, l10n, saved),
+          ),
+          onMenuSelected: (item) => signMenuChosen(ref, item),
+          child: SignTool(live: signs, disabledReason: signRefusal),
         ),
-        _future(
-          context,
-          feature: Feature.simpleSignatures,
+        ToolButton(
           icon: IconName.penLine,
           label: l10n.shellToolInitials,
-          active: false,
+          active: ref.watch(
+            signaturePlacementProvider.select((s) => s?.initials ?? false),
+          ),
+          disabled: !signs,
+          disabledReason: signRefusal,
+          onPressed: signs ? () => startInitials(ref) : null,
         ),
         _future(
           context,

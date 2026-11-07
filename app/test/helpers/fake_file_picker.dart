@@ -64,6 +64,18 @@ final class FakeFilePickerService implements FilePickerService {
     return stampFile;
   }
 
+  /// What the image's open panel returns; null, as if cancelled, by default.
+  Uint8List? imageFile;
+
+  @override
+  Future<Uint8List?> openImage({
+    required String filterLabel,
+    required int largest,
+  }) async {
+    requests.add(filterLabel);
+    return imageFile;
+  }
+
   /// The files written, by path.
   final Map<String, Uint8List> written = {};
 

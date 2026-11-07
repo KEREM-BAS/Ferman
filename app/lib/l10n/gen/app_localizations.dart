@@ -7726,6 +7726,228 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}}'**
   String linkErrorPage(int count, String pages);
 
+  /// a5-3: screen-reader name of the Draw, Type and Image choice in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature method'**
+  String get signPadMethod;
+
+  /// a5-3b: signature pad mode, drawing with a mouse, trackpad, pen or finger. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get signPadDraw;
+
+  /// a5-3: signature pad mode, the name typed in a handwriting style. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get signPadType;
+
+  /// a5-3c: signature pad mode, a photo or scan of a signature on paper; also the caption of such a saved signature in the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get signPadImage;
+
+  /// a5-3b: screen-reader name of the drawing area.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature drawing area. Draw with a mouse, trackpad, pen or finger.'**
+  String get signPadArea;
+
+  /// a5-3: screen-reader name of the name field in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name'**
+  String get signPadTypeName;
+
+  /// a5-3: placeholder of the name field in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get signPadNamePlaceholder;
+
+  /// a5-3b: hint in the empty drawing area.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign above the line'**
+  String get signPadDrawHint;
+
+  /// a5-3: hint under the empty name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name above the line'**
+  String get signPadTypeHint;
+
+  /// a5-3c: text in the empty image box. Ferman is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo or scan of your signature. Ferman removes the background.'**
+  String get signPadImageHint;
+
+  /// a5-3c: button that opens the system panel to choose an image.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image…'**
+  String get signPadChooseImage;
+
+  /// a5-3: screen-reader name of the ink colour choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Ink color'**
+  String get signPadInk;
+
+  /// a5-3: ink colour name, read by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get signPadBlack;
+
+  /// a5-3: ink colour name, read by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get signPadBlue;
+
+  /// a5-3b: button that removes every stroke or the typed name. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get signPadClear;
+
+  /// a5-3: checkbox; a saved signature appears in the Sign menu next time.
+  ///
+  /// In en, this message translates to:
+  /// **'Save on this device'**
+  String get signPadSave;
+
+  /// a5-3: title and main button of the dialog that creates a signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature'**
+  String get signDialogTitle;
+
+  /// a5-3: title and main button of the same dialog while it creates initials.
+  ///
+  /// In en, this message translates to:
+  /// **'Add initials'**
+  String get signDialogTitleInitials;
+
+  /// a5-3: screen-reader name of the Signature or Initials choice at the top of the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get signCreate;
+
+  /// a5-3: choice at the top of the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get signKindSignature;
+
+  /// a5-3: choice at the top of the dialog; also the heading of the initials in the Sign menu, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Initials'**
+  String get signKindInitials;
+
+  /// a5-3: screen-reader name of the three handwriting style tiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Handwriting style'**
+  String get signHandwriting;
+
+  /// a5-3: line shown instead of the style tiles when none of the three fonts has every letter of the typed name, as for an Arabic or Chinese name (design gap G149).
+  ///
+  /// In en, this message translates to:
+  /// **'No handwriting style can write every letter of this name. Draw it or use an image instead.'**
+  String get signNoStyle;
+
+  /// a5-3: note at the start of the dialog's footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved only on this device.'**
+  String get signSavedNote;
+
+  /// a5-3d: screen-reader name of the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signatures'**
+  String get signMenuLabel;
+
+  /// a5-3d: heading of the saved signatures in the Sign menu, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Signatures'**
+  String get signMenuSignatures;
+
+  /// a5-3d: Sign menu item that opens the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature…'**
+  String get signMenuAdd;
+
+  /// Sign menu item that opens the dialog while nothing is saved yet (design gap G47).
+  ///
+  /// In en, this message translates to:
+  /// **'Create signature…'**
+  String get signMenuCreate;
+
+  /// a5-3d: Sign menu item that opens Settings › Signatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage saved signatures…'**
+  String get signMenuManage;
+
+  /// a5-3d: caption of a drawn signature in the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawn'**
+  String get signDrawn;
+
+  /// Menu item of a saved signature in the Sign menu: deletes it from this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get signDelete;
+
+  /// Toast when a new signature cannot be written to the app's data folder.
+  ///
+  /// In en, this message translates to:
+  /// **'The signature couldn’t be saved on this device. It’s still ready to place.'**
+  String get signSaveFailed;
+
+  /// Toast when the chosen signature image is too large.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too large. Choose one under 6 MB.'**
+  String get signImageTooLarge;
+
+  /// Filter name in the system open panel for a signature image.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get signImageFilter;
+
+  /// Name of the history step that places a signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature'**
+  String get stepAddSignature;
+
+  /// Name of the history step that places initials.
+  ///
+  /// In en, this message translates to:
+  /// **'Add initials'**
+  String get stepAddInitials;
+
+  /// Screen-reader hint of the page while a signature is being placed (a5-3d).
+  ///
+  /// In en, this message translates to:
+  /// **'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.'**
+  String get placeSignatureHint;
+
   /// FmFormPanel's heading (a5-1).
   ///
   /// In en, this message translates to:

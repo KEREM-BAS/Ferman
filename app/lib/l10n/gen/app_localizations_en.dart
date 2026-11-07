@@ -4815,6 +4815,123 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get signPadMethod => 'Signature method';
+
+  @override
+  String get signPadDraw => 'Draw';
+
+  @override
+  String get signPadType => 'Type';
+
+  @override
+  String get signPadImage => 'Image';
+
+  @override
+  String get signPadArea =>
+      'Signature drawing area. Draw with a mouse, trackpad, pen or finger.';
+
+  @override
+  String get signPadTypeName => 'Type your name';
+
+  @override
+  String get signPadNamePlaceholder => 'Your name';
+
+  @override
+  String get signPadDrawHint => 'Sign above the line';
+
+  @override
+  String get signPadTypeHint => 'Type your name above the line';
+
+  @override
+  String get signPadImageHint =>
+      'Choose a photo or scan of your signature. Ferman removes the background.';
+
+  @override
+  String get signPadChooseImage => 'Choose image…';
+
+  @override
+  String get signPadInk => 'Ink color';
+
+  @override
+  String get signPadBlack => 'Black';
+
+  @override
+  String get signPadBlue => 'Blue';
+
+  @override
+  String get signPadClear => 'Clear';
+
+  @override
+  String get signPadSave => 'Save on this device';
+
+  @override
+  String get signDialogTitle => 'Add signature';
+
+  @override
+  String get signDialogTitleInitials => 'Add initials';
+
+  @override
+  String get signCreate => 'Create';
+
+  @override
+  String get signKindSignature => 'Signature';
+
+  @override
+  String get signKindInitials => 'Initials';
+
+  @override
+  String get signHandwriting => 'Handwriting style';
+
+  @override
+  String get signNoStyle =>
+      'No handwriting style can write every letter of this name. Draw it or use an image instead.';
+
+  @override
+  String get signSavedNote => 'Saved only on this device.';
+
+  @override
+  String get signMenuLabel => 'Saved signatures';
+
+  @override
+  String get signMenuSignatures => 'Signatures';
+
+  @override
+  String get signMenuAdd => 'Add signature…';
+
+  @override
+  String get signMenuCreate => 'Create signature…';
+
+  @override
+  String get signMenuManage => 'Manage saved signatures…';
+
+  @override
+  String get signDrawn => 'Drawn';
+
+  @override
+  String get signDelete => 'Delete';
+
+  @override
+  String get signSaveFailed =>
+      'The signature couldn’t be saved on this device. It’s still ready to place.';
+
+  @override
+  String get signImageTooLarge =>
+      'This image is too large. Choose one under 6 MB.';
+
+  @override
+  String get signImageFilter => 'Images';
+
+  @override
+  String get stepAddSignature => 'Add signature';
+
+  @override
+  String get stepAddInitials => 'Add initials';
+
+  @override
+  String get placeSignatureHint =>
+      'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.';
+
+  @override
   String get formPanelTitle => 'Form';
 
   @override
