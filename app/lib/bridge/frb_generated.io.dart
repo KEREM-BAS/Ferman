@@ -162,6 +162,9 @@ abstract class FermanBridgeApiImplPlatform
   NewLink dco_decode_box_autoadd_new_link(dynamic raw);
 
   @protected
+  NewSignature dco_decode_box_autoadd_new_signature(dynamic raw);
+
+  @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
 
   @protected
@@ -294,6 +297,15 @@ abstract class FermanBridgeApiImplPlatform
   FieldWidget dco_decode_field_widget(dynamic raw);
 
   @protected
+  FillTarget dco_decode_fill_target(dynamic raw);
+
+  @protected
+  FillTargetKind dco_decode_fill_target_kind(dynamic raw);
+
+  @protected
+  FillTargets dco_decode_fill_targets(dynamic raw);
+
+  @protected
   FontCandidate dco_decode_font_candidate(dynamic raw);
 
   @protected
@@ -319,6 +331,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FormInfo dco_decode_form_info(dynamic raw);
+
+  @protected
+  HandwritingStyle dco_decode_handwriting_style(dynamic raw);
 
   @protected
   History dco_decode_history(dynamic raw);
@@ -420,6 +435,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FieldWidget> dco_decode_list_field_widget(dynamic raw);
 
   @protected
+  List<FillTarget> dco_decode_list_fill_target(dynamic raw);
+
+  @protected
   List<FontCandidate> dco_decode_list_font_candidate(dynamic raw);
 
   @protected
@@ -430,6 +448,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw);
+
+  @protected
+  List<HandwritingStyle> dco_decode_list_handwriting_style(dynamic raw);
 
   @protected
   List<HistoryStep> dco_decode_list_history_step(dynamic raw);
@@ -477,6 +498,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
   @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
@@ -487,6 +511,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<RepairFix> dco_decode_list_repair_fix(dynamic raw);
+
+  @protected
+  List<SavedSignature> dco_decode_list_saved_signature(dynamic raw);
 
   @protected
   List<SearchMatch> dco_decode_list_search_match(dynamic raw);
@@ -523,6 +550,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   NewLink dco_decode_new_link(dynamic raw);
+
+  @protected
+  NewSignature dco_decode_new_signature(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw);
@@ -707,6 +737,9 @@ abstract class FermanBridgeApiImplPlatform
   RevisionInfo dco_decode_revision_info(dynamic raw);
 
   @protected
+  SavedSignature dco_decode_saved_signature(dynamic raw);
+
+  @protected
   SearchEvent dco_decode_search_event(dynamic raw);
 
   @protected
@@ -726,6 +759,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Signature dco_decode_signature(dynamic raw);
+
+  @protected
+  SignatureInk dco_decode_signature_ink(dynamic raw);
+
+  @protected
+  SignatureInkKind dco_decode_signature_ink_kind(dynamic raw);
 
   @protected
   SplitFile dco_decode_split_file(dynamic raw);
@@ -954,6 +993,11 @@ abstract class FermanBridgeApiImplPlatform
   NewLink sse_decode_box_autoadd_new_link(SseDeserializer deserializer);
 
   @protected
+  NewSignature sse_decode_box_autoadd_new_signature(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
     SseDeserializer deserializer,
   );
@@ -1104,6 +1148,15 @@ abstract class FermanBridgeApiImplPlatform
   FieldWidget sse_decode_field_widget(SseDeserializer deserializer);
 
   @protected
+  FillTarget sse_decode_fill_target(SseDeserializer deserializer);
+
+  @protected
+  FillTargetKind sse_decode_fill_target_kind(SseDeserializer deserializer);
+
+  @protected
+  FillTargets sse_decode_fill_targets(SseDeserializer deserializer);
+
+  @protected
   FontCandidate sse_decode_font_candidate(SseDeserializer deserializer);
 
   @protected
@@ -1129,6 +1182,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FormInfo sse_decode_form_info(SseDeserializer deserializer);
+
+  @protected
+  HandwritingStyle sse_decode_handwriting_style(SseDeserializer deserializer);
 
   @protected
   History sse_decode_history(SseDeserializer deserializer);
@@ -1242,6 +1298,9 @@ abstract class FermanBridgeApiImplPlatform
   List<FieldWidget> sse_decode_list_field_widget(SseDeserializer deserializer);
 
   @protected
+  List<FillTarget> sse_decode_list_fill_target(SseDeserializer deserializer);
+
+  @protected
   List<FontCandidate> sse_decode_list_font_candidate(
     SseDeserializer deserializer,
   );
@@ -1256,6 +1315,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontSubstitution> sse_decode_list_font_substitution(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<HandwritingStyle> sse_decode_list_handwriting_style(
     SseDeserializer deserializer,
   );
 
@@ -1309,6 +1373,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
   @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
@@ -1323,6 +1390,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<RepairFix> sse_decode_list_repair_fix(SseDeserializer deserializer);
+
+  @protected
+  List<SavedSignature> sse_decode_list_saved_signature(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer);
@@ -1363,6 +1435,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   NewLink sse_decode_new_link(SseDeserializer deserializer);
+
+  @protected
+  NewSignature sse_decode_new_signature(SseDeserializer deserializer);
 
   @protected
   NotEditableReason sse_decode_not_editable_reason(
@@ -1587,6 +1662,9 @@ abstract class FermanBridgeApiImplPlatform
   RevisionInfo sse_decode_revision_info(SseDeserializer deserializer);
 
   @protected
+  SavedSignature sse_decode_saved_signature(SseDeserializer deserializer);
+
+  @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer);
 
   @protected
@@ -1606,6 +1684,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
+
+  @protected
+  SignatureInk sse_decode_signature_ink(SseDeserializer deserializer);
+
+  @protected
+  SignatureInkKind sse_decode_signature_ink_kind(SseDeserializer deserializer);
 
   @protected
   SplitFile sse_decode_split_file(SseDeserializer deserializer);
@@ -1935,6 +2019,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_new_signature> cst_encode_box_autoadd_new_signature(
+    NewSignature raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_new_signature();
+    cst_api_fill_to_wire_new_signature(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_not_editable_reason(
     NotEditableReason raw,
   ) {
@@ -2235,6 +2329,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_fill_target> cst_encode_list_fill_target(
+    List<FillTarget> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_fill_target(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_fill_target(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_font_candidate> cst_encode_list_font_candidate(
     List<FontCandidate> raw,
   ) {
@@ -2277,6 +2383,17 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_font_substitution(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_font_substitution(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_handwriting_style>
+  cst_encode_list_handwriting_style(List<HandwritingStyle> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_handwriting_style(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_handwriting_style(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -2455,6 +2572,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_encode_list_prim_u_8_loose(
+    List<int> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_8_loose(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
     Uint8List raw,
   ) {
@@ -2494,6 +2621,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_repair_fix(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_repair_fix(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_saved_signature> cst_encode_list_saved_signature(
+    List<SavedSignature> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_saved_signature(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_saved_signature(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -3154,6 +3293,14 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_box_autoadd_new_signature(
+    NewSignature apiObj,
+    ffi.Pointer<wire_cst_new_signature> wireObj,
+  ) {
+    cst_api_fill_to_wire_new_signature(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_overflow_plan(
     OverflowPlan apiObj,
     ffi.Pointer<wire_cst_overflow_plan> wireObj,
@@ -3452,6 +3599,25 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_fill_target(
+    FillTarget apiObj,
+    wire_cst_fill_target wireObj,
+  ) {
+    wireObj.kind = cst_encode_fill_target_kind(apiObj.kind);
+    cst_api_fill_to_wire_page_rect(apiObj.rect, wireObj.rect);
+    wireObj.cells = cst_encode_u_32(apiObj.cells);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_fill_targets(
+    FillTargets apiObj,
+    wire_cst_fill_targets wireObj,
+  ) {
+    wireObj.targets = cst_encode_list_fill_target(apiObj.targets);
+    wireObj.truncated = cst_encode_bool(apiObj.truncated);
+  }
+
+  @protected
   void cst_api_fill_to_wire_font_candidate(
     FontCandidate apiObj,
     wire_cst_font_candidate wireObj,
@@ -3525,6 +3691,15 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.problems = cst_encode_u_32(apiObj.problems);
     wireObj.has_xfa = cst_encode_bool(apiObj.hasXfa);
     wireObj.truncated = cst_encode_bool(apiObj.truncated);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_handwriting_style(
+    HandwritingStyle apiObj,
+    wire_cst_handwriting_style wireObj,
+  ) {
+    wireObj.family = cst_encode_String(apiObj.family);
+    wireObj.covered = cst_encode_bool(apiObj.covered);
   }
 
   @protected
@@ -3704,6 +3879,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.meta = cst_encode_opt_String(apiObj.meta);
     wireObj.tilt = cst_encode_f_32(apiObj.tilt);
     wireObj.icon = cst_encode_opt_String(apiObj.icon);
+    wireObj.comb = cst_encode_opt_box_autoadd_u_32(apiObj.comb);
   }
 
   @protected
@@ -3719,6 +3895,20 @@ abstract class FermanBridgeApiImplPlatform
     );
     wireObj.look = cst_encode_link_look(apiObj.look);
     cst_api_fill_to_wire_annotation_color(apiObj.color, wireObj.color);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_new_signature(
+    NewSignature apiObj,
+    wire_cst_new_signature wireObj,
+  ) {
+    cst_api_fill_to_wire_page_rect(apiObj.rect, wireObj.rect);
+    cst_api_fill_to_wire_signature_ink(apiObj.ink, wireObj.ink);
+    cst_api_fill_to_wire_annotation_color(apiObj.color, wireObj.color);
+    wireObj.tilt = cst_encode_f_32(apiObj.tilt);
+    wireObj.initials = cst_encode_bool(apiObj.initials);
+    wireObj.field = cst_encode_opt_String(apiObj.field);
+    wireObj.author = cst_encode_String(apiObj.author);
   }
 
   @protected
@@ -3945,6 +4135,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_saved_signature(
+    SavedSignature apiObj,
+    wire_cst_saved_signature wireObj,
+  ) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.bytes = cst_encode_list_prim_u_8_strict(apiObj.bytes);
+  }
+
+  @protected
   void cst_api_fill_to_wire_search_event(
     SearchEvent apiObj,
     wire_cst_search_event wireObj,
@@ -4023,6 +4222,19 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.signer = cst_encode_opt_String(apiObj.signer);
     wireObj.signed_at = cst_encode_opt_box_autoadd_pdf_date(apiObj.signedAt);
     wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_signature_ink(
+    SignatureInk apiObj,
+    wire_cst_signature_ink wireObj,
+  ) {
+    wireObj.kind = cst_encode_signature_ink_kind(apiObj.kind);
+    wireObj.text = cst_encode_String(apiObj.text);
+    wireObj.family = cst_encode_String(apiObj.family);
+    wireObj.strokes = cst_encode_list_annotation_points(apiObj.strokes);
+    wireObj.width = cst_encode_f_32(apiObj.width);
+    wireObj.image = cst_encode_list_prim_u_8_strict(apiObj.image);
   }
 
   @protected
@@ -4185,6 +4397,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_field_problem_kind(FieldProblemKind raw);
 
   @protected
+  int cst_encode_fill_target_kind(FillTargetKind raw);
+
+  @protected
   int cst_encode_font_embedding(FontEmbedding raw);
 
   @protected
@@ -4252,6 +4467,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw);
+
+  @protected
+  int cst_encode_signature_ink_kind(SignatureInkKind raw);
 
   @protected
   int cst_encode_split_kind(SplitKind raw);
@@ -4518,6 +4736,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_new_link(NewLink self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_new_signature(
+    NewSignature self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_not_editable_reason(
     NotEditableReason self,
     SseSerializer serializer,
@@ -4707,6 +4931,18 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_field_widget(FieldWidget self, SseSerializer serializer);
 
   @protected
+  void sse_encode_fill_target(FillTarget self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_fill_target_kind(
+    FillTargetKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_fill_targets(FillTargets self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_candidate(FontCandidate self, SseSerializer serializer);
 
   @protected
@@ -4735,6 +4971,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_form_info(FormInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_handwriting_style(
+    HandwritingStyle self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_history(History self, SseSerializer serializer);
@@ -4872,6 +5114,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_fill_target(
+    List<FillTarget> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_font_candidate(
     List<FontCandidate> self,
     SseSerializer serializer,
@@ -4892,6 +5140,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_font_substitution(
     List<FontSubstitution> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_handwriting_style(
+    List<HandwritingStyle> self,
     SseSerializer serializer,
   );
 
@@ -4968,6 +5222,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -4988,6 +5245,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_repair_fix(
     List<RepairFix> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_saved_signature(
+    List<SavedSignature> self,
     SseSerializer serializer,
   );
 
@@ -5047,6 +5310,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_new_link(NewLink self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_new_signature(NewSignature self, SseSerializer serializer);
 
   @protected
   void sse_encode_not_editable_reason(
@@ -5328,6 +5594,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_saved_signature(
+    SavedSignature self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
 
   @protected
@@ -5350,6 +5622,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_signature_ink(SignatureInk self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_signature_ink_kind(
+    SignatureInkKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_split_file(SplitFile self, SseSerializer serializer);
@@ -5530,6 +5811,46 @@ class FermanBridgeWire implements BaseWire {
           ffi.Pointer<wire_cst_list_prim_u_8_strict>,
         )
       >();
+
+  void wire__crate__frb__add_signature(
+    int port_,
+    int document,
+    int page,
+    ffi.Pointer<wire_cst_new_signature> signature,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__add_signature(
+      port_,
+      document,
+      page,
+      signature,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__add_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_new_signature>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__add_signature');
+  late final _wire__crate__frb__add_signature =
+      _wire__crate__frb__add_signaturePtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_new_signature>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__annotations(int port_, int document) {
     return _wire__crate__frb__annotations(port_, document);
@@ -5993,6 +6314,34 @@ class FermanBridgeWire implements BaseWire {
             )
           >();
 
+  void wire__crate__frb__delete_saved_signature(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> dir,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__delete_saved_signature(port_, dir, name);
+  }
+
+  late final _wire__crate__frb__delete_saved_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__delete_saved_signature');
+  late final _wire__crate__frb__delete_saved_signature =
+      _wire__crate__frb__delete_saved_signaturePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__frb__discard_recovery(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> session,
@@ -6063,6 +6412,18 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__engine_info = _wire__crate__frb__engine_infoPtr
       .asFunction<void Function(int)>();
 
+  void wire__crate__frb__fill_targets(int port_, int document, int page) {
+    return _wire__crate__frb__fill_targets(port_, document, page);
+  }
+
+  late final _wire__crate__frb__fill_targetsPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64)>
+      >('frbgen_ferman_wire__crate__frb__fill_targets');
+  late final _wire__crate__frb__fill_targets =
+      _wire__crate__frb__fill_targetsPtr
+          .asFunction<void Function(int, int, int)>();
+
   void wire__crate__frb__finish_form(
     int port_,
     int document,
@@ -6131,6 +6492,28 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__form_fields = _wire__crate__frb__form_fieldsPtr
       .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__handwriting_styles(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
+  ) {
+    return _wire__crate__frb__handwriting_styles(port_, text);
+  }
+
+  late final _wire__crate__frb__handwriting_stylesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__handwriting_styles');
+  late final _wire__crate__frb__handwriting_styles =
+      _wire__crate__frb__handwriting_stylesPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
 
   void wire__crate__frb__history(int port_, int document) {
     return _wire__crate__frb__history(port_, document);
@@ -6958,6 +7341,28 @@ class FermanBridgeWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
+          >();
+
+  void wire__crate__frb__saved_signatures(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> dir,
+  ) {
+    return _wire__crate__frb__saved_signatures(port_, dir);
+  }
+
+  late final _wire__crate__frb__saved_signaturesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__saved_signatures');
+  late final _wire__crate__frb__saved_signatures =
+      _wire__crate__frb__saved_signaturesPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
   void wire__crate__frb__search(
@@ -7912,6 +8317,37 @@ class FermanBridgeWire implements BaseWire {
       _wire__crate__frb__would_break_signaturesPtr
           .asFunction<void Function(int, int)>();
 
+  void wire__crate__frb__write_saved_signature(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> dir,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> bytes,
+  ) {
+    return _wire__crate__frb__write_saved_signature(port_, dir, name, bytes);
+  }
+
+  late final _wire__crate__frb__write_saved_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__write_saved_signature');
+  late final _wire__crate__frb__write_saved_signature =
+      _wire__crate__frb__write_saved_signaturePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+            )
+          >();
+
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_alignment(int value) {
     return _cst_new_box_autoadd_alignment(value);
   }
@@ -8207,6 +8643,18 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _cst_new_box_autoadd_new_link = _cst_new_box_autoadd_new_linkPtr
       .asFunction<ffi.Pointer<wire_cst_new_link> Function()>();
+
+  ffi.Pointer<wire_cst_new_signature> cst_new_box_autoadd_new_signature() {
+    return _cst_new_box_autoadd_new_signature();
+  }
+
+  late final _cst_new_box_autoadd_new_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_new_signature> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_new_signature');
+  late final _cst_new_box_autoadd_new_signature =
+      _cst_new_box_autoadd_new_signaturePtr
+          .asFunction<ffi.Pointer<wire_cst_new_signature> Function()>();
 
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_not_editable_reason(int value) {
     return _cst_new_box_autoadd_not_editable_reason(value);
@@ -8574,6 +9022,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_field_widget = _cst_new_list_field_widgetPtr
       .asFunction<ffi.Pointer<wire_cst_list_field_widget> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_fill_target> cst_new_list_fill_target(int len) {
+    return _cst_new_list_fill_target(len);
+  }
+
+  late final _cst_new_list_fill_targetPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_fill_target> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_fill_target');
+  late final _cst_new_list_fill_target = _cst_new_list_fill_targetPtr
+      .asFunction<ffi.Pointer<wire_cst_list_fill_target> Function(int)>();
+
   ffi.Pointer<wire_cst_list_font_candidate> cst_new_list_font_candidate(
     int len,
   ) {
@@ -8631,6 +9092,24 @@ class FermanBridgeWire implements BaseWire {
       _cst_new_list_font_substitutionPtr
           .asFunction<
             ffi.Pointer<wire_cst_list_font_substitution> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_handwriting_style> cst_new_list_handwriting_style(
+    int len,
+  ) {
+    return _cst_new_list_handwriting_style(len);
+  }
+
+  late final _cst_new_list_handwriting_stylePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_handwriting_style> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_handwriting_style');
+  late final _cst_new_list_handwriting_style =
+      _cst_new_list_handwriting_stylePtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_handwriting_style> Function(int)
           >();
 
   ffi.Pointer<wire_cst_list_history_step> cst_new_list_history_step(int len) {
@@ -8838,6 +9317,21 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_prim_u_64_strict = _cst_new_list_prim_u_64_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_new_list_prim_u_8_loose(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_8_loose(len);
+  }
+
+  late final _cst_new_list_prim_u_8_loosePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_8_loose> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_prim_u_8_loose');
+  late final _cst_new_list_prim_u_8_loose = _cst_new_list_prim_u_8_loosePtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_loose> Function(int)>();
+
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
   ) {
@@ -8899,6 +9393,21 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_repair_fix');
   late final _cst_new_list_repair_fix = _cst_new_list_repair_fixPtr
       .asFunction<ffi.Pointer<wire_cst_list_repair_fix> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_saved_signature> cst_new_list_saved_signature(
+    int len,
+  ) {
+    return _cst_new_list_saved_signature(len);
+  }
+
+  late final _cst_new_list_saved_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_saved_signature> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_saved_signature');
+  late final _cst_new_list_saved_signature = _cst_new_list_saved_signaturePtr
+      .asFunction<ffi.Pointer<wire_cst_list_saved_signature> Function(int)>();
 
   ffi.Pointer<wire_cst_list_search_match> cst_new_list_search_match(int len) {
     return _cst_new_list_search_match(len);
@@ -9100,6 +9609,8 @@ final class wire_cst_new_annotation extends ffi.Struct {
   external double tilt;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> icon;
+
+  external ffi.Pointer<ffi.Uint32> comb;
 }
 
 final class wire_cst_link_destination extends ffi.Struct {
@@ -9122,6 +9633,40 @@ final class wire_cst_new_link extends ffi.Struct {
   external int look;
 
   external wire_cst_annotation_color color;
+}
+
+final class wire_cst_signature_ink extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> family;
+
+  external ffi.Pointer<wire_cst_list_annotation_points> strokes;
+
+  @ffi.Float()
+  external double width;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> image;
+}
+
+final class wire_cst_new_signature extends ffi.Struct {
+  external wire_cst_page_rect rect;
+
+  external wire_cst_signature_ink ink;
+
+  external wire_cst_annotation_color color;
+
+  @ffi.Float()
+  external double tilt;
+
+  @ffi.Bool()
+  external bool initials;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
 }
 
 final class wire_cst_list_String extends ffi.Struct {
@@ -9419,6 +9964,13 @@ final class wire_cst_link_change extends ffi.Struct {
   external ffi.Pointer<ffi.Int32> look;
 
   external ffi.Pointer<wire_cst_annotation_color> color;
+}
+
+final class wire_cst_list_prim_u_8_loose extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
 }
 
 final class wire_cst_api_error extends ffi.Struct {
@@ -10003,6 +10555,23 @@ final class wire_cst_list_field_info extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_fill_target extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  external wire_cst_page_rect rect;
+
+  @ffi.Uint32()
+  external int cells;
+}
+
+final class wire_cst_list_fill_target extends ffi.Struct {
+  external ffi.Pointer<wire_cst_fill_target> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_font_coverage extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
 
@@ -10057,6 +10626,20 @@ final class wire_cst_font_substitution extends ffi.Struct {
 
 final class wire_cst_list_font_substitution extends ffi.Struct {
   external ffi.Pointer<wire_cst_font_substitution> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_handwriting_style extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> family;
+
+  @ffi.Bool()
+  external bool covered;
+}
+
+final class wire_cst_list_handwriting_style extends ffi.Struct {
+  external ffi.Pointer<wire_cst_handwriting_style> ptr;
 
   @ffi.Int32()
   external int len;
@@ -10187,6 +10770,19 @@ final class wire_cst_repair_fix extends ffi.Struct {
 
 final class wire_cst_list_repair_fix extends ffi.Struct {
   external ffi.Pointer<wire_cst_repair_fix> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_saved_signature extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> bytes;
+}
+
+final class wire_cst_list_saved_signature extends ffi.Struct {
+  external ffi.Pointer<wire_cst_saved_signature> ptr;
 
   @ffi.Int32()
   external int len;
@@ -10400,6 +10996,13 @@ final class wire_cst_field_commit extends ffi.Struct {
 
   @ffi.Bool()
   external bool asks_font;
+}
+
+final class wire_cst_fill_targets extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_fill_target> targets;
+
+  @ffi.Bool()
+  external bool truncated;
 }
 
 final class wire_cst_form_info extends ffi.Struct {

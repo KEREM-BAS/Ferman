@@ -313,7 +313,7 @@ fn pdf_date(seconds: u64) -> String {
     )
 }
 
-fn now() -> String {
+pub(super) fn now() -> String {
     pdf_date(
         SystemTime::now()
             .duration_since(UNIX_EPOCH)

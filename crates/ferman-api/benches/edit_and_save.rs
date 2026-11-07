@@ -376,6 +376,7 @@ fn square() -> NewAnnotation {
         meta: None,
         tilt: 0.0,
         icon: None,
+        comb: None,
     }
 }
 

@@ -123,6 +123,7 @@ fn child(dir: &Path) -> ! {
             meta: None,
             tilt: 0.0,
             icon: None,
+            comb: None,
         },
         "Square".to_owned(),
     ))

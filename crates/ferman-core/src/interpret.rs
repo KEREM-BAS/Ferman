@@ -308,6 +308,9 @@ pub struct TextShow<'a> {
 pub struct OperatorEvent<'a> {
     /// The operator, such as `Tf`; an inline image is `BI`.
     pub name: &'a [u8],
+    /// Its first [`MAX_EVENT_NUMBERS`] operands that are numbers, in order: a path's coordinates,
+    /// `w`'s width.
+    pub numbers: &'a [f32],
     /// Where it is.
     pub span: &'a Span,
     /// The state after it.
@@ -315,6 +318,9 @@ pub struct OperatorEvent<'a> {
     /// The marked content open after it, outermost first.
     pub marked: &'a [MarkedContent],
 }
+
+/// The most numeric operands an [`OperatorEvent`] carries: `c`'s six.
+pub const MAX_EVENT_NUMBERS: usize = 6;
 
 /// Receives a page's content from the interpreter.
 pub trait TextSink {
@@ -558,8 +564,18 @@ impl<'a> Walk<'a, '_> {
                 };
                 self.step(op, &span, resources, &mut state, &mut saved, base)?;
                 if !self.muted {
+                    let mut numbers = [0.0; MAX_EVENT_NUMBERS];
+                    let mut count = 0usize;
+                    for (slot, value) in numbers
+                        .iter_mut()
+                        .zip(op.operands.iter().filter_map(number))
+                    {
+                        *slot = value;
+                        count = count.saturating_add(1);
+                    }
                     self.sink.operator(&OperatorEvent {
                         name: &op.name,
+                        numbers: numbers.get(..count).unwrap_or_default(),
                         span: &span,
                         state: &state,
                         marked: &self.marked,

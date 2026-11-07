@@ -475,6 +475,7 @@ class NewAnnotation {
     this.meta,
     this.tilt = 0,
     this.icon,
+    this.comb,
   });
 
   /// What it is; never [AnnotationKind.squiggly] or [AnnotationKind.other].
@@ -520,6 +521,10 @@ class NewAnnotation {
 
   /// A note's icon or a stamp's name.
   final String? icon;
+
+  /// A text box on a comb of this many cells, one character each (Fill
+  /// anything, a5-4): from 1 to 256, a text box's only.
+  final int? comb;
 }
 
 /// What a change to an annotation sets; null leaves it.
@@ -813,6 +818,34 @@ class FieldInfo {
     signed: signed,
     signature: signature,
     filled: values.isNotEmpty || signed || signature != null,
+  );
+
+  /// This field signed by the simple signature [stamp], or none.
+  FieldInfo withSignature(int? stamp) => FieldInfo(
+    handle: handle,
+    name: name,
+    kind: kind,
+    label: label,
+    readOnly: readOnly,
+    required: required,
+    multiline: multiline,
+    password: password,
+    comb: comb,
+    multiSelect: multiSelect,
+    editable: editable,
+    values: values,
+    options: options,
+    maxLen: maxLen,
+    widgets: widgets,
+    format: format,
+    datePattern: datePattern,
+    decimals: decimals,
+    min: min,
+    max: max,
+    problem: problem,
+    signed: signed,
+    signature: stamp,
+    filled: values.isNotEmpty || signed || stamp != null,
   );
 }
 
@@ -3238,4 +3271,159 @@ final class LinkChange {
 
   /// Its colour.
   final AnnotationColor? color;
+}
+
+/// What a place to fill on a page without fields is (a5-4).
+enum FillTargetKind {
+  /// A line: text goes on its baseline.
+  line,
+
+  /// A box to write in.
+  box,
+
+  /// A small square: a click checks it.
+  check,
+
+  /// A row of equal cells, one character each.
+  comb,
+}
+
+/// One place to fill, in displayed points.
+@immutable
+class FillTarget {
+  /// Creates a target.
+  const new({required this.kind, required this.rect, this.cells = 1});
+
+  /// What it is.
+  final FillTargetKind kind;
+
+  /// Its box: a line's stroke, a comb's cells together.
+  final Rect rect;
+
+  /// A comb's cells; 1 for the others.
+  final int cells;
+}
+
+/// The places to fill on a page.
+@immutable
+class FillTargets {
+  /// Creates the list.
+  const new({this.targets = const [], this.truncated = false});
+
+  /// From the top down, then left to right.
+  final List<FillTarget> targets;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// A typed-signature style and whether it can write a name (M4 decision
+/// 23, G158).
+@immutable
+class HandwritingStyle {
+  /// Creates a style.
+  const new({required this.family, required this.covered});
+
+  /// Its family: Caveat, Dancing Script or Homemade Apple.
+  final String family;
+
+  /// It has every letter of the name; one that has not is not offered.
+  final bool covered;
+}
+
+/// [AnnotationInfo.icon] of a simple signature's stamp, and of initials'.
+const String signatureStampName = 'FermanSignature';
+
+/// See [signatureStampName].
+const String initialsStampName = 'FermanInitials';
+
+/// What a simple signature is drawn from.
+sealed class SignatureInk {
+  const new();
+}
+
+/// A name typed in a handwriting style.
+final class TypedInk extends SignatureInk {
+  /// Creates typed ink.
+  const new({required this.text, required this.family});
+
+  /// The name.
+  final String text;
+
+  /// The style's family, one of [HandwritingStyle.family].
+  final String family;
+}
+
+/// Strokes from the signature pad, in its units with y down; the engine
+/// crops them to their ink.
+final class DrawnInk extends SignatureInk {
+  /// Creates drawn ink.
+  const new({required this.strokes, required this.width});
+
+  /// Each stroke's points.
+  final List<List<Offset>> strokes;
+
+  /// The pen's width, in the pad's units.
+  final double width;
+}
+
+/// A photo or scan: its paper is made transparent and it is cropped to its
+/// ink, within the image limits.
+final class ImageInk extends SignatureInk {
+  /// Creates image ink.
+  const new(this.bytes);
+
+  /// The PNG, JPEG, TIFF, WebP or GIF file's bytes.
+  final Uint8List bytes;
+}
+
+/// A simple signature or initials to place, in displayed points: a stamp
+/// annotation, never a digital signature (M4 decisions 20 and 21).
+@immutable
+class NewSignature {
+  /// Creates a signature.
+  const new({
+    required this.rect,
+    required this.ink,
+    required this.color,
+    required this.author,
+    this.tilt = 0,
+    this.initials = false,
+    this.field,
+  });
+
+  /// Its box before its tilt; the ink is fitted into it.
+  final Rect rect;
+
+  /// What it is drawn from.
+  final SignatureInk ink;
+
+  /// A typed or drawn signature's colour.
+  final AnnotationColor color;
+
+  /// Its author.
+  final String author;
+
+  /// Its turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// Initials rather than a signature.
+  final bool initials;
+
+  /// The full name of the signature field it signs.
+  final String? field;
+}
+
+/// A saved signature file in the app data directory (M4 decision 22): the
+/// app owns its format.
+@immutable
+class SavedSignatureFile {
+  /// Creates a file.
+  const new({required this.name, required this.bytes});
+
+  /// Its file name.
+  final String name;
+
+  /// What the app wrote.
+  final Uint8List bytes;
 }

@@ -1469,6 +1469,111 @@ class FakeEngineService implements EngineService {
     );
   }
 
+  /// The places to fill a test gives each page, by page handle.
+  final Map<int, FillTargets> fillTargetsByPage = {};
+
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async =>
+      fillTargetsByPage[page] ?? const FillTargets();
+
+  /// As the bundled fonts answer: Caveat and Dancing Script write Latin with
+  /// Turkish, Homemade Apple not İ, Ğ, ğ, Ş or ş, and none another script.
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async {
+    final latin = text.runes.every((rune) => rune < 0x250);
+    final apple = latin && !text.contains(RegExp('[İĞğŞş]'));
+    return [
+      HandwritingStyle(family: 'Caveat', covered: latin),
+      HandwritingStyle(family: 'Dancing Script', covered: latin),
+      HandwritingStyle(family: 'Homemade Apple', covered: apple),
+    ];
+  }
+
+  /// Places a stamp as the engine lists it, signing its field: one step. A
+  /// field that is no unsigned, unstamped signature field is refused.
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) async {
+    final fields = _fieldsNow(document);
+    final field = signature.field;
+    if (field != null &&
+        !fields.any(
+          (f) =>
+              f.name == field &&
+              f.kind == FieldKind.signature &&
+              !f.signed &&
+              f.signature == null,
+        )) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final handle = ++_lastAnnotationHandle;
+    final added = AnnotationInfo(
+      handle: handle,
+      page: page,
+      kind: AnnotationKind.stamp,
+      rect: signature.rect,
+      color: signature.color,
+      author: signature.author,
+      created: now(),
+      modified: now(),
+      icon: signature.initials ? initialsStampName : signatureStampName,
+      thread: handle,
+    );
+    final revision = _annotationStep(document, name, page, [
+      ..._annotationsNow(document),
+      added,
+    ]);
+    if (field != null) {
+      final at = _history(document).current;
+      (_fieldVersions[document] ??= {})
+        ..removeWhere((step, _) => step >= at)
+        ..[at] = [
+          for (final f in fields)
+            if (f.name == field) f.withSignature(handle) else f,
+        ];
+    }
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  /// The saved signature files, by directory, then name.
+  final Map<String, Map<String, Uint8List>> savedSignatureFiles = {};
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async {
+    final files = savedSignatureFiles[directory] ?? const {};
+    return [
+      for (final name in files.keys.toList()..sort())
+        SavedSignatureFile(name: name, bytes: files[name]!),
+    ];
+  }
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async {
+    if (!RegExp(r'^[A-Za-z0-9_\-][A-Za-z0-9_.\-]{0,63}$').hasMatch(name)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    (savedSignatureFiles[directory] ??= {})[name] = bytes;
+  }
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async {
+    savedSignatureFiles[directory]?.remove(name);
+  }
+
   /// Each document's annotations by the history's place they were left at;
   /// undo and redo walk them with the steps.
   final Map<int, Map<int, List<AnnotationInfo>>> _annotationVersions = {};

@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -1391,6 +1391,94 @@ Future<RevisionInfo> finishForm({
   required String name,
 }) => FermanBridge.instance.api.crateFrbFinishForm(
   document: document,
+  name: name,
+);
+
+/// The lines, boxes, check boxes and combs drawn on the page `page` (Fill anything). Nothing is
+/// written.
+///
+/// See [`facade::Engine::fill_targets`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a page the document does not have, `NotFound`.
+Future<FillTargets> fillTargets({
+  required BigInt document,
+  required BigInt page,
+}) => FermanBridge.instance.api.crateFrbFillTargets(
+  document: document,
+  page: page,
+);
+
+/// Which typed-signature styles can write every letter of `text`, in a5-3's order.
+///
+/// See [`facade::Engine::handwriting_styles`].
+///
+/// # Errors
+///
+/// Only an internal one.
+Future<List<HandwritingStyle>> handwritingStyles({required String text}) =>
+    FermanBridge.instance.api.crateFrbHandwritingStyles(text: text);
+
+/// Places `signature` on the page `page` as one history step: a stamp annotation, never a
+/// digital signature.
+///
+/// See [`facade::Engine::add_signature`].
+///
+/// # Errors
+///
+/// As [`add_annotation`]; `ResourceLimit` for an image past the limits.
+Future<AnnotationCommit> addSignature({
+  required BigInt document,
+  required BigInt page,
+  required NewSignature signature,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddSignature(
+  document: document,
+  page: page,
+  signature: signature,
+  name: name,
+);
+
+/// The saved signatures and initials in `dir`, a folder of the app data directory, by name.
+///
+/// See [`facade::Engine::saved_signatures`].
+///
+/// # Errors
+///
+/// The errors of reading the folder.
+Future<List<SavedSignature>> savedSignatures({required String dir}) =>
+    FermanBridge.instance.api.crateFrbSavedSignatures(dir: dir);
+
+/// Writes `bytes` as the saved signature `name` in `dir` through the safe write.
+///
+/// See [`facade::Engine::write_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses or bytes too many; the errors of the write.
+Future<void> writeSavedSignature({
+  required String dir,
+  required String name,
+  required List<int> bytes,
+}) => FermanBridge.instance.api.crateFrbWriteSavedSignature(
+  dir: dir,
+  name: name,
+  bytes: bytes,
+);
+
+/// Deletes the saved signature `name` in `dir`.
+///
+/// See [`facade::Engine::delete_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses; the errors of the delete.
+Future<void> deleteSavedSignature({
+  required String dir,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteSavedSignature(
+  dir: dir,
   name: name,
 );
 
@@ -3162,6 +3250,73 @@ class FieldWidget {
           onState == other.onState;
 }
 
+/// One place to fill, in displayed points.
+class FillTarget {
+  /// What it is.
+  final FillTargetKind kind;
+
+  /// Its box: a line's stroke, a comb's cells together.
+  final PageRect rect;
+
+  /// A comb's cells; 1 for the others.
+  final int cells;
+
+  const FillTarget({
+    required this.kind,
+    required this.rect,
+    required this.cells,
+  });
+
+  @override
+  int get hashCode => kind.hashCode ^ rect.hashCode ^ cells.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FillTarget &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          rect == other.rect &&
+          cells == other.cells;
+}
+
+/// What a place to fill is (a5-4).
+enum FillTargetKind {
+  /// A line: text goes on its baseline.
+  line,
+
+  /// A box to write in.
+  box,
+
+  /// A small square: a click checks it.
+  check,
+
+  /// A row of equal cells, one character each.
+  comb,
+}
+
+/// The places to fill on a page.
+class FillTargets {
+  /// From the top down, then left to right.
+  final List<FillTarget> targets;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const FillTargets({required this.targets, required this.truncated});
+
+  @override
+  int get hashCode => targets.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FillTargets &&
+          runtimeType == other.runtimeType &&
+          targets == other.targets &&
+          truncated == other.truncated;
+}
+
 /// A font step 3 offers (a3-3b).
 class FontCandidate {
   /// Its group.
@@ -3503,6 +3658,28 @@ class FormInfo {
           problems == other.problems &&
           hasXfa == other.hasXfa &&
           truncated == other.truncated;
+}
+
+/// A typed-signature style and whether it can write a name.
+class HandwritingStyle {
+  /// Its family: Caveat, Dancing Script or Homemade Apple.
+  final String family;
+
+  /// It has every letter of the name; one that has not is not offered (decision 23).
+  final bool covered;
+
+  const HandwritingStyle({required this.family, required this.covered});
+
+  @override
+  int get hashCode => family.hashCode ^ covered.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HandwritingStyle &&
+          runtimeType == other.runtimeType &&
+          family == other.family &&
+          covered == other.covered;
 }
 
 /// A document's history (a3-10).
@@ -4221,6 +4398,9 @@ class NewAnnotation {
   /// A note's icon or a stamp's name.
   final String? icon;
 
+  /// A text box on a comb of this many cells, one character each (Fill anything).
+  final int? comb;
+
   const NewAnnotation({
     required this.kind,
     required this.rect,
@@ -4236,6 +4416,7 @@ class NewAnnotation {
     this.meta,
     required this.tilt,
     this.icon,
+    this.comb,
   });
 
   @override
@@ -4253,7 +4434,8 @@ class NewAnnotation {
       label.hashCode ^
       meta.hashCode ^
       tilt.hashCode ^
-      icon.hashCode;
+      icon.hashCode ^
+      comb.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -4273,7 +4455,8 @@ class NewAnnotation {
           label == other.label &&
           meta == other.meta &&
           tilt == other.tilt &&
-          icon == other.icon;
+          icon == other.icon &&
+          comb == other.comb;
 }
 
 /// A new link, in displayed points.
@@ -4319,6 +4502,63 @@ class NewLink {
           destination == other.destination &&
           look == other.look &&
           color == other.color;
+}
+
+/// A signature to place, in displayed points.
+class NewSignature {
+  /// Its box before its tilt; the ink is fitted into it.
+  final PageRect rect;
+
+  /// What it is drawn from.
+  final SignatureInk ink;
+
+  /// A typed or drawn signature's colour.
+  final AnnotationColor color;
+
+  /// Its turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// Initials rather than a signature.
+  final bool initials;
+
+  /// The full name of the signature field it signs.
+  final String? field;
+
+  /// Its author.
+  final String author;
+
+  const NewSignature({
+    required this.rect,
+    required this.ink,
+    required this.color,
+    required this.tilt,
+    required this.initials,
+    this.field,
+    required this.author,
+  });
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^
+      ink.hashCode ^
+      color.hashCode ^
+      tilt.hashCode ^
+      initials.hashCode ^
+      field.hashCode ^
+      author.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewSignature &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          ink == other.ink &&
+          color == other.color &&
+          tilt == other.tilt &&
+          initials == other.initials &&
+          field == other.field &&
+          author == other.author;
 }
 
 /// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
@@ -5163,6 +5403,28 @@ class RevisionInfo {
           structure == other.structure;
 }
 
+/// A saved signature file: the app owns its format.
+class SavedSignature {
+  /// Its file name.
+  final String name;
+
+  /// What the app wrote.
+  final Uint8List bytes;
+
+  const SavedSignature({required this.name, required this.bytes});
+
+  @override
+  int get hashCode => name.hashCode ^ bytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SavedSignature &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          bytes == other.bytes;
+}
+
 /// An event of a search's stream.
 class SearchEvent {
   /// What happened.
@@ -5465,6 +5727,69 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// A signature's ink: the fields of its kind are read, the others ignored.
+class SignatureInk {
+  /// What it is drawn from.
+  final SignatureInkKind kind;
+
+  /// Typed: the name.
+  final String text;
+
+  /// Typed: the style's family.
+  final String family;
+
+  /// Drawn: each stroke, in the pad's units with y down.
+  final List<AnnotationPoints> strokes;
+
+  /// Drawn: the pen's width, in the pad's units.
+  final double width;
+
+  /// Image: the file's bytes.
+  final Uint8List image;
+
+  const SignatureInk({
+    required this.kind,
+    required this.text,
+    required this.family,
+    required this.strokes,
+    required this.width,
+    required this.image,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      text.hashCode ^
+      family.hashCode ^
+      strokes.hashCode ^
+      width.hashCode ^
+      image.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SignatureInk &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          text == other.text &&
+          family == other.family &&
+          strokes == other.strokes &&
+          width == other.width &&
+          image == other.image;
+}
+
+/// What a signature is drawn from.
+enum SignatureInkKind {
+  /// A typed name in a handwriting style.
+  typed,
+
+  /// Strokes from the pad.
+  drawn,
+
+  /// A photo or scan.
+  image,
 }
 
 /// One file of a split's plan.

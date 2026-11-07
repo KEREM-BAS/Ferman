@@ -11,14 +11,16 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write as _;
 
-use ferman_core::annotations::{Annotation, AnnotationKind, LineEnd, MAX_TEXT, instant};
+use ferman_core::annotations::{
+    Annotation, AnnotationKind, COMB_KEY, LineEnd, MAX_COMB_CELLS, MAX_TEXT, instant,
+};
 use ferman_core::revision::RevisionStore;
 use ferman_core::structure::PdfDate;
 use ferman_core::write::{ObjectRef, Value, text_value};
 use ferman_core::{CoreError, Document, WriteError};
 use ferman_fonts::{
-    Direction, FaceId, FontLibrary, FontProgram, GlyphId, ShapeRequest, ShapingFont, SimilarQuery,
-    StyleMetrics, rank_similar,
+    Direction, FaceId, FaceInstance, FontLibrary, FontProgram, GlyphId, ShapeRequest, ShapingFont,
+    SimilarQuery, StyleMetrics, rank_similar,
 };
 use ferman_text::bidi::visual_runs;
 use ferman_text::fallback::embed;
@@ -103,6 +105,8 @@ pub struct NewAnnotation {
     pub tilt: f32,
     /// `/Name`: a note's icon or a stamp's name.
     pub icon: Option<String>,
+    /// A text box on a comb of this many cells, one character each (Fill anything, a5-4).
+    pub comb: Option<u32>,
 }
 
 /// What a change sets; `None` leaves it.
@@ -373,7 +377,11 @@ fn default_appearance(annotation: &Annotation) -> Value {
 }
 
 /// Which page turns text upright: `/Rotate` as 0, 90, 180 or 270.
-fn page_turn(document: &Document, revisions: &RevisionStore, page: usize) -> Result<u16, OpsError> {
+pub(crate) fn page_turn(
+    document: &Document,
+    revisions: &RevisionStore,
+    page: usize,
+) -> Result<u16, OpsError> {
     revisions
         .pages(document)
         .get(page)
@@ -484,7 +492,7 @@ impl Ops {
 }
 
 /// `true` when `rgb`'s fill and stroke should go through `/GS0`.
-fn state(opacity: f32, multiply: bool) -> Option<Value> {
+pub(crate) fn state(opacity: f32, multiply: bool) -> Option<Value> {
     if opacity >= 1.0 && !multiply {
         return None;
     }
@@ -717,7 +725,7 @@ fn leader(ops: &mut Ops, annotation: &Annotation) {
 /// Starts drawing upright in `area` on a page turned `turn` degrees: the origin at its bottom left
 /// as the reader sees it, x to their right, y up. Returns the width and height they see. A caller
 /// holds a `q`.
-fn upright(ops: &mut Ops, [l, b, r, t]: [f32; 4], turn: u16) -> (f32, f32) {
+pub(crate) fn upright(ops: &mut Ops, [l, b, r, t]: [f32; 4], turn: u16) -> (f32, f32) {
     let (width, height) = (r - l, t - b);
     match turn {
         90 => {
@@ -744,6 +752,10 @@ struct Face {
     family: String,
     data: Vec<u8>,
     index: u32,
+    /// Where in a variable font its glyphs are embedded from; the default otherwise.
+    // shortcut: shaping reads the default instance's advances, which differ from a named one's by
+    // a hair; shape at the instance if a handwriting style ever looks spaced wrong.
+    instance: Option<FaceInstance>,
     shaper: ShapingFont,
     wanted: Vec<(GlyphId, String)>,
 }
@@ -764,6 +776,10 @@ pub(crate) struct Faces<'a> {
     /// The Plex families not opened yet.
     bundled: Vec<&'static str>,
     tried: HashSet<FaceId>,
+    /// Only [`bundled`](Self::bundled) may draw: no similar font is looked for.
+    strict: bool,
+    /// The instance the next face opened is embedded at.
+    instance: Option<FaceInstance>,
 }
 
 impl<'a> Faces<'a> {
@@ -779,6 +795,24 @@ impl<'a> Faces<'a> {
                 "IBM Plex Sans Devanagari",
             ],
             tried: HashSet::new(),
+            strict: false,
+            instance: None,
+        }
+    }
+
+    /// Only `family`, embedded at `instance` of a variable font: a character it cannot draw
+    /// stops the appearance, so a handwriting style is never filled in from another (G158).
+    pub(crate) fn only(
+        library: &'a FontLibrary,
+        family: &'static str,
+        weight: u16,
+        instance: Option<FaceInstance>,
+    ) -> Self {
+        Self {
+            bundled: vec![family],
+            strict: true,
+            instance,
+            ..Self::new(library, weight)
         }
     }
 
@@ -812,6 +846,7 @@ impl<'a> Faces<'a> {
             family: self.library.face(id)?.family,
             data,
             index,
+            instance: self.instance.clone(),
             shaper,
             wanted: Vec::new(),
         });
@@ -834,13 +869,21 @@ impl<'a> Faces<'a> {
             let id = self
                 .library
                 .faces()
-                .find(|face| face.family == family && face.weight == self.weight && !face.italic)
+                .find(|face| {
+                    face.family == family
+                        && (face.weight == self.weight || self.strict)
+                        && !face.italic
+                        && face.instance.is_none()
+                })
                 .map(|face| face.id);
             if let Some(at) = id.and_then(|id| self.open(id))
                 && (c.is_whitespace() || c.is_control() || self.faces[at].covers(c))
             {
                 return Ok(at);
             }
+        }
+        if self.strict {
+            return Err(OpsError::NoFontForText);
         }
         let style = self
             .faces
@@ -1062,6 +1105,42 @@ pub(crate) fn set_lines(
     Ok(lines)
 }
 
+/// `text` on a comb of `cells` cells across a box `width` by `height`: each character in the
+/// middle of its own cell, those past the last cell left out.
+fn comb_lines(
+    faces: &mut Faces<'_>,
+    text: &str,
+    (width, height): (f32, f32),
+    cells: u32,
+    size: f32,
+    color: [f32; 3],
+) -> Result<Vec<SetLine>, OpsError> {
+    // Cells are few (MAX_COMB_CELLS).
+    #[allow(clippy::cast_precision_loss)]
+    let cell = width / cells.max(1) as f32;
+    let baseline = (height - size * 0.7) / 2.0;
+    let mut lines = Vec::new();
+    for (at, c) in text
+        .chars()
+        .filter(|c| !c.is_control())
+        .take(cells as usize)
+        .enumerate()
+    {
+        let mut buffer = [0; 4];
+        let (glyphs, wide) = faces.shape_line(c.encode_utf8(&mut buffer), false, 0.0)?;
+        #[allow(clippy::cast_precision_loss)]
+        let left = cell * at as f32;
+        lines.push(SetLine {
+            glyphs,
+            x: left + (cell - wide * size) / 2.0,
+            baseline,
+            size,
+            color,
+        });
+    }
+    Ok(lines)
+}
+
 /// Embeds `faces` as `/{prefix}0`, `/{prefix}1` and on, each a subset of what they noted. Returns
 /// the `/Font` entries, and for each face the code of each glyph.
 pub(crate) fn embed_faces(
@@ -1080,7 +1159,7 @@ pub(crate) fn embed_faces(
         let (font, glyphs) = embed(
             &face.data,
             face.index,
-            None,
+            face.instance.as_ref(),
             &face.wanted,
             format!("{prefix}{at}").into_bytes(),
         )
@@ -1148,7 +1227,7 @@ pub(crate) fn text_ops(ops: &mut Ops, faces: &FaceCodes, lines: &[SetLine], orig
 
 /// Writes `lines`' operators, offset by `origin`, with `faces` embedded as `/F0`, `/F1` and on:
 /// each a subset of what the lines use. Returns the `/Font` resource.
-fn set_text(
+pub(crate) fn set_text(
     document: &Document,
     revisions: &mut RevisionStore,
     ops: &mut Ops,
@@ -1162,7 +1241,7 @@ fn set_text(
 }
 
 /// The form holding `content`: its `/BBox` is `rect`, in user space.
-fn form(
+pub(crate) fn form(
     document: &Document,
     revisions: &mut RevisionStore,
     rect: [f32; 4],
@@ -1180,6 +1259,17 @@ fn form(
     if let Some(fonts) = fonts {
         resources.push((b"Font".to_vec(), fonts));
     }
+    form_with(document, revisions, rect, content, resources)
+}
+
+/// The form holding `content` with `resources`: its `/BBox` is `rect`, in user space.
+pub(crate) fn form_with(
+    document: &Document,
+    revisions: &mut RevisionStore,
+    rect: [f32; 4],
+    content: Ops,
+    resources: Vec<(Vec<u8>, Value)>,
+) -> Result<ObjectRef, OpsError> {
     let dict = vec![
         (b"Type".to_vec(), name(b"XObject")),
         (b"Subtype".to_vec(), name(b"Form")),
@@ -1243,15 +1333,22 @@ fn appearance(
             if !contents.trim().is_empty() {
                 let library = library.ok_or(OpsError::NoFontForText)?;
                 let (width, height) = upright(&mut ops, text_box(annotation), turn);
-                let pad = TEXT_PADDING + annotation.stroke;
+                let mut pad = TEXT_PADDING + annotation.stroke;
                 let mut faces = Faces::new(library, 400);
-                let lines = wrapped(
-                    &mut faces,
-                    contents,
-                    (width - pad * 2.0, height - pad * 2.0),
-                    annotation.font_size.unwrap_or(12.0),
-                    annotation.text_color.unwrap_or_default(),
-                )?;
+                let size = annotation.font_size.unwrap_or(12.0);
+                let colour = annotation.text_color.unwrap_or_default();
+                let lines = if let Some(cells) = annotation.comb {
+                    pad = 0.0;
+                    comb_lines(&mut faces, contents, (width, height), cells, size, colour)?
+                } else {
+                    wrapped(
+                        &mut faces,
+                        contents,
+                        (width - pad * 2.0, height - pad * 2.0),
+                        size,
+                        colour,
+                    )?
+                };
                 fonts = Some(set_text(
                     document,
                     revisions,
@@ -1268,6 +1365,38 @@ fn appearance(
     form(document, revisions, annotation.rect, ops, state, fonts)
 }
 
+/// Starts drawing in the box `rect`, as the reader sees it upright on a page turned `turn`
+/// degrees, turned `tilt` degrees about its middle (negative anticlockwise, as `Stamp` draws it):
+/// the origin at the box's middle, x to the reader's right, y up. Returns the `/Rect` that holds
+/// the turned box with `margin` around it, and the box's width and height. A caller holds a `q`.
+pub(crate) fn tilted(
+    ops: &mut Ops,
+    rect: [f32; 4],
+    tilt: f32,
+    turn: u16,
+    margin: f32,
+) -> ([f32; 4], f32, f32) {
+    let [l, b, r, t] = normalized(rect);
+    let (w, h) = if turn % 180 == 90 {
+        (t - b, r - l)
+    } else {
+        (r - l, t - b)
+    };
+    let (sin, cos) = (-tilt).to_radians().sin_cos();
+    let reach_x = (w * cos.abs() + h * sin.abs()) / 2.0 + margin;
+    let reach_y = (w * sin.abs() + h * cos.abs()) / 2.0 + margin;
+    let (cx, cy) = (f32::midpoint(l, r), f32::midpoint(b, t));
+    let (user_x, user_y) = if turn % 180 == 90 {
+        (reach_y, reach_x)
+    } else {
+        (reach_x, reach_y)
+    };
+    let rect = [cx - user_x, cy - user_y, cx + user_x, cy + user_y];
+    let (seen_w, seen_h) = upright(ops, rect, turn);
+    ops.nums(&[cos, sin, -sin, cos, seen_w / 2.0, seen_h / 2.0], "cm");
+    (rect, w, h)
+}
+
 /// A new stamp's form: `new.rect` is its box before its tilt, and the returned `/Rect` bounds it
 /// tilted.
 fn stamp_form(
@@ -1277,29 +1406,16 @@ fn stamp_form(
     turn: u16,
     library: &FontLibrary,
 ) -> Result<(ObjectRef, [f32; 4]), OpsError> {
-    let [l, b, r, t] = normalized(new.rect);
-    let (w, h) = if turn % 180 == 90 {
-        (t - b, r - l)
-    } else {
-        (r - l, t - b)
-    };
-    let radians = (-new.tilt).to_radians();
-    let (sin, cos) = radians.sin_cos();
-    let reach_x = (w * cos.abs() + h * sin.abs()) / 2.0 + STAMP_OUTLINE_OFFSET + STAMP_OUTLINE;
-    let reach_y = (w * sin.abs() + h * cos.abs()) / 2.0 + STAMP_OUTLINE_OFFSET + STAMP_OUTLINE;
-    let (cx, cy) = (f32::midpoint(l, r), f32::midpoint(b, t));
-    let (user_x, user_y) = if turn % 180 == 90 {
-        (reach_y, reach_x)
-    } else {
-        (reach_x, reach_y)
-    };
-    let rect = [cx - user_x, cy - user_y, cx + user_x, cy + user_y];
-
     let mut ops = Ops::default();
     let state = state(STAMP_OPACITY, true);
     ops.op("q").op("/GS0 gs");
-    let (seen_w, seen_h) = upright(&mut ops, rect, turn);
-    ops.nums(&[cos, sin, -sin, cos, seen_w / 2.0, seen_h / 2.0], "cm");
+    let (rect, w, h) = tilted(
+        &mut ops,
+        new.rect,
+        new.tilt,
+        turn,
+        STAMP_OUTLINE_OFFSET + STAMP_OUTLINE,
+    );
     let ink = new.color;
     let box_area = [-w / 2.0, -h / 2.0, w / 2.0, h / 2.0];
     ops.stroke_colour(ink).nums(&[STAMP_BORDER], "w");
@@ -1360,7 +1476,7 @@ fn stamp_form(
     Ok((form, rect))
 }
 
-fn appearance_entry(form: ObjectRef) -> Value {
+pub(crate) fn appearance_entry(form: ObjectRef) -> Value {
     Value::Dictionary(vec![(b"N".to_vec(), Value::Reference(form))])
 }
 
@@ -1416,6 +1532,7 @@ fn drawn(new: &NewAnnotation, kind: AnnotationKind, page: usize) -> Annotation {
         state_model: None,
         resolved: None,
         has_appearance: false,
+        comb: new.comb,
         mentions: Vec::new(),
     }
 }
@@ -1427,7 +1544,7 @@ fn unique_name(id: ObjectRef, now: &str) -> Value {
 }
 
 /// The entries every annotation Ferman writes starts from.
-fn common_entries(
+pub(crate) fn common_entries(
     kind_subtype: &[u8],
     page: ObjectRef,
     id: ObjectRef,
@@ -1480,7 +1597,11 @@ pub fn create(
     check_text(&new.contents)?;
     check_text(&new.label)?;
     check_text(&new.author)?;
-    if !new.tilt.is_finite() {
+    if !new.tilt.is_finite()
+        || new.comb.is_some_and(|cells| {
+            kind != AnnotationKind::FreeText || !(1..=MAX_COMB_CELLS).contains(&cells)
+        })
+    {
         return Err(plan_error());
     }
 
@@ -1565,6 +1686,9 @@ pub fn create(
             if turn != 0 {
                 set(b"Rotate", Value::Integer(i64::from(turn)));
             }
+        }
+        if let Some(cells) = new.comb {
+            set(COMB_KEY, Value::Integer(i64::from(cells)));
         }
         if kind == AnnotationKind::Callout {
             set(b"IT", name(b"FreeTextCallout"));
@@ -2253,6 +2377,7 @@ mod tests {
             meta: None,
             tilt: 0.0,
             icon: None,
+            comb: None,
         };
         let refused = |new: NewAnnotation, store: &mut RevisionStore| {
             matches!(
@@ -2293,6 +2418,16 @@ mod tests {
             NewAnnotation {
                 kind: AnnotationKind::Polygon,
                 points: vec![vec![[0.0, 0.0]; 2]],
+                ..new.clone()
+            },
+            // A comb is a text box's, of 1 to 256 cells.
+            NewAnnotation {
+                comb: Some(4),
+                ..new.clone()
+            },
+            NewAnnotation {
+                kind: AnnotationKind::FreeText,
+                comb: Some(0),
                 ..new.clone()
             },
         ] {

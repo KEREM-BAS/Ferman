@@ -25,17 +25,20 @@
 //! - [`links`]: link annotations, and which targets may be offered.
 //! - [`summary`]: the comment summary as PDF and CSV.
 //! - [`forms`]: AcroForm filling, appearance generation and validation without running scripts.
-//! - `signatures`: simple typed, drawn and image signatures.
+//! - [`fill`]: Fill anything's lines, boxes and combs on a page without fields.
+//! - [`signatures`]: simple typed, drawn and image signatures.
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
 
 pub mod annotations;
 pub mod combine;
+pub mod fill;
 pub mod forms;
 pub mod images;
 pub mod links;
 pub mod pages;
+pub mod signatures;
 pub mod split;
 pub mod summary;
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/bridge/frb.dart' as bridge;
@@ -1170,6 +1171,132 @@ class FrbEngineService implements EngineService {
     () => bridge.finishForm(document: BigInt.from(document), name: name),
   );
 
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async {
+    try {
+      final found = await bridge.fillTargets(
+        document: BigInt.from(document),
+        page: BigInt.from(page),
+      );
+      return FillTargets(
+        targets: [
+          for (final target in found.targets)
+            FillTarget(
+              kind: FillTargetKind.values.byName(target.kind.name),
+              rect: Rect.fromLTRB(
+                target.rect.left,
+                target.rect.top,
+                target.rect.right,
+                target.rect.bottom,
+              ),
+              cells: target.cells,
+            ),
+        ],
+        truncated: found.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async {
+    try {
+      return [
+        for (final style in await bridge.handwritingStyles(text: text))
+          HandwritingStyle(family: style.family, covered: style.covered),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addSignature(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      signature: bridge.NewSignature(
+        rect: _bridgeRect(signature.rect),
+        ink: switch (signature.ink) {
+          TypedInk(:final text, :final family) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.typed,
+            text: text,
+            family: family,
+            strokes: const [],
+            width: 0,
+            image: Uint8List(0),
+          ),
+          DrawnInk(:final strokes, :final width) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.drawn,
+            text: '',
+            family: '',
+            strokes: _bridgePoints(strokes),
+            width: width,
+            image: Uint8List(0),
+          ),
+          ImageInk(:final bytes) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.image,
+            text: '',
+            family: '',
+            strokes: const [],
+            width: 0,
+            image: bytes,
+          ),
+        },
+        color: _bridgeColor(signature.color),
+        tilt: signature.tilt,
+        initials: signature.initials,
+        field: signature.field,
+        author: signature.author,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async {
+    try {
+      return [
+        for (final file in await bridge.savedSignatures(dir: directory))
+          SavedSignatureFile(name: file.name, bytes: file.bytes),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async {
+    try {
+      await bridge.writeSavedSignature(
+        dir: directory,
+        name: name,
+        bytes: bytes,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async {
+    try {
+      await bridge.deleteSavedSignature(dir: directory, name: name);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
   static FieldProblem _problem(bridge.FieldProblem problem) => FieldProblem(
     kind: FieldProblemKind.values.byName(problem.kind.name),
     maxLen: problem.maxLen,
@@ -1262,6 +1389,7 @@ class FrbEngineService implements EngineService {
         meta: annotation.meta,
         tilt: annotation.tilt,
         icon: annotation.icon,
+        comb: annotation.comb,
       ),
       name: name,
     ),

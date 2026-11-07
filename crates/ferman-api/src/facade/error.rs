@@ -446,6 +446,10 @@ impl From<ferman_ops::OpsError> for ApiError {
                 Self::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
                     .with_details("no font has the text")
             }
+            ferman_ops::OpsError::UnreadableImage => {
+                Self::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                    .with_details("the image cannot be read")
+            }
             err => Self::internal(err.to_string()),
         }
     }

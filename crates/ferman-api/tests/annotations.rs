@@ -99,6 +99,7 @@ fn draft(kind: AnnotationKind, rect: [f32; 4], points: Vec<Vec<[f32; 2]>>) -> Ne
         meta: None,
         tilt: 0.0,
         icon: None,
+        comb: None,
     }
 }
 

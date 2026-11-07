@@ -39,6 +39,11 @@ pub const MAX_THREAD_DEPTH: usize = 64;
 pub const MAX_PEOPLE: usize = 1_000;
 /// The most comparisons of an `@` with a name, for a document.
 const MAX_MENTION_CHECKS: usize = 4_000_000;
+/// The private key of a text box Fill anything put on a comb (a5-4): its number of cells, one
+/// character each.
+pub const COMB_KEY: &[u8] = b"FermanComb";
+/// The most cells of a comb.
+pub const MAX_COMB_CELLS: u32 = 256;
 /// The bit that marks the handle of an annotation written directly in `/Annots`; it stays inside
 /// the 53 bits a web build can carry, past any object's handle.
 const DIRECT: u64 = 1 << 52;
@@ -195,6 +200,8 @@ pub struct Annotation {
     pub resolved: Option<Resolution>,
     /// Whether `/AP` has `/N`.
     pub has_appearance: bool,
+    /// A text box's cells, from [`COMB_KEY`].
+    pub comb: Option<u32>,
     /// The people of the file its text names with `@`, travelling with the text.
     pub mentions: Vec<String>,
 }
@@ -528,6 +535,10 @@ fn read_one(
         has_appearance: scope
             .get_dict(dict, b"AP")
             .is_some_and(|appearance| appearance.has(b"N")),
+        comb: scope
+            .get_int(dict, COMB_KEY)
+            .and_then(|cells| u32::try_from(cells).ok())
+            .filter(|cells| (1..=MAX_COMB_CELLS).contains(cells)),
         mentions: Vec::new(),
     }
 }

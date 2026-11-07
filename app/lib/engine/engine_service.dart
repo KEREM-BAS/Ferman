@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_models.dart';
@@ -460,6 +461,44 @@ abstract interface class EngineService {
   /// Finish (G47): every field becomes page content as it looks, as one step;
   /// a digitally signed field stays. It asks what editing asks.
   Future<RevisionInfo> finishForm(int document, String name);
+
+  /// The lines, boxes, check boxes and combs drawn on [page] of [document],
+  /// by [PageInfo.handle], for Fill anything (a5-4). Nothing is written; what
+  /// is placed on them is a text box ([NewAnnotation.comb] for a comb) or a
+  /// mark through [addAnnotation].
+  Future<FillTargets> fillTargets(int document, int page);
+
+  /// Whether each typed-signature style can write every letter of [text], in
+  /// a5-3's order (M4 decision 23): a style that cannot is not offered.
+  Future<List<HandwritingStyle>> handwritingStyles(String text);
+
+  /// Places [signature] on [page] as the one step [name]: a stamp annotation
+  /// whose [AnnotationInfo.icon] is [signatureStampName] or
+  /// [initialsStampName], naming [NewSignature.field] when it signs one, never
+  /// a digital signature. Throws as [addAnnotation] does, and
+  /// [EngineErrorKind.unsupported] for a letter its style cannot draw or an
+  /// image with no ink.
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  );
+
+  /// The saved signatures and initials in [directory], a folder of the app
+  /// data directory apart from `settings.json` (M4 decision 22), by name.
+  Future<List<SavedSignatureFile>> savedSignatures(String directory);
+
+  /// Writes [bytes] as the saved signature [name] in [directory] through the
+  /// safe write. [name] takes letters, digits, `-`, `_` and `.`, not first.
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  );
+
+  /// Deletes the saved signature [name] in [directory].
+  Future<void> deleteSavedSignature(String directory, String name);
 
   /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
   /// quarter turns, clockwise when positive, as the one step [name] of its
@@ -951,6 +990,36 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<FormInfo> formFields(int document) async => throw error;
+
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async => throw error;
+
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async =>
+      throw error;
+
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async =>
+      throw error;
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async => throw error;
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async =>
+      throw error;
 
   @override
   Future<FieldCommit> setFieldValue(

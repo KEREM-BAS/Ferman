@@ -680,6 +680,25 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     `organizeDialogProvider` as its modal host, a name worth making general.
     **For the owner:** which colour should new Text and Callout boxes use? They take `annotRed`, as
     a4-1's callout draws it. Not run: the app by hand, the bridge's new calls, goldens.
+  - W3, Fill anything and simple signatures (commit 21, 2026-11-07): `ferman_ops::fill` finds a
+    page's lines, boxes, check boxes and combs through the interpreter (whose operator events now
+    carry their numeric operands), capped at 2,000 targets and 100,000 shapes, a limit giving a
+    short list marked so; a comb takes W2's text box with the private key `/FermanComb`, one
+    character a cell, kept through an edit. `ferman_ops::signatures` places a typed (Caveat and
+    Dancing Script at weight 500, Homemade Apple; only in its own style, G158), drawn or image
+    signature (through the image layer's limits, its paper made transparent and cut to the ink)
+    as a stamp with `/Name /FermanSignature` or `/FermanInitials`, and on a field the private key
+    of decision 21, never `/V`; `handwriting_styles` gives decision 23's coverage. Saved
+    signatures are plain files in a folder the app names, written through `safe_write`, read
+    within limits, never logged; the app owns their format. The facade, bridge,
+    `FrbEngineService` and `FakeEngineService` carry `fill_targets`, `handwriting_styles`,
+    `add_signature` and the three saved-signature calls. `form-aks1-flat` now draws the identity
+    number as a comb of 11 cells and the phone and e-mail as lines. Acceptance with PDFium in
+    `crates/ferman-api/tests/signatures.rs`; the `form_fields` fuzz target walks Fill anything
+    too. **Not built:** a placed signature's turn cannot be changed afterwards (delete and place
+    again; a box change scales it), a comb drawn as one frame with ticks or a frame of four lines
+    is not found, the image dialog has no preview of the cleaned image from the engine. The app's
+    controls are commit 22, so `formFilling` and `simpleSignatures` stay in the registry.
 - [ ] The owner approves M4
 
 ### M5 · Release pipeline

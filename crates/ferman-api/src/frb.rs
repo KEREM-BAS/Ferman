@@ -2423,6 +2423,8 @@ pub struct NewAnnotation {
     pub tilt: f32,
     /// A note's icon or a stamp's name.
     pub icon: Option<String>,
+    /// A text box on a comb of this many cells, one character each (Fill anything).
+    pub comb: Option<u32>,
 }
 
 /// What a change sets; `None` leaves it.
@@ -3074,6 +3076,7 @@ pub async fn add_annotation(
         meta: annotation.meta,
         tilt: annotation.tilt,
         icon: annotation.icon,
+        comb: annotation.comb,
     };
     engine()?
         .add_annotation(facade::DocumentId::from_raw(document), page, new, name)
@@ -4292,6 +4295,252 @@ pub async fn finish_form(document: u64, name: String) -> Result<RevisionInfo, Ap
         .finish_form(facade::DocumentId::from_raw(document), name)
         .await
         .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// What a place to fill is (a5-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FillTargetKind {
+    /// A line: text goes on its baseline.
+    Line,
+    /// A box to write in.
+    Box,
+    /// A small square: a click checks it.
+    Check,
+    /// A row of equal cells, one character each.
+    Comb,
+}
+
+/// One place to fill, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FillTarget {
+    /// What it is.
+    pub kind: FillTargetKind,
+    /// Its box: a line's stroke, a comb's cells together.
+    pub rect: PageRect,
+    /// A comb's cells; 1 for the others.
+    pub cells: u32,
+}
+
+/// The places to fill on a page.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FillTargets {
+    /// From the top down, then left to right.
+    pub targets: Vec<FillTarget>,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// The lines, boxes, check boxes and combs drawn on the page `page` (Fill anything). Nothing is
+/// written.
+///
+/// See [`facade::Engine::fill_targets`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a page the document does not have, `NotFound`.
+pub async fn fill_targets(document: u64, page: u64) -> Result<FillTargets, ApiError> {
+    let found = engine()?
+        .fill_targets(facade::DocumentId::from_raw(document), page)
+        .await
+        .map_err(api_error_dto)?;
+    Ok(FillTargets {
+        targets: found
+            .targets
+            .into_iter()
+            .map(|target| FillTarget {
+                kind: match target.kind {
+                    facade::TargetKind::Line => FillTargetKind::Line,
+                    facade::TargetKind::Box => FillTargetKind::Box,
+                    facade::TargetKind::Check => FillTargetKind::Check,
+                    facade::TargetKind::Comb => FillTargetKind::Comb,
+                },
+                rect: rect_dto(target.rect),
+                cells: target.cells,
+            })
+            .collect(),
+        truncated: found.truncated,
+    })
+}
+
+/// A typed-signature style and whether it can write a name.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HandwritingStyle {
+    /// Its family: Caveat, Dancing Script or Homemade Apple.
+    pub family: String,
+    /// It has every letter of the name; one that has not is not offered (decision 23).
+    pub covered: bool,
+}
+
+/// Which typed-signature styles can write every letter of `text`, in a5-3's order.
+///
+/// See [`facade::Engine::handwriting_styles`].
+///
+/// # Errors
+///
+/// Only an internal one.
+pub async fn handwriting_styles(text: String) -> Result<Vec<HandwritingStyle>, ApiError> {
+    engine()?
+        .handwriting_styles(text)
+        .await
+        .map(|styles| {
+            styles
+                .into_iter()
+                .map(|(family, covered)| HandwritingStyle { family, covered })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// What a signature is drawn from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SignatureInkKind {
+    /// A typed name in a handwriting style.
+    Typed,
+    /// Strokes from the pad.
+    Drawn,
+    /// A photo or scan.
+    Image,
+}
+
+/// A signature's ink: the fields of its kind are read, the others ignored.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SignatureInk {
+    /// What it is drawn from.
+    pub kind: SignatureInkKind,
+    /// Typed: the name.
+    pub text: String,
+    /// Typed: the style's family.
+    pub family: String,
+    /// Drawn: each stroke, in the pad's units with y down.
+    pub strokes: Vec<AnnotationPoints>,
+    /// Drawn: the pen's width, in the pad's units.
+    pub width: f32,
+    /// Image: the file's bytes.
+    pub image: Vec<u8>,
+}
+
+/// A signature to place, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewSignature {
+    /// Its box before its tilt; the ink is fitted into it.
+    pub rect: PageRect,
+    /// What it is drawn from.
+    pub ink: SignatureInk,
+    /// A typed or drawn signature's colour.
+    pub color: AnnotationColor,
+    /// Its turn in degrees; negative turns anticlockwise.
+    pub tilt: f32,
+    /// Initials rather than a signature.
+    pub initials: bool,
+    /// The full name of the signature field it signs.
+    pub field: Option<String>,
+    /// Its author.
+    pub author: String,
+}
+
+/// Places `signature` on the page `page` as one history step: a stamp annotation, never a
+/// digital signature.
+///
+/// See [`facade::Engine::add_signature`].
+///
+/// # Errors
+///
+/// As [`add_annotation`]; `ResourceLimit` for an image past the limits.
+pub async fn add_signature(
+    document: u64,
+    page: u64,
+    signature: NewSignature,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let ink = signature.ink;
+    let new = facade::NewSignature {
+        rect: annotation_rect_of(signature.rect),
+        ink: match ink.kind {
+            SignatureInkKind::Typed => facade::Ink::Typed {
+                text: ink.text,
+                family: ink.family,
+            },
+            SignatureInkKind::Drawn => facade::Ink::Drawn {
+                strokes: annotation_points_of(ink.strokes),
+                width: ink.width,
+            },
+            SignatureInkKind::Image => facade::Ink::Image(ink.image),
+        },
+        color: annotation_color_of(signature.color),
+        tilt: signature.tilt,
+        initials: signature.initials,
+        field: signature.field,
+        author: signature.author,
+    };
+    engine()?
+        .add_signature(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// A saved signature file: the app owns its format.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SavedSignature {
+    /// Its file name.
+    pub name: String,
+    /// What the app wrote.
+    pub bytes: Vec<u8>,
+}
+
+/// The saved signatures and initials in `dir`, a folder of the app data directory, by name.
+///
+/// See [`facade::Engine::saved_signatures`].
+///
+/// # Errors
+///
+/// The errors of reading the folder.
+pub async fn saved_signatures(dir: String) -> Result<Vec<SavedSignature>, ApiError> {
+    engine()?
+        .saved_signatures(PathBuf::from(dir))
+        .await
+        .map(|saved| {
+            saved
+                .into_iter()
+                .map(|file| SavedSignature {
+                    name: file.name,
+                    bytes: file.bytes,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes `bytes` as the saved signature `name` in `dir` through the safe write.
+///
+/// See [`facade::Engine::write_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses or bytes too many; the errors of the write.
+pub async fn write_saved_signature(
+    dir: String,
+    name: String,
+    bytes: Vec<u8>,
+) -> Result<(), ApiError> {
+    engine()?
+        .write_saved_signature(PathBuf::from(dir), name, bytes)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Deletes the saved signature `name` in `dir`.
+///
+/// See [`facade::Engine::delete_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses; the errors of the delete.
+pub async fn delete_saved_signature(dir: String, name: String) -> Result<(), ApiError> {
+    engine()?
+        .delete_saved_signature(PathBuf::from(dir), name)
+        .await
         .map_err(api_error_dto)
 }
 

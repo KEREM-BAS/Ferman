@@ -7,8 +7,8 @@
 //! ([`Engine::open`], [`Engine::open_view`]); since M3 it gives each page's text blocks, carets
 //! and selections ([`Engine::text_blocks`]), and edits them in transactions with undo, redo and
 //! saving ([`Engine::begin_edit`], one actor per document); since M4 it runs background jobs
-//! ([`Engine::start_job`]) reads and writes annotations ([`Engine::annotations`]) and form fields
-//! ([`Engine::form_fields`]). The [`Engine`] owns the long-lived
+//! ([`Engine::start_job`]) reads and writes annotations ([`Engine::annotations`]), form fields
+//! ([`Engine::form_fields`]) and simple signatures ([`Engine::add_signature`]). The [`Engine`] owns the long-lived
 //! parts (the render thread that loads PDFium); the free functions use the process's
 //! [global](Engine::global) engine.
 //! Every entry point runs inside [`guard`] or [`guard_async`], which turn a panic into an
@@ -30,6 +30,7 @@ mod jobs;
 mod links;
 mod recovery;
 mod search;
+mod signatures;
 mod text;
 mod version;
 
@@ -57,6 +58,7 @@ pub use jobs::{
 pub use links::{LinkInfo, LinkList, LinkTarget, NewLink, NewLinkDestination, RefusedLink};
 pub use recovery::{RecoverableDocument, RestoredDocument};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchPlaces, SearchSink};
+pub use signatures::{FillTarget, FillTargets, MAX_SAVED, MAX_SAVED_BYTES, SavedSignature};
 pub use text::{BlockInfo, Caret, FontCoverage, LineInfo, PageBlocks, Selection, TextPosition};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
@@ -73,9 +75,11 @@ pub use ferman_core::{
 };
 pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
 pub use ferman_ops::annotations::{AnnotationChange, NewAnnotation};
+pub use ferman_ops::fill::TargetKind;
 pub use ferman_ops::forms::{FieldProblem, MissingFont};
 pub use ferman_ops::images::Paper;
 pub use ferman_ops::pages::{Margins, PageFit};
+pub use ferman_ops::signatures::{Ink, NewSignature};
 pub use ferman_ops::split::{SplitFile, SplitMode};
 pub use ferman_ops::summary::{SummaryLabels, SummaryLayout, SummaryOptions, SummarySort};
 pub use ferman_render::{

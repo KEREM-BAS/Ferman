@@ -2,6 +2,7 @@
 //! the reader finds, setting values, Clear and Finish (`ferman_ops::forms`): the input as a file,
 //! as objects from 10 on under a form whose `/Fields` is object 10 and a page whose `/Annots` is
 //! object 11, and as a script. Cyclic, deep and huge field trees stop at the limits; nothing runs.
+//! Fill anything's walk (`ferman_ops::fill`) reads the first page's lines, boxes and combs.
 #![no_main]
 
 use std::collections::HashSet;
@@ -12,6 +13,7 @@ use ferman_core::limits::Limits;
 use ferman_core::revision::RevisionStore;
 use ferman_core::{OpenOptions, Source, open};
 use ferman_fonts::{FontLibrary, FontOrigin};
+use ferman_ops::fill::{MAX_TARGETS, targets};
 use ferman_ops::forms::{MissingFont, clear, finish, problem, set_value};
 use libfuzzer_sys::fuzz_target;
 
@@ -58,6 +60,9 @@ fuzz_target!(|input: &[u8]| {
             continue;
         };
         let store = RevisionStore::new(&document);
+        if let Ok(found) = targets(&document, &store, 0) {
+            assert!(found.targets.len() <= MAX_TARGETS);
+        }
         let list = store.form_fields(&document);
         let handles: HashSet<u64> = list.fields.iter().map(|f| f.handle).collect();
         assert_eq!(handles.len(), list.fields.len(), "identities repeat");

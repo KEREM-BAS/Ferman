@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 205561340;
+  int get rustContentHash => -1189760347;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -91,6 +91,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required BigInt page,
     required NewLink link,
+    required String name,
+  });
+
+  Future<AnnotationCommit> crateFrbAddSignature({
+    required BigInt document,
+    required BigInt page,
+    required NewSignature signature,
     required String name,
   });
 
@@ -197,6 +204,11 @@ abstract class FermanBridgeApi extends BaseApi {
     required String name,
   });
 
+  Future<void> crateFrbDeleteSavedSignature({
+    required String dir,
+    required String name,
+  });
+
   Future<void> crateFrbDiscardRecovery({
     required String session,
     String? document,
@@ -209,6 +221,11 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<EngineInfo> crateFrbEngineInfo();
+
+  Future<FillTargets> crateFrbFillTargets({
+    required BigInt document,
+    required BigInt page,
+  });
 
   Future<RevisionInfo> crateFrbFinishForm({
     required BigInt document,
@@ -226,6 +243,10 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<FormInfo> crateFrbFormFields({required BigInt document});
+
+  Future<List<HandwritingStyle>> crateFrbHandwritingStyles({
+    required String text,
+  });
 
   Future<History> crateFrbHistory({required BigInt document});
 
@@ -383,6 +404,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required String path,
     String? staging,
   });
+
+  Future<List<SavedSignature>> crateFrbSavedSignatures({required String dir});
 
   Stream<SearchEvent> crateFrbSearch({
     required BigInt document,
@@ -557,6 +580,12 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<bool> crateFrbWouldBreakSignatures({required BigInt document});
+
+  Future<void> crateFrbWriteSavedSignature({
+    required String dir,
+    required String name,
+    required List<int> bytes,
+  });
 }
 
 class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
@@ -636,6 +665,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbAddLinkConstMeta => const TaskConstMeta(
     debugName: "add_link",
     argNames: ["document", "page", "link", "name"],
+  );
+
+  @override
+  Future<AnnotationCommit> crateFrbAddSignature({
+    required BigInt document,
+    required BigInt page,
+    required NewSignature signature,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(page);
+          var arg2 = cst_encode_box_autoadd_new_signature(signature);
+          var arg3 = cst_encode_String(name);
+          return wire.wire__crate__frb__add_signature(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbAddSignatureConstMeta,
+        argValues: [document, page, signature, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbAddSignatureConstMeta => const TaskConstMeta(
+    debugName: "add_signature",
+    argNames: ["document", "page", "signature", "name"],
   );
 
   @override
@@ -1285,6 +1352,39 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<void> crateFrbDeleteSavedSignature({
+    required String dir,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(dir);
+          var arg1 = cst_encode_String(name);
+          return wire.wire__crate__frb__delete_saved_signature(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbDeleteSavedSignatureConstMeta,
+        argValues: [dir, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbDeleteSavedSignatureConstMeta =>
+      const TaskConstMeta(
+        debugName: "delete_saved_signature",
+        argNames: ["dir", "name"],
+      );
+
+  @override
   Future<void> crateFrbDiscardRecovery({
     required String session,
     String? document,
@@ -1367,6 +1467,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbEngineInfoConstMeta =>
       const TaskConstMeta(debugName: "engine_info", argNames: []);
+
+  @override
+  Future<FillTargets> crateFrbFillTargets({
+    required BigInt document,
+    required BigInt page,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(page);
+          return wire.wire__crate__frb__fill_targets(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_fill_targets,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbFillTargetsConstMeta,
+        argValues: [document, page],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbFillTargetsConstMeta => const TaskConstMeta(
+    debugName: "fill_targets",
+    argNames: ["document", "page"],
+  );
 
   @override
   Future<RevisionInfo> crateFrbFinishForm({
@@ -1473,6 +1601,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbFormFieldsConstMeta =>
       const TaskConstMeta(debugName: "form_fields", argNames: ["document"]);
+
+  @override
+  Future<List<HandwritingStyle>> crateFrbHandwritingStyles({
+    required String text,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(text);
+          return wire.wire__crate__frb__handwriting_styles(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_handwriting_style,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbHandwritingStylesConstMeta,
+        argValues: [text],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbHandwritingStylesConstMeta =>
+      const TaskConstMeta(debugName: "handwriting_styles", argNames: ["text"]);
 
   @override
   Future<History> crateFrbHistory({required BigInt document}) {
@@ -2446,6 +2598,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "save_unsigned_copy",
     argNames: ["document", "path", "staging"],
   );
+
+  @override
+  Future<List<SavedSignature>> crateFrbSavedSignatures({required String dir}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(dir);
+          return wire.wire__crate__frb__saved_signatures(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_saved_signature,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSavedSignaturesConstMeta,
+        argValues: [dir],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSavedSignaturesConstMeta =>
+      const TaskConstMeta(debugName: "saved_signatures", argNames: ["dir"]);
 
   @override
   Stream<SearchEvent> crateFrbSearch({
@@ -3524,6 +3698,42 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
         argNames: ["document"],
       );
 
+  @override
+  Future<void> crateFrbWriteSavedSignature({
+    required String dir,
+    required String name,
+    required List<int> bytes,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(dir);
+          var arg1 = cst_encode_String(name);
+          var arg2 = cst_encode_list_prim_u_8_loose(bytes);
+          return wire.wire__crate__frb__write_saved_signature(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbWriteSavedSignatureConstMeta,
+        argValues: [dir, name, bytes],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbWriteSavedSignatureConstMeta =>
+      const TaskConstMeta(
+        debugName: "write_saved_signature",
+        argNames: ["dir", "name", "bytes"],
+      );
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3929,6 +4139,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   NewLink dco_decode_box_autoadd_new_link(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_new_link(raw);
+  }
+
+  @protected
+  NewSignature dco_decode_box_autoadd_new_signature(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_new_signature(raw);
   }
 
   @protected
@@ -4362,6 +4578,37 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  FillTarget dco_decode_fill_target(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FillTarget(
+      kind: dco_decode_fill_target_kind(arr[0]),
+      rect: dco_decode_page_rect(arr[1]),
+      cells: dco_decode_u_32(arr[2]),
+    );
+  }
+
+  @protected
+  FillTargetKind dco_decode_fill_target_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FillTargetKind.values[raw as int];
+  }
+
+  @protected
+  FillTargets dco_decode_fill_targets(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FillTargets(
+      targets: dco_decode_list_fill_target(arr[0]),
+      truncated: dco_decode_bool(arr[1]),
+    );
+  }
+
+  @protected
   FontCandidate dco_decode_font_candidate(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -4470,6 +4717,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       problems: dco_decode_u_32(arr[3]),
       hasXfa: dco_decode_bool(arr[4]),
       truncated: dco_decode_bool(arr[5]),
+    );
+  }
+
+  @protected
+  HandwritingStyle dco_decode_handwriting_style(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return HandwritingStyle(
+      family: dco_decode_String(arr[0]),
+      covered: dco_decode_bool(arr[1]),
     );
   }
 
@@ -4767,6 +5026,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FillTarget> dco_decode_list_fill_target(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_fill_target).toList();
+  }
+
+  @protected
   List<FontCandidate> dco_decode_list_font_candidate(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_font_candidate).toList();
@@ -4788,6 +5053,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_font_substitution).toList();
+  }
+
+  @protected
+  List<HandwritingStyle> dco_decode_list_handwriting_style(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_handwriting_style).toList();
   }
 
   @protected
@@ -4883,6 +5154,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as List<int>;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
@@ -4904,6 +5181,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<RepairFix> dco_decode_list_repair_fix(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_repair_fix).toList();
+  }
+
+  @protected
+  List<SavedSignature> dco_decode_list_saved_signature(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_saved_signature).toList();
   }
 
   @protected
@@ -4989,8 +5272,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   NewAnnotation dco_decode_new_annotation(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 14)
-      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    if (arr.length != 15)
+      throw Exception('unexpected arr length: expect 15 but see ${arr.length}');
     return NewAnnotation(
       kind: dco_decode_annotation_kind(arr[0]),
       rect: dco_decode_page_rect(arr[1]),
@@ -5006,6 +5289,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       meta: dco_decode_opt_String(arr[11]),
       tilt: dco_decode_f_32(arr[12]),
       icon: dco_decode_opt_String(arr[13]),
+      comb: dco_decode_opt_box_autoadd_u_32(arr[14]),
     );
   }
 
@@ -5021,6 +5305,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       destination: dco_decode_link_destination(arr[2]),
       look: dco_decode_link_look(arr[3]),
       color: dco_decode_annotation_color(arr[4]),
+    );
+  }
+
+  @protected
+  NewSignature dco_decode_new_signature(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return NewSignature(
+      rect: dco_decode_page_rect(arr[0]),
+      ink: dco_decode_signature_ink(arr[1]),
+      color: dco_decode_annotation_color(arr[2]),
+      tilt: dco_decode_f_32(arr[3]),
+      initials: dco_decode_bool(arr[4]),
+      field: dco_decode_opt_String(arr[5]),
+      author: dco_decode_String(arr[6]),
     );
   }
 
@@ -5536,6 +5837,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  SavedSignature dco_decode_saved_signature(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SavedSignature(
+      name: dco_decode_String(arr[0]),
+      bytes: dco_decode_list_prim_u_8_strict(arr[1]),
+    );
+  }
+
+  @protected
   SearchEvent dco_decode_search_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -5633,6 +5946,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       signedAt: dco_decode_opt_box_autoadd_pdf_date(arr[3]),
       page: dco_decode_opt_box_autoadd_u_32(arr[4]),
     );
+  }
+
+  @protected
+  SignatureInk dco_decode_signature_ink(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return SignatureInk(
+      kind: dco_decode_signature_ink_kind(arr[0]),
+      text: dco_decode_String(arr[1]),
+      family: dco_decode_String(arr[2]),
+      strokes: dco_decode_list_annotation_points(arr[3]),
+      width: dco_decode_f_32(arr[4]),
+      image: dco_decode_list_prim_u_8_strict(arr[5]),
+    );
+  }
+
+  @protected
+  SignatureInkKind dco_decode_signature_ink_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SignatureInkKind.values[raw as int];
   }
 
   @protected
@@ -6308,6 +6643,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  NewSignature sse_decode_box_autoadd_new_signature(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_new_signature(deserializer));
+  }
+
+  @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
     SseDeserializer deserializer,
   ) {
@@ -6792,6 +7135,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  FillTarget sse_decode_fill_target(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_fill_target_kind(deserializer);
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_cells = sse_decode_u_32(deserializer);
+    return FillTarget(kind: var_kind, rect: var_rect, cells: var_cells);
+  }
+
+  @protected
+  FillTargetKind sse_decode_fill_target_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return FillTargetKind.values[inner];
+  }
+
+  @protected
+  FillTargets sse_decode_fill_targets(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_targets = sse_decode_list_fill_target(deserializer);
+    var var_truncated = sse_decode_bool(deserializer);
+    return FillTargets(targets: var_targets, truncated: var_truncated);
+  }
+
+  @protected
   FontCandidate sse_decode_font_candidate(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_origin = sse_decode_font_origin(deserializer);
@@ -6920,6 +7287,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       hasXfa: var_hasXfa,
       truncated: var_truncated,
     );
+  }
+
+  @protected
+  HandwritingStyle sse_decode_handwriting_style(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_family = sse_decode_String(deserializer);
+    var var_covered = sse_decode_bool(deserializer);
+    return HandwritingStyle(family: var_family, covered: var_covered);
   }
 
   @protected
@@ -7322,6 +7697,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<FillTarget> sse_decode_list_fill_target(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FillTarget>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_fill_target(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<FontCandidate> sse_decode_list_font_candidate(
     SseDeserializer deserializer,
   ) {
@@ -7371,6 +7758,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <FontSubstitution>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_font_substitution(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<HandwritingStyle> sse_decode_list_handwriting_style(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <HandwritingStyle>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_handwriting_style(deserializer));
     }
     return ans_;
   }
@@ -7550,6 +7951,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
@@ -7592,6 +8000,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <RepairFix>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_repair_fix(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<SavedSignature> sse_decode_list_saved_signature(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SavedSignature>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_saved_signature(deserializer));
     }
     return ans_;
   }
@@ -7738,6 +8160,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_meta = sse_decode_opt_String(deserializer);
     var var_tilt = sse_decode_f_32(deserializer);
     var var_icon = sse_decode_opt_String(deserializer);
+    var var_comb = sse_decode_opt_box_autoadd_u_32(deserializer);
     return NewAnnotation(
       kind: var_kind,
       rect: var_rect,
@@ -7753,6 +8176,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       meta: var_meta,
       tilt: var_tilt,
       icon: var_icon,
+      comb: var_comb,
     );
   }
 
@@ -7770,6 +8194,27 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       destination: var_destination,
       look: var_look,
       color: var_color,
+    );
+  }
+
+  @protected
+  NewSignature sse_decode_new_signature(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_ink = sse_decode_signature_ink(deserializer);
+    var var_color = sse_decode_annotation_color(deserializer);
+    var var_tilt = sse_decode_f_32(deserializer);
+    var var_initials = sse_decode_bool(deserializer);
+    var var_field = sse_decode_opt_String(deserializer);
+    var var_author = sse_decode_String(deserializer);
+    return NewSignature(
+      rect: var_rect,
+      ink: var_ink,
+      color: var_color,
+      tilt: var_tilt,
+      initials: var_initials,
+      field: var_field,
+      author: var_author,
     );
   }
 
@@ -8531,6 +8976,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  SavedSignature sse_decode_saved_signature(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_bytes = sse_decode_list_prim_u_8_strict(deserializer);
+    return SavedSignature(name: var_name, bytes: var_bytes);
+  }
+
+  @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_kind = sse_decode_search_event_kind(deserializer);
@@ -8642,6 +9095,32 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       signedAt: var_signedAt,
       page: var_page,
     );
+  }
+
+  @protected
+  SignatureInk sse_decode_signature_ink(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_signature_ink_kind(deserializer);
+    var var_text = sse_decode_String(deserializer);
+    var var_family = sse_decode_String(deserializer);
+    var var_strokes = sse_decode_list_annotation_points(deserializer);
+    var var_width = sse_decode_f_32(deserializer);
+    var var_image = sse_decode_list_prim_u_8_strict(deserializer);
+    return SignatureInk(
+      kind: var_kind,
+      text: var_text,
+      family: var_family,
+      strokes: var_strokes,
+      width: var_width,
+      image: var_image,
+    );
+  }
+
+  @protected
+  SignatureInkKind sse_decode_signature_ink_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SignatureInkKind.values[inner];
   }
 
   @protected
@@ -8954,6 +9433,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_fill_target_kind(FillTargetKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_font_embedding(FontEmbedding raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -9087,6 +9572,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_signature_ink_kind(SignatureInkKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -9617,6 +10108,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_new_signature(
+    NewSignature self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_new_signature(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_not_editable_reason(
     NotEditableReason self,
     SseSerializer serializer,
@@ -10022,6 +10522,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_fill_target(FillTarget self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_fill_target_kind(self.kind, serializer);
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_u_32(self.cells, serializer);
+  }
+
+  @protected
+  void sse_encode_fill_target_kind(
+    FillTargetKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_fill_targets(FillTargets self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_fill_target(self.targets, serializer);
+    sse_encode_bool(self.truncated, serializer);
+  }
+
+  @protected
   void sse_encode_font_candidate(FontCandidate self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_font_origin(self.origin, serializer);
@@ -10104,6 +10628,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_32(self.problems, serializer);
     sse_encode_bool(self.hasXfa, serializer);
     sse_encode_bool(self.truncated, serializer);
+  }
+
+  @protected
+  void sse_encode_handwriting_style(
+    HandwritingStyle self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.family, serializer);
+    sse_encode_bool(self.covered, serializer);
   }
 
   @protected
@@ -10420,6 +10954,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_fill_target(
+    List<FillTarget> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_fill_target(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_font_candidate(
     List<FontCandidate> self,
     SseSerializer serializer,
@@ -10464,6 +11010,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_font_substitution(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_handwriting_style(
+    List<HandwritingStyle> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_handwriting_style(item, serializer);
     }
   }
 
@@ -10641,6 +11199,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_prim_u_8_loose(
+    List<int> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint8List(
+      self is Uint8List ? self : Uint8List.fromList(self),
+    );
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -10683,6 +11253,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_repair_fix(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_saved_signature(
+    List<SavedSignature> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_saved_signature(item, serializer);
     }
   }
 
@@ -10811,6 +11393,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.meta, serializer);
     sse_encode_f_32(self.tilt, serializer);
     sse_encode_opt_String(self.icon, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.comb, serializer);
   }
 
   @protected
@@ -10821,6 +11404,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_link_destination(self.destination, serializer);
     sse_encode_link_look(self.look, serializer);
     sse_encode_annotation_color(self.color, serializer);
+  }
+
+  @protected
+  void sse_encode_new_signature(NewSignature self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_signature_ink(self.ink, serializer);
+    sse_encode_annotation_color(self.color, serializer);
+    sse_encode_f_32(self.tilt, serializer);
+    sse_encode_bool(self.initials, serializer);
+    sse_encode_opt_String(self.field, serializer);
+    sse_encode_String(self.author, serializer);
   }
 
   @protected
@@ -11486,6 +12081,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_saved_signature(
+    SavedSignature self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_list_prim_u_8_strict(self.bytes, serializer);
+  }
+
+  @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_search_event_kind(self.kind, serializer);
@@ -11556,6 +12161,26 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.signer, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.signedAt, serializer);
     sse_encode_opt_box_autoadd_u_32(self.page, serializer);
+  }
+
+  @protected
+  void sse_encode_signature_ink(SignatureInk self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_signature_ink_kind(self.kind, serializer);
+    sse_encode_String(self.text, serializer);
+    sse_encode_String(self.family, serializer);
+    sse_encode_list_annotation_points(self.strokes, serializer);
+    sse_encode_f_32(self.width, serializer);
+    sse_encode_list_prim_u_8_strict(self.image, serializer);
+  }
+
+  @protected
+  void sse_encode_signature_ink_kind(
+    SignatureInkKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
