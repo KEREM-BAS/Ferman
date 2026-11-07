@@ -1,8 +1,8 @@
 # Ferman roadmap
 
-Status: Milestones 0, 1 and 2 are complete and approved (2026-10-15, 2026-10-16 and 2026-11-04).
-The owner gave the go-ahead for Milestone 3 on 2026-11-04; the [M3 plan](PROGRESS.md#m3-plan) on the
-branch `m3-edit-text` waits for the owner's approval.
+Status: Milestones 0, 1, 2 and 3 are complete and approved (2026-10-15, 2026-10-16, 2026-11-04 and
+2026-11-06). Milestone 4 is in progress on the branch `m4-rest-of-phase-1`; its
+[M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06.
 
 This document details the roadmap in [brief](BRIEF.md) §7 and covers brief §8 item 4. For every
 milestone it gives the goal, the scope from the brief, the deliverables, the artboards it covers,
@@ -102,8 +102,8 @@ generated is the Proposed [ADR 0020](adr/0020-test-corpus.md), part of the M2 pl
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
 | M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete (approved 2026-10-16) | 18 | M0 approval (given 2026-10-15) |
 | M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Complete (approved 2026-11-04) | 43 | M1 (approved 2026-10-16); the [M2 plan](PROGRESS.md#m2-plan), approved by the owner on 2026-10-17. [ADR 0009](adr/0009-threading-and-jobs.md) is Accepted and [Q07](QUESTIONS.md#q07), [Q13](QUESTIONS.md#q13), [Q18](QUESTIONS.md#q18) and [Q19](QUESTIONS.md#q19) are answered (2026-10-16) |
-| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Built, waiting for the owner's review | 41 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4 and [Q09](QUESTIONS.md#q09) are answered (2026-10-16) |
-| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Plan approved 2026-11-06, code not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
+| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Complete (approved 2026-11-06) | 41 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4 and [Q09](QUESTIONS.md#q09) are answered (2026-10-16) |
+| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | In progress (plan approved 2026-11-06) | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
 | M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; the owner's signing accounts and certificates; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging) and [Q15](QUESTIONS.md#q15) are answered (2026-10-16) |
 | P2 | Phase 2 | Add text and images, find and replace, page marks, redaction, hidden information | Not started | 18 | M5 |
 | P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; the OCR engine, chosen at the start of phase 3 ([Q16](QUESTIONS.md#q16)); [Q06](QUESTIONS.md#q06) is answered (2026-10-16) |
@@ -142,7 +142,7 @@ flowchart LR
 |---|---|
 | M2 | M1: CI, bridge, tokens, components, shell, l10n |
 | M3 | M2: open path, interpreter read path, ToUnicode and encodings, words and lines, render keys, tiles, signature detection |
-| M4 | M3: transactions and undo, incremental save, recovery journal, review list; M2: thumbnails and jobs |
+| M4 | M3: transactions and undo, incremental save, recovery journal, review list; M2: thumbnails |
 | M5 | M1: CI matrix; M4: the notices screen and full settings |
 | P2 | M2: search; M3: edit engine, missing-glyph steps, full rewrite (redaction always rewrites) |
 | P3 | M3: incremental save; M4: signature fields, simple signatures, background tasks; M5: network gateway (timestamps, language packs) |
@@ -1556,7 +1556,8 @@ E1 to E8, plus:
 `c353805`); the pending owner checks (M2) stay open. Phase 0, the design sync, was pull request #3 from `m2-open-and-view`;
 M2 itself followed from the same branch. The plan is in [PROGRESS.md](PROGRESS.md#m2-plan),
 approved by the owner on 2026-10-17. Items marked **Proposed (M2 plan)** below are decisions of that
-plan and were approved with it, except the items still Proposed at the M2 review, Q21 and strace.
+plan and were approved with it, except the items still Proposed at the M2 review, Q21 and strace
+(closed by question 9 of the M4 plan).
 
 **Needs first:**
 
@@ -1697,7 +1698,7 @@ document panel ("1 signature, page 3") and as the neutral Signed chip of `a1-4-m
 | Rust | lopdf `=0.45` | MIT | breaking releases almost monthly, so pinned exactly |
 | Rust | skrifa 0.48, read-fonts 0.45 | MIT OR Apache-2.0 | pinned exactly; upgraded together (fontations is pre-1.0) |
 | Rust | sha2 0.11 | MIT OR Apache-2.0 | file fingerprints, cache keys |
-| Rust | rayon 1.12, crossbeam-channel 0.5, lru 0.18 | MIT OR Apache-2.0; MIT | job pool, actor and render queues, caches |
+| Rust | rayon 1.12, crossbeam-channel 0.5, lru 0.18 | MIT OR Apache-2.0; MIT | job pool (not added: search took a thread of its own, and rayon waits for a measurement, M4 plan), actor and render queues, caches |
 | Rust | unicode-normalization 0.1, unicode-segmentation 1.13, unicode-bidi 0.3 | MIT OR Apache-2.0 | search folding, word boundaries, logical order for right-to-left text |
 | Rust | icu_casemap 2.3, icu_collator 2.3 | Unicode-3.0 | Turkish-aware search folding; locale sorting of recent files; binary size checked |
 | Rust (dev) | criterion 0.8, tempfile 3.27 | Apache-2.0 OR MIT; MIT OR Apache-2.0 | benchmarks; test files |
@@ -1717,7 +1718,7 @@ checked by cargo-deny or the pub licence check, in the commit that adds each:
 | Dart (dev) | ffigen | BSD-3-Clause | the Dco codec of the bridge ([Q19](QUESTIONS.md#q19)); checked to bring no `http` |
 | Test data | Noto Sans CJK, the Adobe Glyph List | OFL-1.1; BSD-3-Clause | pinned by hash, never shipped |
 | CI | libclang-dev | Apache-2.0 WITH LLVM-exception | ffigen's codegen; a CI package, never shipped |
-| CI | strace | LGPL-2.1-or-later | the no-network check; a CI tool, never shipped or linked, but LGPL, so the owner is asked before it is added, as for rust-cache in [Q17](QUESTIONS.md#q17); without it the check uses a network namespace instead |
+| CI | strace | LGPL-2.1-or-later | closed by the owner on 2026-11-06 (question 9 of the [M4 plan](PROGRESS.md#m4-plan)) and never added: the no-network check uses a network namespace |
 
 ### Steps
 
@@ -1820,8 +1821,8 @@ rows say "keys only".
   ARCHITECTURE.md §9.1: nesting, decoded size per stream, filter chain, `/Prev` chain, operators per
   page, form XObject depth, `q` nesting, `usecmap` depth, decoded size per revision and font program
   size (`crates/ferman-core/src/interpret.rs` tests, `ferman_fonts::type1` tests); Type3 and pattern
-  recursion and time per page came with M3; image pixels wait for their code
-  ([B131](BACKLOG.md#open)).
+  recursion and time per page came with M3; image pixels with M4 W0, in `ferman_ops::images`
+  ([B131](BACKLOG.md#done)).
 
 #### Step 3. API, tiles and the viewer
 
@@ -1903,8 +1904,8 @@ rows say "keys only".
   hide; hiding a layer re-renders without it (`a2-3c`). Open: it works for most documents
   (`crates/ferman-api/tests/open.rs` `showing_and_hiding_a_layer_renders_the_page_again`;
   `app/test/features/shell/shell_sidebar_tabs_test.dart` `the eye buttons show and hide layers, and
-  every view asks for its pixels again`), but not in a repaired document or one opened with its
-  password, whose eye buttons stay disabled ([B111](BACKLOG.md#open), [Q22](QUESTIONS.md#q22)).
+  every view asks for its pixels again`), but not in a repaired document, whose eye buttons stay
+  disabled ([B111](BACKLOG.md#open)); a password-opened one since M4 W0 ([Q22](QUESTIONS.md#q22)).
 - [x] Signatures: each signature in the neutral state `a2-14` draws: the signer's name as written in
   the file, the page, no green and no check, and the line that checking comes in a future version
   ([G31](DESIGN_GAPS.md#g31)). Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart`
@@ -2113,8 +2114,8 @@ rows say "keys only".
   the newer six from the Linux run on `64f2115`. `a1-7`'s card has none: its indeterminate bar never
   stops, which the golden helper refuses.
 - [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
-  Open: the CI job that runs the build under strace waits for the owner, since strace is LGPL
-  (PROGRESS.md, "New dependencies" of the M2 plan).
+  Strace was closed by question 9 of the M4 plan: M4's automated run through every screen, in a Linux
+  network namespace, is this check, and this box closes with it (M4 W8).
 - [ ] Standard gates S1 to S9.
 
 ### Design gaps to settle in M2
@@ -2156,9 +2157,10 @@ E1 to E8, plus:
 
 ## 7. M3: edit text core
 
-**Status:** Built, waiting for the owner's review (2026-11-06). The boxes below are ticked only where
-a test proves them; [What stays open](#what-stays-open-at-the-m3-review) lists the rest. The plan was
-approved on 2026-11-04 ([M3 plan](PROGRESS.md#m3-plan)). The questions M3 needs were answered on
+**Status:** Complete, approved by the owner on 2026-11-06 (pull requests #14 and #16 merged as
+`fae2ab5` and `bb28f11`); the pending owner checks (M3) stay open and do not block M4. The boxes below
+are ticked only where a test proves them; [What stays open](#what-stays-open-at-the-m3-review) lists
+the rest. The plan was approved on 2026-11-04 ([M3 plan](PROGRESS.md#m3-plan)). The questions M3 needs were answered on
 2026-10-16: [Q09](QUESTIONS.md#q09) missing-glyph default (the design's "Use a similar font and say
 so", with step 2 always tried first, and the `fsType` rule); [Q08](QUESTIONS.md#q08) group 4, similar
 fonts shipped beyond IBM Plex (Cormorant Garamond and Crimson Pro); [Q07](QUESTIONS.md#q07), the Save
@@ -2514,6 +2516,9 @@ Ticked on tests that ran on the owner's Mac; CI's results on this branch were no
 - Edit-to-render and the save budget on R1 and R2: owner checks.
 - The goldens: no image exists yet.
 - The sandboxed macOS save (ADR 0008): the owner's check.
+- The bundled similar fonts: Cormorant Garamond and Crimson Pro never reached `app/assets/fonts`,
+  `pubspec.yaml` or the registry, though M3's documents said they had (found while planning M4). They
+  come with M4 W0.
 
 ### Design gaps to settle in M3
 
@@ -2538,7 +2543,7 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06; code not started. **Needs first:** M3 accepted. The owner's answers M4 needs came on
+**Status:** In progress on the branch `m4-rest-of-phase-1`. The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06, and M3 was accepted the same day. The owner's answers M4 needs came on
 2026-10-16: [Q08](QUESTIONS.md#q08) group 3, the handwriting fonts for typed signatures (Caveat,
 Dancing Script and Homemade Apple, bundled); [Q06](QUESTIONS.md#q06), revocation lookups allowed,
 off until first use, so the drawn "Signature checks" row in Settings → Privacy stays visible but
@@ -2560,8 +2565,8 @@ app frame (command palette, toasts, background tasks, full settings).
 ### Deliverables
 
 - `ferman-ops` modules for pages, combine and split, annotations, forms, simple signatures, compress,
-  flatten and version snapshots, each a function from a snapshot and parameters to a change set
-  ([ARCHITECTURE.md §2.3](ARCHITECTURE.md#ferman-ops)).
+  flatten and version snapshots, above the primitives in ferman-core that alone name lopdf and build a
+  change set ([ARCHITECTURE.md §2.3](ARCHITECTURE.md#ferman-ops), [ADR 0003](adr/0003-crate-layout-and-api-boundary.md)).
 - Organize, Comment and Fill & Sign modes; Compress and Version history in Tools mode.
 - Command palette, keyboard cheat sheet, toasts, background task drawer.
 - All Settings panes, the licences and third-party notices screen, basic system print
@@ -2592,25 +2597,31 @@ privacy rows for features that do not exist yet in `a11-1h`.
 
 - **Pages:** insert blank, insert from file, delete, rotate, move, duplicate, extract, replace, crop
   and page size, page labels ([G45](DESIGN_GAPS.md#g45)); outline destinations and page labels stay
-  correct after reordering.
-- **Combine and split:** PDFs and images in, outlines merged; split by page ranges, size or outline
-  level, with a result preview (`a6-2`, `a6-3`); locked inputs ask for their password.
-- **Annotations:** highlight, underline, strikeout, squiggly, sticky notes, shapes, lines and arrows,
-  ink, text boxes and callouts, stamps (library and custom, dynamic stamps), links; appearance
-  streams for each; reply threads (`/IRT`), resolved state, mentions; hide all; flatten; comment
-  summary export (`a4-1` to `a4-5b`, `a3-6`).
+  correct after reordering. A moved page's label travels with it, and inserted pages continue the range
+  before them.
+- **Combine and split:** PDFs and images in, outlines merged; split every N pages, by top-level
+  bookmarks, by size or at blank pages, as `a6-2` draws, with a result preview (`a6-2`, `a6-3`,
+  [G142](DESIGN_GAPS.md#g142)); page ranges are Extract's job; locked inputs ask for their password.
+- **Annotations:** highlight, underline, strikeout, sticky notes, shapes (polygon among them), lines
+  and arrows, ink, text boxes and callouts, stamps (library and custom, dynamic stamps), links;
+  appearance streams for each; squiggly is read and rendered but not created, since no board or tool
+  draws it; reply threads (`/IRT`), resolved state, mentions; hide all; flatten; comment summary export
+  (`a4-1` to `a4-5b`, `a3-6`). A dynamic stamp's name and date are filled at placement, as `a4-3` draws,
+  not a live field. Annotations and forms commit on blur, Tab or the end of a drag, never per keystroke;
+  the overlay carries the drag, and the budget is measured on `long-500`.
 - **Forms:** AcroForm text, check box, radio, combo and list, date fields; tab order; required fields;
   appearance generation; validation from the field's declared format and range where Ferman can read
   it without running a script ([Q13](QUESTIONS.md#q13)); "Fill anything" on flat pages with text
   annotations (`a5-4`). XFA stays unsupported.
 - **Simple signatures:** typed, drawn and from an image; initials; placed, resized and rotated;
   saved signatures stored only on this device (`a5-3` to `a5-3d`).
-- **Compress:** presets with an estimate from sampled pages, image recompression and downsampling,
+- **Compress:** presets with an estimate that samples by image bytes, not pages
+  ([G48](DESIGN_GAPS.md#g48)), image recompression and downsampling,
   duplicate font removal, unused objects removed; runs as a cancellable job; writes through Save as
   (`a9-1`).
 - **Version history:** a snapshot for every save, signature and import; read-only preview; restore as a
-  new version (`a9-8`). The location next to the file is decided by an ADR before this step
-  ([ARCHITECTURE.md §7.4](ARCHITECTURE.md#74-version-history-m4)).
+  new version (`a9-8`). Versions live in the app data directory, not next to the file (question 2 of
+  the M4 plan, ADR 0022 before this step, [ARCHITECTURE.md §7.4](ARCHITECTURE.md#74-version-history-m4)).
 - **Jobs:** pause, resume and cancel in the background task drawer (`a11-6b`); a job's result stays
   available for an hour.
 
@@ -2621,10 +2632,15 @@ privacy rows for features that do not exist yet in `a11-1h`.
 | Rust | image 0.25 | MIT OR Apache-2.0 | default features off; png, jpeg, tiff, webp and gif only (avoids the unmaintained `paste` crate) |
 | Rust | cargo-about 0.9 (tool) | MIT OR Apache-2.0 | third-party notices for the licences screen ([G14](DESIGN_GAPS.md#g14)); every release in M5 bundles its output |
 | Fonts | handwriting fonts for typed signatures, approved in Q08 group 3 (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
-| Dart or platform | a printing package or platform channel | to check | chosen and licence-checked in step 9 |
-| Rust | an MCP SDK (the official `rmcp`, or a small JSON-RPC layer of our own) | to check | chosen and licence-checked in step 11 ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
+| Fonts | similar fonts M3 left out (Cormorant Garamond, Crimson Pro) | OFL-1.1 | unmodified upstream files, in W0 |
+| Rust | `rmcp` and tokio with `net`, behind `facade::mcp`'s feature | Apache-2.0, MIT | chosen in the M4 plan and checked by `cargo deny` when W7 starts, with a small JSON-RPC layer as the fallback ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
+| CI | tcpdump | BSD-3-Clause (Homebrew's formula metadata, 2026-11-06; checked again against the package when W8 adds it) | the no-network run, CI only, never shipped |
+
+Printing adds no package: a platform channel, because `printing` downloads a second PDFium at build time and declares `http` (M4 plan, decision 29).
 
 ### Steps
+
+The [M4 plan](PROGRESS.md#m4-plan)'s waves follow these steps with one change: the job core and the toast host of step 7 land first (W0), because Organize's Undo toast and its jobs need them.
 
 1. **Organize** (`a6-1` to `a6-5`), including the insert, replace and extract dialogs and the undo
    toast after delete ([G45](DESIGN_GAPS.md#g45)).
@@ -2641,10 +2657,12 @@ privacy rows for features that do not exist yet in `a11-1h`.
 7. **Command palette, cheat sheet, toasts, task drawer** (`a11-2`, `a11-3`, `a11-6`, `a11-6b`), with
    the states [G49](DESIGN_GAPS.md#g49) asks for.
 8. **Full settings** (`a11-1d`, `a11-1e`, `a11-1h`, `a11-1j`, `a11-1k`, the rest of `a11-1` and
-   `a11-1c`), dark, Turkish and Linux variants ([G50](DESIGN_GAPS.md#g50)), and the licences screen
-   ([G14](DESIGN_GAPS.md#g14)).
+   `a11-1c`), dark, Turkish and Linux variants ([G50](DESIGN_GAPS.md#g50)), and the licences screen,
+   reached from the palette and a new last row in Settings ([G14](DESIGN_GAPS.md#g14)).
 9. **Basic system print** (`a9-6`, [Q10](QUESTIONS.md#q10)), handing the document to the OS print
-   dialog.
+   dialog. The board's dialog ships with preview, Pages, Scale and Include working, Layout staying on
+   Pages, and Printer, Copies and Both sides disabled because the system dialog sets them
+   ([G33](DESIGN_GAPS.md#g33)).
 10. **Thumbnail badges** for comments, fields and signatures (`f5`); bookmark and metadata editing and
     "Attach a file" (`a2-3a`, `a2-7`, `a2-3b`) if M3 did not ship them.
 11. **AI clients through MCP** ([ADR 0019](adr/0019-ai-clients-through-mcp.md), [Q20](QUESTIONS.md#q20)):
@@ -2653,8 +2671,9 @@ privacy rows for features that do not exist yet in `a11-1h`.
     setup and a switch that stops it ([G94](DESIGN_GAPS.md#g94)); Settings → Privacy lists connected
     clients. The client works on the documents open in Ferman through `ferman-api`: its changes are
     edit transactions, shown at once, listed in the edit review and undoable. The owner approved the
-    ADR's details (transport, pairing, the first tools, saving) on 2026-10-16; anything that changes
-    when this step starts goes back to the owner.
+    ADR's details (transport, pairing, the first tools, saving) on 2026-10-16 and amended them on
+    2026-11-06 (question 1 of the M4 plan); anything else that changes when this step starts goes back
+    to the owner.
 
 ### Acceptance criteria
 
@@ -2692,7 +2711,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
   first use, as the owner decided in [Q06](QUESTIONS.md#q06) ([G51](DESIGN_GAPS.md#g51)). No row is
   added for local-network discovery ([G52](DESIGN_GAPS.md#g52), [G56](DESIGN_GAPS.md#g56)).
 - [ ] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
-  through every screen).
+  through every screen, in a Linux network namespace with a dummy default route, logged with tcpdump;
+  the MCP loopback is checked apart).
 - [ ] The licences screen lists every Rust crate (from cargo-about), every Dart package, the PDFium
   `licenses/` folder and the packager's MIT notice, every font and the icon notices; a test checks
   the count against `cargo metadata` and `pubspec.lock`.
@@ -2714,7 +2734,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
 [G48](DESIGN_GAPS.md#g48) compress and history states, [G49](DESIGN_GAPS.md#g49) palette, toast and
 task states, [G50](DESIGN_GAPS.md#g50) settings variants, [G51](DESIGN_GAPS.md#g51) revocation lookups
 in Privacy, [G52](DESIGN_GAPS.md#g52) language packs in Privacy, [G33](DESIGN_GAPS.md#g33) basic print,
-[G94](DESIGN_GAPS.md#g94) AI client settings.
+[G94](DESIGN_GAPS.md#g94) AI client settings, [G111](DESIGN_GAPS.md#g111) Save as's options, and those the
+M4 plan found: [G142](DESIGN_GAPS.md#g142) to [G157](DESIGN_GAPS.md#g157).
 
 ### Exit checks
 

@@ -186,8 +186,12 @@ pub struct PageInfo {
     pub width: f32,
     /// The height, after the crop box and `/Rotate`.
     pub height: f32,
+    /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+    pub rotation: u16,
     /// The page label, such as "iv", when the document has labels.
     pub label: Option<String>,
+    /// What names the page while the document is open, whatever moves around it.
+    pub handle: u64,
 }
 
 /// A document the engine opened.
@@ -209,8 +213,7 @@ pub struct OpenedDocument {
     pub attachments: Vec<Attachment>,
     /// Layers, in the order the document gives them.
     pub layers: Vec<Layer>,
-    /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
-    /// needed a password (Q22).
+    /// Whether [`show_layers`] can show and hide them: not for a repaired document.
     pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
@@ -554,6 +557,51 @@ pub struct PageRect {
     pub right: f32,
     /// The bottom edge.
     pub bottom: f32,
+}
+
+/// How far a job is (a11-6b).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum JobState {
+    /// It works.
+    Running,
+    /// It is parked between two steps.
+    Paused,
+    /// It finished: the last event.
+    Done,
+    /// It failed: the last event.
+    Failed,
+    /// It was cancelled: the last event.
+    Cancelled,
+}
+
+/// A file a job finished.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct JobOutput {
+    /// Where it belongs.
+    pub path: String,
+    /// Under the macOS App Sandbox, the file waiting for the platform layer's swap into `path`.
+    pub staged: Option<String>,
+}
+
+/// An event of a job's stream.
+#[derive(Debug, Clone, PartialEq)]
+pub struct JobEvent {
+    /// The job's handle.
+    pub job: u64,
+    /// Where it stands.
+    pub state: JobState,
+    /// How far it is, 0 to 1, when known.
+    pub progress: Option<f32>,
+    /// The ARB key of where it is, such as `jobPageOf`.
+    pub message_key: Option<String>,
+    /// The key's parameters.
+    pub params: Vec<(String, String)>,
+    /// The files it wrote (`Done`).
+    pub outputs: Vec<JobOutput>,
+    /// How many steps of the document's history it read (`Done`).
+    pub revision: Option<u32>,
+    /// Why it failed (`Failed`).
+    pub error: Option<ApiError>,
 }
 
 /// One match of a search.
@@ -1016,15 +1064,31 @@ pub struct DependentCell {
     pub frame: PageRect,
 }
 
+/// What a commit can change of an [`OpenedDocument`]'s lists.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DocumentStructure {
+    /// Its pages.
+    pub pages: Vec<PageInfo>,
+    /// The outline, each item followed by its children.
+    pub outline: Vec<OutlineEntry>,
+    /// Its embedded files.
+    pub attachments: Vec<Attachment>,
+}
+
 /// Where the history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RevisionInfo {
     /// How many steps apply: 0 is the document as opened.
     pub current: u32,
-    /// The pages' new render key when the render thread reloaded the document.
+    /// The new render key of `changed_pages` when the render thread reloaded the document.
     pub render_key: Option<u64>,
+    /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+    /// means every page.
+    pub changed_pages: Option<Vec<u32>>,
     /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
     pub substitutions: Vec<FontSubstitution>,
+    /// The pages, outline and attachments, when this changed them.
+    pub structure: Option<DocumentStructure>,
 }
 
 /// One committed step of the history.
@@ -1039,8 +1103,8 @@ pub struct HistoryStep {
     /// The characters it set in another font (the review list's font rows); `announced` is
     /// always true.
     pub substitutions: Vec<FontSubstitution>,
-    /// The page of the block it changed; `None` for a revert and a restored step.
-    pub page: Option<u32>,
+    /// The pages it changed, by [`PageInfo::handle`]; empty for a revert and a restored step.
+    pub pages: Vec<u64>,
     /// The block's text before it: the review list's before; empty for a revert and a restored
     /// step.
     pub before: String,
@@ -1051,7 +1115,7 @@ pub struct HistoryStep {
 }
 
 /// What a revert did.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Reverted {
     /// Whether the step was reverted; `false` when later steps depend on it and were not asked
     /// to go with it.
@@ -1467,6 +1531,323 @@ pub async fn search(
         .map_err(api_error_dto)
 }
 
+/// Copies `document` as its revisions stand now to the new file `output` as a background job. The
+/// stream's first event has the job's handle; its last says how it ended.
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `NotFound` for a document that is not open.
+pub async fn start_copy_document_job(
+    document: u64,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .copy_document_job(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Commits the change a job prepared, as one step of the document's history.
+///
+/// See [`facade::Engine::apply_job_change`].
+///
+/// # Errors
+///
+/// `InvalidInput` when the document moved since the job read it; `NotFound` for a job with no
+/// change waiting; and what any commit returns.
+pub async fn apply_job_change(job: u64) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .apply_job_change(facade::JobId::from_raw(job))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// What Combine would write for `files`, with a row per input.
+///
+/// # Errors
+///
+/// `Internal` when its thread does not start. A file that cannot be used says so in its row.
+pub async fn combine_preview(
+    files: Vec<CombineInput>,
+    keep_forms: bool,
+) -> Result<CombinePreview, ApiError> {
+    let sources = files
+        .into_iter()
+        .map(|file| combine_file(file).source)
+        .collect();
+    engine()?
+        .combine_preview(sources, keep_forms)
+        .await
+        .map(|preview| CombinePreview {
+            files: preview
+                .files
+                .into_iter()
+                .map(|row| CombineFileInfo {
+                    status: match row.status {
+                        facade::InputStatus::Ready => InputStatus::Ready,
+                        facade::InputStatus::PasswordRequired => InputStatus::PasswordRequired,
+                        facade::InputStatus::WrongPassword => InputStatus::WrongPassword,
+                        facade::InputStatus::OwnerPasswordRequired => {
+                            InputStatus::OwnerPasswordRequired
+                        }
+                        facade::InputStatus::BadRange => InputStatus::BadRange,
+                        facade::InputStatus::Unreadable => InputStatus::Unreadable,
+                    },
+                    image: row.image,
+                    pages: row.pages,
+                    selected: row.selected,
+                    bytes: row.bytes,
+                    encrypted: row.encrypted,
+                    signed: row.signed,
+                })
+                .collect(),
+            pages: preview.pages,
+            bytes: preview.bytes,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes `files` as the new file `output` as a background job: Combine, and Create PDF from a
+/// blank page or files. The stream's first event has the job's handle; its last says how it ended.
+///
+/// See [`facade::Engine::combine_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` for no input or an `output` that exists.
+pub async fn start_combine_job(
+    files: Vec<CombineInput>,
+    keep_forms: bool,
+    paper: PaperSize,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .combine_job(
+            files.into_iter().map(combine_file).collect(),
+            keep_forms,
+            paper_size(paper),
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Writes `pages` of `document` as the new file `output` as a background job.
+///
+/// See [`facade::Engine::extract_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_extract_pages_job(
+    document: u64,
+    pages: Vec<u64>,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .extract_pages_job(
+            facade::DocumentId::from_raw(document),
+            pages,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// The files a split of `document` would write (a6-2).
+///
+/// See [`facade::Engine::split_preview`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable`, `NotFound`, and the render thread's errors.
+pub async fn split_preview(
+    document: u64,
+    kind: SplitKind,
+    amount: u64,
+    template: String,
+    folder: Option<String>,
+) -> Result<SplitPreview, ApiError> {
+    let mode = match kind {
+        SplitKind::EveryPages => {
+            facade::SplitMode::EveryPages(u32::try_from(amount).unwrap_or(u32::MAX))
+        }
+        SplitKind::TopBookmarks => facade::SplitMode::TopBookmarks,
+        SplitKind::Size => facade::SplitMode::Size(amount),
+        SplitKind::BlankPages => facade::SplitMode::BlankPages,
+    };
+    engine()?
+        .split_preview(
+            facade::DocumentId::from_raw(document),
+            mode,
+            template,
+            folder.map(PathBuf::from),
+        )
+        .await
+        .map(|preview| SplitPreview {
+            files: preview
+                .files
+                .into_iter()
+                .map(|file| SplitFile {
+                    name: file.name,
+                    first: u32::try_from(file.first).unwrap_or(u32::MAX),
+                    last: u32::try_from(file.last).unwrap_or(u32::MAX),
+                    bytes: file.bytes,
+                    over_limit: file.over_limit,
+                })
+                .collect(),
+            bookmarks: preview.bookmarks,
+            blank_pages: preview.blank_pages,
+            encrypted: preview.encrypted,
+            signed: preview.signed,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes the files [`split_preview`] planned into `folder` as a background job.
+///
+/// See [`facade::Engine::split_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_split_job(
+    document: u64,
+    files: Vec<SplitOutput>,
+    folder: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .split_job(
+            facade::DocumentId::from_raw(document),
+            files
+                .into_iter()
+                .map(|file| facade::SplitOutput {
+                    name: file.name,
+                    first: file.first,
+                    last: file.last,
+                })
+                .collect(),
+            PathBuf::from(folder),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Reads pages of a PDF or an image as a background job, whose change, for [`apply_job_change`],
+/// inserts them after the page `after`, or first when `None`.
+///
+/// See [`facade::Engine::insert_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+#[allow(clippy::too_many_arguments)]
+pub async fn start_insert_pages_job(
+    document: u64,
+    path: String,
+    password: Option<String>,
+    pages: Option<Vec<u32>>,
+    after: Option<u64>,
+    paper: PaperSize,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .insert_pages_job(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            password.map(facade::Password::new),
+            pages,
+            after,
+            paper_size(paper),
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Reads pages of a PDF as a background job, whose change, for [`apply_job_change`], puts them in
+/// the place of `pages`.
+///
+/// See [`facade::Engine::replace_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+pub async fn start_replace_pages_job(
+    document: u64,
+    pages: Vec<u64>,
+    path: String,
+    password: Option<String>,
+    source_pages: Option<Vec<u32>>,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .replace_pages_job(
+            facade::DocumentId::from_raw(document),
+            pages,
+            PathBuf::from(path),
+            password.map(facade::Password::new),
+            source_pages,
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Parks a job at its next checkpoint. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn pause_job(job: u64) -> Result<(), ApiError> {
+    engine()?.pause_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
+/// Lets a paused job go on. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn resume_job(job: u64) -> Result<(), ApiError> {
+    engine()?.resume_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
+/// Cancels a job at its next checkpoint; it leaves nothing. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn cancel_job(job: u64) -> Result<(), ApiError> {
+    engine()?.cancel_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
 /// The text blocks of `page` of `document` in reading order, with their editability.
 ///
 /// See [`facade::Engine::text_blocks`].
@@ -1876,6 +2257,474 @@ pub async fn rollback_edit(transaction: u64) -> Result<RevisionInfo, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// What each side of a page gives up, in displayed points.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageMargins {
+    /// The top side.
+    pub top: f32,
+    /// The bottom side.
+    pub bottom: f32,
+    /// The left side.
+    pub left: f32,
+    /// The right side.
+    pub right: f32,
+}
+
+/// One page of a crop.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageCrop {
+    /// The page, by [`PageInfo::handle`].
+    pub page: u64,
+    /// What it gives up.
+    pub margins: PageMargins,
+}
+
+/// What a new page size does to the content (a6-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PageFit {
+    /// Stays at its size, in the middle of the new page.
+    Centre,
+    /// Scaled to fit the new page, and centred on it.
+    Scale,
+}
+
+/// The paper of an image's own page (G152), which the app picks from the region setting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PaperSize {
+    /// 595.28 × 841.89 pt.
+    A4,
+    /// 612 × 792 pt.
+    Letter,
+}
+
+/// One input of Combine or Create PDF.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CombineInput {
+    /// Where the PDF or image is; `None` for a blank page of `blank_width` by `blank_height`.
+    pub path: Option<String>,
+    /// What opens it.
+    pub password: Option<String>,
+    /// Its pages by index, in the order to take them; `None` for all.
+    pub pages: Option<Vec<u32>>,
+    /// A blank page's width, in points.
+    pub blank_width: f32,
+    /// A blank page's height, in points.
+    pub blank_height: f32,
+    /// The title of a bookmark for its first page.
+    pub bookmark: Option<String>,
+}
+
+/// Whether an input can be used, for its row in a6-3 (G45).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InputStatus {
+    /// It can.
+    Ready,
+    /// It needs its password.
+    PasswordRequired,
+    /// The password does not open it.
+    WrongPassword,
+    /// It forbids assembling, which only its owner password lifts.
+    OwnerPasswordRequired,
+    /// Its page range names a page it does not have, or a page twice.
+    BadRange,
+    /// Neither a PDF nor an image Ferman can read, or the file is gone.
+    Unreadable,
+}
+
+/// One input's row in a6-3.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CombineFileInfo {
+    /// Whether it can be used; the numbers below are zero if not.
+    pub status: InputStatus,
+    /// Whether it is an image, "converted to 1 page".
+    pub image: bool,
+    /// Its pages in all.
+    pub pages: u32,
+    /// How many of them it adds.
+    pub selected: u32,
+    /// About what it adds to the output, in bytes.
+    pub bytes: u64,
+    /// Whether it is encrypted: the output will not be.
+    pub encrypted: bool,
+    /// Whether it is signed: the output carries no signature.
+    pub signed: bool,
+}
+
+/// What a6-3 shows before anything is written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CombinePreview {
+    /// A row per input, in order.
+    pub files: Vec<CombineFileInfo>,
+    /// The pages of the output.
+    pub pages: u32,
+    /// About how large it comes out, in bytes.
+    pub bytes: u64,
+}
+
+/// The ways to split a6-2 draws.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SplitKind {
+    /// A new file every `amount` pages.
+    EveryPages,
+    /// One file per top-level bookmark.
+    TopBookmarks,
+    /// Files of at most `amount` bytes, as estimated.
+    Size,
+    /// A new file at each blank page, which goes.
+    BlankPages,
+}
+
+/// One file of a split's plan.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitFile {
+    /// Its name, with `.pdf`, safe in any folder.
+    pub name: String,
+    /// Its first page, as an index.
+    pub first: u32,
+    /// Its last page, as an index.
+    pub last: u32,
+    /// About how large it comes out, in bytes, at the high end.
+    pub bytes: u64,
+    /// Whether one page alone is over the size asked for.
+    pub over_limit: bool,
+}
+
+/// What a6-2 shows before anything is written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitPreview {
+    /// The files.
+    pub files: Vec<SplitFile>,
+    /// How many top-level bookmarks go to a page.
+    pub bookmarks: u32,
+    /// How many pages count as blank.
+    pub blank_pages: u32,
+    /// Whether the document is encrypted: the files will not be.
+    pub encrypted: bool,
+    /// Whether it is signed: the files carry no signature.
+    pub signed: bool,
+}
+
+/// One file of a split, as the plan names it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SplitOutput {
+    /// Its name in the output folder.
+    pub name: String,
+    /// Its first page, as an index.
+    pub first: u32,
+    /// Its last page, as an index.
+    pub last: u32,
+}
+
+/// How a page label range writes its numbers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LabelStyle {
+    /// No number: the prefix alone.
+    None,
+    /// 1, 2, 3.
+    Decimal,
+    /// I, II, III.
+    RomanUpper,
+    /// i, ii, iii.
+    RomanLower,
+    /// A, B, C.
+    LettersUpper,
+    /// a, b, c.
+    LettersLower,
+}
+
+/// One range of a document's page labels (a6-5).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LabelRange {
+    /// The index of its first page, from 0.
+    pub start: u32,
+    /// How it writes its numbers.
+    pub style: LabelStyle,
+    /// What comes before each number.
+    pub prefix: String,
+    /// The number of its first page, from 1.
+    pub first: u32,
+}
+
+/// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
+///
+/// See [`facade::Engine::rotate_pages`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` and `NotFound`; so do the other page
+/// operations.
+pub async fn rotate_pages(
+    document: u64,
+    pages: Vec<u64>,
+    quarter_turns: i32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .rotate_pages(
+            facade::DocumentId::from_raw(document),
+            pages,
+            quarter_turns,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes `pages` as one history step.
+///
+/// See [`facade::Engine::delete_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn delete_pages(
+    document: u64,
+    pages: Vec<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_pages(facade::DocumentId::from_raw(document), pages, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Moves `pages` before the page `before`, or to the end when `None`, as one history step.
+///
+/// See [`facade::Engine::move_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn move_pages(
+    document: u64,
+    pages: Vec<u64>,
+    before: Option<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .move_pages(facade::DocumentId::from_raw(document), pages, before, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Copies `pages` as one history step.
+///
+/// See [`facade::Engine::duplicate_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn duplicate_pages(
+    document: u64,
+    pages: Vec<u64>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .duplicate_pages(facade::DocumentId::from_raw(document), pages, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Inserts `count` blank pages after the page `after`, or first when `None`, as one history step.
+///
+/// See [`facade::Engine::insert_blank_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn insert_blank_pages(
+    document: u64,
+    after: Option<u64>,
+    count: u32,
+    width: f32,
+    height: f32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .insert_blank_pages(
+            facade::DocumentId::from_raw(document),
+            after,
+            count,
+            (width, height),
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives `pages` a new displayed size as one history step.
+///
+/// See [`facade::Engine::set_page_size`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn set_page_size(
+    document: u64,
+    pages: Vec<u64>,
+    width: f32,
+    height: f32,
+    fit: PageFit,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let fit = match fit {
+        PageFit::Centre => facade::PageFit::Centre,
+        PageFit::Scale => facade::PageFit::Scale,
+    };
+    engine()?
+        .set_page_size(
+            facade::DocumentId::from_raw(document),
+            pages,
+            (width, height),
+            fit,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Crops each page of `crops` as one history step.
+///
+/// See [`facade::Engine::crop_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn crop_pages(
+    document: u64,
+    crops: Vec<PageCrop>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let crops = crops
+        .into_iter()
+        .map(|crop| {
+            let PageMargins {
+                top,
+                bottom,
+                left,
+                right,
+            } = crop.margins;
+            (
+                crop.page,
+                facade::Margins {
+                    top,
+                    bottom,
+                    left,
+                    right,
+                },
+            )
+        })
+        .collect();
+    engine()?
+        .crop_pages(facade::DocumentId::from_raw(document), crops, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The white around the content of each of `pages`, `None` for a page with no content.
+///
+/// See [`facade::Engine::white_margins`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotFound` and the render thread's errors.
+pub async fn white_margins(
+    document: u64,
+    pages: Vec<u64>,
+) -> Result<Vec<Option<PageMargins>>, ApiError> {
+    engine()?
+        .white_margins(facade::DocumentId::from_raw(document), pages)
+        .await
+        .map(|margins| {
+            margins
+                .into_iter()
+                .map(|margins| {
+                    margins.map(|margins| PageMargins {
+                        top: margins.top,
+                        bottom: margins.bottom,
+                        left: margins.left,
+                        right: margins.right,
+                    })
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// The document's page label ranges, in page order.
+///
+/// See [`facade::Engine::page_label_ranges`].
+///
+/// # Errors
+///
+/// `NotFound` for a closed document.
+pub async fn page_label_ranges(document: u64) -> Result<Vec<LabelRange>, ApiError> {
+    engine()?
+        .page_label_ranges(facade::DocumentId::from_raw(document))
+        .await
+        .map(|ranges| {
+            ranges
+                .into_iter()
+                .map(|range| LabelRange {
+                    start: range.start,
+                    style: match range.style {
+                        facade::LabelStyle::None => LabelStyle::None,
+                        facade::LabelStyle::Decimal => LabelStyle::Decimal,
+                        facade::LabelStyle::RomanUpper => LabelStyle::RomanUpper,
+                        facade::LabelStyle::RomanLower => LabelStyle::RomanLower,
+                        facade::LabelStyle::LettersUpper => LabelStyle::LettersUpper,
+                        facade::LabelStyle::LettersLower => LabelStyle::LettersLower,
+                    },
+                    prefix: range.prefix,
+                    first: range.first,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Makes `ranges` the document's page labels as one history step; none removes them.
+///
+/// See [`facade::Engine::set_page_labels`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+pub async fn set_page_labels(
+    document: u64,
+    ranges: Vec<LabelRange>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let ranges = ranges
+        .into_iter()
+        .map(|range| facade::LabelRange {
+            start: range.start,
+            style: match range.style {
+                LabelStyle::None => facade::LabelStyle::None,
+                LabelStyle::Decimal => facade::LabelStyle::Decimal,
+                LabelStyle::RomanUpper => facade::LabelStyle::RomanUpper,
+                LabelStyle::RomanLower => facade::LabelStyle::RomanLower,
+                LabelStyle::LettersUpper => facade::LabelStyle::LettersUpper,
+                LabelStyle::LettersLower => facade::LabelStyle::LettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+        })
+        .collect();
+    engine()?
+        .set_page_labels(facade::DocumentId::from_raw(document), ranges, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -1984,7 +2833,7 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                             })
                         })
                         .collect(),
-                    page: step.page,
+                    pages: step.pages,
                     before: step.before,
                     after: step.after,
                     reverts: step.reverts,
@@ -2140,6 +2989,66 @@ pub async fn would_break_signatures(document: u64) -> Result<bool, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// What the user asks to do to a document.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DocumentOp {
+    /// Editing text on a page.
+    EditText,
+    /// Inserting, moving, rotating and deleting pages.
+    Organize,
+    /// Adding or changing comments.
+    Comment,
+    /// Filling in form fields, signing a signature field included.
+    Fill,
+    /// Printing, which changes nothing in the file.
+    Print,
+}
+
+/// What an operation may do to a document as it stands (G35).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OpGate {
+    /// Allowed, and no signature is concerned.
+    Unaffected,
+    /// Allowed, and what the signatures allow: a certification and the signatures stay valid.
+    KeepsSignatures,
+    /// Possible only by invalidating a signature.
+    BreaksSignatures,
+    /// The document's permissions forbid it, or the document cannot be changed.
+    Forbidden,
+}
+
+/// What `op` may do to the document; `fields` are the form fields a fill fills, empty when not
+/// known yet.
+///
+/// See [`facade::Engine::op_gate`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn op_gate(
+    document: u64,
+    op: DocumentOp,
+    fields: Vec<String>,
+) -> Result<OpGate, ApiError> {
+    let op = match op {
+        DocumentOp::EditText => facade::DocumentOp::EditText,
+        DocumentOp::Organize => facade::DocumentOp::Organize,
+        DocumentOp::Comment => facade::DocumentOp::Comment,
+        DocumentOp::Fill => facade::DocumentOp::Fill,
+        DocumentOp::Print => facade::DocumentOp::Print,
+    };
+    engine()?
+        .op_gate(facade::DocumentId::from_raw(document), op, fields)
+        .await
+        .map(|gate| match gate {
+            facade::OpGate::Unaffected => OpGate::Unaffected,
+            facade::OpGate::KeepsSignatures => OpGate::KeepsSignatures,
+            facade::OpGate::BreaksSignatures => OpGate::BreaksSignatures,
+            facade::OpGate::Forbidden => OpGate::Forbidden,
+        })
+        .map_err(api_error_dto)
+}
+
 /// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
 ///
 /// See [`facade::Engine::confirm_edit_signed`].
@@ -2215,6 +3124,72 @@ pub async fn save_as(
         .await
         .map(staged_dto)
         .map_err(api_error_dto)
+}
+
+fn paper_size(paper: PaperSize) -> facade::Paper {
+    match paper {
+        PaperSize::A4 => facade::Paper::A4,
+        PaperSize::Letter => facade::Paper::Letter,
+    }
+}
+
+fn combine_file(input: CombineInput) -> facade::CombineFile {
+    facade::CombineFile {
+        source: match input.path {
+            Some(path) => facade::CombineSource::File {
+                path: PathBuf::from(path),
+                password: input.password.map(facade::Password::new),
+                pages: input.pages,
+            },
+            None => facade::CombineSource::Blank(input.blank_width, input.blank_height),
+        },
+        bookmark: input.bookmark,
+    }
+}
+
+/// Hands a job's events to its Dart stream; a stream nobody reads does not stop the job.
+struct BridgeJob(StreamSink<JobEvent>);
+
+impl facade::JobSink for BridgeJob {
+    fn deliver(&mut self, event: facade::JobEvent) {
+        let path = |path: PathBuf| path.to_string_lossy().into_owned();
+        let mut dto = JobEvent {
+            job: event.job.get(),
+            state: if event.paused {
+                JobState::Paused
+            } else {
+                JobState::Running
+            },
+            progress: event.progress,
+            message_key: event.message.map(|key| key.as_str().to_owned()),
+            params: event.params,
+            outputs: Vec::new(),
+            revision: None,
+            error: None,
+        };
+        match event.result {
+            None => {}
+            Some(facade::JobResult::Done {
+                outputs, revision, ..
+            }) => {
+                dto.state = JobState::Done;
+                dto.revision = revision;
+                dto.outputs = outputs
+                    .into_iter()
+                    .map(|output| JobOutput {
+                        path: path(output.path),
+                        staged: output.staged.map(path),
+                    })
+                    .collect();
+            }
+            Some(facade::JobResult::Failed(err)) => {
+                dto.state = JobState::Failed;
+                dto.error = Some(api_error_dto(err));
+            }
+            Some(facade::JobResult::Cancelled) => dto.state = JobState::Cancelled,
+        }
+        let _ = self.0.add(dto);
+    }
 }
 
 /// Hands a search's events to its Dart stream.
@@ -2416,12 +3391,44 @@ fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
     RevisionInfo {
         current: info.current,
         render_key: info.render_key,
+        changed_pages: info.changed_pages,
         substitutions: info
             .substitutions
             .into_iter()
             .map(substitution_dto)
             .collect(),
+        structure: info.structure.map(|structure| DocumentStructure {
+            pages: pages_dto(structure.pages),
+            outline: outline_dto(structure.outline),
+            attachments: attachments_dto(structure.attachments),
+        }),
     }
+}
+
+/// Pages as their mirrors.
+fn pages_dto(pages: Vec<facade::PageInfo>) -> Vec<PageInfo> {
+    pages
+        .into_iter()
+        .map(|page| PageInfo {
+            width: page.size.width,
+            height: page.size.height,
+            rotation: page.rotation,
+            label: page.label,
+            handle: page.handle,
+        })
+        .collect()
+}
+
+/// Attachments as their mirrors.
+fn attachments_dto(attachments: Vec<facade::Attachment>) -> Vec<Attachment> {
+    attachments
+        .into_iter()
+        .map(|file| Attachment {
+            name: file.name,
+            size: file.size,
+            modified: file.modified.or(file.created).map(pdf_date_dto),
+        })
+        .collect()
 }
 
 /// A font's origin as its mirror.
@@ -2680,25 +3687,9 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             facade::ReadOnly::XfaOnly => ReadOnlyReason::XfaOnly,
         }),
         right_to_left: document.direction == facade::Direction::RightToLeft,
-        pages: document
-            .pages
-            .into_iter()
-            .map(|page| PageInfo {
-                width: page.size.width,
-                height: page.size.height,
-                label: page.label,
-            })
-            .collect(),
+        pages: pages_dto(document.pages),
         outline: outline_dto(document.outline),
-        attachments: document
-            .attachments
-            .into_iter()
-            .map(|file| Attachment {
-                name: file.name,
-                size: file.size,
-                modified: file.modified.or(file.created).map(pdf_date_dto),
-            })
-            .collect(),
+        attachments: attachments_dto(document.attachments),
         layers: document
             .layers
             .into_iter()

@@ -16,6 +16,7 @@
 //! path. `FERMAN_CORPUS_ONLY=<name>` limits the run to one generator.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use ferman_corpus::docs::PROBES;
 use ferman_corpus::sources::Sources;
 use ferman_corpus::{Expect, GENERATORS};
 use pdfium_render::prelude::*;
@@ -115,6 +116,40 @@ fn check(pdfium: &Pdfium, expect: Expect, pdf: &[u8], text: &str) -> Result<(), 
     Ok(())
 }
 
+/// Every image of `images-compress` paints in PDFium, JPX and the CMYK ones included, with about
+/// the colour its generator gave it. One pixel per point of the page; noise and CMYK conversion
+/// move a colour a little.
+fn images_paint(pdfium: &Pdfium, pdf: &[u8]) -> Result<(), String> {
+    let document = pdfium
+        .load_pdf_from_byte_slice(pdf, None)
+        .map_err(|err| err.to_string())?;
+    let mut failures = Vec::new();
+    for (index, (page, (x, y), want)) in PROBES.iter().enumerate() {
+        let page = document
+            .pages()
+            .get(i32::from(*page))
+            .map_err(|err| err.to_string())?;
+        let height = page.height().value;
+        let config = PdfRenderConfig::new().set_target_width(page.width().value as i32);
+        let bitmap = page
+            .render_with_config(&config)
+            .map_err(|err| err.to_string())?;
+        let width = bitmap.width() as usize;
+        let rgba = bitmap.as_rgba_bytes();
+        let row = (height - *y as f32) as usize;
+        let at = (row * width + *x as usize) * 4;
+        let got = &rgba[at..at + 3];
+        if got.iter().zip(want).any(|(a, b)| a.abs_diff(*b) > 48) {
+            failures.push(format!("probe {index}: {got:?}, not about {want:?}"));
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("; "))
+    }
+}
+
 #[test]
 #[ignore = "needs PDFium: set FERMAN_PDFIUM_PATH (tools/pdfium/fetch.sh)"]
 fn pdfium_reads_every_generated_file_as_its_generator_says() {
@@ -135,6 +170,11 @@ fn pdfium_reads_every_generated_file_as_its_generator_says() {
         let (_, pdf) = outputs.pop().expect("the PDF");
         let text = String::from_utf8(text).expect("the expected text is UTF-8");
         if let Err(problem) = check(&pdfium, generator.expect, &pdf, &text) {
+            failures.push(format!("{}: {problem}", generator.name));
+        }
+        if generator.name == "images-compress"
+            && let Err(problem) = images_paint(&pdfium, &pdf)
+        {
             failures.push(format!("{}: {problem}", generator.name));
         }
         checked += 1;

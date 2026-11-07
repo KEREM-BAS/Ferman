@@ -2,6 +2,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/document_view.dart';
@@ -66,6 +67,15 @@ final PageBlocks contract = PageBlocks(
   ],
 );
 
+/// A fake whose undo reloads every page, as a page operation does.
+class _ReloadsAll extends FakeEngineService {
+  new({super.documents, super.pageBlocks});
+
+  @override
+  Future<RevisionInfo> undo(int document) async =>
+      const RevisionInfo(current: 0, renderKey: 1000);
+}
+
 void main() {
   late FakeDesktopWindow window;
   late List<String> copied;
@@ -93,11 +103,14 @@ void main() {
     FermanMode mode = FermanMode.view,
     OpenedDocument shown = document,
     Map<int, PageBlocks>? pages,
+    FakeEngineService? fake,
   }) async {
-    final engine = FakeEngineService(
-      documents: {'/kira.pdf': shown},
-      pageBlocks: pages ?? {0: blocks},
-    );
+    final engine =
+        fake ??
+        FakeEngineService(
+          documents: {'/kira.pdf': shown},
+          pageBlocks: pages ?? {0: blocks},
+        );
     await pumpShell(
       tester,
       shellHost(
@@ -272,6 +285,31 @@ void main() {
     await click.up();
     await tester.pump();
     expect(containerOf(tester).read(canvasSelectionProvider), isNull);
+  });
+
+  testWidgets('a reload of every page clears the selection', (tester) async {
+    await pumpDocument(
+      tester,
+      fake: _ReloadsAll(
+        documents: {'/kira.pdf': document},
+        pageBlocks: {0: contract},
+      ),
+    );
+    final mouse = await hover(tester, const Offset(73, 106));
+    await mouse.down(onScreen(tester, const Offset(73, 106)));
+    await tester.pump();
+    await mouse.moveTo(onScreen(tester, const Offset(236, 318)));
+    await tester.pump();
+    await tester.pump();
+    expect(containerOf(tester).read(canvasSelectionProvider), isNotNull);
+    await mouse.up();
+    await tester.pump();
+
+    await containerOf(tester).read(documentEditorProvider.notifier).undo();
+    await tester.pump();
+    await tester.pump();
+    expect(containerOf(tester).read(canvasSelectionProvider), isNull);
+    await mouse.removePointer();
   });
 
   testWidgets('the owner password makes restricted text editable at once', (

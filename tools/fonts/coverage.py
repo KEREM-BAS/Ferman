@@ -1,4 +1,4 @@
-"""Coverage and naming report for the bundled IBM Plex fonts.
+"""Coverage and naming report for the bundled fonts.
 
 Reads every TTF under the fonts directory (default: app/assets/fonts) with the Python
 standard library only, then:
@@ -8,7 +8,10 @@ standard library only, then:
   * checks that each family's cmap covers the scripts Ferman's UI needs: Plex Sans
     covers Basic Latin, the Latin-1 letters, Turkish, Vietnamese, Cyrillic and Greek;
     Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew covers Hebrew; Plex
-    Sans Devanagari covers Devanagari;
+    Sans Devanagari covers Devanagari; the handwriting and similar-font families cover
+    Basic Latin and the Latin-1 letters, and Turkish except Homemade Apple, which upstream
+    does not (reported for information);
+  * checks that every file's OS/2 fsType allows embedding a subset;
   * checks that the golden sample string of ROADMAP M1 step 5 resolves through the UI
     fallback chain without a missing character.
 
@@ -58,8 +61,19 @@ def span(first: int, last: int, skip: tuple[int, ...] = ()) -> list[int]:
     return [cp for cp in range(first, last + 1) if cp not in skip]
 
 
+LATIN = [
+    ("Basic Latin U+0020..U+007E", span(0x0020, 0x007E)),
+    ("Latin-1 letters U+00C0..U+00FF", span(0x00C0, 0x00FF)),
+]
+TURKISH = ("Turkish", chars("İıĞğŞşÇçÖöÜüÂâÎîÛû"))
+
 # Every file of the family must map every listed code point.
 REQUIRED: dict[str, list[tuple[str, list[int]]]] = {
+    "Caveat": [*LATIN, TURKISH],
+    "Dancing Script": [*LATIN, TURKISH],
+    "Homemade Apple": LATIN,
+    "Cormorant Garamond": [*LATIN, TURKISH],
+    "Crimson Pro": [*LATIN, TURKISH],
     "IBM Plex Sans": [
         ("Basic Latin U+0020..U+007E", span(0x0020, 0x007E)),
         # The same range as the script fonts' own Latin line below.
@@ -102,6 +116,7 @@ INFO: list[tuple[str, str, int]] = [
     ("IBM Plex Sans Arabic", "ZERO WIDTH NON-JOINER (Persian)", 0x200C),
     ("IBM Plex Sans", "ZERO WIDTH NON-JOINER", 0x200C),
     ("IBM Plex Sans Devanagari", "ZERO WIDTH JOINER", 0x200D),
+    *(("Homemade Apple", f"Turkish {c}", ord(c)) for c in "İıĞğŞş"),
 ]
 
 
@@ -134,6 +149,7 @@ class Font:
         self.cmap = self._cmap()
         os2 = self.table("OS/2")
         self.weight_class = u16(os2, 4)
+        self.fs_type = u16(os2, 8)
         self.italic = bool(u16(os2, 62) & 0x01)  # fsSelection bit 0
         self.revision = struct.unpack_from(">i", self.table("head"), 4)[0] / 65536
 
@@ -280,6 +296,20 @@ def check_required(groups: dict[str, list[Font]]) -> int:
     return failures
 
 
+def check_embedding(fonts: list[Font]) -> int:
+    """Whether fsType allows a subset in a document, as ferman-fonts' Embedding reads it."""
+    print("\nEmbedding (OS/2 fsType)")
+    failures = 0
+    for font in fonts:
+        fs = font.fs_type
+        if fs & 0x0300 or (fs & 0x0006 and not fs & 0x0008):
+            print(f"  FAIL {font.path.name}: fsType {fs:#06x} forbids a subset in a document")
+            failures += 1
+    if not failures:
+        print(f"  ok   all {len(fonts)} files allow it")
+    return failures
+
+
 def check_golden(regular: dict[str, Font]) -> int:
     print("\nGolden sample through the fallback chain (regular weight of each family)")
     used: dict[str, list[str]] = {}
@@ -341,7 +371,11 @@ def main(argv: list[str]) -> int:
 
     report_files(fonts, fonts_dir)
     regular = {f.family: f for f in fonts if f.weight_class == 400 and not f.italic}
-    failures = check_required(group_by_family(fonts)) + check_golden(regular)
+    failures = (
+        check_required(group_by_family(fonts))
+        + check_embedding(fonts)
+        + check_golden(regular)
+    )
     report_info(regular)
     if failures:
         print(f"\ncoverage: {failures} check(s) failed", file=sys.stderr)

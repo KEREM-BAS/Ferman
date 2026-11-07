@@ -22,6 +22,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 
 use crate::limits::Limits;
 use crate::revision::RevisionStore;
+use crate::security::DocumentOp;
 use crate::text_string;
 
 pub mod fonts;
@@ -29,11 +30,11 @@ pub mod interactive;
 pub mod navigation;
 
 pub use fonts::{FontKind, FontUse};
-pub use interactive::{Forms, Layer, Scripts, Signature};
+pub use interactive::{FieldLock, Forms, Layer, OpGate, Scripts, Signature};
 pub use navigation::{Attachment, OutlineItem};
 
 /// US Letter, PDFium's page size when `/MediaBox` is missing or empty.
-const LETTER: Rect = Rect {
+pub(crate) const LETTER: Rect = Rect {
     left: 0.0,
     bottom: 0.0,
     right: 612.0,
@@ -115,6 +116,13 @@ pub struct Page {
 }
 
 impl Page {
+    /// A handle that stays this page's while the document is open, whatever moves around it:
+    /// its object's number and generation. Opaque to the UI.
+    #[must_use]
+    pub fn handle(&self) -> u64 {
+        (u64::from(self.id.0) << 16) | u64::from(self.id.1)
+    }
+
     /// A point of the page's user space in displayed points: from the top-left corner of the crop
     /// box as the page shows after `/Rotate`, y down, as PDFium lays the page out.
     #[must_use]
@@ -278,6 +286,19 @@ pub struct Structure {
     pub info: Info,
 }
 
+/// What a document's revisions can change of its structure: recomputed through the store's
+/// overlay when a revision touches more than streams, the document's own scan otherwise. Its
+/// fonts, forms, signatures and the rest stay as the file opened with them.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct RevisedStructure {
+    /// The pages with their labels.
+    pub pages: Vec<Page>,
+    /// The outline (bookmarks).
+    pub outline: Vec<OutlineItem>,
+    /// Embedded files and file attachment annotations.
+    pub attachments: Vec<Attachment>,
+}
+
 /// Whether the two parsers agree (ADR 0004, G102): lopdf's model and PDFium.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Agreement {
@@ -309,6 +330,46 @@ impl Structure {
         self.signatures.iter().any(|signature| signature.signed)
             || self.certification.is_some()
             || self.forms.sig_flags & 2 != 0
+    }
+
+    /// What `op` does to the signatures of the file (ISO 32000-2 §12.8.2.2 and §12.8.2.4, G35).
+    /// A certification's level allows filling and signing at 2, and comments too at 3, and
+    /// nothing else; a field lock's `/P` counts as a level, the lowest wins. A signature with no
+    /// level and no lock says nothing is allowed, and neither does `/SigFlags` alone, so those
+    /// break. `fields` are the full names `op` fills; empty when not known yet, which keeps a
+    /// signature only if no signature locks any field.
+    #[must_use]
+    pub fn op_gate(&self, op: DocumentOp, fields: &[String]) -> OpGate {
+        if op == DocumentOp::Print || !self.signed() {
+            return OpGate::Unaffected;
+        }
+        let signed: Vec<&Signature> = self.signatures.iter().filter(|s| s.signed).collect();
+        let level = self
+            .certification
+            .into_iter()
+            .chain(signed.iter().filter_map(|signature| signature.level))
+            .min();
+        let keeps = match op {
+            DocumentOp::Comment => level == Some(3),
+            DocumentOp::Fill => {
+                let declared = !signed.is_empty() && signed.iter().all(|s| !s.locks.is_empty());
+                let allowed = level.map_or(declared, |level| level >= 2);
+                let locked = |field: &String| {
+                    signed.iter().any(|signature| {
+                        signature.field == *field
+                            || signature.locks.iter().any(|lock| lock.covers(field))
+                    })
+                };
+                let unknown = fields.is_empty() && signed.iter().any(|s| !s.locks.is_empty());
+                allowed && !unknown && !fields.iter().any(locked)
+            }
+            DocumentOp::EditText | DocumentOp::Organize | DocumentOp::Print => false,
+        };
+        if keeps {
+            OpGate::KeepsSignatures
+        } else {
+            OpGate::BreaksSignatures
+        }
     }
 
     /// Compares the pages with the sizes PDFium gives, in page order.
@@ -419,7 +480,20 @@ impl<'a> Scope<'a> {
 
     /// The catalog.
     pub(crate) fn catalog(&self) -> Option<&'a Dictionary> {
-        self.doc.catalog().ok()
+        if self.overlay.is_none() {
+            return self.doc.catalog().ok();
+        }
+        let root = self.doc.trailer.get(b"Root").ok()?.as_reference().ok()?;
+        self.dictionary(root)
+    }
+
+    /// Object `id` as a dictionary, as `lopdf::Document::get_dictionary` takes it: a stream's
+    /// does not count.
+    pub(crate) fn dictionary(&self, id: ObjectId) -> Option<&'a Dictionary> {
+        match self.resolve(self.object(id)?)? {
+            Object::Dictionary(dict) => Some(dict),
+            _ => None,
+        }
     }
 }
 
@@ -450,11 +524,20 @@ pub(crate) fn inherited<'a>(
     page: &'a Dictionary,
     key: &[u8],
 ) -> Option<&'a Object> {
+    scope.resolve(inherited_entry(scope, page, key)?)
+}
+
+/// The entry [`inherited`] finds, its reference not followed.
+pub(crate) fn inherited_entry<'a>(
+    scope: &Scope<'a>,
+    page: &'a Dictionary,
+    key: &[u8],
+) -> Option<&'a Object> {
     let mut node = page;
     let mut seen = BTreeSet::new();
     for _ in 0..=scope.limits.max_nesting {
         if let Ok(value) = node.get(key) {
-            return scope.resolve(value);
+            return Some(value);
         }
         let parent = node.get(b"Parent").ok()?;
         let id = parent.as_reference().ok()?;
@@ -464,6 +547,114 @@ pub(crate) fn inherited<'a>(
         node = scope.dict(parent)?;
     }
     None
+}
+
+/// Fills `scope`'s page and annotation maps from the pages `ids`.
+fn index_pages(scope: &mut Scope<'_>, ids: &[ObjectId]) {
+    for (index, id) in ids.iter().enumerate() {
+        let Ok(index) = u32::try_from(index) else {
+            break;
+        };
+        scope.page_of.entry(*id).or_insert(index);
+    }
+    for (index, id) in ids.iter().enumerate() {
+        let (Ok(index), Some(page)) = (u32::try_from(index), scope.dictionary(*id)) else {
+            continue;
+        };
+        if let Some(annotations) = scope.get_array(page, b"Annots") {
+            for annotation in annotations {
+                if let Ok(annotation) = annotation.as_reference() {
+                    scope.annotation_page.entry(annotation).or_insert(index);
+                }
+            }
+        }
+    }
+}
+
+/// The pages `ids` with their labels.
+fn pages(scope: &Scope<'_>, ids: &[ObjectId]) -> Vec<Page> {
+    let labels = labels(scope, ids.len());
+    ids.iter()
+        .enumerate()
+        .filter_map(|(index, id)| {
+            let index = u32::try_from(index).ok()?;
+            let label = labels.get(usize::try_from(index).ok()?).cloned().flatten();
+            Some(page(scope, *id, index, label))
+        })
+        .collect()
+}
+
+/// The pages in `lopdf::Document::page_iter`'s order and with its limits, read through the
+/// scope's overlay. The two agree on every corpus file (`revision`'s tests).
+fn page_ids(scope: &Scope<'_>, added: usize) -> Vec<ObjectId> {
+    const DEPTH: usize = 256;
+    let kids = |id: ObjectId| {
+        scope
+            .dictionary(id)
+            .and_then(|node| scope.get_array(node, b"Kids"))
+            .map(Vec::as_slice)
+    };
+    let mut budget = scope.doc.objects.len().saturating_add(added);
+    let mut stack: Vec<&[Object]> = Vec::new();
+    let mut level = scope
+        .catalog()
+        .and_then(|catalog| catalog.get(b"Pages").ok())
+        .and_then(|root| root.as_reference().ok())
+        .and_then(kids);
+    let mut out = Vec::new();
+    loop {
+        while let Some((kid, rest)) = level.and_then(<[Object]>::split_first) {
+            if budget == 0 {
+                return out;
+            }
+            budget = budget.saturating_sub(1);
+            level = Some(rest);
+            let Ok(id) = kid.as_reference() else {
+                continue;
+            };
+            let Some(Ok(kind)) = scope.dictionary(id).map(Dictionary::get_type) else {
+                continue;
+            };
+            match kind {
+                b"Page" => out.push(id),
+                b"Pages" if stack.len() < DEPTH => {
+                    if !rest.is_empty() {
+                        stack.push(rest);
+                    }
+                    level = kids(id);
+                }
+                _ => {}
+            }
+        }
+        match stack.pop() {
+            Some(next) => level = Some(next),
+            None => return out,
+        }
+    }
+}
+
+/// [`RevisedStructure`] of `doc` read through `overlay`; `added` is how many objects it adds to
+/// the model. A part that cannot be read is left empty.
+pub(crate) fn revised(
+    doc: &lopdf::Document,
+    limits: &Limits,
+    overlay: &RevisionStore,
+    added: usize,
+) -> RevisedStructure {
+    let mut scope = Scope {
+        doc,
+        limits,
+        page_of: BTreeMap::new(),
+        annotation_page: BTreeMap::new(),
+        overlay: Some(overlay),
+    };
+    let ids = page_ids(&scope, added);
+    index_pages(&mut scope, &ids);
+    RevisedStructure {
+        pages: pages(&scope, &ids),
+        outline: navigation::outline(&scope),
+        attachments: navigation::attachments(&scope),
+    }
 }
 
 /// Scans `doc`. A part that cannot be read is left empty.
@@ -476,34 +667,8 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
         annotation_page: BTreeMap::new(),
         overlay: None,
     };
-    for (index, id) in ids.iter().enumerate() {
-        let Ok(index) = u32::try_from(index) else {
-            break;
-        };
-        scope.page_of.entry(*id).or_insert(index);
-    }
-    for (index, id) in ids.iter().enumerate() {
-        let (Ok(index), Ok(page)) = (u32::try_from(index), doc.get_dictionary(*id)) else {
-            continue;
-        };
-        if let Some(annotations) = scope.get_array(page, b"Annots") {
-            for annotation in annotations {
-                if let Ok(annotation) = annotation.as_reference() {
-                    scope.annotation_page.entry(annotation).or_insert(index);
-                }
-            }
-        }
-    }
-    let labels = labels(&scope, ids.len());
-    let pages = ids
-        .iter()
-        .enumerate()
-        .filter_map(|(index, id)| {
-            let index = u32::try_from(index).ok()?;
-            let label = labels.get(usize::try_from(index).ok()?).cloned().flatten();
-            Some(page(&scope, *id, index, label))
-        })
-        .collect();
+    index_pages(&mut scope, &ids);
+    let pages = pages(&scope, &ids);
     let catalog = scope.catalog();
     let direction = catalog
         .and_then(|catalog| scope.get_dict(catalog, b"ViewerPreferences"))
@@ -538,7 +703,7 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
 
 /// One page's boxes, rotation and displayed size, as PDFium computes them.
 fn page(scope: &Scope<'_>, id: ObjectId, index: u32, label: Option<String>) -> Page {
-    let dict = scope.doc.get_dictionary(id).ok();
+    let dict = scope.dictionary(id);
     let boxed = |key: &[u8]| {
         dict.and_then(|dict| inherited(scope, dict, key))
             .and_then(|value| rect(scope, value))
@@ -621,35 +786,100 @@ pub(crate) fn marked_content_languages(
     out
 }
 
-/// The labels of `count` pages from `/PageLabels` (ISO 32000-2 §12.4.2), or none.
-fn labels(scope: &Scope<'_>, count: usize) -> Vec<Option<String>> {
+/// How a page label range writes its numbers (ISO 32000-2 §12.4.2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LabelStyle {
+    /// No number: the prefix alone.
+    None,
+    /// 1, 2, 3.
+    Decimal,
+    /// I, II, III.
+    RomanUpper,
+    /// i, ii, iii.
+    RomanLower,
+    /// A, B, C.
+    LettersUpper,
+    /// a, b, c.
+    LettersLower,
+}
+
+impl LabelStyle {
+    /// The name `/S` holds for this style.
+    pub(crate) fn name(self) -> Option<&'static [u8]> {
+        match self {
+            Self::None => None,
+            Self::Decimal => Some(b"D"),
+            Self::RomanUpper => Some(b"R"),
+            Self::RomanLower => Some(b"r"),
+            Self::LettersUpper => Some(b"A"),
+            Self::LettersLower => Some(b"a"),
+        }
+    }
+}
+
+/// One range of a document's page labels.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LabelRange {
+    /// The index of its first page, from 0.
+    pub start: u32,
+    /// How it writes its numbers.
+    pub style: LabelStyle,
+    /// What comes before each number.
+    pub prefix: String,
+    /// The number of its first page, from 1.
+    pub first: u32,
+}
+
+/// The ranges of `/PageLabels` in page order, or none.
+pub(crate) fn label_ranges(scope: &Scope<'_>) -> Vec<LabelRange> {
     let Some(root) = scope
         .catalog()
         .and_then(|catalog| scope.get_dict(catalog, b"PageLabels"))
     else {
         return Vec::new();
     };
-    let mut ranges: Vec<(i64, &Dictionary)> = navigation::number_tree(scope, root)
+    let mut ranges: Vec<LabelRange> = navigation::number_tree(scope, root)
         .into_iter()
-        .filter_map(|(start, value)| Some((start, scope.dict(value)?)))
+        .filter_map(|(start, value)| {
+            let range = scope.dict(value)?;
+            Some(LabelRange {
+                start: u32::try_from(start.max(0)).unwrap_or(u32::MAX),
+                style: match scope.get_name(range, b"S") {
+                    Some(b"D") => LabelStyle::Decimal,
+                    Some(b"R") => LabelStyle::RomanUpper,
+                    Some(b"r") => LabelStyle::RomanLower,
+                    Some(b"A") => LabelStyle::LettersUpper,
+                    Some(b"a") => LabelStyle::LettersLower,
+                    _ => LabelStyle::None,
+                },
+                prefix: scope.get_text(range, b"P").unwrap_or_default(),
+                first: u32::try_from(scope.get_int(range, b"St").unwrap_or(1).max(1))
+                    .unwrap_or(u32::MAX),
+            })
+        })
         .collect();
-    ranges.sort_by_key(|(start, _)| *start);
+    ranges.sort_by_key(|range| range.start);
+    ranges
+}
+
+/// The labels of `count` pages from `/PageLabels` (ISO 32000-2 §12.4.2), or none.
+fn labels(scope: &Scope<'_>, count: usize) -> Vec<Option<String>> {
+    let ranges = label_ranges(scope);
     (0..count)
         .map(|index| {
-            let index = i64::try_from(index).ok()?;
-            let (start, range) = ranges.iter().rev().find(|(start, _)| *start <= index)?;
-            let prefix = scope.get_text(range, b"P").unwrap_or_default();
-            let first = scope.get_int(range, b"St").unwrap_or(1).max(1);
-            let value = first.checked_add(index.checked_sub(*start)?)?;
-            let number = match scope.get_name(range, b"S") {
-                Some(b"D") => value.to_string(),
-                Some(b"R") => roman(value).to_uppercase(),
-                Some(b"r") => roman(value),
-                Some(b"A") => letters(value).to_uppercase(),
-                Some(b"a") => letters(value),
-                _ => String::new(),
+            let index = u32::try_from(index).ok()?;
+            let range = ranges.iter().rev().find(|range| range.start <= index)?;
+            let value =
+                i64::from(range.first).checked_add(i64::from(index.saturating_sub(range.start)))?;
+            let number = match range.style {
+                LabelStyle::Decimal => value.to_string(),
+                LabelStyle::RomanUpper => roman(value).to_uppercase(),
+                LabelStyle::RomanLower => roman(value),
+                LabelStyle::LettersUpper => letters(value).to_uppercase(),
+                LabelStyle::LettersLower => letters(value),
+                LabelStyle::None => String::new(),
             };
-            Some(format!("{prefix}{number}"))
+            Some(format!("{}{number}", range.prefix))
         })
         .collect()
 }

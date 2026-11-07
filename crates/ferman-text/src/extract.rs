@@ -18,6 +18,7 @@ use ferman_core::Document;
 use ferman_core::interpret::{
     FontResource, Matrix, OperatorEvent, ShowItem, Span, SpanSource, TextShow, TextSink,
 };
+use ferman_core::revision::RevisionStore;
 use ferman_core::structure::FontKind;
 use ferman_fonts::{
     BaseEncoding, BuiltinEncoding, CMap, FontProgram, GlyphId, SimpleEncoding, builtin_encoding,
@@ -65,10 +66,34 @@ pub fn page_text(document: &Document, index: usize) -> Result<String, TextError>
 ///
 /// [`TextError::Core`] when a limit stops the interpreter.
 pub fn page_layout(document: &Document, index: usize) -> Result<PageText, TextError> {
+    page_layout_through(document, None, index)
+}
+
+/// [`page_layout`] of the document as `revisions` changed it.
+///
+/// # Errors
+///
+/// As [`page_layout`].
+pub fn page_layout_revised(
+    document: &Document,
+    revisions: &RevisionStore,
+    index: usize,
+) -> Result<PageText, TextError> {
+    page_layout_through(document, Some(revisions), index)
+}
+
+fn page_layout_through(
+    document: &Document,
+    revisions: Option<&RevisionStore>,
+    index: usize,
+) -> Result<PageText, TextError> {
     let mut collector = Collector::default();
-    document.page_text(index, &mut collector)?;
+    match revisions {
+        Some(revisions) => revisions.page_text(document, index, &mut collector)?,
+        None => document.page_text(index, &mut collector)?,
+    }
     collector.finish();
-    let page = document.structure().pages.get(index);
+    let page = document.pages_through(revisions).get(index);
     let glyphs = &collector.glyphs;
     let mut out = PageText::default();
     for (n, line) in lines(glyphs).into_iter().enumerate() {

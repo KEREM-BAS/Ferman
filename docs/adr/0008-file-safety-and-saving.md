@@ -231,9 +231,12 @@ atomic sequence, and Ferman never writes versions inside the PDF itself.
 
 A folder next to the file can fail: the directory may be read-only, on a network share, inside a sync
 folder (which would upload the versions), or out of reach in a sandboxed build. The final rule for those
-cases (for example falling back to the app data directory and saying so in a9-8) is settled with a
-follow-up ADR when M4 is planned. Until then Ferman writes nothing next to the user's file other than
-the temp file of a save and files the user asks for.
+cases was settled when M4 was planned: on 2026-11-06 the owner chose (question 2 of the
+[M4 plan](../PROGRESS.md#m4-plan)) that versions always live in the app data directory with
+owner-only permissions, found by path and then by the hash of the last saved bytes after a rename.
+The copy changes to "Kept for 30 days" in a9-8, a11-1c, a1-11 and onboarding, and versions do not
+travel with the file. The follow-up ADR, 0022, holds the details and comes with M4 W4. Ferman writes
+nothing next to the user's file other than the temp file of a save and files the user asks for.
 
 ## Consequences
 

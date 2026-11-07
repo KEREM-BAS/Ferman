@@ -13,8 +13,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// downloads you start (OCR language packs, P3; the assistant's model, P4)
 /// and your AI provider (P4). These are the brief's four uses (the update
 /// check, language packs, AI and timestamp servers) plus the drawn
-/// "Signature checks" row, which stays visible but disabled until the
-/// owner decides on revocation lookups (G51, Q06).
+/// "Signature checks" row, which stays visible but disabled until phase 3
+/// builds revocation lookups, off until first use (G51, Q06).
 ///
 /// Nothing connects in M1, so every switch is off and disabled with
 /// "Available in a future version" (the design draws four of them on, as

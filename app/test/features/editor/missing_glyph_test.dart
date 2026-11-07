@@ -1,3 +1,4 @@
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
@@ -161,7 +162,7 @@ void main() {
   Future<void> drain(WidgetTester tester) async {
     await tester.pump(DocumentEditor.idle);
     await pumps(tester);
-    await tester.pump(DocumentEditor.toastTime);
+    await tester.pump(ToastHost.lifetime);
     await pumps(tester);
   }
 
@@ -220,7 +221,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.byType(FontSubstitutedToast), findsOneWidget);
-    await tester.pump(DocumentEditor.toastTime);
+    await tester.pump(ToastHost.lifetime);
     await pumps(tester);
     expect(find.text('Font substituted'), findsNothing);
 
@@ -282,8 +283,12 @@ void main() {
     expect(find.text('Closest match'), findsOneWidget);
     expect(find.text('No ‘\u2068ğ\u2069’'), findsOneWidget);
     // The bundled candidate previews its letters in its own font.
-    final preview = tester.widget<Text>(find.text('Ğğ İı Şş Çç Öö Üü'));
-    expect(preview.style?.fontFamily, 'IBM Plex Serif');
+    final previews = tester.widgetList<Text>(find.text('Ğğ İı Şş Çç Öö Üü'));
+    expect(previews.map((preview) => preview.style?.fontFamily), [
+      'IBM Plex Serif',
+      'Cormorant Garamond',
+      'Crimson Pro',
+    ]);
     // "Whole block" waits (B137).
     final scope = tester.widget<SegmentedControl<bool>>(
       find.byType(SegmentedControl<bool>),

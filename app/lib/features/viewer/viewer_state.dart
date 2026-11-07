@@ -77,6 +77,28 @@ final class SidebarMemory {
   final Map<SidebarTab, double> offsets = {};
 }
 
+/// The oldest render key a view takes for each page: a bitmap with an older
+/// one shows the page as it was.
+final class CurrentKeys {
+  int _every = 0;
+  final Map<int, int> _pages = {};
+
+  /// Whether a bitmap of [page] with render key [key] shows it as it is.
+  bool isCurrent(int page, int key) =>
+      key >= math.max(_every, _pages[page] ?? 0);
+
+  /// [pages] got render key [key]; null means every page.
+  void raise(int key, {List<int>? pages}) {
+    if (pages == null) {
+      _every = math.max(_every, key);
+    } else {
+      for (final page in pages) {
+        _pages[page] = math.max(_pages[page] ?? 0, key);
+      }
+    }
+  }
+}
+
 /// Which layers of the open document show, and the render key showing them
 /// gave every page, as `layerVisibilityProvider`.
 @immutable
@@ -224,6 +246,7 @@ final class ViewerState {
 
   /// A copy with the given values.
   ViewerState copyWith({
+    OpenedDocument? document,
     PageLayout? layout,
     double? zoom,
     ZoomFit? Function()? fit,
@@ -232,7 +255,7 @@ final class ViewerState {
     Offset? offset,
     int? row,
   }) => ViewerState(
-    document: document,
+    document: document ?? this.document,
     layout: layout ?? this.layout,
     zoom: zoom ?? this.zoom,
     fit: fit == null ? this.fit : fit(),
@@ -274,7 +297,11 @@ class Viewer extends _$Viewer {
     listenSelf((_, next) {
       if (next != null) memory.remember(next);
     });
-    if (memory.recall<ViewerState>() case final view?) return view;
+    if (memory.recall<ViewerState>() case final view?) {
+      return identical(view.document, document)
+          ? view
+          : _withDocument(view, document);
+    }
     // A document opens with the layout and zoom of Settings › General.
     final settings = ref.read(settingsProvider);
     return ViewerState(
@@ -290,6 +317,51 @@ class Viewer extends _$Viewer {
         NewDocumentZoom.actual => null,
       },
     );
+  }
+
+  /// [view] on [document], the same document after a revision: its pages may
+  /// have moved or changed size, so the fit follows, and the reader stays at
+  /// the same place of the same page, or at the top of the nearest page left.
+  ViewerState _withDocument(ViewerState view, OpenedDocument document) {
+    var next = view.copyWith(document: document, row: 0);
+    final fit = view.fit;
+    if (fit != null && !view.viewport.isEmpty && next.pageSizes.isNotEmpty) {
+      next = next.copyWith(
+        zoom: fitZoom(fit, next.pageSizes, view.layout, view.viewport),
+      );
+    }
+    if (next.pageSizes.isEmpty) return _clamped(next);
+    final current = view.currentPage;
+    final page = document.pageIndexOf(view.document.pageHandle(current));
+    if (page == null) {
+      return _showing(next, nearestLeft(view.document, document, current));
+    }
+    next = next.copyWith(row: next.placement.rowOf(page));
+    final before = view.placement.rects[current];
+    final after = next.placement.rects[page];
+    if (before == null || after == null) return _showing(next, page);
+    // Not recomputed when nothing moved, so an edit leaves the offset exact.
+    if (after == before) return _clamped(next.copyWith(offset: view.offset));
+    final local = (view.offset - before.topLeft) / view.scale;
+    return _clamped(next.copyWith(offset: after.topLeft + local * next.scale));
+  }
+
+  /// Where in [after] the page of [before] nearest to [gone] is, of those
+  /// left; the first page when none is.
+  static int nearestLeft(
+    OpenedDocument before,
+    OpenedDocument after,
+    int gone,
+  ) {
+    for (var gap = 1; gap < before.pages.length; gap++) {
+      for (final page in [gone + gap, gone - gap]) {
+        if (page < 0 || page >= before.pages.length) continue;
+        if (after.pageIndexOf(before.pageHandle(page)) case final left?) {
+          return left;
+        }
+      }
+    }
+    return 0;
   }
 
   /// The canvas is [viewport] large; a fitted zoom follows it.

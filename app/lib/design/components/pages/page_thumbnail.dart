@@ -346,6 +346,11 @@ class _PageThumbnailState extends State<PageThumbnail> {
     if (!down && key != LogicalKeyboardKey.arrowUp) {
       return KeyEventResult.ignored;
     }
+    // Move shortcuts carry modifiers; a bare arrow only moves focus.
+    final keys = HardwareKeyboard.instance;
+    if (keys.isMetaPressed || keys.isControlPressed || keys.isAltPressed) {
+      return KeyEventResult.ignored;
+    }
     final node = _node;
     final here = node.rect;
     FocusNode? target;

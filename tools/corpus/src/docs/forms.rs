@@ -449,12 +449,12 @@ fn circle(content: &mut Content, cx: f64, cy: f64, r: f64) {
 }
 
 /// A JavaScript action.
-fn js(script: &str) -> Dictionary {
+pub(super) fn js(script: &str) -> Dictionary {
     dictionary! { "S" => "JavaScript", "JS" => Object::string_literal(script) }
 }
 
 /// An appearance stream of `width` × `height` with `content`.
-fn appearance(
+pub(super) fn appearance(
     pdf: &mut Pdf,
     width: f64,
     height: f64,
@@ -648,6 +648,17 @@ const XDP: [(&str, &str); 5] = [
     ("postamble", "</xdp:xdp>"),
 ];
 
+/// `/AcroForm /XFA`: the packets, each a stream, after its name.
+pub(super) fn xfa_packets(pdf: &mut Pdf, xdp: &[(&str, &str)]) -> Vec<Object> {
+    let mut packets = Vec::new();
+    for (packet, xml) in xdp {
+        let stream = pdf.make_stream(Dictionary::new(), xml.as_bytes().to_vec());
+        packets.push(Object::string_literal(*packet));
+        packets.push(Object::Reference(pdf.add(stream)));
+    }
+    packets
+}
+
 fn xfa(sources: &Sources) -> Result<Generated, String> {
     let mut doc = Doc::new("1.7");
     let heading = doc.word_style(sources, FontFile::PlexSansSemiBold, 13.0)?;
@@ -682,14 +693,7 @@ fn xfa(sources: &Sources) -> Result<Generated, String> {
         y -= if style.size > 11.0 { 22.0 } else { 15.0 };
     }
     let (ids, expected) = doc.add_pages(vec![page], pdf::A4);
-    let mut packets = Vec::new();
-    for (packet, xml) in XDP {
-        let stream = doc
-            .pdf
-            .make_stream(Dictionary::new(), xml.as_bytes().to_vec());
-        packets.push(Object::string_literal(packet));
-        packets.push(Object::Reference(doc.pdf.add(stream)));
-    }
+    let packets = xfa_packets(&mut doc.pdf, &XDP);
     let catalog = dictionary! {
         "Lang" => text("tr-TR"),
         "OpenAction" => open_first(ids[0]),

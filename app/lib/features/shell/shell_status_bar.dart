@@ -1,7 +1,10 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
+import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/find_state.dart';
@@ -99,6 +102,38 @@ class ShellStatusBar extends ConsumerWidget {
     // The "· spelling" a3-14 adds comes with spell-check (B150).
     final language =
         this.language ?? (tag == null ? null : blockLanguageName(context, tag));
+    final jobs = ref.read(backgroundJobsProvider.notifier);
+    final rows = ref.watch(backgroundJobsProvider.select((jobs) => jobs.rows));
+    final running = [
+      for (final row in rows)
+        if (row.active) row,
+    ];
+    final jobLine = switch (running) {
+      [final row] => taskProgressOf(
+        row,
+        l10n,
+        format,
+        jobs,
+        variant: TaskProgressVariant.inline,
+      ),
+      [_, _, ...] => TaskProgress(
+        variant: TaskProgressVariant.inline,
+        icon: IconName.listChecks,
+        title: l10n.tasksRunning(
+          running.length,
+          format.integer(running.length),
+        ),
+        indeterminate: true,
+      ),
+      _ when find.searched != null || rows.isEmpty => null,
+      _ => taskProgressOf(
+        rows.last,
+        l10n,
+        format,
+        jobs,
+        variant: TaskProgressVariant.inline,
+      ),
+    };
     return Container(
       height: theme.density.statusbarH,
       padding: EdgeInsetsDirectional.only(
@@ -158,31 +193,35 @@ class ShellStatusBar extends ConsumerWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: theme.space.space0_5,
-                children: [
-                  button(
-                    IconName.minus,
-                    l10n.shellZoomOut,
-                    ShellCommand.zoomOut,
-                    view == null ? null : viewer.zoomOut,
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minWidth: zoomTextWidth),
-                    child: Text(
-                      bidiIsolate(format.percent(view?.zoom ?? 100)),
-                      textAlign: TextAlign.center,
+              // A phone-wide window has no room for it, and pinches instead.
+              if (!WindowMetrics.isPhoneWidth(MediaQuery.sizeOf(context).width))
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: theme.space.space0_5,
+                  children: [
+                    button(
+                      IconName.minus,
+                      l10n.shellZoomOut,
+                      ShellCommand.zoomOut,
+                      view == null ? null : viewer.zoomOut,
                     ),
-                  ),
-                  button(
-                    IconName.plus,
-                    l10n.shellZoomIn,
-                    ShellCommand.zoomIn,
-                    view == null ? null : viewer.zoomIn,
-                  ),
-                ],
-              ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: zoomTextWidth,
+                      ),
+                      child: Text(
+                        bidiIsolate(format.percent(view?.zoom ?? 100)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    button(
+                      IconName.plus,
+                      l10n.shellZoomIn,
+                      ShellCommand.zoomIn,
+                      view == null ? null : viewer.zoomIn,
+                    ),
+                  ],
+                ),
             ],
             if (language != null)
               Row(
@@ -198,22 +237,35 @@ class ShellStatusBar extends ConsumerWidget {
                   Text(language),
                 ],
               ),
-            const Spacer(),
-            // The running job (FmWindow `task`, B124): M2's only job is
-            // search, whose find bar shows its progress too.
-            if (find.searched case final searched?)
-              TaskProgress(
-                variant: TaskProgressVariant.inline,
-                icon: IconName.search,
-                title: l10n.statusSearching,
-                detail: l10n.shellPageOf(
-                  format.integer(searched),
-                  format.integer(find.pages),
-                ),
-                value: find.pages == 0 ? 0 : searched / find.pages,
-                cancelLabel: l10n.findCancel,
-                onCancel: ref.read(findProvider.notifier).cancel,
+            // The task (FmWindow `task`, B124): the jobs running, or else the
+            // search, whose find bar shows its progress too, or else the
+            // job that finished last. A job's line opens the drawer. The width
+            // left, so only what does not fit ends in an ellipsis.
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: switch ((jobLine, find.searched)) {
+                  (final Widget line, _) => TaskDrawerOpener(
+                    label: l10n.tasksOpen,
+                    onPressed: jobs.toggleDrawer,
+                    child: line,
+                  ),
+                  (_, final int searched) => TaskProgress(
+                    variant: TaskProgressVariant.inline,
+                    icon: IconName.search,
+                    title: l10n.statusSearching,
+                    detail: l10n.shellPageOf(
+                      format.integer(searched),
+                      format.integer(find.pages),
+                    ),
+                    value: find.pages == 0 ? 0 : searched / find.pages,
+                    cancelLabel: l10n.findCancel,
+                    onCancel: ref.read(findProvider.notifier).cancel,
+                  ),
+                  _ => null,
+                },
               ),
+            ),
             if (saveState != null)
               SaveIndicator(
                 state: saveState,

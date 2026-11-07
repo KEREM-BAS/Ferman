@@ -47,6 +47,9 @@ futures-channel = "0.3.34"
 # Stream filters in ferman-core: Flate through the pure-Rust miniz_oxide backend, and LZW.
 flate2 = "1.1.10"
 weezl = "0.2.1"
+# Raster images in ferman-ops, under Limits.max_image_pixels. Default features off: no AVIF encoder,
+# exr or `paste` (RUSTSEC-2024-0436), and no rayon.
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "tiff", "webp", "gif"] }
 # The document model (ADR 0004), pinned exactly: breaking releases come almost monthly. Default
 # features off: no chrono and no rayon (objects load on the calling thread).
 lopdf = { version = "=0.45.0", default-features = false }

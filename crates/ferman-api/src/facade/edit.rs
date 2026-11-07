@@ -7,7 +7,12 @@
 //! transaction. After each commit, undo and redo it publishes the committed store in the model
 //! ([`Model::revised`]), which [`Engine::text_blocks`] lays out, and the engine hands the render
 //! thread the revised bytes (the incremental update the save would write), so PDFium reloads the
-//! document and every page gets a new render key.
+//! document and the pages the change reaches get a new render key.
+//!
+//! A change that is not a block's ([`Session::commit_change`], [`Engine::rotate_page`]) is one
+//! commit: its operation writes into a transaction of a copy of the committed revisions, and the
+//! confirmation, the history step, the recovery journal, the publish and the reload are the same
+//! as a block's.
 //!
 //! A transaction edits one block. [`Engine::apply`] replaces the block's whole text: it rewrites
 //! the block of the committed revision each time, so the open transaction holds only the newest
@@ -57,8 +62,11 @@
 //! The actor holds the confirmation until the document closes; it is never persisted, not even
 //! across a restore from the recovery files. The one write without it is a byte-for-byte copy of
 //! the unchanged file to another path, which leaves the signature valid. "Edit a copy" is
-//! [`Engine::save_unsigned_copy`] and an open of the new file.
+//! [`Engine::save_unsigned_copy`] and an open of the new file. A change the signatures allow
+//! ([`Engine::op_gate`] says [`OpGate::KeepsSignatures`]) asks the same, because G35 tells the
+//! user before the first change whatever it does; its notice only says something else.
 
+use std::collections::HashMap;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -70,9 +78,11 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
-use ferman_core::{CoreError, WriteError};
+use ferman_core::structure::{LabelRange, OpGate};
+use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
-use ferman_render::DocumentId;
+use ferman_ops::pages::{Margins, PageFit};
+use ferman_render::{DocumentId, PageSize, RenderError};
 use ferman_text::extract::CharBox;
 use ferman_text::{
     BlockId, BlockStyle, BlockStyleInfo, Choice, EditContext, Editability, FontCandidate,
@@ -80,7 +90,7 @@ use ferman_text::{
     OverflowPlan, Substitution, SubstitutionKind, TextBlock,
 };
 
-use super::document::Model;
+use super::document::{DocumentStructure, Model};
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
@@ -288,16 +298,23 @@ impl ConfirmationToken {
 }
 
 /// Where the document's history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RevisionInfo {
     /// How many steps of the history apply: 0 is the document as opened.
     pub current: u32,
-    /// The pages' new render key when the render thread reloaded the revised document; `None`
-    /// when nothing it shows changed, or it could not reload.
+    /// The new render key of [`changed_pages`](Self::changed_pages) when the render thread
+    /// reloaded the revised document; `None` when nothing it shows changed, or it could not
+    /// reload.
     pub render_key: Option<u64>,
+    /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+    /// means every page.
+    pub changed_pages: Option<Vec<u32>>,
     /// The substitutions the commit made, for the "Font substituted" toast (a11-6); empty after
     /// anything else.
     pub substitutions: Vec<FontSubstitution>,
+    /// The document's pages, outline and attachments, when this changed them since the app last
+    /// heard; `None` when they are as they were.
+    pub structure: Option<DocumentStructure>,
 }
 
 /// One committed step of the history.
@@ -312,15 +329,19 @@ pub struct HistoryStep {
     pub hidden_lines: u32,
     /// The characters it set in another font than their line's (a3-12's font rows).
     pub substitutions: Vec<Substitution>,
-    /// The page of the block it changed; `None` for a revert and a restored step.
-    pub page: Option<u32>,
-    /// The block's text before it, for the review list (a3-12); empty for a revert and a
-    /// restored step.
+    /// The pages it changed, by [`handle`](ferman_core::structure::Page::handle), so they are
+    /// found after a move; empty for a revert and a restored step.
+    pub pages: Vec<u64>,
+    /// The block's text before it, for the review list (a3-12), or what the change's operation
+    /// says of it; empty for a revert and a restored step.
     pub before: String,
-    /// The block's text after it; see `before`.
+    /// The text after it; see `before`.
     pub after: String,
     /// The steps this one reverted, by index; empty for an edit.
     pub reverts: Vec<u32>,
+    /// Whether the signatures allowed it ([`OpGate::KeepsSignatures`]); false for a text edit, a
+    /// revert and a restored step.
+    pub keeps_signatures: bool,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -336,7 +357,7 @@ pub struct History {
 }
 
 /// What [`Engine::revert`] did.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Reverted {
     /// Whether the step was reverted; `false` when later steps depend on it and were not asked
     /// to go with it, and the history is as it was.
@@ -401,9 +422,9 @@ fn same_file(a: &Path, b: &Path) -> bool {
     resolve(a) == resolve(b)
 }
 
-/// The revised bytes for the render thread: the serial of the publish and what follows the
-/// original bytes.
-type Reload = Option<(u64, Arc<[u8]>)>;
+/// The revised bytes for the render thread: the serial of the publish, what follows the original
+/// bytes, and the revisions they show.
+type Reload = Option<(u64, Arc<[u8]>, Arc<RevisionStore>)>;
 
 /// The transaction ids handed out; 0 is never one.
 static NEXT_TRANSACTION: AtomicU64 = AtomicU64::new(1);
@@ -500,10 +521,11 @@ impl Session {
                 time: now_millis(),
                 hidden_lines: 0,
                 substitutions: Vec::new(),
-                page: None,
+                pages: Vec::new(),
                 before: String::new(),
                 after: String::new(),
                 reverts: Vec::new(),
+                keeps_signatures: false,
             })
             .collect();
         Self {
@@ -559,27 +581,77 @@ impl Session {
     fn page_index(&self, page: u32) -> Result<usize, ApiError> {
         usize::try_from(page)
             .ok()
-            .filter(|&index| index < self.model.document.page_count())
+            .filter(|&index| index < self.committed.pages(&self.model.document).len())
             .ok_or_else(|| {
                 ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                     .with_details("no such page")
             })
     }
 
-    pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
-        if self.open.is_some() {
-            return Err(CoreError::Write(WriteError::TransactionOpen).into());
-        }
-        if let Some(reason) = self.model.read_only {
+    /// Where the pages `handles` are in the committed revisions, in the same order.
+    fn page_indices(&self, handles: &[u64]) -> Result<Vec<usize>, ApiError> {
+        let at: HashMap<u64, usize> = self
+            .committed
+            .pages(&self.model.document)
+            .iter()
+            .enumerate()
+            .rev()
+            .map(|(index, page)| (page.handle(), index))
+            .collect();
+        handles
+            .iter()
+            .map(|handle| {
+                at.get(handle).copied().ok_or_else(|| {
+                    ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                        .with_details("no such page")
+                })
+            })
+            .collect()
+    }
+
+    /// Fails for a document that `op` may not touch, with the reason. Printing changes nothing,
+    /// so a read-only document allows it.
+    fn permitted(&self, op: DocumentOp) -> Result<(), ApiError> {
+        if op != DocumentOp::Print
+            && let Some(reason) = self.model.read_only
+        {
             return Err(ApiError::not_editable(reason));
         }
         if self
             .model
             .security()
-            .is_some_and(|security| security.restricted())
+            .is_some_and(|security| !security.owner && !security.permissions.allows(op))
         {
             return Err(ApiError::not_editable(NotEditableReason::Restricted));
         }
+        Ok(())
+    }
+
+    /// Whether the steps applied so far, or a rewrite, already broke the signatures.
+    fn signatures_broken(&self) -> bool {
+        self.rewritten
+            || self
+                .steps
+                .get(..self.committed.current())
+                .unwrap_or_default()
+                .iter()
+                .any(|step| !step.keeps_signatures)
+    }
+
+    /// What `op`, on the form fields `fields`, may do to the document as it stands.
+    fn op_gate(&self, op: DocumentOp, fields: &[String]) -> OpGate {
+        if self.permitted(op).is_err() {
+            return OpGate::Forbidden;
+        }
+        match self.model.document.structure().op_gate(op, fields) {
+            OpGate::KeepsSignatures if self.signatures_broken() => OpGate::BreaksSignatures,
+            gate => gate,
+        }
+    }
+
+    pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
+        self.closed()?;
+        self.permitted(DocumentOp::EditText)?;
         let index = self.page_index(page)?;
         let text = ferman_text::text_page_revised(
             &self.model.document,
@@ -1007,7 +1079,7 @@ impl Session {
             return Ok((self.current(), None, Vec::new()));
         };
         let (working, hidden, substitutions) = (open.working, open.hidden, open.substitutions);
-        let page = u32::try_from(open.page).ok();
+        let pages = self.page_handles(&[open.page]);
         let frame = open.block.bbox;
         let text_before = open.block.text();
         let text_after = open.text.unwrap_or_default();
@@ -1035,16 +1107,84 @@ impl Session {
             time: now_millis(),
             hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
             substitutions,
-            page,
+            pages,
             before: text_before,
             after: text_after,
             reverts: Vec::new(),
+            keeps_signatures: false,
         });
         self.frames.resize(before, None);
         self.frames.push(Some(frame));
         self.committed = Arc::new(working);
         self.journal(Change::Commit);
         Ok((self.current(), self.publish(), told))
+    }
+
+    /// How many times this document's revisions were published, which a job's change checks.
+    pub(super) fn published_generation(&self) -> u64 {
+        self.model.revised().generation
+    }
+
+    /// The handles of pages `indices` as the committed revisions leave the pages.
+    fn page_handles(&self, indices: &[usize]) -> Vec<u64> {
+        let pages = self.committed.pages(&self.model.document);
+        indices
+            .iter()
+            .filter_map(|&index| pages.get(index).map(ferman_core::structure::Page::handle))
+            .collect()
+    }
+
+    /// Whether [`commit_change`](Self::commit_change) would let a change for `op` through, for a
+    /// caller whose change cannot run twice. Stricter on one point: a change that writes nothing
+    /// needs no confirmation there, and does here.
+    pub(super) fn may_change(&self, op: DocumentOp) -> Result<(), ApiError> {
+        self.closed()?;
+        self.permitted(op)?;
+        self.confirmed()
+    }
+
+    /// Commits what `change` writes for `op`, on the form fields `fields`, as the step `name` of
+    /// the history, which names `pages` (as the committed revisions leave them) and says `before`
+    /// and `after`. A change that writes nothing adds no step; a failed one, one `op`'s permission
+    /// refuses, or one a signed document's confirmation stops, leaves the history as it was.
+    pub(super) fn commit_change(
+        &mut self,
+        op: DocumentOp,
+        fields: &[String],
+        name: String,
+        pages: &[usize],
+        (before, after): (String, String),
+        change: impl FnOnce(&ferman_core::Document, &mut RevisionStore) -> Result<(), ApiError>,
+    ) -> Result<(u32, Reload), ApiError> {
+        self.closed()?;
+        self.permitted(op)?;
+        let keeps_signatures = self.op_gate(op, fields) == OpGate::KeepsSignatures;
+        let mut working = (*self.committed).clone();
+        working.begin()?;
+        change(&self.model.document, &mut working)?;
+        let current = self.committed.current();
+        if working.commit()? == current {
+            return Ok((self.current(), None));
+        }
+        self.confirmed()?;
+        let pages = self.page_handles(pages);
+        self.steps.truncate(current);
+        self.steps.push(HistoryStep {
+            name,
+            time: now_millis(),
+            hidden_lines: 0,
+            substitutions: Vec::new(),
+            pages,
+            before,
+            after,
+            reverts: Vec::new(),
+            keeps_signatures,
+        });
+        self.frames.resize(current, None);
+        self.frames.push(None);
+        self.committed = Arc::new(working);
+        self.journal(Change::Commit);
+        Ok((self.current(), self.publish()))
     }
 
     /// The edits that still count: applied, not reverted, and not a revert themselves.
@@ -1069,24 +1209,31 @@ impl Session {
     }
 
     /// Whether `later` builds on `earlier` whatever their bytes say: it changed the same block,
-    /// or `earlier` added resources to the page that `later`'s text may draw with.
+    /// or `earlier` added resources to the page that `later`'s text may draw with. A step with
+    /// pages and no frame is no block's: it adds nothing text draws with, and draws no text.
     fn builds_on(&self, later: usize, earlier: usize) -> bool {
         let (Some(a), Some(b)) = (self.steps.get(earlier), self.steps.get(later)) else {
             return false;
         };
-        // A restored step does not know its page, so it may be `later`'s.
-        if a.page.is_some() && b.page.is_some() && a.page != b.page {
+        // A restored step does not know its pages, so they may be `later`'s.
+        if !a.pages.is_empty()
+            && !b.pages.is_empty()
+            && !a.pages.iter().any(|page| b.pages.contains(page))
+        {
             return false;
         }
         let frame = |step: usize| self.frames.get(step).copied().flatten();
         let overlapping = matches!((frame(earlier), frame(later)), (Some(a), Some(b))
             if a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]);
+        let block = |step: usize, pages: &[u64]| frame(step).is_some() || pages.is_empty();
         overlapping
-            || !self
-                .committed
-                .revisions()
-                .get(earlier)
-                .is_some_and(ferman_core::revision::ChangeSet::streams_only)
+            || (block(earlier, &a.pages)
+                && block(later, &b.pages)
+                && !self
+                    .committed
+                    .revisions()
+                    .get(earlier)
+                    .is_some_and(ferman_core::revision::ChangeSet::streams_only))
     }
 
     /// `set`, the steps to revert, grown by every live step that depends on one of them, and the
@@ -1154,10 +1301,11 @@ impl Session {
             time: now_millis(),
             hidden_lines: 0,
             substitutions: Vec::new(),
-            page: None,
+            pages: Vec::new(),
             before: String::new(),
             after: String::new(),
             reverts,
+            keeps_signatures: false,
         });
         self.frames.resize(before, None);
         self.frames.push(None);
@@ -1240,7 +1388,7 @@ impl Session {
         History {
             steps: self.steps.clone(),
             current: self.current(),
-            signature_invalidated: self.signed() && (self.current() > 0 || self.rewritten),
+            signature_invalidated: self.signed() && self.signatures_broken(),
         }
     }
 
@@ -1542,25 +1690,44 @@ impl Session {
     /// Publishes the committed revisions for the readers and returns the revised bytes for the
     /// render thread, or `None` when they cannot be written (logged).
     pub(super) fn publish(&self) -> Reload {
-        let serial = {
+        let (serial, layers) = {
             let mut revised = self.model.revised();
             revised.store = Arc::clone(&self.committed);
             revised.generation = revised.generation.saturating_add(1);
-            revised.blocks.fill(None);
-            revised.generation
+            revised.blocks.clear();
+            // shortcut: an edit of one page makes the next search read every page again; keep
+            // the text of pages it did not touch if a search after an edit proves slow.
+            revised.texts.clear();
+            (revised.generation, revised.layers.clone())
         };
         // shortcut: the whole file is built to cut off its update; build the update alone when
         // large files make edits slow.
-        match self.bytes() {
-            Ok(bytes) => {
-                let original = self.model.document.source().len();
-                Some((serial, Arc::from(bytes.get(original..).unwrap_or_default())))
-            }
+        match self
+            .committed
+            .render_appendix(&self.model.document, layers.as_deref())
+        {
+            Ok(appendix) => Some((serial, Arc::from(appendix), Arc::clone(&self.committed))),
             Err(err) => {
                 tracing::warn!(error = %err, "the revised bytes could not be built");
                 None
             }
         }
+    }
+
+    /// Makes `visible` the layers every reload shows, and returns the bytes that show them over
+    /// the committed revisions.
+    pub(super) fn show_layers(&self, visible: Vec<bool>) -> Result<Reload, ApiError> {
+        let appendix = self
+            .committed
+            .render_appendix(&self.model.document, Some(&visible))?;
+        let mut revised = self.model.revised();
+        revised.layers = Some(visible);
+        revised.generation = revised.generation.saturating_add(1);
+        Ok(Some((
+            revised.generation,
+            Arc::from(appendix),
+            Arc::clone(&self.committed),
+        )))
     }
 }
 
@@ -1895,8 +2062,311 @@ impl Engine {
             Ok(RevisionInfo {
                 current,
                 render_key: None,
+                changed_pages: None,
                 substitutions: Vec::new(),
+                structure: None,
             })
+        })
+        .await
+    }
+
+    /// Turns page `page` of `document` by `quarter_turns` quarter turns, clockwise when positive,
+    /// as the step `name` of the history (`/Rotate` in the page's dictionary).
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotEditable` with the reason for a document that cannot be changed,
+    /// `ConfirmationRequired` for a signed document before its confirmation, `InvalidInput` for a
+    /// page it does not have or while a transaction is open, and `NotFound` for a document that
+    /// is not open.
+    pub async fn rotate_page(
+        &self,
+        document: DocumentId,
+        page: u32,
+        quarter_turns: i32,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| {
+                    let index = session.page_index(page)?;
+                    session.commit_change(
+                        DocumentOp::Organize,
+                        &[],
+                        name,
+                        &[index],
+                        (String::new(), String::new()),
+                        |doc, working| {
+                            Ok(ferman_ops::pages::rotate(
+                                doc,
+                                working,
+                                &[index],
+                                quarter_turns,
+                            )?)
+                        },
+                    )
+                })
+                .await?;
+            Ok(self.revision_info(document, current, reload).await)
+        })
+        .await
+    }
+
+    /// Commits what `write` writes, given where `pages` are now, as the Organize step `name` that
+    /// names those pages.
+    async fn organize(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+        write: impl FnOnce(
+            &ferman_core::Document,
+            &mut RevisionStore,
+            &[usize],
+        ) -> Result<(), ferman_ops::OpsError>
+        + Send
+        + 'static,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| {
+                    let indices = session.page_indices(&pages)?;
+                    session.commit_change(
+                        DocumentOp::Organize,
+                        &[],
+                        name,
+                        &indices,
+                        (String::new(), String::new()),
+                        |doc, working| Ok(write(doc, working, &indices)?),
+                    )
+                })
+                .await?;
+            Ok(self.revision_info(document, current, reload).await)
+        })
+        .await
+    }
+
+    /// Turns `pages` (by [`PageInfo::handle`](super::PageInfo::handle)) by `quarter_turns` quarter
+    /// turns, clockwise when positive, as one step `name` of the history.
+    ///
+    /// # Errors
+    ///
+    /// `NotEditable` with the reason for a document whose permissions forbid assembling or that
+    /// cannot be changed, `ConfirmationRequired` for a signed document before its confirmation,
+    /// `InvalidInput` for a page it does not have or while a transaction is open, and `NotFound`
+    /// for a document that is not open. So do the other page operations.
+    pub async fn rotate_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        quarter_turns: i32,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            ferman_ops::pages::rotate(doc, working, indices, quarter_turns)
+        })
+        .await
+    }
+
+    /// Deletes `pages` as one step `name`. Their objects stay in the file until a full rewrite;
+    /// bookmarks, links and other references to them become null.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` when no page would be left.
+    pub async fn delete_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, |doc, working, indices| {
+            ferman_ops::pages::delete(doc, working, indices)
+        })
+        .await
+    }
+
+    /// Moves `pages`, together and in document order, before the page `before`, or to the end
+    /// when `None`, as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages).
+    pub async fn move_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        before: Option<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            let before = before
+                .map(|before| {
+                    working
+                        .page_index(doc, before)
+                        .ok_or(CoreError::Write(WriteError::NoSuchPage))
+                })
+                .transpose()?;
+            ferman_ops::pages::move_before(doc, working, indices, before)
+        })
+        .await
+    }
+
+    /// Copies `pages` as one step `name`: the copies of pages next to each other follow the last
+    /// of them.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages).
+    pub async fn duplicate_pages(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, |doc, working, indices| {
+            ferman_ops::pages::duplicate(doc, working, indices)
+        })
+        .await
+    }
+
+    /// Inserts `count` blank pages of `width` by `height` points after the page `after`, or first
+    /// when `None`, as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for a count or size out of range.
+    pub async fn insert_blank_pages(
+        &self,
+        document: DocumentId,
+        after: Option<u64>,
+        count: u32,
+        (width, height): (f32, f32),
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        let anchor = after.into_iter().collect();
+        self.organize(document, anchor, name, move |doc, working, indices| {
+            let after = indices.first().copied();
+            ferman_ops::pages::insert_blank(doc, working, after, count, (width, height))
+        })
+        .await
+    }
+
+    /// Gives `pages` the displayed size `width` by `height` points as one step `name`.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for a size out of range.
+    pub async fn set_page_size(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+        (width, height): (f32, f32),
+        fit: PageFit,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, pages, name, move |doc, working, indices| {
+            ferman_ops::pages::set_size(doc, working, indices, (width, height), fit)
+        })
+        .await
+    }
+
+    /// Crops each page of `crops` by its margins as one step `name`, through its crop box: what
+    /// is outside stays in the file, hidden (G57); undo is the way back.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` when less than a point would be
+    /// left of a page.
+    pub async fn crop_pages(
+        &self,
+        document: DocumentId,
+        crops: Vec<(u64, Margins)>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        let (pages, margins): (Vec<u64>, Vec<Margins>) = crops.into_iter().unzip();
+        self.organize(document, pages, name, move |doc, working, indices| {
+            let crops: Vec<(usize, Margins)> = indices.iter().copied().zip(margins).collect();
+            ferman_ops::pages::crop(doc, working, &crops)
+        })
+        .await
+    }
+
+    /// The white around the content of each of `pages` as it shows, for "Remove white margins"
+    /// (a6-4): `None` for a page with no content. Renders on the render thread, page by page.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` for a page it does not have, `NotFound` for a document that is not open, and
+    /// the render thread's errors.
+    pub async fn white_margins(
+        &self,
+        document: DocumentId,
+        pages: Vec<u64>,
+    ) -> Result<Vec<Option<Margins>>, ApiError> {
+        /// One pixel a point: a margin comes out at most a point short, and never cuts a mark.
+        const DPI: u32 = 72;
+        guard_async(async move {
+            let sizes = self
+                .ask(document, move |session| {
+                    let indices = session.page_indices(&pages)?;
+                    let all = session.committed.pages(&session.model.document);
+                    Ok(indices
+                        .into_iter()
+                        .filter_map(|index| {
+                            let (width, height) = all.get(index)?.size;
+                            Some((u32::try_from(index).ok()?, PageSize { width, height }))
+                        })
+                        .collect::<Vec<_>>())
+                })
+                .await?;
+            let mut margins = Vec::with_capacity(sizes.len());
+            for (page, size) in sizes {
+                let raster =
+                    ferman_render::render_page(self.render()?, document, page, size, DPI).await?;
+                margins.push(ferman_ops::pages::white_margins(
+                    &raster.pixels,
+                    raster.width,
+                    raster.scale,
+                ));
+            }
+            Ok(margins)
+        })
+        .await
+    }
+
+    /// The document's page label ranges, in page order (a6-5).
+    ///
+    /// # Errors
+    ///
+    /// `NotFound` for a document that is not open.
+    pub async fn page_label_ranges(
+        &self,
+        document: DocumentId,
+    ) -> Result<Vec<LabelRange>, ApiError> {
+        guard_async(async move {
+            self.ask(document, |session| {
+                Ok(session.committed.label_ranges(&session.model.document))
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Makes `ranges` the document's page labels as one step `name`; none removes them.
+    ///
+    /// # Errors
+    ///
+    /// As [`rotate_pages`](Self::rotate_pages); `InvalidInput` for ranges out of order, past the
+    /// last page or numbered from 0.
+    pub async fn set_page_labels(
+        &self,
+        document: DocumentId,
+        ranges: Vec<LabelRange>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, Vec::new(), name, move |doc, working, _| {
+            ferman_ops::pages::set_labels(doc, working, &ranges)
         })
         .await
     }
@@ -2156,6 +2626,28 @@ impl Engine {
         guard_async(async move { self.ask(document, |session| Ok(session.signed())).await }).await
     }
 
+    /// What `op` may do to `document` as it stands (G35): forbidden by its permissions or because
+    /// it cannot be changed, or what the change does to its signatures. A changing operation on a
+    /// signed document still needs [`confirm_edit_signed`](Self::confirm_edit_signed), even when
+    /// it keeps them. `fields` are the full names of the form fields a [`DocumentOp::Fill`] fills;
+    /// empty when they are not known yet.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open.
+    pub async fn op_gate(
+        &self,
+        document: DocumentId,
+        op: DocumentOp,
+        fields: Vec<String>,
+    ) -> Result<OpGate, ApiError> {
+        guard_async(async move {
+            self.ask(document, move |session| Ok(session.op_gate(op, &fields)))
+                .await
+        })
+        .await
+    }
+
     /// Confirms the first change to a signed document ("Edit anyway", a3-16a): commits and
     /// writes of this document no longer fail with `ConfirmationRequired` until it closes. The
     /// confirmation is the document's own and is never persisted; asking again returns the same
@@ -2312,44 +2804,80 @@ impl Engine {
             .remove(&transaction);
     }
 
+    /// Hands the render thread the revised bytes and awaits the new render key, with the pages
+    /// that got it (`None`: every page). `None` when a newer revision was handed already.
+    pub(super) async fn send_reload(
+        &self,
+        document: DocumentId,
+        reload: Reload,
+        every_page: bool,
+    ) -> Option<(Result<u64, RenderError>, Option<Vec<u32>>)> {
+        let (reply, pages) = {
+            let (serial, appendix, store) = reload?;
+            let model = self.models().ok()?.get(&document).cloned()?;
+            let mut rendered = model
+                .rendered
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            if serial <= rendered.serial {
+                return None;
+            }
+            let pages = rendered
+                .store
+                .as_ref()
+                .filter(|_| !every_page)
+                .and_then(|before| store.pages_changed_since(&model.document, before));
+            rendered.serial = serial;
+            rendered.store = Some(store);
+            // Sent under the lock, so reloads reach the render thread in the actor's order.
+            let reply = self
+                .render()
+                .ok()?
+                .reload(document, appendix, pages.clone());
+            (reply, pages)
+        };
+        Some((reply.await, pages))
+    }
+
     /// Hands the render thread the revised bytes, unless a newer revision was handed already,
-    /// and awaits the new render key.
+    /// and says where the history stands.
     pub(super) async fn revision_info(
         &self,
         document: DocumentId,
         current: u32,
         reload: Reload,
     ) -> RevisionInfo {
-        let reply = (|| {
-            let (serial, appendix) = reload?;
-            let model = self.models().ok()?.get(&document).cloned()?;
-            let mut rendered = model
-                .rendered
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner);
-            if serial <= *rendered {
-                return None;
-            }
-            *rendered = serial;
-            // Sent under the lock, so reloads reach the render thread in the actor's order.
-            Some(self.render().ok()?.reload(document, appendix))
-        })();
-        let render_key = match reply {
-            Some(reply) => match reply.await {
-                Ok(key) => Some(key),
-                Err(err) => {
-                    // shortcut: PDFium reloads without the password (Q22), so a document that
-                    // needs one keeps showing the revision it opened with.
-                    tracing::warn!(error = %err, "the render thread did not reload the revision");
-                    None
+        let (render_key, changed_pages) = match self.send_reload(document, reload, false).await {
+            Some((Ok(key), pages)) => (Some(key), pages),
+            Some((Err(err), _)) => {
+                tracing::warn!(error = %err, "the render thread did not reload the revision");
+                // It still shows what it showed: the next reload does not know what changed.
+                if let Some(model) = self
+                    .models()
+                    .ok()
+                    .and_then(|models| models.get(&document).cloned())
+                {
+                    model
+                        .rendered
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .store = None;
                 }
-            },
-            None => None,
+                (None, None)
+            }
+            None => (None, None),
         };
+        let structure = self
+            .models()
+            .ok()
+            .and_then(|models| models.get(&document).cloned())
+            .and_then(|model| model.structure_change());
         RevisionInfo {
             current,
             render_key,
+            changed_pages,
             substitutions: Vec::new(),
+            structure,
         }
     }
 }
@@ -2457,7 +2985,8 @@ mod tests {
         edit(&mut session, &first_words[1], "By", "second");
         let edited = page_text(&session);
         let history = session.history();
-        assert_eq!(history.steps[0].page, Some(0));
+        let first = session.committed.pages(&session.model.document)[0].handle();
+        assert_eq!(history.steps[0].pages, [first]);
         assert!(history.steps[0].before.contains(&first_words[0]));
         assert!(history.steps[0].after.contains("Ax"));
 
@@ -2534,7 +3063,7 @@ mod tests {
         );
         let (current, reload) = edit(&mut session, "Monday", "Friday", "Edited text");
         assert_eq!(current, 1);
-        let (serial, appendix) = reload.unwrap();
+        let (serial, appendix, _) = reload.unwrap();
         assert_eq!(serial, 1);
         assert!(!appendix.is_empty());
         // The readers see the new text, laid out again.
@@ -3339,6 +3868,117 @@ mod tests {
             session.commit(stale, String::new()).unwrap_err().kind,
             ErrorKind::NotFound
         );
+    }
+
+    /// A session of a one-page file certified at level `level`, built in memory.
+    fn certified(level: u8) -> Session {
+        let objects = [
+            "<< /Type /Catalog /Pages 2 0 R /Perms << /DocMDP 4 0 R >> >>".to_owned(),
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_owned(),
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] >>".to_owned(),
+            format!(
+                "<< /Type /Sig /Reference [<< /TransformMethod /DocMDP \
+                 /TransformParams << /P {level} >> >>] >>"
+            ),
+        ];
+        let mut pdf = String::from("%PDF-1.7\n");
+        let mut offsets = Vec::new();
+        for (index, object) in objects.iter().enumerate() {
+            offsets.push(pdf.len());
+            pdf.push_str(&format!("{} 0 obj\n{object}\nendobj\n", index + 1));
+        }
+        let xref = pdf.len();
+        pdf.push_str("xref\n0 5\n0000000000 65535 f \n");
+        for offset in offsets {
+            pdf.push_str(&format!("{offset:010} 00000 n \n"));
+        }
+        pdf.push_str(&format!(
+            "trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n"
+        ));
+        let source = ferman_core::Source::from_bytes(Arc::from(pdf.as_bytes()));
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        assert!(document.repair().is_none());
+        let path = std::env::temp_dir().join("ferman-certified-in-memory.pdf");
+        Session::new(Arc::new(Model::new(document, path, None, false, None)))
+    }
+
+    /// A commit of `op` that turns the first page, as a page operation does.
+    fn turn(session: &mut Session, op: DocumentOp) -> Result<(u32, Reload), ApiError> {
+        session.commit_change(
+            op,
+            &[],
+            "Turned".to_owned(),
+            &[0],
+            (String::new(), String::new()),
+            |doc, working| Ok(ferman_ops::pages::rotate(doc, working, &[0], 1)?),
+        )
+    }
+
+    #[test]
+    fn the_gate_reads_the_certification_level_and_the_history() {
+        use DocumentOp::{Comment, EditText, Fill, Organize, Print};
+        const KEEPS: OpGate = OpGate::KeepsSignatures;
+        const BREAKS: OpGate = OpGate::BreaksSignatures;
+        for (level, comment, fill) in [(1, BREAKS, BREAKS), (2, BREAKS, KEEPS), (3, KEEPS, KEEPS)] {
+            let session = certified(level);
+            assert_eq!(session.op_gate(Comment, &[]), comment, "P {level}");
+            assert_eq!(session.op_gate(Fill, &[]), fill, "P {level}");
+            assert_eq!(session.op_gate(EditText, &[]), BREAKS, "P {level}");
+            assert_eq!(session.op_gate(Organize, &[]), BREAKS, "P {level}");
+            assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected, "P {level}");
+        }
+
+        // A change that keeps them still asks first, and then does not count as breaking them.
+        let mut session = certified(3);
+        refused(turn(&mut session, Comment));
+        session.confirm();
+        turn(&mut session, Comment).unwrap();
+        assert!(session.steps.first().unwrap().keeps_signatures);
+        assert!(!session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), KEEPS);
+
+        // A change that breaks them does so for what follows, until it is undone.
+        turn(&mut session, Organize).unwrap();
+        assert!(session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), BREAKS);
+        turn(&mut session, Fill).unwrap();
+        assert!(!session.steps.last().unwrap().keeps_signatures);
+        session.undo().unwrap();
+        session.undo().unwrap();
+        assert!(!session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), KEEPS);
+    }
+
+    #[test]
+    fn the_gate_reads_the_permissions_and_read_only() {
+        use DocumentOp::{Comment, EditText, Fill, Organize, Print};
+        const CHANGES: [DocumentOp; 4] = [EditText, Organize, Comment, Fill];
+        // The corpus's print-only flags.
+        let path = corpus("kira-tr-restricted");
+        let source = ferman_core::Source::read(&path).unwrap();
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        let model = Arc::new(Model::new(document, path, None, false, None));
+        let mut session = Session::new(Arc::clone(&model));
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Forbidden, "{op:?}");
+        }
+        assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected);
+        let err = turn(&mut session, Organize).unwrap_err();
+        assert_eq!(err.message_key, MessageKey::EDIT_RESTRICTED);
+        assert_eq!(session.current(), 0);
+        // The owner password lifts them all.
+        model.owner_unlocked.store(true, Ordering::Relaxed);
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Unaffected, "{op:?}");
+        }
+        turn(&mut session, Organize).unwrap();
+
+        // A document that cannot be changed still prints.
+        let session = self::session("kira-tr", Some(NotEditableReason::ReadOnly));
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Forbidden, "{op:?}");
+        }
+        assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected);
     }
 
     #[test]

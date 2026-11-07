@@ -6,8 +6,7 @@
 //! lines, blocks, columns, alignment and reading order. It assigns block ids, answers hit tests,
 //! decides editability, runs edit operations with line breaking, reflow and bidi, re-encodes text in
 //! the font's own encoding and generates the replacement operators for one block, resolves missing
-//! glyphs and overflow, extracts search text and keeps the edit journal (docs/ARCHITECTURE.md §2.3
-//! and §6).
+//! glyphs and overflow and extracts search text (docs/ARCHITECTURE.md §2.3 and §6).
 //!
 //! An edit rewrites only the operators of the edited block; every other byte of the page content
 //! stays identical (ADR 0005).
@@ -51,8 +50,6 @@
 //!   edited one (a3-9), flagged, never changed.
 //! - [`style`] (since M3): a3-2's [`BlockStyle`], which [`rewrite_block_styled`] writes, and the
 //!   [`BlockStyleInfo`] the panel reads.
-//! - `edit`: `EditOp` and `BlockEditor`. M3.
-//! - `journal`: the edit journal behind the review list. M3.
 #![forbid(unsafe_code)]
 
 mod bidi;

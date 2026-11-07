@@ -13,6 +13,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, PoisonError};
 use std::thread;
 
+use ferman_core::revision::RevisionStore;
 use ferman_core::structure::OutlineItem;
 use ferman_render::DocumentId;
 use ferman_text::SearchOptions;
@@ -171,9 +172,15 @@ fn run(
     cancel: &AtomicBool,
     sink: &mut dyn SearchSink,
 ) {
-    let pages = u32::try_from(model.document.page_count()).unwrap_or(u32::MAX);
+    // The search reads the revisions published when it started, whatever is committed meanwhile.
+    let (store, generation) = {
+        let revised = model.revised();
+        (Arc::clone(&revised.store), revised.generation)
+    };
+    let document = &model.document;
+    let pages = u32::try_from(store.pages(document).len()).unwrap_or(u32::MAX);
     let titles = if bookmarks {
-        titles_by_page(&model.document.structure().outline)
+        titles_by_page(store.outline(document))
     } else {
         Vec::new()
     };
@@ -186,7 +193,7 @@ fn run(
             });
             return;
         }
-        let text = page_text(model, page);
+        let text = page_text(model, &store, generation, page);
         textless &= text.text.trim().is_empty();
         let in_titles = titles
             .get(usize::try_from(page).unwrap_or(usize::MAX))
@@ -251,32 +258,33 @@ fn in_title(page: u32, title: &str, range: Range<usize>) -> SearchMatch {
     }
 }
 
-/// The text of `page`, read once; a page whose content cannot be read has none.
-fn page_text(model: &Model, page: u32) -> Arc<PageText> {
+/// The text of `page` of `store`'s revisions, read once while they are the newest published; a
+/// page whose content cannot be read has none.
+fn page_text(model: &Model, store: &RevisionStore, generation: u64, page: u32) -> Arc<PageText> {
     let index = usize::try_from(page).unwrap_or(usize::MAX);
-    let cached = model
-        .pages
-        .lock()
-        .unwrap_or_else(PoisonError::into_inner)
+    let handle = store
+        .pages(&model.document)
         .get(index)
-        .cloned()
-        .flatten();
-    if let Some(text) = cached {
-        return text;
+        .map(ferman_core::structure::Page::handle);
+    {
+        let revised = model.revised();
+        if revised.generation == generation
+            && let Some(text) = handle.and_then(|handle| revised.texts.get(&handle))
+        {
+            return Arc::clone(text);
+        }
     }
     let text = Arc::new(
-        ferman_text::extract::page_layout(&model.document, index).unwrap_or_else(|err| {
-            tracing::warn!(page, error = %err, "a page's text could not be read");
-            PageText::default()
-        }),
+        ferman_text::extract::page_layout_revised(&model.document, store, index).unwrap_or_else(
+            |err| {
+                tracing::warn!(page, error = %err, "a page's text could not be read");
+                PageText::default()
+            },
+        ),
     );
-    if let Some(slot) = model
-        .pages
-        .lock()
-        .unwrap_or_else(PoisonError::into_inner)
-        .get_mut(index)
-    {
-        *slot = Some(Arc::clone(&text));
+    let mut revised = model.revised();
+    if let Some(handle) = handle.filter(|_| revised.generation == generation) {
+        revised.texts.insert(handle, Arc::clone(&text));
     }
     text
 }

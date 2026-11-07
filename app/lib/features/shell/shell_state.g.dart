@@ -55,7 +55,7 @@ final class ShellModeProvider extends $NotifierProvider<ShellMode, FermanMode> {
   }
 }
 
-String _$shellModeHash() => r'1cf2a93910316961678bfe4efe0c99c509e80bab';
+String _$shellModeHash() => r'61cdb6175b0b33156499e2df787dcae59df4e2f7';
 
 /// The mode shown, as `shellModeProvider`. Modes are state, not routes
 /// (ADR 0011); the shell shows each mode's tool row in an `IndexedStack`,

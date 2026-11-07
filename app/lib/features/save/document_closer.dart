@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -29,7 +30,8 @@ final class CloseFlow {
 /// for one document and a11-7e for several. Save goes through the saving flow
 /// (`documentSaverProvider`); any failure keeps the tab, stops the quit and
 /// shows its error. "Don't save" deletes the recovery files. A quit leaves the
-/// tabs in place, so they stay in the list to reopen next time.
+/// tabs in place, so they stay in the list to reopen next time. Quitting with
+/// background jobs running asks about them first (decision 30).
 @Riverpod(keepAlive: true)
 class DocumentCloser extends _$DocumentCloser {
   /// The tabs "Close other documents…" still asks about, after the one
@@ -130,7 +132,7 @@ class DocumentCloser extends _$DocumentCloser {
       return;
     }
     if (quitting) {
-      _endQuit(allowed: true);
+      await _quitNow();
       return;
     }
     if (tab.path case final path?) _opener.close(path);
@@ -144,7 +146,7 @@ class DocumentCloser extends _$DocumentCloser {
     if (_quit != null) {
       state = const CloseFlow();
       await _discard(tab);
-      _endQuit(allowed: true);
+      await _quitNow();
       return;
     }
     if (tab.path case final path?) _opener.close(path, discard: true);
@@ -169,6 +171,10 @@ class DocumentCloser extends _$DocumentCloser {
     // A question from closing a tab goes now: its answer must not end a quit
     // that has not asked about the other tabs yet.
     state = const CloseFlow();
+    if (!await ref.read(backgroundJobsProvider.notifier).confirmQuit()) {
+      _endQuit(allowed: false);
+      return await answer.future;
+    }
     await _settle();
     final unsaved = [
       for (final tab in ref.read(shellDocumentsProvider).documents)
@@ -177,7 +183,7 @@ class DocumentCloser extends _$DocumentCloser {
     switch (unsaved) {
       case []:
         state = const CloseFlow();
-        _endQuit(allowed: true);
+        await _quitNow();
       case [final tab]:
         state = CloseFlow(asking: tab);
       default:
@@ -200,7 +206,7 @@ class DocumentCloser extends _$DocumentCloser {
     for (final tab in listed) {
       if (!checked.contains(tab)) await _discard(tab);
     }
-    _endQuit(allowed: true);
+    await _quitNow();
   }
 
   /// a11-7e's "Quit without saving": discards everything and quits.
@@ -210,7 +216,7 @@ class DocumentCloser extends _$DocumentCloser {
     for (final tab in listed) {
       await _discard(tab);
     }
-    _endQuit(allowed: true);
+    await _quitNow();
   }
 
   /// Deletes the recovery files of [tab], whose window goes next.
@@ -231,6 +237,12 @@ class DocumentCloser extends _$DocumentCloser {
       ref.read(routerProvider).go(Routes.editor);
     }
     _endQuit(allowed: false);
+  }
+
+  /// Nothing stops the quit any more: the jobs go, then the app.
+  Future<void> _quitNow() async {
+    await ref.read(backgroundJobsProvider.notifier).cancelForQuit();
+    _endQuit(allowed: true);
   }
 
   void _endQuit({required bool allowed}) {

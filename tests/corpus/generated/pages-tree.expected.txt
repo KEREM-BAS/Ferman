@@ -1,0 +1,1 @@
+Birinci sayfa, ağacın sola dönen kolunda.İkinci sayfa, aynı kolda ve aynı dönüşle.Üçüncü sayfa, kök düğümün boyutunu alır.Dördüncü sayfa, kırpılan düğümde.Beşinci sayfa, aynı düğümde.Altıncı sayfa, kaynakları kendisinde tutar.

@@ -106,6 +106,102 @@ abstract interface class EngineService {
     SearchOptions options,
   );
 
+  /// Copies [document] as its revisions stand now to the new file [output] as
+  /// a background job (ARCHITECTURE §3.7). The stream's first update has the
+  /// job's handle and its last says how it ended; cancelling the subscription
+  /// does not stop the job. With [staging] (the macOS App Sandbox) the file
+  /// waits there for the swap.
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  });
+
+  /// Commits the change a job prepared ([insertPagesJob], [replacePagesJob]) as
+  /// one step; refused if the document moved since the job read it.
+  Future<RevisionInfo> applyJobChange(int job);
+
+  /// What Combine would write for [files], with a row per input (a6-3).
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  });
+
+  /// Writes [files] as the new file [output] as a job: Combine, and Create PDF
+  /// from a blank page or files. An output is unencrypted and carries no
+  /// signature.
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  });
+
+  /// Writes [pages] of [document] as the new file [output] as a job, which
+  /// reports the revision it read.
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  });
+
+  /// The files a split of [document] would write (a6-2). [amount] is the pages
+  /// per file for [SplitKind.everyPages] and the bytes for [SplitKind.size].
+  /// [template] takes `{document}`, `{bookmark}` and `{n}`. With [folder],
+  /// names stay free in it.
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  });
+
+  /// Writes [files], as [splitPreview] planned them, into [folder] as a job,
+  /// which reports the revision it read.
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  });
+
+  /// Reads [pages] (null for all) of the PDF or image at [path] as a job; once
+  /// done, [applyJobChange] inserts them after the page [after], or first when
+  /// null, as one step.
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  });
+
+  /// Reads [sourcePages] (null for all) of the PDF at [path] as a job; once
+  /// done, [applyJobChange] puts them in the place of [pages] as one step, each
+  /// keeping a replaced page's handle, bookmarks and label.
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  });
+
+  /// Parks a job at its next step.
+  Future<void> pauseJob(int job);
+
+  /// Lets a paused job go on.
+  Future<void> resumeJob(int job);
+
+  /// Cancels a job at its next step; it leaves nothing.
+  Future<void> cancelJob(int job);
+
   /// The text blocks of [page] of [document] in reading order, with their
   /// editability (ARCHITECTURE §3.5). The UI hit-tests their frames itself.
   ///
@@ -232,6 +328,91 @@ abstract interface class EngineService {
   /// The fonts the text panel's font field offers for [block], best first.
   Future<List<FontCandidate>> blockFonts(int document, int page, int block);
 
+  /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
+  /// quarter turns, clockwise when positive, as the one step [name] of its
+  /// history. Throws an [EngineException] with [EngineErrorKind.notEditable]
+  /// when the document's permissions forbid assembling (ask [opGate] with
+  /// [DocumentOp.organize]), [EngineErrorKind.confirmationRequired] for a
+  /// signed document before [confirmEditSigned], and
+  /// [EngineErrorKind.invalidInput] for a page it does not have or while a
+  /// transaction is open. So do the other page operations.
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  );
+
+  /// Deletes [pages] as one step: they stay in the file until Remove edit
+  /// history or Optimize and clean, and what referred to them no longer does.
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] when no
+  /// page would be left.
+  Future<RevisionInfo> deletePages(int document, List<int> pages, String name);
+
+  /// Moves [pages], together and in document order, before the page [before],
+  /// or to the end when null, as one step. Labels travel with their pages.
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  );
+
+  /// Copies [pages] as one step: the copies of pages next to each other
+  /// follow the last of them.
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  );
+
+  /// Inserts [count] blank pages of [width] by [height] points after the page
+  /// [after], or first when null, as one step.
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  });
+
+  /// Gives [pages] the displayed size [width] by [height] points as one step,
+  /// with the content as [fit] says (a6-4).
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  });
+
+  /// Crops each page of [crops], by handle, by its margins as one step:
+  /// negative margins give back up to the media box. What is outside stays in
+  /// the file, hidden (G57); undo is the way back.
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  );
+
+  /// The white around the content of each of [pages], for "Remove white
+  /// margins" (a6-4): null for a page with no content.
+  Future<List<PageMargins?>> whiteMargins(int document, List<int> pages);
+
+  /// The page label ranges of [document], in page order (a6-5).
+  Future<List<PageLabelRange>> pageLabelRanges(int document);
+
+  /// Makes [ranges] the page labels of [document] as one step; none removes
+  /// them. Throws an [EngineException] with [EngineErrorKind.invalidInput] for
+  /// ranges out of order, past the last page or numbered from 0.
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  );
+
   /// Steps [document] back one step of its history.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
@@ -324,6 +505,16 @@ abstract interface class EngineService {
 
   /// Whether [optimizeAndClean] would break signatures of [document] (G35).
   Future<bool> wouldBreakSignatures(int document);
+
+  /// What [op] may do to [document] as it stands (G35). A change to a signed
+  /// document needs [confirmEditSigned] even when it keeps the signatures.
+  /// [fields] are the full names of the form fields a [DocumentOp.fill] fills,
+  /// empty when not known yet.
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  });
 
   /// Confirms the first change to the signed [document] ("Edit anyway",
   /// a3-16a). Until then [commitEdit] of a change and every write of it throw
@@ -463,6 +654,86 @@ class UnavailableEngineService implements EngineService {
   ) => Stream.error(error);
 
   @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) async => throw error;
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async => throw error;
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async => throw error;
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  }) => Stream.error(error);
+
+  @override
+  Future<void> pauseJob(int job) async => throw error;
+
+  @override
+  Future<void> resumeJob(int job) async => throw error;
+
+  @override
+  Future<void> cancelJob(int job) async => throw error;
+
+  @override
   Future<PageBlocks> textBlocks(int document, int page) async => throw error;
 
   @override
@@ -546,6 +817,80 @@ class UnavailableEngineService implements EngineService {
   ) async => throw error;
 
   @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(
+    int document,
+    List<int> pages,
+  ) async => throw error;
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async =>
+      throw error;
+
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  ) async => throw error;
+
+  @override
   Future<RevisionInfo> undo(int document) async => throw error;
 
   @override
@@ -606,6 +951,13 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<bool> wouldBreakSignatures(int document) async => throw error;
+
+  @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async => throw error;
 
   @override
   Future<int> confirmEditSigned(int document) async => throw error;

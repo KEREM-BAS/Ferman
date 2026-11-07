@@ -25,6 +25,7 @@ final class FindState {
     this.done = false,
     this.textless = false,
     this.focusRequests = 0,
+    this.stale = false,
   });
 
   /// Whether the bar shows.
@@ -57,6 +58,10 @@ final class FindState {
   /// How often ⌘F or Ctrl+F asked for the field's focus.
   final int focusRequests;
 
+  /// Whether the document's pages changed while another was shown: the search
+  /// runs again when it shows again.
+  final bool stale;
+
   /// Whether a query is in the field.
   bool get hasQuery => query.trim().isNotEmpty;
 
@@ -76,6 +81,7 @@ final class FindState {
     bool? done,
     bool? textless,
     int? focusRequests,
+    bool? stale,
   }) => FindState(
     open: open ?? this.open,
     query: query ?? this.query,
@@ -87,6 +93,7 @@ final class FindState {
     done: done ?? this.done,
     textless: textless ?? this.textless,
     focusRequests: focusRequests ?? this.focusRequests,
+    stale: stale ?? this.stale,
   );
 }
 
@@ -105,8 +112,31 @@ class Find extends _$Find {
     if (document == null) return const FindState();
     final memory = ref.read(documentMemoryProvider(document.id));
     listenSelf((_, next) => memory.remember(next));
-    return memory.recall<FindState>()?.copyWith(searched: () => null) ??
+    final recalled = memory.recall<FindState>();
+    if (recalled?.stale ?? false) {
+      // Providers do not change while they build.
+      scheduleMicrotask(() {
+        if (ref.mounted) _start();
+      });
+    }
+    return recalled?.copyWith(searched: () => null, stale: false) ??
         const FindState();
+  }
+
+  /// The document's pages changed: what was found goes, and the search runs
+  /// again.
+  void pagesChanged() {
+    if (state.hasQuery) _start();
+  }
+
+  /// The pages of [document], not the one shown, changed: what it found goes
+  /// when it shows again.
+  void pagesChangedElsewhere(int document) {
+    final memory = ref.read(documentMemoryProvider(document));
+    final kept = memory.recall<FindState>();
+    if (kept != null && kept.hasQuery) {
+      memory.remember(kept.copyWith(stale: true));
+    }
   }
 
   /// Shows the bar and focuses its field (⌘F, Ctrl+F).

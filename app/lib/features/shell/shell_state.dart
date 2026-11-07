@@ -9,7 +9,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'shell_state.g.dart';
@@ -21,12 +21,40 @@ part 'shell_state.g.dart';
 /// A document opens in View, the first mode.
 @riverpod
 class ShellMode extends _$ShellMode {
-  @override
-  FermanMode build() => FermanMode.view;
+  /// Whether Organize closed the sidebar, which leaving it opens again.
+  bool _sidebarClosed = false;
 
-  /// Shows [mode]; nothing happens when it is already shown.
+  @override
+  FermanMode build() {
+    // a6-3: the Combine tab belongs to Organize.
+    ref.listen(
+      shellDocumentsProvider.select((list) => list.active?.combine ?? false),
+      (_, combine) {
+        if (combine) select(FermanMode.organize);
+      },
+    );
+    return ref.read(shellDocumentsProvider).active?.combine ?? false
+        ? FermanMode.organize
+        : FermanMode.view;
+  }
+
+  /// Shows [mode]; nothing happens when it is already shown. Organize shows a
+  /// document without the sidebar, as a6-1 draws it: the grid has the pages.
   void select(FermanMode mode) {
     if (mode == state) return;
+    final active = ref.read(shellDocumentsProvider).active;
+    // The Combine tab keeps to Organize (a6-3).
+    if ((active?.combine ?? false) && mode != FermanMode.organize) return;
+    final sidebar = ref.read(shellSidebarOpenProvider.notifier);
+    if (mode == FermanMode.organize) {
+      _sidebarClosed =
+          ref.read(shellSidebarOpenProvider) &&
+          (active?.document != null || (active?.combine ?? false));
+      if (_sidebarClosed) sidebar.close();
+    } else if (_sidebarClosed) {
+      _sidebarClosed = false;
+      sidebar.open();
+    }
     state = mode;
   }
 }
@@ -465,6 +493,16 @@ final class ShellDocument {
   /// When the document was last saved on this device.
   final DateTime? savedAt;
 
+  /// The path that stands for a6-3's Combine tab, which is no file.
+  static const String combinePath = 'ferman:combine';
+
+  /// Whether this is the Combine tab (a6-3), with no sidebar, panel or pages.
+  bool get combine => path == combinePath;
+
+  /// Whether its tab shows only the canvas, with no status bar (a1-8, a1-9b,
+  /// a1-9c).
+  bool get bare => locked || error != null;
+
   /// The number of pages, or null while it is unknown (opening, locked).
   final int? pageCount;
 
@@ -477,6 +515,20 @@ final class ShellDocument {
   /// Whether the document has unsaved changes.
   bool get unsaved =>
       saveState == SaveState.unsaved || saveState == SaveState.error;
+
+  /// This tab showing [document], with its number of pages.
+  ShellDocument withDocument(OpenedDocument document) => ShellDocument(
+    name: name,
+    icon: icon,
+    saveState: saveState,
+    savedAt: savedAt,
+    pageCount: document.pages.length,
+    editCount: editCount,
+    path: path,
+    document: document,
+    locked: locked,
+    error: error,
+  );
 
   /// This document in [saveState], saved at [savedAt] when given, with
   /// [editCount] edits when given.

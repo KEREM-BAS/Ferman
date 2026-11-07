@@ -387,7 +387,7 @@ class HiddenLinesStatus extends ConsumerWidget {
 
 /// a11-6's "Font substituted" warning toast after a commit set characters
 /// in a similar font: "This block uses EB Garamond for ‘ğ’.", with
-/// Dismiss; it leaves after `DocumentEditor.toastTime`. Review is not
+/// Dismiss; it leaves after `ToastHost.lifetime`. Review is not
 /// offered until the review list can name them (G128).
 class FontSubstitutedToast extends ConsumerWidget {
   /// The toast of [substitution].

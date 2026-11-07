@@ -9,6 +9,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 
 use super::navigation::names;
 use super::{PdfDate, Scope};
+use crate::text_string;
 
 /// One optional content group (layer), in the order `/Order` shows it (a2-3c).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -55,6 +56,52 @@ pub struct Signature {
     pub page: Option<u32>,
     /// `/ByteRange` as the signature writes it: the offset and length of the two signed ranges.
     pub byte_range: Option<[u64; 4]>,
+    /// The fields it locks, from its `FieldMDP` references and the field's `/Lock`.
+    pub locks: Vec<FieldLock>,
+    /// The lowest `/P` among those, which holds as a certification's level does.
+    pub level: Option<u8>,
+}
+
+/// The fields a signature locks (ISO 32000-2 §12.8.2.4): a change to one invalidates it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FieldLock {
+    /// Every field; also what a missing or unknown `/Action` reads as.
+    All,
+    /// The fields named and their descendants.
+    Include(Vec<String>),
+    /// Every field but those named and their descendants.
+    Exclude(Vec<String>),
+}
+
+impl FieldLock {
+    /// Whether the lock covers the field with this full name.
+    pub(super) fn covers(&self, field: &str) -> bool {
+        let named = |names: &[String]| {
+            names.iter().any(|name| {
+                field
+                    .strip_prefix(name.as_str())
+                    .is_some_and(|rest| rest.is_empty() || rest.starts_with('.'))
+            })
+        };
+        match self {
+            Self::All => true,
+            Self::Include(names) => named(names),
+            Self::Exclude(names) => !named(names),
+        }
+    }
+}
+
+/// What an operation may do to a document ([`Structure::op_gate`](super::Structure::op_gate)).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum OpGate {
+    /// Allowed, and no signature is concerned.
+    Unaffected,
+    /// Allowed, and what the signatures allow: a certification and the signatures stay valid.
+    KeepsSignatures,
+    /// Possible only by invalidating a signature.
+    BreaksSignatures,
+    /// The document's permissions forbid it, or the document cannot be changed.
+    Forbidden,
 }
 
 /// Document JavaScript (Q13, G100): Ferman never runs it and tells the user it is there.
@@ -240,6 +287,9 @@ fn signature(scope: &Scope<'_>, field: &Object, dict: &Dictionary, name: String)
     };
     let page =
         widget_page(field).or_else(|| scope.get_array(dict, b"Kids")?.iter().find_map(widget_page));
+    let (locks, level) = value
+        .map(|value| locks(scope, dict, value))
+        .unwrap_or_default();
     Signature {
         field: name,
         signed: value.is_some(),
@@ -247,7 +297,54 @@ fn signature(scope: &Scope<'_>, field: &Object, dict: &Dictionary, name: String)
         signed_at: value.and_then(|value| scope.get_date(value, b"M")),
         page,
         byte_range: value.and_then(|value| byte_range(scope, value)),
+        locks,
+        level,
     }
+}
+
+/// What a signed field locks and the lowest `/P` that says so: its value's `FieldMDP` references
+/// and the field's `/Lock`. A reference with no parameters says nothing of which fields, so it
+/// locks them all.
+fn locks(
+    scope: &Scope<'_>,
+    field: &Dictionary,
+    value: &Dictionary,
+) -> (Vec<FieldLock>, Option<u8>) {
+    let params: Vec<Option<&Dictionary>> = scope
+        .get_array(value, b"Reference")
+        .into_iter()
+        .flatten()
+        .filter_map(|reference| scope.dict(reference))
+        .filter(|reference| scope.get_name(reference, b"TransformMethod") == Some(b"FieldMDP"))
+        .map(|reference| scope.get_dict(reference, b"TransformParams"))
+        .chain(scope.get_dict(field, b"Lock").map(Some))
+        .collect();
+    let names = |params: &Dictionary| -> Vec<String> {
+        scope
+            .get_array(params, b"Fields")
+            .into_iter()
+            .flatten()
+            .filter_map(|name| Some(text_string::decode(scope.resolve(name)?.as_str().ok()?)))
+            .collect()
+    };
+    let locks = params
+        .iter()
+        .map(|params| match params {
+            Some(params) => match scope.get_name(params, b"Action") {
+                Some(b"Include") => FieldLock::Include(names(params)),
+                Some(b"Exclude") => FieldLock::Exclude(names(params)),
+                _ => FieldLock::All,
+            },
+            None => FieldLock::All,
+        })
+        .collect();
+    let level = params
+        .iter()
+        .flatten()
+        .filter_map(|params| u8::try_from(scope.get_int(params, b"P")?).ok())
+        .filter(|level| (1..=3).contains(level))
+        .min();
+    (locks, level)
 }
 
 /// The signature's `/ByteRange`: exactly four offsets and lengths that are not negative.
@@ -408,8 +505,10 @@ pub(crate) fn scripts(scope: &Scope<'_>) -> Scripts {
 mod tests {
     use super::super::scan;
     use super::super::tests::doc_with;
+    use super::OpGate;
     use crate::limits::Limits;
-    use lopdf::{Document, Object, dictionary};
+    use crate::security::DocumentOp;
+    use lopdf::{Dictionary, Document, Object, dictionary};
 
     fn catalog_set(doc: &mut Document, key: &str, value: impl Into<Object>) {
         let catalog = doc.trailer.get(b"Root").unwrap().as_reference().unwrap();
@@ -501,6 +600,163 @@ mod tests {
             assert_eq!(structure.certification, Some(expected));
             assert!(structure.signed());
         }
+    }
+
+    /// A file with one signature field `imza`, signed with `references` and the field's `lock`,
+    /// certified at `level` when given.
+    fn gated(level: Option<i64>, references: Vec<Object>, lock: Option<Dictionary>) -> Document {
+        let value = dictionary! { "Type" => "Sig", "Reference" => references };
+        let mut doc = signature_form(0, Some(value.into()));
+        if let Some(lock) = lock {
+            let root = doc.trailer.get(b"Root").unwrap().as_reference().unwrap();
+            let form = doc.get_dictionary(root).unwrap().get(b"AcroForm").unwrap();
+            let fields = form.as_dict().unwrap().get(b"Fields").unwrap();
+            let id = fields.as_array().unwrap()[0].as_reference().unwrap();
+            doc.get_dictionary_mut(id).unwrap().set("Lock", lock);
+        }
+        if let Some(level) = level {
+            let reference = dictionary! {
+                "TransformMethod" => "DocMDP",
+                "TransformParams" => dictionary! { "P" => level },
+            };
+            let signature = dictionary! { "Reference" => vec![Object::from(reference)] };
+            let signature = doc.add_object(signature);
+            catalog_set(&mut doc, "Perms", dictionary! { "DocMDP" => signature });
+        }
+        doc
+    }
+
+    fn field_mdp(action: &str, fields: &[&str]) -> Object {
+        let fields: Vec<Object> = fields.iter().map(|f| Object::string_literal(*f)).collect();
+        Object::from(dictionary! {
+            "TransformMethod" => "FieldMDP",
+            "TransformParams" => dictionary! { "Action" => action, "Fields" => fields },
+        })
+    }
+
+    const KEEPS: OpGate = OpGate::KeepsSignatures;
+    const BREAKS: OpGate = OpGate::BreaksSignatures;
+
+    fn gate(doc: &Document, op: DocumentOp, fields: &[&str]) -> OpGate {
+        let fields: Vec<String> = fields.iter().map(|&f| f.to_owned()).collect();
+        scan(doc, &Limits::default()).op_gate(op, &fields)
+    }
+
+    #[test]
+    fn a_certification_level_allows_what_it_allows() {
+        use DocumentOp::{Comment, EditText, Fill, Organize, Print};
+        // (level, comment, fill); a level out of range reads as the default, 2.
+        for (level, comment, fill) in [
+            (1, BREAKS, BREAKS),
+            (2, BREAKS, KEEPS),
+            (3, KEEPS, KEEPS),
+            (9, BREAKS, KEEPS),
+        ] {
+            let doc = gated(Some(level), Vec::new(), None);
+            assert_eq!(gate(&doc, Comment, &[]), comment, "P {level}");
+            assert_eq!(gate(&doc, Fill, &["ad"]), fill, "P {level}");
+            assert_eq!(gate(&doc, Fill, &[]), fill, "P {level}, field not known");
+            assert_eq!(gate(&doc, EditText, &[]), BREAKS, "P {level}");
+            assert_eq!(gate(&doc, Organize, &[]), BREAKS, "P {level}");
+            assert_eq!(gate(&doc, Print, &[]), OpGate::Unaffected, "P {level}");
+        }
+    }
+
+    #[test]
+    fn a_document_without_signatures_is_unaffected() {
+        let doc = signature_form(1, None);
+        for op in [
+            DocumentOp::EditText,
+            DocumentOp::Organize,
+            DocumentOp::Comment,
+            DocumentOp::Fill,
+            DocumentOp::Print,
+        ] {
+            assert_eq!(gate(&doc, op, &[]), OpGate::Unaffected);
+        }
+    }
+
+    #[test]
+    fn a_signature_with_no_level_allows_only_what_it_declares() {
+        use DocumentOp::{Comment, Fill};
+        // Append only, with no signature to name a level.
+        let append_only = signature_form(3, None);
+        assert_eq!(gate(&append_only, Fill, &["ad"]), BREAKS);
+        // An approval signature that declares nothing.
+        let plain = gated(None, Vec::new(), None);
+        assert_eq!(gate(&plain, Fill, &["ad"]), BREAKS);
+        assert_eq!(gate(&plain, Comment, &[]), BREAKS);
+        // One that locks some fields leaves the others free.
+        let locked = gated(None, vec![field_mdp("Include", &["kira"])], None);
+        assert_eq!(gate(&locked, Fill, &["ad"]), KEEPS);
+        assert_eq!(gate(&locked, Fill, &["kira"]), BREAKS);
+        assert_eq!(gate(&locked, Fill, &[]), BREAKS, "the field is not known");
+        assert_eq!(gate(&locked, Comment, &[]), BREAKS);
+    }
+
+    #[test]
+    fn field_locks_read_their_action_and_names() {
+        use DocumentOp::Fill;
+        for level in [None, Some(2)] {
+            // Include: the field and its descendants, not a name that only starts the same.
+            let doc = gated(level, vec![field_mdp("Include", &["kira", "ad.soy"])], None);
+            assert_eq!(gate(&doc, Fill, &["kira"]), BREAKS);
+            assert_eq!(gate(&doc, Fill, &["kira.tutar"]), BREAKS);
+            assert_eq!(gate(&doc, Fill, &["ad"]), KEEPS);
+            assert_eq!(gate(&doc, Fill, &["kirac"]), KEEPS);
+            assert_eq!(gate(&doc, Fill, &["ad", "kira"]), BREAKS, "any of them");
+            // Exclude: everything but those.
+            let doc = gated(level, vec![field_mdp("Exclude", &["not"])], None);
+            assert_eq!(gate(&doc, Fill, &["not.ek"]), KEEPS);
+            assert_eq!(gate(&doc, Fill, &["ad"]), BREAKS);
+            // All, and an action nobody knows.
+            for action in ["All", "Sometimes"] {
+                let doc = gated(level, vec![field_mdp(action, &["ad"])], None);
+                assert_eq!(gate(&doc, Fill, &["soyad"]), BREAKS, "{action}");
+            }
+            // A reference with no parameters locks everything.
+            let bare = Object::from(dictionary! { "TransformMethod" => "FieldMDP" });
+            assert_eq!(gate(&gated(level, vec![bare], None), Fill, &["ad"]), BREAKS);
+            // The signed field itself.
+            assert_eq!(
+                gate(&gated(level, Vec::new(), None), Fill, &["imza"]),
+                BREAKS
+            );
+        }
+        // /Lock counts as a FieldMDP reference does.
+        let lock = dictionary! {
+            "Type" => "SigFieldLock",
+            "Action" => "Include",
+            "Fields" => vec![Object::string_literal("kira")],
+        };
+        let doc = gated(Some(2), Vec::new(), Some(lock));
+        assert_eq!(gate(&doc, Fill, &["kira"]), BREAKS);
+        assert_eq!(gate(&doc, Fill, &["ad"]), KEEPS);
+    }
+
+    #[test]
+    fn a_locks_level_holds_as_a_certifications_does() {
+        use DocumentOp::{Comment, Fill};
+        let lock = |p: i64| {
+            dictionary! {
+                "Action" => "Include",
+                "Fields" => vec![Object::string_literal("kira")],
+                "P" => p,
+            }
+        };
+        // The lowest level wins, whichever way round.
+        let doc = gated(Some(3), Vec::new(), Some(lock(1)));
+        assert_eq!(gate(&doc, Fill, &["ad"]), BREAKS);
+        assert_eq!(gate(&doc, Comment, &[]), BREAKS);
+        let doc = gated(Some(2), Vec::new(), Some(lock(3)));
+        assert_eq!(gate(&doc, Comment, &[]), BREAKS);
+        // On its own.
+        let doc = gated(None, Vec::new(), Some(lock(3)));
+        assert_eq!(gate(&doc, Comment, &[]), KEEPS);
+        assert_eq!(gate(&doc, Fill, &["ad"]), KEEPS);
+        // A level out of range says nothing.
+        let doc = gated(Some(3), Vec::new(), Some(lock(7)));
+        assert_eq!(gate(&doc, Comment, &[]), KEEPS);
     }
 
     #[test]

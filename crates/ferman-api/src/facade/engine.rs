@@ -2,7 +2,7 @@
 //!
 //! The engine owns the render thread of ferman-render, which loads PDFium and holds every open
 //! document's PDFium copy (ADR 0009). Opening parses on a thread of its own (`document`); the
-//! document actors, which serialise edits, and the job pool join it with the work that needs them.
+//! document actors, which serialise edits, and the jobs join it with the work that needs them.
 
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -66,6 +66,8 @@ pub struct Engine {
     pub(super) fonts: Arc<super::edit::Fonts>,
     /// The recovery switch and this instance's session, which the actors share (`recovery`).
     pub(super) recovery: Arc<super::recovery::Recovery>,
+    /// The background jobs, running and finished (`jobs`).
+    pub(super) jobs: Arc<super::jobs::JobManager>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -103,6 +105,7 @@ impl Engine {
             transactions: Mutex::default(),
             fonts: Arc::default(),
             recovery: Arc::default(),
+            jobs: Arc::new(super::jobs::JobManager::start()),
         }
     }
 

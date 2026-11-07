@@ -72,6 +72,11 @@ flutter:
     - assets/fonts/ibm-plex-sans-arabic/LICENSE.txt
     - assets/fonts/ibm-plex-sans-hebrew/LICENSE.txt
     - assets/fonts/ibm-plex-sans-devanagari/LICENSE.txt
+    - assets/fonts/caveat/LICENSE.txt
+    - assets/fonts/dancing-script/LICENSE.txt
+    - assets/fonts/homemade-apple/LICENSE.txt
+    - assets/fonts/cormorant-garamond/LICENSE.txt
+    - assets/fonts/crimson-pro/LICENSE.txt
     - assets/icons/LICENSE-lucide-0.460.0.txt
     - assets/icons/LICENSE-lucide-1.56.0.txt
 
@@ -128,3 +133,27 @@ flutter:
           weight: 500
         - asset: assets/fonts/ibm-plex-sans-devanagari/IBMPlexSansDevanagari-SemiBold.ttf
           weight: 600
+    - family: Caveat
+      fonts:
+        - asset: assets/fonts/caveat/Caveat-VariableFont_wght.ttf
+          weight: 400
+    - family: Cormorant Garamond
+      fonts:
+        - asset: assets/fonts/cormorant-garamond/CormorantGaramond-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/cormorant-garamond/CormorantGaramond-SemiBold.ttf
+          weight: 600
+    - family: Crimson Pro
+      fonts:
+        - asset: assets/fonts/crimson-pro/CrimsonPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/crimson-pro/CrimsonPro-SemiBold.ttf
+          weight: 600
+    - family: Dancing Script
+      fonts:
+        - asset: assets/fonts/dancing-script/DancingScript-VariableFont_wght.ttf
+          weight: 400
+    - family: Homemade Apple
+      fonts:
+        - asset: assets/fonts/homemade-apple/HomemadeApple-Regular.ttf
+          weight: 400

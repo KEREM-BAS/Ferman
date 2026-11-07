@@ -1,0 +1,4 @@
+Başvuru formu
+Bu form hem AcroForm alanları hem XFA paketleri taşır.
+Adı
+Şehir

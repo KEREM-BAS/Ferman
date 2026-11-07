@@ -21,7 +21,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use lopdf::{Object, ObjectId, Stream};
 
-use crate::appendix;
 use crate::filters;
 use crate::limits::Limits;
 use crate::repair::{self, Diagnosis, LikelyCause, Repair, RepairReport};
@@ -165,32 +164,6 @@ impl Document {
     #[must_use]
     pub fn structure(&self) -> &Structure {
         &self.structure
-    }
-
-    /// Bytes to put after [`source`](Self::source)'s for a render-only copy that shows the layers
-    /// whose `visible` is true, in [`Structure::layers`]' order, and hides the others (a2-3c,
-    /// ADR 0009). PDFium renders the copy; it is never written to disk.
-    ///
-    /// # Errors
-    ///
-    /// [`CoreError::Internal`] for a document without layers, or a repaired one: its rebuilt table
-    /// does not place the objects inside object streams, so the appendix's table could not
-    /// either. [`CoreError::Unsupported`] past the 4 GiB a cross-reference offset can address.
-    pub fn layer_appendix(&self, visible: &[bool]) -> Result<Vec<u8>, CoreError> {
-        if self.repair.is_some() {
-            return Err(CoreError::Internal {
-                context: "a layer appendix for a repaired document",
-            });
-        }
-        let bytes = self.source.bytes();
-        let header = sniff::header_offset(bytes).unwrap_or(0);
-        appendix::layers(
-            &self.model,
-            &self.xref,
-            bytes.len().saturating_sub(header),
-            &self.structure.layers,
-            visible,
-        )
     }
 
     /// The decoded bytes of the file of [`Structure::attachments`]`[index]`, to save where the

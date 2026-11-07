@@ -125,7 +125,7 @@ void main() {
           HistoryStep(
             name: 'n',
             time: DateTime(2026),
-            page: 0,
+            pages: const [7],
             before: 'a',
             after: 'b',
             hiddenLines: 2,
@@ -133,7 +133,15 @@ void main() {
         ],
         current: 1,
       ),
+      const OpenedDocument(
+        id: 1,
+        pages: [
+          PageInfo(width: 10, height: 10, handle: 3),
+          PageInfo(width: 10, height: 10, handle: 7),
+        ],
+      ),
     );
+    expect(rows.first.page, 1, reason: 'the handle says where it is now');
     expect(rows.map((row) => row.kind), [
       ReviewRowKind.text,
       ReviewRowKind.warning,

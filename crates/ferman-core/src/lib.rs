@@ -31,6 +31,11 @@
 //!   ([`Splice`](revision::Splice)), with copy-on-write for shared streams and forms (§6.6); and
 //!   the incremental writer, which appends the changes to the original bytes in the file's own
 //!   cross-reference form, encrypted with the document's key (§7.3).
+//! - [`write`](mod@write): what an operation above ferman-core writes with, without naming
+//!   lopdf: objects as plain [`Value`](write::Value)s, new object numbers, page entries and
+//!   `/Annots` (ADR 0003, question 11 of the M4 plan).
+//! - [`assemble`]: pages of one document copied into another, with their bookmarks, attachments,
+//!   form fields and layers (Insert, Replace, Extract, Split and Combine, M4 plan, W1).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
 //!   [`save_pdf`](save::save_pdf) writes a document through a temp file beside it, flushed,
 //!   verified, given the original's metadata and swapped in, with every failure of §7.8 a
@@ -48,8 +53,9 @@
 //!   (ADR 0010).
 //! - `content` (private): the content-stream lexer, operators with their operands and byte spans,
 //!   read leniently, with inline images (§6.1).
-//! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
-//!   renders and nobody saves: [`Document::layer_appendix`] shows and hides layers (ADR 0009).
+//! - `appendix` (private): render-only bytes after a document's that PDFium renders and nobody
+//!   saves: [`revision::RevisionStore::render_appendix`] gives the revisions with layers shown and
+//!   hidden (ADR 0009), and `pages_changed_since` the pages a new one draws differently.
 //!
 //! # Planned modules
 //!
@@ -62,6 +68,7 @@
 #![deny(unsafe_code)]
 
 mod appendix;
+pub mod assemble;
 mod content;
 pub mod document;
 pub mod filters;
@@ -71,6 +78,7 @@ pub mod fuzzing;
 mod incremental;
 pub mod interpret;
 pub mod limits;
+pub mod pages;
 #[allow(unsafe_code)]
 mod platform;
 pub mod recovery;
@@ -84,11 +92,12 @@ pub mod source;
 pub mod structure;
 mod syntax;
 mod text_string;
+pub mod write;
 mod xref;
 
 pub use document::{Document, OpenOptions, open};
 pub use repair::{Diagnosis, LikelyCause, Repair, RepairReport, XrefProblem};
-pub use security::{Access, EncryptionInfo, Method, Password, Permissions};
+pub use security::{Access, DocumentOp, EncryptionInfo, Method, Password, Permissions};
 pub use sniff::FileKind;
 pub use source::Source;
 
@@ -280,6 +289,9 @@ pub enum WriteError {
     Repaired,
     /// The system's random number generator failed.
     Random,
+    /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
+    /// out of range, label ranges out of order.
+    PagePlan,
 }
 
 impl std::fmt::Display for WriteError {
@@ -299,6 +311,7 @@ impl std::fmt::Display for WriteError {
             Self::Font => f.write_str("a font copy that does not fit the page"),
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
+            Self::PagePlan => f.write_str("a page operation that cannot apply"),
         }
     }
 }

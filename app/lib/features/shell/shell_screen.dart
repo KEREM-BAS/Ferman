@@ -5,6 +5,10 @@ import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/crop_panel.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/organize_panel.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
@@ -64,7 +68,9 @@ class FmWindow extends ConsumerWidget {
     final active = ref.watch(shellDocumentsProvider).active;
     // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
     // a1-9c: FmWindow with `mode=""` and `status={false}`).
-    final bare = active != null && (active.locked || active.error != null);
+    final bare = active?.bare ?? false;
+    // a6-3's tab: the mode bar, tool row and status bar, no side panels.
+    final combine = active?.combine ?? false;
     // Edit's Undo history takes the right panel's place (a3-10).
     final history =
         ref.watch(shellModeProvider) == FermanMode.edit &&
@@ -73,6 +79,12 @@ class FmWindow extends ConsumerWidget {
     final review =
         ref.watch(shellModeProvider) == FermanMode.edit &&
         ref.watch(reviewListProvider.select((list) => list.open));
+    // a6-1: Organize's panel is about the selection, once there is one.
+    final organizing =
+        ref.watch(shellModeProvider) == FermanMode.organize &&
+        ref.watch(selectedPagesProvider).isNotEmpty;
+    // So does Crop and page size (a6-4).
+    final crop = ref.watch(cropShowingProvider);
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -139,7 +151,7 @@ class FmWindow extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (shown.sidebar && !bare)
+                        if (shown.sidebar && !bare && !combine)
                           ShellRegion.sidebar.wrap(
                             resizable(
                               ShellSide.sidebar,
@@ -152,11 +164,13 @@ class FmWindow extends ConsumerWidget {
                           key: _canvasSlot,
                           child: ShellRegion.canvas.wrap(const ShellCanvas()),
                         ),
-                        if (shown.panel && !bare)
+                        if (shown.panel && !bare && !combine)
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,
-                              review
+                              crop
+                                  ? CropPanel(width: widths.panel)
+                                  : review
                                   // a3-12 is wider than it, room allowing.
                                   ? ReviewListPanel(
                                       width: math.max(
@@ -172,6 +186,8 @@ class FmWindow extends ConsumerWidget {
                                     )
                                   : history
                                   ? EditHistoryPanel(width: widths.panel)
+                                  : organizing
+                                  ? OrganizePanel(width: widths.panel)
                                   : FmDocPanel(width: widths.panel),
                             ),
                           ),

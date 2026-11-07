@@ -39,6 +39,13 @@ Set<String> _placeholdersIn(String message) => {
 /// The message keys whose Arabic is the English text on purpose: the same
 /// list (and reasons) as `tools/checks` `ArbParityCheck.repositorySameInTurkish`.
 const Set<String> _sameInArabic = {
+  'labelsStyleDecimal', // the numbers themselves, which PDF defines
+  'labelsStyleLettersLower', // the numbers themselves, which PDF defines
+  'labelsStyleLettersUpper', // the numbers themselves, which PDF defines
+  'labelsStyleRomanLower', // the numbers themselves, which PDF defines
+  'labelsStyleRomanUpper', // the numbers themselves, which PDF defines
+  'organizeSizeA4', // the international name of a paper and its size
+  'organizeSizeLetter', // the international name of a paper and its size
   'appName', // the product name, never translated
   'startPhoneToolOcr', // OCR, as the FmMHome board writes it in Arabic
   'startPhoneSourceGoogleDrive', // a product's name

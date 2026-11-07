@@ -6,6 +6,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -129,6 +130,7 @@ final class EditorState {
     this.active,
     this.history = const EditHistory(),
     this.renderKey,
+    this.changedPages,
     this.preview,
     this.settled = false,
     this.hidden = const [],
@@ -210,9 +212,12 @@ final class EditorState {
   /// The document's committed steps.
   final EditHistory history;
 
-  /// Every page's render key after the last commit, undo or redo; null
-  /// before any. Bitmaps with an older one show an older revision.
+  /// The render key of [changedPages] after the last commit, undo or redo;
+  /// null before any. Their bitmaps with an older one show an older revision.
   final int? renderKey;
+
+  /// The pages that got [renderKey]; null means every page.
+  final List<int>? changedPages;
 
   /// Whether ⌘Z or Ctrl+Z has something to undo: a step, or the typing
   /// open in a block, which commits first.
@@ -228,6 +233,7 @@ final class EditorState {
     bool clearActive = false,
     EditHistory? history,
     int? renderKey,
+    List<int>? changedPages,
     EditPreview? preview,
     bool clearPreview = false,
     bool? settled,
@@ -244,6 +250,7 @@ final class EditorState {
     active: clearActive ? null : active ?? this.active,
     history: history ?? this.history,
     renderKey: renderKey ?? this.renderKey,
+    changedPages: renderKey != null ? changedPages : this.changedPages,
     preview: clearPreview ? null : preview ?? this.preview,
     settled: settled ?? (!clearPreview && this.settled),
     hidden: hidden ?? this.hidden,
@@ -259,7 +266,8 @@ final class EditorState {
 /// [text]'s words: lines broken anew are the same text.
 String sameWords(String text) => text.split(RegExp(r'\s+')).join(' ');
 
-/// The block a committed step changed, for [HiddenLines].
+/// The block a committed step changed, for [HiddenLines]; its page by
+/// [PageInfo.handle].
 typedef _StepTarget = ({
   int page,
   int block,
@@ -323,20 +331,10 @@ class DocumentEditor extends _$DocumentEditor {
   /// [idleMs] as a duration.
   static const Duration idle = Duration(milliseconds: idleMs);
 
-  /// How long the "Font substituted" toast stays (a11-6: "the rest leave
-  /// after six seconds").
-  // shortcut: hovering or focusing the toast does not hold it yet; a
-  // toast region with that rule comes with the next toast that needs it.
-  static const int toastMs = 6000;
-
-  /// [toastMs] as a duration: not motion, so not a token.
-  static const Duration toastTime = Duration(milliseconds: toastMs);
-
   Future<void> _queue = Future.value();
 
   /// Whether the open transaction marks the block's language.
   bool _languageSet = false;
-  Timer? _toastTimer;
   int? _document;
   int? _transaction;
   String _name = '';
@@ -383,7 +381,6 @@ class DocumentEditor extends _$DocumentEditor {
     ref
       ..onDispose(() {
         _idle?.cancel();
-        _toastTimer?.cancel();
         panelFocus.dispose();
       })
       ..listen(
@@ -765,7 +762,7 @@ class DocumentEditor extends _$DocumentEditor {
         committed: active == null
             ? null
             : (
-                page: active.page,
+                page: _handleOf(document, active.page),
                 block: active.block.id,
                 frame: active.block.frame,
                 dir: active.block.direction,
@@ -844,14 +841,11 @@ class DocumentEditor extends _$DocumentEditor {
         .where((s) => s.kind == SubstitutionKind.similar && !s.announced)
         .firstOrNull;
     if (next == null) return;
-    _toastTimer?.cancel();
-    _toastTimer = Timer(toastTime, dismissToast);
     state = state.copy(toast: next);
   }
 
   /// Hides the "Font substituted" toast.
   void dismissToast() {
-    _toastTimer?.cancel();
     if (state.toast != null) state = state.copy(clearToast: true);
   }
 
@@ -1127,6 +1121,51 @@ class DocumentEditor extends _$DocumentEditor {
     state = state.copy(clearPreview: true);
   }
 
+  /// Takes the page operation [change] on [document] as one step, after
+  /// committing the typing; [committed] runs once it applied. The engine's
+  /// error, or null. Before the first change to a signed document the engine
+  /// refuses it, and it runs again after a3-16a's "Edit anyway".
+  Future<EngineException?> pageChange(
+    int document,
+    Future<RevisionInfo> Function() change, {
+    VoidCallback? committed,
+  }) async {
+    _idle?.cancel();
+    EngineException? failed;
+    await _run(() async {
+      await _close();
+      try {
+        final info = await change();
+        // The redo branch went with it.
+        if (document == _document) {
+          _targets = _targets.take(state.history.current).toList();
+        }
+        await _refresh(document, info);
+        if (document == _document) state = state.copy(clearPreview: true);
+        committed?.call();
+      } on EngineException catch (error) {
+        final tab = ref
+            .read(shellDocumentsProvider)
+            .documents
+            .where((tab) => tab.document?.id == document)
+            .firstOrNull;
+        if (error.kind == EngineErrorKind.confirmationRequired && tab != null) {
+          ref
+              .read(documentSaverProvider.notifier)
+              .askSigned(
+                tab,
+                () => unawaited(
+                  pageChange(document, change, committed: committed),
+                ),
+              );
+        } else {
+          failed = error;
+        }
+      }
+    });
+    return failed;
+  }
+
   /// Opens the editor on the block step [step] changed, its typing becoming
   /// the history step [name]: Go to selects it on the page (a3-12). A block
   /// no longer there leaves the page showing.
@@ -1135,14 +1174,16 @@ class DocumentEditor extends _$DocumentEditor {
     final target = _targets.elementAtOrNull(step);
     if (document == null || target == null) return;
     await _run(_close);
+    final index = _pageOf(target.page);
+    if (index == null) return;
     final PageBlocks page;
     try {
-      page = await _engine.textBlocks(document, target.page);
+      page = await _engine.textBlocks(document, index);
     } on EngineException {
       return;
     }
     final best = blockOver(page.blocks, target.frame);
-    if (best != null) await open(target.page, best, caret: 0, name: name);
+    if (best != null) await open(index, best, caret: 0, name: name);
   }
 
   Future<void> _step(Future<RevisionInfo> Function(int) move) {
@@ -1310,6 +1351,9 @@ class DocumentEditor extends _$DocumentEditor {
   }) async {
     final before = state.history;
     final history = await _engine.history(document);
+    if (info?.structure case final structure?) {
+      _restructured(document, structure);
+    }
     // A step taken changes the history even when the pages could not be
     // drawn again (no render key).
     final changed =
@@ -1331,12 +1375,57 @@ class DocumentEditor extends _$DocumentEditor {
       state = state.copy(
         history: history,
         renderKey: info?.renderKey,
+        changedPages: info?.changedPages,
         hidden: _hidden(history),
         edited: _edited(history),
       );
     }
     if (changed) _mark(document, SaveState.unsaved);
   }
+
+  /// The revision changed [document]'s pages, outline or attachments: its
+  /// tab, and through it the canvas, the sidebar and the page count, show
+  /// them, and a search runs again.
+  void _restructured(int document, DocumentStructure structure) {
+    final documents = ref.read(shellDocumentsProvider.notifier);
+    for (final tab in ref.read(shellDocumentsProvider).documents) {
+      if (tab case ShellDocument(:final path?, document: final open?)
+          when open.id == document) {
+        documents.replace(
+          path,
+          tab.withDocument(open.withStructure(structure)),
+        );
+      }
+    }
+    final find = ref.read(findProvider.notifier);
+    if (document == _document) {
+      find.pagesChanged();
+    } else {
+      find.pagesChangedElsewhere(document);
+    }
+  }
+
+  /// The tab's document of [document], which says where a step's page is now.
+  OpenedDocument? _opened(int document) {
+    for (final tab in ref.read(shellDocumentsProvider).documents) {
+      if (tab.document?.id == document) return tab.document;
+    }
+    return null;
+  }
+
+  /// The handle of [page] of [document].
+  int _handleOf(int document, int page) =>
+      _opened(document)?.pageHandle(page) ?? page;
+
+  /// Where [handle] of the shown document's pages is now; null once it is
+  /// gone.
+  int? _pageOf(int handle) => switch (_document) {
+    final document? => switch (_opened(document)) {
+      final open? => open.pageIndexOf(handle),
+      null => handle,
+    },
+    null => null,
+  };
 
   /// The lines hidden by the newest step of each block that applies.
   List<HiddenLines> _hidden(EditHistory history) {
@@ -1350,13 +1439,14 @@ class DocumentEditor extends _$DocumentEditor {
       for (final i in newest.values)
         if (_targets[i] case final target?
             when history.steps[i].hiddenLines > 0)
-          HiddenLines(
-            page: target.page,
-            block: target.block,
-            frame: target.frame,
-            direction: target.dir,
-            lines: history.steps[i].hiddenLines,
-          ),
+          if (_pageOf(target.page) case final page?)
+            HiddenLines(
+              page: page,
+              block: target.block,
+              frame: target.frame,
+              direction: target.dir,
+              lines: history.steps[i].hiddenLines,
+            ),
     ];
   }
 
@@ -1366,12 +1456,14 @@ class DocumentEditor extends _$DocumentEditor {
     final oldest = <(int, int), EditedBlock>{};
     for (var i = 0; i < history.current; i++) {
       if (_targets.elementAtOrNull(i) case final target?) {
-        oldest[(target.page, target.block)] ??= EditedBlock(
-          page: target.page,
-          block: target.block,
-          before: target.before,
-          frame: target.frame,
-        );
+        if (_pageOf(target.page) case final page?) {
+          oldest[(target.page, target.block)] ??= EditedBlock(
+            page: page,
+            block: target.block,
+            before: target.before,
+            frame: target.frame,
+          );
+        }
       }
     }
     return oldest.values.toList();

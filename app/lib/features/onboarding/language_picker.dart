@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/app/feature_registry.dart';
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
@@ -156,6 +157,7 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
     // The system's own language stores no choice: the app keeps following
     // the system.
     final system = ref.read(systemLanguageProvider);
+    final notices = ref.read(toastNoticesProvider.notifier);
     try {
       await ref
           .read(settingsProvider.notifier)
@@ -166,6 +168,11 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
           );
     } on SettingsStoreException {
       // Kept for this session; the language still switches.
+      notices.show(
+        tone: ToastTone.warning,
+        title: (l10n) => l10n.settingsSaveFailedTitle,
+        message: (l10n) => l10n.settingsSaveFailedMessage,
+      );
     }
   }
 

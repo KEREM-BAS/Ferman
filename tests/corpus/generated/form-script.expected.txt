@@ -1,0 +1,8 @@
+Sipariş formu
+Bu formun betikleri değerleri değiştirmek ister; Ferman betik çalıştırmaz.
+Birim fiyat
+Adet
+Ara toplam (AFSimple_Calculate)
+Toplam (hesap betiği)
+Durum (açılış betiği)
+Hesapla

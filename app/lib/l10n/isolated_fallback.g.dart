@@ -2751,6 +2751,790 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get phoneTabSettings => isolate(super.phoneTabSettings);
+
+  @override
+  String jobPageOf(String page, String pages) =>
+      isolate(super.jobPageOf(page, pages));
+
+  @override
+  String jobPausedAtPage(String page) => isolate(super.jobPausedAtPage(page));
+
+  @override
+  String get jobFailedDiskFull => isolate(super.jobFailedDiskFull);
+
+  @override
+  String jobCopyingTitle(String name) => isolate(super.jobCopyingTitle(name));
+
+  @override
+  String jobCopiedTitle(String name) => isolate(super.jobCopiedTitle(name));
+
+  @override
+  String jobCopyFailedTitle(String name) =>
+      isolate(super.jobCopyFailedTitle(name));
+
+  @override
+  String get tasksTitle => isolate(super.tasksTitle);
+
+  @override
+  String get tasksClose => isolate(super.tasksClose);
+
+  @override
+  String get tasksOpen => isolate(super.tasksOpen);
+
+  @override
+  String get tasksEmptyTitle => isolate(super.tasksEmptyTitle);
+
+  @override
+  String get tasksEmptyBody => isolate(super.tasksEmptyBody);
+
+  @override
+  String tasksRunning(int count, String formatted) =>
+      isolate(super.tasksRunning(count, formatted));
+
+  @override
+  String get taskPause => isolate(super.taskPause);
+
+  @override
+  String get taskResume => isolate(super.taskResume);
+
+  @override
+  String get taskShow => isolate(super.taskShow);
+
+  @override
+  String get taskDismiss => isolate(super.taskDismiss);
+
+  @override
+  String taskCancelTitle(String task) => isolate(super.taskCancelTitle(task));
+
+  @override
+  String get taskCancelBody => isolate(super.taskCancelBody);
+
+  @override
+  String get taskKeepRunning => isolate(super.taskKeepRunning);
+
+  @override
+  String get taskCancelConfirm => isolate(super.taskCancelConfirm);
+
+  @override
+  String tasksQuitTitle(int count, String formatted) =>
+      isolate(super.tasksQuitTitle(count, formatted));
+
+  @override
+  String get tasksQuitBody => isolate(super.tasksQuitBody);
+
+  @override
+  String get tasksQuitKeep => isolate(super.tasksQuitKeep);
+
+  @override
+  String get tasksQuitConfirm => isolate(super.tasksQuitConfirm);
+
+  @override
+  String get organizeGridLabel => isolate(super.organizeGridLabel);
+
+  @override
+  String get organizePanelLabel => isolate(super.organizePanelLabel);
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) =>
+      isolate(super.organizeHintSelected(total, selected, pages));
+
+  @override
+  String organizeHintMoving(int count, String n) =>
+      isolate(super.organizeHintMoving(count, n));
+
+  @override
+  String organizePanelTitle(int count, String n) =>
+      isolate(super.organizePanelTitle(count, n));
+
+  @override
+  String get organizePanelPages => isolate(super.organizePanelPages);
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) =>
+      isolate(super.organizePanelPagesLabels(pages, labels));
+
+  @override
+  String get organizePanelSize => isolate(super.organizePanelSize);
+
+  @override
+  String get organizePanelRotation => isolate(super.organizePanelRotation);
+
+  @override
+  String get organizePanelMixed => isolate(super.organizePanelMixed);
+
+  @override
+  String get organizePanelCommands => isolate(super.organizePanelCommands);
+
+  @override
+  String get organizePanelExtract => isolate(super.organizePanelExtract);
+
+  @override
+  String get organizePanelReplace => isolate(super.organizePanelReplace);
+
+  @override
+  String organizePanelInsertAfter(String page) =>
+      isolate(super.organizePanelInsertAfter(page));
+
+  @override
+  String get organizePanelBlankPage => isolate(super.organizePanelBlankPage);
+
+  @override
+  String get organizePanelFromFile => isolate(super.organizePanelFromFile);
+
+  @override
+  String get organizePanelFromScanner =>
+      isolate(super.organizePanelFromScanner);
+
+  @override
+  String organizePagesCount(int count, String n) =>
+      isolate(super.organizePagesCount(count, n));
+
+  @override
+  String get organizeMenuExtract => isolate(super.organizeMenuExtract);
+
+  @override
+  String get organizeMenuInsertBlank => isolate(super.organizeMenuInsertBlank);
+
+  @override
+  String get organizeMenuInsertFile => isolate(super.organizeMenuInsertFile);
+
+  @override
+  String get organizeMenuReplace => isolate(super.organizeMenuReplace);
+
+  @override
+  String organizeMenuDelete(int count, String n) =>
+      isolate(super.organizeMenuDelete(count, n));
+
+  @override
+  String get organizeDeleteAllReason => isolate(super.organizeDeleteAllReason);
+
+  @override
+  String organizeToastDeleted(int count, String n) =>
+      isolate(super.organizeToastDeleted(count, n));
+
+  @override
+  String organizeToastRotated(int count, String n) =>
+      isolate(super.organizeToastRotated(count, n));
+
+  @override
+  String organizeToastDuplicated(int count, String n) =>
+      isolate(super.organizeToastDuplicated(count, n));
+
+  @override
+  String organizeToastMoved(int count, String n) =>
+      isolate(super.organizeToastMoved(count, n));
+
+  @override
+  String organizeToastInserted(int count, String n) =>
+      isolate(super.organizeToastInserted(count, n));
+
+  @override
+  String organizeToastPages(int count, String pages) =>
+      isolate(super.organizeToastPages(count, pages));
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) =>
+      isolate(super.organizeToastDeletedNote(count, pages));
+
+  @override
+  String organizeStepInsert(String name) =>
+      isolate(super.organizeStepInsert(name));
+
+  @override
+  String get organizeFailed => isolate(super.organizeFailed);
+
+  @override
+  String organizeInsertFailed(String name) =>
+      isolate(super.organizeInsertFailed(name));
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) =>
+      isolate(super.organizeDropMoveBefore(count, pages, before));
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) =>
+      isolate(super.organizeDropMoveEnd(count, pages));
+
+  @override
+  String organizeDropFilesBefore(String before) =>
+      isolate(super.organizeDropFilesBefore(before));
+
+  @override
+  String get organizeDropFilesEnd => isolate(super.organizeDropFilesEnd);
+
+  @override
+  String jobInsertingTitle(String name) =>
+      isolate(super.jobInsertingTitle(name));
+
+  @override
+  String jobInsertedTitle(String name) => isolate(super.jobInsertedTitle(name));
+
+  @override
+  String get organizeSelectFirst => isolate(super.organizeSelectFirst);
+
+  @override
+  String get organizeCancel => isolate(super.organizeCancel);
+
+  @override
+  String get organizeFailedTitle => isolate(super.organizeFailedTitle);
+
+  @override
+  String organizeBadRange(String last) => isolate(super.organizeBadRange(last));
+
+  @override
+  String organizeSizeA4(String size) => isolate(super.organizeSizeA4(size));
+
+  @override
+  String organizeSizeLetter(String size) =>
+      isolate(super.organizeSizeLetter(size));
+
+  @override
+  String get organizeSizeCustom => isolate(super.organizeSizeCustom);
+
+  @override
+  String get organizeWidth => isolate(super.organizeWidth);
+
+  @override
+  String get organizeHeight => isolate(super.organizeHeight);
+
+  @override
+  String get cropTitle => isolate(super.cropTitle);
+
+  @override
+  String get cropMargins => isolate(super.cropMargins);
+
+  @override
+  String get cropTop => isolate(super.cropTop);
+
+  @override
+  String get cropBottom => isolate(super.cropBottom);
+
+  @override
+  String get cropLeft => isolate(super.cropLeft);
+
+  @override
+  String get cropRight => isolate(super.cropRight);
+
+  @override
+  String get cropRemoveWhite => isolate(super.cropRemoveWhite);
+
+  @override
+  String get cropNoContent => isolate(super.cropNoContent);
+
+  @override
+  String cropTooMuch(String page) => isolate(super.cropTooMuch(page));
+
+  @override
+  String get cropPageSize => isolate(super.cropPageSize);
+
+  @override
+  String cropKeepSize(String size) => isolate(super.cropKeepSize(size));
+
+  @override
+  String get cropContent => isolate(super.cropContent);
+
+  @override
+  String get cropFitCentre => isolate(super.cropFitCentre);
+
+  @override
+  String get cropFitScale => isolate(super.cropFitScale);
+
+  @override
+  String get cropApplyTo => isolate(super.cropApplyTo);
+
+  @override
+  String get cropThisPage => isolate(super.cropThisPage);
+
+  @override
+  String cropAllPages(int count, String formatted) =>
+      isolate(super.cropAllPages(count, formatted));
+
+  @override
+  String get cropSomePages => isolate(super.cropSomePages);
+
+  @override
+  String get cropWhichPages => isolate(super.cropWhichPages);
+
+  @override
+  String get cropParityAll => isolate(super.cropParityAll);
+
+  @override
+  String get cropParityOdd => isolate(super.cropParityOdd);
+
+  @override
+  String get cropParityEven => isolate(super.cropParityEven);
+
+  @override
+  String cropAction(int count, String formatted) =>
+      isolate(super.cropAction(count, formatted));
+
+  @override
+  String cropResizeAction(int count, String formatted) =>
+      isolate(super.cropResizeAction(count, formatted));
+
+  @override
+  String cropDone(int count, String formatted) =>
+      isolate(super.cropDone(count, formatted));
+
+  @override
+  String get cropDoneHidden => isolate(super.cropDoneHidden);
+
+  @override
+  String get cropStep => isolate(super.cropStep);
+
+  @override
+  String get cropSizeStep => isolate(super.cropSizeStep);
+
+  @override
+  String get labelsTitle => isolate(super.labelsTitle);
+
+  @override
+  String get labelsDescription => isolate(super.labelsDescription);
+
+  @override
+  String get labelsColumnPages => isolate(super.labelsColumnPages);
+
+  @override
+  String get labelsColumnStyle => isolate(super.labelsColumnStyle);
+
+  @override
+  String get labelsColumnPrefix => isolate(super.labelsColumnPrefix);
+
+  @override
+  String get labelsColumnStart => isolate(super.labelsColumnStart);
+
+  @override
+  String get labelsPrefixNone => isolate(super.labelsPrefixNone);
+
+  @override
+  String get labelsStyleRomanLower => isolate(super.labelsStyleRomanLower);
+
+  @override
+  String get labelsStyleRomanUpper => isolate(super.labelsStyleRomanUpper);
+
+  @override
+  String get labelsStyleDecimal => isolate(super.labelsStyleDecimal);
+
+  @override
+  String get labelsStyleLettersLower => isolate(super.labelsStyleLettersLower);
+
+  @override
+  String get labelsStyleLettersUpper => isolate(super.labelsStyleLettersUpper);
+
+  @override
+  String get labelsStyleNone => isolate(super.labelsStyleNone);
+
+  @override
+  String get labelsRemoveRange => isolate(super.labelsRemoveRange);
+
+  @override
+  String get labelsAddRange => isolate(super.labelsAddRange);
+
+  @override
+  String get labelsPreview => isolate(super.labelsPreview);
+
+  @override
+  String get labelsPrint => isolate(super.labelsPrint);
+
+  @override
+  String get labelsPrintNote => isolate(super.labelsPrintNote);
+
+  @override
+  String get labelsApply => isolate(super.labelsApply);
+
+  @override
+  String get labelsStep => isolate(super.labelsStep);
+
+  @override
+  String labelsErrorInvalid(String row) =>
+      isolate(super.labelsErrorInvalid(row));
+
+  @override
+  String labelsErrorOverlap(String row) =>
+      isolate(super.labelsErrorOverlap(row));
+
+  @override
+  String labelsErrorPast(String row, String last) =>
+      isolate(super.labelsErrorPast(row, last));
+
+  @override
+  String labelsErrorUncovered(String page) =>
+      isolate(super.labelsErrorUncovered(page));
+
+  @override
+  String get insertMenuBlank => isolate(super.insertMenuBlank);
+
+  @override
+  String get insertMenuFile => isolate(super.insertMenuFile);
+
+  @override
+  String get insertMenuScan => isolate(super.insertMenuScan);
+
+  @override
+  String get insertBlankTitle => isolate(super.insertBlankTitle);
+
+  @override
+  String get insertSize => isolate(super.insertSize);
+
+  @override
+  String insertSameSize(String page, String size) =>
+      isolate(super.insertSameSize(page, size));
+
+  @override
+  String get insertOrientation => isolate(super.insertOrientation);
+
+  @override
+  String get insertPortrait => isolate(super.insertPortrait);
+
+  @override
+  String get insertLandscape => isolate(super.insertLandscape);
+
+  @override
+  String get insertCount => isolate(super.insertCount);
+
+  @override
+  String get insertPosition => isolate(super.insertPosition);
+
+  @override
+  String get insertBefore => isolate(super.insertBefore);
+
+  @override
+  String get insertAfter => isolate(super.insertAfter);
+
+  @override
+  String get insertPage => isolate(super.insertPage);
+
+  @override
+  String insertAction(int count, String formatted) =>
+      isolate(super.insertAction(count, formatted));
+
+  @override
+  String get insertBlankStep => isolate(super.insertBlankStep);
+
+  @override
+  String get insertFileTitle => isolate(super.insertFileTitle);
+
+  @override
+  String get insertFileAction => isolate(super.insertFileAction);
+
+  @override
+  String get insertFileStep => isolate(super.insertFileStep);
+
+  @override
+  String get sourceChoose => isolate(super.sourceChoose);
+
+  @override
+  String get sourceNone => isolate(super.sourceNone);
+
+  @override
+  String sourcePagesInfo(int count, String name, String formatted) =>
+      isolate(super.sourcePagesInfo(count, name, formatted));
+
+  @override
+  String get sourceRange => isolate(super.sourceRange);
+
+  @override
+  String get sourceAllPages => isolate(super.sourceAllPages);
+
+  @override
+  String get sourceUnlock => isolate(super.sourceUnlock);
+
+  @override
+  String get sourceForbidden => isolate(super.sourceForbidden);
+
+  @override
+  String get sourceUnreadable => isolate(super.sourceUnreadable);
+
+  @override
+  String get replaceTitle => isolate(super.replaceTitle);
+
+  @override
+  String get replaceThese => isolate(super.replaceThese);
+
+  @override
+  String get replaceFewer => isolate(super.replaceFewer);
+
+  @override
+  String get replaceMore => isolate(super.replaceMore);
+
+  @override
+  String replaceAction(int count, String formatted) =>
+      isolate(super.replaceAction(count, formatted));
+
+  @override
+  String get replaceStep => isolate(super.replaceStep);
+
+  @override
+  String get extractTitle => isolate(super.extractTitle);
+
+  @override
+  String get extractPages => isolate(super.extractPages);
+
+  @override
+  String get extractOneFile => isolate(super.extractOneFile);
+
+  @override
+  String get extractEachFile => isolate(super.extractEachFile);
+
+  @override
+  String get extractDelete => isolate(super.extractDelete);
+
+  @override
+  String get extractDeleteAll => isolate(super.extractDeleteAll);
+
+  @override
+  String get extractAction => isolate(super.extractAction);
+
+  @override
+  String extractFileName(String document, String pages) =>
+      isolate(super.extractFileName(document, pages));
+
+  @override
+  String get extractDeleteStep => isolate(super.extractDeleteStep);
+
+  @override
+  String jobExtractingTitle(String name) =>
+      isolate(super.jobExtractingTitle(name));
+
+  @override
+  String jobExtractedTitle(String name) =>
+      isolate(super.jobExtractedTitle(name));
+
+  @override
+  String jobExtractFailedTitle(String name) =>
+      isolate(super.jobExtractFailedTitle(name));
+
+  @override
+  String jobInsertFailedTitle(String name) =>
+      isolate(super.jobInsertFailedTitle(name));
+
+  @override
+  String jobReplacingTitle(String name) =>
+      isolate(super.jobReplacingTitle(name));
+
+  @override
+  String jobReplacedTitle(String name) => isolate(super.jobReplacedTitle(name));
+
+  @override
+  String jobReplaceFailedTitle(String name) =>
+      isolate(super.jobReplaceFailedTitle(name));
+
+  @override
+  String organizeFileCount(int count, String formatted) =>
+      isolate(super.organizeFileCount(count, formatted));
+
+  @override
+  String organizePageCount(int count, String formatted) =>
+      isolate(super.organizePageCount(count, formatted));
+
+  @override
+  String get combineAddFiles => isolate(super.combineAddFiles);
+
+  @override
+  String get combineFilter => isolate(super.combineFilter);
+
+  @override
+  String get combineEmptyTitle => isolate(super.combineEmptyTitle);
+
+  @override
+  String get combineEmptyBody => isolate(super.combineEmptyBody);
+
+  @override
+  String get combineDrag => isolate(super.combineDrag);
+
+  @override
+  String get combineMoveUp => isolate(super.combineMoveUp);
+
+  @override
+  String get combineMoveDown => isolate(super.combineMoveDown);
+
+  @override
+  String get combinePagesToInclude => isolate(super.combinePagesToInclude);
+
+  @override
+  String get combineAllPages => isolate(super.combineAllPages);
+
+  @override
+  String get combineRemoveFile => isolate(super.combineRemoveFile);
+
+  @override
+  String get combineMetaImage => isolate(super.combineMetaImage);
+
+  @override
+  String get combineMetaOffice => isolate(super.combineMetaOffice);
+
+  @override
+  String get combineNeedsPassword => isolate(super.combineNeedsPassword);
+
+  @override
+  String get combineWrongPassword => isolate(super.combineWrongPassword);
+
+  @override
+  String get combineOwnerPassword => isolate(super.combineOwnerPassword);
+
+  @override
+  String get combineUnreadable => isolate(super.combineUnreadable);
+
+  @override
+  String get combineBadRange => isolate(super.combineBadRange);
+
+  @override
+  String get combinePassword => isolate(super.combinePassword);
+
+  @override
+  String get combineUnlock => isolate(super.combineUnlock);
+
+  @override
+  String get combineNotProtected => isolate(super.combineNotProtected);
+
+  @override
+  String get combineNotSigned => isolate(super.combineNotSigned);
+
+  @override
+  String get combineNewFile => isolate(super.combineNewFile);
+
+  @override
+  String get combineDefaultName => isolate(super.combineDefaultName);
+
+  @override
+  String get combineBookmarks => isolate(super.combineBookmarks);
+
+  @override
+  String get combineKeepForms => isolate(super.combineKeepForms);
+
+  @override
+  String get combineKeepFormsNote => isolate(super.combineKeepFormsNote);
+
+  @override
+  String combineAbout(String size) => isolate(super.combineAbout(size));
+
+  @override
+  String combineAction(int count, String formatted) =>
+      isolate(super.combineAction(count, formatted));
+
+  @override
+  String combineResult(int count, String formatted) =>
+      isolate(super.combineResult(count, formatted));
+
+  @override
+  String combineResultPage(String page, String file) =>
+      isolate(super.combineResultPage(page, file));
+
+  @override
+  String combineOutputExists(String name) =>
+      isolate(super.combineOutputExists(name));
+
+  @override
+  String splitTitle(String name) => isolate(super.splitTitle(name));
+
+  @override
+  String get splitBy => isolate(super.splitBy);
+
+  @override
+  String get splitEvery => isolate(super.splitEvery);
+
+  @override
+  String get splitEveryBody => isolate(super.splitEveryBody);
+
+  @override
+  String get splitBookmarks => isolate(super.splitBookmarks);
+
+  @override
+  String splitBookmarksBody(int count, String formatted) =>
+      isolate(super.splitBookmarksBody(count, formatted));
+
+  @override
+  String get splitNoBookmarks => isolate(super.splitNoBookmarks);
+
+  @override
+  String get splitSize => isolate(super.splitSize);
+
+  @override
+  String get splitSizeBody => isolate(super.splitSizeBody);
+
+  @override
+  String get splitBlank => isolate(super.splitBlank);
+
+  @override
+  String get splitBlankBody => isolate(super.splitBlankBody);
+
+  @override
+  String get splitNoBlankPages => isolate(super.splitNoBlankPages);
+
+  @override
+  String get splitPagesPerFile => isolate(super.splitPagesPerFile);
+
+  @override
+  String get splitLargest => isolate(super.splitLargest);
+
+  @override
+  String get splitFileNames => isolate(super.splitFileNames);
+
+  @override
+  String get splitSaveTo => isolate(super.splitSaveTo);
+
+  @override
+  String get splitSameFolder => isolate(super.splitSameFolder);
+
+  @override
+  String get splitChooseFolder => isolate(super.splitChooseFolder);
+
+  @override
+  String get splitOverLimit => isolate(super.splitOverLimit);
+
+  @override
+  String get splitNotProtected => isolate(super.splitNotProtected);
+
+  @override
+  String get splitNotSigned => isolate(super.splitNotSigned);
+
+  @override
+  String splitAction(int count, String formatted) =>
+      isolate(super.splitAction(count, formatted));
+
+  @override
+  String get createBlank => isolate(super.createBlank);
+
+  @override
+  String get createFromFiles => isolate(super.createFromFiles);
+
+  @override
+  String get createFromClipboard => isolate(super.createFromClipboard);
+
+  @override
+  String get createDefaultName => isolate(super.createDefaultName);
+
+  @override
+  String jobSplittingTitle(String name) =>
+      isolate(super.jobSplittingTitle(name));
+
+  @override
+  String jobSplitTitle(String name) => isolate(super.jobSplitTitle(name));
+
+  @override
+  String jobSplitFailedTitle(String name) =>
+      isolate(super.jobSplitFailedTitle(name));
+
+  @override
+  String jobCombiningTitle(String name) =>
+      isolate(super.jobCombiningTitle(name));
+
+  @override
+  String jobCombinedTitle(String name) => isolate(super.jobCombinedTitle(name));
+
+  @override
+  String jobCombineFailedTitle(String name) =>
+      isolate(super.jobCombineFailedTitle(name));
+
+  @override
+  String jobCreatingTitle(String name) => isolate(super.jobCreatingTitle(name));
+
+  @override
+  String jobCreatedTitle(String name) => isolate(super.jobCreatedTitle(name));
+
+  @override
+  String jobCreateFailedTitle(String name) =>
+      isolate(super.jobCreateFailedTitle(name));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

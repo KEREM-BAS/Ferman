@@ -22,7 +22,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 use md5::{Digest as _, Md5};
 use rc4::{Rc4, StreamCipher};
 use sha2::{Sha256, Sha384, Sha512};
-use zeroize::Zeroizing;
+use zeroize::{ZeroizeOnDrop, Zeroizing};
 
 use crate::limits::Limits;
 use crate::text_string;
@@ -81,6 +81,9 @@ impl Password {
     }
 }
 
+// What a holder of a password relies on: dropping it wipes it.
+impl ZeroizeOnDrop for Password {}
+
 impl fmt::Debug for Password {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("Password(…)")
@@ -102,6 +105,22 @@ pub enum Method {
     Aes256,
     /// Encrypted only in name: the crypt filters are `Identity`.
     Identity,
+}
+
+/// What the user asks to do to a document, each with its own permission and its own effect on a
+/// signature (G35).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum DocumentOp {
+    /// Editing text on a page.
+    EditText,
+    /// Inserting, moving, rotating and deleting pages.
+    Organize,
+    /// Adding or changing comments.
+    Comment,
+    /// Filling in form fields, signing a signature field included.
+    Fill,
+    /// Printing, which changes nothing in the file.
+    Print,
 }
 
 /// The permissions a document grants without its owner password (ISO 32000-2 Table 22).
@@ -175,6 +194,20 @@ impl Permissions {
     #[must_use]
     pub fn assemble(self) -> bool {
         self.modify() || (self.revision >= 3 && self.bit(11))
+    }
+
+    /// Whether these permissions allow `op`.
+    #[must_use]
+    pub fn allows(self, op: DocumentOp) -> bool {
+        match op {
+            // shortcut: text editing asks for every permission, as it always has; ask for
+            // modify() alone when editing a file that withholds printing is wanted.
+            DocumentOp::EditText => self.all(),
+            DocumentOp::Organize => self.assemble(),
+            DocumentOp::Comment => self.annotate(),
+            DocumentOp::Fill => self.fill_forms(),
+            DocumentOp::Print => self.print(),
+        }
     }
 
     /// Whether everything is allowed.
@@ -1309,6 +1342,63 @@ mod tests {
             revision: 2,
         };
         assert!(r2.fill_forms() && r2.print_high_quality() && !r2.assemble());
+    }
+
+    #[test]
+    fn each_operation_asks_for_its_own_permission() {
+        const PRINT: u32 = 1 << 2;
+        const MODIFY: u32 = 1 << 3;
+        const ANNOTATE: u32 = 1 << 5;
+        const FILL: u32 = 1 << 8;
+        const ASSEMBLE: u32 = 1 << 10;
+        const QUALITY: u32 = 1 << 11;
+        // Every combination of the bits that decide, at each kind of handler.
+        for revision in [2, 3, 4, 6] {
+            for mask in 0u32..64 {
+                let flag = |index: u32, bit: u32| if (mask >> index) & 1 == 1 { bit } else { 0 };
+                let bits = flag(0, PRINT)
+                    | flag(1, MODIFY)
+                    | flag(2, ANNOTATE)
+                    | flag(3, FILL)
+                    | flag(4, ASSEMBLE)
+                    | flag(5, QUALITY);
+                let has = |bit: u32| bits & bit != 0;
+                let modern = revision >= 3;
+                let permissions = Permissions { bits, revision };
+                let context = format!("r{revision} {bits:#b}");
+                assert_eq!(
+                    permissions.allows(DocumentOp::Print),
+                    has(PRINT),
+                    "{context}"
+                );
+                assert_eq!(
+                    permissions.allows(DocumentOp::Comment),
+                    has(ANNOTATE),
+                    "{context}"
+                );
+                assert_eq!(
+                    permissions.allows(DocumentOp::Fill),
+                    has(ANNOTATE) || (modern && has(FILL)),
+                    "{context}"
+                );
+                assert_eq!(
+                    permissions.allows(DocumentOp::Organize),
+                    has(MODIFY) || (modern && has(ASSEMBLE)),
+                    "{context}"
+                );
+                // Bit 5 (copy) is never set here, so text editing is refused throughout.
+                assert!(!permissions.allows(DocumentOp::EditText), "{context}");
+            }
+        }
+        for op in [
+            DocumentOp::EditText,
+            DocumentOp::Organize,
+            DocumentOp::Comment,
+            DocumentOp::Fill,
+            DocumentOp::Print,
+        ] {
+            assert!(Permissions::ALL.allows(op));
+        }
     }
 
     #[test]

@@ -3084,4 +3084,1066 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneTabSettings => 'Settings';
+
+  @override
+  String jobPageOf(String page, String pages) {
+    return 'Page $page of $pages';
+  }
+
+  @override
+  String jobPausedAtPage(String page) {
+    return 'Paused at page $page';
+  }
+
+  @override
+  String get jobFailedDiskFull =>
+      'The disk is full. Free some space and try again.';
+
+  @override
+  String jobCopyingTitle(String name) {
+    return 'Copying $name';
+  }
+
+  @override
+  String jobCopiedTitle(String name) {
+    return 'Copied $name';
+  }
+
+  @override
+  String jobCopyFailedTitle(String name) {
+    return 'Couldn’t copy $name';
+  }
+
+  @override
+  String get tasksTitle => 'Background tasks';
+
+  @override
+  String get tasksClose => 'Close drawer';
+
+  @override
+  String get tasksOpen => 'Show or hide background tasks';
+
+  @override
+  String get tasksEmptyTitle => 'No background tasks';
+
+  @override
+  String get tasksEmptyBody =>
+      'Long work, such as compressing a file, runs here while you keep working.';
+
+  @override
+  String tasksRunning(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted tasks running',
+      one: '1 task running',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskPause => 'Pause';
+
+  @override
+  String get taskResume => 'Resume';
+
+  @override
+  String get taskShow => 'Show';
+
+  @override
+  String get taskDismiss => 'Dismiss';
+
+  @override
+  String taskCancelTitle(String task) {
+    return 'Cancel “$task”?';
+  }
+
+  @override
+  String get taskCancelBody =>
+      'Its work so far is discarded, and no file is left behind.';
+
+  @override
+  String get taskKeepRunning => 'Keep running';
+
+  @override
+  String get taskCancelConfirm => 'Cancel task';
+
+  @override
+  String tasksQuitTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted background tasks are still running',
+      one: 'A background task is still running',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tasksQuitBody =>
+      'Quitting cancels them, and they leave no partial files.';
+
+  @override
+  String get tasksQuitKeep => 'Keep working';
+
+  @override
+  String get tasksQuitConfirm => 'Cancel tasks and quit';
+
+  @override
+  String get organizeGridLabel => 'Pages';
+
+  @override
+  String get organizePanelLabel => 'Selection';
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$selected of $pages pages selected',
+      one: '$selected of $pages page selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeHintMoving(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Moving $n pages',
+      one: 'Moving $n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePanelTitle(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages selected',
+      one: '$n page selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizePanelPages => 'Pages';
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) {
+    return '$pages (labels $labels)';
+  }
+
+  @override
+  String get organizePanelSize => 'Size';
+
+  @override
+  String get organizePanelRotation => 'Rotation';
+
+  @override
+  String get organizePanelMixed => 'Mixed';
+
+  @override
+  String get organizePanelCommands => 'Commands';
+
+  @override
+  String get organizePanelExtract => 'Extract…';
+
+  @override
+  String get organizePanelReplace => 'Replace…';
+
+  @override
+  String organizePanelInsertAfter(String page) {
+    return 'Insert after page $page';
+  }
+
+  @override
+  String get organizePanelBlankPage => 'Blank page';
+
+  @override
+  String get organizePanelFromFile => 'Pages from a file…';
+
+  @override
+  String get organizePanelFromScanner => 'From scanner or camera…';
+
+  @override
+  String organizePagesCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages',
+      one: '$n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeMenuExtract => 'Extract as new PDF…';
+
+  @override
+  String get organizeMenuInsertBlank => 'Insert blank page after';
+
+  @override
+  String get organizeMenuInsertFile => 'Insert pages from file…';
+
+  @override
+  String get organizeMenuReplace => 'Replace with pages from file…';
+
+  @override
+  String organizeMenuDelete(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $n pages',
+      one: 'Delete $n page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeDeleteAllReason => 'A document keeps at least one page';
+
+  @override
+  String organizeToastDeleted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages deleted',
+      one: '$n page deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastRotated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages rotated',
+      one: '$n page rotated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDuplicated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages duplicated',
+      one: '$n page duplicated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastMoved(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages moved',
+      one: '$n page moved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastInserted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n pages inserted',
+      one: '$n page inserted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pages $pages',
+      one: 'Page $pages',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. They stay in the file until you run Optimize and clean.',
+      one: '$pages. It stays in the file until you run Optimize and clean.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeStepInsert(String name) {
+    return 'Insert $name';
+  }
+
+  @override
+  String get organizeFailed => 'The pages weren’t changed';
+
+  @override
+  String organizeInsertFailed(String name) {
+    return 'Couldn’t insert $name';
+  }
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Drop to move pages $pages before page $before',
+      one: 'Drop to move page $pages before page $before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Drop to move pages $pages to the end',
+      one: 'Drop to move page $pages to the end',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropFilesBefore(String before) {
+    return 'Drop to insert before page $before';
+  }
+
+  @override
+  String get organizeDropFilesEnd => 'Drop to insert at the end';
+
+  @override
+  String jobInsertingTitle(String name) {
+    return 'Reading pages from $name';
+  }
+
+  @override
+  String jobInsertedTitle(String name) {
+    return 'Inserted pages from $name';
+  }
+
+  @override
+  String get organizeSelectFirst => 'Select pages first';
+
+  @override
+  String get organizeCancel => 'Cancel';
+
+  @override
+  String get organizeFailedTitle => 'Couldn’t change the pages';
+
+  @override
+  String organizeBadRange(String last) {
+    return 'Write pages like 1–3, 5, up to page $last.';
+  }
+
+  @override
+  String organizeSizeA4(String size) {
+    return 'A4 · $size';
+  }
+
+  @override
+  String organizeSizeLetter(String size) {
+    return 'Letter · $size';
+  }
+
+  @override
+  String get organizeSizeCustom => 'Custom…';
+
+  @override
+  String get organizeWidth => 'Width';
+
+  @override
+  String get organizeHeight => 'Height';
+
+  @override
+  String get cropTitle => 'Crop and page size';
+
+  @override
+  String get cropMargins => 'Margins';
+
+  @override
+  String get cropTop => 'Top';
+
+  @override
+  String get cropBottom => 'Bottom';
+
+  @override
+  String get cropLeft => 'Left';
+
+  @override
+  String get cropRight => 'Right';
+
+  @override
+  String get cropRemoveWhite => 'Remove white margins';
+
+  @override
+  String get cropNoContent => 'These pages have no content to measure.';
+
+  @override
+  String cropTooMuch(String page) {
+    return 'These margins leave nothing of page $page.';
+  }
+
+  @override
+  String get cropPageSize => 'Page size';
+
+  @override
+  String cropKeepSize(String size) {
+    return 'Keep current size ($size)';
+  }
+
+  @override
+  String get cropContent => 'Content';
+
+  @override
+  String get cropFitCentre => 'Centre';
+
+  @override
+  String get cropFitScale => 'Scale to fit';
+
+  @override
+  String get cropApplyTo => 'Apply to';
+
+  @override
+  String get cropThisPage => 'This page';
+
+  @override
+  String cropAllPages(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $formatted pages',
+      one: 'The only page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropSomePages => 'Pages';
+
+  @override
+  String get cropWhichPages => 'Which pages';
+
+  @override
+  String get cropParityAll => 'All pages in range';
+
+  @override
+  String get cropParityOdd => 'Odd pages';
+
+  @override
+  String get cropParityEven => 'Even pages';
+
+  @override
+  String cropAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Crop $formatted pages',
+      one: 'Crop $formatted page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropResizeAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Resize $formatted pages',
+      one: 'Resize $formatted page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropDone(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted pages cropped',
+      one: '$formatted page cropped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropDoneHidden => 'What’s outside is hidden, not removed.';
+
+  @override
+  String get cropStep => 'Crop pages';
+
+  @override
+  String get cropSizeStep => 'Change page size';
+
+  @override
+  String get labelsTitle => 'Page labels';
+
+  @override
+  String get labelsDescription =>
+      'Choose how pages are numbered in Ferman, in other PDF apps and when printing.';
+
+  @override
+  String get labelsColumnPages => 'Pages';
+
+  @override
+  String get labelsColumnStyle => 'Style';
+
+  @override
+  String get labelsColumnPrefix => 'Prefix';
+
+  @override
+  String get labelsColumnStart => 'Start at';
+
+  @override
+  String get labelsPrefixNone => 'None';
+
+  @override
+  String get labelsStyleRomanLower => 'i, ii, iii';
+
+  @override
+  String get labelsStyleRomanUpper => 'I, II, III';
+
+  @override
+  String get labelsStyleDecimal => '1, 2, 3';
+
+  @override
+  String get labelsStyleLettersLower => 'a, b, c';
+
+  @override
+  String get labelsStyleLettersUpper => 'A, B, C';
+
+  @override
+  String get labelsStyleNone => 'Prefix only';
+
+  @override
+  String get labelsRemoveRange => 'Remove range';
+
+  @override
+  String get labelsAddRange => 'Add range';
+
+  @override
+  String get labelsPreview => 'Preview';
+
+  @override
+  String get labelsPrint => 'Also print the numbers on the pages';
+
+  @override
+  String get labelsPrintNote =>
+      'Adds them as a footer. Pages that already show a number are skipped.';
+
+  @override
+  String get labelsApply => 'Apply labels';
+
+  @override
+  String get labelsStep => 'Change page labels';
+
+  @override
+  String labelsErrorInvalid(String row) {
+    return 'Row $row: write its pages like 1–9.';
+  }
+
+  @override
+  String labelsErrorOverlap(String row) {
+    return 'Row $row overlaps the range before it.';
+  }
+
+  @override
+  String labelsErrorPast(String row, String last) {
+    return 'Row $row goes past the last page, $last.';
+  }
+
+  @override
+  String labelsErrorUncovered(String page) {
+    return 'Page $page is in no range. Ranges must cover every page.';
+  }
+
+  @override
+  String get insertMenuBlank => 'Blank page';
+
+  @override
+  String get insertMenuFile => 'Pages from a file…';
+
+  @override
+  String get insertMenuScan => 'From scanner or camera…';
+
+  @override
+  String get insertBlankTitle => 'Insert blank page';
+
+  @override
+  String get insertSize => 'Size';
+
+  @override
+  String insertSameSize(String page, String size) {
+    return 'Same as page $page ($size)';
+  }
+
+  @override
+  String get insertOrientation => 'Orientation';
+
+  @override
+  String get insertPortrait => 'Portrait';
+
+  @override
+  String get insertLandscape => 'Landscape';
+
+  @override
+  String get insertCount => 'Number of pages';
+
+  @override
+  String get insertPosition => 'Position';
+
+  @override
+  String get insertBefore => 'Before';
+
+  @override
+  String get insertAfter => 'After';
+
+  @override
+  String get insertPage => 'Page';
+
+  @override
+  String insertAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Insert $formatted pages',
+      one: 'Insert $formatted page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insertBlankStep => 'Insert blank page';
+
+  @override
+  String get insertFileTitle => 'Insert pages from file';
+
+  @override
+  String get insertFileAction => 'Insert pages';
+
+  @override
+  String get insertFileStep => 'Insert pages from file';
+
+  @override
+  String get sourceChoose => 'Choose file…';
+
+  @override
+  String get sourceNone => 'No file chosen';
+
+  @override
+  String sourcePagesInfo(int count, String name, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$name · $formatted pages',
+      one: '$name · $formatted page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sourceRange => 'Pages from the file';
+
+  @override
+  String get sourceAllPages => 'All pages';
+
+  @override
+  String get sourceUnlock => 'Unlock';
+
+  @override
+  String get sourceForbidden =>
+      'This file doesn’t allow taking pages from it. Its owner password lifts that.';
+
+  @override
+  String get sourceUnreadable => 'Ferman can’t read this file.';
+
+  @override
+  String get replaceTitle => 'Replace pages';
+
+  @override
+  String get replaceThese => 'Pages in this document';
+
+  @override
+  String get replaceFewer =>
+      'The file gives fewer pages: the rest of these pages are deleted.';
+
+  @override
+  String get replaceMore =>
+      'The file gives more pages: the extra ones go after the last.';
+
+  @override
+  String replaceAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Replace $formatted pages',
+      one: 'Replace $formatted page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get replaceStep => 'Replace pages';
+
+  @override
+  String get extractTitle => 'Extract pages';
+
+  @override
+  String get extractPages => 'Pages';
+
+  @override
+  String get extractOneFile => 'One file';
+
+  @override
+  String get extractEachFile => 'One file per page';
+
+  @override
+  String get extractDelete => 'Delete these pages afterwards';
+
+  @override
+  String get extractDeleteAll => 'A document keeps at least one page.';
+
+  @override
+  String get extractAction => 'Extract…';
+
+  @override
+  String extractFileName(String document, String pages) {
+    return '$document pages $pages';
+  }
+
+  @override
+  String get extractDeleteStep => 'Delete pages';
+
+  @override
+  String jobExtractingTitle(String name) {
+    return 'Extracting pages of $name';
+  }
+
+  @override
+  String jobExtractedTitle(String name) {
+    return 'Extracted pages of $name';
+  }
+
+  @override
+  String jobExtractFailedTitle(String name) {
+    return 'Couldn’t extract pages of $name';
+  }
+
+  @override
+  String jobInsertFailedTitle(String name) {
+    return 'Couldn’t insert pages from $name';
+  }
+
+  @override
+  String jobReplacingTitle(String name) {
+    return 'Reading replacement pages from $name';
+  }
+
+  @override
+  String jobReplacedTitle(String name) {
+    return 'Replaced pages with $name';
+  }
+
+  @override
+  String jobReplaceFailedTitle(String name) {
+    return 'Couldn’t replace pages with $name';
+  }
+
+  @override
+  String organizeFileCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted files',
+      one: '1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePageCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get combineAddFiles => 'Add files…';
+
+  @override
+  String get combineFilter => 'PDFs, images and Office files';
+
+  @override
+  String get combineEmptyTitle => 'No files yet';
+
+  @override
+  String get combineEmptyBody =>
+      'Add PDFs or images to combine them into one new file.';
+
+  @override
+  String get combineDrag => 'Drag to reorder';
+
+  @override
+  String get combineMoveUp => 'Move up';
+
+  @override
+  String get combineMoveDown => 'Move down';
+
+  @override
+  String get combinePagesToInclude => 'Pages to include';
+
+  @override
+  String get combineAllPages => 'All';
+
+  @override
+  String get combineRemoveFile => 'Remove file';
+
+  @override
+  String get combineMetaImage => 'Image · converted to 1 page';
+
+  @override
+  String get combineMetaOffice => 'Word or Excel';
+
+  @override
+  String get combineNeedsPassword => 'Locked: enter its password to add it.';
+
+  @override
+  String get combineWrongPassword =>
+      'That password doesn’t open it. Try again.';
+
+  @override
+  String get combineOwnerPassword =>
+      'This file forbids combining. Enter its owner password to add it.';
+
+  @override
+  String get combineUnreadable => 'Ferman can’t read this file.';
+
+  @override
+  String get combineBadRange => 'This file doesn’t have those pages.';
+
+  @override
+  String get combinePassword => 'Password';
+
+  @override
+  String get combineUnlock => 'Unlock';
+
+  @override
+  String get combineNotProtected =>
+      'The new file won’t have this file’s password.';
+
+  @override
+  String get combineNotSigned => 'Its signatures won’t carry over.';
+
+  @override
+  String get combineNewFile => 'New file';
+
+  @override
+  String get combineDefaultName => 'Combined.pdf';
+
+  @override
+  String get combineBookmarks => 'Add a bookmark for each file';
+
+  @override
+  String get combineKeepForms => 'Keep form fields';
+
+  @override
+  String get combineKeepFormsNote =>
+      'Signatures from the original files don’t carry over.';
+
+  @override
+  String combineAbout(String size) {
+    return 'About $size';
+  }
+
+  @override
+  String combineAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Combine $formatted files',
+      one: 'Combine 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResult(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'RESULT · $formatted PAGES',
+      one: 'RESULT · 1 PAGE',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResultPage(String page, String file) {
+    return 'Page $page, from file $file';
+  }
+
+  @override
+  String combineOutputExists(String name) {
+    return '“$name” already exists. Choose another name.';
+  }
+
+  @override
+  String splitTitle(String name) {
+    return 'Split “$name”';
+  }
+
+  @override
+  String get splitBy => 'Split by';
+
+  @override
+  String get splitEvery => 'Every few pages';
+
+  @override
+  String get splitEveryBody => 'A new file every N pages.';
+
+  @override
+  String get splitBookmarks => 'At top-level bookmarks';
+
+  @override
+  String splitBookmarksBody(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'One file per chapter. $formatted bookmarks found.',
+      one: 'One file per chapter. 1 bookmark found.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitNoBookmarks => 'This document has no bookmarks.';
+
+  @override
+  String get splitSize => 'By file size';
+
+  @override
+  String get splitSizeBody =>
+      'Files no larger than a size you choose, for e-mail limits.';
+
+  @override
+  String get splitBlank => 'At blank pages';
+
+  @override
+  String get splitBlankBody => 'Blank separator pages are removed.';
+
+  @override
+  String get splitNoBlankPages => 'No blank pages found.';
+
+  @override
+  String get splitPagesPerFile => 'Pages per file';
+
+  @override
+  String get splitLargest => 'Largest file';
+
+  @override
+  String get splitFileNames => 'File names';
+
+  @override
+  String get splitSaveTo => 'Save to';
+
+  @override
+  String get splitSameFolder => 'Same folder as the original';
+
+  @override
+  String get splitChooseFolder => 'Choose a folder…';
+
+  @override
+  String get splitOverLimit => 'One page alone is larger than this size.';
+
+  @override
+  String get splitNotProtected =>
+      'The new files won’t have this document’s password.';
+
+  @override
+  String get splitNotSigned => 'The new files won’t carry its signatures.';
+
+  @override
+  String splitAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Split into $formatted files',
+      one: 'Split into 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createBlank => 'Blank page';
+
+  @override
+  String get createFromFiles => 'From files…';
+
+  @override
+  String get createFromClipboard => 'From the clipboard';
+
+  @override
+  String get createDefaultName => 'Untitled.pdf';
+
+  @override
+  String jobSplittingTitle(String name) {
+    return 'Splitting $name';
+  }
+
+  @override
+  String jobSplitTitle(String name) {
+    return 'Split $name';
+  }
+
+  @override
+  String jobSplitFailedTitle(String name) {
+    return 'Couldn’t split $name';
+  }
+
+  @override
+  String jobCombiningTitle(String name) {
+    return 'Combining into $name';
+  }
+
+  @override
+  String jobCombinedTitle(String name) {
+    return 'Combined into $name';
+  }
+
+  @override
+  String jobCombineFailedTitle(String name) {
+    return 'Couldn’t combine into $name';
+  }
+
+  @override
+  String jobCreatingTitle(String name) {
+    return 'Creating $name';
+  }
+
+  @override
+  String jobCreatedTitle(String name) {
+    return 'Created $name';
+  }
+
+  @override
+  String jobCreateFailedTitle(String name) {
+    return 'Couldn’t create $name';
+  }
 }

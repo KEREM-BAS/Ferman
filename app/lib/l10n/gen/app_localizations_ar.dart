@@ -3160,4 +3160,1135 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get phoneTabSettings => 'الإعدادات';
+
+  @override
+  String jobPageOf(String page, String pages) {
+    return 'الصفحة $page من $pages';
+  }
+
+  @override
+  String jobPausedAtPage(String page) {
+    return 'متوقفة مؤقتًا عند الصفحة $page';
+  }
+
+  @override
+  String get jobFailedDiskFull =>
+      'القرص ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى.';
+
+  @override
+  String jobCopyingTitle(String name) {
+    return 'جارٍ نسخ $name';
+  }
+
+  @override
+  String jobCopiedTitle(String name) {
+    return 'تم نسخ $name';
+  }
+
+  @override
+  String jobCopyFailedTitle(String name) {
+    return 'تعذّر نسخ $name';
+  }
+
+  @override
+  String get tasksTitle => 'المهام في الخلفية';
+
+  @override
+  String get tasksClose => 'إغلاق اللوحة';
+
+  @override
+  String get tasksOpen => 'إظهار المهام في الخلفية أو إخفاؤها';
+
+  @override
+  String get tasksEmptyTitle => 'لا توجد مهام في الخلفية';
+
+  @override
+  String get tasksEmptyBody =>
+      'تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك.';
+
+  @override
+  String tasksRunning(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted مهمة قيد التنفيذ',
+      many: '$formatted مهمةً قيد التنفيذ',
+      few: '$formatted مهام قيد التنفيذ',
+      two: 'مهمتان قيد التنفيذ',
+      one: 'مهمة واحدة قيد التنفيذ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskPause => 'إيقاف مؤقت';
+
+  @override
+  String get taskResume => 'متابعة';
+
+  @override
+  String get taskShow => 'إظهار';
+
+  @override
+  String get taskDismiss => 'إغلاق';
+
+  @override
+  String taskCancelTitle(String task) {
+    return 'هل تريد إلغاء ”$task“؟';
+  }
+
+  @override
+  String get taskCancelBody =>
+      'يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف.';
+
+  @override
+  String get taskKeepRunning => 'متابعة التنفيذ';
+
+  @override
+  String get taskCancelConfirm => 'إلغاء المهمة';
+
+  @override
+  String tasksQuitTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'لا تزال $formatted مهمة قيد التنفيذ في الخلفية',
+      many: 'لا تزال $formatted مهمةً قيد التنفيذ في الخلفية',
+      few: 'لا تزال $formatted مهام قيد التنفيذ في الخلفية',
+      two: 'لا تزال مهمتان قيد التنفيذ في الخلفية',
+      one: 'لا تزال مهمة واحدة قيد التنفيذ في الخلفية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tasksQuitBody =>
+      'يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة.';
+
+  @override
+  String get tasksQuitKeep => 'مواصلة العمل';
+
+  @override
+  String get tasksQuitConfirm => 'إلغاء المهام والإنهاء';
+
+  @override
+  String get organizeGridLabel => 'الصفحات';
+
+  @override
+  String get organizePanelLabel => 'التحديد';
+
+  @override
+  String organizeHintSelected(int total, String selected, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$selected من $pages صفحة محددة',
+      few: '$selected من $pages صفحات محددة',
+      two: '$selected من صفحتين محددة',
+      one: '$selected من صفحة واحدة محددة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeHintMoving(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'جارٍ نقل $n صفحة',
+      few: 'جارٍ نقل $n صفحات',
+      two: 'جارٍ نقل صفحتين',
+      one: 'جارٍ نقل صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePanelTitle(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n صفحة محددة',
+      few: '$n صفحات محددة',
+      two: 'صفحتان محددتان',
+      one: 'صفحة واحدة محددة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizePanelPages => 'الصفحات';
+
+  @override
+  String organizePanelPagesLabels(String pages, String labels) {
+    return '$pages (التسميات $labels)';
+  }
+
+  @override
+  String get organizePanelSize => 'الحجم';
+
+  @override
+  String get organizePanelRotation => 'التدوير';
+
+  @override
+  String get organizePanelMixed => 'متنوع';
+
+  @override
+  String get organizePanelCommands => 'الأوامر';
+
+  @override
+  String get organizePanelExtract => 'استخراج…';
+
+  @override
+  String get organizePanelReplace => 'استبدال…';
+
+  @override
+  String organizePanelInsertAfter(String page) {
+    return 'إدراج بعد الصفحة $page';
+  }
+
+  @override
+  String get organizePanelBlankPage => 'صفحة فارغة';
+
+  @override
+  String get organizePanelFromFile => 'صفحات من ملف…';
+
+  @override
+  String get organizePanelFromScanner => 'من ماسح ضوئي أو كاميرا…';
+
+  @override
+  String organizePagesCount(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n صفحة',
+      few: '$n صفحات',
+      two: 'صفحتان',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeMenuExtract => 'استخراج كملف PDF جديد…';
+
+  @override
+  String get organizeMenuInsertBlank => 'إدراج صفحة فارغة بعدها';
+
+  @override
+  String get organizeMenuInsertFile => 'إدراج صفحات من ملف…';
+
+  @override
+  String get organizeMenuReplace => 'استبدال بصفحات من ملف…';
+
+  @override
+  String organizeMenuDelete(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حذف $n صفحة',
+      few: 'حذف $n صفحات',
+      two: 'حذف صفحتين',
+      one: 'حذف صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeDeleteAllReason =>
+      'يجب أن يحتفظ المستند بصفحة واحدة على الأقل';
+
+  @override
+  String organizeToastDeleted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حُذفت $n صفحة',
+      few: 'حُذفت $n صفحات',
+      two: 'حُذفت صفحتان',
+      one: 'حُذفت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastRotated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دُوّرت $n صفحة',
+      few: 'دُوّرت $n صفحات',
+      two: 'دُوّرت صفحتان',
+      one: 'دُوّرت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDuplicated(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كُررت $n صفحة',
+      few: 'كُررت $n صفحات',
+      two: 'كُررت صفحتان',
+      one: 'كُررت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastMoved(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'نُقلت $n صفحة',
+      few: 'نُقلت $n صفحات',
+      two: 'نُقلت صفحتان',
+      one: 'نُقلت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastInserted(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُدرجت $n صفحة',
+      few: 'أُدرجت $n صفحات',
+      two: 'أُدرجت صفحتان',
+      one: 'أُدرجت صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات $pages',
+      one: 'الصفحة $pages',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeToastDeletedNote(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
+      one: '$pages. تبقى في الملف إلى أن تشغّل «تحسين وتنظيف».',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeStepInsert(String name) {
+    return 'إدراج $name';
+  }
+
+  @override
+  String get organizeFailed => 'لم تتغير الصفحات';
+
+  @override
+  String organizeInsertFailed(String name) {
+    return 'تعذّر إدراج $name';
+  }
+
+  @override
+  String organizeDropMoveBefore(int count, String pages, String before) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أفلت لنقل الصفحات $pages قبل الصفحة $before',
+      one: 'أفلت لنقل الصفحة $pages قبل الصفحة $before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropMoveEnd(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أفلت لنقل الصفحات $pages إلى النهاية',
+      one: 'أفلت لنقل الصفحة $pages إلى النهاية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizeDropFilesBefore(String before) {
+    return 'أفلت للإدراج قبل الصفحة $before';
+  }
+
+  @override
+  String get organizeDropFilesEnd => 'أفلت للإدراج في النهاية';
+
+  @override
+  String jobInsertingTitle(String name) {
+    return 'جارٍ قراءة الصفحات من $name';
+  }
+
+  @override
+  String jobInsertedTitle(String name) {
+    return 'أُدرجت الصفحات من $name';
+  }
+
+  @override
+  String get organizeSelectFirst => 'حدد الصفحات أولًا';
+
+  @override
+  String get organizeCancel => 'إلغاء';
+
+  @override
+  String get organizeFailedTitle => 'تعذّر تغيير الصفحات';
+
+  @override
+  String organizeBadRange(String last) {
+    return 'اكتب الصفحات بهذا الشكل: 1–3، 5، حتى الصفحة $last.';
+  }
+
+  @override
+  String organizeSizeA4(String size) {
+    return 'A4 · $size';
+  }
+
+  @override
+  String organizeSizeLetter(String size) {
+    return 'Letter · $size';
+  }
+
+  @override
+  String get organizeSizeCustom => 'مخصّص…';
+
+  @override
+  String get organizeWidth => 'العرض';
+
+  @override
+  String get organizeHeight => 'الارتفاع';
+
+  @override
+  String get cropTitle => 'الاقتصاص وحجم الصفحة';
+
+  @override
+  String get cropMargins => 'الهوامش';
+
+  @override
+  String get cropTop => 'أعلى';
+
+  @override
+  String get cropBottom => 'أسفل';
+
+  @override
+  String get cropLeft => 'يسار';
+
+  @override
+  String get cropRight => 'يمين';
+
+  @override
+  String get cropRemoveWhite => 'إزالة الهوامش البيضاء';
+
+  @override
+  String get cropNoContent => 'لا يوجد في هذه الصفحات محتوى يمكن قياسه.';
+
+  @override
+  String cropTooMuch(String page) {
+    return 'لا تُبقي هذه الهوامش شيئًا من الصفحة $page.';
+  }
+
+  @override
+  String get cropPageSize => 'حجم الصفحة';
+
+  @override
+  String cropKeepSize(String size) {
+    return 'الإبقاء على الحجم الحالي ($size)';
+  }
+
+  @override
+  String get cropContent => 'المحتوى';
+
+  @override
+  String get cropFitCentre => 'توسيط';
+
+  @override
+  String get cropFitScale => 'تغيير الحجم للملاءمة';
+
+  @override
+  String get cropApplyTo => 'التطبيق على';
+
+  @override
+  String get cropThisPage => 'هذه الصفحة';
+
+  @override
+  String cropAllPages(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل الصفحات الـ$formatted',
+      many: 'كل الصفحات الـ$formatted',
+      few: 'كل الصفحات الـ$formatted',
+      two: 'الصفحتان كلتاهما',
+      one: 'الصفحة الوحيدة',
+      zero: 'كل الصفحات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropSomePages => 'الصفحات';
+
+  @override
+  String get cropWhichPages => 'أي الصفحات';
+
+  @override
+  String get cropParityAll => 'كل الصفحات في النطاق';
+
+  @override
+  String get cropParityOdd => 'الصفحات الفردية';
+
+  @override
+  String get cropParityEven => 'الصفحات الزوجية';
+
+  @override
+  String cropAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اقتصاص $formatted صفحة',
+      many: 'اقتصاص $formatted صفحة',
+      few: 'اقتصاص $formatted صفحات',
+      two: 'اقتصاص صفحتين',
+      one: 'اقتصاص صفحة واحدة',
+      zero: 'اقتصاص',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropResizeAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تغيير حجم $formatted صفحة',
+      many: 'تغيير حجم $formatted صفحة',
+      few: 'تغيير حجم $formatted صفحات',
+      two: 'تغيير حجم صفحتين',
+      one: 'تغيير حجم صفحة واحدة',
+      zero: 'تغيير الحجم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cropDone(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اقتُصت $formatted صفحة',
+      many: 'اقتُصت $formatted صفحة',
+      few: 'اقتُصت $formatted صفحات',
+      two: 'اقتُصت صفحتان',
+      one: 'اقتُصت صفحة واحدة',
+      zero: 'لم تُقتص أي صفحة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cropDoneHidden => 'ما يقع خارج الإطار مخفي وليس محذوفًا.';
+
+  @override
+  String get cropStep => 'اقتصاص الصفحات';
+
+  @override
+  String get cropSizeStep => 'تغيير حجم الصفحة';
+
+  @override
+  String get labelsTitle => 'تسميات الصفحات';
+
+  @override
+  String get labelsDescription =>
+      'اختر طريقة ترقيم الصفحات في Ferman وفي تطبيقات PDF الأخرى وعند الطباعة.';
+
+  @override
+  String get labelsColumnPages => 'الصفحات';
+
+  @override
+  String get labelsColumnStyle => 'النمط';
+
+  @override
+  String get labelsColumnPrefix => 'البادئة';
+
+  @override
+  String get labelsColumnStart => 'البدء من';
+
+  @override
+  String get labelsPrefixNone => 'بلا';
+
+  @override
+  String get labelsStyleRomanLower => 'i, ii, iii';
+
+  @override
+  String get labelsStyleRomanUpper => 'I, II, III';
+
+  @override
+  String get labelsStyleDecimal => '1, 2, 3';
+
+  @override
+  String get labelsStyleLettersLower => 'a, b, c';
+
+  @override
+  String get labelsStyleLettersUpper => 'A, B, C';
+
+  @override
+  String get labelsStyleNone => 'البادئة فقط';
+
+  @override
+  String get labelsRemoveRange => 'إزالة النطاق';
+
+  @override
+  String get labelsAddRange => 'إضافة نطاق';
+
+  @override
+  String get labelsPreview => 'معاينة';
+
+  @override
+  String get labelsPrint => 'طباعة الأرقام على الصفحات أيضًا';
+
+  @override
+  String get labelsPrintNote =>
+      'تُضاف في تذييل الصفحة. وتُتخطى الصفحات التي تعرض رقمًا بالفعل.';
+
+  @override
+  String get labelsApply => 'تطبيق التسميات';
+
+  @override
+  String get labelsStep => 'تغيير تسميات الصفحات';
+
+  @override
+  String labelsErrorInvalid(String row) {
+    return 'الصف $row: اكتب صفحاته بهذا الشكل: 1–9.';
+  }
+
+  @override
+  String labelsErrorOverlap(String row) {
+    return 'يتداخل الصف $row مع النطاق الذي قبله.';
+  }
+
+  @override
+  String labelsErrorPast(String row, String last) {
+    return 'يتجاوز الصف $row الصفحة الأخيرة، $last.';
+  }
+
+  @override
+  String labelsErrorUncovered(String page) {
+    return 'الصفحة $page ليست في أي نطاق. يجب أن تشمل النطاقات كل الصفحات.';
+  }
+
+  @override
+  String get insertMenuBlank => 'صفحة فارغة';
+
+  @override
+  String get insertMenuFile => 'صفحات من ملف…';
+
+  @override
+  String get insertMenuScan => 'من الماسح الضوئي أو الكاميرا…';
+
+  @override
+  String get insertBlankTitle => 'إدراج صفحة فارغة';
+
+  @override
+  String get insertSize => 'الحجم';
+
+  @override
+  String insertSameSize(String page, String size) {
+    return 'مثل الصفحة $page ($size)';
+  }
+
+  @override
+  String get insertOrientation => 'الاتجاه';
+
+  @override
+  String get insertPortrait => 'طولي';
+
+  @override
+  String get insertLandscape => 'عرضي';
+
+  @override
+  String get insertCount => 'عدد الصفحات';
+
+  @override
+  String get insertPosition => 'الموضع';
+
+  @override
+  String get insertBefore => 'قبل';
+
+  @override
+  String get insertAfter => 'بعد';
+
+  @override
+  String get insertPage => 'الصفحة';
+
+  @override
+  String insertAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'إدراج $formatted صفحة',
+      many: 'إدراج $formatted صفحة',
+      few: 'إدراج $formatted صفحات',
+      two: 'إدراج صفحتين',
+      one: 'إدراج صفحة واحدة',
+      zero: 'إدراج',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insertBlankStep => 'إدراج صفحة فارغة';
+
+  @override
+  String get insertFileTitle => 'إدراج صفحات من ملف';
+
+  @override
+  String get insertFileAction => 'إدراج الصفحات';
+
+  @override
+  String get insertFileStep => 'إدراج صفحات من ملف';
+
+  @override
+  String get sourceChoose => 'اختيار ملف…';
+
+  @override
+  String get sourceNone => 'لم يُختر أي ملف';
+
+  @override
+  String sourcePagesInfo(int count, String name, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$name · $formatted صفحة',
+      many: '$name · $formatted صفحة',
+      few: '$name · $formatted صفحات',
+      two: '$name · صفحتان',
+      one: '$name · صفحة واحدة',
+      zero: '$name',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sourceRange => 'الصفحات من الملف';
+
+  @override
+  String get sourceAllPages => 'كل الصفحات';
+
+  @override
+  String get sourceUnlock => 'فتح القفل';
+
+  @override
+  String get sourceForbidden =>
+      'لا يسمح هذا الملف بأخذ صفحات منه. وترفع كلمة مرور المالك هذا القيد.';
+
+  @override
+  String get sourceUnreadable => 'يتعذّر على Ferman قراءة هذا الملف.';
+
+  @override
+  String get replaceTitle => 'استبدال الصفحات';
+
+  @override
+  String get replaceThese => 'الصفحات في هذا المستند';
+
+  @override
+  String get replaceFewer => 'يوفّر الملف صفحات أقل: ستُحذف بقية هذه الصفحات.';
+
+  @override
+  String get replaceMore =>
+      'يوفّر الملف صفحات أكثر: ستأتي الصفحات الزائدة بعد الأخيرة.';
+
+  @override
+  String replaceAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استبدال $formatted صفحة',
+      many: 'استبدال $formatted صفحة',
+      few: 'استبدال $formatted صفحات',
+      two: 'استبدال صفحتين',
+      one: 'استبدال صفحة واحدة',
+      zero: 'استبدال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get replaceStep => 'استبدال الصفحات';
+
+  @override
+  String get extractTitle => 'استخراج الصفحات';
+
+  @override
+  String get extractPages => 'الصفحات';
+
+  @override
+  String get extractOneFile => 'ملف واحد';
+
+  @override
+  String get extractEachFile => 'ملف لكل صفحة';
+
+  @override
+  String get extractDelete => 'حذف هذه الصفحات بعد ذلك';
+
+  @override
+  String get extractDeleteAll => 'يجب أن تبقى في المستند صفحة واحدة على الأقل.';
+
+  @override
+  String get extractAction => 'استخراج…';
+
+  @override
+  String extractFileName(String document, String pages) {
+    return '$document الصفحات $pages';
+  }
+
+  @override
+  String get extractDeleteStep => 'حذف الصفحات';
+
+  @override
+  String jobExtractingTitle(String name) {
+    return 'جارٍ استخراج صفحات $name';
+  }
+
+  @override
+  String jobExtractedTitle(String name) {
+    return 'استُخرجت صفحات $name';
+  }
+
+  @override
+  String jobExtractFailedTitle(String name) {
+    return 'تعذّر استخراج صفحات $name';
+  }
+
+  @override
+  String jobInsertFailedTitle(String name) {
+    return 'تعذّر إدراج الصفحات من $name';
+  }
+
+  @override
+  String jobReplacingTitle(String name) {
+    return 'جارٍ قراءة الصفحات البديلة من $name';
+  }
+
+  @override
+  String jobReplacedTitle(String name) {
+    return 'استُبدلت الصفحات بـ$name';
+  }
+
+  @override
+  String jobReplaceFailedTitle(String name) {
+    return 'تعذّر استبدال الصفحات بـ$name';
+  }
+
+  @override
+  String organizeFileCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted ملف',
+      many: '$formatted ملفًا',
+      few: '$formatted ملفات',
+      two: 'ملفان',
+      one: 'ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String organizePageCount(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted صفحة',
+      many: '$formatted صفحة',
+      few: '$formatted صفحات',
+      two: 'صفحتان',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get combineAddFiles => 'إضافة ملفات…';
+
+  @override
+  String get combineFilter => 'ملفات PDF والصور وملفات Office';
+
+  @override
+  String get combineEmptyTitle => 'لا توجد ملفات بعد';
+
+  @override
+  String get combineEmptyBody =>
+      'أضف ملفات PDF أو صورًا لدمجها في ملف جديد واحد.';
+
+  @override
+  String get combineDrag => 'اسحب لإعادة الترتيب';
+
+  @override
+  String get combineMoveUp => 'نقل لأعلى';
+
+  @override
+  String get combineMoveDown => 'نقل لأسفل';
+
+  @override
+  String get combinePagesToInclude => 'الصفحات المراد تضمينها';
+
+  @override
+  String get combineAllPages => 'الكل';
+
+  @override
+  String get combineRemoveFile => 'إزالة الملف';
+
+  @override
+  String get combineMetaImage => 'صورة · تُحوَّل إلى صفحة واحدة';
+
+  @override
+  String get combineMetaOffice => 'Word أو Excel';
+
+  @override
+  String get combineNeedsPassword => 'مقفل: أدخل كلمة المرور لإضافته.';
+
+  @override
+  String get combineWrongPassword => 'كلمة المرور هذه لا تفتحه. حاول مرة أخرى.';
+
+  @override
+  String get combineOwnerPassword =>
+      'يمنع هذا الملف الدمج. أدخل كلمة مرور المالك لإضافته.';
+
+  @override
+  String get combineUnreadable => 'يتعذر على Ferman قراءة هذا الملف.';
+
+  @override
+  String get combineBadRange => 'لا يحتوي هذا الملف على تلك الصفحات.';
+
+  @override
+  String get combinePassword => 'كلمة المرور';
+
+  @override
+  String get combineUnlock => 'فتح القفل';
+
+  @override
+  String get combineNotProtected => 'لن يحمل الملف الجديد كلمة مرور هذا الملف.';
+
+  @override
+  String get combineNotSigned => 'لن تنتقل تواقيعه إلى الملف الجديد.';
+
+  @override
+  String get combineNewFile => 'ملف جديد';
+
+  @override
+  String get combineDefaultName => 'ملف مدمج.pdf';
+
+  @override
+  String get combineBookmarks => 'إضافة إشارة مرجعية لكل ملف';
+
+  @override
+  String get combineKeepForms => 'الاحتفاظ بحقول النماذج';
+
+  @override
+  String get combineKeepFormsNote => 'لا تنتقل التواقيع من الملفات الأصلية.';
+
+  @override
+  String combineAbout(String size) {
+    return 'حوالى $size';
+  }
+
+  @override
+  String combineAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دمج $formatted ملف',
+      many: 'دمج $formatted ملفًا',
+      few: 'دمج $formatted ملفات',
+      two: 'دمج ملفين',
+      one: 'دمج ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResult(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'النتيجة · $formatted صفحة',
+      many: 'النتيجة · $formatted صفحة',
+      few: 'النتيجة · $formatted صفحات',
+      two: 'النتيجة · صفحتان',
+      one: 'النتيجة · صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String combineResultPage(String page, String file) {
+    return 'الصفحة $page، من الملف $file';
+  }
+
+  @override
+  String combineOutputExists(String name) {
+    return '“$name” موجود بالفعل. اختر اسمًا آخر.';
+  }
+
+  @override
+  String splitTitle(String name) {
+    return 'تقسيم “$name”';
+  }
+
+  @override
+  String get splitBy => 'طريقة التقسيم';
+
+  @override
+  String get splitEvery => 'كل بضع صفحات';
+
+  @override
+  String get splitEveryBody => 'ملف جديد كل N صفحة.';
+
+  @override
+  String get splitBookmarks => 'عند الإشارات المرجعية العليا';
+
+  @override
+  String splitBookmarksBody(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ملف لكل فصل. عُثر على $formatted إشارة مرجعية.',
+      many: 'ملف لكل فصل. عُثر على $formatted إشارة مرجعية.',
+      few: 'ملف لكل فصل. عُثر على $formatted إشارات مرجعية.',
+      two: 'ملف لكل فصل. عُثر على إشارتين مرجعيتين.',
+      one: 'ملف لكل فصل. عُثر على إشارة مرجعية واحدة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splitNoBookmarks => 'لا يحتوي هذا المستند على إشارات مرجعية.';
+
+  @override
+  String get splitSize => 'حسب حجم الملف';
+
+  @override
+  String get splitSizeBody =>
+      'ملفات لا تتجاوز حجمًا تختاره، لتناسب حدود البريد الإلكتروني.';
+
+  @override
+  String get splitBlank => 'عند الصفحات الفارغة';
+
+  @override
+  String get splitBlankBody => 'تُزال الصفحات الفارغة الفاصلة.';
+
+  @override
+  String get splitNoBlankPages => 'لم يُعثر على صفحات فارغة.';
+
+  @override
+  String get splitPagesPerFile => 'عدد الصفحات لكل ملف';
+
+  @override
+  String get splitLargest => 'أكبر ملف';
+
+  @override
+  String get splitFileNames => 'أسماء الملفات';
+
+  @override
+  String get splitSaveTo => 'الحفظ في';
+
+  @override
+  String get splitSameFolder => 'مجلد الملف الأصلي نفسه';
+
+  @override
+  String get splitChooseFolder => 'اختيار مجلد…';
+
+  @override
+  String get splitOverLimit => 'صفحة واحدة وحدها أكبر من هذا الحجم.';
+
+  @override
+  String get splitNotProtected =>
+      'لن تحمل الملفات الجديدة كلمة مرور هذا المستند.';
+
+  @override
+  String get splitNotSigned => 'لن تحمل الملفات الجديدة تواقيعه.';
+
+  @override
+  String splitAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تقسيم إلى $formatted ملف',
+      many: 'تقسيم إلى $formatted ملفًا',
+      few: 'تقسيم إلى $formatted ملفات',
+      two: 'تقسيم إلى ملفين',
+      one: 'تقسيم إلى ملف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createBlank => 'صفحة فارغة';
+
+  @override
+  String get createFromFiles => 'من ملفات…';
+
+  @override
+  String get createFromClipboard => 'من الحافظة';
+
+  @override
+  String get createDefaultName => 'بلا عنوان.pdf';
+
+  @override
+  String jobSplittingTitle(String name) {
+    return 'جارٍ تقسيم $name';
+  }
+
+  @override
+  String jobSplitTitle(String name) {
+    return 'تم تقسيم $name';
+  }
+
+  @override
+  String jobSplitFailedTitle(String name) {
+    return 'تعذر تقسيم $name';
+  }
+
+  @override
+  String jobCombiningTitle(String name) {
+    return 'جارٍ الدمج في $name';
+  }
+
+  @override
+  String jobCombinedTitle(String name) {
+    return 'تم الدمج في $name';
+  }
+
+  @override
+  String jobCombineFailedTitle(String name) {
+    return 'تعذر الدمج في $name';
+  }
+
+  @override
+  String jobCreatingTitle(String name) {
+    return 'جارٍ إنشاء $name';
+  }
+
+  @override
+  String jobCreatedTitle(String name) {
+    return 'تم إنشاء $name';
+  }
+
+  @override
+  String jobCreateFailedTitle(String name) {
+    return 'تعذر إنشاء $name';
+  }
 }

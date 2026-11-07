@@ -23,7 +23,7 @@ use skrifa::{FontRef, MetadataProvider};
 
 use crate::FontError;
 use crate::subset::Embedding;
-use crate::system::{FaceInfo, FaceInstance, FontLibrary};
+use crate::system::{FaceInfo, FaceInstance, FontLibrary, FontOrigin};
 
 /// The most faces one query opens.
 pub const MAX_FACES_OPENED: usize = 256;
@@ -33,6 +33,10 @@ pub const MAX_BYTES_READ: usize = 1024 * 1024 * 1024;
 
 /// The most named instances read from one font.
 const MAX_INSTANCES: usize = 128;
+
+/// The bundled families for typed signatures alone (Q08 group 3): a3-3b's "Similar fonts included
+/// with Ferman" never lists them, though the bundled folder holds them. Installed copies are listed.
+const BUNDLED_SIGNATURE_FAMILIES: [&str; 3] = ["Caveat", "Dancing Script", "Homemade Apple"];
 
 /// The document's font, as step 2 looks for it.
 #[derive(Debug, Clone, Copy)]
@@ -408,10 +412,15 @@ pub fn rank_similar(library: &FontLibrary, query: &SimilarQuery<'_>) -> Vec<Cand
     };
     // The faces of the style first; of the others, only a variable font's named instances can
     // have it.
+    let listed = |face: &FaceInfo| {
+        face.origin != FontOrigin::Bundled
+            || !BUNDLED_SIGNATURE_FAMILIES.contains(&face.family.as_str())
+    };
     let faces = library
         .faces()
+        .filter(listed)
         .filter(|face| styled(face))
-        .chain(library.faces().filter(|face| !styled(face)));
+        .chain(library.faces().filter(listed).filter(|face| !styled(face)));
     let mut candidates: Vec<Candidate> = faces
         .take(MAX_FACES_OPENED)
         .take_while(|_| read.get() <= MAX_BYTES_READ)
@@ -715,6 +724,45 @@ mod tests {
                 .iter()
                 .all(|c| c.face.weight >= 600 && !c.face.italic)
         );
+    }
+
+    #[test]
+    fn a3_3b_offers_the_similar_fonts_and_never_the_handwriting_ones() {
+        let library = bundled();
+        let serif = StyleMetrics::of(&plex("ibm-plex-serif/IBMPlexSerif-Regular.ttf"), 0).unwrap();
+        let ranked = rank_similar(
+            &library,
+            &SimilarQuery {
+                text: "Kira İ ı Ğ ğ Ş ş",
+                style: serif,
+                max_results: 50,
+            },
+        );
+        for name in ["CormorantGaramond-Regular", "CrimsonPro-Regular"] {
+            let candidate = ranked
+                .iter()
+                .find(|c| c.face.postscript_name == name)
+                .unwrap();
+            assert_eq!(candidate.face.origin, FontOrigin::Bundled);
+            assert!(candidate.coverage.is_full(), "{name}");
+            assert_eq!(candidate.embedding, Embedding::Installable);
+        }
+        assert!(ranked.iter().all(|c| {
+            !["Caveat", "Dancing Script", "Homemade Apple"].contains(&c.face.family.as_str())
+        }));
+        // Bold text gets their SemiBold.
+        let bold = StyleMetrics::of(&plex("ibm-plex-serif/IBMPlexSerif-SemiBold.ttf"), 0).unwrap();
+        let ranked = rank_similar(
+            &library,
+            &SimilarQuery {
+                text: "ğ",
+                style: bold,
+                max_results: 50,
+            },
+        );
+        for name in ["CormorantGaramond-SemiBold", "CrimsonPro-SemiBold"] {
+            assert!(ranked.iter().any(|c| c.face.postscript_name == name));
+        }
     }
 
     #[test]

@@ -13,7 +13,8 @@ part of 'document_closer.dart';
 /// for one document and a11-7e for several. Save goes through the saving flow
 /// (`documentSaverProvider`); any failure keeps the tab, stops the quit and
 /// shows its error. "Don't save" deletes the recovery files. A quit leaves the
-/// tabs in place, so they stay in the list to reopen next time.
+/// tabs in place, so they stay in the list to reopen next time. Quitting with
+/// background jobs running asks about them first (decision 30).
 
 @ProviderFor(DocumentCloser)
 final documentCloserProvider = DocumentCloserProvider._();
@@ -23,7 +24,8 @@ final documentCloserProvider = DocumentCloserProvider._();
 /// for one document and a11-7e for several. Save goes through the saving flow
 /// (`documentSaverProvider`); any failure keeps the tab, stops the quit and
 /// shows its error. "Don't save" deletes the recovery files. A quit leaves the
-/// tabs in place, so they stay in the list to reopen next time.
+/// tabs in place, so they stay in the list to reopen next time. Quitting with
+/// background jobs running asks about them first (decision 30).
 final class DocumentCloserProvider
     extends $NotifierProvider<DocumentCloser, CloseFlow> {
   /// Closing documents with unsaved changes and quitting, as
@@ -31,7 +33,8 @@ final class DocumentCloserProvider
   /// for one document and a11-7e for several. Save goes through the saving flow
   /// (`documentSaverProvider`); any failure keeps the tab, stops the quit and
   /// shows its error. "Don't save" deletes the recovery files. A quit leaves the
-  /// tabs in place, so they stay in the list to reopen next time.
+  /// tabs in place, so they stay in the list to reopen next time. Quitting with
+  /// background jobs running asks about them first (decision 30).
   DocumentCloserProvider._()
     : super(
         from: null,
@@ -59,14 +62,15 @@ final class DocumentCloserProvider
   }
 }
 
-String _$documentCloserHash() => r'ef697db654ce37cebb8d2c5c96a0a2f6b11aa2c1';
+String _$documentCloserHash() => r'e74f71bf2047805b5330342aea99a80c8ef50f39';
 
 /// Closing documents with unsaved changes and quitting, as
 /// `documentCloserProvider`: a tab asks a1-10b, and quitting asks once, a1-10b
 /// for one document and a11-7e for several. Save goes through the saving flow
 /// (`documentSaverProvider`); any failure keeps the tab, stops the quit and
 /// shows its error. "Don't save" deletes the recovery files. A quit leaves the
-/// tabs in place, so they stay in the list to reopen next time.
+/// tabs in place, so they stay in the list to reopen next time. Quitting with
+/// background jobs running asks about them first (decision 30).
 
 abstract class _$DocumentCloser extends $Notifier<CloseFlow> {
   CloseFlow build();

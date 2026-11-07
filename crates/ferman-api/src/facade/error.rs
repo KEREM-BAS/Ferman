@@ -147,6 +147,8 @@ impl MessageKey {
     pub const EDIT_ANNOTATION: Self = Self("editBodyAnnotation");
     /// The page hit a resource limit.
     pub const EDIT_LIMITS: Self = Self("editBodyLimits");
+    /// A job's place: page `page` of `pages`.
+    pub const JOB_PAGE_OF: Self = Self("jobPageOf");
     /// An operator is split across two content streams.
     pub const EDIT_SPLIT: Self = Self("editBodySplit");
     /// The text is sheared.
@@ -197,6 +199,7 @@ impl MessageKey {
         Self::EDIT_DAMAGED,
         Self::EDIT_SIGNATURE,
         Self::EDIT_ANNOTATION,
+        Self::JOB_PAGE_OF,
         Self::EDIT_LIMITS,
         Self::EDIT_SPLIT,
         Self::EDIT_SKEWED,
@@ -359,7 +362,9 @@ impl From<ferman_core::CoreError> for ApiError {
                 ferman_core::WriteError::TransactionOpen
                 | ferman_core::WriteError::NoTransaction
                 | ferman_core::WriteError::NothingToUndo
-                | ferman_core::WriteError::NothingToRedo,
+                | ferman_core::WriteError::NothingToRedo
+                | ferman_core::WriteError::NoSuchPage
+                | ferman_core::WriteError::PagePlan,
             ) => (ErrorKind::InvalidInput, MessageKey::INTERNAL),
             // A block inside a form needs its placement, which the rewriter does not give yet;
             // a repaired document is saved as a repaired copy, later.
@@ -431,7 +436,10 @@ impl From<ferman_render::RenderError> for ApiError {
 
 impl From<ferman_ops::OpsError> for ApiError {
     fn from(err: ferman_ops::OpsError) -> Self {
-        Self::internal(err.to_string())
+        match err {
+            ferman_ops::OpsError::Core(err) => err.into(),
+            err => Self::internal(err.to_string()),
+        }
     }
 }
 
@@ -566,6 +574,8 @@ mod tests {
             WriteError::NoTransaction,
             WriteError::NothingToUndo,
             WriteError::NothingToRedo,
+            WriteError::NoSuchPage,
+            WriteError::PagePlan,
         ] {
             let err = ApiError::from(CoreError::Write(write));
             assert_eq!(err.kind, ErrorKind::InvalidInput, "{write:?}");

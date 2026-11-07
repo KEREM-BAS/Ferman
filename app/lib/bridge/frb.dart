@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `block_font_dto`, `block_font_from_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -263,6 +263,201 @@ Stream<SearchEvent> search({
   query: query,
   options: options,
 );
+
+/// Copies `document` as its revisions stand now to the new file `output` as a background job. The
+/// stream's first event has the job's handle; its last says how it ended.
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `NotFound` for a document that is not open.
+Stream<JobEvent> startCopyDocumentJob({
+  required BigInt document,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCopyDocumentJob(
+  document: document,
+  output: output,
+  staging: staging,
+);
+
+/// Commits the change a job prepared, as one step of the document's history.
+///
+/// See [`facade::Engine::apply_job_change`].
+///
+/// # Errors
+///
+/// `InvalidInput` when the document moved since the job read it; `NotFound` for a job with no
+/// change waiting; and what any commit returns.
+Future<RevisionInfo> applyJobChange({required BigInt job}) =>
+    FermanBridge.instance.api.crateFrbApplyJobChange(job: job);
+
+/// What Combine would write for `files`, with a row per input.
+///
+/// # Errors
+///
+/// `Internal` when its thread does not start. A file that cannot be used says so in its row.
+Future<CombinePreview> combinePreview({
+  required List<CombineInput> files,
+  required bool keepForms,
+}) => FermanBridge.instance.api.crateFrbCombinePreview(
+  files: files,
+  keepForms: keepForms,
+);
+
+/// Writes `files` as the new file `output` as a background job: Combine, and Create PDF from a
+/// blank page or files. The stream's first event has the job's handle; its last says how it ended.
+///
+/// See [`facade::Engine::combine_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` for no input or an `output` that exists.
+Stream<JobEvent> startCombineJob({
+  required List<CombineInput> files,
+  required bool keepForms,
+  required PaperSize paper,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCombineJob(
+  files: files,
+  keepForms: keepForms,
+  paper: paper,
+  output: output,
+  staging: staging,
+);
+
+/// Writes `pages` of `document` as the new file `output` as a background job.
+///
+/// See [`facade::Engine::extract_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startExtractPagesJob({
+  required BigInt document,
+  required Uint64List pages,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartExtractPagesJob(
+  document: document,
+  pages: pages,
+  output: output,
+  staging: staging,
+);
+
+/// The files a split of `document` would write (a6-2).
+///
+/// See [`facade::Engine::split_preview`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable`, `NotFound`, and the render thread's errors.
+Future<SplitPreview> splitPreview({
+  required BigInt document,
+  required SplitKind kind,
+  required BigInt amount,
+  required String template,
+  String? folder,
+}) => FermanBridge.instance.api.crateFrbSplitPreview(
+  document: document,
+  kind: kind,
+  amount: amount,
+  template: template,
+  folder: folder,
+);
+
+/// Writes the files [`split_preview`] planned into `folder` as a background job.
+///
+/// See [`facade::Engine::split_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startSplitJob({
+  required BigInt document,
+  required List<SplitOutput> files,
+  required String folder,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartSplitJob(
+  document: document,
+  files: files,
+  folder: folder,
+  staging: staging,
+);
+
+/// Reads pages of a PDF or an image as a background job, whose change, for [`apply_job_change`],
+/// inserts them after the page `after`, or first when `None`.
+///
+/// See [`facade::Engine::insert_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startInsertPagesJob({
+  required BigInt document,
+  required String path,
+  String? password,
+  Uint32List? pages,
+  BigInt? after,
+  required PaperSize paper,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartInsertPagesJob(
+  document: document,
+  path: path,
+  password: password,
+  pages: pages,
+  after: after,
+  paper: paper,
+  name: name,
+);
+
+/// Reads pages of a PDF as a background job, whose change, for [`apply_job_change`], puts them in
+/// the place of `pages`.
+///
+/// See [`facade::Engine::replace_pages_job`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotEditable` and `NotFound`.
+Stream<JobEvent> startReplacePagesJob({
+  required BigInt document,
+  required Uint64List pages,
+  required String path,
+  String? password,
+  Uint32List? sourcePages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartReplacePagesJob(
+  document: document,
+  pages: pages,
+  path: path,
+  password: password,
+  sourcePages: sourcePages,
+  name: name,
+);
+
+/// Parks a job at its next checkpoint. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+Future<void> pauseJob({required BigInt job}) =>
+    FermanBridge.instance.api.crateFrbPauseJob(job: job);
+
+/// Lets a paused job go on. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+Future<void> resumeJob({required BigInt job}) =>
+    FermanBridge.instance.api.crateFrbResumeJob(job: job);
+
+/// Cancels a job at its next checkpoint; it leaves nothing. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+Future<void> cancelJob({required BigInt job}) =>
+    FermanBridge.instance.api.crateFrbCancelJob(job: job);
 
 /// The text blocks of `page` of `document` in reading order, with their editability.
 ///
@@ -543,6 +738,184 @@ Future<RevisionInfo> commitEdit({
 Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
 
+/// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
+///
+/// See [`facade::Engine::rotate_pages`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` and `NotFound`; so do the other page
+/// operations.
+Future<RevisionInfo> rotatePages({
+  required BigInt document,
+  required Uint64List pages,
+  required int quarterTurns,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbRotatePages(
+  document: document,
+  pages: pages,
+  quarterTurns: quarterTurns,
+  name: name,
+);
+
+/// Deletes `pages` as one history step.
+///
+/// See [`facade::Engine::delete_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> deletePages({
+  required BigInt document,
+  required Uint64List pages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeletePages(
+  document: document,
+  pages: pages,
+  name: name,
+);
+
+/// Moves `pages` before the page `before`, or to the end when `None`, as one history step.
+///
+/// See [`facade::Engine::move_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> movePages({
+  required BigInt document,
+  required Uint64List pages,
+  BigInt? before,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbMovePages(
+  document: document,
+  pages: pages,
+  before: before,
+  name: name,
+);
+
+/// Copies `pages` as one history step.
+///
+/// See [`facade::Engine::duplicate_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> duplicatePages({
+  required BigInt document,
+  required Uint64List pages,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDuplicatePages(
+  document: document,
+  pages: pages,
+  name: name,
+);
+
+/// Inserts `count` blank pages after the page `after`, or first when `None`, as one history step.
+///
+/// See [`facade::Engine::insert_blank_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> insertBlankPages({
+  required BigInt document,
+  BigInt? after,
+  required int count,
+  required double width,
+  required double height,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbInsertBlankPages(
+  document: document,
+  after: after,
+  count: count,
+  width: width,
+  height: height,
+  name: name,
+);
+
+/// Gives `pages` a new displayed size as one history step.
+///
+/// See [`facade::Engine::set_page_size`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> setPageSize({
+  required BigInt document,
+  required Uint64List pages,
+  required double width,
+  required double height,
+  required PageFit fit,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetPageSize(
+  document: document,
+  pages: pages,
+  width: width,
+  height: height,
+  fit: fit,
+  name: name,
+);
+
+/// Crops each page of `crops` as one history step.
+///
+/// See [`facade::Engine::crop_pages`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> cropPages({
+  required BigInt document,
+  required List<PageCrop> crops,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbCropPages(
+  document: document,
+  crops: crops,
+  name: name,
+);
+
+/// The white around the content of each of `pages`, `None` for a page with no content.
+///
+/// See [`facade::Engine::white_margins`].
+///
+/// # Errors
+///
+/// `InvalidInput`, `NotFound` and the render thread's errors.
+Future<List<PageMargins?>> whiteMargins({
+  required BigInt document,
+  required Uint64List pages,
+}) => FermanBridge.instance.api.crateFrbWhiteMargins(
+  document: document,
+  pages: pages,
+);
+
+/// The document's page label ranges, in page order.
+///
+/// See [`facade::Engine::page_label_ranges`].
+///
+/// # Errors
+///
+/// `NotFound` for a closed document.
+Future<List<LabelRange>> pageLabelRanges({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbPageLabelRanges(document: document);
+
+/// Makes `ranges` the document's page labels as one history step; none removes them.
+///
+/// See [`facade::Engine::set_page_labels`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`].
+Future<RevisionInfo> setPageLabels({
+  required BigInt document,
+  required List<LabelRange> ranges,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetPageLabels(
+  document: document,
+  ranges: ranges,
+  name: name,
+);
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -710,6 +1083,24 @@ Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
 /// `NotFound` for a document that is not open.
 Future<bool> wouldBreakSignatures({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbWouldBreakSignatures(document: document);
+
+/// What `op` may do to the document; `fields` are the form fields a fill fills, empty when not
+/// known yet.
+///
+/// See [`facade::Engine::op_gate`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<OpGate> opGate({
+  required BigInt document,
+  required DocumentOp op,
+  required List<String> fields,
+}) => FermanBridge.instance.api.crateFrbOpGate(
+  document: document,
+  op: op,
+  fields: fields,
+);
 
 /// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
 ///
@@ -1130,6 +1521,144 @@ class Caret {
           rect == other.rect;
 }
 
+/// One input's row in a6-3.
+class CombineFileInfo {
+  /// Whether it can be used; the numbers below are zero if not.
+  final InputStatus status;
+
+  /// Whether it is an image, "converted to 1 page".
+  final bool image;
+
+  /// Its pages in all.
+  final int pages;
+
+  /// How many of them it adds.
+  final int selected;
+
+  /// About what it adds to the output, in bytes.
+  final BigInt bytes;
+
+  /// Whether it is encrypted: the output will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the output carries no signature.
+  final bool signed;
+
+  const CombineFileInfo({
+    required this.status,
+    required this.image,
+    required this.pages,
+    required this.selected,
+    required this.bytes,
+    required this.encrypted,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      status.hashCode ^
+      image.hashCode ^
+      pages.hashCode ^
+      selected.hashCode ^
+      bytes.hashCode ^
+      encrypted.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombineFileInfo &&
+          runtimeType == other.runtimeType &&
+          status == other.status &&
+          image == other.image &&
+          pages == other.pages &&
+          selected == other.selected &&
+          bytes == other.bytes &&
+          encrypted == other.encrypted &&
+          signed == other.signed;
+}
+
+/// One input of Combine or Create PDF.
+class CombineInput {
+  /// Where the PDF or image is; `None` for a blank page of `blank_width` by `blank_height`.
+  final String? path;
+
+  /// What opens it.
+  final String? password;
+
+  /// Its pages by index, in the order to take them; `None` for all.
+  final Uint32List? pages;
+
+  /// A blank page's width, in points.
+  final double blankWidth;
+
+  /// A blank page's height, in points.
+  final double blankHeight;
+
+  /// The title of a bookmark for its first page.
+  final String? bookmark;
+
+  const CombineInput({
+    this.path,
+    this.password,
+    this.pages,
+    required this.blankWidth,
+    required this.blankHeight,
+    this.bookmark,
+  });
+
+  @override
+  int get hashCode =>
+      path.hashCode ^
+      password.hashCode ^
+      pages.hashCode ^
+      blankWidth.hashCode ^
+      blankHeight.hashCode ^
+      bookmark.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombineInput &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          password == other.password &&
+          pages == other.pages &&
+          blankWidth == other.blankWidth &&
+          blankHeight == other.blankHeight &&
+          bookmark == other.bookmark;
+}
+
+/// What a6-3 shows before anything is written.
+class CombinePreview {
+  /// A row per input, in order.
+  final List<CombineFileInfo> files;
+
+  /// The pages of the output.
+  final int pages;
+
+  /// About how large it comes out, in bytes.
+  final BigInt bytes;
+
+  const CombinePreview({
+    required this.files,
+    required this.pages,
+    required this.bytes,
+  });
+
+  @override
+  int get hashCode => files.hashCode ^ pages.hashCode ^ bytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CombinePreview &&
+          runtimeType == other.runtimeType &&
+          files == other.files &&
+          pages == other.pages &&
+          bytes == other.bytes;
+}
+
 /// One engine crate and its version.
 class CrateVersion {
   /// The crate name, such as `"ferman-core"`.
@@ -1237,6 +1766,24 @@ class DocumentInfo {
           modified == other.modified;
 }
 
+/// What the user asks to do to a document.
+enum DocumentOp {
+  /// Editing text on a page.
+  editText,
+
+  /// Inserting, moving, rotating and deleting pages.
+  organize,
+
+  /// Adding or changing comments.
+  comment,
+
+  /// Filling in form fields, signing a signature field included.
+  fill,
+
+  /// Printing, which changes nothing in the file.
+  print,
+}
+
 /// What an encrypted document allows without its owner password (a2-10b's rows).
 class DocumentPermissions {
   /// Printing.
@@ -1298,6 +1845,36 @@ class DocumentPermissions {
           copy == other.copy &&
           accessibility == other.accessibility &&
           assemble == other.assemble;
+}
+
+/// What a commit can change of an [`OpenedDocument`]'s lists.
+class DocumentStructure {
+  /// Its pages.
+  final List<PageInfo> pages;
+
+  /// The outline, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Its embedded files.
+  final List<Attachment> attachments;
+
+  const DocumentStructure({
+    required this.pages,
+    required this.outline,
+    required this.attachments,
+  });
+
+  @override
+  int get hashCode => pages.hashCode ^ outline.hashCode ^ attachments.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DocumentStructure &&
+          runtimeType == other.runtimeType &&
+          pages == other.pages &&
+          outline == other.outline &&
+          attachments == other.attachments;
 }
 
 /// What a block's page would read after [`apply_edit`].
@@ -1884,8 +2461,8 @@ class HistoryStep {
   /// always true.
   final List<FontSubstitution> substitutions;
 
-  /// The page of the block it changed; `None` for a revert and a restored step.
-  final int? page;
+  /// The pages it changed, by [`PageInfo::handle`]; empty for a revert and a restored step.
+  final Uint64List pages;
 
   /// The block's text before it: the review list's before; empty for a revert and a restored
   /// step.
@@ -1902,7 +2479,7 @@ class HistoryStep {
     required this.time,
     required this.hiddenLines,
     required this.substitutions,
-    this.page,
+    required this.pages,
     required this.before,
     required this.after,
     required this.reverts,
@@ -1914,7 +2491,7 @@ class HistoryStep {
       time.hashCode ^
       hiddenLines.hashCode ^
       substitutions.hashCode ^
-      page.hashCode ^
+      pages.hashCode ^
       before.hashCode ^
       after.hashCode ^
       reverts.hashCode;
@@ -1928,10 +2505,31 @@ class HistoryStep {
           time == other.time &&
           hiddenLines == other.hiddenLines &&
           substitutions == other.substitutions &&
-          page == other.page &&
+          pages == other.pages &&
           before == other.before &&
           after == other.after &&
           reverts == other.reverts;
+}
+
+/// Whether an input can be used, for its row in a6-3 (G45).
+enum InputStatus {
+  /// It can.
+  ready,
+
+  /// It needs its password.
+  passwordRequired,
+
+  /// The password does not open it.
+  wrongPassword,
+
+  /// It forbids assembling, which only its owner password lifts.
+  ownerPasswordRequired,
+
+  /// Its page range names a page it does not have, or a page twice.
+  badRange,
+
+  /// Neither a PDF nor an image Ferman can read, or the file is gone.
+  unreadable,
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -1941,6 +2539,166 @@ enum ItemKind {
 
   /// The whole page fitted into a square.
   thumbnail,
+}
+
+/// An event of a job's stream.
+class JobEvent {
+  /// The job's handle.
+  final BigInt job;
+
+  /// Where it stands.
+  final JobState state;
+
+  /// How far it is, 0 to 1, when known.
+  final double? progress;
+
+  /// The ARB key of where it is, such as `jobPageOf`.
+  final String? messageKey;
+
+  /// The key's parameters.
+  final List<(String, String)> params;
+
+  /// The files it wrote (`Done`).
+  final List<JobOutput> outputs;
+
+  /// How many steps of the document's history it read (`Done`).
+  final int? revision;
+
+  /// Why it failed (`Failed`).
+  final ApiError? error;
+
+  const JobEvent({
+    required this.job,
+    required this.state,
+    this.progress,
+    this.messageKey,
+    required this.params,
+    required this.outputs,
+    this.revision,
+    this.error,
+  });
+
+  @override
+  int get hashCode =>
+      job.hashCode ^
+      state.hashCode ^
+      progress.hashCode ^
+      messageKey.hashCode ^
+      params.hashCode ^
+      outputs.hashCode ^
+      revision.hashCode ^
+      error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is JobEvent &&
+          runtimeType == other.runtimeType &&
+          job == other.job &&
+          state == other.state &&
+          progress == other.progress &&
+          messageKey == other.messageKey &&
+          params == other.params &&
+          outputs == other.outputs &&
+          revision == other.revision &&
+          error == other.error;
+}
+
+/// A file a job finished.
+class JobOutput {
+  /// Where it belongs.
+  final String path;
+
+  /// Under the macOS App Sandbox, the file waiting for the platform layer's swap into `path`.
+  final String? staged;
+
+  const JobOutput({required this.path, this.staged});
+
+  @override
+  int get hashCode => path.hashCode ^ staged.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is JobOutput &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          staged == other.staged;
+}
+
+/// How far a job is (a11-6b).
+enum JobState {
+  /// It works.
+  running,
+
+  /// It is parked between two steps.
+  paused,
+
+  /// It finished: the last event.
+  done,
+
+  /// It failed: the last event.
+  failed,
+
+  /// It was cancelled: the last event.
+  cancelled,
+}
+
+/// One range of a document's page labels (a6-5).
+class LabelRange {
+  /// The index of its first page, from 0.
+  final int start;
+
+  /// How it writes its numbers.
+  final LabelStyle style;
+
+  /// What comes before each number.
+  final String prefix;
+
+  /// The number of its first page, from 1.
+  final int first;
+
+  const LabelRange({
+    required this.start,
+    required this.style,
+    required this.prefix,
+    required this.first,
+  });
+
+  @override
+  int get hashCode =>
+      start.hashCode ^ style.hashCode ^ prefix.hashCode ^ first.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LabelRange &&
+          runtimeType == other.runtimeType &&
+          start == other.start &&
+          style == other.style &&
+          prefix == other.prefix &&
+          first == other.first;
+}
+
+/// How a page label range writes its numbers.
+enum LabelStyle {
+  /// No number: the prefix alone.
+  none,
+
+  /// 1, 2, 3.
+  decimal,
+
+  /// I, II, III.
+  romanUpper,
+
+  /// i, ii, iii.
+  romanLower,
+
+  /// A, B, C.
+  lettersUpper,
+
+  /// a, b, c.
+  lettersLower,
 }
 
 /// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
@@ -2155,6 +2913,21 @@ enum NotEditableReason {
   tooComplexSkewed,
 }
 
+/// What an operation may do to a document as it stands (G35).
+enum OpGate {
+  /// Allowed, and no signature is concerned.
+  unaffected,
+
+  /// Allowed, and what the signatures allow: a certification and the signatures stay valid.
+  keepsSignatures,
+
+  /// Possible only by invalidating a signature.
+  breaksSignatures,
+
+  /// The document's permissions forbid it, or the document cannot be changed.
+  forbidden,
+}
+
 /// A document the engine opened.
 class OpenedDocument {
   /// Its handle, until [`close`].
@@ -2181,8 +2954,7 @@ class OpenedDocument {
   /// Layers, in the order the document gives them.
   final List<Layer> layers;
 
-  /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
-  /// needed a password (Q22).
+  /// Whether [`show_layers`] can show and hide them: not for a repaired document.
   final bool layersSwitchable;
 
   /// Signature fields.
@@ -2430,6 +3202,37 @@ class PageBlocks {
           empty == other.empty;
 }
 
+/// One page of a crop.
+class PageCrop {
+  /// The page, by [`PageInfo::handle`].
+  final BigInt page;
+
+  /// What it gives up.
+  final PageMargins margins;
+
+  const PageCrop({required this.page, required this.margins});
+
+  @override
+  int get hashCode => page.hashCode ^ margins.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageCrop &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          margins == other.margins;
+}
+
+/// What a new page size does to the content (a6-4).
+enum PageFit {
+  /// Stays at its size, in the middle of the new page.
+  centre,
+
+  /// Scaled to fit the new page, and centred on it.
+  scale,
+}
+
 /// One page of an [`OpenedDocument`], in points as displayed.
 class PageInfo {
   /// The width, after the crop box and `/Rotate`.
@@ -2438,13 +3241,30 @@ class PageInfo {
   /// The height, after the crop box and `/Rotate`.
   final double height;
 
+  /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+  final int rotation;
+
   /// The page label, such as "iv", when the document has labels.
   final String? label;
 
-  const PageInfo({required this.width, required this.height, this.label});
+  /// What names the page while the document is open, whatever moves around it.
+  final BigInt handle;
+
+  const PageInfo({
+    required this.width,
+    required this.height,
+    required this.rotation,
+    this.label,
+    required this.handle,
+  });
 
   @override
-  int get hashCode => width.hashCode ^ height.hashCode ^ label.hashCode;
+  int get hashCode =>
+      width.hashCode ^
+      height.hashCode ^
+      rotation.hashCode ^
+      label.hashCode ^
+      handle.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2453,7 +3273,45 @@ class PageInfo {
           runtimeType == other.runtimeType &&
           width == other.width &&
           height == other.height &&
-          label == other.label;
+          rotation == other.rotation &&
+          label == other.label &&
+          handle == other.handle;
+}
+
+/// What each side of a page gives up, in displayed points.
+class PageMargins {
+  /// The top side.
+  final double top;
+
+  /// The bottom side.
+  final double bottom;
+
+  /// The left side.
+  final double left;
+
+  /// The right side.
+  final double right;
+
+  const PageMargins({
+    required this.top,
+    required this.bottom,
+    required this.left,
+    required this.right,
+  });
+
+  @override
+  int get hashCode =>
+      top.hashCode ^ bottom.hashCode ^ left.hashCode ^ right.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageMargins &&
+          runtimeType == other.runtimeType &&
+          top == other.top &&
+          bottom == other.bottom &&
+          left == other.left &&
+          right == other.right;
 }
 
 /// A point on a page in displayed points, y down.
@@ -2512,6 +3370,15 @@ class PageRect {
           top == other.top &&
           right == other.right &&
           bottom == other.bottom;
+}
+
+/// The paper of an image's own page (G152), which the app picks from the region setting.
+enum PaperSize {
+  /// 595.28 × 841.89 pt.
+  a4,
+
+  /// 612 × 792 pt.
+  letter,
 }
 
 /// A date as the file writes it, without converting its time zone.
@@ -2795,21 +3662,34 @@ class RevisionInfo {
   /// How many steps apply: 0 is the document as opened.
   final int current;
 
-  /// The pages' new render key when the render thread reloaded the document.
+  /// The new render key of `changed_pages` when the render thread reloaded the document.
   final BigInt? renderKey;
+
+  /// The pages that got `render_key`, by index; the others keep their key and bitmaps. `None`
+  /// means every page.
+  final Uint32List? changedPages;
 
   /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
   final List<FontSubstitution> substitutions;
 
+  /// The pages, outline and attachments, when this changed them.
+  final DocumentStructure? structure;
+
   const RevisionInfo({
     required this.current,
     this.renderKey,
+    this.changedPages,
     required this.substitutions,
+    this.structure,
   });
 
   @override
   int get hashCode =>
-      current.hashCode ^ renderKey.hashCode ^ substitutions.hashCode;
+      current.hashCode ^
+      renderKey.hashCode ^
+      changedPages.hashCode ^
+      substitutions.hashCode ^
+      structure.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2818,7 +3698,9 @@ class RevisionInfo {
           runtimeType == other.runtimeType &&
           current == other.current &&
           renderKey == other.renderKey &&
-          substitutions == other.substitutions;
+          changedPages == other.changedPages &&
+          substitutions == other.substitutions &&
+          structure == other.structure;
 }
 
 /// An event of a search's stream.
@@ -3099,6 +3981,141 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// One file of a split's plan.
+class SplitFile {
+  /// Its name, with `.pdf`, safe in any folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  /// About how large it comes out, in bytes, at the high end.
+  final BigInt bytes;
+
+  /// Whether one page alone is over the size asked for.
+  final bool overLimit;
+
+  const SplitFile({
+    required this.name,
+    required this.first,
+    required this.last,
+    required this.bytes,
+    required this.overLimit,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      first.hashCode ^
+      last.hashCode ^
+      bytes.hashCode ^
+      overLimit.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitFile &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          first == other.first &&
+          last == other.last &&
+          bytes == other.bytes &&
+          overLimit == other.overLimit;
+}
+
+/// The ways to split a6-2 draws.
+enum SplitKind {
+  /// A new file every `amount` pages.
+  everyPages,
+
+  /// One file per top-level bookmark.
+  topBookmarks,
+
+  /// Files of at most `amount` bytes, as estimated.
+  size,
+
+  /// A new file at each blank page, which goes.
+  blankPages,
+}
+
+/// One file of a split, as the plan names it.
+class SplitOutput {
+  /// Its name in the output folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  const SplitOutput({
+    required this.name,
+    required this.first,
+    required this.last,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ first.hashCode ^ last.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitOutput &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          first == other.first &&
+          last == other.last;
+}
+
+/// What a6-2 shows before anything is written.
+class SplitPreview {
+  /// The files.
+  final List<SplitFile> files;
+
+  /// How many top-level bookmarks go to a page.
+  final int bookmarks;
+
+  /// How many pages count as blank.
+  final int blankPages;
+
+  /// Whether the document is encrypted: the files will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the files carry no signature.
+  final bool signed;
+
+  const SplitPreview({
+    required this.files,
+    required this.bookmarks,
+    required this.blankPages,
+    required this.encrypted,
+    required this.signed,
+  });
+
+  @override
+  int get hashCode =>
+      files.hashCode ^
+      bookmarks.hashCode ^
+      blankPages.hashCode ^
+      encrypted.hashCode ^
+      signed.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SplitPreview &&
+          runtimeType == other.runtimeType &&
+          files == other.files &&
+          bookmarks == other.bookmarks &&
+          blankPages == other.blankPages &&
+          encrypted == other.encrypted &&
+          signed == other.signed;
 }
 
 /// Which missing-glyph step drew substituted characters.

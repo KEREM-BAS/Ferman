@@ -160,6 +160,11 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
   with Cormorant Garamond and Crimson Pro) are group 4 of Q08, bundled (approved 2026-10-16) and
   needed by M3 ([ADR 0006](0006-font-pipeline-and-missing-glyphs.md)). Any font chosen must allow
   embedding.
+- **Built in M4 W0** (`tools/fonts/README.md` has releases and reasons): Caveat and Dancing Script
+  ship variable, since neither has a static 500 upstream, under Google Fonts' download names because
+  flutter_tools breaks on `[wght]` in a path; Cormorant Garamond and Crimson Pro ship static at 400
+  and 600, so that a named instance does not become its own a3-3b row. Every file has `fsType` 0. All
+  cover Turkish but Homemade Apple ([G158](../DESIGN_GAPS.md#g158)).
 - **The Google Fonts `@import` is never used.** Ferman never fetches fonts at run time
   ([ADR 0015](0015-privacy-and-network.md)).
 

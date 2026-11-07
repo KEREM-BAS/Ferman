@@ -34,6 +34,13 @@ final class ArbParityCheck implements Check {
   /// purpose, each with the reason. Reviewed like the S6 allowlist: add a
   /// key only when the text is the same in Turkish.
   static const Map<String, String> repositorySameInTurkish = {
+    'labelsStyleDecimal': 'the numbers themselves, which PDF defines',
+    'labelsStyleLettersLower': 'the numbers themselves, which PDF defines',
+    'labelsStyleLettersUpper': 'the numbers themselves, which PDF defines',
+    'labelsStyleRomanLower': 'the numbers themselves, which PDF defines',
+    'labelsStyleRomanUpper': 'the numbers themselves, which PDF defines',
+    'organizeSizeA4': 'the international name of a paper and its size',
+    'organizeSizeLetter': 'the international name of a paper and its size',
     'languageWithRegion': 'placeholders and parentheses only',
     'appName': 'the product name, never translated',
     'startPhoneSourceGoogleDrive': 'a product name, never translated',

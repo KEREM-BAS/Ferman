@@ -142,11 +142,16 @@ TextStyle _rowStyle(FermanTheme theme) {
 
 /// Every row of [history]'s edits that still count, oldest first: a text row,
 /// then a font row per font, then a warning row for lines left hidden. A step
-/// reverted or undone has none, and a revert is no edit.
-List<ReviewRow> reviewRows(EditHistory history) => [
+/// reverted or undone has none, and a revert is no edit. A step's page is
+/// where [document] has it now; null once it is gone.
+List<ReviewRow> reviewRows(EditHistory history, OpenedDocument? document) => [
   for (final index in history.live)
     ...() {
       final step = history.steps[index];
+      final page = switch (step.pages.firstOrNull) {
+        final handle? => document?.pageIndexOf(handle),
+        null => null,
+      };
       // A style, a move or a language changes no word: the row names the step.
       final (from, to) = _sameText(step.before, step.after)
           ? ('', '')
@@ -157,7 +162,7 @@ List<ReviewRow> reviewRows(EditHistory history) => [
           step: index,
           kind: ReviewRowKind.text,
           time: step.time,
-          page: step.page,
+          page: page,
           from: from,
           to: to,
           name: step.name,
@@ -168,7 +173,7 @@ List<ReviewRow> reviewRows(EditHistory history) => [
               step: index,
               kind: ReviewRowKind.font,
               time: step.time,
-              page: step.page,
+              page: page,
               from: substitution.fromFont,
               to: substitution.toFont,
               name: step.name,
@@ -178,7 +183,7 @@ List<ReviewRow> reviewRows(EditHistory history) => [
             step: index,
             kind: ReviewRowKind.warning,
             time: step.time,
-            page: step.page,
+            page: page,
             hiddenLines: step.hiddenLines,
             name: step.name,
           ),
@@ -474,7 +479,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
     final list = ref.read(reviewListProvider.notifier);
     final tab = ref.watch(shellDocumentsProvider).active;
     final document = tab?.document;
-    final rows = reviewRows(history);
+    final rows = reviewRows(history, document);
     final count = history.live.length;
     final signature = history.signatureInvalidated;
     final shown = [

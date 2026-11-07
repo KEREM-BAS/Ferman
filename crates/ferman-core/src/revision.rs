@@ -20,15 +20,16 @@
 // Ranges come from the caller and lengths from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write as _;
 use std::ops::Range;
+use std::sync::{Arc, OnceLock};
 
 use lopdf::{Dictionary, Object, ObjectId, Stream};
 
 use crate::interpret::{Span, SpanSource, TextSink};
 use crate::limits::LimitKind;
-use crate::structure::{Scope, inherited};
+use crate::structure::{Attachment, OutlineItem, Page, RevisedStructure, Scope, inherited};
 use crate::{CoreError, Document, WriteError, appendix, content, filters};
 
 /// The objects one commit replaces or adds, by object id.
@@ -56,13 +57,24 @@ impl ChangeSet {
     }
 
     /// Whether it changes streams only: no page dictionary, so no resource a later edit of the
-    /// page could use.
+    /// page could use. An attached file's stream does not count, since its dictionary is part of
+    /// the structure.
     #[must_use]
     pub fn streams_only(&self) -> bool {
-        self.objects
-            .values()
-            .all(|object| matches!(object, Object::Stream(_)))
+        self.objects.values().all(plain_stream)
     }
+}
+
+/// Whether `object` is a stream whose change leaves the structure as it is: not an attachment's
+/// file, whose `/Params /Size` and `/Subtype` the attachments list reads.
+// shortcut: a file stream with neither `/Type /EmbeddedFile` nor `/Params` counts as plain; ask the
+// structure's attachment ids when an edit can write such a stream.
+fn plain_stream(object: &Object) -> bool {
+    let Object::Stream(stream) = object else {
+        return false;
+    };
+    let kind = stream.dict.get(b"Type").and_then(Object::as_name);
+    !stream.dict.has(b"Params") && !matches!(kind, Ok(b"EmbeddedFile"))
 }
 
 /// One replacement in a content stream: `range` of the decoded data of `source`, as the
@@ -178,6 +190,10 @@ pub struct RevisionStore {
     open_decoded: BTreeMap<ObjectId, u64>,
     /// The first number past the document's objects.
     base_size: u32,
+    /// The structure these revisions and the open transaction give, once asked for; inside,
+    /// `None` when they change streams only, so the document's own scan stands. Emptied when a
+    /// change that is not a stream comes or goes.
+    structure: OnceLock<Option<Arc<RevisedStructure>>>,
 }
 
 impl RevisionStore {
@@ -238,7 +254,9 @@ impl RevisionStore {
 
     /// Discards the open transaction, if any.
     pub fn rollback(&mut self) {
-        self.open = None;
+        if self.open.take().is_some_and(|open| !open.streams_only()) {
+            self.structure = OnceLock::new();
+        }
         self.open_decoded.clear();
     }
 
@@ -253,6 +271,7 @@ impl RevisionStore {
             .current
             .checked_sub(1)
             .ok_or(CoreError::Write(WriteError::NothingToUndo))?;
+        self.crossed(self.current);
         Ok(self.current)
     }
 
@@ -266,8 +285,95 @@ impl RevisionStore {
         if self.current >= self.revisions.len() {
             return Err(CoreError::Write(WriteError::NothingToRedo));
         }
+        self.crossed(self.current);
         self.current = self.current.saturating_add(1);
         Ok(self.current)
+    }
+
+    /// Revision `revision` was stepped over: the structure follows unless it changed streams only.
+    fn crossed(&mut self, revision: usize) {
+        if self
+            .revisions
+            .get(revision)
+            .is_some_and(|changes| !changes.streams_only())
+        {
+            self.structure = OnceLock::new();
+        }
+    }
+
+    /// The pages as these revisions and the open transaction leave them, in order.
+    #[must_use]
+    pub fn pages<'a>(&'a self, doc: &'a Document) -> &'a [Page] {
+        self.revised(doc)
+            .map_or(&doc.structure().pages, |revised| &revised.pages)
+    }
+
+    /// The outline as they leave it.
+    #[must_use]
+    pub fn outline<'a>(&'a self, doc: &'a Document) -> &'a [OutlineItem] {
+        self.revised(doc)
+            .map_or(&doc.structure().outline, |revised| &revised.outline)
+    }
+
+    /// The attachments as they leave them.
+    #[must_use]
+    pub fn attachments<'a>(&'a self, doc: &'a Document) -> &'a [Attachment] {
+        self.revised(doc)
+            .map_or(&doc.structure().attachments, |revised| &revised.attachments)
+    }
+
+    /// Where the page with `handle` ([`Page::handle`]) is now; `None` once it is gone.
+    #[must_use]
+    pub fn page_index(&self, doc: &Document, handle: u64) -> Option<usize> {
+        self.pages(doc)
+            .iter()
+            .position(|page| page.handle() == handle)
+    }
+
+    /// The decoded bytes of the file of [`attachments`](Self::attachments)`[index]`.
+    ///
+    /// # Errors
+    ///
+    /// As [`Document::attachment_data`].
+    pub fn attachment_data(&self, doc: &Document, index: usize) -> Result<Vec<u8>, CoreError> {
+        let missing = || CoreError::Syntax {
+            offset: 0,
+            problem: "an attachment without its embedded file stream",
+        };
+        let id = self
+            .attachments(doc)
+            .get(index)
+            .and_then(|attachment| attachment.file)
+            .ok_or_else(missing)?;
+        let scope = self.scope(doc);
+        let Some(Object::Stream(stream)) = scope.object(id).and_then(|file| scope.resolve(file))
+        else {
+            return Err(missing());
+        };
+        decoded(stream, doc)
+    }
+
+    /// The structure when something but streams changed, computed once for these revisions.
+    fn revised(&self, doc: &Document) -> Option<&RevisedStructure> {
+        self.structure
+            .get_or_init(|| {
+                let touched = self
+                    .open
+                    .iter()
+                    .chain(self.revisions.get(..self.current).unwrap_or_default())
+                    .any(|changes| !changes.streams_only());
+                touched.then(|| {
+                    let added = usize::try_from(self.next_number().saturating_sub(self.base_size))
+                        .unwrap_or(usize::MAX);
+                    Arc::new(crate::structure::revised(
+                        doc.model(),
+                        doc.limits(),
+                        self,
+                        added,
+                    ))
+                })
+            })
+            .as_deref()
     }
 
     /// Undoes applied revision `revision` alone in the open transaction, the revisions after it
@@ -345,8 +451,9 @@ impl RevisionStore {
             .or_else(|| doc.model().objects.get(&id))
     }
 
-    /// The newest version of stream `id` with revision `revision`'s change taken out, following
-    /// that change's bytes through every later version; `None` when one of them touches them.
+    /// The newest version of object `id` with revision `revision`'s change taken out: a stream
+    /// following that change's bytes through every later version, a dictionary key by key; `None`
+    /// when a later version touches the same bytes or keys.
     fn merged_without(
         &self,
         doc: &Document,
@@ -354,11 +461,18 @@ impl RevisionStore {
         revision: usize,
     ) -> Result<Option<Object>, CoreError> {
         let version = |changes: &ChangeSet| changes.objects.get(&id).cloned();
-        let (Some(Object::Stream(before)), Some(Object::Stream(after))) = (
+        let (before, after) = match (
             self.version_before(doc, id, revision),
             self.revisions.get(revision).and_then(version),
-        ) else {
-            return Ok(None);
+        ) {
+            (Some(Object::Stream(before)), Some(Object::Stream(after))) => (before, after),
+            (Some(Object::Dictionary(before)), Some(Object::Dictionary(after))) => {
+                let Some(Object::Dictionary(newest)) = self.lookup(id) else {
+                    return Ok(None);
+                };
+                return Ok(merged_dictionary(before, &after, newest).map(Object::Dictionary));
+            }
+            _ => return Ok(None),
         };
         let original = decoded(before, doc)?;
         let mut newest = decoded(&after, doc)?;
@@ -428,8 +542,9 @@ impl RevisionStore {
     /// Replaces `splices` in page `index`'s content, in the open transaction. Each changed
     /// stream is written back as a new version compressed with Flate; a page stream that another
     /// page shares becomes a new object that only this page's `/Contents` names. A form is
-    /// copied for its placement in `placements`, which then draws the copy; a copy made earlier
-    /// changes in place. On an error the transaction stays as it was.
+    /// copied for its placement in `placements`, which then draws the copy, however new the form:
+    /// a number past the base does not say who else draws it. On an error the transaction stays as
+    /// it was.
     ///
     /// # Errors
     ///
@@ -448,12 +563,7 @@ impl RevisionStore {
         if self.open.is_none() {
             return Err(CoreError::Write(WriteError::NoTransaction));
         }
-        let page = doc
-            .structure()
-            .pages
-            .get(index)
-            .map(|page| page.id)
-            .ok_or(CoreError::Write(WriteError::NoSuchPage))?;
+        let page = self.page_id(doc, index)?;
         let on_page = self.contents(doc, page);
         let mut streams: Vec<(ObjectId, Edits)> = Vec::new();
         let mut forms: Vec<(ObjectId, Edits)> = Vec::new();
@@ -487,11 +597,6 @@ impl RevisionStore {
             }
             let name = self.drawn_name(doc, page, stream, &placement.draw.range, form)?;
             let copy = Object::Stream(respliced(&self.stream(doc, form)?, &edits, doc)?);
-            // A copy this store made is drawn by this placement only, so it changes in place.
-            if form.0 >= self.base_size {
-                queued.push((form, copy));
-                continue;
-            }
             let copy = queue_new(&mut queued, &mut next, copy)?;
             let fresh = self.fresh_name(doc, page, &name, &names)?;
             let mut draw = Vec::new();
@@ -503,15 +608,15 @@ impl RevisionStore {
 
         let mut dict = self.dictionary(doc, page)?;
         let mut page_changed = !names.is_empty();
+        let other_pages = self.other_pages(doc, page);
         for (stream, edits) in streams {
             if !on_page.contains(&stream) {
                 return Err(CoreError::Write(WriteError::NotOnPage));
             }
             let new = Object::Stream(respliced(&self.stream(doc, stream)?, &edits, doc)?);
-            let shared =
-                doc.structure().pages.iter().any(|other| {
-                    other.id != page && self.contents(doc, other.id).contains(&stream)
-                });
+            let shared = other_pages
+                .iter()
+                .any(|other| self.contents(doc, *other).contains(&stream));
             if shared {
                 let id = queue_new(&mut queued, &mut next, new)?;
                 let contents = match dict.get(b"Contents") {
@@ -552,6 +657,27 @@ impl RevisionStore {
         self.put_counted(doc, queued)
     }
 
+    /// Every page object but `page`, in the page tree or not: a deleted page stays in the file and
+    /// a revert can bring it back, so it must keep drawing what it drew.
+    fn other_pages(&self, doc: &Document, page: ObjectId) -> BTreeSet<ObjectId> {
+        let scope = self.scope(doc);
+        let mut others: BTreeSet<ObjectId> = doc
+            .model()
+            .objects
+            .keys()
+            .copied()
+            .chain(self.changed_ids())
+            .filter(|id| {
+                scope
+                    .dictionary(*id)
+                    .is_some_and(|dict| matches!(dict.get_type(), Ok(b"Page")))
+            })
+            .collect();
+        others.extend(self.pages(doc).iter().map(|other| other.id));
+        others.remove(&page);
+        others
+    }
+
     /// A name for a copy of the font page `index` names `base` that its `/Font` resources and
     /// `taken` do not use: `base` with a numbered suffix.
     ///
@@ -565,7 +691,7 @@ impl RevisionStore {
         base: &[u8],
         taken: &[Vec<u8>],
     ) -> Result<Vec<u8>, CoreError> {
-        let page = page_id(doc, index)?;
+        let page = self.page_id(doc, index)?;
         let (_, fonts) = self.page_resources(doc, page, b"Font");
         for suffix in 1..=10_000u32 {
             let mut candidate = base.to_vec();
@@ -624,7 +750,7 @@ impl RevisionStore {
         if fonts.is_empty() && simple.is_empty() && embedded.is_empty() {
             return Ok(());
         }
-        let page = page_id(doc, index)?;
+        let page = self.page_id(doc, index)?;
         let wrong = || CoreError::Write(WriteError::Font);
         let (mut resources, mut entries) = self.page_resources(doc, page, b"Font");
         let mut queued: Vec<(ObjectId, Object)> = Vec::new();
@@ -730,6 +856,15 @@ impl RevisionStore {
         objects
     }
 
+    /// The objects the current revisions and the open transaction change or add.
+    pub(crate) fn changed_ids(&self) -> BTreeSet<ObjectId> {
+        self.open
+            .iter()
+            .chain(self.revisions.get(..self.current).unwrap_or_default())
+            .flat_map(ChangeSet::ids)
+            .collect()
+    }
+
     /// A store for `doc` whose one revision holds `objects`: a document restored from its
     /// recovery files (`recovery`), every change unsaved. Without `unsaved` it has no revision.
     pub(crate) fn restored(
@@ -765,17 +900,21 @@ impl RevisionStore {
 
     /// Puts `object` as the new version of `id` in the open transaction.
     pub(crate) fn put(&mut self, id: ObjectId, object: Object) -> Result<(), CoreError> {
-        let open = self
-            .open
-            .as_mut()
-            .ok_or(CoreError::Write(WriteError::NoTransaction))?;
-        open.objects.insert(id, object);
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        // A stream replacing a stream leaves the structure as it is; an object with no version
+        // here may be anything in the document, and reading the structure again costs only that.
+        if !plain_stream(&object) || !self.lookup(id).is_some_and(plain_stream) {
+            self.structure = OnceLock::new();
+        }
+        self.open.get_or_insert_default().objects.insert(id, object);
         Ok(())
     }
 
     /// Puts `queued` in the open transaction, or nothing when its streams, decoded, would pass the
     /// decoded size per revision. A new version of a stream replaces the old one's share.
-    fn put_counted(
+    pub(crate) fn put_counted(
         &mut self,
         doc: &Document,
         queued: Vec<(ObjectId, Object)>,
@@ -783,7 +922,11 @@ impl RevisionStore {
         let mut sizes = self.open_decoded.clone();
         for (id, object) in &queued {
             if let Object::Stream(stream) = object {
-                let size = decoded(stream, doc)?.len();
+                let size = match decoded(stream, doc) {
+                    // Kept encoded, as a JPEG is: what it holds here is its stored bytes.
+                    Err(CoreError::Unsupported(crate::Unsupported::Filter)) => stream.content.len(),
+                    other => other?.len(),
+                };
                 sizes.insert(*id, u64::try_from(size).unwrap_or(u64::MAX));
             } else {
                 sizes.remove(id);
@@ -806,6 +949,29 @@ impl RevisionStore {
         Ok(())
     }
 
+    /// Counts `bytes` copied into the open transaction as stored, under the object `id`, or
+    /// fails past the size of a revision.
+    pub(crate) fn count_open(
+        &mut self,
+        doc: &Document,
+        id: ObjectId,
+        bytes: u64,
+    ) -> Result<(), CoreError> {
+        let max = doc.limits().max_revision_decoded;
+        let total = self
+            .open_decoded
+            .values()
+            .fold(bytes, |sum: u64, size| sum.saturating_add(*size));
+        if total > max {
+            return Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                max,
+            });
+        }
+        self.open_decoded.insert(id, bytes);
+        Ok(())
+    }
+
     /// Adds `object` as a new object in the open transaction (the splicer queues its own).
     #[cfg(any(test, feature = "fuzzing"))]
     pub(crate) fn add(&mut self, object: Object) -> Result<ObjectId, CoreError> {
@@ -821,16 +987,19 @@ impl RevisionStore {
         doc: &Document,
         index: usize,
     ) -> Result<Vec<(ObjectId, Vec<u8>)>, CoreError> {
-        let page = doc
-            .structure()
-            .pages
-            .get(index)
-            .map(|page| page.id)
-            .ok_or(CoreError::Write(WriteError::NoSuchPage))?;
+        let page = self.page_id(doc, index)?;
         self.contents(doc, page)
             .into_iter()
             .map(|id| Ok((id, decoded(&self.stream(doc, id)?, doc)?)))
             .collect()
+    }
+
+    /// The object of page `index` as these revisions leave the pages.
+    pub(crate) fn page_id(&self, doc: &Document, index: usize) -> Result<ObjectId, CoreError> {
+        self.pages(doc)
+            .get(index)
+            .map(|page| page.id)
+            .ok_or(CoreError::Write(WriteError::NoSuchPage))
     }
 
     /// A scope that reads through this store.
@@ -853,7 +1022,7 @@ impl RevisionStore {
     }
 
     /// A copy of page `id`'s newest dictionary.
-    fn dictionary(&self, doc: &Document, id: ObjectId) -> Result<Dictionary, CoreError> {
+    pub(crate) fn dictionary(&self, doc: &Document, id: ObjectId) -> Result<Dictionary, CoreError> {
         match self.scope(doc).object(id) {
             Some(Object::Dictionary(dict)) => Ok(dict.clone()),
             _ => Err(CoreError::Write(WriteError::NoSuchPage)),
@@ -861,7 +1030,7 @@ impl RevisionStore {
     }
 
     /// The streams of page `id`'s `/Contents`.
-    fn contents(&self, doc: &Document, id: ObjectId) -> Vec<ObjectId> {
+    pub(crate) fn contents(&self, doc: &Document, id: ObjectId) -> Vec<ObjectId> {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return Vec::new();
@@ -956,18 +1125,9 @@ impl RevisionStore {
     }
 }
 
-/// The object id of page `index`.
-fn page_id(doc: &Document, index: usize) -> Result<ObjectId, CoreError> {
-    doc.structure()
-        .pages
-        .get(index)
-        .map(|page| page.id)
-        .ok_or(CoreError::Write(WriteError::NoSuchPage))
-}
-
 /// `number` as a new object's number; the last two are kept for the writer's `/Size` and its
 /// cross-reference stream.
-fn free(number: u32) -> Result<u32, CoreError> {
+pub(crate) fn free(number: u32) -> Result<u32, CoreError> {
     if number >= u32::MAX.saturating_sub(1) {
         return Err(CoreError::Write(WriteError::ObjectNumbers));
     }
@@ -1144,7 +1304,7 @@ fn embedded_font(
 }
 
 /// A stream of `data` with `dict`, compressed with Flate.
-fn compressed(mut dict: Dictionary, data: &[u8]) -> Result<Stream, CoreError> {
+pub(crate) fn compressed(mut dict: Dictionary, data: &[u8]) -> Result<Stream, CoreError> {
     let mut encoder = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::default());
     let bytes = encoder
         .write_all(data)
@@ -1168,7 +1328,7 @@ fn group(list: &mut Vec<(ObjectId, Edits)>, id: ObjectId, range: Range<usize>, b
 }
 
 /// `stream`'s decoded data, within `doc`'s limits.
-fn decoded(stream: &Stream, doc: &Document) -> Result<Vec<u8>, CoreError> {
+pub(crate) fn decoded(stream: &Stream, doc: &Document) -> Result<Vec<u8>, CoreError> {
     let steps = filters::chain_of(&stream.dict)?;
     filters::decode_chain(&steps, &stream.content, doc.limits())
 }
@@ -1195,6 +1355,32 @@ fn respliced(
         dict.set("DL", i64::try_from(data.len()).unwrap_or(i64::MAX));
     }
     Ok(Stream::new(dict, compressed))
+}
+
+/// `newest` with what `after` changed of `before` put back, key by key; `None` when a later
+/// version changed one of those keys again.
+fn merged_dictionary(
+    before: &Dictionary,
+    after: &Dictionary,
+    newest: &Dictionary,
+) -> Option<Dictionary> {
+    let mut merged = newest.clone();
+    for (key, _) in before.iter().chain(after.iter()) {
+        let (old, new) = (before.get(key).ok(), after.get(key).ok());
+        if old == new {
+            continue;
+        }
+        if newest.get(key).ok() != new {
+            return None;
+        }
+        match old {
+            Some(value) => merged.set(key.clone(), value.clone()),
+            None => {
+                merged.remove(key);
+            }
+        }
+    }
+    Some(merged)
 }
 
 /// Where `a` and `b` differ, as their common prefix and suffix leave it: the start, the end in
@@ -1578,6 +1764,47 @@ mod tests {
     }
 
     #[test]
+    fn a_deleted_page_that_shared_a_stream_comes_back_as_it_was_after_a_later_edit() {
+        let name = "edit-e23-shared-contents";
+        let doc = open_bytes(
+            &std::fs::read(corpus(&format!("{name}.pdf"))).unwrap(),
+            None,
+        )
+        .unwrap();
+        let (first, second) = (doc.structure().pages[0].id, doc.structure().pages[1].id);
+        let mut store = RevisionStore::new(&doc);
+        let shared = store.contents(&doc, first);
+        assert_eq!(shared, store.contents(&doc, second));
+        let order: Vec<crate::pages::PageSlot> = (0..doc.page_count())
+            .filter(|page| *page != 1)
+            .map(crate::pages::PageSlot::Page)
+            .collect();
+        store.begin().unwrap();
+        store.arrange_pages(&doc, &order).unwrap();
+        store.commit().unwrap();
+        let (page, span) = first_show(&doc).unwrap();
+        assert_eq!(page, 0);
+        store.begin().unwrap();
+        let splice = Splice {
+            source: span.source,
+            range: span.range.clone(),
+            bytes: b"(Ferman) Tj".to_vec(),
+        };
+        store.splice(&doc, 0, &[splice], &[]).unwrap();
+        store.commit().unwrap();
+        // The edited page draws from a stream of its own, so the delete's revert restores a page
+        // that draws what it drew.
+        store.begin().unwrap();
+        assert!(store.revert_revision(&doc, 0).unwrap());
+        store.commit().unwrap();
+        assert_eq!(store.pages(&doc).len(), doc.page_count());
+        assert_eq!(store.contents(&doc, second), shared);
+        assert_ne!(store.contents(&doc, first), shared);
+        let stream = store.stream(&doc, shared[0]).unwrap();
+        assert_eq!(decoded(&stream, &doc).unwrap(), data(&doc, shared[0]));
+    }
+
+    #[test]
     fn a_stream_shared_by_two_pages_is_copied_for_the_edited_one() {
         let name = "edit-e23-shared-contents";
         let doc = open_bytes(
@@ -1709,7 +1936,7 @@ mod tests {
         assert_eq!(new[..show.range.start], old[..show.range.start]);
         assert_eq!(new[show.range.start + 11..], old[show.range.end..]);
 
-        // A second edit changes the copy in place; the page and its stream stay.
+        // A second edit copies again: what else draws the first copy keeps it.
         let redraw = Span {
             range: draw.range.start..draw.range.start + 9,
             ..draw.clone()
@@ -1726,15 +1953,14 @@ mod tests {
         };
         store.splice(&doc, 0, &[again], &[placement]).unwrap();
         store.commit().unwrap();
-        assert_eq!(
-            store.revisions()[1].ids().collect::<Vec<_>>(),
-            vec![copy],
-            "{changed:?}"
-        );
-        assert_eq!(
-            data(&saved(&doc, &store, &format!("{name}-again"), None), copy)[0],
-            b' '
-        );
+        let reopened = saved(&doc, &store, &format!("{name}-again"), None);
+        assert_eq!(data(&reopened, copy), new);
+        assert!(!store.revisions()[1].ids().any(|id| id == copy));
+        let second = store.revisions()[1]
+            .ids()
+            .find(|id| id.0 >= doc.xref().size && *id != copy)
+            .unwrap();
+        assert_eq!(data(&reopened, second)[0], b' ');
     }
 
     #[test]
@@ -1792,7 +2018,7 @@ mod tests {
         )
         .unwrap();
         let mut store = RevisionStore::new(&doc);
-        let page = page_id(&doc, 0).unwrap();
+        let page = store.page_id(&doc, 0).unwrap();
         let (_, fonts) = store.page_resources(&doc, page, b"Font");
         let (base, original) = fonts.iter().next().unwrap();
         let original = *original.as_reference().as_ref().unwrap();
@@ -1962,5 +2188,201 @@ mod tests {
             })
         ));
         assert_eq!(store.open, before);
+    }
+
+    /// Page `index`'s `/Rotate` as the store leaves it, through [`RevisionStore::pages`].
+    fn rotation(store: &RevisionStore, doc: &Document, index: usize) -> u16 {
+        store.pages(doc)[index].rotation
+    }
+
+    #[test]
+    fn the_structure_read_through_the_overlay_is_the_scan_on_every_corpus_file() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/corpus/generated");
+        let mut read = 0;
+        for entry in std::fs::read_dir(dir).unwrap().flatten() {
+            if entry.path().extension().is_none_or(|ext| ext != "pdf") {
+                continue;
+            }
+            let Ok(doc) = open_bytes(&std::fs::read(entry.path()).unwrap(), None) else {
+                continue;
+            };
+            let Some(first) = doc.structure().pages.first().map(|page| page.id) else {
+                continue;
+            };
+            let mut store = RevisionStore::new(&doc);
+            store.begin().unwrap();
+            // The same page dictionary: no change, and a revised structure.
+            let dict = store.dictionary(&doc, first).unwrap();
+            store.put(first, Object::Dictionary(dict)).unwrap();
+            let name = entry.path();
+            assert!(store.revised(&doc).is_some());
+            assert_eq!(store.pages(&doc), doc.structure().pages, "{name:?}");
+            assert_eq!(store.outline(&doc), doc.structure().outline, "{name:?}");
+            assert_eq!(
+                store.attachments(&doc),
+                doc.structure().attachments,
+                "{name:?}"
+            );
+            read += 1;
+        }
+        assert!(read > 20, "only {read} corpus files");
+    }
+
+    #[test]
+    fn the_structure_follows_commits_undo_redo_and_rollback() {
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        assert!(store.revised(&doc).is_none(), "nothing changed");
+        let id = store.page_id(&doc, 1).unwrap();
+        let handle = store.pages(&doc)[1].handle();
+        let turned = |store: &RevisionStore| {
+            let mut dict = store.dictionary(&doc, id).unwrap();
+            dict.set("Rotate", 90);
+            Object::Dictionary(dict)
+        };
+
+        store.begin().unwrap();
+        store.put(id, turned(&store)).unwrap();
+        assert_eq!(rotation(&store, &doc, 1), 90, "the open transaction counts");
+        store.rollback();
+        assert_eq!(rotation(&store, &doc, 1), 0);
+
+        store.begin().unwrap();
+        store.put(id, turned(&store)).unwrap();
+        store.commit().unwrap();
+        assert_eq!(rotation(&store, &doc, 1), 90);
+        assert_eq!(store.page_index(&doc, handle), Some(1));
+        store.undo().unwrap();
+        assert_eq!(rotation(&store, &doc, 1), 0);
+        store.redo().unwrap();
+        assert_eq!(rotation(&store, &doc, 1), 90);
+    }
+
+    #[test]
+    fn the_structure_follows_a_change_of_an_attached_file() {
+        use lopdf::dictionary;
+
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let file = store.attachments(&doc)[0].file.unwrap();
+        let resized = Object::Stream(Stream::new(
+            dictionary! {
+                "Type" => "EmbeddedFile",
+                "Params" => dictionary! { "Size" => 3 },
+            },
+            b"new".to_vec(),
+        ));
+        store.begin().unwrap();
+        store.put(file, resized).unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.attachments(&doc)[0].size, Some(3));
+        assert!(!store.revisions()[0].streams_only());
+        store.undo().unwrap();
+        assert_ne!(store.attachments(&doc)[0].size, Some(3));
+        store.redo().unwrap();
+        assert_eq!(store.attachments(&doc)[0].size, Some(3));
+    }
+
+    #[test]
+    fn a_stream_over_what_was_no_stream_resets_the_structure() {
+        use lopdf::dictionary;
+
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let file = store.attachments(&doc)[0].file.unwrap();
+        store.begin().unwrap();
+        store.put(file, Object::Null).unwrap();
+        store.commit().unwrap();
+        assert_eq!(store.attachments(&doc)[0].media_type, None);
+
+        let back = Object::Stream(Stream::new(
+            dictionary! { "Subtype" => "text/plain" },
+            b"new".to_vec(),
+        ));
+        store.begin().unwrap();
+        store.put(file, back).unwrap();
+        store.commit().unwrap();
+        assert_eq!(
+            store.attachments(&doc)[0].media_type.as_deref(),
+            Some("text/plain")
+        );
+    }
+
+    #[test]
+    fn the_page_tree_is_read_through_the_overlay() {
+        let doc = open_bytes(&std::fs::read(corpus("kira-tr.pdf")).unwrap(), None).unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let handles: Vec<u64> = store.pages(&doc).iter().map(Page::handle).collect();
+        let last = store.pages(&doc)[2].id;
+        let parent = store
+            .dictionary(&doc, last)
+            .unwrap()
+            .get(b"Parent")
+            .unwrap()
+            .as_reference()
+            .unwrap();
+        let mut node = store.dictionary(&doc, parent).unwrap();
+        let mut kids = node.get(b"Kids").unwrap().as_array().unwrap().clone();
+        kids.reverse();
+        node.set("Kids", kids);
+        store.begin().unwrap();
+        store.put(parent, Object::Dictionary(node)).unwrap();
+        store.commit().unwrap();
+        let moved: Vec<u64> = store.pages(&doc).iter().map(Page::handle).collect();
+        assert_eq!(moved, [handles[2], handles[1], handles[0]]);
+        assert_eq!(store.page_index(&doc, handles[0]), Some(2));
+    }
+
+    #[test]
+    fn a_page_entry_reverts_alone_past_later_keys_but_not_past_the_same_key() {
+        let doc = open_bytes(
+            &std::fs::read(corpus("edit-e04-differences.pdf")).unwrap(),
+            None,
+        )
+        .unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let page = store.page_id(&doc, 0).unwrap();
+        let (_, fonts) = store.page_resources(&doc, page, b"Font");
+        let base = fonts.iter().next().unwrap().0.clone();
+        let turn = |store: &mut RevisionStore, by: i64| {
+            let mut dict = store.dictionary(&doc, page).unwrap();
+            dict.set("Rotate", by);
+            store.begin().unwrap();
+            store.put(page, Object::Dictionary(dict)).unwrap();
+            store.commit().unwrap();
+        };
+        turn(&mut store, 90);
+        // A later change of the same dictionary, of another key.
+        store.begin().unwrap();
+        store
+            .add_new_fonts(
+                &doc,
+                0,
+                &[],
+                &[SimpleFontCopy {
+                    base,
+                    name: b"F9_1".to_vec(),
+                    codes: vec![(129, "gbreve".to_owned(), 556.0)],
+                    to_unicode: None,
+                }],
+                &[],
+            )
+            .unwrap();
+        store.commit().unwrap();
+
+        let mut reverted = store.clone();
+        reverted.begin().unwrap();
+        assert!(reverted.revert_revision(&doc, 0).unwrap());
+        reverted.commit().unwrap();
+        let dict = reverted.dictionary(&doc, page).unwrap();
+        assert!(!dict.has(b"Rotate"));
+        let (_, fonts) = reverted.page_resources(&doc, page, b"Font");
+        assert!(fonts.has(b"F9_1"), "the later key stays");
+        assert_eq!(rotation(&reverted, &doc, 0), 0);
+
+        // A later change of the same key depends on it.
+        turn(&mut store, 180);
+        store.begin().unwrap();
+        assert!(!store.revert_revision(&doc, 0).unwrap());
     }
 }

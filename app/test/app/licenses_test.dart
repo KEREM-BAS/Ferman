@@ -40,13 +40,13 @@ void main() {
       expect(listed.toSet(), declared.toSet());
     });
 
-    test('covers the PDFium archive, the six Plex families and Lucide', () {
+    test('covers the PDFium archive, the eleven font families and Lucide', () {
       List<String> under(String prefix) => [
         for (final license in bundledLicenses)
           if (license.asset.startsWith(prefix)) license.asset,
       ];
       expect(under('assets/licenses/pdfium/'), hasLength(16));
-      expect(under('assets/fonts/'), hasLength(6));
+      expect(under('assets/fonts/'), hasLength(11));
       expect(under('assets/icons/'), hasLength(2));
     });
 
@@ -129,6 +129,8 @@ void main() {
           .join('\n');
       expect(textOf('IBM Plex Sans'), contains('SIL Open Font License'));
       expect(textOf('IBM Plex Sans'), contains('Reserved Font Name'));
+      expect(textOf('Caveat'), contains('SIL Open Font License'));
+      expect(textOf('Homemade Apple'), contains('Apache License'));
       expect(textOf('Lucide'), contains('ISC License'));
       expect(textOf('Lucide'), contains('Feather'));
       expect(textOf('PDFium'), contains('The PDFium Authors'));

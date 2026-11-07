@@ -21,8 +21,9 @@ final class BundledLicense {
 ///
 /// Sources (docs/DEPENDENCIES.md §5): PDFium and its third-party
 /// components from the bblanchon/pdfium-binaries archive (§5.1), the IBM
-/// Plex families (§5.2) and the Lucide icons with the Feather notice (§5.3,
-/// ADR 0013), and where the source of the MPL-2.0 package dbus is (§3.11).
+/// Plex, handwriting and similar-font families (§5.2) and the Lucide icons
+/// with the Feather notice (§5.3, ADR 0013), and where the source of the
+/// MPL-2.0 package dbus is (§3.11).
 /// A test checks this list against `pubspec.yaml`.
 ///
 /// Texts from the PDFium archive are listed under their component and under
@@ -85,6 +86,15 @@ const List<BundledLicense> bundledLicenses = [
   BundledLicense('assets/fonts/ibm-plex-sans-devanagari/LICENSE.txt', [
     'IBM Plex Sans Devanagari',
   ]),
+  // Typed signatures (Q08 group 3): OFL-1.1, Homemade Apple Apache-2.0.
+  BundledLicense('assets/fonts/caveat/LICENSE.txt', ['Caveat']),
+  BundledLicense('assets/fonts/dancing-script/LICENSE.txt', ['Dancing Script']),
+  BundledLicense('assets/fonts/homemade-apple/LICENSE.txt', ['Homemade Apple']),
+  // Similar fonts for missing glyphs (Q08 group 4), OFL-1.1.
+  BundledLicense('assets/fonts/cormorant-garamond/LICENSE.txt', [
+    'Cormorant Garamond',
+  ]),
+  BundledLicense('assets/fonts/crimson-pro/LICENSE.txt', ['Crimson Pro']),
   // Lucide (ISC) with the Feather (MIT) notice, under "Lucide" (ADR 0013).
   BundledLicense('assets/icons/LICENSE-lucide-0.460.0.txt', ['Lucide']),
   BundledLicense('assets/icons/LICENSE-lucide-1.56.0.txt', ['Lucide']),

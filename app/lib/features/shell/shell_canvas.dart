@@ -1,14 +1,15 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/features/editor/edit_callouts.dart';
-import 'package:ferman/features/editor/edit_session.dart';
-import 'package:ferman/features/save/document_saver.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
+import 'package:ferman/features/jobs/task_drawer.dart';
+import 'package:ferman/features/organize/combine_tab.dart';
+import 'package:ferman/features/organize/crop_overlay.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/page_grid.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
-import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/open_files.dart';
-import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -136,34 +137,16 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     });
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final active = ref.watch(shellDocumentsProvider).active;
-    // a1-9f: where the toast of a file that got no tab shows.
-    final problem = ref.watch(documentOpenerProvider);
-    // B110: an attachment that was not saved, in the same place.
-    final unsaved = ref.watch(attachmentSaverProvider);
-    // a11-6: the "Font substituted" toast of an edit's commit.
-    final substituted = ref.watch(
-      documentEditorProvider.select((s) => s.toast),
-    );
-    // f4: a save that failed, once its dialog closed.
-    final saveFailure = ref.watch(
-      documentSaverProvider.select((s) => s.toast ? s.failure : null),
-    );
-    final toastChild = problem != null
-        ? OpenProblemToast(problem)
-        : saveFailure != null
-        ? SaveFailureToast(saveFailure)
-        : unsaved != null
-        ? AttachmentSaveToast(unsaved)
-        : substituted != null
-        ? FontSubstitutedToast(substituted)
+    // a11-6b: below the dialogs, at the canvas's bottom end.
+    final taskDrawer = ref.watch(backgroundJobsProvider.select((s) => s.open))
+        ? PositionedDirectional(
+            top: theme.space.space2,
+            bottom: theme.space.space2,
+            start: theme.space.space3,
+            end: theme.space.space3,
+            child: const TaskDrawer(),
+          )
         : null;
-    final problemToast = toastChild == null
-        ? null
-        : PositionedDirectional(
-            bottom: theme.space.space4,
-            end: theme.space.space4,
-            child: SizedBox(width: Toast.width, child: toastChild),
-          );
     // a1-7: a file still opening, with its Cancel (also Esc).
     final opening = active != null && active.loading ? active.path : null;
     void cancelOpening() =>
@@ -214,8 +197,16 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                 textDirection: TextDirection.ltr,
                 child: ColoredBox(
                   color: theme.colors.surfaceCanvas,
-                  child:
-                      active != null && (active.locked || active.error != null)
+                  child: active?.combine ?? false
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [const CombineTab(), ?taskDrawer],
+                          ),
+                        )
+                      : active != null &&
+                            (active.locked || active.error != null)
                       ? Directionality(
                           textDirection: uiDirection,
                           child: Stack(
@@ -228,7 +219,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                       )
                                     : OpenErrorTab(active),
                               ),
-                              ?problemToast,
+                              ?taskDrawer,
                             ],
                           ),
                         )
@@ -250,7 +241,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                   cancelLabel: l10n.openingCancel,
                                 ),
                               ),
-                              ?problemToast,
+                              ?taskDrawer,
                             ],
                           ),
                         )
@@ -277,16 +268,48 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                       child: Stack(
                                         children: [
                                           Positioned.fill(
-                                            child: Directionality(
-                                              textDirection: TextDirection.ltr,
-                                              child: DocumentView(
-                                                key: ValueKey(view.document.id),
-                                                uiDirection: uiDirection,
-                                                tools: mode == FermanMode.view,
-                                                edit: mode == FermanMode.edit,
+                                            child:
+                                                mode == FermanMode.organize &&
+                                                    // a6-4 works on the
+                                                    // reader's page.
+                                                    !ref.watch(
+                                                      cropShowingProvider,
+                                                    )
+                                                // G32: the grid follows the
+                                                // UI's direction, its pages
+                                                // never mirror.
+                                                ? PageGrid(
+                                                    key: ValueKey(
+                                                      view.document.id,
+                                                    ),
+                                                  )
+                                                : Directionality(
+                                                    textDirection:
+                                                        TextDirection.ltr,
+                                                    child: DocumentView(
+                                                      key: ValueKey(
+                                                        view.document.id,
+                                                      ),
+                                                      uiDirection: uiDirection,
+                                                      tools:
+                                                          mode ==
+                                                          FermanMode.view,
+                                                      edit:
+                                                          mode ==
+                                                          FermanMode.edit,
+                                                    ),
+                                                  ),
+                                          ),
+                                          // a6-4, over the pages' own
+                                          // geometry, which never mirrors.
+                                          if (ref.watch(cropShowingProvider))
+                                            const Positioned.fill(
+                                              child: Directionality(
+                                                textDirection:
+                                                    TextDirection.ltr,
+                                                child: CropOverlay(),
                                               ),
                                             ),
-                                          ),
                                           PositionedDirectional(
                                             top: theme.space.space3,
                                             end: theme.space.space4,
@@ -318,9 +341,17 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                         setState(() => _ownerUnlock = null),
                                   ),
                                 ),
+                              ?taskDrawer,
                               const Positioned.fill(child: SaveOverlays()),
-                              ?problemToast,
                             ],
+                          ),
+                        )
+                      : taskDrawer != null
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [taskDrawer],
                           ),
                         )
                       : const SizedBox.expand(),

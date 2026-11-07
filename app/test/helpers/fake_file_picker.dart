@@ -36,4 +36,16 @@ final class FakeFilePickerService implements FilePickerService {
     saves.add(suggestedName);
     return saveTo;
   }
+
+  @override
+  Future<List<String>> openFilesToCombine({required String filterLabel}) async {
+    requests.add(filterLabel);
+    return picked;
+  }
+
+  /// What the folder panel returns; null, as if cancelled, by default.
+  String? folder;
+
+  @override
+  Future<String?> chooseFolder({String? initial}) async => folder;
 }

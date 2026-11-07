@@ -58,6 +58,9 @@ pub struct Generated {
     /// The blocks, lines, alignment and columns of every page as JSON, when the generator knows
     /// them (`text::blocks_json`).
     pub blocks: Option<String>,
+    /// Files other than PDFs that belong to the same fixture, by name in [`GENERATED_DIR`], each
+    /// with a README row of its own.
+    pub extras: Vec<(String, Vec<u8>)>,
 }
 
 /// What a reader should do with a generated file. The PDFium oracle test
@@ -109,7 +112,7 @@ impl Generator {
     }
 
     /// The generator's files as (path relative to [`CORPUS_DIR`], bytes): the PDF first, then
-    /// the expected text and, when the generator knows them, the blocks.
+    /// the expected text and, when the generator has them, the blocks and its extras.
     ///
     /// # Errors
     ///
@@ -122,6 +125,9 @@ impl Generator {
         ];
         if let Some(blocks) = generated.blocks {
             outputs.push((self.blocks_path(), blocks.into_bytes()));
+        }
+        for (name, bytes) in generated.extras {
+            outputs.push((format!("{GENERATED_DIR}/{name}"), bytes));
         }
         Ok(outputs)
     }
@@ -366,6 +372,7 @@ mod tests {
             pdf: b"%PDF-1.7 small".to_vec(),
             expected_text: "Page one\u{c}Page two".to_owned(),
             blocks: Some("{}".to_owned()),
+            extras: Vec::new(),
         })
     }
 
@@ -374,6 +381,7 @@ mod tests {
             pdf: vec![b'x'; COMMIT_LIMIT + 1],
             expected_text: "Large".to_owned(),
             blocks: None,
+            extras: Vec::new(),
         })
     }
 
@@ -383,6 +391,7 @@ mod tests {
             pdf: vec![RUNS.fetch_add(1, Ordering::Relaxed)],
             expected_text: String::new(),
             blocks: None,
+            extras: Vec::new(),
         })
     }
 

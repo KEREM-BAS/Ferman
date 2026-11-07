@@ -27,7 +27,33 @@ List<TextStyle> _roles(FermanTypography t) => [
   t.wordmark,
 ];
 
+double _width(String family, double weight) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: 'Ayşe Yılmaz',
+      style: TextStyle(
+        fontFamily: family,
+        fontSize: 32,
+        fontVariations: [FontVariation.weight(weight)],
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return width;
+}
+
 void main() {
+  test('the variable handwriting fonts follow the wght the app asks for', () {
+    for (final family in [
+      FermanTypeTokens.fontHand1.family!,
+      FermanTypeTokens.fontHand3.family!,
+    ]) {
+      expect(_width(family, 700), isNot(_width(family, 400)), reason: family);
+    }
+  });
+
   // These tests check the app's own chains. flutter_test_config.dart appends
   // the system fonts it loaded for goldens (FermanFontFamilies
   // .debugExtraFallback); take them out before any typography is built in

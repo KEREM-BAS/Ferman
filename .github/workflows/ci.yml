@@ -341,6 +341,10 @@ jobs:
                 mkdir -p "corpus/$target"
                 corpus=("corpus/$target" seeds/fonts)
                 ;;
+              image_layer)
+                mkdir -p "corpus/$target"
+                corpus=("corpus/$target" seeds/images)
+                ;;
             esac
             cargo fuzz run "$target" "${corpus[@]}" -- -max_total_time=60 -rss_limit_mb=2048
             echo "::endgroup::"

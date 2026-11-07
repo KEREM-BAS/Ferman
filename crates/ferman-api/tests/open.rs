@@ -42,7 +42,7 @@ fn open(name: &str, password: Option<&str>) -> Result<OpenedDocument, ApiError> 
 }
 
 /// Every corpus file that opens, with its password.
-const FILES: [(&str, Option<&str>); 23] = [
+const FILES: [(&str, Option<&str>); 34] = [
     ("disagree-pages", None),
     ("form-aks1-flat", None),
     ("form-aks1-tr", None),
@@ -66,6 +66,17 @@ const FILES: [(&str, Option<&str>); 23] = [
     ("scan-tr", None),
     ("tez-tr", None),
     ("xfa-visa", None),
+    ("annots-other-producer", None),
+    ("cert-p1", None),
+    ("cert-p2", None),
+    ("cert-p3", None),
+    ("form-signed", None),
+    ("form-hybrid-xfa", None),
+    ("form-need-appearances", None),
+    ("form-script", None),
+    ("form-lists-comb", None),
+    ("combine-outline", None),
+    ("images-compress", None),
 ];
 
 #[test]

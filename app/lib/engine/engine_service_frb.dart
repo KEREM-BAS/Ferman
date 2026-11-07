@@ -8,7 +8,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/recovery_directory.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
+    show ExternalLibrary, Uint32List, Uint64List;
 import 'package:path_provider/path_provider.dart';
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
@@ -365,6 +365,282 @@ class FrbEngineService implements EngineService {
       )
       .where((update) => update != null)
       .cast<SearchUpdate>();
+
+  @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCopyDocumentJob(
+      document: BigInt.from(document),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  /// [events] as the app gets them.
+  Stream<JobUpdate> _jobUpdates(Stream<bridge.JobEvent> events) => events
+      .handleError(
+        (Object error) => throw _exception(error as bridge.ApiError),
+        test: (error) => error is bridge.ApiError,
+      )
+      .map(
+        (event) => JobUpdate(
+          job: event.job.toInt(),
+          state: switch (event.state) {
+            bridge.JobState.running => JobState.running,
+            bridge.JobState.paused => JobState.paused,
+            bridge.JobState.done => JobState.done,
+            bridge.JobState.failed => JobState.failed,
+            bridge.JobState.cancelled => JobState.cancelled,
+          },
+          progress: event.progress,
+          messageKey: event.messageKey,
+          params: {for (final (key, value) in event.params) key: value},
+          outputs: [
+            for (final output in event.outputs)
+              JobOutputFile(path: output.path, staged: output.staged),
+          ],
+          revision: event.revision,
+          error: switch (event.error) {
+            final error? => _exception(error),
+            null => null,
+          },
+        ),
+      );
+
+  static bridge.PaperSize _paper(ImagePaper paper) => switch (paper) {
+    ImagePaper.a4 => bridge.PaperSize.a4,
+    ImagePaper.letter => bridge.PaperSize.letter,
+  };
+
+  static bridge.CombineInput _combineInput(CombineInput input) =>
+      bridge.CombineInput(
+        path: input.path,
+        password: input.password,
+        pages: switch (input.pages) {
+          final pages? => Uint32List.fromList(pages),
+          null => null,
+        },
+        blankWidth: input.blankWidth,
+        blankHeight: input.blankHeight,
+        bookmark: input.bookmark,
+      );
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) =>
+      _revision(() => bridge.applyJobChange(job: BigInt.from(job)));
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async {
+    try {
+      final preview = await bridge.combinePreview(
+        files: [for (final file in files) _combineInput(file)],
+        keepForms: keepForms,
+      );
+      return CombinePreview(
+        files: [
+          for (final row in preview.files)
+            CombineFileInfo(
+              status: switch (row.status) {
+                bridge.InputStatus.ready => CombineInputStatus.ready,
+                bridge.InputStatus.passwordRequired =>
+                  CombineInputStatus.passwordRequired,
+                bridge.InputStatus.wrongPassword =>
+                  CombineInputStatus.wrongPassword,
+                bridge.InputStatus.ownerPasswordRequired =>
+                  CombineInputStatus.ownerPasswordRequired,
+                bridge.InputStatus.badRange => CombineInputStatus.badRange,
+                bridge.InputStatus.unreadable => CombineInputStatus.unreadable,
+              },
+              image: row.image,
+              pages: row.pages,
+              selected: row.selected,
+              bytes: row.bytes.toInt(),
+              encrypted: row.encrypted,
+              signed: row.signed,
+            ),
+        ],
+        pages: preview.pages,
+        bytes: preview.bytes.toInt(),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCombineJob(
+      files: [for (final file in files) _combineInput(file)],
+      keepForms: keepForms,
+      paper: _paper(paper),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startExtractPagesJob(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async {
+    try {
+      final preview = await bridge.splitPreview(
+        document: BigInt.from(document),
+        kind: switch (kind) {
+          SplitKind.everyPages => bridge.SplitKind.everyPages,
+          SplitKind.topBookmarks => bridge.SplitKind.topBookmarks,
+          SplitKind.size => bridge.SplitKind.size,
+          SplitKind.blankPages => bridge.SplitKind.blankPages,
+        },
+        amount: BigInt.from(amount),
+        template: template,
+        folder: folder,
+      );
+      return SplitPreview(
+        files: [
+          for (final file in preview.files)
+            SplitFile(
+              name: file.name,
+              first: file.first,
+              last: file.last,
+              bytes: file.bytes.toInt(),
+              overLimit: file.overLimit,
+            ),
+        ],
+        bookmarks: preview.bookmarks,
+        blankPages: preview.blankPages,
+        encrypted: preview.encrypted,
+        signed: preview.signed,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startSplitJob(
+      document: BigInt.from(document),
+      files: [
+        for (final file in files)
+          bridge.SplitOutput(
+            name: file.name,
+            first: file.first,
+            last: file.last,
+          ),
+      ],
+      folder: folder,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) => _jobUpdates(
+    bridge.startInsertPagesJob(
+      document: BigInt.from(document),
+      path: path,
+      password: password,
+      pages: switch (pages) {
+        final pages? => Uint32List.fromList(pages),
+        null => null,
+      },
+      after: after == null ? null : BigInt.from(after),
+      paper: _paper(paper),
+      name: name,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  }) => _jobUpdates(
+    bridge.startReplacePagesJob(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      path: path,
+      password: password,
+      sourcePages: switch (sourcePages) {
+        final pages? => Uint32List.fromList(pages),
+        null => null,
+      },
+      name: name,
+    ),
+  );
+
+  @override
+  Future<void> pauseJob(int job) async {
+    try {
+      await bridge.pauseJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> resumeJob(int job) async {
+    try {
+      await bridge.resumeJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> cancelJob(int job) async {
+    try {
+      await bridge.cancelJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
 
   /// The UTF-16 offset of the character at [chars] in [text].
   static int _units(String text, int chars) => text.runes
@@ -827,6 +1103,206 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) => _revision(
+    () => bridge.rotatePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      quarterTurns: quarterTurns,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) => _revision(
+    () => bridge.deletePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) => _revision(
+    () => bridge.movePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      before: before == null ? null : BigInt.from(before),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) => _revision(
+    () => bridge.duplicatePages(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) => _revision(
+    () => bridge.insertBlankPages(
+      document: BigInt.from(document),
+      after: after == null ? null : BigInt.from(after),
+      count: count,
+      width: width,
+      height: height,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) => _revision(
+    () => bridge.setPageSize(
+      document: BigInt.from(document),
+      pages: _handles(pages),
+      width: width,
+      height: height,
+      fit: switch (fit) {
+        PageFit.centre => bridge.PageFit.centre,
+        PageFit.scale => bridge.PageFit.scale,
+      },
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) => _revision(
+    () => bridge.cropPages(
+      document: BigInt.from(document),
+      crops: [
+        for (final MapEntry(key: page, value: margins) in crops.entries)
+          bridge.PageCrop(
+            page: BigInt.from(page),
+            margins: bridge.PageMargins(
+              top: margins.top,
+              bottom: margins.bottom,
+              left: margins.left,
+              right: margins.right,
+            ),
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(int document, List<int> pages) async {
+    try {
+      final margins = await bridge.whiteMargins(
+        document: BigInt.from(document),
+        pages: _handles(pages),
+      );
+      return [
+        for (final page in margins)
+          switch (page) {
+            null => null,
+            final page => PageMargins(
+              top: page.top,
+              bottom: page.bottom,
+              left: page.left,
+              right: page.right,
+            ),
+          },
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async {
+    try {
+      final ranges = await bridge.pageLabelRanges(
+        document: BigInt.from(document),
+      );
+      return [
+        for (final range in ranges)
+          PageLabelRange(
+            start: range.start,
+            style: switch (range.style) {
+              bridge.LabelStyle.none => PageLabelStyle.none,
+              bridge.LabelStyle.decimal => PageLabelStyle.decimal,
+              bridge.LabelStyle.romanUpper => PageLabelStyle.romanUpper,
+              bridge.LabelStyle.romanLower => PageLabelStyle.romanLower,
+              bridge.LabelStyle.lettersUpper => PageLabelStyle.lettersUpper,
+              bridge.LabelStyle.lettersLower => PageLabelStyle.lettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  ) => _revision(
+    () => bridge.setPageLabels(
+      document: BigInt.from(document),
+      ranges: [
+        for (final range in ranges)
+          bridge.LabelRange(
+            start: range.start,
+            style: switch (range.style) {
+              PageLabelStyle.none => bridge.LabelStyle.none,
+              PageLabelStyle.decimal => bridge.LabelStyle.decimal,
+              PageLabelStyle.romanUpper => bridge.LabelStyle.romanUpper,
+              PageLabelStyle.romanLower => bridge.LabelStyle.romanLower,
+              PageLabelStyle.lettersUpper => bridge.LabelStyle.lettersUpper,
+              PageLabelStyle.lettersLower => bridge.LabelStyle.lettersLower,
+            },
+            prefix: range.prefix,
+            first: range.first,
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
   Future<RevisionInfo> undo(int document) =>
       _revision(() => bridge.undo(document: BigInt.from(document)));
 
@@ -843,10 +1319,19 @@ class FrbEngineService implements EngineService {
         current: info.current,
         // A render key is a 64-bit value: wrapped, not clamped.
         renderKey: info.renderKey?.toSigned(64).toInt(),
+        changedPages: info.changedPages?.toList(),
         substitutions: [
           for (final substitution in info.substitutions)
             _substitution(substitution),
         ],
+        structure: switch (info.structure) {
+          null => null,
+          final structure => DocumentStructure(
+            pages: _pages(structure.pages),
+            outline: _outline(structure.outline),
+            attachments: _attachments(structure.attachments),
+          ),
+        },
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -905,7 +1390,7 @@ class FrbEngineService implements EngineService {
                 for (final substitution in step.substitutions)
                   _substitution(substitution),
               ],
-              page: step.page,
+              pages: [for (final page in step.pages) page.toInt()],
               before: step.before,
               after: step.after,
               reverts: step.reverts.toList(),
@@ -1008,6 +1493,35 @@ class FrbEngineService implements EngineService {
   Future<bool> wouldBreakSignatures(int document) async {
     try {
       return await bridge.wouldBreakSignatures(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async {
+    try {
+      final gate = await bridge.opGate(
+        document: BigInt.from(document),
+        op: switch (op) {
+          DocumentOp.editText => bridge.DocumentOp.editText,
+          DocumentOp.organize => bridge.DocumentOp.organize,
+          DocumentOp.comment => bridge.DocumentOp.comment,
+          DocumentOp.fill => bridge.DocumentOp.fill,
+          DocumentOp.print => bridge.DocumentOp.print,
+        },
+        fields: fields,
+      );
+      return switch (gate) {
+        bridge.OpGate.unaffected => OpGate.unaffected,
+        bridge.OpGate.keepsSignatures => OpGate.keepsSignatures,
+        bridge.OpGate.breaksSignatures => OpGate.breaksSignatures,
+        bridge.OpGate.forbidden => OpGate.forbidden,
+      };
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -1275,8 +1789,7 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
   };
 }
 
-/// The folder of the fonts the build bundles (`app/assets/fonts`, IBM
-/// Plex), as an absolute path next to the running executable: where
+/// The folder of the fonts the build bundles (`app/assets/fonts`), as an absolute path next to the running executable: where
 /// Flutter puts the app's assets on each desktop system; null elsewhere.
 String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
   final os = operatingSystem ?? Platform.operatingSystem;
@@ -1302,6 +1815,48 @@ String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
 
+/// Page handles as the bridge takes them.
+Uint64List _handles(List<int> pages) {
+  final handles = Uint64List(pages.length);
+  for (var i = 0; i < pages.length; i++) {
+    handles[i] = BigInt.from(pages[i]);
+  }
+  return handles;
+}
+
+/// The engine's pages as the app's.
+List<PageInfo> _pages(List<bridge.PageInfo> pages) => [
+  for (final page in pages)
+    PageInfo(
+      width: page.width,
+      height: page.height,
+      rotation: page.rotation,
+      label: page.label,
+      handle: page.handle.toInt(),
+    ),
+];
+
+/// The engine's outline as the app's.
+List<OutlineEntry> _outline(List<bridge.OutlineEntry> outline) => [
+  for (final item in outline)
+    OutlineEntry(
+      title: item.title,
+      page: item.page,
+      depth: item.depth,
+      open: item.open,
+    ),
+];
+
+/// The engine's attachments as the app's.
+List<Attachment> _attachments(List<bridge.Attachment> attachments) => [
+  for (final file in attachments)
+    Attachment(
+      name: file.name,
+      size: file.size?.toInt(),
+      modified: _date(file.modified),
+    ),
+];
+
 /// The engine's document as the app's.
 OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
   id: document.id.toInt(),
@@ -1326,27 +1881,9 @@ OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
       ),
   ],
   rightToLeft: document.rightToLeft,
-  pages: [
-    for (final page in document.pages)
-      PageInfo(width: page.width, height: page.height, label: page.label),
-  ],
-  outline: [
-    for (final item in document.outline)
-      OutlineEntry(
-        title: item.title,
-        page: item.page,
-        depth: item.depth,
-        open: item.open,
-      ),
-  ],
-  attachments: [
-    for (final file in document.attachments)
-      Attachment(
-        name: file.name,
-        size: file.size?.toInt(),
-        modified: _date(file.modified),
-      ),
-  ],
+  pages: _pages(document.pages),
+  outline: _outline(document.outline),
+  attachments: _attachments(document.attachments),
   layers: [
     for (final layer in document.layers)
       Layer(name: layer.name, visible: layer.visible, locked: layer.locked),

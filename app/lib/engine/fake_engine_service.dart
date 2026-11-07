@@ -33,8 +33,9 @@ class FakeEngineService implements EngineService {
   });
 
   /// Madde 6 of kira-tr in a3-3a and a3-3b: EB Garamond has no "ğ"; the
-  /// same font is not installed, Plex Serif is offered first and IBM Plex
-  /// Sans Arabic covers only part of the text.
+  /// same font is not installed, Plex Serif is offered first, then the two
+  /// similar fonts a3-3b shows, and IBM Plex Sans Arabic covers only part of
+  /// the text.
   static const madde6Glyphs = MissingGlyphs(
     chars: [MissingChar(text: 'ğ', at: 0)],
     font: 'EBGaramond-Regular',
@@ -56,6 +57,24 @@ class FakeEngineService implements EngineService {
         needed: 1,
         similarity: 0.9,
         preview: 'ğ',
+      ),
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'CormorantGaramond-Regular',
+        family: 'Cormorant Garamond',
+        covered: 1,
+        needed: 1,
+        similarity: 0.88,
+        preview: 'Ğğ İı Şş Çç Öö Üü',
+      ),
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'CrimsonPro-Regular',
+        family: 'Crimson Pro',
+        covered: 1,
+        needed: 1,
+        similarity: 0.86,
+        preview: 'Ğğ İı Şş Çç Öö Üü',
       ),
       FontCandidate(
         origin: FontOrigin.bundled,
@@ -177,6 +196,9 @@ class FakeEngineService implements EngineService {
   /// Each document's render key, from [showLayers].
   final Map<int, int> _renderKeys = {};
   int _lastRenderKey = 0;
+
+  /// Each document's pages with a key of their own, newer than the document's.
+  final Map<int, Map<int, int>> _pageKeys = {};
 
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
@@ -367,6 +389,7 @@ class FakeEngineService implements EngineService {
   @override
   Future<int> showLayers(int document, List<bool> visible) async {
     layerRequests.add(visible);
+    _pageKeys.remove(document);
     return _renderKeys[document] = ++_lastRenderKey;
   }
 
@@ -419,6 +442,192 @@ class FakeEngineService implements EngineService {
     }
     yield SearchProgress(searched: pages, pages: pages);
     yield SearchDone(textless: textless);
+  }
+
+  /// The jobs started and not ended, by handle.
+  final Map<int, StreamController<JobUpdate>> _jobs = {};
+
+  /// The arguments of every [copyDocumentJob], oldest first.
+  final List<(int document, String output, String? staging)> copyJobs = [];
+
+  /// The jobs [pauseJob], [resumeJob] and [cancelJob] were asked about, in
+  /// order, as "pause 1".
+  final List<String> jobCalls = [];
+
+  int _nextJob = 1;
+
+  /// Starts a job that waits: drive it with [reportJob] and [endJob].
+  @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) {
+    copyJobs.add((document, output, staging));
+    return _waitingJob();
+  }
+
+  Stream<JobUpdate> _waitingJob() {
+    final job = _nextJob++;
+    final updates = _jobs[job] = StreamController<JobUpdate>()
+      ..add(JobUpdate(job: job, state: JobState.running));
+    return updates.stream;
+  }
+
+  /// What [combinePreview] answers.
+  CombinePreview combinePreviewFound = const CombinePreview();
+
+  /// What [splitPreview] answers.
+  SplitPreview splitPreviewFound = const SplitPreview();
+
+  /// The arguments of every job of Combine, Extract, Split, Insert and Replace,
+  /// oldest first, as "split 1 /folder".
+  final List<String> assembleJobs = [];
+
+  /// The changes waiting for [applyJobChange], by job.
+  final Map<int, RevisionInfo Function()> _waitingChanges = {};
+
+  /// How many pages [insertPagesJob]'s change adds, of 100 by 200 points.
+  int insertedPages = 1;
+
+  /// Starts a job whose [change] waits for [applyJobChange].
+  Stream<JobUpdate> _changeJob(RevisionInfo Function() change) {
+    _waitingChanges[_nextJob] = change;
+    return _waitingJob();
+  }
+
+  @override
+  Future<RevisionInfo> applyJobChange(int job) async {
+    final change = _waitingChanges.remove(job);
+    if (change == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      );
+    }
+    return change();
+  }
+
+  @override
+  Future<CombinePreview> combinePreview(
+    List<CombineInput> files, {
+    required bool keepForms,
+  }) async => combinePreviewFound;
+
+  @override
+  Stream<JobUpdate> combineJob(
+    List<CombineInput> files, {
+    required bool keepForms,
+    required ImagePaper paper,
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('combine ${files.length} $output');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> extractPagesJob(
+    int document,
+    List<int> pages, {
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('extract ${pages.length} $output');
+    return _waitingJob();
+  }
+
+  @override
+  Future<SplitPreview> splitPreview(
+    int document, {
+    required SplitKind kind,
+    required String template,
+    int amount = 0,
+    String? folder,
+  }) async => splitPreviewFound;
+
+  @override
+  Stream<JobUpdate> splitJob(
+    int document,
+    List<SplitFile> files, {
+    required String folder,
+    String? staging,
+  }) {
+    assembleJobs.add('split ${files.length} $folder');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> insertPagesJob(
+    int document, {
+    required String path,
+    required int? after,
+    required ImagePaper paper,
+    required String name,
+    String? password,
+    List<int>? pages,
+  }) {
+    assembleJobs.add('insert $path');
+    return _changeJob(
+      () => _pagesChanged(document, name, [?after], (all) {
+        final at = after == null
+            ? 0
+            : all.indexWhere((page) => page.handle == after) + 1;
+        return [
+          ...all.take(at),
+          for (var i = 0; i < insertedPages; i++) _newPage(100, 200, null),
+          ...all.skip(at),
+        ];
+      }),
+    );
+  }
+
+  /// The change keeps the first replaced pages' handles and removes the rest,
+  /// as one new page for each replaced page would.
+  @override
+  Stream<JobUpdate> replacePagesJob(
+    int document,
+    List<int> pages, {
+    required String path,
+    required String name,
+    String? password,
+    List<int>? sourcePages,
+  }) {
+    assembleJobs.add('replace ${pages.length} $path');
+    return _changeJob(
+      () => _pagesChanged(document, name, pages, (all) => [...all]),
+    );
+  }
+
+  /// Sends [update] to its job's stream.
+  void reportJob(JobUpdate update) => _jobs[update.job]?.add(update);
+
+  /// Sends [update], the job's last, and closes its stream.
+  void endJob(JobUpdate update) {
+    final updates = _jobs.remove(update.job);
+    updates?.add(update);
+    unawaited(updates?.close());
+  }
+
+  /// Parks the job at once.
+  @override
+  Future<void> pauseJob(int job) async {
+    jobCalls.add('pause $job');
+    reportJob(JobUpdate(job: job, state: JobState.paused));
+  }
+
+  /// Lets the job go on at once.
+  @override
+  Future<void> resumeJob(int job) async {
+    jobCalls.add('resume $job');
+    reportJob(JobUpdate(job: job, state: JobState.running));
+  }
+
+  /// Ends the job as cancelled at once.
+  @override
+  Future<void> cancelJob(int job) async {
+    jobCalls.add('cancel $job');
+    endJob(JobUpdate(job: job, state: JobState.cancelled));
   }
 
   /// The blocks of [page] of [document] as its applied edits left them.
@@ -742,11 +951,43 @@ class FakeEngineService implements EngineService {
   ({List<_FakeStep> steps, int current}) _history(int document) =>
       _histories[document] ?? (steps: const [], current: 0);
 
-  /// A new render key for every page of [document], as a reload gives.
-  RevisionInfo _reloaded(int document) => RevisionInfo(
-    current: _history(document).current,
-    renderKey: _renderKeys[document] = ++_lastRenderKey,
-  );
+  /// The pages, outline and attachments the next commit, undo or redo leaves:
+  /// what a change to the document's structure hands the app.
+  DocumentStructure? nextStructure;
+
+  /// The pages the next commit, undo or redo reaches; null means every page.
+  List<int>? nextChangedPages;
+
+  /// A new render key for [nextChangedPages] of [document], as a reload gives.
+  RevisionInfo _reloaded(int document) {
+    final structure = nextStructure;
+    nextStructure = null;
+    if (structure != null) {
+      for (final entry in documents.entries.toList()) {
+        if (entry.value.id == document) {
+          documents[entry.key] = entry.value.withStructure(structure);
+        }
+      }
+    }
+    final key = ++_lastRenderKey;
+    final changed = nextChangedPages;
+    nextChangedPages = null;
+    if (changed == null) {
+      _renderKeys[document] = key;
+      _pageKeys.remove(document);
+    } else {
+      final pages = _pageKeys[document] ??= {};
+      for (final page in changed) {
+        pages[page] = key;
+      }
+    }
+    return RevisionInfo(
+      current: _history(document).current,
+      renderKey: key,
+      changedPages: changed,
+      structure: structure,
+    );
+  }
 
   /// Refused while step 3's characters are drawn without a choice; the
   /// transaction stays open.
@@ -796,7 +1037,13 @@ class FakeEngineService implements EngineService {
                 ? open.overflow?.keepHidden ?? 0
                 : 0,
             substitutions: open.substitutions,
-            page: open.page,
+            pages: [
+              documents.values
+                      .where((document) => document.id == open.document)
+                      .firstOrNull
+                      ?.pageHandle(open.page) ??
+                  open.page,
+            ],
             before: before.blocks
                 .where((block) => block.id == open.block)
                 .map((block) => block.text)
@@ -829,7 +1076,9 @@ class FakeEngineService implements EngineService {
     return RevisionInfo(
       current: reloaded.current,
       renderKey: reloaded.renderKey,
+      changedPages: reloaded.changedPages,
       substitutions: told,
+      structure: reloaded.structure,
     );
   }
 
@@ -975,12 +1224,317 @@ class FakeEngineService implements EngineService {
     }
   }
 
+  /// What [whiteMargins] finds on every page; null for a page with no content.
+  PageMargins? whiteMarginsFound = const PageMargins(
+    top: 20,
+    bottom: 30,
+    left: 25,
+    right: 25,
+  );
+
+  /// The label ranges [setPageLabels] set, by document.
+  final Map<int, List<PageLabelRange>> _labelRanges = {};
+
+  /// The last handle a page made here got; past any page's index.
+  int _lastPageHandle = 1 << 32;
+
+  OpenedDocument _openedById(int document) =>
+      documents.values.firstWhere((opened) => opened.id == document);
+
+  /// [opened]'s pages, each with its handle.
+  List<PageInfo> _handled(OpenedDocument opened) => [
+    for (final (index, page) in opened.pages.indexed)
+      PageInfo(
+        width: page.width,
+        height: page.height,
+        rotation: page.rotation,
+        label: page.label,
+        handle: page.handle ?? index,
+      ),
+  ];
+
+  /// Commits the page list [change] makes of the document's, as the step
+  /// [name] on the [touched] pages. shortcut: the blocks stay by page index,
+  /// so a page's text does not follow it when it moves; follow it when a test
+  /// reads blocks after a move.
+  RevisionInfo _pagesChanged(
+    int document,
+    String name,
+    List<int> touched,
+    List<PageInfo> Function(List<PageInfo> pages) change,
+  ) {
+    _closed(document, can: true);
+    final opened = _openedById(document);
+    final pages = _handled(opened);
+    if (touched.any((page) => pages.every((p) => p.handle != page))) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final after = change(pages);
+    if (after.isEmpty) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    _confirmed(document);
+    final history = _history(document);
+    final blocks = _blocks(document, 0);
+    final next = DocumentStructure(
+      pages: after,
+      outline: opened.outline,
+      attachments: opened.attachments,
+    );
+    _histories[document] = (
+      steps: [
+        ...history.steps.take(history.current),
+        _FakeStep(
+          HistoryStep(name: name, time: now(), pages: touched),
+          0,
+          blocks,
+          blocks,
+          block: -1,
+          structureBefore: DocumentStructure(
+            pages: pages,
+            outline: opened.outline,
+            attachments: opened.attachments,
+          ),
+          structureAfter: next,
+        ),
+      ],
+      current: history.current + 1,
+    );
+    nextStructure = next;
+    return _reloaded(document);
+  }
+
+  PageInfo _resized(
+    PageInfo page,
+    double width,
+    double height, {
+    int? rotation,
+  }) => PageInfo(
+    width: width,
+    height: height,
+    rotation: rotation ?? page.rotation,
+    label: page.label,
+    handle: page.handle,
+  );
+
+  PageInfo _newPage(double width, double height, String? label) => PageInfo(
+    width: width,
+    height: height,
+    label: label,
+    handle: ++_lastPageHandle,
+  );
+
+  @override
+  Future<RevisionInfo> rotatePages(
+    int document,
+    List<int> pages,
+    int quarterTurns,
+    String name,
+  ) async => _pagesChanged(
+    document,
+    name,
+    pages,
+    (all) => [
+      for (final page in all)
+        if (pages.contains(page.handle))
+          _resized(
+            page,
+            quarterTurns.isOdd ? page.height : page.width,
+            quarterTurns.isOdd ? page.width : page.height,
+            rotation: (page.rotation + quarterTurns * 90) % 360,
+          )
+        else
+          page,
+    ],
+  );
+
+  /// Refuses the next deletes when set.
+  EngineException? deleteFailure;
+
+  @override
+  Future<RevisionInfo> deletePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async {
+    if (deleteFailure case final failure?) throw failure;
+    return _pagesChanged(
+      document,
+      name,
+      pages,
+      (all) => [
+        for (final page in all)
+          if (!pages.contains(page.handle)) page,
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> movePages(
+    int document,
+    List<int> pages,
+    int? before,
+    String name,
+  ) async => _pagesChanged(document, name, pages, (all) {
+    final moving = [
+      for (final page in all)
+        if (pages.contains(page.handle)) page,
+    ];
+    final rest = [
+      for (final page in all)
+        if (!pages.contains(page.handle)) page,
+    ];
+    final from = all.indexWhere((page) => page.handle == before);
+    final at = from < 0
+        ? rest.length
+        : rest.indexed
+                  .where((entry) => all.indexOf(entry.$2) >= from)
+                  .map((entry) => entry.$1)
+                  .firstOrNull ??
+              rest.length;
+    return [...rest.take(at), ...moving, ...rest.skip(at)];
+  });
+
+  @override
+  Future<RevisionInfo> duplicatePages(
+    int document,
+    List<int> pages,
+    String name,
+  ) async => _pagesChanged(document, name, pages, (all) {
+    final out = <PageInfo>[];
+    final run = <PageInfo>[];
+    for (final (index, page) in all.indexed) {
+      out.add(page);
+      if (pages.contains(page.handle)) {
+        run.add(_newPage(page.width, page.height, page.label));
+      }
+      final next = all.elementAtOrNull(index + 1);
+      if (next == null || !pages.contains(next.handle)) {
+        out.addAll(run);
+        run.clear();
+      }
+    }
+    return out;
+  });
+
+  @override
+  Future<RevisionInfo> insertBlankPages(
+    int document, {
+    required int? after,
+    required int count,
+    required double width,
+    required double height,
+    required String name,
+  }) async => _pagesChanged(document, name, [?after], (all) {
+    final at = after == null
+        ? 0
+        : all.indexWhere((page) => page.handle == after) + 1;
+    return [
+      ...all.take(at),
+      for (var i = 0; i < count; i++) _newPage(width, height, null),
+      ...all.skip(at),
+    ];
+  });
+
+  @override
+  Future<RevisionInfo> setPageSize(
+    int document,
+    List<int> pages, {
+    required double width,
+    required double height,
+    required PageFit fit,
+    required String name,
+  }) async => _pagesChanged(
+    document,
+    name,
+    pages,
+    (all) => [
+      for (final page in all)
+        if (pages.contains(page.handle))
+          _resized(page, width, height)
+        else
+          page,
+    ],
+  );
+
+  @override
+  Future<RevisionInfo> cropPages(
+    int document,
+    Map<int, PageMargins> crops,
+    String name,
+  ) async => _pagesChanged(
+    document,
+    name,
+    crops.keys.toList(),
+    (all) => [
+      for (final page in all)
+        switch (crops[page.handle]) {
+          null => page,
+          final margins => _resized(
+            page,
+            page.width - margins.left - margins.right,
+            page.height - margins.top - margins.bottom,
+          ),
+        },
+    ],
+  );
+
+  @override
+  Future<List<PageMargins?>> whiteMargins(
+    int document,
+    List<int> pages,
+  ) async => [for (final _ in pages) whiteMarginsFound];
+
+  @override
+  Future<List<PageLabelRange>> pageLabelRanges(int document) async =>
+      _labelRanges[document] ?? const [];
+
+  /// shortcut: every numbered style is written in decimal; write them out when
+  /// a test reads a roman label.
+  @override
+  Future<RevisionInfo> setPageLabels(
+    int document,
+    List<PageLabelRange> ranges,
+    String name,
+  ) async {
+    _labelRanges[document] = ranges;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => [
+        for (final (index, page) in all.indexed)
+          PageInfo(
+            width: page.width,
+            height: page.height,
+            handle: page.handle,
+            label: switch (ranges
+                .where((range) => range.start <= index)
+                .lastOrNull) {
+              null => null,
+              final range when range.style == PageLabelStyle.none =>
+                range.prefix,
+              final range =>
+                '${range.prefix}${range.first + index - range.start}',
+            },
+          ),
+      ],
+    );
+  }
+
   @override
   Future<RevisionInfo> undo(int document) async {
     final history = _history(document);
     _closed(document, can: history.current > 0);
     final step = history.steps[history.current - 1];
     _edited[(document, step.page)] = step.before;
+    nextStructure = step.structureBefore ?? nextStructure;
     _histories[document] = (steps: history.steps, current: history.current - 1);
     return _reloaded(document);
   }
@@ -991,6 +1545,7 @@ class FakeEngineService implements EngineService {
     _closed(document, can: history.current < history.steps.length);
     final step = history.steps[history.current];
     _edited[(document, step.page)] = step.after;
+    nextStructure = step.structureAfter ?? nextStructure;
     _histories[document] = (steps: history.steps, current: history.current + 1);
     return _reloaded(document);
   }
@@ -1042,6 +1597,12 @@ class FakeEngineService implements EngineService {
     );
     _push(document, name, set, asked.page, current, after);
     _edited[(document, asked.page)] = after;
+    nextStructure =
+        set
+            .map((index) => history.steps[index].structureBefore)
+            .nonNulls
+            .firstOrNull ??
+        nextStructure;
     return Reverted(
       reverted: true,
       dependents: dependents,
@@ -1050,7 +1611,8 @@ class FakeEngineService implements EngineService {
   }
 
   /// shortcut: the step remembers one page, so Undo after a revert of edits on
-  /// several pages brings back only the first; tests revert on one page.
+  /// several pages brings back only the first, and its page list stays as the
+  /// revert left it; tests revert on one page.
   @override
   Future<RevisionInfo> revertAll(int document, String name) async {
     final history = _history(document);
@@ -1066,6 +1628,12 @@ class FakeEngineService implements EngineService {
       _edited[(document, step.page)] = step.before;
     }
     _push(document, name, live, first.page, current, first.before);
+    nextStructure =
+        live
+            .map((index) => history.steps[index].structureBefore)
+            .nonNulls
+            .firstOrNull ??
+        nextStructure;
     return _reloaded(document);
   }
 
@@ -1142,6 +1710,11 @@ class FakeEngineService implements EngineService {
   /// and writes throw [EngineErrorKind.confirmationRequired] until
   /// [confirmEditSigned].
   final Set<int> signed = {};
+
+  /// What [opGate] says of a document and an operation, when a test sets it.
+  /// Otherwise a changing operation on a [signed] document breaks its
+  /// signatures, and nothing else is concerned.
+  final Map<(int, DocumentOp), OpGate> opGates = {};
 
   /// The signed documents [confirmEditSigned] confirmed, with their tokens.
   final Map<int, int> confirmations = {};
@@ -1285,6 +1858,17 @@ class FakeEngineService implements EngineService {
   @override
   Future<bool> wouldBreakSignatures(int document) async =>
       signed.contains(document);
+
+  @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async =>
+      opGates[(document, op)] ??
+      (signed.contains(document) && op != DocumentOp.print
+          ? OpGate.breaksSignatures
+          : OpGate.unaffected);
 
   @override
   Future<int> confirmEditSigned(int document) async =>
@@ -1459,7 +2043,7 @@ class FakeEngineService implements EngineService {
         RenderedItem(
           item: item,
           generation: generation,
-          renderKey: _renderKeys[owner] ?? 0,
+          renderKey: _pageKeys[owner]?[item.page] ?? _renderKeys[owner] ?? 0,
           x: item is TileItem ? item.column * 512 : 0,
           y: item is TileItem ? item.row * 512 : 0,
           width: width,
@@ -1515,6 +2099,8 @@ final class _FakeStep {
     this.before,
     this.after, {
     required this.block,
+    this.structureBefore,
+    this.structureAfter,
   });
 
   final HistoryStep step;
@@ -1522,4 +2108,8 @@ final class _FakeStep {
   final int block;
   final PageBlocks before;
   final PageBlocks after;
+
+  /// A page operation's lists on either side of it.
+  final DocumentStructure? structureBefore;
+  final DocumentStructure? structureAfter;
 }

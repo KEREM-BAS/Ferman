@@ -21,6 +21,19 @@ const OpenedDocument document = OpenedDocument(
 );
 
 void main() {
+  test('a render key counts for the pages that got it', () {
+    final keys = CurrentKeys()..raise(3);
+    expect(keys.isCurrent(0, 2), isFalse);
+    expect(keys.isCurrent(0, 3), isTrue);
+    keys.raise(5, pages: [1]);
+    expect(keys.isCurrent(0, 3), isTrue, reason: 'it kept its key');
+    expect(keys.isCurrent(1, 3), isFalse);
+    expect(keys.isCurrent(1, 5), isTrue);
+    keys.raise(7);
+    expect(keys.isCurrent(1, 5), isFalse);
+    expect(keys.isCurrent(0, 7), isTrue);
+  });
+
   late ProviderContainer container;
   ViewerState view() => container.read(viewerProvider)!;
   Viewer viewer() => container.read(viewerProvider.notifier);
@@ -29,6 +42,83 @@ void main() {
     container = ProviderContainer.test()
       ..read(openDocumentProvider.notifier).show(document);
     viewer().resize(const Size(1000, 700));
+  });
+
+  group('after a revision', () {
+    PageInfo a4(int handle) =>
+        PageInfo(width: 595, height: 842, handle: handle);
+    OpenedDocument pages(List<PageInfo> pages) =>
+        OpenedDocument(id: 7, pages: pages);
+    void show(OpenedDocument next) =>
+        container.read(openDocumentProvider.notifier).show(next);
+    double intoPage() =>
+        view().offset.dy - view().placement.rects[view().currentPage]!.top;
+
+    setUp(() => show(pages([for (var i = 0; i < 12; i++) a4(100 + i)])));
+
+    test('an edit leaves the offset as it was', () {
+      viewer().scrollBy(const Offset(0, 3000.5));
+      final offset = view().offset;
+      show(pages([for (var i = 0; i < 12; i++) a4(100 + i)]));
+      expect(view().offset, offset);
+    });
+
+    test('removing an earlier page keeps the same page and place', () {
+      viewer().goToPage(9);
+      viewer().scrollBy(const Offset(0, 120));
+      final into = intoPage();
+      show(pages([for (var i = 1; i < 12; i++) a4(100 + i)]));
+      expect(view().document.pageHandle(view().currentPage), 109);
+      expect(view().currentPage, 8);
+      expect(intoPage(), closeTo(into, 1e-6));
+    });
+
+    test('a page moved to the front takes the reader with it', () {
+      viewer().goToPage(5);
+      show(
+        pages([
+          a4(105),
+          for (var i = 0; i < 12; i++)
+            if (i != 5) a4(100 + i),
+        ]),
+      );
+      expect(view().currentPage, 0);
+    });
+
+    test('removing the widest page keeps the place through the new fit', () {
+      show(
+        pages([
+          const PageInfo(width: 1190, height: 842, handle: 99),
+          for (var i = 0; i < 12; i++) a4(100 + i),
+        ]),
+      );
+      viewer().goToPage(6);
+      viewer().scrollBy(const Offset(0, 90));
+      final zoom = view().zoom;
+      final into = intoPage();
+      show(pages([for (var i = 0; i < 12; i++) a4(100 + i)]));
+      expect(view().zoom, closeTo(zoom * 2, 1e-9));
+      expect(view().document.pageHandle(view().currentPage), 105);
+      expect(intoPage(), closeTo(into * 2, 1e-6));
+    });
+
+    test('with its page gone the reader goes to the nearest page left', () {
+      viewer().goToPage(4);
+      show(
+        pages([
+          for (var i = 0; i < 12; i++)
+            if (i != 4 && i != 5) a4(100 + i),
+        ]),
+      );
+      expect(view().document.pageHandle(view().currentPage), 103);
+    });
+
+    test('a paged layout follows the page to its new row', () {
+      viewer().setLayout(PageLayout.single);
+      viewer().goToPage(6);
+      show(pages([for (var i = 1; i < 12; i++) a4(100 + i)]));
+      expect(view().document.pageHandle(view().currentPage), 106);
+    });
   });
 
   test('no document, no view', () {

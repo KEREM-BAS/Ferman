@@ -229,7 +229,13 @@ class RepairFix {
 @immutable
 class PageInfo {
   /// Creates a page.
-  const new({required this.width, required this.height, this.label});
+  const new({
+    required this.width,
+    required this.height,
+    this.rotation = 0,
+    this.label,
+    this.handle,
+  });
 
   /// The width, after the crop box and the page's rotation.
   final double width;
@@ -237,8 +243,109 @@ class PageInfo {
   /// The height, after the crop box and the page's rotation.
   final double height;
 
+  /// The page's rotation in degrees clockwise: 0, 90, 180 or 270.
+  final int rotation;
+
   /// The page label, such as "iv", when the document has labels.
   final String? label;
+
+  /// What names the page while the document is open, whatever moves around
+  /// it; history steps hold it. Set by the engine; a page made without one
+  /// answers to its index ([OpenedDocument.pageHandle]).
+  final int? handle;
+}
+
+/// What each side of a page gives up, in displayed points.
+@immutable
+class PageMargins {
+  /// Creates the margins.
+  const new({this.top = 0, this.bottom = 0, this.left = 0, this.right = 0});
+
+  /// The top side.
+  final double top;
+
+  /// The bottom side.
+  final double bottom;
+
+  /// The left side.
+  final double left;
+
+  /// The right side.
+  final double right;
+}
+
+/// What a new page size does to the content (a6-4).
+enum PageFit {
+  /// Stays at its size, in the middle of the new page.
+  centre,
+
+  /// Scaled to fit the new page, and centred on it.
+  scale,
+}
+
+/// How a page label range writes its numbers (a6-5).
+enum PageLabelStyle {
+  /// No number: the prefix alone.
+  none,
+
+  /// 1, 2, 3.
+  decimal,
+
+  /// I, II, III.
+  romanUpper,
+
+  /// i, ii, iii.
+  romanLower,
+
+  /// A, B, C.
+  lettersUpper,
+
+  /// a, b, c.
+  lettersLower,
+}
+
+/// One range of a document's page labels (a6-5).
+@immutable
+class PageLabelRange {
+  /// Creates a range.
+  const new({
+    required this.start,
+    this.style = PageLabelStyle.decimal,
+    this.prefix = '',
+    this.first = 1,
+  });
+
+  /// The index of its first page, from 0.
+  final int start;
+
+  /// How it writes its numbers.
+  final PageLabelStyle style;
+
+  /// What comes before each number.
+  final String prefix;
+
+  /// The number of its first page, from 1.
+  final int first;
+}
+
+/// What a commit, undo or redo changed of a document's lists.
+@immutable
+class DocumentStructure {
+  /// Creates the lists.
+  const new({
+    required this.pages,
+    this.outline = const [],
+    this.attachments = const [],
+  });
+
+  /// Its pages.
+  final List<PageInfo> pages;
+
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Its embedded files.
+  final List<Attachment> attachments;
 }
 
 /// One outline item (bookmark) of an [OpenedDocument].
@@ -382,6 +489,40 @@ class FontCoverage {
 
   /// For a subset, the letters asked about that an edit cannot draw in it.
   final String missingLetters;
+}
+
+/// What the user asks to do to a document.
+enum DocumentOp {
+  /// Editing text on a page.
+  editText,
+
+  /// Inserting, moving, rotating and deleting pages.
+  organize,
+
+  /// Adding or changing comments.
+  comment,
+
+  /// Filling in form fields, signing a signature field included.
+  fill,
+
+  /// Printing, which changes nothing in the file.
+  print,
+}
+
+/// What an operation may do to a document as it stands (G35).
+enum OpGate {
+  /// Allowed, and no signature is concerned.
+  unaffected,
+
+  /// Allowed, and what the signatures allow: a certification and the
+  /// signatures stay valid.
+  keepsSignatures,
+
+  /// Possible only by invalidating a signature.
+  breaksSignatures,
+
+  /// The document's permissions forbid it, or the document cannot be changed.
+  forbidden,
 }
 
 /// How an encrypted document is encrypted.
@@ -624,15 +765,41 @@ class OpenedDocument {
   /// screen's Scanned badge).
   final bool scanned;
 
+  /// The handle of page [index].
+  int pageHandle(int index) => pages.elementAtOrNull(index)?.handle ?? index;
+
+  /// Where the page with [handle] is now; null once it is gone.
+  int? pageIndexOf(int handle) {
+    for (var i = 0; i < pages.length; i++) {
+      if ((pages[i].handle ?? i) == handle) return i;
+    }
+    return null;
+  }
+
   /// This document with [security], as the owner unlock leaves it.
-  OpenedDocument withSecurity(Security? security) => OpenedDocument(
+  OpenedDocument withSecurity(Security? security) =>
+      _copy(security: () => security);
+
+  /// This document with [structure], as a revision leaves it.
+  OpenedDocument withStructure(DocumentStructure structure) => _copy(
+    pages: structure.pages,
+    outline: structure.outline,
+    attachments: structure.attachments,
+  );
+
+  OpenedDocument _copy({
+    List<PageInfo>? pages,
+    List<OutlineEntry>? outline,
+    List<Attachment>? attachments,
+    Security? Function()? security,
+  }) => OpenedDocument(
     id: id,
-    pages: pages,
+    pages: pages ?? this.pages,
     readOnly: readOnly,
     repairs: repairs,
     rightToLeft: rightToLeft,
-    outline: outline,
-    attachments: attachments,
+    outline: outline ?? this.outline,
+    attachments: attachments ?? this.attachments,
     layers: layers,
     layersSwitchable: layersSwitchable,
     signatures: signatures,
@@ -645,7 +812,7 @@ class OpenedDocument {
     tagged: tagged,
     linearized: linearized,
     fonts: fonts,
-    security: security,
+    security: security == null ? this.security : security(),
     scripts: scripts,
     formFields: formFields,
     scanned: scanned,
@@ -839,6 +1006,276 @@ class EngineView {
 
   /// Its rendered and failed items.
   final Stream<ViewUpdate> updates;
+}
+
+/// How long a finished job offers its result (a11-6b), as the engine keeps it.
+const Duration jobResultKept = Duration(hours: 1);
+
+/// How long a quit waits for the jobs it cancelled; a job that has not reached
+/// its next step by then leaves its temp folder to the next launch's sweep, and
+/// never a partial output.
+const Duration jobQuitWait = Duration(seconds: 5);
+
+/// Where a job stands (a11-6b).
+enum JobState {
+  /// It works.
+  running,
+
+  /// It is parked between two steps.
+  paused,
+
+  /// It finished: the last update.
+  done,
+
+  /// It failed: the last update.
+  failed,
+
+  /// It was cancelled: the last update.
+  cancelled,
+}
+
+/// A file a job finished.
+@immutable
+class JobOutputFile {
+  /// Creates a file.
+  const new({required this.path, this.staged});
+
+  /// Where it belongs.
+  final String path;
+
+  /// Under the macOS App Sandbox, the verified file waiting for the swap into
+  /// [path], which is not touched yet.
+  final String? staged;
+}
+
+/// The paper of an image's own page (G152), from the region setting.
+enum ImagePaper {
+  /// 595.28 × 841.89 pt.
+  a4,
+
+  /// 612 × 792 pt.
+  letter,
+}
+
+/// One input of Combine or Create PDF.
+@immutable
+class CombineInput {
+  /// A PDF or image at [path], with [pages] by index in the order to take them,
+  /// null for all.
+  const new file(String this.path, {this.password, this.pages, this.bookmark})
+    : blankWidth = 0,
+      blankHeight = 0;
+
+  /// A blank page of [blankWidth] by [blankHeight] points.
+  const new blank(this.blankWidth, this.blankHeight, {this.bookmark})
+    : path = null,
+      password = null,
+      pages = null;
+
+  /// Where the file is; null for a blank page.
+  final String? path;
+
+  /// What opens it.
+  final String? password;
+
+  /// Its pages, null for all.
+  final List<int>? pages;
+
+  /// A blank page's width, in points.
+  final double blankWidth;
+
+  /// A blank page's height, in points.
+  final double blankHeight;
+
+  /// The title of a bookmark for its first page.
+  final String? bookmark;
+}
+
+/// Whether an input can be used, for its row in a6-3 (G45).
+enum CombineInputStatus {
+  /// It can.
+  ready,
+
+  /// It needs its password.
+  passwordRequired,
+
+  /// The password does not open it.
+  wrongPassword,
+
+  /// It forbids assembling, which only its owner password lifts.
+  ownerPasswordRequired,
+
+  /// Its page range names a page it does not have, or a page twice.
+  badRange,
+
+  /// Neither a PDF nor an image Ferman can read, or the file is gone.
+  unreadable,
+}
+
+/// One input's row in a6-3.
+@immutable
+class CombineFileInfo {
+  /// Creates a row.
+  const new({
+    required this.status,
+    this.image = false,
+    this.pages = 0,
+    this.selected = 0,
+    this.bytes = 0,
+    this.encrypted = false,
+    this.signed = false,
+  });
+
+  /// Whether it can be used; the numbers are zero if not.
+  final CombineInputStatus status;
+
+  /// Whether it is an image, "converted to 1 page".
+  final bool image;
+
+  /// Its pages in all.
+  final int pages;
+
+  /// How many of them it adds.
+  final int selected;
+
+  /// About what it adds to the output, in bytes.
+  final int bytes;
+
+  /// Whether it is encrypted: the output will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the output carries no signature.
+  final bool signed;
+}
+
+/// What a6-3 shows before anything is written.
+@immutable
+class CombinePreview {
+  /// Creates a preview.
+  const new({this.files = const [], this.pages = 0, this.bytes = 0});
+
+  /// A row per input, in order.
+  final List<CombineFileInfo> files;
+
+  /// The pages of the output.
+  final int pages;
+
+  /// About how large it comes out, in bytes.
+  final int bytes;
+}
+
+/// The ways to split a6-2 draws.
+enum SplitKind {
+  /// A new file every so many pages.
+  everyPages,
+
+  /// One file per top-level bookmark; the pages before the first are a file of
+  /// their own.
+  topBookmarks,
+
+  /// Files of at most so many bytes, as estimated.
+  size,
+
+  /// A new file at each blank page, which goes.
+  blankPages,
+}
+
+/// One file of a split: its plan, and what the job takes back.
+@immutable
+class SplitFile {
+  /// Creates a file.
+  const new({
+    required this.name,
+    required this.first,
+    required this.last,
+    this.bytes = 0,
+    this.overLimit = false,
+  });
+
+  /// Its name, with `.pdf`, safe in any folder.
+  final String name;
+
+  /// Its first page, as an index.
+  final int first;
+
+  /// Its last page, as an index.
+  final int last;
+
+  /// About how large it comes out, in bytes, at the high end.
+  final int bytes;
+
+  /// Whether one page alone is over the size asked for.
+  final bool overLimit;
+}
+
+/// What a6-2 shows before anything is written.
+@immutable
+class SplitPreview {
+  /// Creates a preview.
+  const new({
+    this.files = const [],
+    this.bookmarks = 0,
+    this.blankPages = 0,
+    this.encrypted = false,
+    this.signed = false,
+  });
+
+  /// The files.
+  final List<SplitFile> files;
+
+  /// How many top-level bookmarks go to a page.
+  final int bookmarks;
+
+  /// How many pages count as blank.
+  final int blankPages;
+
+  /// Whether the document is encrypted: the files will not be.
+  final bool encrypted;
+
+  /// Whether it is signed: the files carry no signature.
+  final bool signed;
+}
+
+/// What a running job reports. The first update has its handle, the last says
+/// how it ended.
+@immutable
+class JobUpdate {
+  /// Creates an update.
+  const new({
+    required this.job,
+    required this.state,
+    this.progress,
+    this.messageKey,
+    this.params = const {},
+    this.outputs = const [],
+    this.revision,
+    this.error,
+  });
+
+  /// The job's handle.
+  final int job;
+
+  /// Where it stands.
+  final JobState state;
+
+  /// How far it is, 0 to 1; null when unknown.
+  final double? progress;
+
+  /// The ARB key of where it is, such as `jobPageOf`.
+  final String? messageKey;
+
+  /// The key's parameters.
+  final Map<String, String> params;
+
+  /// The files it wrote ([JobState.done]).
+  final List<JobOutputFile> outputs;
+
+  /// How many steps of the document's history it read ([JobState.done]): edits
+  /// since are not in its result.
+  final int? revision;
+
+  /// Why it failed ([JobState.failed]).
+  final EngineException? error;
 }
 
 /// How a search matches (a2-4a).
@@ -1672,20 +2109,30 @@ class RevisionInfo {
   const new({
     required this.current,
     this.renderKey,
+    this.changedPages,
     this.substitutions = const [],
+    this.structure,
   });
 
   /// How many steps of the history apply: 0 is the document as opened.
   final int current;
 
-  /// Every page's new render key when the engine reloaded the document;
-  /// bitmaps with an older one show the revision before. Null when nothing
-  /// shown changed.
+  /// The new render key of [changedPages] when the engine reloaded the
+  /// document; their bitmaps with an older one show the revision before. Null
+  /// when nothing shown changed.
   final int? renderKey;
+
+  /// The pages that got [renderKey], by index; the others keep their key and
+  /// bitmaps. Null means every page.
+  final List<int>? changedPages;
 
   /// The substitutions a commit made, for the "Font substituted" toast
   /// (a11-6); empty after anything else.
   final List<FontSubstitution> substitutions;
+
+  /// The document's pages, outline and attachments when this changed them;
+  /// null when they are as they were.
+  final DocumentStructure? structure;
 }
 
 /// One committed step of a document's history.
@@ -1697,7 +2144,7 @@ class HistoryStep {
     required this.time,
     this.hiddenLines = 0,
     this.substitutions = const [],
-    this.page,
+    this.pages = const [],
     this.before = '',
     this.after = '',
     this.reverts = const [],
@@ -1717,9 +2164,9 @@ class HistoryStep {
   /// (a3-12).
   final List<FontSubstitution> substitutions;
 
-  /// The page of the block it changed, from 0; null for a revert and a step
-  /// restored from the recovery files.
-  final int? page;
+  /// The pages it changed, by [PageInfo.handle], so they are found after a
+  /// move; empty for a revert and a step restored from the recovery files.
+  final List<int> pages;
 
   /// The block's text before it: the review list's before (a3-12).
   final String before;

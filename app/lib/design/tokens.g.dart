@@ -819,27 +819,27 @@ abstract final class FermanTypeTokens {
 
   /// `--font-hand-1`. Source: `'Caveat', cursive` (fm-additions.css:50).
   ///
-  /// Dropped (not bundled): `Caveat`, `cursive`.
+  /// Dropped (not bundled): `cursive`.
   static const FermanFontStack fontHand1 = FermanFontStack(
-    family: null,
+    family: 'Caveat',
     fallback: <String>[],
   );
 
   /// `--font-hand-2`. Source: `'Homemade Apple', cursive`
   /// (fm-additions.css:51).
   ///
-  /// Dropped (not bundled): `Homemade Apple`, `cursive`.
+  /// Dropped (not bundled): `cursive`.
   static const FermanFontStack fontHand2 = FermanFontStack(
-    family: null,
+    family: 'Homemade Apple',
     fallback: <String>[],
   );
 
   /// `--font-hand-3`. Source: `'Dancing Script', cursive`
   /// (fm-additions.css:52).
   ///
-  /// Dropped (not bundled): `Dancing Script`, `cursive`.
+  /// Dropped (not bundled): `cursive`.
   static const FermanFontStack fontHand3 = FermanFontStack(
-    family: null,
+    family: 'Dancing Script',
     fallback: <String>[],
   );
 

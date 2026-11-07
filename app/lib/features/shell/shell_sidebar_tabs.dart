@@ -4,13 +4,12 @@ import 'dart:ui' as ui;
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
-import 'package:ferman/features/viewer/viewer_layout.dart';
+import 'package:ferman/features/viewer/page_thumbnails.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/format.dart';
@@ -22,7 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The label of [page] (from 0) of [document]: its page label, else its
 /// number in the region's digits.
-String _pageLabel(OpenedDocument document, int page, RegionFormat format) =>
+String pageLabel(OpenedDocument document, int page, RegionFormat format) =>
     (page < document.pages.length ? document.pages[page].label : null) ??
     format.integer(page + 1);
 
@@ -45,10 +44,8 @@ ScrollController _rememberedScroll(WidgetRef ref, SidebarTab tab) {
 
 /// The Pages tab (a2-3p): a thumbnail of every page, the reader's page
 /// selected; a click or Enter goes to the page, and the arrow keys move
-/// between thumbnails. The thumbnails come through an engine view of their
-/// own, only for the thumbnails built (those on screen and the list's cache
-/// extent), so a long document never holds every bitmap. Badges arrive
-/// with their features (f5).
+/// between thumbnails ([PageThumbnails]). Badges arrive with their features
+/// (f5).
 class SidebarPages extends ConsumerStatefulWidget {
   /// The pages of `viewerProvider`'s document.
   const new({super.key});
@@ -60,150 +57,22 @@ class SidebarPages extends ConsumerStatefulWidget {
   ConsumerState<SidebarPages> createState() => _SidebarPagesState();
 }
 
-class _SidebarPagesState extends ConsumerState<SidebarPages> {
-  late final EngineService _engine = ref.read(engineServiceProvider);
-  EngineView? _view;
-  StreamSubscription<ViewUpdate>? _updates;
-  int _generation = 0;
-  bool _requestScheduled = false;
-
-  /// The pages whose thumbnails are built, and their bitmaps once decoded.
-  final Set<int> _shown = {};
-  final Map<int, ui.Image> _images = {};
-
-  /// The pages whose bitmap was drawn before the layers last changed, and
-  /// the render key of that change; each stays until its new one arrives.
-  final Set<int> _stale = {};
-  int _renderKey = 0;
-
+class _SidebarPagesState extends ConsumerState<SidebarPages>
+    with PageThumbnails {
   late final ScrollController _scroll;
 
   @override
   void initState() {
     super.initState();
     _scroll = _rememberedScroll(ref, SidebarTab.pages);
-    _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
-    ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
-      _,
-      key,
-    ) {
-      _renderKey = key;
-      _stale.addAll(_images.keys);
-      _scheduleRequest();
-    });
-    // A commit, undo or redo changed the pages too.
-    ref.listenManual(documentEditorProvider.select((s) => s.renderKey), (
-      _,
-      key,
-    ) {
-      if (key == null || key <= _renderKey) return;
-      _renderKey = key;
-      _stale.addAll(_images.keys);
-      _scheduleRequest();
-    });
-    unawaited(_open());
+    startThumbnails();
   }
 
   @override
   void dispose() {
     _scroll.dispose();
-    unawaited(_updates?.cancel());
-    final view = _view;
-    if (view != null) {
-      // The document may be closed already, which closed the view.
-      unawaited(_engine.closeView(view.id).catchError((Object _) {}));
-    }
-    for (final image in _images.values) {
-      image.dispose();
-    }
+    stopThumbnails();
     super.dispose();
-  }
-
-  Future<void> _open() async {
-    final document = ref.read(viewerProvider)?.document;
-    if (document == null) return;
-    try {
-      final view = await _engine.openView(document.id);
-      if (!mounted) {
-        unawaited(_engine.closeView(view.id).catchError((Object _) {}));
-        return;
-      }
-      _view = view;
-      _updates = view.updates.listen(_receive);
-      _scheduleRequest();
-    } on Object {
-      // shortcut: the thumbnails stay blank when the view cannot open; the
-      // canvas shows the failure. Add a2-13's placeholder here if it ever
-      // fails alone.
-    }
-  }
-
-  void _receive(ViewUpdate update) {
-    if (update case RenderedItem(
-      item: ThumbnailItem(:final page),
-      :final renderKey,
-    )) {
-      if (!_shown.contains(page) || renderKey < _renderKey) return;
-      ui.decodeImageFromPixels(
-        update.pixels,
-        update.width,
-        update.height,
-        ui.PixelFormat.bgra8888,
-        (image) {
-          if (!mounted || !_shown.contains(page)) {
-            image.dispose();
-            return;
-          }
-          setState(() {
-            _images[page]?.dispose();
-            _images[page] = image;
-            if (renderKey < _renderKey) {
-              _stale.add(page);
-            } else {
-              _stale.remove(page);
-            }
-          });
-        },
-        rowBytes: update.stride,
-      );
-    }
-    // A failed thumbnail stays blank; the canvas shows a2-13's placeholder.
-  }
-
-  void _built(int page) {
-    _shown.add(page);
-    _scheduleRequest();
-  }
-
-  void _gone(int page) {
-    _shown.remove(page);
-    _stale.remove(page);
-    _images.remove(page)?.dispose();
-    _scheduleRequest();
-  }
-
-  /// Sends the built thumbnails after this frame.
-  void _scheduleRequest() {
-    if (_requestScheduled) return;
-    _requestScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _requestScheduled = false;
-      final view = _view;
-      if (!mounted || view == null) return;
-      final wanted = [
-        for (final page in _shown.toList()..sort())
-          if (!_images.containsKey(page) || _stale.contains(page))
-            WantedItem(
-              ThumbnailItem(page: page, size: previewSize),
-              RenderPriority.visibleThumbnail,
-            ),
-      ];
-      unawaited(
-        _engine
-            .requestView(view.id, ++_generation, wanted)
-            .catchError((Object _) {}),
-      );
-    });
   }
 
   @override
@@ -232,18 +101,23 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
         bottom: theme.space.space3,
       ),
       itemCount: document.pages.length,
+      // Each thumbnail moves with its page, and its bitmap with it.
+      findChildIndexCallback: (key) =>
+          key is ValueKey<int> ? document.pageIndexOf(key.value) : null,
       itemBuilder: (context, index) {
         final page = document.pages[index];
-        final label = _pageLabel(document, index, format);
+        final label = pageLabel(document, index, format);
+        final handle = document.pageHandle(index);
         return Padding(
+          key: ValueKey(handle),
           padding: EdgeInsetsDirectional.only(
             top: index == 0 ? 0 : theme.space.space1_5,
           ),
           child: Center(
-            child: _BuiltReporter(
-              page: index,
-              onBuilt: _built,
-              onGone: _gone,
+            child: ThumbnailReporter(
+              handle: handle,
+              onBuilt: thumbnailBuilt,
+              onGone: thumbnailGone,
               child: PageThumbnail(
                 page: index + 1,
                 label: label,
@@ -276,7 +150,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
                     ),
                   null => null,
                 },
-                child: switch (_images[index]) {
+                child: switch (thumbnailOf(handle)) {
                   final image? => RawImage(image: image, fit: BoxFit.fill),
                   // A blank page until the thumbnail arrives, never the
                   // placeholder lines, which would look like content.
@@ -289,41 +163,6 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
       },
     );
   }
-}
-
-/// Tells its list when the thumbnail of [page] is built and when it goes.
-class _BuiltReporter extends StatefulWidget {
-  const new({
-    required this.page,
-    required this.onBuilt,
-    required this.onGone,
-    required this.child,
-  });
-
-  final int page;
-  final ValueChanged<int> onBuilt;
-  final ValueChanged<int> onGone;
-  final Widget child;
-
-  @override
-  State<_BuiltReporter> createState() => _BuiltReporterState();
-}
-
-class _BuiltReporterState extends State<_BuiltReporter> {
-  @override
-  void initState() {
-    super.initState();
-    widget.onBuilt(widget.page);
-  }
-
-  @override
-  void dispose() {
-    widget.onGone(widget.page);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.child;
 }
 
 /// The Outline tab (a2-3o, a2-3a): the bookmarks, nested, each parent open
@@ -518,7 +357,7 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
                         ),
                         if (page != null)
                           Text(
-                            _pageLabel(document, page, format),
+                            pageLabel(document, page, format),
                             style: theme.typography.body.copyWith(
                               color: theme.colors.textTertiary,
                               fontFeatures: theme.typeScale.numericTabular,
@@ -694,7 +533,6 @@ class SidebarAttachments extends ConsumerWidget {
 
 /// The Layers tab (a2-3c): each layer as the document shows it by
 /// default, dimmed when hidden, with a lock when the document locks it.
-/// Showing and hiding come in W2's commit 11 (B111).
 class SidebarLayers extends ConsumerWidget {
   /// The layers of `viewerProvider`'s document.
   const new({super.key});
@@ -866,7 +704,7 @@ class SidebarSignatures extends ConsumerWidget {
                       if (field.signedAt case final date?)
                         format.dateTime(date),
                       if (field.page case final page?)
-                        l10n.sidebarPage(_pageLabel(document, page, format)),
+                        l10n.sidebarPage(pageLabel(document, page, format)),
                     ].join(' · ')
                     case final meta when meta.isNotEmpty)
                   Text(

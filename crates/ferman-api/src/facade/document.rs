@@ -21,7 +21,8 @@ use ferman_core::recovery::DocumentRecovery;
 use ferman_core::revision::RevisionStore;
 use ferman_core::save::FileStamp;
 use ferman_core::structure::{
-    Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Scripts, Signature,
+    Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Page, RevisedStructure,
+    Scripts, Signature,
 };
 use ferman_core::{Access, Method, OpenOptions, Password, Permissions, RepairReport, Source};
 use ferman_render::{DocumentId, PageRaster, PageSize, RenderThread, ViewId, ViewSink, Wanted};
@@ -56,8 +57,7 @@ pub struct OpenedDocument {
     /// Optional content groups (layers), in the order the document gives them.
     pub layers: Vec<Layer>,
     /// Whether [`Engine::show_layers`] can show and hide them: it has layers, was not repaired
-    /// (its rebuilt table cannot place objects inside object streams) and did not need a
-    /// password (PDFium needs it again to reload, and the engine does not keep it, Q22).
+    /// (its rebuilt table cannot place objects inside object streams).
     pub layers_switchable: bool,
     /// Signature fields, shown neutrally until checking arrives (G31).
     pub signatures: Vec<Signature>,
@@ -122,8 +122,6 @@ pub(super) struct Model {
     /// Whether the owner password was given since the open ([`Engine::unlock_owner`]); the
     /// model is shared, so ferman-core's own access is not changed.
     pub(super) owner_unlocked: AtomicBool,
-    /// The text of each page once read, for searches after the first.
-    pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
     /// Why no block of the document can be edited whatever the password: damaged or read-only.
     pub(super) read_only: Option<ferman_text::NotEditableReason>,
     /// The revisions the document actor last published, with the text model of each page of
@@ -131,14 +129,25 @@ pub(super) struct Model {
     pub(super) revised: Mutex<Revised>,
     /// The file the document saves to, until Save as names another (`edit`).
     pub(super) path: PathBuf,
-    /// The serial of the last revision sent to the render thread, so an older one never follows
-    /// a newer one (`edit`).
-    pub(super) rendered: Mutex<u64>,
+    /// What the render thread last got (`edit`).
+    pub(super) rendered: Mutex<Rendered>,
     /// The file at `path` as it was opened, which a save checks (`edit`); for a restored
     /// document, as its recovery manifest recorded it.
     pub(super) stamp: FileStamp,
     /// A restored document's recovery files, which its actor takes over (`recovery`).
     pub(super) recovery: Mutex<Option<DocumentRecovery>>,
+    /// The structure the app last heard of; `None` for the open result's.
+    pub(super) shown: Mutex<Option<RevisedStructure>>,
+}
+
+/// What the render thread last got.
+#[derive(Debug)]
+pub(super) struct Rendered {
+    /// The serial of the last reload, so an older one never follows a newer one.
+    pub(super) serial: u64,
+    /// The revisions it shows, which the next reload compares against to find the pages that
+    /// changed; `None` when the next reload is for every page.
+    pub(super) store: Option<Arc<RevisionStore>>,
 }
 
 /// The document as the actor last published it: a snapshot of its committed revisions that
@@ -148,9 +157,14 @@ pub(super) struct Revised {
     pub(super) store: Arc<RevisionStore>,
     /// How many times the actor published; a layout of an older snapshot is not kept.
     pub(super) generation: u64,
-    /// The text model of each page once laid out, with `read_only` but without the author's
-    /// restrictions, which the owner password can lift.
-    pub(super) blocks: Vec<Option<Arc<ferman_text::PageText>>>,
+    /// The text model of each page once laid out, by page handle, with `read_only` but without
+    /// the author's restrictions, which the owner password can lift.
+    pub(super) blocks: HashMap<u64, Arc<ferman_text::PageText>>,
+    /// The text of each page once read, by page handle, for searches after the first.
+    pub(super) texts: HashMap<u64, Arc<PageText>>,
+    /// The layers [`Engine::show_layers`] last showed, which every reload keeps; `None` until it
+    /// is first called.
+    pub(super) layers: Option<Vec<bool>>,
 }
 
 impl Model {
@@ -162,23 +176,32 @@ impl Model {
         layers_switchable: bool,
         first: Option<Arc<PageText>>,
     ) -> Self {
-        let count = document.page_count();
-        let mut texts = vec![None; count];
-        if let Some(slot) = texts.first_mut() {
-            *slot = first;
-        }
+        let texts = document
+            .structure()
+            .pages
+            .first()
+            .map(ferman_core::structure::Page::handle)
+            .zip(first)
+            .into_iter()
+            .collect();
+        let store = Arc::new(RevisionStore::new(&document));
         Self {
-            pages: Mutex::new(texts),
             read_only,
             revised: Mutex::new(Revised {
-                store: Arc::new(RevisionStore::new(&document)),
+                store: Arc::clone(&store),
                 generation: 0,
-                blocks: vec![None; count],
+                blocks: HashMap::new(),
+                texts,
+                layers: None,
             }),
             path,
-            rendered: Mutex::new(0),
+            rendered: Mutex::new(Rendered {
+                serial: 0,
+                store: Some(store),
+            }),
             stamp: document.source().stamp(),
             recovery: Mutex::new(None),
+            shown: Mutex::new(None),
             document,
             layers_switchable,
             owner_unlocked: AtomicBool::new(false),
@@ -190,6 +213,40 @@ impl Model {
     /// The snapshot the actor last published.
     pub(super) fn revised(&self) -> MutexGuard<'_, Revised> {
         self.revised.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// The pages, outline and attachments of the published revisions when the app has not heard
+    /// of them yet.
+    pub(super) fn structure_change(&self) -> Option<DocumentStructure> {
+        let store = Arc::clone(&self.revised().store);
+        let doc = &self.document;
+        let mut shown = self.shown.lock().unwrap_or_else(PoisonError::into_inner);
+        let (pages, outline, attachments) =
+            (store.pages(doc), store.outline(doc), store.attachments(doc));
+        let same = match &*shown {
+            Some(shown) => {
+                shown.pages == pages && shown.outline == outline && shown.attachments == attachments
+            }
+            None => {
+                let opened = doc.structure();
+                opened.pages == pages
+                    && opened.outline == outline
+                    && opened.attachments == attachments
+            }
+        };
+        if same {
+            return None;
+        }
+        *shown = Some(RevisedStructure {
+            pages: pages.to_vec(),
+            outline: outline.to_vec(),
+            attachments: attachments.to_vec(),
+        });
+        Some(DocumentStructure {
+            pages: pages.iter().map(page_info).collect(),
+            outline: outline.to_vec(),
+            attachments: attachments.to_vec(),
+        })
     }
 
     /// The document's security now, `None` when it is not encrypted.
@@ -209,8 +266,36 @@ impl Model {
 pub struct PageInfo {
     /// Its size in points as displayed, after the crop box and `/Rotate`.
     pub size: PageSize,
+    /// Its `/Rotate` in degrees clockwise: 0, 90, 180 or 270.
+    pub rotation: u16,
     /// Its label (`/PageLabels`), such as "iv", when the document has labels.
     pub label: Option<String>,
+    /// What names it while the document is open, whatever moves around it.
+    pub handle: u64,
+}
+
+/// `page` as the API gives it.
+fn page_info(page: &Page) -> PageInfo {
+    PageInfo {
+        size: PageSize {
+            width: page.size.0,
+            height: page.size.1,
+        },
+        rotation: page.rotation,
+        label: page.label.clone(),
+        handle: page.handle(),
+    }
+}
+
+/// What a commit can change of an [`OpenedDocument`]'s lists.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DocumentStructure {
+    /// Its pages.
+    pub pages: Vec<PageInfo>,
+    /// The outline (bookmarks).
+    pub outline: Vec<OutlineItem>,
+    /// Embedded files and file attachment annotations.
+    pub attachments: Vec<Attachment>,
 }
 
 /// Why a document opened read-only (docs/ARCHITECTURE.md §5.2). In M2 every document is
@@ -230,8 +315,9 @@ impl Engine {
     ///
     /// An encrypted document opened without its password fails with
     /// [`ErrorKind::PasswordRequired`](super::ErrorKind::PasswordRequired); the UI asks for it and
-    /// opens again (a1-8). The password is wiped when the open ends; PDFium keeps its own copy
-    /// while the document is open (docs/QUESTIONS.md, Q22).
+    /// opens again (a1-8). The render thread keeps a copy to reload the document, wiped when the
+    /// document closes, and PDFium keeps its own while the document is open (docs/QUESTIONS.md,
+    /// Q22).
     ///
     /// # Errors
     ///
@@ -289,20 +375,19 @@ impl Engine {
                 .pages
                 .iter()
                 .enumerate()
-                .map(|(index, &size)| PageInfo {
-                    size,
-                    label: structure
-                        .pages
-                        .get(index)
-                        .and_then(|page| page.label.clone()),
+                .map(|(index, &size)| {
+                    let page = structure.pages.get(index);
+                    PageInfo {
+                        size,
+                        rotation: page.map_or(0, |page| page.rotation),
+                        label: page.and_then(|page| page.label.clone()),
+                        // Past the file's own pages only when the parsers disagree: read-only.
+                        handle: page.map_or(0, Page::handle),
+                    }
                 })
                 .collect();
-            let layers_switchable = !structure.layers.is_empty()
-                && model.repair().is_none()
-                && !model
-                    .encryption()
-                    .is_some_and(|encryption| encryption.user_password_required);
-            let opened = OpenedDocument {
+            let layers_switchable = !structure.layers.is_empty() && model.repair().is_none();
+            let mut opened = OpenedDocument {
                 id: rendered.id,
                 read_only,
                 direction: structure.direction,
@@ -341,6 +426,12 @@ impl Engine {
             });
             let mut model = Model::new(model, path, not_editable, layers_switchable, first);
             setup(&mut model);
+            // A restored document opens as its revisions leave it.
+            if let Some(change) = model.structure_change() {
+                opened.pages = change.pages;
+                opened.outline = change.outline;
+                opened.attachments = change.attachments;
+            }
             self.models()?.insert(rendered.id, Arc::new(model));
             Ok(opened)
         }
@@ -362,27 +453,32 @@ impl Engine {
         visible: Vec<bool>,
     ) -> Result<u64, ApiError> {
         guard_async(async move {
-            let appendix = {
+            {
                 let models = self.models()?;
                 let model = models
                     .get(&document)
                     .filter(|model| model.layers_switchable)
-                    // shortcut: the appendix is built from the file as opened, so it would hide
-                    // the edits; build it over the revisions when the Layers tab needs both.
-                    .filter(|model| model.revised().store.current() == 0)
-                    .map(|model| &model.document)
                     .ok_or_else(|| {
                         ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
                             .with_details("no layers to switch")
                     })?;
-                if visible.len() != model.structure().layers.len() {
+                if visible.len() != model.document.structure().layers.len() {
                     return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                         .with_details("one visibility per layer"));
                 }
-                // A few kilobytes of catalog and table, so it is built here.
-                model.layer_appendix(&visible)?
-            };
-            Ok(self.render()?.reload(document, Arc::from(appendix)).await?)
+            }
+            // The actor builds it over the revisions; a commit that reached the render thread
+            // first has it build again, so the reload shown is the newest.
+            loop {
+                self.render()?;
+                let shown = visible.clone();
+                let reload = self
+                    .ask(document, move |session| session.show_layers(shown))
+                    .await?;
+                if let Some((key, _)) = self.send_reload(document, reload, true).await {
+                    return Ok(key?);
+                }
+            }
         })
         .await
     }
@@ -465,7 +561,8 @@ impl Engine {
                 .name(PARSE_THREAD.to_owned())
                 .spawn(move || {
                     let result = guard(AssertUnwindSafe(move || {
-                        let bytes = model.document.attachment_data(index)?;
+                        let store = Arc::clone(&model.revised().store);
+                        let bytes = store.attachment_data(&model.document, index)?;
                         Ok(ferman_core::save::safe_write(
                             &path,
                             &bytes,

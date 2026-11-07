@@ -21,8 +21,8 @@ Usage: tools/fonts/fetch.sh [--verify-committed] [options]
 
 Without options, downloads each pinned IBM Plex release zip into the cache (skipped when
 a cached copy already matches its SHA-256), checks it, extracts the pinned TTFs and
-LICENSE.txt, checks every file's SHA-256, and installs them unmodified in
-app/assets/fonts/ibm-<package>/, replacing those folders.
+LICENSE.txt, downloads the other families' pinned files, checks every file's SHA-256, and
+installs them unmodified in app/assets/fonts/, replacing those folders.
 
 Options:
   --verify-committed  Only check that the destination holds exactly the pinned files,
@@ -123,9 +123,36 @@ package_field() {
   lock_records | awk -v p="$1" -v n="$2" '$1 == "package" && $2 == p && !found { print $n; found = 1 }'
 }
 
-# files_of <package>: "<kind> <file> <sha256>" for the licence and every font.
+# files_of <package or folder>: "<kind> <file> <sha256>" for the licence and every font.
 files_of() {
-  lock_records | awk -v p="$1" '($1 == "license" || $1 == "font") && $2 == p { print $1, $3, $4 }'
+  lock_records | awk -v p="$1" '
+    ($1 == "license" || $1 == "font") && $2 == p { print $1, $3, $4 }
+    $1 == "file" && $2 == p { print ($3 == "LICENSE.txt" ? "license" : "font"), $3, $4 }
+  '
+}
+
+# The folders of the families that have "file" records.
+lock_folders() {
+  lock_records | awk '$1 == "file" && !seen[$2]++ { print $2 }'
+}
+
+# file_urls_of <folder>: "<file> <url>" for each of its files.
+file_urls_of() {
+  lock_records | awk -v p="$1" '$1 == "file" && $2 == p { print $3, $5 }'
+}
+
+# check_records <package or folder>: exactly one licence, some fonts, well-formed hashes.
+check_records() {
+  local pkg=$1 file sha
+  [ "$(files_of "$pkg" | awk '$1 == "license"' | wc -l | tr -d ' ')" -eq 1 ] ||
+    die "$pkg needs exactly one license record in $lock"
+  [ "$(files_of "$pkg" | awk '$1 == "font"' | wc -l | tr -d ' ')" -gt 0 ] ||
+    die "$pkg has no font records in $lock"
+  while read -r _ file sha; do
+    is_sha256 "$sha" || die "bad SHA-256 for $pkg/$file in $lock"
+  done <<EOF
+$(files_of "$pkg")
+EOF
 }
 
 is_sha256() {
@@ -139,23 +166,19 @@ check_lock() {
   [ -f "$lock" ] || die "lock file not found: $lock"
   [ -n "$(lock_records | awk '$1 == "url" && !found { print $2; found = 1 }')" ] || die "$lock has no 'url' record"
   [ -n "$(lock_packages)" ] || die "$lock has no 'package' records"
-  local bad pkg file sha
+  local bad pkg
   bad=$(lock_records | awk '
     ($1 == "package" || $1 == "license" || $1 == "font") && NF != 4 { print NR }
     $1 == "license" && $3 != "LICENSE.txt" { print NR }
+    $1 == "file" && (NF != 5 || $5 !~ /^(https|file):/) { print NR }
   ')
   [ -z "$bad" ] || die "malformed record(s) in $lock (lines without comments: $bad)"
   for pkg in $(lock_packages); do
     is_sha256 "$(package_field "$pkg" 4)" || die "bad zip SHA-256 for $pkg in $lock"
-    [ "$(files_of "$pkg" | awk '$1 == "license"' | wc -l | tr -d ' ')" -eq 1 ] ||
-      die "$pkg needs exactly one license record in $lock"
-    [ "$(files_of "$pkg" | awk '$1 == "font"' | wc -l | tr -d ' ')" -gt 0 ] ||
-      die "$pkg has no font records in $lock"
-    while read -r _ file sha; do
-      is_sha256 "$sha" || die "bad SHA-256 for $pkg/$file in $lock"
-    done <<EOF
-$(files_of "$pkg")
-EOF
+    check_records "$pkg"
+  done
+  for pkg in $(lock_folders); do
+    check_records "$pkg"
   done
   bad=$(lock_records | awk '
     $1 == "package" { known[$2] = 1 }
@@ -215,9 +238,19 @@ verify_committed_fonts() {
       echo "OK   ibm-$pkg ($(files_of "$pkg" | awk '$1 == "font"' | wc -l | tr -d ' ') fonts + LICENSE.txt)"
     fi
   done
-  expected=$(for pkg in $(lock_packages); do
-    files_of "$pkg" | awk -v p="$pkg" '{ print "ibm-" p "/" $2 }'
-  done | LC_ALL=C sort)
+  for pkg in $(lock_folders); do
+    if check_files "$dest/$pkg" "$pkg"; then
+      echo "OK   $pkg ($(files_of "$pkg" | awk '$1 == "font"' | wc -l | tr -d ' ') fonts + LICENSE.txt)"
+    fi
+  done
+  expected=$({
+    for pkg in $(lock_packages); do
+      files_of "$pkg" | awk -v p="$pkg" '{ print "ibm-" p "/" $2 }'
+    done
+    for pkg in $(lock_folders); do
+      files_of "$pkg" | awk -v p="$pkg" '{ print p "/" $2 }'
+    done
+  } | LC_ALL=C sort)
   present=$(list_files "$dest")
   extra=$(echo "$present" | LC_ALL=C comm -13 <(echo "$expected") -)
   if [ -n "$extra" ]; then
@@ -288,6 +321,24 @@ EOF
   echo "OK   ibm-$pkg: $(files_of "$pkg" | awk '{ printf "%s%s", sep, $2; sep = " " }')"
 }
 
+# stage_folder <folder>: downloads its pinned files into $staging/<folder> and checks them.
+stage_folder() {
+  local folder=$1 out file url
+  out="$staging/$folder"
+  mkdir -p "$out"
+  while read -r file url; do
+    echo "GET  $url"
+    curl --fail --location --silent --show-error --retry 3 --retry-delay 2 \
+      --proto '=https,file' --proto-redir '=https' --output "$out/$file" "$url" ||
+      die "download failed: $url"
+  done <<EOF
+$(file_urls_of "$folder")
+EOF
+  chmod 0644 "$out"/*
+  check_files "$out" "$folder" || exit 1
+  echo "OK   $folder: $(files_of "$folder" | awk '{ printf "%s%s", sep, $2; sep = " " }')"
+}
+
 install_fonts() {
   command -v unzip >/dev/null 2>&1 || die "unzip is not installed"
   local pkg
@@ -298,10 +349,17 @@ install_fonts() {
     ensure_zip "$pkg"
     stage "$pkg"
   done
+  for pkg in $(lock_folders); do
+    stage_folder "$pkg"
+  done
   # Everything is checked; swap the family folders in.
   for pkg in $(lock_packages); do
     rm -rf "${dest:?}/ibm-$pkg"
     mv "$staging/ibm-$pkg" "$dest/ibm-$pkg"
+  done
+  for pkg in $(lock_folders); do
+    rm -rf "${dest:?}/$pkg"
+    mv "$staging/$pkg" "$dest/$pkg"
   done
   rm -rf "$staging"
   staging=""

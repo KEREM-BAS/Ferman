@@ -10,9 +10,9 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// Button(
-///   icon: IconName.filePlus2,
-///   disabledReason: Feature.createPdf.disabledReason(context),
-///   child: Text(l10n.startCreatePdf),
+///   icon: IconName.scan,
+///   disabledReason: Feature.scanToPdf.disabledReason(context),
+///   child: Text(l10n.startScanToPdf),
 /// )
 /// ```
 ///
@@ -58,20 +58,22 @@ enum Feature {
   /// (a13-15).
   aboutAndLicence('B169'),
 
-  /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
-  /// Convert › Create PDF.
-  createPdf('B019'),
+  /// Combining dropped files: "Combine into one PDF" while files are dragged
+  /// over the window (a1-6).
+  combineDropped('B191'),
 
-  /// Combining and splitting files: Start › Combine files and Organize ›
-  /// Split, Combine files.
-  combineAndSplit('B020'),
+  /// Create PDF from the clipboard: its source in the Create PDF dialog.
+  createFromClipboard('B176'),
+
+  /// Word and Excel as input: a row of Combine's list, and the not-a-PDF
+  /// tab's Convert to PDF.
+  officeInputs('B175'),
+
+  /// Combine on the phone, which has no shell yet: the phone home's quick tool.
+  phoneCombine('B195'),
 
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
-
-  /// Combining dropped files: "Combine into one PDF" while files are
-  /// dragged over the window (a1-6).
-  combineDropped('B104'),
 
   /// The Save as sheet's options "Include comments and markup" and "Remove
   /// edit history from the file" (a1-11).
@@ -173,10 +175,6 @@ enum Feature {
   preparingForms('B055'),
 
   // Pages.
-
-  /// Organizing pages: the Organize row's Insert, rotations, Duplicate,
-  /// Extract, Replace, Delete, Crop and Page labels.
-  organizingPages('B056'),
 
   // Convert.
 

@@ -87,6 +87,15 @@ Finder _iconButton(String label) => find.byWidgetPredicate(
 );
 
 /// View's tools that work once a document shows.
+/// Organize's tools that wait for a shown document.
+const Set<String> _organizing = {
+  'Insert',
+  'Extract',
+  'Replace',
+  'Crop',
+  'Page labels',
+};
+
 const Set<String> _viewing = {
   'Select',
   'Hand',
@@ -579,19 +588,35 @@ void main() {
         };
         for (final entry in entries) {
           final works =
-              mode == FermanMode.edit && working.containsKey(entry.label);
+              (mode == FermanMode.edit && working.containsKey(entry.label)) ||
+              entry.label == 'Combine files' ||
+              entry.label == 'Create PDF';
           expect(
             entry.disabled,
             !works || working[entry.label] != null,
             reason: entry.label,
           );
-          // View's viewing tools wait for a shown document, not a version.
+          // View's viewing tools wait for a shown document, not a version;
+          // Organize's commands for a selection.
           expect(
             entry.disabledReason,
-            mode == FermanMode.view && _viewing.contains(entry.label)
+            mode == FermanMode.view && _viewing.contains(entry.label) ||
+                    mode == FermanMode.organize &&
+                        _organizing.contains(entry.label) ||
+                    entry.label == 'Split' ||
+                    entry.label == 'Combine files' ||
+                    entry.label == 'Create PDF'
                 ? isNull
                 : works
                 ? working[entry.label]
+                : mode == FermanMode.organize &&
+                      const {
+                        'Rotate left',
+                        'Rotate right',
+                        'Duplicate',
+                        'Delete',
+                      }.contains(entry.label)
+                ? 'Select pages first'
                 : futureVersion,
             reason: entry.label,
           );

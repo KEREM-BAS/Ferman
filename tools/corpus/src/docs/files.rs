@@ -1,5 +1,5 @@
 //! Files the documents attach or show: a small spreadsheet (a zip with stored entries) and
-//! greyscale JPEGs whose 8×8 blocks each hold one grey level, enough for a photocopy-like
+//! JPEGs whose 8×8 blocks each hold one level per component, enough for a photocopy-like
 //! picture without a full JPEG encoder.
 
 /// The DOS time and date of every zip entry: 13 October 2026, 09:30.
@@ -209,8 +209,7 @@ fn dc_codes() -> [(u32, u8); 12] {
 }
 
 /// A baseline greyscale JPEG of `width` × `height` pixels (multiples of 8) at `dpi`, each 8×8
-/// block the mean of `pixel` over it. Only DC coefficients are coded; every block ends with an
-/// end-of-block code from a two-code AC table.
+/// block the mean of `pixel` over it.
 ///
 /// # Errors
 ///
@@ -221,23 +220,50 @@ pub fn jpeg(
     dpi: u16,
     pixel: impl Fn(u32, u32) -> u8,
 ) -> Result<Vec<u8>, String> {
+    jpeg_components(width, height, dpi, 1, |x, y, _| pixel(x, y))
+}
+
+/// A baseline JPEG of `components` components without subsampling: 1 is grey, 3 YCbCr (JFIF) and
+/// 4 CMYK (with an Adobe marker and no colour transform), each 8×8 block the mean of `sample`
+/// (x, y, component) over it. Only DC coefficients are coded; every block ends with an
+/// end-of-block code from a two-code AC table.
+///
+/// # Errors
+///
+/// A message when a size is not a multiple of 8 or does not fit.
+pub fn jpeg_components(
+    width: u16,
+    height: u16,
+    dpi: u16,
+    components: u8,
+    sample: impl Fn(u32, u32, u8) -> u8,
+) -> Result<Vec<u8>, String> {
     if !width.is_multiple_of(8) || !height.is_multiple_of(8) || width == 0 || height == 0 {
         return Err("jpeg: the size must be a positive multiple of 8".to_owned());
     }
     let mut out = vec![0xFF, 0xD8];
-    // JFIF with the density in dots per inch.
-    out.extend_from_slice(&[0xFF, 0xE0, 0x00, 0x10, b'J', b'F', b'I', b'F', 0, 1, 1, 1]);
-    out.extend_from_slice(&dpi.to_be_bytes());
-    out.extend_from_slice(&dpi.to_be_bytes());
-    out.extend_from_slice(&[0, 0]);
+    if components == 4 {
+        out.extend_from_slice(&[0xFF, 0xEE, 0x00, 0x0E]);
+        out.extend_from_slice(b"Adobe");
+        out.extend_from_slice(&[0, 100, 0, 0, 0, 0, 0]);
+    } else {
+        // JFIF with the density in dots per inch.
+        out.extend_from_slice(&[0xFF, 0xE0, 0x00, 0x10, b'J', b'F', b'I', b'F', 0, 1, 1, 1]);
+        out.extend_from_slice(&dpi.to_be_bytes());
+        out.extend_from_slice(&dpi.to_be_bytes());
+        out.extend_from_slice(&[0, 0]);
+    }
     // One quantisation table of 16s.
     out.extend_from_slice(&[0xFF, 0xDB, 0x00, 0x43, 0x00]);
     out.extend_from_slice(&[16u8; 64]);
-    // Baseline frame, one component.
-    out.extend_from_slice(&[0xFF, 0xC0, 0x00, 0x0B, 0x08]);
+    // Baseline frame.
+    out.extend_from_slice(&[0xFF, 0xC0, 0x00, 8 + 3 * components, 0x08]);
     out.extend_from_slice(&height.to_be_bytes());
     out.extend_from_slice(&width.to_be_bytes());
-    out.extend_from_slice(&[0x01, 0x01, 0x11, 0x00]);
+    out.push(components);
+    for id in 1..=components {
+        out.extend_from_slice(&[id, 0x11, 0x00]);
+    }
     // DC table 0 and AC table 0 (end of block "00", zero run "01").
     out.extend_from_slice(&[0xFF, 0xC4, 0x00, 0x1F, 0x00]);
     out.extend_from_slice(&DC_COUNTS);
@@ -246,40 +272,47 @@ pub fn jpeg(
     out.extend_from_slice(&[0u8; 14]);
     out.extend_from_slice(&[0x00, 0xF0]);
     // Scan.
-    out.extend_from_slice(&[0xFF, 0xDA, 0x00, 0x08, 0x01, 0x01, 0x00, 0x00, 0x3F, 0x00]);
+    out.extend_from_slice(&[0xFF, 0xDA, 0x00, 6 + 2 * components, components]);
+    for id in 1..=components {
+        out.extend_from_slice(&[id, 0x00]);
+    }
+    out.extend_from_slice(&[0x00, 0x3F, 0x00]);
     let codes = dc_codes();
     let mut bits = Bits {
         out: Vec::new(),
         byte: 0,
         count: 0,
     };
-    let mut previous = 0i32;
+    let mut previous = [0i32; 4];
     for block_y in 0..u32::from(height / 8) {
         for block_x in 0..u32::from(width / 8) {
-            let mut sum = 0u32;
-            for y in 0..8 {
-                for x in 0..8 {
-                    sum += u32::from(pixel(block_x * 8 + x, block_y * 8 + y));
+            for component in 0..components {
+                let mut sum = 0u32;
+                for y in 0..8 {
+                    for x in 0..8 {
+                        sum += u32::from(sample(block_x * 8 + x, block_y * 8 + y, component));
+                    }
                 }
+                // DC = 8 × (mean − 128), quantised by 16: (sum / 64 − 128) / 2.
+                let mean = i32::try_from(sum / 64).unwrap_or(128);
+                let quantised = (mean - 128) / 2;
+                let previous = &mut previous[usize::from(component)];
+                let diff = quantised - *previous;
+                *previous = quantised;
+                let magnitude = diff.unsigned_abs();
+                let category = u8::try_from(32 - magnitude.leading_zeros()).unwrap_or(11);
+                let (code, length) = codes[usize::from(category)];
+                bits.push(code, length);
+                if category > 0 {
+                    let value = if diff < 0 {
+                        u32::try_from(diff - 1 + (1 << category)).unwrap_or(0)
+                    } else {
+                        magnitude
+                    };
+                    bits.push(value, category);
+                }
+                bits.push(0, 2);
             }
-            // DC = 8 × (mean − 128), quantised by 16: (sum / 64 − 128) / 2.
-            let mean = i32::try_from(sum / 64).unwrap_or(128);
-            let quantised = (mean - 128) / 2;
-            let diff = quantised - previous;
-            previous = quantised;
-            let magnitude = diff.unsigned_abs();
-            let category = u8::try_from(32 - magnitude.leading_zeros()).unwrap_or(11);
-            let (code, length) = codes[usize::from(category)];
-            bits.push(code, length);
-            if category > 0 {
-                let value = if diff < 0 {
-                    u32::try_from(diff - 1 + (1 << category)).unwrap_or(0)
-                } else {
-                    magnitude
-                };
-                bits.push(value, category);
-            }
-            bits.push(0, 2);
         }
     }
     out.extend(bits.finish());

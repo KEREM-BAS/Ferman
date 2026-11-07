@@ -5138,6 +5138,1458 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get phoneTabSettings;
+
+  /// a11-6b: where a background task is.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String jobPageOf(String page, String pages);
+
+  /// a11-6b: a paused task's place.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused at page {page}'**
+  String jobPausedAtPage(String page);
+
+  /// a11-6b: why a background task failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The disk is full. Free some space and try again.'**
+  String get jobFailedDiskFull;
+
+  /// a11-6b: the title of a task that copies a document.
+  ///
+  /// In en, this message translates to:
+  /// **'Copying {name}'**
+  String jobCopyingTitle(String name);
+
+  /// a11-6b: the title of the finished copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {name}'**
+  String jobCopiedTitle(String name);
+
+  /// a11-6b: the title of a failed copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t copy {name}'**
+  String jobCopyFailedTitle(String name);
+
+  /// a11-6b: the drawer's title and its region's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Background tasks'**
+  String get tasksTitle;
+
+  /// a11-6b: the drawer's close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close drawer'**
+  String get tasksClose;
+
+  /// Status bar: screen-reader name of the task line, which opens the drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide background tasks'**
+  String get tasksOpen;
+
+  /// G49: the empty drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'No background tasks'**
+  String get tasksEmptyTitle;
+
+  /// G49: the empty drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Long work, such as compressing a file, runs here while you keep working.'**
+  String get tasksEmptyBody;
+
+  /// Status bar: several background tasks in the one task line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 task running} other{{formatted} tasks running}}'**
+  String tasksRunning(int count, String formatted);
+
+  /// a11-6b: pauses a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get taskPause;
+
+  /// a11-6b: resumes a paused task.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get taskResume;
+
+  /// a11-6b: shows a finished task's file in the file manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get taskShow;
+
+  /// a11-6b: takes a finished task's row away.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get taskDismiss;
+
+  /// G49: the question before a running task is cancelled; task is its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel “{task}”?'**
+  String taskCancelTitle(String task);
+
+  /// G49: the question before a running task is cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Its work so far is discarded, and no file is left behind.'**
+  String get taskCancelBody;
+
+  /// G49: leaves the task running.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep running'**
+  String get taskKeepRunning;
+
+  /// G49: cancels the task.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel task'**
+  String get taskCancelConfirm;
+
+  /// Quitting with background tasks running: the question.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}}'**
+  String tasksQuitTitle(int count, String formatted);
+
+  /// Quitting with background tasks running.
+  ///
+  /// In en, this message translates to:
+  /// **'Quitting cancels them, and they leave no partial files.'**
+  String get tasksQuitBody;
+
+  /// Quitting with background tasks running: stays in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep working'**
+  String get tasksQuitKeep;
+
+  /// Quitting with background tasks running: goes on.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel tasks and quit'**
+  String get tasksQuitConfirm;
+
+  /// Organize (a6-1): the screen-reader name of the page grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get organizeGridLabel;
+
+  /// Organize (a6-1): the screen-reader name of the right panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection'**
+  String get organizePanelLabel;
+
+  /// Organize tool row (a6-1): the hint with a selection. {selected} and {pages} are written for the region; {total} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =1{{selected} of {pages} page selected} other{{selected} of {pages} pages selected}}'**
+  String organizeHintSelected(int total, String selected, String pages);
+
+  /// Organize tool row (a6-1b): the hint during a drag.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Moving {n} page} other{Moving {n} pages}}'**
+  String organizeHintMoving(int count, String n);
+
+  /// Organize panel (a6-1): the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page selected} other{{n} pages selected}}'**
+  String organizePanelTitle(int count, String n);
+
+  /// Organize panel (a6-1): the section, and its first row's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get organizePanelPages;
+
+  /// Organize panel (a6-1): the selected pages' numbers and their page labels.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages} (labels {labels})'**
+  String organizePanelPagesLabels(String pages, String labels);
+
+  /// Organize panel (a6-1): the row with the pages' size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get organizePanelSize;
+
+  /// Organize panel (a6-1): the row with the pages' rotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation'**
+  String get organizePanelRotation;
+
+  /// Organize panel: pages of the selection differ in this value; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get organizePanelMixed;
+
+  /// Organize panel (a6-1): the section of commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands'**
+  String get organizePanelCommands;
+
+  /// Organize panel (a6-1): opens Extract.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract…'**
+  String get organizePanelExtract;
+
+  /// Organize panel (a6-1): opens Replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace…'**
+  String get organizePanelReplace;
+
+  /// Organize panel (a6-1): the section. {page} is the last selected page's number.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert after page {page}'**
+  String organizePanelInsertAfter(String page);
+
+  /// Organize panel (a6-1): inserts a blank page.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get organizePanelBlankPage;
+
+  /// Organize panel (a6-1): inserts pages from a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages from a file…'**
+  String get organizePanelFromFile;
+
+  /// Organize panel (a6-1): inserts pages from a scanner or camera.
+  ///
+  /// In en, this message translates to:
+  /// **'From scanner or camera…'**
+  String get organizePanelFromScanner;
+
+  /// Organize's page menu (a6-1): its heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page} other{{n} pages}}'**
+  String organizePagesCount(int count, String n);
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Extract as new PDF…'**
+  String get organizeMenuExtract;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert blank page after'**
+  String get organizeMenuInsertBlank;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert pages from file…'**
+  String get organizeMenuInsertFile;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with pages from file…'**
+  String get organizeMenuReplace;
+
+  /// Organize's page menu (a6-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete {n} page} other{Delete {n} pages}}'**
+  String organizeMenuDelete(int count, String n);
+
+  /// Organize: why Delete is disabled with every page selected; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'A document keeps at least one page'**
+  String get organizeDeleteAllReason;
+
+  /// Toast (a11-6) and history step: after deleting pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page deleted} other{{n} pages deleted}}'**
+  String organizeToastDeleted(int count, String n);
+
+  /// Toast and history step: after rotating pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page rotated} other{{n} pages rotated}}'**
+  String organizeToastRotated(int count, String n);
+
+  /// Toast and history step: after duplicating pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page duplicated} other{{n} pages duplicated}}'**
+  String organizeToastDuplicated(int count, String n);
+
+  /// Toast (a6-1b) and history step: after moving pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page moved} other{{n} pages moved}}'**
+  String organizeToastMoved(int count, String n);
+
+  /// Toast: after a drop on the page grid inserted a file's pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} page inserted} other{{n} pages inserted}}'**
+  String organizeToastInserted(int count, String n);
+
+  /// Toast (a11-6): the pages a command acted on, such as 4–6.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Page {pages}} other{Pages {pages}}}'**
+  String organizeToastPages(int count, String pages);
+
+  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}'**
+  String organizeToastDeletedNote(int count, String pages);
+
+  /// History step: inserted the file {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert {name}'**
+  String organizeStepInsert(String name);
+
+  /// Toast: a page command failed; the document is as it was.
+  ///
+  /// In en, this message translates to:
+  /// **'The pages weren’t changed'**
+  String get organizeFailed;
+
+  /// Toast: a dropped file's pages could not go in.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t insert {name}'**
+  String organizeInsertFailed(String name);
+
+  /// Page grid (a6-1b): what a drop does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Drop to move page {pages} before page {before}} other{Drop to move pages {pages} before page {before}}}'**
+  String organizeDropMoveBefore(int count, String pages, String before);
+
+  /// Page grid (a6-1b): what a drop past the last page does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Drop to move page {pages} to the end} other{Drop to move pages {pages} to the end}}'**
+  String organizeDropMoveEnd(int count, String pages);
+
+  /// Page grid: files over the grid (G105), what a drop does.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to insert before page {before}'**
+  String organizeDropFilesBefore(String before);
+
+  /// Page grid: files over the grid past the last page (G105).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to insert at the end'**
+  String get organizeDropFilesEnd;
+
+  /// a11-6b: an insert running, from a dialog or a drop.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading pages from {name}'**
+  String jobInsertingTitle(String name);
+
+  /// a11-6b: an insert finished, from a dialog or a drop.
+  ///
+  /// In en, this message translates to:
+  /// **'Inserted pages from {name}'**
+  String jobInsertedTitle(String name);
+
+  /// Organize tool row: why a command on the selection is disabled while none is selected; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Select pages first'**
+  String get organizeSelectFirst;
+
+  /// Organize's dialogs and crop panel: closes without changing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get organizeCancel;
+
+  /// Toast title: the engine refused a page operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t change the pages'**
+  String get organizeFailedTitle;
+
+  /// Error under a page range field. {last} is the last page's number.
+  ///
+  /// In en, this message translates to:
+  /// **'Write pages like 1–3, 5, up to page {last}.'**
+  String organizeBadRange(String last);
+
+  /// a6-4 and G45: a page size option. {size} is formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 · {size}'**
+  String organizeSizeA4(String size);
+
+  /// a6-4 and G45: a page size option. {size} is formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter · {size}'**
+  String organizeSizeLetter(String size);
+
+  /// a6-4 and G45: a page size option that shows width and height.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get organizeSizeCustom;
+
+  /// A custom page size's width field.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get organizeWidth;
+
+  /// A custom page size's height field.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get organizeHeight;
+
+  /// a6-4: the panel's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop and page size'**
+  String get cropTitle;
+
+  /// a6-4: panel section.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get cropMargins;
+
+  /// a6-4: margin field.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get cropTop;
+
+  /// a6-4: margin field.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom'**
+  String get cropBottom;
+
+  /// a6-4: margin field; the page's left, which never mirrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get cropLeft;
+
+  /// a6-4: margin field; the page's right, which never mirrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get cropRight;
+
+  /// a6-4: finds the content box of each page.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove white margins'**
+  String get cropRemoveWhite;
+
+  /// a6-4, not drawn: Remove white margins found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'These pages have no content to measure.'**
+  String get cropNoContent;
+
+  /// a6-4, not drawn: the margins are larger than a page in the scope.
+  ///
+  /// In en, this message translates to:
+  /// **'These margins leave nothing of page {page}.'**
+  String cropTooMuch(String page);
+
+  /// a6-4: panel section and its select's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get cropPageSize;
+
+  /// a6-4: the first page size option.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current size ({size})'**
+  String cropKeepSize(String size);
+
+  /// a6-4: the accessible name of the Centre or Scale to fit control.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get cropContent;
+
+  /// a6-4: content stays at its size, centred.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre'**
+  String get cropFitCentre;
+
+  /// a6-4: content is scaled to the new page.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale to fit'**
+  String get cropFitScale;
+
+  /// a6-4: panel section.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to'**
+  String get cropApplyTo;
+
+  /// a6-4: scope.
+  ///
+  /// In en, this message translates to:
+  /// **'This page'**
+  String get cropThisPage;
+
+  /// a6-4: scope, every page of the document.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The only page} other{All {formatted} pages}}'**
+  String cropAllPages(int count, String formatted);
+
+  /// a6-4: scope, the pages of a range.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get cropSomePages;
+
+  /// a6-4: the accessible name of the parity select.
+  ///
+  /// In en, this message translates to:
+  /// **'Which pages'**
+  String get cropWhichPages;
+
+  /// a6-4: parity option.
+  ///
+  /// In en, this message translates to:
+  /// **'All pages in range'**
+  String get cropParityAll;
+
+  /// a6-4: parity option.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd pages'**
+  String get cropParityOdd;
+
+  /// a6-4: parity option.
+  ///
+  /// In en, this message translates to:
+  /// **'Even pages'**
+  String get cropParityEven;
+
+  /// a6-4: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Crop {formatted} page} other{Crop {formatted} pages}}'**
+  String cropAction(int count, String formatted);
+
+  /// a6-4: the primary button when only the page size changes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Resize {formatted} page} other{Resize {formatted} pages}}'**
+  String cropResizeAction(int count, String formatted);
+
+  /// The toast after a crop (a11-6's pattern).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{formatted} page cropped} other{{formatted} pages cropped}}'**
+  String cropDone(int count, String formatted);
+
+  /// The toast after a crop: cropping hides content and does not remove it (G57).
+  ///
+  /// In en, this message translates to:
+  /// **'What’s outside is hidden, not removed.'**
+  String get cropDoneHidden;
+
+  /// The history step of a crop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop pages'**
+  String get cropStep;
+
+  /// The history step of a new page size.
+  ///
+  /// In en, this message translates to:
+  /// **'Change page size'**
+  String get cropSizeStep;
+
+  /// a6-5: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Page labels'**
+  String get labelsTitle;
+
+  /// a6-5: the dialog's description.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how pages are numbered in Ferman, in other PDF apps and when printing.'**
+  String get labelsDescription;
+
+  /// a6-5: column head, shown in capitals, and the field's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get labelsColumnPages;
+
+  /// a6-5: column head, shown in capitals, and the select's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get labelsColumnStyle;
+
+  /// a6-5: column head, shown in capitals, and the field's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefix'**
+  String get labelsColumnPrefix;
+
+  /// a6-5: column head, shown in capitals, and the field's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Start at'**
+  String get labelsColumnStart;
+
+  /// a6-5: the empty prefix's placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get labelsPrefixNone;
+
+  /// a6-5: a label style.
+  ///
+  /// In en, this message translates to:
+  /// **'i, ii, iii'**
+  String get labelsStyleRomanLower;
+
+  /// a6-5: a label style.
+  ///
+  /// In en, this message translates to:
+  /// **'I, II, III'**
+  String get labelsStyleRomanUpper;
+
+  /// a6-5: a label style.
+  ///
+  /// In en, this message translates to:
+  /// **'1, 2, 3'**
+  String get labelsStyleDecimal;
+
+  /// a6-5: a label style.
+  ///
+  /// In en, this message translates to:
+  /// **'a, b, c'**
+  String get labelsStyleLettersLower;
+
+  /// A label style a6-5 does not draw, which PDF has.
+  ///
+  /// In en, this message translates to:
+  /// **'A, B, C'**
+  String get labelsStyleLettersUpper;
+
+  /// a6-5: a label style with no number.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefix only'**
+  String get labelsStyleNone;
+
+  /// a6-5: a row's remove button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove range'**
+  String get labelsRemoveRange;
+
+  /// a6-5: adds a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Add range'**
+  String get labelsAddRange;
+
+  /// a6-5: the preview row's caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get labelsPreview;
+
+  /// a6-5: disabled until page marks ship.
+  ///
+  /// In en, this message translates to:
+  /// **'Also print the numbers on the pages'**
+  String get labelsPrint;
+
+  /// a6-5: the note under the disabled checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds them as a footer. Pages that already show a number are skipped.'**
+  String get labelsPrintNote;
+
+  /// a6-5: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply labels'**
+  String get labelsApply;
+
+  /// The history step of new labels.
+  ///
+  /// In en, this message translates to:
+  /// **'Change page labels'**
+  String get labelsStep;
+
+  /// a6-5, not drawn: a row's pages cannot be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: write its pages like 1–9.'**
+  String labelsErrorInvalid(String row);
+
+  /// a6-5, not drawn: ranges overlap or are out of order.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row} overlaps the range before it.'**
+  String labelsErrorOverlap(String row);
+
+  /// a6-5, not drawn: a range past the last page.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row} goes past the last page, {last}.'**
+  String labelsErrorPast(String row, String last);
+
+  /// a6-5, not drawn: a page no range covers.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} is in no range. Ranges must cover every page.'**
+  String labelsErrorUncovered(String page);
+
+  /// a6-1: Insert's menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get insertMenuBlank;
+
+  /// a6-1: Insert's menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages from a file…'**
+  String get insertMenuFile;
+
+  /// a6-1: Insert's menu, disabled until scanning ships.
+  ///
+  /// In en, this message translates to:
+  /// **'From scanner or camera…'**
+  String get insertMenuScan;
+
+  /// G45: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert blank page'**
+  String get insertBlankTitle;
+
+  /// G45: the size select.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get insertSize;
+
+  /// G45: the first size option.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as page {page} ({size})'**
+  String insertSameSize(String page, String size);
+
+  /// G45: the accessible name of Portrait or Landscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get insertOrientation;
+
+  /// G45: orientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get insertPortrait;
+
+  /// G45: orientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get insertLandscape;
+
+  /// G45: the count field.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of pages'**
+  String get insertCount;
+
+  /// G45: the accessible name of Before or After.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get insertPosition;
+
+  /// G45: position, before the page in the next field.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get insertBefore;
+
+  /// G45: position, after the page in the next field.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get insertAfter;
+
+  /// G45: the position's page field.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get insertPage;
+
+  /// G45: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Insert {formatted} page} other{Insert {formatted} pages}}'**
+  String insertAction(int count, String formatted);
+
+  /// The history step of blank pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert blank page'**
+  String get insertBlankStep;
+
+  /// G45: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert pages from file'**
+  String get insertFileTitle;
+
+  /// G45: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert pages'**
+  String get insertFileAction;
+
+  /// The history step of inserted pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert pages from file'**
+  String get insertFileStep;
+
+  /// G45: opens the system's file panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file…'**
+  String get sourceChoose;
+
+  /// G45: before a file is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'No file chosen'**
+  String get sourceNone;
+
+  /// G45: the chosen file and its pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{name} · {formatted} page} other{{name} · {formatted} pages}}'**
+  String sourcePagesInfo(int count, String name, String formatted);
+
+  /// G45: the source's range field.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages from the file'**
+  String get sourceRange;
+
+  /// G45 and a6-4: an empty range's placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'All pages'**
+  String get sourceAllPages;
+
+  /// G45: tries the password of a locked source file.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get sourceUnlock;
+
+  /// G45: a source file that forbids assembling.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn’t allow taking pages from it. Its owner password lifts that.'**
+  String get sourceForbidden;
+
+  /// G45: a source file that cannot be used.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t read this file.'**
+  String get sourceUnreadable;
+
+  /// G45: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace pages'**
+  String get replaceTitle;
+
+  /// G45: the range to replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages in this document'**
+  String get replaceThese;
+
+  /// G45: fewer new pages than replaced ones.
+  ///
+  /// In en, this message translates to:
+  /// **'The file gives fewer pages: the rest of these pages are deleted.'**
+  String get replaceFewer;
+
+  /// G45: more new pages than replaced ones.
+  ///
+  /// In en, this message translates to:
+  /// **'The file gives more pages: the extra ones go after the last.'**
+  String get replaceMore;
+
+  /// G45: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Replace {formatted} page} other{Replace {formatted} pages}}'**
+  String replaceAction(int count, String formatted);
+
+  /// The history step of a replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace pages'**
+  String get replaceStep;
+
+  /// G45: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract pages'**
+  String get extractTitle;
+
+  /// G45: the range to extract.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get extractPages;
+
+  /// G45: extract option.
+  ///
+  /// In en, this message translates to:
+  /// **'One file'**
+  String get extractOneFile;
+
+  /// G45: extract option.
+  ///
+  /// In en, this message translates to:
+  /// **'One file per page'**
+  String get extractEachFile;
+
+  /// G45: extract option.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete these pages afterwards'**
+  String get extractDelete;
+
+  /// G45: why deleting afterwards is off when every page is extracted.
+  ///
+  /// In en, this message translates to:
+  /// **'A document keeps at least one page.'**
+  String get extractDeleteAll;
+
+  /// G45: the primary button; a system panel asks where.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract…'**
+  String get extractAction;
+
+  /// G45: the name of an extracted file, without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'{document} pages {pages}'**
+  String extractFileName(String document, String pages);
+
+  /// The history step of deleting extracted pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete pages'**
+  String get extractDeleteStep;
+
+  /// a11-6b: an extract running.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting pages of {name}'**
+  String jobExtractingTitle(String name);
+
+  /// a11-6b: an extract finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted pages of {name}'**
+  String jobExtractedTitle(String name);
+
+  /// a11-6b: an extract failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t extract pages of {name}'**
+  String jobExtractFailedTitle(String name);
+
+  /// a11-6b: an insert failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t insert pages from {name}'**
+  String jobInsertFailedTitle(String name);
+
+  /// a11-6b: a replace running.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading replacement pages from {name}'**
+  String jobReplacingTitle(String name);
+
+  /// a11-6b: a replace finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaced pages with {name}'**
+  String jobReplacedTitle(String name);
+
+  /// a11-6b: a replace failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t replace pages with {name}'**
+  String jobReplaceFailedTitle(String name);
+
+  /// a6-2, a6-3: a count of files.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file} other{{formatted} files}}'**
+  String organizeFileCount(int count, String formatted);
+
+  /// a6-2, a6-3: a count of pages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{formatted} pages}}'**
+  String organizePageCount(int count, String formatted);
+
+  /// a6-3: the button that adds files.
+  ///
+  /// In en, this message translates to:
+  /// **'Add files…'**
+  String get combineAddFiles;
+
+  /// a6-3: the file type in the open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'PDFs, images and Office files'**
+  String get combineFilter;
+
+  /// a6-3: the empty list (G29).
+  ///
+  /// In en, this message translates to:
+  /// **'No files yet'**
+  String get combineEmptyTitle;
+
+  /// a6-3: the empty list (G29).
+  ///
+  /// In en, this message translates to:
+  /// **'Add PDFs or images to combine them into one new file.'**
+  String get combineEmptyBody;
+
+  /// a6-3: the grip of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get combineDrag;
+
+  /// a6-3: a screen reader action on a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get combineMoveUp;
+
+  /// a6-3: a screen reader action on a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get combineMoveDown;
+
+  /// a6-3: the page range field of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages to include'**
+  String get combinePagesToInclude;
+
+  /// a6-3: the page range for every page.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get combineAllPages;
+
+  /// a6-3: the x of a row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove file'**
+  String get combineRemoveFile;
+
+  /// a6-3: an image row's second line.
+  ///
+  /// In en, this message translates to:
+  /// **'Image · converted to 1 page'**
+  String get combineMetaImage;
+
+  /// a6-3: the second line of a Word or Excel row, which cannot be combined yet (B175).
+  ///
+  /// In en, this message translates to:
+  /// **'Word or Excel'**
+  String get combineMetaOffice;
+
+  /// a6-3: a locked row (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Locked: enter its password to add it.'**
+  String get combineNeedsPassword;
+
+  /// a6-3: a locked row after a wrong password (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'That password doesn’t open it. Try again.'**
+  String get combineWrongPassword;
+
+  /// a6-3: a row that forbids assembling (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'This file forbids combining. Enter its owner password to add it.'**
+  String get combineOwnerPassword;
+
+  /// a6-3: a row neither a PDF nor an image Ferman can read, or a file that is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t read this file.'**
+  String get combineUnreadable;
+
+  /// a6-3: a row whose page range cannot be used.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn’t have those pages.'**
+  String get combineBadRange;
+
+  /// a6-3: the password field of a locked row.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get combinePassword;
+
+  /// a6-3: the button of a locked row.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get combineUnlock;
+
+  /// a6-3: a row opened with its password (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new file won’t have this file’s password.'**
+  String get combineNotProtected;
+
+  /// a6-3: a signed row (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Its signatures won’t carry over.'**
+  String get combineNotSigned;
+
+  /// a6-3: the output name field.
+  ///
+  /// In en, this message translates to:
+  /// **'New file'**
+  String get combineNewFile;
+
+  /// a6-3: the output name to begin with.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined.pdf'**
+  String get combineDefaultName;
+
+  /// a6-3: a checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bookmark for each file'**
+  String get combineBookmarks;
+
+  /// a6-3: a checkbox; the board's "and signatures" goes (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep form fields'**
+  String get combineKeepForms;
+
+  /// a6-3: the note of the checkbox (G159).
+  ///
+  /// In en, this message translates to:
+  /// **'Signatures from the original files don’t carry over.'**
+  String get combineKeepFormsNote;
+
+  /// a6-3: the estimated size.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size}'**
+  String combineAbout(String size);
+
+  /// a6-3: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Combine 1 file} other{Combine {formatted} files}}'**
+  String combineAction(int count, String formatted);
+
+  /// a6-3: the heading of the result grid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{RESULT · 1 PAGE} other{RESULT · {formatted} PAGES}}'**
+  String combineResult(int count, String formatted);
+
+  /// a6-3: a page of the result for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}, from file {file}'**
+  String combineResultPage(String page, String file);
+
+  /// The toast when a new file's name is taken: a job never overwrites.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” already exists. Choose another name.'**
+  String combineOutputExists(String name);
+
+  /// a6-2: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Split “{name}”'**
+  String splitTitle(String name);
+
+  /// a6-2: the radio group's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Split by'**
+  String get splitBy;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Every few pages'**
+  String get splitEvery;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'A new file every N pages.'**
+  String get splitEveryBody;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'At top-level bookmarks'**
+  String get splitBookmarks;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One file per chapter. 1 bookmark found.} other{One file per chapter. {formatted} bookmarks found.}}'**
+  String splitBookmarksBody(int count, String formatted);
+
+  /// a6-2: the mode when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no bookmarks.'**
+  String get splitNoBookmarks;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'By file size'**
+  String get splitSize;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Files no larger than a size you choose, for e-mail limits.'**
+  String get splitSizeBody;
+
+  /// a6-2: a mode.
+  ///
+  /// In en, this message translates to:
+  /// **'At blank pages'**
+  String get splitBlank;
+
+  /// a6-2: a mode's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank separator pages are removed.'**
+  String get splitBlankBody;
+
+  /// a6-2: the mode when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No blank pages found.'**
+  String get splitNoBlankPages;
+
+  /// a6-2: the amount of Every few pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per file'**
+  String get splitPagesPerFile;
+
+  /// a6-2: the amount of By file size.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest file'**
+  String get splitLargest;
+
+  /// a6-2: the template field.
+  ///
+  /// In en, this message translates to:
+  /// **'File names'**
+  String get splitFileNames;
+
+  /// a6-2: the folder select.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to'**
+  String get splitSaveTo;
+
+  /// a6-2: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Same folder as the original'**
+  String get splitSameFolder;
+
+  /// a6-2: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder…'**
+  String get splitChooseFolder;
+
+  /// a6-2: a file over the size asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'One page alone is larger than this size.'**
+  String get splitOverLimit;
+
+  /// a6-2: an encrypted document (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new files won’t have this document’s password.'**
+  String get splitNotProtected;
+
+  /// a6-2: a signed document (M4 plan, question 6).
+  ///
+  /// In en, this message translates to:
+  /// **'The new files won’t carry its signatures.'**
+  String get splitNotSigned;
+
+  /// a6-2: the primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Split into 1 file} other{Split into {formatted} files}}'**
+  String splitAction(int count, String formatted);
+
+  /// Create PDF (B019, no board): a source.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get createBlank;
+
+  /// Create PDF (B019, no board): a source.
+  ///
+  /// In en, this message translates to:
+  /// **'From files…'**
+  String get createFromFiles;
+
+  /// Create PDF (B019, no board): a source, disabled (B176).
+  ///
+  /// In en, this message translates to:
+  /// **'From the clipboard'**
+  String get createFromClipboard;
+
+  /// Create PDF: the new file's name to begin with.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled.pdf'**
+  String get createDefaultName;
+
+  /// a11-6b: the title of a task that splits a document (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Splitting {name}'**
+  String jobSplittingTitle(String name);
+
+  /// a11-6b: the title of the finished split.
+  ///
+  /// In en, this message translates to:
+  /// **'Split {name}'**
+  String jobSplitTitle(String name);
+
+  /// a11-6b: the title of a failed split.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t split {name}'**
+  String jobSplitFailedTitle(String name);
+
+  /// a11-6b: the title of a task that combines files (G45).
+  ///
+  /// In en, this message translates to:
+  /// **'Combining into {name}'**
+  String jobCombiningTitle(String name);
+
+  /// a11-6b: the title of the finished combine.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined into {name}'**
+  String jobCombinedTitle(String name);
+
+  /// a11-6b: the title of a failed combine.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t combine into {name}'**
+  String jobCombineFailedTitle(String name);
+
+  /// a11-6b: the title of a task that creates a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating {name}'**
+  String jobCreatingTitle(String name);
+
+  /// a11-6b: the title of the finished Create PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {name}'**
+  String jobCreatedTitle(String name);
+
+  /// a11-6b: the title of a failed Create PDF; also a toast.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t create {name}'**
+  String jobCreateFailedTitle(String name);
 }
 
 class _AppLocalizationsDelegate

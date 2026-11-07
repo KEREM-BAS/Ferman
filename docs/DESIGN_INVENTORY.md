@@ -1363,7 +1363,7 @@ Counts: Custom-property declarations, verified by parsing every block. colors.cs
 | Token | Light / default | Dark / override | Note |
 |---|---|---|---|
 | `--font-ui (extended)` | `IBM Plex Sans + Plex Arabic, Hebrew, Devanagari, JP, KR, then Noto Sans SC` |  | Covers Ferman/Turkish/German/Russian/Arabic/Hebrew/Hindi/Japanese/Korean/Simplified Chinese. CJK gets 20px leading at 1… |
-| `--font-hand-1 / --font-hand-2 / --font-hand-3` | `Caveat / Homemade Apple / Dancing Script (OFL)` |  | The design's "(OFL)" label is wrong for Homemade Apple, which is Apache-2.0 ([G08](DESIGN_GAPS.md#g08)). Typed-signature styles, demo colour #1A3170 (ink-800). Each covers ş, ğ, ı, İ; styles without full coverage are hidden… |
+| `--font-hand-1 / --font-hand-2 / --font-hand-3` | `Caveat / Homemade Apple / Dancing Script (OFL)` |  | The design's "(OFL)" label is wrong for Homemade Apple, which is Apache-2.0 ([G08](DESIGN_GAPS.md#g08)). Typed-signature styles, demo colour #1A3170 (ink-800). Homemade Apple has no İ Ğ ğ Ş ş ([G158](DESIGN_GAPS.md#g158)); styles without full coverage are hidden… |
 
 **Theming attributes**
 
@@ -1468,7 +1468,7 @@ because no M1 board draws them.
 | `Stamp` | annotations | `Stamp` | M4 |  |
 | `PdfFormField` | fill-sign | `PdfFormField` | M4 |  |
 | `SignaturePad` | fill-sign | `SignaturePad` | M4 |  |
-| `Toast` | feedback | `Toast` | M2 | The out-of-memory toast (`a1-9f`, since export 519d42a); the save-failure toast (`f4`) in M3; the toast stack follows in M4 (`a11-6`). |
+| `Toast` | feedback | `Toast` | M2 | The out-of-memory toast (`a1-9f`, since export 519d42a); the save-failure toast (`f4`) in M3; the toast stack since M4 W0 (`a11-6`), `ToastHost` in `app/lib/app/toast_host.dart`. |
 | `Banner` | feedback | `Banner` | M2 |  |
 | `ProgressBar` | feedback | `ProgressBar` | M2 | A long search's progress under the find bar (`a2-4c`, since export 519d42a); required-fields progress in the Form panel in M4. |
 | `Spinner` | feedback | `Spinner` | M2 |  |

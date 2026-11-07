@@ -1,0 +1,8 @@
+Başvuru seçimleri
+Liste kutuları, açılır kutular ve kutucuklu alanlar.
+Şehir (liste, tek seçim, kaydırılmış)
+Diller (liste, çoklu seçim)
+Ülke (açılır, dışa aktarım değeri)
+Meslek (düzenlenebilir açılır)
+T.C. Kimlik No (11 kutucuk, dolu)
+Posta kodu (5 kutucuk, boş)

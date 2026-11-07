@@ -13,6 +13,7 @@ repository.workspace = true
 ferman-core.workspace = true
 ferman-fonts.workspace = true
 ferman-text.workspace = true
+image.workspace = true
 thiserror.workspace = true
 
 [lints]

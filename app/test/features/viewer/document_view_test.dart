@@ -2,6 +2,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/features/viewer/document_view.dart';
@@ -59,6 +60,16 @@ class _SlowTiles extends FakeEngineService {
       ]);
     }
   }
+}
+
+/// A fake whose undo reloads every page, as a page operation does.
+class _ReloadsAll extends FakeEngineService {
+  new({required super.failingPages})
+    : super(documents: {'/kira.pdf': document});
+
+  @override
+  Future<RevisionInfo> undo(int document) async =>
+      const RevisionInfo(current: 0, renderKey: 1000);
 }
 
 void main() {
@@ -221,6 +232,18 @@ void main() {
     await settle(tester);
     expect(engine.requests.length, greaterThan(asked));
     expect(engine.requests[asked].map((entry) => entry.item.page), contains(0));
+  });
+
+  testWidgets('a reload of every page forgets the pages that failed', (
+    tester,
+  ) async {
+    final engine = _ReloadsAll(failingPages: {0});
+    await pumpDocument(tester, fake: engine);
+    expect(find.text('Ferman couldn’t draw page 1.'), findsOneWidget);
+    engine.failingPages.clear();
+    await containerOf(tester).read(documentEditorProvider.notifier).undo();
+    await settle(tester);
+    expect(find.text('Ferman couldn’t draw page 1.'), findsNothing);
   });
 
   testWidgets('Ctrl+G opens the page field, which takes numbers and labels', (

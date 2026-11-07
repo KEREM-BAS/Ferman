@@ -9,9 +9,9 @@ import 'package:tokens/src/errors.dart';
 import 'package:tokens/src/values.dart';
 
 /// The font families the app bundles in `app/assets/fonts` (ADR 0013; Plex
-/// Sans Hebrew and Devanagari approved in Q08). Every other family in a CSS
-/// stack is dropped: CSS generic and system keywords, the CJK families
-/// (system fonts cover CJK) and the handwriting faces, which wait for Q08.
+/// Sans Hebrew and Devanagari and the handwriting faces approved in Q08).
+/// Every other family in a CSS stack is dropped: CSS generic and system
+/// keywords and the CJK families (system fonts cover CJK).
 const Set<String> bundledFontFamilies = {
   'IBM Plex Sans',
   'IBM Plex Sans Arabic',
@@ -19,6 +19,9 @@ const Set<String> bundledFontFamilies = {
   'IBM Plex Sans Devanagari',
   'IBM Plex Mono',
   'IBM Plex Serif',
+  'Caveat',
+  'Homemade Apple',
+  'Dancing Script',
 };
 
 /// A Dart type and a constant expression of that type.

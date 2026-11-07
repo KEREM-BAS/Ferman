@@ -8,7 +8,8 @@
   ([Q06](../QUESTIONS.md#q06)), and settled the update-check endpoint ([Q15](../QUESTIONS.md#q15)).
   The same day the owner confirmed that document JavaScript is never run and that Ferman says so
   ([Q13](../QUESTIONS.md#q13)), and approved the pub network deny list, Proposed in M1. The sections
-  below follow these answers (brought in line on 2026-10-17).
+  below follow these answers (brought in line on 2026-10-17). On 2026-11-06 the owner closed strace
+  (question 9 of the [M4 plan](../PROGRESS.md#m4-plan)).
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -98,6 +99,11 @@ The brief's four uses, and a fifth the owner added on 2026-10-16 ([Q06](../QUEST
   built. Scan to PDF (phase 3) offers only the scanners the operating system provides; pairing, and
   the mobile "Send to my computer" path, are reconsidered with the mobile apps in phase 5.
 
+- **AI clients through MCP** ([ADR 0019](0019-ai-clients-through-mcp.md)) are not a connection Ferman
+  makes: the server takes a local socket or pipe and nothing listens on the network. What a client
+  reads, it sends to its own provider, which is the brief's optional AI, so Settings › Privacy lists
+  each connected client.
+
 ### One network gateway
 
 - One module in ferman-api (`net`) is the only code with an HTTP client. It arrives with the update
@@ -150,10 +156,13 @@ the browser and never uploaded.
 - M1 (done): the pub licence check and the pubspec network deny list (`pub_denylist`, approved on
   2026-10-16); the Settings › Privacy skeleton with the five drawn switches off and disabled, with
   "Available in a future version" (a11-1h-m1, [G89](../DESIGN_GAPS.md#g89)).
-- M2: a CI step that runs the integration test under `strace` on Linux and fails on any internet
-  connection (Proposed with the [M2 plan](../PROGRESS.md#m2-plan)).
-- M4: full Privacy pane and activity log view.
-- M5: the gateway with the update check ([Q15](../QUESTIONS.md#q15)).
+- M4 W8: no strace (question 9 of the [M4 plan](../PROGRESS.md#m4-plan)). An automated run walks
+  every screen in a Linux network namespace with a dummy default route, logged with tcpdump in CI
+  only, and the MCP loopback is checked apart.
+- M4: full Privacy pane. "Show network activity…" stays disabled: nothing connects yet, so the log
+  has nothing to show.
+- M5: the gateway with the update check ([Q15](../QUESTIONS.md#q15)) and the activity log view
+  (BACKLOG B084).
 - P3: timestamps, language packs and revocation lookups through the gateway, as the owner decided in
   Q06.
 

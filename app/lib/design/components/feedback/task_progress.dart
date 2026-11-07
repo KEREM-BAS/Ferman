@@ -202,10 +202,9 @@ class TaskProgress extends StatelessWidget {
         color: colors.textSecondary,
         fontFeatures: features,
       ),
-      // In a slot of bounded width (FmWindow's 260 px status-bar slot) the
-      // text gives way, as the inline-flex text does in the CSS, and ends
-      // in an ellipsis; given unbounded width (a plain Row child) it keeps
-      // its own width.
+      // In a slot of bounded width (the status bar's) the text gives way, as
+      // the inline-flex text does in the CSS, and ends in an ellipsis; given
+      // unbounded width (a plain Row child) it keeps its own width.
       child: LayoutBuilder(
         builder: (context, constraints) => Row(
           mainAxisSize: MainAxisSize.min,

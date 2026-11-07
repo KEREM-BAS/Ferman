@@ -6,6 +6,17 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/organize/combine.dart';
+import 'package:ferman/features/organize/crop_panel.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/extract_pages_dialog.dart';
+import 'package:ferman/features/organize/insert_blank_dialog.dart';
+import 'package:ferman/features/organize/insert_file_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
+import 'package:ferman/features/organize/page_commands.dart';
+import 'package:ferman/features/organize/page_labels_dialog.dart';
+import 'package:ferman/features/organize/replace_pages_dialog.dart';
+import 'package:ferman/features/organize/split_dialog.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -790,9 +801,84 @@ class _SignTools extends ConsumerWidget {
   }
 }
 
+/// a6-1's Insert menu: Blank page, Pages from a file and, disabled until it
+/// ships, the scanner.
+List<MenuItem> _insertItems(BuildContext context, AppLocalizations l10n) => [
+  MenuItem(id: 'blank', label: l10n.insertMenuBlank, icon: IconName.filePlus2),
+  MenuItem(id: 'file', label: l10n.insertMenuFile, icon: IconName.folderOpen),
+  MenuItem(
+    id: 'scan',
+    label: l10n.insertMenuScan,
+    icon: IconName.scan,
+    disabled: true,
+    disabledReason: Feature.scanToPdf.disabledReason(context),
+  ),
+];
+
+/// Does what Insert's menu entry [item] says.
+void _insertChosen(WidgetRef ref, MenuItem item) {
+  final document = ref.read(viewerProvider)?.document;
+  if (document == null) return;
+  final pages = organizeSelection(ref);
+  switch (item.id) {
+    case 'blank':
+      showInsertBlankDialog(ref, document, pages);
+    case 'file':
+      showInsertFileDialog(ref, document, pages);
+  }
+}
+
+/// a6-1's Insert button with its menu.
+class _InsertTool extends ConsumerStatefulWidget {
+  const new({required this.live, this.disabledReason});
+
+  /// Whether the document can change.
+  final bool live;
+
+  /// Why it cannot, when it says.
+  final String? disabledReason;
+
+  @override
+  ConsumerState<_InsertTool> createState() => _InsertToolState();
+}
+
+class _InsertToolState extends ConsumerState<_InsertTool> {
+  bool _open = false;
+
+  void _close() => setState(() => _open = false);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Popover(
+      open: _open,
+      surface: false,
+      onDismiss: _close,
+      anchor: ToolButton(
+        icon: IconName.filePlus2,
+        label: l10n.shellToolInsert,
+        hasMenu: true,
+        disabled: !widget.live,
+        disabledReason: widget.disabledReason,
+        onPressed: widget.live ? () => setState(() => _open = !_open) : null,
+      ),
+      child: Menu(
+        items: _insertItems(context, l10n),
+        autofocus: true,
+        onClose: _close,
+        onSelected: (item) {
+          _close();
+          _insertChosen(ref, item);
+        },
+      ),
+    );
+  }
+}
+
 /// Organize (FmWindow lines 105–122): Insert, rotate left and right
 /// (icon-only), Duplicate, Extract, Replace, Delete | Split, Combine files,
-/// Crop, Page labels … the drag hint.
+/// Crop, Page labels … the hint, which counts the selection (a6-1) and the
+/// pages a drag moves (a6-1b). The commands act on the selection.
 class _OrganizeTools extends ConsumerWidget {
   const new();
 
@@ -801,86 +887,144 @@ class _OrganizeTools extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
+    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final selected = ref.watch(selectedPagesProvider).length;
+    final total = ref.watch(openDocumentProvider)?.pages.length ?? 0;
+    final moving = ref.watch(pagesDraggedProvider);
+    PageCommands commands() => ref.read(pageCommandsProvider.notifier);
+    final refusal = ref.watch(organizeRefusalProvider)?.call(l10n);
+    final reason = refusal ?? (selected == 0 ? l10n.organizeSelectFirst : null);
+    final deleteRefusal = ref.watch(deleteRefusalProvider)?.call(l10n);
+    final document = ref.watch(viewerProvider.select((view) => view?.document));
+    final name = ref.watch(shellDocumentsProvider).active?.name ?? '';
+    // Extract only reads; the others change the document.
+    final changes = document != null && refusal == null;
+    final crop = ref.watch(cropShowingProvider);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final combineTab = ref.watch(
+      shellDocumentsProvider.select((list) => list.active?.combine ?? false),
+    );
     return Toolbar(
       semanticLabel: l10n.shellOrganizeTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.organizingPages,
-          icon: IconName.filePlus2,
-          label: l10n.shellToolInsert,
-          hasMenu: true,
+        ToolbarItem(
+          menuItem: MenuItem(
+            id: l10n.shellToolInsert,
+            label: l10n.shellToolInsert,
+            icon: IconName.filePlus2,
+            disabled: !changes,
+            submenu: _insertItems(context, l10n),
+          ),
+          onMenuSelected: (item) => _insertChosen(ref, item),
+          child: _InsertTool(live: changes, disabledReason: refusal),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.rotateCcw,
           label: l10n.shellToolRotateLeft,
           showLabel: false,
           shortcut: ShellCommand.rotateLeft.caps(platform),
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().rotate(-1)),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.rotateCw,
           label: l10n.shellToolRotateRight,
           showLabel: false,
           shortcut: ShellCommand.rotateRight.caps(platform),
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().rotate(1)),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.copy,
           label: l10n.shellToolDuplicate,
+          disabled: reason != null,
+          disabledReason: reason,
+          onPressed: reason != null
+              ? null
+              : () => unawaited(commands().duplicate()),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.fileOutput,
           label: l10n.shellToolExtract,
+          disabled: document == null,
+          onPressed: document == null
+              ? null
+              : () => showExtractPagesDialog(
+                  ref,
+                  document,
+                  name,
+                  organizeSelection(ref),
+                ),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.replace,
           label: l10n.shellToolReplace,
+          disabled: !changes,
+          disabledReason: refusal,
+          onPressed: changes
+              ? () => showReplacePagesDialog(
+                  ref,
+                  document,
+                  organizeSelection(ref),
+                )
+              : null,
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.trash2,
           label: l10n.shellToolDelete,
           shortcut: ShellCommand.deletePages.caps(platform),
+          disabled: reason != null || deleteRefusal != null,
+          disabledReason: reason ?? deleteRefusal,
+          onPressed: reason != null || deleteRefusal != null
+              ? null
+              : () => unawaited(commands().delete()),
         ),
         const ToolbarSeparator(),
-        _future(
-          context,
-          feature: Feature.combineAndSplit,
+        ToolButton(
           icon: IconName.split,
           label: l10n.shellToolSplit,
           active: false,
+          disabled: !live,
+          onPressed: live
+              ? () => ref
+                    .read(organizeDialogProvider.notifier)
+                    .show(const SplitDialog())
+              : null,
         ),
-        _future(
-          context,
-          feature: Feature.combineAndSplit,
+        ToolButton(
           icon: IconName.merge,
           label: l10n.shellToolCombineFiles,
-          active: false,
+          active: combineTab,
+          onPressed: () => ref
+              .read(combineFilesProvider.notifier)
+              .showTab(l10n.shellToolCombineFiles),
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.crop,
           label: l10n.shellToolCrop,
-          active: false,
+          active: crop,
+          disabled: !changes,
+          disabledReason: refusal,
+          onPressed: changes
+              ? () => crop
+                    ? ref.read(organizeCropProvider.notifier).cancel()
+                    : showCropTool(ref, document, organizeSelection(ref))
+              : null,
         ),
-        _future(
-          context,
-          feature: Feature.organizingPages,
+        ToolButton(
           icon: IconName.hash,
           label: l10n.shellToolPageLabels,
           active: false,
+          disabled: !changes,
+          disabledReason: refusal,
+          onPressed: changes ? () => showPageLabelsDialog(ref, document) : null,
         ),
         const ToolbarSpacer(),
         Padding(
@@ -888,7 +1032,18 @@ class _OrganizeTools extends ConsumerWidget {
             horizontal: theme.space.space2,
           ),
           child: Text(
-            l10n.shellOrganizeHint,
+            switch ((moving, selected)) {
+              (final count?, _) => l10n.organizeHintMoving(
+                count,
+                format.integer(count),
+              ),
+              (null, 0) => l10n.shellOrganizeHint,
+              (null, final count) => l10n.organizeHintSelected(
+                total,
+                format.integer(count),
+                format.integer(total),
+              ),
+            },
             maxLines: 1,
             softWrap: false,
             style: theme.typography.caption.copyWith(
@@ -903,11 +1058,11 @@ class _OrganizeTools extends ConsumerWidget {
 
 /// Convert (FmWindow lines 123–137): Word, Excel, PowerPoint, Image, HTML,
 /// Text, Markdown | Create PDF, Scan, Recognize text (OCR).
-class _ConvertTools extends StatelessWidget {
+class _ConvertTools extends ConsumerWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     ToolButton tool(Feature feature, IconName icon, String label) => _future(
       context,
@@ -940,7 +1095,14 @@ class _ConvertTools extends StatelessWidget {
         tool(Feature.convertFromPdf, IconName.fileText, l10n.shellConvertText),
         tool(Feature.convertFromPdf, IconName.hash, l10n.shellConvertMarkdown),
         const ToolbarSeparator(),
-        tool(Feature.createPdf, IconName.fileInput, l10n.shellToolCreatePdf),
+        ToolButton(
+          icon: IconName.fileInput,
+          label: l10n.shellToolCreatePdf,
+          active: false,
+          onPressed: () => ref
+              .read(organizeDialogProvider.notifier)
+              .show(const CreatePdfDialog()),
+        ),
         tool(Feature.scanToPdf, IconName.scan, l10n.shellToolScan),
         tool(Feature.ocr, IconName.scanText, l10n.shellToolRecognizeText),
       ],

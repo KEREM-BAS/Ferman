@@ -1,4 +1,6 @@
 import 'package:ferman/app/desktop_window.dart';
+import 'package:ferman/app/router.dart';
+import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -60,7 +62,10 @@ Widget shellHost({
           onHome: onHome,
           onOpenSettings: onOpenSettings ?? () {},
         ),
-        child: FmWindow(onOpenSettings: onOpenSettings),
+        child: ToastHost(
+          path: Routes.editor,
+          child: FmWindow(onOpenSettings: onOpenSettings),
+        ),
       ),
     );
     final delegate =

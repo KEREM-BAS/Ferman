@@ -74,11 +74,11 @@ void main() {
     });
 
     test('report a declared family that the generator drops', () {
-      final declared = {...bundledFontFamilies, 'Caveat'};
+      final declared = {...bundledFontFamilies, 'Noto Sans SC'};
       final problems = fontFamilyProblems(designModel, declared);
       expect(problems, hasLength(1));
-      expect(problems.single, contains('"Caveat" is declared'));
-      expect(problems.single, contains('--font-hand-1'));
+      expect(problems.single, contains('"Noto Sans SC" is declared'));
+      expect(problems.single, contains('--font-ui'));
     });
   });
 

@@ -1,10 +1,11 @@
-# IBM Plex fonts bundled with Ferman (ADR 0013, docs/DEPENDENCIES.md section 5.2).
+# Fonts bundled with Ferman (ADR 0013, docs/DEPENDENCIES.md section 5.2).
 # Read by tools/fonts/fetch.sh; the format is described in tools/fonts/README.md.
 #
 #   url      <release zip URL; {package} and {version} are filled in>
 #   package  <package> <version> <SHA-256 of the release zip>
 #   license  <package> LICENSE.txt <SHA-256 of the file as released, with CRLF line endings>
 #   font     <package> <file name> <SHA-256 of the file as released>
+#   file     <folder> <installed name> <SHA-256> <URL>
 #
 # Each file is taken from ibm-<package>/LICENSE.txt or ibm-<package>/fonts/complete/ttf/
 # inside the zip and installed unmodified in app/assets/fonts/ibm-<package>/.
@@ -48,3 +49,25 @@ license plex-sans-devanagari LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d0
 font    plex-sans-devanagari IBMPlexSansDevanagari-Regular.ttf f3d82e82797c8cd29e9171f32174ed5ee1a88e132d1baafbe21237c42320304b
 font    plex-sans-devanagari IBMPlexSansDevanagari-Medium.ttf ebdc1e1394b801279a6b54e17784e4cf08cbd438e4be70b58fd94db5370527b1
 font    plex-sans-devanagari IBMPlexSansDevanagari-SemiBold.ttf d3f1aaeb0f0895246967f0d643938c832e1fcd799f4a7b4d681f526fc2af5b04
+
+# Typed signatures (Q08 group 3; --font-hand-1..3). Caveat and Dancing Script exist upstream at
+# weight 500, the design's, only as variable fonts: the app asks for wght 500 (FontVariation), and
+# their google/fonts names are changed on install because flutter_tools parses an asset path as a
+# URI, which would break "[wght]". From google/fonts at commit 47d54ca (2026-10-16). Homemade Apple
+# is Apache-2.0 and has no İ Ğ ğ Ş ş.
+file caveat Caveat-VariableFont_wght.ttf 0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/caveat/Caveat%5Bwght%5D.ttf
+file caveat LICENSE.txt 6be75733f5ff1e7eb72f147f489db88752c890c9c70292be8e2460d7ef77f5bb https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/caveat/OFL.txt
+file dancing-script DancingScript-VariableFont_wght.ttf 21808625578fe8d8cd10cb684be546dca077b27cd03a53a2f1ec11dc743c924c https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/dancingscript/DancingScript%5Bwght%5D.ttf
+file dancing-script LICENSE.txt 5a296979e49df4e947349fd6afdc3c0b305282d563f7ef2fad5412d2a235d1e8 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/dancingscript/OFL.txt
+file homemade-apple HomemadeApple-Regular.ttf dd1baaca3cde1b1f8415aed3b0aea6808655c9d9ca5a99c7282d9accc16c1a58 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/apache/homemadeapple/HomemadeApple-Regular.ttf
+file homemade-apple LICENSE.txt 3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/apache/homemadeapple/LICENSE.txt
+
+# Similar fonts for missing glyphs (Q08 group 4, a3-3b), static, so the picker gets one row a style
+# and not one for each named instance. 400 and 600, the design's. Cormorant release v4.002; Crimson
+# Pro has no release of these files, so its commit of 2026-10-08.
+file cormorant-garamond CormorantGaramond-Regular.ttf 71d3677333fd09ef48ef063a7f44f552f6b017c28e7a9f6d49ebbf5f5c8a68ac https://raw.githubusercontent.com/CatharsisFonts/Cormorant/b149467f785bc38e5417b68faa2d32bac8d7db5f/fonts/ttf/CormorantGaramond-Regular.ttf
+file cormorant-garamond CormorantGaramond-SemiBold.ttf cc1e124ae7e60741ff88509de3c3eaaad750a189909e6dc5b9ed2e8ab174393e https://raw.githubusercontent.com/CatharsisFonts/Cormorant/b149467f785bc38e5417b68faa2d32bac8d7db5f/fonts/ttf/CormorantGaramond-SemiBold.ttf
+file cormorant-garamond LICENSE.txt b2306305139223cbc000c2b9feffaa741687056066c227ba34de31c98eda0814 https://raw.githubusercontent.com/CatharsisFonts/Cormorant/b149467f785bc38e5417b68faa2d32bac8d7db5f/OFL.txt
+file crimson-pro CrimsonPro-Regular.ttf c328c0eff9c9a0947d8e61efa9432ca17843863366580d4a0a16208fa0be5273 https://raw.githubusercontent.com/Fonthausen/CrimsonPro/475ca6a0469ba2bd9c2a3bbf038957099392c04d/fonts/ttf/CrimsonPro-Regular.ttf
+file crimson-pro CrimsonPro-SemiBold.ttf 05ab1266a6bd35257b3064ffa4672d10747e263adfcd735c93f1592882a122d7 https://raw.githubusercontent.com/Fonthausen/CrimsonPro/475ca6a0469ba2bd9c2a3bbf038957099392c04d/fonts/ttf/CrimsonPro-SemiBold.ttf
+file crimson-pro LICENSE.txt 11c445141f069995032bb0e5cc425f261fd5cd3b1d01e245178ad524c1e8c1df https://raw.githubusercontent.com/Fonthausen/CrimsonPro/475ca6a0469ba2bd9c2a3bbf038957099392c04d/OFL.txt

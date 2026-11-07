@@ -94,7 +94,7 @@ class OpenErrorTab extends ConsumerWidget {
                 Button(
                   icon: IconName.refreshCw,
                   disabled: true,
-                  disabledReason: Feature.createPdf.disabledReason(context),
+                  disabledReason: Feature.officeInputs.disabledReason(context),
                   child: Text(l10n.openConvertToPdf),
                 ),
               ],

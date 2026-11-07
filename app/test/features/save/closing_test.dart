@@ -5,6 +5,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/save/closing_dialogs.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_recovery.dart';
@@ -292,6 +293,42 @@ void main() {
       await tester.tap(find.widgetWithText(Button, 'Cancel'));
       await tester.pumpAndSettle();
       expect(await answer, isFalse);
+    });
+
+    testWidgets('jobs go only once the unsaved question lets the quit go', (
+      tester,
+    ) async {
+      await pumpOpen(tester, unsaved: const ['/docs/kira.pdf']);
+      final jobs = container.read(backgroundJobsProvider.notifier);
+      await jobs.copyDocument(9, 'Kira.pdf', '/docs/kopya.pdf');
+      // The job's spinner never settles.
+      Future<void> settle() async {
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+      }
+
+      await settle();
+
+      var answer = closer().quit();
+      await settle();
+      jobs.answerQuit(quit: true);
+      await settle();
+      expect(find.byType(UnsavedCloseDialog), findsOne);
+      expect(engine.jobCalls, isEmpty);
+      await tester.tap(find.widgetWithText(Button, 'Cancel'));
+      await settle();
+      expect(await answer, isFalse);
+      expect(engine.jobCalls, isEmpty);
+      expect(container.read(backgroundJobsProvider).running, hasLength(1));
+
+      answer = closer().quit();
+      await settle();
+      jobs.answerQuit(quit: true);
+      await settle();
+      await tester.tap(find.widgetWithText(Button, 'Don’t save'));
+      await settle();
+      expect(await answer, isTrue);
+      expect(engine.jobCalls, ['cancel 1']);
     });
 
     testWidgets('several ask once; unchecked ones are discarded', (

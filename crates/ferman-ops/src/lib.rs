@@ -1,28 +1,37 @@
 //! Ferman document operations.
 //!
-//! ferman-ops holds the operations beyond text editing: organize pages (insert, delete, rotate,
-//! move, extract, replace), combine and split, annotations, form filling with appearance streams,
-//! simple (non-cryptographic) signatures, compress, flatten and version-history snapshots, then in
-//! phase 2 watermark, header and footer, Bates numbering, redaction with verification and removal
-//! of hidden information (docs/ARCHITECTURE.md §2.3).
+//! ferman-ops plans the operations beyond text editing and generates their appearances: organize
+//! pages (insert, delete, rotate, move, extract, replace), combine and split, annotations, form
+//! filling with appearance streams, simple (non-cryptographic) signatures, compress, flatten and
+//! version-history snapshots, then in phase 2 watermark, header and footer, Bates numbering,
+//! redaction with verification and removal of hidden information (docs/ARCHITECTURE.md §2.3).
 //!
-//! Each operation is a function from a snapshot and its parameters to a `ChangeSet` that the
-//! document actor in ferman-api commits. Long operations run as cancellable jobs. Operations that
-//! need pixels get them from ferman-api, never from PDFium directly. As the brief says, the crate
-//! splits into more crates as it grows (signing, OCR, conversion, PDF/A, ADR 0003).
+//! Each operation sits above ferman-core's primitives, which alone name lopdf and build a
+//! `ChangeSet` (ADR 0003, question 11 of the M4 plan); the document actor in ferman-api commits
+//! it. Long operations run as cancellable jobs. Operations that need pixels get them from
+//! ferman-api, never from PDFium directly. As the brief says, the crate splits into more crates
+//! as it grows (signing, OCR, conversion, PDF/A, ADR 0003).
 //!
 //! # Planned modules
 //!
-//! The crate is a skeleton in M1. Operations start in M4, one module per family:
+//! Operations start in M4, one module per family; [`pages`] holds the page operations,
+//! [`combine`] and [`split`] what writes files from pages, and [`images`] what several of them
+//! need from an image file:
 //!
-//! - `pages`: insert, delete, rotate, move, duplicate, extract, replace, crop and page labels.
-//! - `combine`: combine and split.
+//! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels.
+//! - `combine`: combine, extract, insert from a file and replace.
+//! - `split`: split planning.
 //! - `annotations`: annotation types with appearance streams, replies and flattening.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
 //! - `signatures`: simple typed, drawn and image signatures.
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
+
+pub mod combine;
+pub mod images;
+pub mod pages;
+pub mod split;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -42,6 +51,9 @@ pub enum OpsError {
     /// A ferman-fonts operation failed.
     #[error(transparent)]
     Font(#[from] ferman_fonts::FontError),
+    /// Image bytes that no decoder Ferman has can read, or a JPEG a PDF cannot carry as it is.
+    #[error("the image cannot be read")]
+    UnreadableImage,
     /// An internal invariant did not hold. This is a bug in Ferman, reported as an error instead of
     /// a panic (ADR 0010).
     #[error("internal error in ferman-ops: {context}")]

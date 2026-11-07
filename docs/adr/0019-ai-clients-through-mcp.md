@@ -6,6 +6,8 @@
   with the Ferman app open, local; Settings gives a connection link for Claude, ChatGPT and whatever
   else we can support, or opens it already set up; ask while building it if something comes up."
   The details below were approved as written on 2026-10-16, with the other Proposed items of M1.
+  On 2026-11-06 the owner changed them with question 1 of the [M4 plan](../PROGRESS.md#m4-plan), as
+  this ADR asks when the step's plan needs it.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -54,25 +56,37 @@ No board draws this ([G94](../DESIGN_GAPS.md#g94)). The design draws Ferman's ow
 5. **Out of scope:** Ferman calling AI providers itself (the P4 assistant), access from another
    computer, and AI actions on files that are not open in Ferman.
 
-**Approved by the owner on 2026-10-16**, with the other Proposed items of M1; anything that changes
-when the step starts goes back to the owner:
+**Approved by the owner on 2026-10-16**, with the other Proposed items of M1, and **amended on
+2026-11-06** (question 1 of the M4 plan, a to f); anything else that changes when the step starts
+goes back to the owner:
 
 - **Transport and pairing.** Clients such as Claude Desktop start a local server as a process and talk
-  to it over standard input and output, and install packaged extensions in one click. Ferman ships
-  that process as a command of the CLI (`ferman mcp`), which connects to the running app over a local
-  socket (a Unix domain socket on macOS and Linux, a named pipe on Windows) and proves itself with a
-  per-install token that only the user's account can read. Clients that reach MCP servers only over
-  HTTPS from the vendor's cloud (ChatGPT's connectors, as far as known on 2026-10-16) cannot reach a
-  local server without a public endpoint or a tunnel; whether and how to support them is decided then,
-  never by opening a port silently.
+  to it over standard input and output, and install packaged extensions in one click. Every desktop
+  bundle ships that process as a tiny byte pump named `ferman-mcp`, with no PDF code, signed in M5,
+  because the CLI is not bundled and its name clashes with the app's binary (b). It connects to the
+  running app over a local socket (a Unix domain socket on macOS and Linux, a named pipe on Windows)
+  and proves itself with a per-install token that only the user's account can read.
+- **ChatGPT (e).** Local clients only in M4. Clients that reach MCP servers only over HTTPS from the
+  vendor's cloud (ChatGPT's connectors, as far as known on 2026-10-16) cannot reach a local server,
+  and Settings says so. No tunnel and no port.
+- **The macOS sandbox (f).** The socket is tried under the sandbox first. If a client cannot reach it,
+  Settings shows a copyable configuration instead of one-click setup, and the sandbox stays.
+- **Permissions (c).** Read and edit are granted per client, read only by default, on the whole
+  document. Enforced in `ferman-api`, never left to the client.
+- **Signed documents (d).** A client's first commit on a signed document always asks the user, even if
+  the user already confirmed for their own edits.
 - **Tools.** The first set: list open documents and pages, read text blocks and page images, search,
   and the edit transaction (begin, apply, commit, rollback); then each M3 and M4 operation as a tool
   (organize, comments, forms, signatures, compress). Saving: a client may save only
   after the user confirms in Ferman, and never with "optimize and clean".
-- **Code.** The server logic lives in a new crate `ferman-mcp` on top of `ferman-api`; the app hosts
-  the socket and the CLI hosts the stdio side. The MCP SDK is the official Rust SDK (`rmcp`) if its
-  licence passes [ADR 0016](0016-dependency-licence-policy.md), otherwise a small JSON-RPC layer of
-  our own.
+- **Code (a).** A crate `ferman-mcp` on top of `ferman-api` cannot be hosted by the app: `frb` lives
+  inside ferman-api, so the crates would form a cycle. The server logic is a module `facade::mcp`
+  behind a feature that is off for the CLI and the web, the app hosts the socket and `ferman-mcp`
+  pumps the bytes. This brings tokio into the engine for this feature alone, the shown need
+  [ADR 0009](0009-threading-and-jobs.md) asks for. The MCP SDK is the official Rust SDK (`rmcp`) if its
+  licence passes [ADR 0016](0016-dependency-licence-policy.md), otherwise a small JSON-RPC layer of our
+  own. A trial resolve passed the licences with 82 packages and no HTTP client (M4 plan, decision 37);
+  the newest release was a day old, so an older one is pinned and `cargo deny` runs when W7 starts.
 - **What the user sees.** A notice in the window while a client is connected, the client's name on
   each of its edits in the review list, and a way to stop it from the window as well as from
   Settings.
@@ -98,16 +112,15 @@ when the step starts goes back to the owner:
 
 ### Follow-up
 
-- [Q20](../QUESTIONS.md#q20): the details above were approved on 2026-10-16; changes go back to the
-  owner when M4 step 11 starts.
+- [Q20](../QUESTIONS.md#q20): the details above were approved on 2026-10-16 and amended on 2026-11-06;
+  further changes go back to the owner when M4 W7 starts.
 - [G94](../DESIGN_GAPS.md#g94): the Settings section and the connected notice need a board, or are
   built from the existing components and recorded.
 - [DEPENDENCIES.md](../DEPENDENCIES.md): the MCP SDK, licence-checked, in the same change that adds it.
-- **Open, to decide with the owner before M4 step 11 is built: the permission model** (the owner's
-  suggestion of 2026-11-01, [ROADMAP §14](../ROADMAP.md#ideas-to-weigh-later); not part of the
-  details approved above). To weigh: read, comment and edit as separate grants, read-only by
-  default; grants per client and per document; page ranges; parts the client may not change (form
-  fields named by the user, areas the user locks). Two limits to keep in mind:
+- **The permission model** (the owner's suggestion of 2026-11-01,
+  [ROADMAP §14](../ROADMAP.md#ideas-to-weigh-later)) was decided on 2026-11-06 as (c) above. Still
+  ideas for later: comment as a grant of its own; grants per document; page ranges; parts the client
+  may not change (form fields named by the user, areas the user locks). Two limits to keep in mind:
   - Permissions narrow what injected instructions in a document's text can make a client do, but do
     not stop prompt injection: a client allowed to read can still be misled, and what it reads goes
     to its provider. The edit review, undo and the visible connection stay needed with them.
@@ -115,7 +128,6 @@ when the step starts goes back to the owner:
     the document's own rules: what each signature covers (its byte range and any later incremental
     updates), a certification signature's allowed changes (DocMDP `/P`) and field locks (`/Lock`,
     FieldMDP), and the same warning before editing a signed document as the UI.
-  Enforced in `ferman-api`, never left to the client.
 - [ADR 0015](0015-privacy-and-network.md) and Settings → Privacy: list connected AI clients with the
   other network uses.
 
