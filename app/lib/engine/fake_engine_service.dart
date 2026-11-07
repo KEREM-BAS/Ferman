@@ -1430,8 +1430,36 @@ class FakeEngineService implements EngineService {
     return FieldCommit(revision: revision);
   }
 
+  /// The families a whole-form change (Clear, Finish) would draw in, as
+  /// when the form's own font lacks characters: with them, such a change
+  /// asks first unless told what to do, and then names them.
+  List<String> wholeFormFonts = const [];
+
+  /// [step] as Clear or Finish would take it under [missing], by
+  /// [wholeFormFonts].
+  FieldCommit _wholeForm(
+    int document,
+    MissingFont? missing,
+    RevisionInfo Function() step,
+  ) {
+    if (wholeFormFonts.isNotEmpty && missing == null) {
+      return FieldCommit(
+        revision: RevisionInfo(current: _history(document).current),
+        asksFont: true,
+      );
+    }
+    return FieldCommit(
+      revision: step(),
+      fonts: missing == MissingFont.bundled ? wholeFormFonts : const [],
+    );
+  }
+
   @override
-  Future<RevisionInfo> clearForm(int document, String name) async {
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => _wholeForm(document, missing, () {
     final fields = _fieldsNow(document);
     return _fieldStep(
       document,
@@ -1450,10 +1478,14 @@ class FakeEngineService implements EngineService {
             field.withValues(const []),
       ],
     );
-  }
+  });
 
   @override
-  Future<RevisionInfo> finishForm(int document, String name) async {
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => _wholeForm(document, missing, () {
     final fields = _fieldsNow(document);
     return _fieldStep(
       document,
@@ -1467,7 +1499,7 @@ class FakeEngineService implements EngineService {
           if (field.signed) field,
       ],
     );
-  }
+  });
 
   /// The places to fill a test gives each page, by page handle.
   final Map<int, FillTargets> fillTargetsByPage = {};

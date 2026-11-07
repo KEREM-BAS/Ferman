@@ -128,10 +128,14 @@ class _FillAnythingOverlayState extends ConsumerState<FillAnythingOverlay> {
   final TextEditingController _text = TextEditingController();
   final FocusNode _focus = FocusNode(debugLabel: 'FillAnything');
 
+  /// Takes the typing before closing, quitting and saving.
+  late final DocumentEditor _editor;
+
   @override
   void initState() {
     super.initState();
     _keptCommands = ref.read(formCommandsProvider.notifier);
+    _editor = ref.read(documentEditorProvider.notifier)..holdDraft(_take);
     _focus.addListener(() {
       if (!_focus.hasFocus) _commit();
     });
@@ -141,6 +145,7 @@ class _FillAnythingOverlayState extends ConsumerState<FillAnythingOverlay> {
   /// was being typed goes to its own document.
   @override
   void dispose() {
+    _editor.dropDraft(_take);
     _commit(disposing: true);
     _text.dispose();
     _focus.dispose();
@@ -253,23 +258,25 @@ class _FillAnythingOverlayState extends ConsumerState<FillAnythingOverlay> {
     });
   }
 
-  void _commit({bool disposing = false}) {
+  void _commit({bool disposing = false}) =>
+      unawaited(_take(disposing: disposing));
+
+  /// Places what was typed in the draft, if anything.
+  Future<void> _take({bool disposing = false}) {
     final draft = _draft;
-    if (draft == null) return;
+    if (draft == null) return Future.value();
     _draft = null;
     final text = _text.text.trim();
-    if (!disposing) setState(() {});
-    if (text.isEmpty) return;
-    unawaited(
-      _keptCommands.placeText(
-        draft.page,
-        draft.rect,
-        text,
-        fontSize: FillAnythingOverlay.fontSize,
-        ink: draft.ink,
-        cells: draft.cells,
-        on: _view.document,
-      ),
+    if (!disposing && mounted) setState(() {});
+    if (text.isEmpty) return Future.value();
+    return _keptCommands.placeText(
+      draft.page,
+      draft.rect,
+      text,
+      fontSize: FillAnythingOverlay.fontSize,
+      ink: draft.ink,
+      cells: draft.cells,
+      on: _view.document,
     );
   }
 

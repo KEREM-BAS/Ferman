@@ -284,6 +284,8 @@ impl Engine {
     }
 
     /// Empties every field that holds a value and can change, as one step `name`. Signatures stay.
+    /// A list box's options are drawn by `missing` as [`set_field_value`](Self::set_field_value)
+    /// draws a value.
     ///
     /// # Errors
     ///
@@ -291,42 +293,17 @@ impl Engine {
     pub async fn clear_form(
         &self,
         document: DocumentId,
+        missing: Option<MissingFont>,
         name: String,
-    ) -> Result<RevisionInfo, ApiError> {
-        guard_async(async move {
-            let (current, reload) = self
-                .ask(document, move |session| {
-                    let list = session.form();
-                    let fields = ops::clearable(&list);
-                    let names: Vec<String> = fields.iter().map(|f| f.name.clone()).collect();
-                    let mut pages: Vec<usize> = fields
-                        .iter()
-                        .flat_map(|field| field.widgets.iter().map(|w| w.page))
-                        .collect();
-                    pages.sort_unstable();
-                    pages.dedup();
-                    let library = session.font_library();
-                    session.commit_change(
-                        DocumentOp::Fill,
-                        &names,
-                        name,
-                        &pages,
-                        (String::new(), String::new()),
-                        |doc, working| {
-                            ops::clear(doc, working, &library)?;
-                            Ok(())
-                        },
-                    )
-                })
-                .await?;
-            Ok(self.revision_info(document, current, reload).await)
-        })
-        .await
+    ) -> Result<FieldCommit, ApiError> {
+        self.whole_form(document, missing, name, false).await
     }
 
     /// Finish (G47): every field becomes page content as it looks, with its simple signature, as
-    /// one step `name`; a digitally signed field stays. It changes page content, so it asks what
-    /// editing asks and a signed document's confirmation. Undo brings the fields back.
+    /// one step `name`; a digitally signed field stays. A field's appearance it has to draw follows
+    /// `missing` as [`set_field_value`](Self::set_field_value) does, and says which fonts it took.
+    /// It changes page content, so it asks what editing asks and a signed document's confirmation.
+    /// Undo brings the fields back.
     ///
     /// # Errors
     ///
@@ -335,24 +312,81 @@ impl Engine {
     pub async fn finish_form(
         &self,
         document: DocumentId,
+        missing: Option<MissingFont>,
         name: String,
-    ) -> Result<RevisionInfo, ApiError> {
+    ) -> Result<FieldCommit, ApiError> {
+        self.whole_form(document, missing, name, true).await
+    }
+
+    /// Clear, or Finish when `finish`, as one step.
+    async fn whole_form(
+        &self,
+        document: DocumentId,
+        missing: Option<MissingFont>,
+        name: String,
+        finish: bool,
+    ) -> Result<FieldCommit, ApiError> {
         guard_async(async move {
-            let (current, reload) = self
+            let (current, reload, filled, asks_font) = self
                 .ask(document, move |session| {
-                    let pages = ops::pages_of(&session.form());
+                    let list = session.form();
+                    let (op, names, pages) = if finish {
+                        (DocumentOp::EditText, Vec::new(), ops::pages_of(&list))
+                    } else {
+                        let fields = ops::clearable(&list);
+                        let mut pages: Vec<usize> = fields
+                            .iter()
+                            .flat_map(|field| field.widgets.iter().map(|w| w.page))
+                            .collect();
+                        pages.sort_unstable();
+                        pages.dedup();
+                        let names = fields.iter().map(|f| f.name.clone()).collect();
+                        (DocumentOp::Fill, names, pages)
+                    };
                     let library = session.font_library();
-                    session.commit_change(
-                        DocumentOp::EditText,
-                        &[],
+                    let missing = missing.unwrap_or_else(|| session.missing_font());
+                    let mut filled = Filled::default();
+                    let mut asks_font = false;
+                    let done = session.commit_change(
+                        op,
+                        &names,
                         name,
                         &pages,
                         (String::new(), String::new()),
-                        |doc, working| Ok(ops::finish(doc, working, &library)?),
-                    )
+                        |doc, working| {
+                            let done = if finish {
+                                ops::finish(doc, working, &library, missing)
+                            } else {
+                                ops::clear(doc, working, &library, missing)
+                            };
+                            match done {
+                                Ok(done) => {
+                                    filled = done;
+                                    Ok(())
+                                }
+                                Err(OpsError::FontChoiceNeeded) => {
+                                    asks_font = true;
+                                    Err(CoreError::Write(WriteError::AnnotationPlan).into())
+                                }
+                                Err(err) => Err(err.into()),
+                            }
+                        },
+                    );
+                    let (current, reload) = match done {
+                        Err(_) if asks_font => (session.current(), None),
+                        other => other?,
+                    };
+                    Ok((current, reload, filled, asks_font))
                 })
                 .await?;
-            Ok(self.revision_info(document, current, reload).await)
+            Ok(FieldCommit {
+                revision: self.revision_info(document, current, reload).await,
+                problem: None,
+                fonts: filled.fonts,
+                marked: filled.marked,
+                xfa_removed: filled.xfa_removed,
+                asks_font,
+            })
         })
         .await
     }

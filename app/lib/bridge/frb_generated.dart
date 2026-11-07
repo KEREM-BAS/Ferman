@@ -147,8 +147,9 @@ abstract class FermanBridgeApi extends BaseApi {
     required String postscriptName,
   });
 
-  Future<RevisionInfo> crateFrbClearForm({
+  Future<FieldCommit> crateFrbClearForm({
     required BigInt document,
+    MissingFont? missing,
     required String name,
   });
 
@@ -227,8 +228,9 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt page,
   });
 
-  Future<RevisionInfo> crateFrbFinishForm({
+  Future<FieldCommit> crateFrbFinishForm({
     required BigInt document,
+    MissingFont? missing,
     required String name,
   });
 
@@ -998,23 +1000,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
-  Future<RevisionInfo> crateFrbClearForm({
+  Future<FieldCommit> crateFrbClearForm({
     required BigInt document,
+    MissingFont? missing,
     required String name,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           var arg0 = cst_encode_u_64(document);
-          var arg1 = cst_encode_String(name);
-          return wire.wire__crate__frb__clear_form(port_, arg0, arg1);
+          var arg1 = cst_encode_opt_box_autoadd_missing_font(missing);
+          var arg2 = cst_encode_String(name);
+          return wire.wire__crate__frb__clear_form(port_, arg0, arg1, arg2);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_revision_info,
+          decodeSuccessData: dco_decode_field_commit,
           decodeErrorData: dco_decode_api_error,
         ),
         constMeta: kCrateFrbClearFormConstMeta,
-        argValues: [document, name],
+        argValues: [document, missing, name],
         apiImpl: this,
       ),
     );
@@ -1022,7 +1026,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbClearFormConstMeta => const TaskConstMeta(
     debugName: "clear_form",
-    argNames: ["document", "name"],
+    argNames: ["document", "missing", "name"],
   );
 
   @override
@@ -1497,23 +1501,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
-  Future<RevisionInfo> crateFrbFinishForm({
+  Future<FieldCommit> crateFrbFinishForm({
     required BigInt document,
+    MissingFont? missing,
     required String name,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           var arg0 = cst_encode_u_64(document);
-          var arg1 = cst_encode_String(name);
-          return wire.wire__crate__frb__finish_form(port_, arg0, arg1);
+          var arg1 = cst_encode_opt_box_autoadd_missing_font(missing);
+          var arg2 = cst_encode_String(name);
+          return wire.wire__crate__frb__finish_form(port_, arg0, arg1, arg2);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_revision_info,
+          decodeSuccessData: dco_decode_field_commit,
           decodeErrorData: dco_decode_api_error,
         ),
         constMeta: kCrateFrbFinishFormConstMeta,
-        argValues: [document, name],
+        argValues: [document, missing, name],
         apiImpl: this,
       ),
     );
@@ -1521,7 +1527,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbFinishFormConstMeta => const TaskConstMeta(
     debugName: "finish_form",
-    argNames: ["document", "name"],
+    argNames: ["document", "missing", "name"],
   );
 
   @override

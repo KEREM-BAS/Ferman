@@ -5,6 +5,7 @@ import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
@@ -52,19 +53,51 @@ String? fieldError(
   };
 }
 
-/// [date] in an `AFDate` pattern such as `dd.mm.yyyy` or `m/d/yy`.
+/// English month names, as `AFDate`'s `mmm` (their first three letters) and
+/// `mmmm` write them and the engine reads them.
+const List<String> _months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/// [date] in an `AFDate` pattern such as `dd.mm.yyyy`, `d-mmm-yy` or
+/// `m/d/yy h:MM tt`: `m` is the month and `M` the minute, longest runs first.
 String formatFieldDate(String pattern, DateTime date) {
   String two(int value) => value.toString().padLeft(2, '0');
-  return pattern.replaceAllMapped(RegExp('yyyy|yy|mm|m|dd|d'), (match) {
-    return switch (match[0]) {
+  final twelve = date.hour % 12 == 0 ? 12 : date.hour % 12;
+  final month = _months[date.month - 1];
+  return pattern.replaceAllMapped(
+    RegExp('yyyy|yy|mmmm|mmm|mm|m|dd|d|HH|H|hh|h|MM|M|ss|s|tt'),
+    (match) => switch (match[0]) {
       'yyyy' => date.year.toString().padLeft(4, '0'),
       'yy' => two(date.year % 100),
+      'mmmm' => month,
+      'mmm' => month.substring(0, 3),
       'mm' => two(date.month),
       'm' => '${date.month}',
       'dd' => two(date.day),
-      _ => '${date.day}',
-    };
-  });
+      'd' => '${date.day}',
+      'HH' => two(date.hour),
+      'H' => '${date.hour}',
+      'hh' => two(twelve),
+      'h' => '$twelve',
+      'MM' => two(date.minute),
+      'M' => '${date.minute}',
+      'ss' => two(date.second),
+      's' => '${date.second}',
+      _ => date.hour < 12 ? 'am' : 'pm',
+    },
+  );
 }
 
 /// Fill & Sign's layer over the pages (a5-1, a5-2, a5-2b): every form field's
@@ -146,6 +179,7 @@ class FormOverlay extends ConsumerWidget {
               uiDirection: uiDirection,
               form: form,
               document: view.document.id,
+              turns: (view.document.pages[page!].rotation ~/ 90) % 4,
             ),
           ),
         );
@@ -195,6 +229,7 @@ class _FieldBox extends ConsumerStatefulWidget {
     required this.uiDirection,
     required this.form,
     required this.document,
+    required this.turns,
   });
 
   final FieldInfo field;
@@ -213,6 +248,13 @@ class _FieldBox extends ConsumerStatefulWidget {
 
   /// The document the field is in, by id.
   final int document;
+
+  /// Its page's rotation in quarter turns clockwise: its value turns with
+  /// the page, as the page's own text does.
+  // shortcut: a widget's own /MK /R is not applied, as FieldWidget does not
+  // carry it (B204); pass it through when a form turns its fields on an
+  // upright page.
+  final int turns;
 
   @override
   ConsumerState<_FieldBox> createState() => _FieldBoxState();
@@ -242,10 +284,14 @@ class _FieldBoxState extends ConsumerState<_FieldBox> {
   /// What [dispose] needs, when `ref` no longer answers.
   late final FormCommands _keptCommands;
 
+  /// Takes the typing before closing, quitting and saving.
+  late final DocumentEditor _editor;
+
   @override
   void initState() {
     super.initState();
     _keptCommands = ref.read(formCommandsProvider.notifier);
+    _editor = ref.read(documentEditorProvider.notifier)..holdDraft(_take);
     _committed = _shown;
     _focus.addListener(() {
       if (!_focus.hasFocus) _commit();
@@ -265,6 +311,7 @@ class _FieldBoxState extends ConsumerState<_FieldBox> {
   @override
   void dispose() {
     // A field left by its view, as by a page scrolled away, keeps its typing.
+    _editor.dropDraft(_take);
     if (_text.text != _committed) _commit();
     _text.dispose();
     _focus.dispose();
@@ -282,17 +329,18 @@ class _FieldBoxState extends ConsumerState<_FieldBox> {
 
   FormSession get _session => ref.read(formSessionProvider.notifier);
 
-  void _commit() {
-    if (!_typed || !widget.editable) return;
+  void _commit() => unawaited(_take());
+
+  /// Commits what was typed as a step, when it changed.
+  Future<void> _take() {
+    if (!_typed || !widget.editable) return Future.value();
     final text = _text.text;
-    if (text == _committed) return;
+    if (text == _committed) return Future.value();
     _committed = text;
-    unawaited(
-      _commands.setValue(
-        _field,
-        text.isEmpty ? const [] : [text],
-        on: widget.document,
-      ),
+    return _commands.setValue(
+      _field,
+      text.isEmpty ? const [] : [text],
+      on: widget.document,
     );
   }
 
@@ -439,7 +487,7 @@ class _FieldBoxState extends ConsumerState<_FieldBox> {
     final box = widget.widget.rect;
     final size = math.min(
       FormOverlay.largestText,
-      box.height * FormOverlay.textShare,
+      (widget.turns.isOdd ? box.width : box.height) * FormOverlay.textShare,
     );
     final style = theme.typography.body.copyWith(
       fontFamily: theme.typeScale.fontDocSample.family,
@@ -447,7 +495,10 @@ class _FieldBoxState extends ConsumerState<_FieldBox> {
       fontWeight: theme.typeScale.weightRegular,
       color: ramps.paper900,
     );
-    final content = _content(theme, l10n, style);
+    final content = RotatedBox(
+      quarterTurns: widget.turns,
+      child: _content(theme, l10n, style),
+    );
     Widget result = DecoratedBox(
       decoration: decoration,
       child: field.readOnly

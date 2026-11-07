@@ -249,20 +249,16 @@ class FormSession extends _$FormSession {
     show(fields[next]);
   }
 
-  /// Goes to [field]: it becomes the current one and its page shows.
+  /// Goes to [field]: it becomes the current one and the canvas scrolls the
+  /// least that shows its first box.
   void show(FieldInfo field) {
     focus(field.handle);
     final view = ref.read(viewerProvider);
     final widget = field.widgets.firstOrNull;
     if (view == null || widget == null) return;
     final page = view.document.pageIndexOf(widget.page);
-    final rect = page == null ? null : view.placement.rects[page];
-    if (page == null || rect == null) return;
-    final top = rect.top + widget.rect.top * view.scale;
-    final bottom = rect.top + widget.rect.bottom * view.scale;
-    if (top < view.visible.top || bottom > view.visible.bottom) {
-      ref.read(viewerProvider.notifier).goToPage(page);
-    }
+    if (page == null) return;
+    ref.read(viewerProvider.notifier).reveal(page, widget.rect);
   }
 
   /// Sets the panel's switches.
@@ -351,7 +347,9 @@ class FormCommands extends _$FormCommands {
       committed: () {
         if (on != null && on != ref.read(openDocumentProvider)?.id) return;
         if (made.asksFont) {
-          _askFont(field, values);
+          _askFont(
+            (choice) => unawaited(setValue(field, values, missing: choice)),
+          );
           return;
         }
         ref.read(formSessionProvider.notifier).committed(field.handle, made);
@@ -367,19 +365,50 @@ class FormCommands extends _$FormCommands {
     );
   }
 
-  /// Ask each time (a11-1c): asks once, then commits with the choice.
-  void _askFont(FieldInfo field, List<String> values) {
+  /// Ask each time (a11-1c): asks once, then [again] commits with the
+  /// choice.
+  void _askFont(void Function(MissingFont choice) again) {
     final dialogs = ref.read(organizeDialogProvider.notifier);
     dialogs.show(
       FormFontDialog(
         done: (choice) {
           dialogs.close();
-          if (choice != null) {
-            unawaited(setValue(field, values, missing: choice));
-          }
+          if (choice != null) again(choice);
         },
       ),
     );
+  }
+
+  /// Clear or Finish, [change], as one step of the open document: Ask each
+  /// time asks first and goes [again] with the choice, and the fonts it took
+  /// are said (M4 decision 18). Whether it was taken.
+  Future<bool> _wholeForm(
+    Future<FieldCommit> Function(int document) change,
+    void Function(MissingFont choice) again,
+  ) async {
+    FieldCommit? made;
+    var taken = false;
+    await _commit((document) async {
+      final commit = await change(document);
+      made = commit;
+      return commit.revision;
+    }, committed: () => taken = true);
+    final commit = made;
+    if (!taken || commit == null || !ref.mounted) return false;
+    if (commit.asksFont) {
+      _askFont(again);
+      return false;
+    }
+    if (commit.fonts.isNotEmpty) {
+      final fonts = commit.fonts.join(', ');
+      ref
+          .read(toastNoticesProvider.notifier)
+          .show(
+            title: (l10n) => l10n.formFontNoticeTitle,
+            message: (l10n) => l10n.formFontNoticeBody(fonts),
+          );
+    }
+    return true;
   }
 
   /// Clear form…: asks, then empties every field, signatures aside.
@@ -389,17 +418,17 @@ class FormCommands extends _$FormCommands {
       FormClearDialog(
         done: ({required confirmed}) {
           dialogs.close();
-          if (confirmed) {
-            unawaited(
-              _commit(
-                (document) => _engine.clearForm(document, _l10n.formStepClear),
-              ),
-            );
-          }
+          if (confirmed) unawaited(_clear());
         },
       ),
     );
   }
+
+  Future<void> _clear({MissingFont? missing}) => _wholeForm(
+    (document) =>
+        _engine.clearForm(document, _l10n.formStepClear, missing: missing),
+    (choice) => unawaited(_clear(missing: choice)),
+  );
 
   /// Finish: with required fields empty or values that fail, goes to the
   /// first such field and shows them as errors; otherwise asks how to finish
@@ -428,12 +457,15 @@ class FormCommands extends _$FormCommands {
     );
   }
 
-  Future<void> _finish(FinishChoice choice) async {
+  Future<void> _finish(FinishChoice choice, {MissingFont? missing}) async {
     if (choice.flatten) {
-      var done = false;
-      await _commit(
-        (document) => _engine.finishForm(document, _l10n.formStepFinish),
-        committed: () => done = true,
+      final done = await _wholeForm(
+        (document) => _engine.finishForm(
+          document,
+          _l10n.formStepFinish,
+          missing: missing,
+        ),
+        (answer) => unawaited(_finish(choice, missing: answer)),
       );
       if (!done || !ref.mounted) return;
     }

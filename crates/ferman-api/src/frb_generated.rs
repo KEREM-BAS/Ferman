@@ -444,6 +444,7 @@ fn wire__crate__frb__choose_font_impl(
 fn wire__crate__frb__clear_form_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
     name: impl CstDecode<String>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
@@ -454,11 +455,13 @@ fn wire__crate__frb__clear_form_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_missing = missing.cst_decode();
             let api_name = name.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::clear_form(api_document, api_name).await?;
+                        let output_ok =
+                            crate::frb::clear_form(api_document, api_missing, api_name).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -915,6 +918,7 @@ fn wire__crate__frb__fill_targets_impl(
 fn wire__crate__frb__finish_form_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
     name: impl CstDecode<String>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
@@ -925,11 +929,13 @@ fn wire__crate__frb__finish_form_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_missing = missing.cst_decode();
             let api_name = name.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::finish_form(api_document, api_name).await?;
+                        let output_ok =
+                            crate::frb::finish_form(api_document, api_missing, api_name).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -15613,9 +15619,10 @@ mod io {
     pub extern "C" fn frbgen_ferman_wire__crate__frb__clear_form(
         port_: i64,
         document: u64,
+        missing: *mut i32,
         name: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__clear_form_impl(port_, document, name)
+        wire__crate__frb__clear_form_impl(port_, document, missing, name)
     }
 
     #[unsafe(no_mangle)]
@@ -15763,9 +15770,10 @@ mod io {
     pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_form(
         port_: i64,
         document: u64,
+        missing: *mut i32,
         name: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__finish_form_impl(port_, document, name)
+        wire__crate__frb__finish_form_impl(port_, document, missing, name)
     }
 
     #[unsafe(no_mangle)]
@@ -21665,9 +21673,10 @@ mod web {
     pub fn wire__crate__frb__clear_form(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         name: String,
     ) {
-        wire__crate__frb__clear_form_impl(port_, document, name)
+        wire__crate__frb__clear_form_impl(port_, document, missing, name)
     }
 
     #[wasm_bindgen]
@@ -21821,9 +21830,10 @@ mod web {
     pub fn wire__crate__frb__finish_form(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         name: String,
     ) {
-        wire__crate__frb__finish_form_impl(port_, document, name)
+        wire__crate__frb__finish_form_impl(port_, document, missing, name)
     }
 
     #[wasm_bindgen]

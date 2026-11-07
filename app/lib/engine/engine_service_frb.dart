@@ -1131,19 +1131,28 @@ class FrbEngineService implements EngineService {
     List<String> values, {
     required String name,
     MissingFont? missing,
-  }) async {
+  }) => _fieldCommit(
+    () => bridge.setFieldValue(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      values: values,
+      missing: _missing(missing),
+      name: name,
+    ),
+  );
+
+  static bridge.MissingFont? _missing(MissingFont? missing) =>
+      switch (missing) {
+        null => null,
+        final missing => bridge.MissingFont.values.byName(missing.name),
+      };
+
+  Future<FieldCommit> _fieldCommit(
+    Future<bridge.FieldCommit> Function() call,
+  ) async {
     bridge.FieldCommit? commit;
     final revision = await _revision(() async {
-      final made = await bridge.setFieldValue(
-        document: BigInt.from(document),
-        handle: BigInt.from(handle),
-        values: values,
-        missing: switch (missing) {
-          null => null,
-          final missing => bridge.MissingFont.values.byName(missing.name),
-        },
-        name: name,
-      );
+      final made = await call();
       commit = made;
       return made.revision;
     });
@@ -1162,13 +1171,29 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<RevisionInfo> clearForm(int document, String name) => _revision(
-    () => bridge.clearForm(document: BigInt.from(document), name: name),
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) => _fieldCommit(
+    () => bridge.clearForm(
+      document: BigInt.from(document),
+      missing: _missing(missing),
+      name: name,
+    ),
   );
 
   @override
-  Future<RevisionInfo> finishForm(int document, String name) => _revision(
-    () => bridge.finishForm(document: BigInt.from(document), name: name),
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) => _fieldCommit(
+    () => bridge.finishForm(
+      document: BigInt.from(document),
+      missing: _missing(missing),
+      name: name,
+    ),
   );
 
   @override

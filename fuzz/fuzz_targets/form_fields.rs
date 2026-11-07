@@ -103,7 +103,7 @@ fuzz_target!(|input: &[u8]| {
         for step in [clear, finish] {
             let mut working = store.clone();
             if working.begin().is_ok() {
-                let _ = step(&document, &mut working, library());
+                let _ = step(&document, &mut working, library(), MissingFont::Bundled);
                 let _ = working.commit();
                 let _ = working.form_fields(&document);
             }

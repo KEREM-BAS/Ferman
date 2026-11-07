@@ -2,8 +2,8 @@
 //! field type read, set, saved, reopened and rendered. Pixels change only inside the field, only
 //! its page gets a new render key, an untouched field's bytes stay in the original's prefix,
 //! opening changes nothing, radio kids stay in step, a Turkish letter the field's WinAnsi font
-//! cannot draw takes bundled Plex and says so, and Finish leaves the page looking the same with
-//! no widgets left. Hostile field trees are core's unit tests (`ferman_core::forms`).
+//! cannot draw takes bundled Plex and says so, Finish leaves the page looking the same with no
+//! widgets left and follows the font policy, and the script form's scripts never run. Hostile field trees are core's unit tests (`ferman_core::forms`).
 //!
 //! PDFium draws no widget in Ferman's render path (it draws widgets only through its form-fill
 //! overlay, which tiles cannot use: B203), so what a reader shows of a form is drawn here through
@@ -19,13 +19,36 @@ use std::sync::{OnceLock, mpsc};
 
 use ferman_api::facade::{
     DocumentId, Engine, EngineConfig, ErrorKind, FieldInfo, FieldKind, FieldProblem, FontSettings,
-    MissingFont, OpGate, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary, SearchEvent,
-    SearchOptions, SearchPlaces, SearchSink, block_on, compare, device_region,
+    Ink, MissingFont, NewSignature, OpGate, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary,
+    SearchEvent, SearchOptions, SearchPlaces, SearchSink, block_on, compare, device_region,
 };
 use ferman_core::DocumentOp;
 
 const DPI: u32 = 110;
 const FORM: &str = "form-aks1-tr";
+/// form-aks1-tr's 20 fields in tab order.
+const ORDER: [&str; 20] = [
+    "tc_kimlik_no",
+    "dogum_tarihi",
+    "adi",
+    "soyadi",
+    "cinsiyet",
+    "medeni_hal",
+    "telefon",
+    "eposta",
+    "il",
+    "ilce",
+    "mahalle",
+    "cadde_sokak",
+    "dis_kapi_no",
+    "ic_kapi_no",
+    "tasinma_tarihi",
+    "hane_kisi_sayisi",
+    "beyan_dogruluk",
+    "beyan_kurum",
+    "beyan_tarihi",
+    "imza",
+];
 
 fn engine() -> &'static Engine {
     static ENGINE: OnceLock<Engine> = OnceLock::new();
@@ -71,7 +94,7 @@ fn draw(doc: DocumentId, pages: &[PageInfo], index: usize) -> PageRaster {
 
 /// The page as a reader shows its fields: drawn after Finish, which is then undone.
 fn seen(doc: DocumentId, pages: &[PageInfo]) -> PageRaster {
-    block_on(engine().finish_form(doc, "Finish".to_owned())).unwrap();
+    block_on(engine().finish_form(doc, None, "Finish".to_owned())).unwrap();
     let shown = draw(doc, pages, 0);
     block_on(engine().undo(doc)).unwrap();
     shown
@@ -148,8 +171,9 @@ fn every_field_type_is_set_saved_reopened_and_rendered() {
     assert_eq!(kinds(FieldKind::Check), 2);
     assert_eq!(kinds(FieldKind::Signature), 1);
     assert!(kinds(FieldKind::Combo) >= 3);
-    // Tab order starts at the top of the page.
-    assert_eq!(list[0].name, "tc_kimlik_no");
+    // Tab order: row by row down the page, left to right.
+    let order: Vec<&str> = list.iter().map(|f| f.name.as_str()).collect();
+    assert_eq!(order, ORDER);
     let radio = list.iter().find(|f| f.kind == FieldKind::Radio).unwrap();
     let states: Vec<String> = radio
         .widgets
@@ -255,7 +279,65 @@ fn every_field_type_is_set_saved_reopened_and_rendered() {
     assert_eq!(field(again.id, "cinsiyet").values, ["Erkek"]);
     let diff = compare(&shown, &seen(again.id, &again.pages), None, 0).unwrap();
     assert_eq!(diff.differing, 0, "reopens as it showed: {diff:?}");
-    block_on(engine().close(again.id)).unwrap();
+
+    // The rest of the 20: every value field, and a simple signature on imza.
+    let doc = again.id;
+    let marital = field(doc, "medeni_hal").options[1].0.clone();
+    let district = field(doc, "ilce").options[2].0.clone();
+    let kurum = field(doc, "beyan_kurum").widgets[0]
+        .on_state
+        .clone()
+        .unwrap();
+    let rest: Vec<(&str, Vec<String>)> = vec![
+        ("dogum_tarihi", vec!["15.03.1990".to_owned()]),
+        ("medeni_hal", vec![marital]),
+        ("telefon", vec!["0532 000 00 00".to_owned()]),
+        ("ilce", vec![district]),
+        ("mahalle", vec!["Merkez".to_owned()]),
+        ("cadde_sokak", vec!["Atatürk Caddesi".to_owned()]),
+        ("dis_kapi_no", vec!["12".to_owned()]),
+        ("ic_kapi_no", vec!["4".to_owned()]),
+        ("beyan_kurum", vec![kurum]),
+    ];
+    for (name, values) in &rest {
+        let values: Vec<&str> = values.iter().map(String::as_str).collect();
+        set(doc, name, &values);
+    }
+    let imza = field(doc, "imza");
+    block_on(engine().add_signature(
+        doc,
+        again.pages[0].handle,
+        NewSignature {
+            rect: imza.widgets[0].rect,
+            ink: Ink::Typed {
+                text: "Ayşe Yılmaz".to_owned(),
+                family: "Caveat".to_owned(),
+            },
+            color: [0.1, 0.1, 0.45],
+            tilt: 0.0,
+            initials: false,
+            field: Some("imza".to_owned()),
+            author: "Ayşe Yılmaz".to_owned(),
+        },
+        "Sign".to_owned(),
+    ))
+    .unwrap();
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+
+    let last = open(&path);
+    let form = block_on(engine().form_fields(last.id)).unwrap();
+    let order: Vec<&str> = form.fields.iter().map(|f| f.name.as_str()).collect();
+    assert_eq!(order, ORDER);
+    assert!(
+        form.fields.iter().all(|f| f.filled),
+        "all 20 filled after reopening"
+    );
+    assert_eq!((form.required_left, form.problems), (0, 0));
+    for (name, values) in &rest {
+        assert_eq!(field(last.id, name).values, *values, "{name}");
+    }
+    block_on(engine().close(last.id)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -279,7 +361,7 @@ fn undo_redo_revert_clear_and_the_font_policy() {
 
     // Clear empties every field in one step; undo brings them back.
     set(doc, "adi", &["Mehmet"]);
-    block_on(engine().clear_form(doc, "Clear".to_owned())).unwrap();
+    block_on(engine().clear_form(doc, None, "Clear".to_owned())).unwrap();
     assert!(fields(doc).iter().all(|f| f.values.is_empty()));
     block_on(engine().undo(doc)).unwrap();
     assert_eq!(field(doc, "adi").values, ["Mehmet"]);
@@ -338,7 +420,7 @@ fn finish_leaves_each_form_looking_the_same_with_no_widgets() {
     let (dir, path) = copy("finish", FORM);
     let opened = open(&path);
     let before = draw(opened.id, &opened.pages, 0);
-    block_on(engine().finish_form(opened.id, "Finish".to_owned())).unwrap();
+    block_on(engine().finish_form(opened.id, None, "Finish".to_owned())).unwrap();
     assert!(fields(opened.id).is_empty());
     let diff = compare(&before, &draw(opened.id, &opened.pages, 0), None, 0).unwrap();
     assert_eq!(diff.differing, 0, "{diff:?}");
@@ -359,7 +441,7 @@ fn finish_leaves_each_form_looking_the_same_with_no_widgets() {
             .flat_map(|f| f.widgets.iter().map(|w| w.rect))
             .collect();
         let before = draw(doc, &opened.pages, 0);
-        block_on(engine().finish_form(doc, "Finish".to_owned())).unwrap();
+        block_on(engine().finish_form(doc, None, "Finish".to_owned())).unwrap();
         assert!(fields(doc).is_empty(), "{name}");
         let after = draw(doc, &opened.pages, 0);
         let region = device_region(&boxes, f64::from(DPI) / 72.0);
@@ -447,6 +529,78 @@ fn other_forms_lists_combs_hybrid_xfa_and_no_appearances() {
     block_on(engine().close(doc)).unwrap();
     let saved = std::fs::read(&path).unwrap();
     assert_eq!(saved[..original.len()], original[..]);
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Decision 18 at Finish: a value with no appearance ("Ayşe Yılmaz" in a WinAnsi /Helv) is drawn
+/// as the font policy says, and the fonts it took are said.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn finish_follows_the_font_policy_and_says_so() {
+    let (dir, path) = copy("finish-fonts", "form-need-appearances");
+    let opened = open(&path);
+    let doc = opened.id;
+    let asked =
+        block_on(engine().finish_form(doc, Some(MissingFont::Ask), "Finish".to_owned())).unwrap();
+    assert!(asked.asks_font);
+    assert!(block_on(engine().history(doc)).unwrap().steps.is_empty());
+    assert!(!fields(doc).is_empty());
+    let done = block_on(engine().finish_form(doc, Some(MissingFont::Bundled), "Finish".to_owned()))
+        .unwrap();
+    assert!(!done.asks_font);
+    assert_eq!(done.fonts, ["IBM Plex Sans"]);
+    assert!(fields(doc).is_empty());
+    block_on(engine().close_discarding(doc)).unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Decision 17 on section 8's test form: setting the fields whose scripts would format, validate,
+/// calculate or react on blur runs none of them, before or after saving.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn the_script_form_runs_nothing() {
+    let (dir, path) = copy("script", "form-script");
+    let opened = open(&path);
+    assert!(
+        opened.scripts.count > 0,
+        "the scripts notice has something to say"
+    );
+    let doc = opened.id;
+    let values = |doc| -> Vec<(String, Vec<String>)> {
+        fields(doc)
+            .into_iter()
+            .map(|f| (f.name, f.values))
+            .collect()
+    };
+    let start = values(doc);
+    // Above the validate script's 50, no "TL " from its format, and the calculated fields set
+    // to what their sums are not.
+    let set_to = [
+        ("birim_fiyat", "75,5"),
+        ("adet", "3"),
+        ("ara_toplam", "7"),
+        ("toplam", "8"),
+    ];
+    for (name, value) in set_to {
+        set(doc, name, &[value]);
+    }
+    let expected: Vec<(String, Vec<String>)> = start
+        .iter()
+        .map(|(name, before)| {
+            let after = set_to
+                .iter()
+                .find(|(set, _)| set == name)
+                .map_or_else(|| before.clone(), |(_, value)| vec![(*value).to_owned()]);
+            (name.clone(), after)
+        })
+        .collect();
+    assert_eq!(values(doc), expected);
+    assert_eq!(field(doc, "durum").values, ["Bekliyor"]);
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+    let again = open(&path);
+    assert_eq!(values(again.id), expected);
+    block_on(engine().close(again.id)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }
 

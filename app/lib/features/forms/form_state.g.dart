@@ -255,7 +255,7 @@ final class FormSessionProvider
   }
 }
 
-String _$formSessionHash() => r'b477c0746bde932a6f212565ec7979e1c8ebde16';
+String _$formSessionHash() => r'86a3cd29839a21c47aa2d34a9ffefc4ea8a62a60';
 
 /// The open document's [FormView], as `formSessionProvider`; each document
 /// keeps its own.
@@ -316,7 +316,7 @@ final class FormCommandsProvider extends $NotifierProvider<FormCommands, void> {
   }
 }
 
-String _$formCommandsHash() => r'eadd96a4dd400f25875c6952fc0d88a02e00b268';
+String _$formCommandsHash() => r'1eff0aa386f7c8a4b84fc79f845f8dec6f716138';
 
 /// The form's commands, each one step of the history (a5-1, a5-2, G47), as
 /// `formCommandsProvider`. A signed document asks first (a3-16a).

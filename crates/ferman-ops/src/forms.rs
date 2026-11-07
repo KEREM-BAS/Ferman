@@ -228,8 +228,11 @@ fn is_date(text: &str, pattern: &str) -> bool {
             }
             ('y', 2) => digits(2, 2).inspect(|value| year = 2000 + *value).is_some(),
             ('y', 4) => digits(4, 4).inspect(|value| year = *value).is_some(),
-            ('H' | 'h' | 'M' | 's', 1) => digits(1, 2).is_some_and(|value| value < 60),
-            ('H' | 'h' | 'M' | 's', 2) => digits(2, 2).is_some_and(|value| value < 60),
+            ('H' | 'h' | 'M' | 's', 1 | 2) => digits(run, 2).is_some_and(|value| match c {
+                'H' => value < 24,
+                'h' => (1..=12).contains(&value),
+                _ => value < 60,
+            }),
             ('t', _) => {
                 let word: String = chars
                     .get(from..)
@@ -286,6 +289,37 @@ struct Setting<'a> {
     library: &'a FontLibrary,
     missing: MissingFont,
     filled: Filled,
+    /// The bundled faces of the change, embedded once by [`flush`] for every widget they draw.
+    shared: Vec<Shared<'a>>,
+}
+
+impl<'a> Setting<'a> {
+    fn new(library: &'a FontLibrary, missing: MissingFont) -> Self {
+        Self {
+            library,
+            missing,
+            filled: Filled::default(),
+            shared: Vec::new(),
+        }
+    }
+}
+
+/// Faces of one family and weight shared by the widgets of a change, and the forms waiting for
+/// them.
+struct Shared<'a> {
+    serif: bool,
+    weight: u16,
+    /// Out while a widget draws with them.
+    faces: Option<Box<Faces<'a>>>,
+    forms: Vec<Waiting>,
+}
+
+/// A widget's form whose text waits for its faces to be embedded.
+struct Waiting {
+    form: ObjectRef,
+    placed: (f32, f32, Option<[f32; 6]>),
+    ops: Ops,
+    lines: Vec<SetLine>,
 }
 
 /// What draws a field's text.
@@ -296,8 +330,8 @@ enum Painter<'a> {
         value: Value,
         font: FieldFont,
     },
-    /// Fonts embedded for it.
-    Faces(Box<Faces<'a>>),
+    /// Shared faces, taken from [`Setting::shared`] at this index while it draws.
+    Faces(usize, Box<Faces<'a>>),
 }
 
 impl Painter<'_> {
@@ -308,7 +342,7 @@ impl Painter<'_> {
                 .filter_map(|c| font.code(c))
                 .map(|(_, width)| width)
                 .sum()),
-            Painter::Faces(faces) => faces.measure(text, rtl),
+            Painter::Faces(_, faces) => faces.measure(text, rtl),
         }
     }
 }
@@ -347,7 +381,7 @@ impl Drawn<'_> {
                 let _ = writeln!(self.own.0, "<{hex}> Tj");
                 self.own.op("ET");
             }
-            Painter::Faces(faces) => {
+            Painter::Faces(_, faces) => {
                 let (glyphs, _) = faces.shape_line(text, rtl, 0.0)?;
                 self.lines.push(SetLine {
                     glyphs,
@@ -443,11 +477,33 @@ fn painter<'a>(
     } else if missing == MissingFont::Ask && shown.iter().any(|text| !text.is_empty()) {
         return Err(OpsError::FontChoiceNeeded);
     }
-    Ok(Painter::Faces(Box::new(if serif(base_font.as_deref()) {
-        Faces::serif(library, weight)
-    } else {
-        Faces::new(library, weight)
-    })))
+    let serif = serif(base_font.as_deref());
+    let at = match setting
+        .shared
+        .iter()
+        .position(|shared| shared.serif == serif && shared.weight == weight)
+    {
+        Some(at) => at,
+        None => {
+            setting.shared.push(Shared {
+                serif,
+                weight,
+                faces: Some(Box::new(if serif {
+                    Faces::serif(library, weight)
+                } else {
+                    Faces::new(library, weight)
+                })),
+                forms: Vec::new(),
+            });
+            setting.shared.len() - 1
+        }
+    };
+    let faces = setting
+        .shared
+        .get_mut(at)
+        .and_then(|shared| shared.faces.take())
+        .ok_or_else(plan_error)?;
+    Ok(Painter::Faces(at, faces))
 }
 
 /// The widget's box size in its form's own axes, turned by `/MK /R`, and the form's `/Matrix`.
@@ -491,10 +547,19 @@ fn frame(ops: &mut Ops, widget: &Widget, width: f32, height: f32) {
 fn add_form(
     document: &Document,
     revisions: &mut RevisionStore,
-    (width, height, matrix): (f32, f32, Option<[f32; 6]>),
+    placed: (f32, f32, Option<[f32; 6]>),
     ops: Ops,
     fonts: Vec<(Vec<u8>, Value)>,
 ) -> Result<ObjectRef, OpsError> {
+    Ok(revisions.add_object(document, form_value(placed, ops, fonts))?)
+}
+
+/// A form of `ops` in a box `width` by `height`.
+fn form_value(
+    (width, height, matrix): (f32, f32, Option<[f32; 6]>),
+    ops: Ops,
+    fonts: Vec<(Vec<u8>, Value)>,
+) -> Value {
     let mut dict = vec![
         (b"Type".to_vec(), name(b"XObject")),
         (b"Subtype".to_vec(), name(b"Form")),
@@ -510,13 +575,10 @@ fn add_form(
         vec![(b"Font".to_vec(), Value::Dictionary(fonts))]
     };
     dict.push((b"Resources".to_vec(), Value::Dictionary(resources)));
-    Ok(revisions.add_object(
-        document,
-        Value::Stream {
-            dict,
-            data: ops.0.into_bytes(),
-        },
-    )?)
+    Value::Stream {
+        dict,
+        data: ops.0.into_bytes(),
+    }
 }
 
 /// `widths` of `text`'s lines wrapped to `room` per unit of font size: each line's byte range.
@@ -698,26 +760,57 @@ fn text_form(
             ops.0.push_str(&own.0);
             vec![(name, value)]
         }
-        Painter::Faces(faces) => {
-            if lines.is_empty() {
-                Vec::new()
-            } else {
-                let prefix = revisions.free_form_font_prefix(document);
-                let embedded = embed_faces(document, revisions, &faces, &prefix)?;
-                text_ops(&mut ops, &embedded, &lines, (0.0, 0.0));
-                revisions.add_form_fonts(document, embedded.fonts.clone())?;
-                for family in faces.families() {
-                    if !setting.filled.fonts.contains(&family) {
-                        setting.filled.fonts.push(family);
-                    }
-                }
-                embedded.fonts
+        Painter::Faces(at, faces) => {
+            let shared = setting.shared.get_mut(at).ok_or_else(plan_error)?;
+            shared.faces = Some(faces);
+            if !lines.is_empty() {
+                // Its text waits for flush(), which embeds the change's faces once.
+                let form = revisions.allocate()?;
+                shared.forms.push(Waiting {
+                    form,
+                    placed,
+                    ops,
+                    lines,
+                });
+                return Ok(form);
             }
+            Vec::new()
         }
     };
     ops.op("Q");
     ops.op("EMC");
     add_form(document, revisions, placed, ops, fonts)
+}
+
+/// Embeds each of the change's shared faces once, as a subset of what all its widgets drew, and
+/// writes the forms waiting for them.
+fn flush(
+    document: &Document,
+    revisions: &mut RevisionStore,
+    setting: &mut Setting<'_>,
+) -> Result<(), OpsError> {
+    for shared in std::mem::take(&mut setting.shared) {
+        let Some(faces) = shared.faces.filter(|_| !shared.forms.is_empty()) else {
+            continue;
+        };
+        let prefix = revisions.free_form_font_prefix(document);
+        let embedded = embed_faces(document, revisions, &faces, &prefix)?;
+        revisions.add_form_fonts(document, embedded.fonts.clone())?;
+        for family in faces.families() {
+            if !setting.filled.fonts.contains(&family) {
+                setting.filled.fonts.push(family);
+            }
+        }
+        for waiting in shared.forms {
+            let mut ops = waiting.ops;
+            text_ops(&mut ops, &embedded, &waiting.lines, (0.0, 0.0));
+            ops.op("Q");
+            ops.op("EMC");
+            let form = form_value(waiting.placed, ops, embedded.fonts.clone());
+            revisions.replace_object(document, waiting.form, form)?;
+        }
+    }
+    Ok(())
 }
 
 /// A check box's or radio button's on and off faces, for a widget with no appearance.
@@ -792,7 +885,8 @@ fn apply(
     match field.kind {
         FieldKind::Text | FieldKind::Combo | FieldKind::List => {
             let value = match values {
-                [] => None,
+                // Empty, not removed: a value its node inherits from a parent would show again.
+                [] => Some(text_value("")),
                 [one] => Some(text_value(one)),
                 many => Some(Value::Array(many.iter().map(|v| text_value(v)).collect())),
             };
@@ -956,12 +1050,9 @@ pub fn set_value(
     if field.values == values {
         return Ok(Filled::default());
     }
-    let mut setting = Setting {
-        library,
-        missing,
-        filled: Filled::default(),
-    };
+    let mut setting = Setting::new(library, missing);
     apply(document, revisions, field, values, &mut setting)?;
+    flush(document, revisions, &mut setting)?;
     drop_xfa(document, revisions, &list, &mut setting.filled)?;
     Ok(setting.filled)
 }
@@ -982,7 +1073,8 @@ pub fn clearable(list: &FormFields) -> Vec<&Field> {
         .collect()
 }
 
-/// Empties every [`clearable`] field in the open transaction.
+/// Empties every [`clearable`] field in the open transaction; a list box's options are drawn by
+/// `missing` as a value is.
 ///
 /// # Errors
 ///
@@ -991,21 +1083,19 @@ pub fn clear(
     document: &Document,
     revisions: &mut RevisionStore,
     library: &FontLibrary,
-) -> Result<(), OpsError> {
+    missing: MissingFont,
+) -> Result<Filled, OpsError> {
     let list = revisions.form_fields(document);
     let fields = clearable(&list);
-    let mut setting = Setting {
-        library,
-        missing: MissingFont::Bundled,
-        filled: Filled::default(),
-    };
+    let mut setting = Setting::new(library, missing);
     for field in &fields {
         apply(document, revisions, field, &[], &mut setting)?;
     }
+    flush(document, revisions, &mut setting)?;
     if !fields.is_empty() {
         drop_xfa(document, revisions, &list, &mut setting.filled)?;
     }
-    Ok(())
+    Ok(setting.filled)
 }
 
 /// The fields' pages for a change of everything a form holds.
@@ -1022,9 +1112,10 @@ pub fn pages_of(list: &FormFields) -> Vec<usize> {
 }
 
 /// Finish (G47): the fields become page content as they look, in the open transaction, through the
-/// flatten primitive; a field with a value and no appearance gets one first, with simple
-/// signatures going down with their fields. A digitally signed field stays a field. `/Fields` keeps
-/// only what stays.
+/// flatten primitive; a field with a value and no appearance gets one first, drawn by `missing`
+/// as a value is, and under `/NeedAppearances` every field does, as such a reader shows it. Simple
+/// signatures go down with their fields. A digitally signed field stays a field, and so does every
+/// root of `/Fields` the reader did not read whole.
 ///
 /// # Errors
 ///
@@ -1033,32 +1124,30 @@ pub fn finish(
     document: &Document,
     revisions: &mut RevisionStore,
     library: &FontLibrary,
-) -> Result<(), OpsError> {
+    missing: MissingFont,
+) -> Result<Filled, OpsError> {
     let list = revisions.form_fields(document);
-    let mut setting = Setting {
-        library,
-        missing: MissingFont::Bundled,
-        filled: Filled::default(),
-    };
+    let mut setting = Setting::new(library, missing);
     let mut budget = MOST_SET_TOTAL;
     let mut pages: std::collections::BTreeMap<usize, Vec<u64>> = std::collections::BTreeMap::new();
-    let mut kept: Vec<ObjectRef> = Vec::new();
+    let mut kept: Vec<ObjectRef> = list.partial_roots.clone();
+    let mut gone: Vec<ObjectRef> = Vec::new();
     for field in &list.fields {
         if field.signed {
-            for root in &field.roots {
-                if !kept.contains(root) {
-                    kept.push(*root);
-                }
-            }
+            kept.extend(&field.roots);
             continue;
         }
-        let without: Vec<&Widget> = field
-            .widgets
-            .iter()
-            .filter(|widget| !widget.has_appearance)
-            .collect();
+        gone.extend(&field.roots);
+        let fillable = !matches!(
+            field.kind,
+            FieldKind::Push | FieldKind::Signature | FieldKind::Other
+        );
+        // A reader that honours /NeedAppearances draws every field from its value, whatever /AP
+        // holds.
+        let stale = list.need_appearances
+            || (!field.values.is_empty() && field.widgets.iter().any(|w| !w.has_appearance));
         let size: usize = field.values.iter().map(String::len).sum();
-        if !without.is_empty() && !field.values.is_empty() && size <= budget {
+        if fillable && stale && size <= budget {
             budget -= size;
             // apply() writes the whole field, so every widget ends up with the same appearance.
             apply(document, revisions, field, &field.values, &mut setting)?;
@@ -1073,21 +1162,217 @@ pub fn finish(
             pages.entry(widget.page).or_default().push(stamp);
         }
     }
+    flush(document, revisions, &mut setting)?;
     for (page, handles) in pages {
         revisions.flatten_annotations(document, page, &handles, &[])?;
     }
-    revisions.set_form_roots(document, &kept)?;
+    let roots: Vec<ObjectRef> = revisions
+        .form_roots(document)
+        .into_iter()
+        .filter(|root| kept.contains(root) || !gone.contains(root))
+        .collect();
+    revisions.set_form_roots(document, &roots)?;
     let mut entries = vec![(b"NeedAppearances".to_vec(), None)];
     if list.has_xfa {
         entries.push((b"XFA".to_vec(), None));
     }
     revisions.change_form(document, entries)?;
-    Ok(())
+    Ok(setting.filled)
 }
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+    use std::sync::Arc;
+
+    use ferman_core::{OpenOptions, Source, open};
+    use ferman_fonts::{FontOrigin, ScanLimits};
+
     use super::*;
+
+    fn library() -> FontLibrary {
+        let mut library = FontLibrary::new();
+        library.add_dir(
+            &PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../app/assets/fonts"),
+            FontOrigin::Bundled,
+            &ScanLimits::default(),
+        );
+        library
+    }
+
+    fn corpus(name: &str) -> (Document, RevisionStore) {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join(format!("../../tests/corpus/generated/{name}.pdf"));
+        let bytes = std::fs::read(path).unwrap();
+        let doc = open(
+            &Source::from_bytes(Arc::from(&bytes[..])),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        let store = RevisionStore::new(&doc);
+        (doc, store)
+    }
+
+    fn named<'a>(list: &'a FormFields, name: &str) -> &'a Field {
+        list.fields.iter().find(|f| f.name == name).unwrap()
+    }
+
+    fn entry(value: Option<Value>, key: &[u8]) -> Option<Value> {
+        let Some(Value::Dictionary(entries) | Value::Stream { dict: entries, .. }) = value else {
+            return None;
+        };
+        entries.into_iter().find(|(k, _)| k == key).map(|(_, v)| v)
+    }
+
+    /// The decoded data of widget `object`'s `/AP /N`.
+    fn normal(doc: &Document, store: &RevisionStore, object: ObjectRef) -> Vec<u8> {
+        let appearance = entry(store.object(doc, object).unwrap(), b"AP");
+        let Some(Value::Reference(form)) = entry(appearance, b"N") else {
+            panic!("no /AP /N");
+        };
+        match store.object(doc, form).unwrap() {
+            Some(Value::Stream { data, .. }) => data,
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn finish_under_need_appearances_draws_values_over_stale_appearances() {
+        let (doc, mut store) = corpus("form-need-appearances");
+        let list = store.form_fields(&doc);
+        assert!(list.need_appearances);
+        let field = named(&list, "adi_soyadi");
+        assert_eq!(field.values, ["Ayşe Yılmaz"]);
+        let widget = field.widgets[0].object;
+        // What a tool that sets /NeedAppearances leaves: an empty /AP over a real /V.
+        store.begin().unwrap();
+        let empty = store
+            .add_object(
+                &doc,
+                Value::Stream {
+                    dict: vec![
+                        (b"Subtype".to_vec(), name(b"Form")),
+                        (b"BBox".to_vec(), numbers([0.0, 0.0, 10.0, 10.0])),
+                    ],
+                    data: b"/Tx BMC EMC".to_vec(),
+                },
+            )
+            .unwrap();
+        store
+            .change_entries(
+                &doc,
+                widget,
+                vec![(
+                    b"AP".to_vec(),
+                    Some(Value::Dictionary(vec![(
+                        b"N".to_vec(),
+                        Value::Reference(empty),
+                    )])),
+                )],
+            )
+            .unwrap();
+        store.commit().unwrap();
+        assert!(named(&store.form_fields(&doc), "adi_soyadi").widgets[0].has_appearance);
+        store.begin().unwrap();
+        let filled = finish(&doc, &mut store, &library(), MissingFont::Bundled).unwrap();
+        let drawn = normal(&doc, &store, widget);
+        assert!(drawn.windows(2).any(|w| w == b"Tj"), "{drawn:?}");
+        assert_eq!(filled.fonts, ["IBM Plex Sans"]);
+    }
+
+    #[test]
+    fn finish_embeds_bundled_faces_once_and_follows_the_font_policy() {
+        let (doc, mut store) = corpus("form-need-appearances");
+        assert_eq!(store.free_form_font_prefix(&doc), "Fm0F");
+        store.begin().unwrap();
+        assert!(matches!(
+            finish(&doc, &mut store, &library(), MissingFont::Ask),
+            Err(OpsError::FontChoiceNeeded)
+        ));
+        store.rollback();
+        store.begin().unwrap();
+        let filled = finish(&doc, &mut store, &library(), MissingFont::Bundled).unwrap();
+        assert_eq!(filled.fonts, ["IBM Plex Sans"]);
+        // Three fields draw in Plex (ş, İ and a list's ğ), all through one embedding.
+        assert_eq!(store.free_form_font_prefix(&doc), "Fm1F");
+        store.commit().unwrap();
+    }
+
+    #[test]
+    fn finish_keeps_a_signed_field_whose_widget_is_on_no_page() {
+        let (doc, mut store) = corpus("form-signed");
+        let list = store.form_fields(&doc);
+        let signed = list.fields.iter().find(|f| f.signed).unwrap();
+        let (root, widget) = (signed.roots[0], signed.widgets[0].object);
+        let page = store.page_refs(&doc, &[signed.widgets[0].page]).unwrap()[0];
+        let Some(Value::Array(annots)) = entry(store.object(&doc, page).unwrap(), b"Annots") else {
+            panic!("no /Annots");
+        };
+        // Invisible: its widget keeps only /P.
+        store.begin().unwrap();
+        let annots = annots
+            .into_iter()
+            .filter(|a| *a != Value::Reference(widget))
+            .collect();
+        store
+            .set_entry(&doc, page, b"Annots", Value::Array(annots))
+            .unwrap();
+        store.commit().unwrap();
+        let list = store.form_fields(&doc);
+        assert!(list.fields.iter().all(|f| !f.signed));
+        let flattened: Vec<ObjectRef> = list.fields.iter().flat_map(|f| f.roots.clone()).collect();
+        store.begin().unwrap();
+        finish(&doc, &mut store, &library(), MissingFont::Bundled).unwrap();
+        let roots = store.form_roots(&doc);
+        assert!(roots.contains(&root), "{roots:?}");
+        assert!(flattened.iter().all(|r| !roots.contains(r)), "{roots:?}");
+    }
+
+    #[test]
+    fn emptying_a_value_inherited_from_a_parent_empties_it() {
+        let (doc, mut store) = corpus("form-aks1-tr");
+        let list = store.form_fields(&doc);
+        let node = named(&list, "adi").nodes[0];
+        store.begin().unwrap();
+        let parent = store
+            .add_object(
+                &doc,
+                Value::Dictionary(vec![
+                    (b"T".to_vec(), text_value("p")),
+                    (b"V".to_vec(), text_value("X")),
+                    (b"Kids".to_vec(), Value::Array(vec![Value::Reference(node)])),
+                ]),
+            )
+            .unwrap();
+        store
+            .change_entries(
+                &doc,
+                node,
+                vec![(b"Parent".to_vec(), Some(Value::Reference(parent)))],
+            )
+            .unwrap();
+        let roots: Vec<ObjectRef> = store
+            .form_roots(&doc)
+            .into_iter()
+            .map(|r| if r == node { parent } else { r })
+            .collect();
+        store.set_form_roots(&doc, &roots).unwrap();
+        store.commit().unwrap();
+        let field = named(&store.form_fields(&doc), "p.adi").clone();
+        assert_eq!(field.values, ["X"]);
+        store.begin().unwrap();
+        set_value(
+            &doc,
+            &mut store,
+            field.handle,
+            &[],
+            &library(),
+            MissingFont::Bundled,
+        )
+        .unwrap();
+        store.commit().unwrap();
+        assert!(named(&store.form_fields(&doc), "p.adi").values.is_empty());
+    }
 
     fn field(format: Option<DeclaredFormat>, min: Option<f64>, max: Option<f64>) -> Field {
         Field {
@@ -1146,6 +1431,45 @@ mod tests {
         assert!(problem(&form, "Nol 7, 2026").is_some());
         let form = date("m/d/yy h:MM tt");
         assert_eq!(problem(&form, "11/7/26 3:05 pm"), None);
+        assert!(problem(&form, "11/7/26 13:05 pm").is_some());
+        assert!(problem(&form, "11/7/26 0:05 pm").is_some());
+        let form = date("dd.mm.yyyy HH:MM");
+        assert_eq!(problem(&form, "07.11.2026 23:59"), None);
+        assert!(problem(&form, "07.11.2026 45:00").is_some());
+        assert!(problem(&form, "07.11.2026 24:00").is_some());
+        assert!(problem(&form, "07.11.2026 23:60").is_some());
+    }
+
+    /// What the app's date picker writes for 7 November 2026 at midnight in every pattern
+    /// `AFDate_Format` names (app/test/features/forms/forms_test.dart has the same table).
+    #[test]
+    fn every_named_date_pattern_reads_what_the_picker_writes() {
+        for (index, (pattern, text)) in [
+            ("m/d", "11/7"),
+            ("m/d/yy", "11/7/26"),
+            ("mm/dd/yy", "11/07/26"),
+            ("mm/yy", "11/26"),
+            ("d-mmm", "7-Nov"),
+            ("d-mmm-yy", "7-Nov-26"),
+            ("dd-mmm-yy", "07-Nov-26"),
+            ("yy-mm-dd", "26-11-07"),
+            ("mmm-yy", "Nov-26"),
+            ("mmmm-yy", "November-26"),
+            ("mmm d, yyyy", "Nov 7, 2026"),
+            ("mmmm d, yyyy", "November 7, 2026"),
+            ("m/d/yy h:MM tt", "11/7/26 12:00 am"),
+            ("m/d/yy HH:MM", "11/7/26 00:00"),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            // The table is AFDate_Format's, in its order.
+            assert_eq!(
+                ferman_core::forms::read_script(&format!("AFDate_Format({index})")).format,
+                Some(DeclaredFormat::Date(pattern.to_owned()))
+            );
+            assert_eq!(problem(&date(pattern), text), None, "{pattern}");
+        }
     }
 
     #[test]

@@ -455,12 +455,24 @@ abstract interface class EngineService {
   });
 
   /// Empties every field that holds a value and can change, as one step.
-  /// Signatures stay.
-  Future<RevisionInfo> clearForm(int document, String name);
+  /// Signatures stay. A list box's options are drawn by the font policy as
+  /// a value is, [missing] answering Ask each time.
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  });
 
   /// Finish (G47): every field becomes page content as it looks, as one step;
-  /// a digitally signed field stays. It asks what editing asks.
-  Future<RevisionInfo> finishForm(int document, String name);
+  /// a digitally signed field stays. A field it draws an appearance for
+  /// follows the font policy as [setFieldValue] does, [missing] answering Ask
+  /// each time, and the commit says which fonts it took. It asks what editing
+  /// asks.
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  });
 
   /// The lines, boxes, check boxes and combs drawn on [page] of [document],
   /// by [PageInfo.handle], for Fill anything (a5-4). Nothing is written; what
@@ -1031,12 +1043,18 @@ class UnavailableEngineService implements EngineService {
   }) async => throw error;
 
   @override
-  Future<RevisionInfo> clearForm(int document, String name) async =>
-      throw error;
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => throw error;
 
   @override
-  Future<RevisionInfo> finishForm(int document, String name) async =>
-      throw error;
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => throw error;
 
   @override
   Future<AnnotationList> annotations(int document) async => throw error;

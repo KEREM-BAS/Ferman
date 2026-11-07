@@ -937,7 +937,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Options:** (a) the render-only appendix: widgets become annotations PDFium draws, for every
   mode and the thumbnails; (b) `FPDF_FFLDraw` per tile; (c) the app's overlay in every mode.
 - **Proposal:** (a), measured first on `long-500`.
-- **Meanwhile:** fields show in Fill & Sign only (B203).
+- **Meanwhile:** fields show in Fill & Sign only ([B203](BACKLOG.md), whose milestone follows
+  this answer: the M4 review, then P2 unless the owner says otherwise).
 - **Needed by:** the M4 review.
 - **Status:** Open
 - **Related:** BACKLOG B203, `crates/ferman-api/tests/forms.rs`, `app/lib/features/forms/form_overlay.dart`

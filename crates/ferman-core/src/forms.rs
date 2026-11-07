@@ -11,7 +11,7 @@
 // Values come from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 use lopdf::{Dictionary, Object, ObjectId};
 
@@ -218,6 +218,9 @@ pub struct FormFields {
     pub need_appearances: bool,
     /// Whether a limit cut the list short.
     pub truncated: bool,
+    /// The entries of `/Fields` under which a node was not read: a limit, a widget on no page or
+    /// a node that is neither field nor widget. What they hold may be in no field here.
+    pub partial_roots: Vec<ObjectRef>,
 }
 
 /// A font of `/AcroForm /DR`, for writing a field's text in.
@@ -684,12 +687,15 @@ impl RevisionStore {
             .unwrap_or_default();
         let mut seen = BTreeSet::new();
         let mut named: HashMap<String, usize> = HashMap::new();
+        let mut unread: BTreeSet<ObjectId> = BTreeSet::new();
         while let Some((id, parent, above, depth, root)) = stack.pop() {
             if !seen.insert(id) {
                 continue;
             }
             let Some(rest) = budget.nodes.checked_sub(1) else {
                 budget.truncated = true;
+                unread.insert(root.unwrap_or(id));
+                unread.extend(stack.iter().map(|frame| frame.4.unwrap_or(frame.0)));
                 break;
             };
             budget.nodes = rest;
@@ -704,6 +710,7 @@ impl RevisionStore {
             };
             if name.len() > MAX_NAME {
                 budget.truncated = true;
+                unread.insert(root.unwrap_or(id));
                 continue;
             }
             let here = Inherited {
@@ -721,6 +728,9 @@ impl RevisionStore {
             let kids: Vec<ObjectId> = scope
                 .get_array(dict, b"Kids")
                 .map(|kids| {
+                    if kids.len() > budget.nodes {
+                        unread.insert(root);
+                    }
                     kids.iter()
                         .take(budget.nodes)
                         .filter_map(|kid| kid.as_reference().ok())
@@ -743,6 +753,7 @@ impl RevisionStore {
                 }
             } else if !fields.is_empty() {
                 budget.truncated = true;
+                unread.insert(root);
             }
             let own_widget =
                 dict.has(b"Rect") && scope.get_name(dict, b"Subtype") == Some(b"Widget");
@@ -779,6 +790,11 @@ impl RevisionStore {
                     ))
                 })
                 .collect();
+            if found.len() < placed.len() || found.is_empty() {
+                // A widget on no page, such as an invisible signature's with only /P, a kid that is
+                // no widget, or none at all: what it holds stays where it is.
+                unread.insert(root);
+            }
             if let Some(&at) = named.get(&name).filter(|_| !name.is_empty())
                 && let Some(field) = list.fields.get_mut(at)
             {
@@ -860,6 +876,7 @@ impl RevisionStore {
             });
         }
         list.truncated = budget.truncated;
+        list.partial_roots = unread.into_iter().map(ObjectRef).collect();
         let ranks = tab_ranks(pages, &places, &list.fields);
         let rank = |widget: &Widget| {
             ranks
@@ -936,6 +953,24 @@ impl RevisionStore {
         }
     }
 
+    /// The entries of `/Fields` that are references, in order.
+    #[must_use]
+    pub fn form_roots(&self, doc: &Document) -> Vec<ObjectRef> {
+        let scope = self.scope(doc);
+        scope
+            .catalog()
+            .and_then(|catalog| scope.get_dict(catalog, b"AcroForm"))
+            .and_then(|form| scope.get_array(form, b"Fields"))
+            .map(|fields| {
+                fields
+                    .iter()
+                    .filter_map(|field| field.as_reference().ok())
+                    .map(ObjectRef)
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
     /// Makes `roots` all of `/Fields` in the open transaction, for Finish.
     ///
     /// # Errors
@@ -982,18 +1017,24 @@ impl RevisionStore {
             .and_then(|catalog| scope.get_dict(catalog, b"AcroForm"))
             .and_then(|form| scope.get_dict(form, b"DR"))
             .and_then(|resources| scope.get_dict(resources, b"Font"));
-        let taken = |prefix: &str| {
-            fonts.is_some_and(|fonts| {
-                fonts
-                    .iter()
-                    .any(|(key, _)| key.starts_with(prefix.as_bytes()))
+        // The numbers n of keys that start with `Fm{n}F`, read once: a hostile /DR may hold many.
+        let taken: HashSet<u64> = fonts
+            .into_iter()
+            .flat_map(|fonts| fonts.iter())
+            .filter_map(|(key, _)| {
+                let rest = key.strip_prefix(b"Fm")?;
+                let digits = rest.iter().take_while(|byte| byte.is_ascii_digit()).count();
+                let (number, after) = rest.split_at_checked(digits)?;
+                // Leading zeros name no prefix this makes: Fm01F is not Fm1F.
+                let plain = number.first() != Some(&b'0') || number.len() == 1;
+                (after.first() == Some(&b'F') && plain)
+                    .then(|| std::str::from_utf8(number).ok()?.parse().ok())
+                    .flatten()
             })
-        };
-        // A prefix past the keys of the largest dictionary a file could hold is always free.
-        (0u32..)
-            .map(|number| format!("Fm{number}F"))
-            .find(|prefix| !taken(prefix))
-            .unwrap_or_default()
+            .collect();
+        // At most taken.len() + 1 tries.
+        let free = (0u64..).find(|number| !taken.contains(number)).unwrap_or(0);
+        format!("Fm{free}F")
     }
 
     /// Adds `fonts` to `/AcroForm /DR /Font` in the open transaction (decision 18). `/DR` and its
@@ -1393,6 +1434,49 @@ mod tests {
         let field = &list.fields[0];
         assert!(field.required && field.filled() && !field.signed);
         assert!(field.signature.is_some());
+    }
+
+    #[test]
+    fn a_free_font_prefix_reads_the_keys_once() {
+        const MANY: usize = 50_000;
+        let doc = document(|_, _| {
+            let mut fonts = Dictionary::new();
+            for n in 0..MANY {
+                fonts.set(format!("Fm{n}F0"), Object::Null);
+            }
+            fonts.set("Fm0100000F0", Object::Null);
+            Object::Dictionary(
+                dictionary! { "Fields" => vec![], "DR" => dictionary! { "Font" => fonts } },
+            )
+        });
+        let store = RevisionStore::new(&doc);
+        let started = std::time::Instant::now();
+        assert_eq!(store.free_form_font_prefix(&doc), format!("Fm{MANY}F"));
+        // Reading every key for every number tried took minutes here.
+        assert!(started.elapsed() < std::time::Duration::from_secs(2));
+    }
+
+    #[test]
+    fn a_field_with_a_widget_on_no_page_leaves_its_root_unread() {
+        let doc = document(|pdf, page| {
+            let shown = pdf.add_object(widget(
+                page,
+                dictionary! { "T" => Object::string_literal("a"), "FT" => "Tx" },
+            ));
+            // An invisible signature: its widget has only /P.
+            let hidden = pdf.add_object(widget(
+                page,
+                dictionary! { "T" => Object::string_literal("s"), "FT" => "Sig", "V" => dictionary! {} },
+            ));
+            annots(pdf, page, vec![shown]);
+            Object::Dictionary(dictionary! { "Fields" => vec![shown.into(), hidden.into()] })
+        });
+        let store = RevisionStore::new(&doc);
+        let list = store.form_fields(&doc);
+        assert_eq!(list.fields.len(), 1);
+        let roots = store.form_roots(&doc);
+        assert_eq!(roots.len(), 2);
+        assert_eq!(list.partial_roots, [roots[1]]);
     }
 
     #[test]

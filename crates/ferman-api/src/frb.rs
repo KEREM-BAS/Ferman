@@ -4246,55 +4246,80 @@ pub async fn set_field_value(
     missing: Option<MissingFont>,
     name: String,
 ) -> Result<FieldCommit, ApiError> {
-    let missing = missing.map(|missing| match missing {
-        MissingFont::Bundled => facade::MissingFont::Bundled,
-        MissingFont::Ask => facade::MissingFont::Ask,
-        MissingFont::Keep => facade::MissingFont::Keep,
-    });
     let commit = engine()?
         .set_field_value(
             facade::DocumentId::from_raw(document),
             handle,
             values,
-            missing,
+            missing_font(missing),
             name,
         )
         .await
         .map_err(api_error_dto)?;
-    Ok(FieldCommit {
+    Ok(field_commit_dto(commit))
+}
+
+fn missing_font(missing: Option<MissingFont>) -> Option<facade::MissingFont> {
+    missing.map(|missing| match missing {
+        MissingFont::Bundled => facade::MissingFont::Bundled,
+        MissingFont::Ask => facade::MissingFont::Ask,
+        MissingFont::Keep => facade::MissingFont::Keep,
+    })
+}
+
+fn field_commit_dto(commit: facade::FieldCommit) -> FieldCommit {
+    FieldCommit {
         revision: revision_dto(commit.revision),
         problem: commit.problem.map(field_problem_dto),
         fonts: commit.fonts,
         marked: commit.marked,
         xfa_removed: commit.xfa_removed,
         asks_font: commit.asks_font,
-    })
+    }
 }
 
 /// Empties every field that holds a value and can change, as one history step. Signatures stay.
+/// A list box's options are drawn by `missing` as a value is.
 ///
 /// # Errors
 ///
 /// As [`set_field_value`].
-pub async fn clear_form(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+pub async fn clear_form(
+    document: u64,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
     engine()?
-        .clear_form(facade::DocumentId::from_raw(document), name)
+        .clear_form(
+            facade::DocumentId::from_raw(document),
+            missing_font(missing),
+            name,
+        )
         .await
-        .map(revision_dto)
+        .map(field_commit_dto)
         .map_err(api_error_dto)
 }
 
 /// Finish: every field becomes page content as it looks, as one history step; a digitally signed
-/// field stays. It asks what editing asks.
+/// field stays. An appearance it draws follows `missing` as a value does and says which fonts it
+/// took. It asks what editing asks.
 ///
 /// # Errors
 ///
 /// As [`set_field_value`].
-pub async fn finish_form(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+pub async fn finish_form(
+    document: u64,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
     engine()?
-        .finish_form(facade::DocumentId::from_raw(document), name)
+        .finish_form(
+            facade::DocumentId::from_raw(document),
+            missing_font(missing),
+            name,
+        )
         .await
-        .map(revision_dto)
+        .map(field_commit_dto)
         .map_err(api_error_dto)
 }
 

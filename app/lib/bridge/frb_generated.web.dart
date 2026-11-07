@@ -5100,8 +5100,9 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__clear_form(
     NativePortType port_,
     JSAny document,
+    int? missing,
     String name,
-  ) => wasmModule.wire__crate__frb__clear_form(port_, document, name);
+  ) => wasmModule.wire__crate__frb__clear_form(port_, document, missing, name);
 
   void wire__crate__frb__close(
     NativePortType port_,
@@ -5210,8 +5211,9 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__finish_form(
     NativePortType port_,
     JSAny document,
+    int? missing,
     String name,
-  ) => wasmModule.wire__crate__frb__finish_form(port_, document, name);
+  ) => wasmModule.wire__crate__frb__finish_form(port_, document, missing, name);
 
   void wire__crate__frb__finish_save(
     NativePortType port_,
@@ -5949,6 +5951,7 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__clear_form(
     NativePortType port_,
     JSAny document,
+    int? missing,
     String name,
   );
 
@@ -6045,6 +6048,7 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__finish_form(
     NativePortType port_,
     JSAny document,
+    int? missing,
     String name,
   );
 

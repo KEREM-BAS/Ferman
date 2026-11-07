@@ -312,26 +312,27 @@ fn fill_anything_finds_the_flat_forms_places() {
     let opened = open(&path);
     let doc = opened.id;
     let before = draw(doc, &opened.pages);
+    let digits = |text: &str| NewAnnotation {
+        kind: AnnotationKind::FreeText,
+        rect: comb.rect,
+        points: Vec::new(),
+        color: [0.0, 0.0, 0.0],
+        stroke: 0.0,
+        opacity: 1.0,
+        contents: text.to_owned(),
+        author: String::new(),
+        font_size: 10.0,
+        arrow: false,
+        label: String::new(),
+        meta: None,
+        tilt: 0.0,
+        icon: None,
+        comb: Some(comb.cells),
+    };
     let commit = block_on(engine().add_annotation(
         doc,
         opened.pages[0].handle,
-        NewAnnotation {
-            kind: AnnotationKind::FreeText,
-            rect: comb.rect,
-            points: Vec::new(),
-            color: [0.0, 0.0, 0.0],
-            stroke: 0.0,
-            opacity: 1.0,
-            contents: "10000000146".to_owned(),
-            author: String::new(),
-            font_size: 10.0,
-            arrow: false,
-            label: String::new(),
-            meta: None,
-            tilt: 0.0,
-            icon: None,
-            comb: Some(comb.cells),
-        },
+        digits("10000000146"),
         "Fill".to_owned(),
     ))
     .unwrap();
@@ -353,6 +354,33 @@ fn fill_anything_finds_the_flat_forms_places() {
     let diff = compare(&before, &edited, Some(region), 2).unwrap();
     assert!(diff.passed() && diff.differing > 0, "{diff:?}");
     assert!(compare(&after, &edited, None, 0).unwrap().differing > 0);
-    block_on(engine().close_discarding(doc)).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+
+    // The edit kept the comb: "2" sits in the first cell, as a new comb box of "2" draws it.
+    let fresh = open(&corpus("form-aks1-flat", "pdf"));
+    block_on(engine().add_annotation(
+        fresh.id,
+        fresh.pages[0].handle,
+        digits("2"),
+        "Fill".to_owned(),
+    ))
+    .unwrap();
+    let diff = compare(&draw(fresh.id, &fresh.pages), &edited, None, 0).unwrap();
+    assert_eq!(diff.differing, 0, "the comb after the edit: {diff:?}");
+    block_on(engine().close_discarding(fresh.id)).unwrap();
+
+    // Saved as an annotation, it survives reopening and draws the same.
+    let again = open(&path);
+    let list = block_on(engine().annotations(again.id)).unwrap();
+    let text = list
+        .annotations
+        .iter()
+        .find(|a| a.kind == AnnotationKind::FreeText)
+        .unwrap();
+    assert_eq!(text.contents.as_deref(), Some("2"));
+    let diff = compare(&edited, &draw(again.id, &again.pages), None, 0).unwrap();
+    assert_eq!(diff.differing, 0, "reopened: {diff:?}");
+    block_on(engine().close(again.id)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }

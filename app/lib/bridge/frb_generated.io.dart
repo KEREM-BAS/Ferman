@@ -6046,9 +6046,10 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__clear_form(
     int port_,
     int document,
+    ffi.Pointer<ffi.Int32> missing,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
   ) {
-    return _wire__crate__frb__clear_form(port_, document, name);
+    return _wire__crate__frb__clear_form(port_, document, missing, name);
   }
 
   late final _wire__crate__frb__clear_formPtr =
@@ -6057,13 +6058,19 @@ class FermanBridgeWire implements BaseWire {
           ffi.Void Function(
             ffi.Int64,
             ffi.Uint64,
+            ffi.Pointer<ffi.Int32>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
       >('frbgen_ferman_wire__crate__frb__clear_form');
   late final _wire__crate__frb__clear_form = _wire__crate__frb__clear_formPtr
       .asFunction<
-        void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+        void Function(
+          int,
+          int,
+          ffi.Pointer<ffi.Int32>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
       >();
 
   void wire__crate__frb__close(int port_, int document, bool discard_recovery) {
@@ -6427,9 +6434,10 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__finish_form(
     int port_,
     int document,
+    ffi.Pointer<ffi.Int32> missing,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
   ) {
-    return _wire__crate__frb__finish_form(port_, document, name);
+    return _wire__crate__frb__finish_form(port_, document, missing, name);
   }
 
   late final _wire__crate__frb__finish_formPtr =
@@ -6438,13 +6446,19 @@ class FermanBridgeWire implements BaseWire {
           ffi.Void Function(
             ffi.Int64,
             ffi.Uint64,
+            ffi.Pointer<ffi.Int32>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
       >('frbgen_ferman_wire__crate__frb__finish_form');
   late final _wire__crate__frb__finish_form = _wire__crate__frb__finish_formPtr
       .asFunction<
-        void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+        void Function(
+          int,
+          int,
+          ffi.Pointer<ffi.Int32>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
       >();
 
   void wire__crate__frb__finish_save(int port_, int document, bool swapped) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
@@ -6,6 +8,7 @@ import 'package:ferman/features/forms/form_dialogs.dart';
 import 'package:ferman/features/forms/form_overlay.dart';
 import 'package:ferman/features/forms/form_panel.dart';
 import 'package:ferman/features/forms/form_state.dart';
+import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/signatures/add_signature_dialog.dart';
 import 'package:ferman/features/start/start_screen.dart';
@@ -178,6 +181,99 @@ void main() {
     expect(find.text('All required filled'), findsOneWidget);
   });
 
+  for (final fields in [null, const <FieldInfo>[]]) {
+    final layer = fields == null ? FormOverlay : FillAnythingOverlay;
+    testWidgets('closing with $layer still being typed takes the typing first '
+        'and asks to save', (tester) async {
+      final engine = _engine(fields: fields)
+        ..fillTargetsByPage[_page] = const FillTargets();
+      final container = await _open(tester, engine);
+      await tester.tapAt(
+        _onScreen(container, tester, const Offset(150, 109), layer),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(EditableText), 'Ayşe');
+      await tester.pump();
+      // ⌘W while the field still has the caret.
+      unawaited(container.read(documentCloserProvider.notifier).close(_path));
+      await tester.pumpAndSettle();
+      expect(container.read(documentCloserProvider).asking?.path, _path);
+      if (fields == null) {
+        expect(await _values(engine, 1), ['Ayşe']);
+      } else {
+        final annotations = (await engine.annotations(_document)).annotations;
+        expect(annotations.single.contents, 'Ayşe');
+      }
+    });
+  }
+
+  testWidgets('a value on a turned page turns with the page, sized by the '
+      'field’s own height', (tester) async {
+    final engine =
+        FakeEngineService(
+            documents: {
+              _path: const OpenedDocument(
+                id: _document,
+                pages: [
+                  PageInfo(
+                    width: 842,
+                    height: 595,
+                    handle: _page,
+                    rotation: 90,
+                  ),
+                ],
+              ),
+            },
+          )
+          ..initialFields[_document] = [
+            const FieldInfo(
+              handle: 1,
+              name: 'ad',
+              kind: FieldKind.text,
+              values: ['AYŞE'],
+              widgets: [
+                FieldWidget(
+                  page: _page,
+                  rect: Rect.fromLTWH(100, 100, 14, 200),
+                ),
+              ],
+            ),
+          ];
+    final container = await _open(tester, engine);
+    final value = find.text('AYŞE');
+    final turned = tester.widget<RotatedBox>(
+      find.ancestor(of: value, matching: find.byType(RotatedBox)).first,
+    );
+    expect(turned.quarterTurns, 1);
+    final scale = container.read(viewerProvider)!.scale;
+    expect(
+      tester.widget<Text>(value).style?.fontSize,
+      closeTo(14 * FormOverlay.textShare * scale, 1e-6),
+    );
+  });
+
+  testWidgets('Finish under Ask each time asks for the font first, then says '
+      'which it took', (tester) async {
+    final engine = _engine(fields: [_surname])
+      ..wholeFormFonts = const ['IBM Plex Sans'];
+    await _open(tester, engine);
+    await tester.tap(find.widgetWithText(Button, 'Finish'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FormFinishDialog),
+        matching: find.widgetWithText(Button, 'Save'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(FormFontDialog), findsOneWidget);
+    expect((await engine.formFields(_document)).fields, hasLength(1));
+    await tester.tap(find.widgetWithText(Button, 'Use IBM Plex'));
+    await tester.pumpAndSettle();
+    expect((await engine.formFields(_document)).fields, isEmpty);
+    expect(find.text('Characters added in IBM Plex'), findsOneWidget);
+  });
+
   testWidgets('Finish with required fields empty shows them; filled, it asks '
       'and flattens', (tester) async {
     final engine = _engine(fields: [_name, _declaration]);
@@ -334,6 +430,32 @@ void main() {
     final day = DateTime(2026, 3, 4);
     expect(formatFieldDate('dd.mm.yyyy', day), '04.03.2026');
     expect(formatFieldDate('m/d/yy', day), '3/4/26');
+    // Every pattern AFDate_Format names, as the engine's check reads them
+    // (ferman_ops::forms' dates_read_by_their_declared_pattern has the same).
+    final picked = DateTime(2026, 11, 7);
+    const expected = {
+      'm/d': '11/7',
+      'm/d/yy': '11/7/26',
+      'mm/dd/yy': '11/07/26',
+      'mm/yy': '11/26',
+      'd-mmm': '7-Nov',
+      'd-mmm-yy': '7-Nov-26',
+      'dd-mmm-yy': '07-Nov-26',
+      'yy-mm-dd': '26-11-07',
+      'mmm-yy': 'Nov-26',
+      'mmmm-yy': 'November-26',
+      'mmm d, yyyy': 'Nov 7, 2026',
+      'mmmm d, yyyy': 'November 7, 2026',
+      'm/d/yy h:MM tt': '11/7/26 12:00 am',
+      'm/d/yy HH:MM': '11/7/26 00:00',
+    };
+    for (final MapEntry(key: pattern, value: text) in expected.entries) {
+      expect(formatFieldDate(pattern, picked), text, reason: pattern);
+    }
+    expect(
+      formatFieldDate('dd.mm.yyyy HH:MM', DateTime(2026, 11, 7, 15, 5)),
+      '07.11.2026 15:05',
+    );
   });
 
   test('a line takes text on its baseline; marks are strokes in the box', () {
