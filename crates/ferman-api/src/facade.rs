@@ -25,12 +25,13 @@ mod error;
 mod guard;
 mod info;
 mod jobs;
+mod links;
 mod recovery;
 mod search;
 mod text;
 mod version;
 
-pub use annotations::{AnnotationCommit, AnnotationInfo, AnnotationList};
+pub use annotations::{AnnotationCommit, AnnotationInfo, AnnotationList, SummaryFormat};
 pub use assemble::{
     CombineFile, CombineFileInfo, CombinePreview, CombineSource, InputStatus, SplitOutput,
     SplitPreview,
@@ -50,6 +51,7 @@ pub use jobs::{
     JOB_STALE, JobChange, JobEvent, JobId, JobOutput, JobResult, JobRun, JobSink, JobSnapshot,
     JobStop,
 };
+pub use links::{LinkInfo, LinkList, LinkTarget, NewLink, NewLinkDestination, RefusedLink};
 pub use recovery::{RecoverableDocument, RestoredDocument};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
 pub use text::{BlockInfo, Caret, FontCoverage, LineInfo, PageBlocks, Selection, TextPosition};
@@ -57,6 +59,7 @@ pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
 pub use ferman_core::annotations::AnnotationKind;
+pub use ferman_core::links::LinkLook;
 pub use ferman_core::structure::{
     Agreement, Attachment, Direction, FontKind, FontUse, Info, LabelRange, LabelStyle, Layer,
     OpGate, OutlineItem, PdfDate, Scripts, Signature,
@@ -69,6 +72,7 @@ pub use ferman_ops::annotations::{AnnotationChange, NewAnnotation};
 pub use ferman_ops::images::Paper;
 pub use ferman_ops::pages::{Margins, PageFit};
 pub use ferman_ops::split::{SplitFile, SplitMode};
+pub use ferman_ops::summary::{SummaryLabels, SummaryLayout, SummaryOptions, SummarySort};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,

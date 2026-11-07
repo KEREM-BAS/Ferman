@@ -131,10 +131,25 @@ abstract class FermanBridgeApiImplPlatform
   int dco_decode_box_autoadd_i_16(dynamic raw);
 
   @protected
+  LinkChange dco_decode_box_autoadd_link_change(dynamic raw);
+
+  @protected
+  LinkDestination dco_decode_box_autoadd_link_destination(dynamic raw);
+
+  @protected
+  LinkInfo dco_decode_box_autoadd_link_info(dynamic raw);
+
+  @protected
+  LinkLook dco_decode_box_autoadd_link_look(dynamic raw);
+
+  @protected
   MissingGlyphs dco_decode_box_autoadd_missing_glyphs(dynamic raw);
 
   @protected
   NewAnnotation dco_decode_box_autoadd_new_annotation(dynamic raw);
+
+  @protected
+  NewLink dco_decode_box_autoadd_new_link(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
@@ -165,6 +180,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Security dco_decode_box_autoadd_security(dynamic raw);
+
+  @protected
+  SummaryOptions dco_decode_box_autoadd_summary_options(dynamic raw);
 
   @protected
   TextPosition dco_decode_box_autoadd_text_position(dynamic raw);
@@ -305,6 +323,24 @@ abstract class FermanBridgeApiImplPlatform
   LineInfo dco_decode_line_info(dynamic raw);
 
   @protected
+  LinkChange dco_decode_link_change(dynamic raw);
+
+  @protected
+  LinkDestination dco_decode_link_destination(dynamic raw);
+
+  @protected
+  LinkInfo dco_decode_link_info(dynamic raw);
+
+  @protected
+  LinkKind dco_decode_link_kind(dynamic raw);
+
+  @protected
+  LinkList dco_decode_link_list(dynamic raw);
+
+  @protected
+  LinkLook dco_decode_link_look(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
@@ -362,6 +398,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LineInfo> dco_decode_list_line_info(dynamic raw);
 
   @protected
+  List<LinkInfo> dco_decode_list_link_info(dynamic raw);
+
+  @protected
   List<MissingChar> dco_decode_list_missing_char(dynamic raw);
 
   @protected
@@ -413,6 +452,9 @@ abstract class FermanBridgeApiImplPlatform
   List<SplitOutput> dco_decode_list_split_output(dynamic raw);
 
   @protected
+  List<SummaryKindName> dco_decode_list_summary_kind_name(dynamic raw);
+
+  @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
 
   @protected
@@ -426,6 +468,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   NewAnnotation dco_decode_new_annotation(dynamic raw);
+
+  @protected
+  NewLink dco_decode_new_link(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw);
@@ -471,6 +516,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int? dco_decode_opt_box_autoadd_i_16(dynamic raw);
+
+  @protected
+  LinkDestination? dco_decode_opt_box_autoadd_link_destination(dynamic raw);
+
+  @protected
+  LinkInfo? dco_decode_opt_box_autoadd_link_info(dynamic raw);
+
+  @protected
+  LinkLook? dco_decode_opt_box_autoadd_link_look(dynamic raw);
 
   @protected
   MissingGlyphs? dco_decode_opt_box_autoadd_missing_glyphs(dynamic raw);
@@ -623,6 +677,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   SubstitutionKind dco_decode_substitution_kind(dynamic raw);
+
+  @protected
+  SummaryFormat dco_decode_summary_format(dynamic raw);
+
+  @protected
+  SummaryKindName dco_decode_summary_kind_name(dynamic raw);
+
+  @protected
+  SummaryOptions dco_decode_summary_options(dynamic raw);
+
+  @protected
+  SummarySort dco_decode_summary_sort(dynamic raw);
 
   @protected
   TextDirection dco_decode_text_direction(dynamic raw);
@@ -783,6 +849,20 @@ abstract class FermanBridgeApiImplPlatform
   int sse_decode_box_autoadd_i_16(SseDeserializer deserializer);
 
   @protected
+  LinkChange sse_decode_box_autoadd_link_change(SseDeserializer deserializer);
+
+  @protected
+  LinkDestination sse_decode_box_autoadd_link_destination(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  LinkInfo sse_decode_box_autoadd_link_info(SseDeserializer deserializer);
+
+  @protected
+  LinkLook sse_decode_box_autoadd_link_look(SseDeserializer deserializer);
+
+  @protected
   MissingGlyphs sse_decode_box_autoadd_missing_glyphs(
     SseDeserializer deserializer,
   );
@@ -791,6 +871,9 @@ abstract class FermanBridgeApiImplPlatform
   NewAnnotation sse_decode_box_autoadd_new_annotation(
     SseDeserializer deserializer,
   );
+
+  @protected
+  NewLink sse_decode_box_autoadd_new_link(SseDeserializer deserializer);
 
   @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
@@ -831,6 +914,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Security sse_decode_box_autoadd_security(SseDeserializer deserializer);
+
+  @protected
+  SummaryOptions sse_decode_box_autoadd_summary_options(
+    SseDeserializer deserializer,
+  );
 
   @protected
   TextPosition sse_decode_box_autoadd_text_position(
@@ -977,6 +1065,24 @@ abstract class FermanBridgeApiImplPlatform
   LineInfo sse_decode_line_info(SseDeserializer deserializer);
 
   @protected
+  LinkChange sse_decode_link_change(SseDeserializer deserializer);
+
+  @protected
+  LinkDestination sse_decode_link_destination(SseDeserializer deserializer);
+
+  @protected
+  LinkInfo sse_decode_link_info(SseDeserializer deserializer);
+
+  @protected
+  LinkKind sse_decode_link_kind(SseDeserializer deserializer);
+
+  @protected
+  LinkList sse_decode_link_list(SseDeserializer deserializer);
+
+  @protected
+  LinkLook sse_decode_link_look(SseDeserializer deserializer);
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
@@ -1052,6 +1158,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LineInfo> sse_decode_list_line_info(SseDeserializer deserializer);
 
   @protected
+  List<LinkInfo> sse_decode_list_link_info(SseDeserializer deserializer);
+
+  @protected
   List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer);
 
   @protected
@@ -1111,6 +1220,11 @@ abstract class FermanBridgeApiImplPlatform
   List<SplitOutput> sse_decode_list_split_output(SseDeserializer deserializer);
 
   @protected
+  List<SummaryKindName> sse_decode_list_summary_kind_name(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
 
   @protected
@@ -1126,6 +1240,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   NewAnnotation sse_decode_new_annotation(SseDeserializer deserializer);
+
+  @protected
+  NewLink sse_decode_new_link(SseDeserializer deserializer);
 
   @protected
   NotEditableReason sse_decode_not_editable_reason(
@@ -1187,6 +1304,17 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int? sse_decode_opt_box_autoadd_i_16(SseDeserializer deserializer);
+
+  @protected
+  LinkDestination? sse_decode_opt_box_autoadd_link_destination(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  LinkInfo? sse_decode_opt_box_autoadd_link_info(SseDeserializer deserializer);
+
+  @protected
+  LinkLook? sse_decode_opt_box_autoadd_link_look(SseDeserializer deserializer);
 
   @protected
   MissingGlyphs? sse_decode_opt_box_autoadd_missing_glyphs(
@@ -1357,6 +1485,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   SubstitutionKind sse_decode_substitution_kind(SseDeserializer deserializer);
+
+  @protected
+  SummaryFormat sse_decode_summary_format(SseDeserializer deserializer);
+
+  @protected
+  SummaryKindName sse_decode_summary_kind_name(SseDeserializer deserializer);
+
+  @protected
+  SummaryOptions sse_decode_summary_options(SseDeserializer deserializer);
+
+  @protected
+  SummarySort sse_decode_summary_sort(SseDeserializer deserializer);
 
   @protected
   TextDirection sse_decode_text_direction(SseDeserializer deserializer);
@@ -1693,6 +1833,30 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_link_change(LinkChange raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_link_change(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_link_destination(LinkDestination raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_link_destination(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_link_info(LinkInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_link_info(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_link_look(LinkLook raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_link_look(raw);
+  }
+
+  @protected
   JSAny cst_encode_box_autoadd_missing_glyphs(MissingGlyphs raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_missing_glyphs(raw);
@@ -1702,6 +1866,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_box_autoadd_new_annotation(NewAnnotation raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_new_annotation(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_new_link(NewLink raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_new_link(raw);
   }
 
   @protected
@@ -1762,6 +1932,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_box_autoadd_security(Security raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_security(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_summary_options(SummaryOptions raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_summary_options(raw);
   }
 
   @protected
@@ -2084,6 +2260,53 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_link_change(LinkChange raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_box_autoadd_page_rect(raw.rect),
+      cst_encode_opt_box_autoadd_link_destination(raw.destination),
+      cst_encode_opt_box_autoadd_link_look(raw.look),
+      cst_encode_opt_box_autoadd_annotation_color(raw.color),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_link_destination(LinkDestination raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.address),
+      cst_encode_bool(raw.mail),
+      cst_encode_opt_box_autoadd_u_64(raw.page),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_link_info(LinkInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.handle),
+      cst_encode_u_64(raw.page),
+      cst_encode_page_rect(raw.rect),
+      cst_encode_list_annotation_points(raw.quads),
+      cst_encode_link_kind(raw.kind),
+      cst_encode_String(raw.target),
+      cst_encode_opt_box_autoadd_u_64(raw.targetPage),
+      cst_encode_opt_box_autoadd_u_64(raw.wantedPage),
+      cst_encode_link_look(raw.look),
+      cst_encode_opt_box_autoadd_annotation_color(raw.color),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_link_list(LinkList raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_link_info(raw.links),
+      cst_encode_bool(raw.truncated),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_String(List<String> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_String).toList().jsify()!;
@@ -2198,6 +2421,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_link_info(List<LinkInfo> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_link_info).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_missing_char(List<MissingChar> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_missing_char).toList().jsify()!;
@@ -2300,6 +2529,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_summary_kind_name(List<SummaryKindName> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_summary_kind_name).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_wanted_item(List<WantedItem> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_wanted_item).toList().jsify()!;
@@ -2345,6 +2580,18 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_String(raw.meta),
       cst_encode_f_32(raw.tilt),
       cst_encode_opt_String(raw.icon),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_new_link(NewLink raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_page_rect(raw.rect),
+      cst_encode_list_annotation_points(raw.quads),
+      cst_encode_link_destination(raw.destination),
+      cst_encode_link_look(raw.look),
+      cst_encode_annotation_color(raw.color),
     ].jsify()!;
   }
 
@@ -2448,6 +2695,24 @@ abstract class FermanBridgeApiImplPlatform
   int? cst_encode_opt_box_autoadd_i_16(int? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_i_16(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_link_destination(LinkDestination? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_link_destination(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_link_info(LinkInfo? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_link_info(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_link_look(LinkLook? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_link_look(raw);
   }
 
   @protected
@@ -2814,6 +3079,36 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_summary_kind_name(SummaryKindName raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_annotation_kind(raw.kind),
+      cst_encode_String(raw.name),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_summary_options(SummaryOptions raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.open),
+      cst_encode_bool(raw.resolved),
+      cst_encode_bool(raw.replies),
+      cst_encode_bool(raw.emptyPages),
+      cst_encode_summary_sort(raw.sort),
+      cst_encode_String(raw.pageLabel),
+      cst_encode_list_String(raw.columns),
+      cst_encode_list_summary_kind_name(raw.kinds),
+      cst_encode_String(raw.openLabel),
+      cst_encode_String(raw.resolvedLabel),
+      cst_encode_String(raw.noComments),
+      cst_encode_String(raw.datePattern),
+      cst_encode_f_32(raw.paperWidth),
+      cst_encode_f_32(raw.paperHeight),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_text_position(TextPosition raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [cst_encode_u_64(raw.block), cst_encode_u_32(raw.index)].jsify()!;
@@ -2925,6 +3220,12 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_label_style(LabelStyle raw);
 
   @protected
+  int cst_encode_link_kind(LinkKind raw);
+
+  @protected
+  int cst_encode_link_look(LinkLook raw);
+
+  @protected
   int cst_encode_missing_reason_kind(MissingReasonKind raw);
 
   @protected
@@ -2962,6 +3263,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_substitution_kind(SubstitutionKind raw);
+
+  @protected
+  int cst_encode_summary_format(SummaryFormat raw);
+
+  @protected
+  int cst_encode_summary_sort(SummarySort raw);
 
   @protected
   int cst_encode_text_direction(TextDirection raw);
@@ -3159,6 +3466,30 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_i_16(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_link_change(
+    LinkChange self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_link_destination(
+    LinkDestination self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_link_info(
+    LinkInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_link_look(
+    LinkLook self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_missing_glyphs(
     MissingGlyphs self,
     SseSerializer serializer,
@@ -3169,6 +3500,9 @@ abstract class FermanBridgeApiImplPlatform
     NewAnnotation self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_box_autoadd_new_link(NewLink self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_not_editable_reason(
@@ -3223,6 +3557,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_box_autoadd_security(Security self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_summary_options(
+    SummaryOptions self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_text_position(
@@ -3390,6 +3730,27 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_line_info(LineInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_link_change(LinkChange self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_link_destination(
+    LinkDestination self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_link_info(LinkInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_link_kind(LinkKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_link_list(LinkList self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_link_look(LinkLook self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
@@ -3492,6 +3853,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_line_info(List<LineInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_link_info(List<LinkInfo> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_missing_char(
     List<MissingChar> self,
     SseSerializer serializer,
@@ -3585,6 +3949,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_summary_kind_name(
+    List<SummaryKindName> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_wanted_item(
     List<WantedItem> self,
     SseSerializer serializer,
@@ -3604,6 +3974,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_new_annotation(NewAnnotation self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_new_link(NewLink self, SseSerializer serializer);
 
   @protected
   void sse_encode_not_editable_reason(
@@ -3682,6 +4055,24 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_opt_box_autoadd_i_16(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_destination(
+    LinkDestination? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_info(
+    LinkInfo? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_look(
+    LinkLook? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_missing_glyphs(
@@ -3891,6 +4282,24 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_summary_format(SummaryFormat self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_summary_kind_name(
+    SummaryKindName self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_summary_options(
+    SummaryOptions self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_summary_sort(SummarySort self, SseSerializer serializer);
+
+  @protected
   void sse_encode_text_direction(TextDirection self, SseSerializer serializer);
 
   @protected
@@ -3942,6 +4351,14 @@ class FermanBridgeWire implements BaseWire {
     annotation,
     name,
   );
+
+  void wire__crate__frb__add_link(
+    NativePortType port_,
+    JSAny document,
+    JSAny page,
+    JSAny link,
+    String name,
+  ) => wasmModule.wire__crate__frb__add_link(port_, document, page, link, name);
 
   void wire__crate__frb__annotations(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__annotations(port_, document);
@@ -4070,6 +4487,13 @@ class FermanBridgeWire implements BaseWire {
     name,
   );
 
+  void wire__crate__frb__delete_link(
+    NativePortType port_,
+    JSAny document,
+    JSAny handle,
+    String name,
+  ) => wasmModule.wire__crate__frb__delete_link(port_, document, handle, name);
+
   void wire__crate__frb__delete_pages(
     NativePortType port_,
     JSAny document,
@@ -4133,6 +4557,17 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__keep_as_is(NativePortType port_, JSAny transaction) =>
       wasmModule.wire__crate__frb__keep_as_is(port_, transaction);
+
+  void wire__crate__frb__link_at(
+    NativePortType port_,
+    JSAny document,
+    JSAny page,
+    double x,
+    double y,
+  ) => wasmModule.wire__crate__frb__link_at(port_, document, page, x, y);
+
+  void wire__crate__frb__links(NativePortType port_, JSAny document) =>
+      wasmModule.wire__crate__frb__links(port_, document);
 
   void wire__crate__frb__list_recoverable(NativePortType port_) =>
       wasmModule.wire__crate__frb__list_recoverable(port_);
@@ -4461,6 +4896,12 @@ class FermanBridgeWire implements BaseWire {
     bool enabled,
   ) => wasmModule.wire__crate__frb__set_recovery_enabled(port_, enabled);
 
+  void wire__crate__frb__show_comments(
+    NativePortType port_,
+    JSAny document,
+    bool visible,
+  ) => wasmModule.wire__crate__frb__show_comments(port_, document, visible);
+
   void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
@@ -4501,6 +4942,24 @@ class FermanBridgeWire implements BaseWire {
     sink,
   );
 
+  void wire__crate__frb__start_comment_summary_job(
+    NativePortType port_,
+    JSAny document,
+    int format,
+    JSAny options,
+    String output,
+    String? staging,
+    String sink,
+  ) => wasmModule.wire__crate__frb__start_comment_summary_job(
+    port_,
+    document,
+    format,
+    options,
+    output,
+    staging,
+    sink,
+  );
+
   void wire__crate__frb__start_copy_document_job(
     NativePortType port_,
     JSAny document,
@@ -4528,6 +4987,24 @@ class FermanBridgeWire implements BaseWire {
     pages,
     output,
     staging,
+    sink,
+  );
+
+  void wire__crate__frb__start_flatten_annotations_job(
+    NativePortType port_,
+    JSAny document,
+    JSAny handles,
+    String? copy,
+    String? staging,
+    String name,
+    String sink,
+  ) => wasmModule.wire__crate__frb__start_flatten_annotations_job(
+    port_,
+    document,
+    handles,
+    copy,
+    staging,
+    name,
     sink,
   );
 
@@ -4621,6 +5098,20 @@ class FermanBridgeWire implements BaseWire {
     name,
   );
 
+  void wire__crate__frb__update_link(
+    NativePortType port_,
+    JSAny document,
+    JSAny handle,
+    JSAny change,
+    String name,
+  ) => wasmModule.wire__crate__frb__update_link(
+    port_,
+    document,
+    handle,
+    change,
+    name,
+  );
+
   void wire__crate__frb__white_margins(
     NativePortType port_,
     JSAny document,
@@ -4644,6 +5135,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny document,
     JSAny page,
     JSAny annotation,
+    String name,
+  );
+
+  external void wire__crate__frb__add_link(
+    NativePortType port_,
+    JSAny document,
+    JSAny page,
+    JSAny link,
     String name,
   );
 
@@ -4758,6 +5257,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String name,
   );
 
+  external void wire__crate__frb__delete_link(
+    NativePortType port_,
+    JSAny document,
+    JSAny handle,
+    String name,
+  );
+
   external void wire__crate__frb__delete_pages(
     NativePortType port_,
     JSAny document,
@@ -4808,6 +5314,16 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     NativePortType port_,
     JSAny transaction,
   );
+
+  external void wire__crate__frb__link_at(
+    NativePortType port_,
+    JSAny document,
+    JSAny page,
+    double x,
+    double y,
+  );
+
+  external void wire__crate__frb__links(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__list_recoverable(NativePortType port_);
 
@@ -5045,6 +5561,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     bool enabled,
   );
 
+  external void wire__crate__frb__show_comments(
+    NativePortType port_,
+    JSAny document,
+    bool visible,
+  );
+
   external void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
@@ -5070,6 +5592,16 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String sink,
   );
 
+  external void wire__crate__frb__start_comment_summary_job(
+    NativePortType port_,
+    JSAny document,
+    int format,
+    JSAny options,
+    String output,
+    String? staging,
+    String sink,
+  );
+
   external void wire__crate__frb__start_copy_document_job(
     NativePortType port_,
     JSAny document,
@@ -5084,6 +5616,16 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny pages,
     String output,
     String? staging,
+    String sink,
+  );
+
+  external void wire__crate__frb__start_flatten_annotations_job(
+    NativePortType port_,
+    JSAny document,
+    JSAny handles,
+    String? copy,
+    String? staging,
+    String name,
     String sink,
   );
 
@@ -5139,6 +5681,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   );
 
   external void wire__crate__frb__update_annotation(
+    NativePortType port_,
+    JSAny document,
+    JSAny handle,
+    JSAny change,
+    String name,
+  );
+
+  external void wire__crate__frb__update_link(
     NativePortType port_,
     JSAny document,
     JSAny handle,

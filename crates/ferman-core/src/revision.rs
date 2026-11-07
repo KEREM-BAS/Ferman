@@ -1061,7 +1061,12 @@ impl RevisionStore {
     }
 
     /// Copies of page `id`'s inherited `/Resources` and of their entry `key`, both direct.
-    fn page_resources(&self, doc: &Document, id: ObjectId, key: &[u8]) -> (Dictionary, Dictionary) {
+    pub(crate) fn page_resources(
+        &self,
+        doc: &Document,
+        id: ObjectId,
+        key: &[u8],
+    ) -> (Dictionary, Dictionary) {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return (Dictionary::new(), Dictionary::new());

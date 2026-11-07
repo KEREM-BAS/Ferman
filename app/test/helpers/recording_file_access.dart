@@ -35,6 +35,9 @@ final class RecordingFileAccess implements FileAccess {
     return true;
   }
 
+  @override
+  Future<bool> openUrl(String url) async => true;
+
   /// The staging directory [staging] names, as the macOS sandbox does.
   String? stagingDirectory;
 

@@ -2543,6 +2543,473 @@ fn annotation_commit_dto(commit: facade::AnnotationCommit) -> AnnotationCommit {
     }
 }
 
+/// Shows or hides every markup annotation of `document` in every view (a4-5): render-only, never
+/// saved. Returns every page's new render key.
+///
+/// See [`facade::Engine::show_comments`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+pub async fn show_comments(document: u64, visible: bool) -> Result<u64, ApiError> {
+    engine()?
+        .show_comments(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Flattens annotations `handles` with their replies as a background job: with `copy` it first
+/// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
+///
+/// See [`facade::Engine::flatten_annotations_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `copy` exists, and `NotFound`.
+pub async fn start_flatten_annotations_job(
+    document: u64,
+    handles: Vec<u64>,
+    copy: Option<String>,
+    staging: Option<String>,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .flatten_annotations_job(
+            facade::DocumentId::from_raw(document),
+            handles,
+            copy.map(PathBuf::from),
+            staging.map(PathBuf::from),
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// What a comment summary is written as.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SummaryFormat {
+    /// CSV, one comment per row.
+    Csv,
+    /// A PDF: numbered markers on each page, with its comments beside it.
+    PageAndComments,
+    /// A PDF: a list, grouped by page.
+    CommentsOnly,
+    /// A PDF: the full page followed by its comments.
+    PageThenList,
+}
+
+/// The order of a summary's comments.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SummarySort {
+    /// Page order.
+    Page,
+    /// Oldest first.
+    Date,
+    /// By author, then page order.
+    Author,
+}
+
+/// A kind's name in the app's language.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SummaryKindName {
+    /// The kind.
+    pub kind: AnnotationKind,
+    /// Its name.
+    pub name: String,
+}
+
+/// What a comment summary holds, and its words in the app's language.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SummaryOptions {
+    /// Open comments.
+    pub open: bool,
+    /// Resolved comments.
+    pub resolved: bool,
+    /// Replies under each.
+    pub replies: bool,
+    /// Pages without comments.
+    pub empty_pages: bool,
+    /// The order.
+    pub sort: SummarySort,
+    /// A page's heading, with `{n}` for its number.
+    pub page_label: String,
+    /// The CSV's header row: page, type, author, date, text, replies, status.
+    pub columns: Vec<String>,
+    /// Each kind's name.
+    pub kinds: Vec<SummaryKindName>,
+    /// The status of an open comment.
+    pub open_label: String,
+    /// The status of a resolved one.
+    pub resolved_label: String,
+    /// What a page, or a summary, with no comment says.
+    pub no_comments: String,
+    /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+    pub date_pattern: String,
+    /// A PDF's paper width, in points.
+    pub paper_width: f32,
+    /// A PDF's paper height, in points.
+    pub paper_height: f32,
+}
+
+/// Writes the comments of `document` to the new file `output` as a background job (a4-4).
+///
+/// See [`facade::Engine::comment_summary_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `output` exists, and `NotFound`.
+pub async fn start_comment_summary_job(
+    document: u64,
+    format: SummaryFormat,
+    options: SummaryOptions,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    let pdf =
+        |layout| facade::SummaryFormat::Pdf(layout, options.paper_width, options.paper_height);
+    let format = match format {
+        SummaryFormat::Csv => facade::SummaryFormat::Csv,
+        SummaryFormat::PageAndComments => pdf(facade::SummaryLayout::PageAndComments),
+        SummaryFormat::CommentsOnly => pdf(facade::SummaryLayout::CommentsOnly),
+        SummaryFormat::PageThenList => pdf(facade::SummaryLayout::PageThenList),
+    };
+    let options = facade::SummaryOptions {
+        open: options.open,
+        resolved: options.resolved,
+        replies: options.replies,
+        empty_pages: options.empty_pages,
+        sort: match options.sort {
+            SummarySort::Page => facade::SummarySort::Page,
+            SummarySort::Date => facade::SummarySort::Date,
+            SummarySort::Author => facade::SummarySort::Author,
+        },
+        labels: facade::SummaryLabels {
+            page: options.page_label,
+            columns: options.columns,
+            kinds: options
+                .kinds
+                .into_iter()
+                .map(|kind| (annotation_kind_of(kind.kind), kind.name))
+                .collect(),
+            open: options.open_label,
+            resolved: options.resolved_label,
+            no_comments: options.no_comments,
+            date_pattern: options.date_pattern,
+        },
+    };
+    engine()?
+        .comment_summary_job(
+            facade::DocumentId::from_raw(document),
+            format,
+            options,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// A link's border.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkLook {
+    /// No line.
+    Invisible,
+    /// A line under it.
+    Underline,
+    /// A thin box.
+    Box,
+}
+
+/// Where a link goes, and whether it may be offered. Only `Web` and `Mail` can be opened, after the
+/// app's prompt with the full target showing; `Page` just goes; the others open nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkKind {
+    /// An `http` or `https` address.
+    Web,
+    /// A `mailto:` address.
+    Mail,
+    /// A page of this document.
+    Page,
+    /// A destination that leads nowhere.
+    Broken,
+    /// Refused: `/JavaScript` or a `javascript:` address.
+    Script,
+    /// Refused: `/Launch`.
+    Launch,
+    /// Refused: another file, `/GoToR`, `/GoToE` or a `file:` address.
+    File,
+    /// Refused: an address of another scheme, or one that does not read cleanly.
+    Address,
+    /// Refused: an action Ferman does not know, kept in the file as it came.
+    Action,
+    /// It does nothing.
+    Nothing,
+}
+
+/// One link, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkInfo {
+    /// Its identity for the other calls.
+    pub handle: u64,
+    /// Its page's handle.
+    pub page: u64,
+    /// Its box.
+    pub rect: PageRect,
+    /// Its text's lines, four corners each.
+    pub quads: Vec<AnnotationPoints>,
+    /// Where it goes.
+    pub kind: LinkKind,
+    /// The address, or what a refused link names: to show, and to open only for `Web` and `Mail`.
+    pub target: String,
+    /// The handle of the page, for `Page`.
+    pub target_page: Option<u64>,
+    /// The page a `Broken` link names, from 1, when it says.
+    pub wanted_page: Option<u64>,
+    /// Its border.
+    pub look: LinkLook,
+    /// `/C`.
+    pub color: Option<AnnotationColor>,
+}
+
+/// A document's links.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkList {
+    /// In page order.
+    pub links: Vec<LinkInfo>,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// Where a new link goes: `page`'s handle when it has one, else `address`, web or mail by `mail`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkDestination {
+    /// An `http` or `https` address, or an e-mail address.
+    pub address: String,
+    /// Whether `address` is an e-mail address.
+    pub mail: bool,
+    /// A page by its handle.
+    pub page: Option<u64>,
+}
+
+/// A new link, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewLink {
+    /// Its box.
+    pub rect: PageRect,
+    /// Its text's lines: top left, top right, bottom left and bottom right as the reader sees them.
+    pub quads: Vec<AnnotationPoints>,
+    /// Where it goes.
+    pub destination: LinkDestination,
+    /// Its border.
+    pub look: LinkLook,
+    /// `/C`.
+    pub color: AnnotationColor,
+}
+
+/// What a link change sets; `None` leaves it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkChange {
+    /// A new box.
+    pub rect: Option<PageRect>,
+    /// A new target, which replaces what the link did.
+    pub destination: Option<LinkDestination>,
+    /// A new border.
+    pub look: Option<LinkLook>,
+    /// `/C`.
+    pub color: Option<AnnotationColor>,
+}
+
+fn link_look_of(look: LinkLook) -> facade::LinkLook {
+    match look {
+        LinkLook::Invisible => facade::LinkLook::Invisible,
+        LinkLook::Underline => facade::LinkLook::Underline,
+        LinkLook::Box => facade::LinkLook::Box,
+    }
+}
+
+fn link_destination_of(destination: LinkDestination) -> facade::NewLinkDestination {
+    match destination {
+        LinkDestination {
+            page: Some(page), ..
+        } => facade::NewLinkDestination::Page(page),
+        LinkDestination {
+            address,
+            mail: true,
+            ..
+        } => facade::NewLinkDestination::Mail(address),
+        LinkDestination { address, .. } => facade::NewLinkDestination::Web(address),
+    }
+}
+
+fn link_dto(link: facade::LinkInfo) -> LinkInfo {
+    let [left, top, right, bottom] = link.rect;
+    let (kind, target, target_page, wanted_page) = match link.target {
+        facade::LinkTarget::Web(url) => (LinkKind::Web, url, None, None),
+        facade::LinkTarget::Mail(url) => (LinkKind::Mail, url, None, None),
+        facade::LinkTarget::Page(page) => (LinkKind::Page, String::new(), Some(page), None),
+        facade::LinkTarget::Broken { wanted } => (LinkKind::Broken, String::new(), None, wanted),
+        facade::LinkTarget::Refused(reason, text) => (
+            match reason {
+                facade::RefusedLink::Script => LinkKind::Script,
+                facade::RefusedLink::Launch => LinkKind::Launch,
+                facade::RefusedLink::File => LinkKind::File,
+                facade::RefusedLink::Address => LinkKind::Address,
+                facade::RefusedLink::Action => LinkKind::Action,
+                facade::RefusedLink::Nothing => LinkKind::Nothing,
+            },
+            text,
+            None,
+            None,
+        ),
+    };
+    LinkInfo {
+        handle: link.handle,
+        page: link.page,
+        rect: PageRect {
+            left,
+            top,
+            right,
+            bottom,
+        },
+        quads: link
+            .quads
+            .into_iter()
+            .map(|quad| AnnotationPoints {
+                points: quad.into_iter().map(|[x, y]| PagePoint { x, y }).collect(),
+            })
+            .collect(),
+        kind,
+        target,
+        target_page,
+        wanted_page,
+        look: match link.look {
+            facade::LinkLook::Invisible => LinkLook::Invisible,
+            facade::LinkLook::Underline => LinkLook::Underline,
+            facade::LinkLook::Box => LinkLook::Box,
+        },
+        color: link
+            .color
+            .map(|[red, green, blue]| AnnotationColor { red, green, blue }),
+    }
+}
+
+/// The links of `document` as its committed revisions leave them.
+///
+/// See [`facade::Engine::links`].
+///
+/// # Errors
+///
+/// `NotFound`.
+pub async fn links(document: u64) -> Result<LinkList, ApiError> {
+    engine()?
+        .links(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| LinkList {
+            links: list.links.into_iter().map(link_dto).collect(),
+            truncated: list.truncated,
+        })
+        .map_err(api_error_dto)
+}
+
+/// The topmost link of the page `page` at a point in displayed points. It follows nothing.
+///
+/// See [`facade::Engine::link_at`].
+///
+/// # Errors
+///
+/// `InvalidInput` and `NotFound`.
+pub async fn link_at(
+    document: u64,
+    page: u64,
+    x: f32,
+    y: f32,
+) -> Result<Option<LinkInfo>, ApiError> {
+    engine()?
+        .link_at(facade::DocumentId::from_raw(document), page, x, y)
+        .await
+        .map(|link| link.map(link_dto))
+        .map_err(api_error_dto)
+}
+
+/// Creates `link` on the page `page` as one history step. Only a web address, an e-mail address or
+/// a page of this document can be its target.
+///
+/// See [`facade::Engine::add_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn add_link(
+    document: u64,
+    page: u64,
+    link: NewLink,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let new = facade::NewLink {
+        rect: annotation_rect_of(link.rect),
+        quads: annotation_points_of(link.quads),
+        target: link_destination_of(link.destination),
+        look: link_look_of(link.look),
+        color: annotation_color_of(link.color),
+    };
+    engine()?
+        .add_link(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Applies `change` to link `handle` as one history step.
+///
+/// See [`facade::Engine::update_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn update_link(
+    document: u64,
+    handle: u64,
+    change: LinkChange,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    engine()?
+        .update_link(
+            facade::DocumentId::from_raw(document),
+            handle,
+            change.rect.map(annotation_rect_of),
+            change.destination.map(link_destination_of),
+            change.look.map(link_look_of),
+            change.color.map(annotation_color_of),
+            name,
+        )
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes link `handle` as one history step.
+///
+/// See [`facade::Engine::delete_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn delete_link(
+    document: u64,
+    handle: u64,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_link(facade::DocumentId::from_raw(document), handle, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// The annotations of `document` as its committed revisions leave them. Links, form widgets and
 /// popups are not listed.
 ///

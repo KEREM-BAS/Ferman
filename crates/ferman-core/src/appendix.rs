@@ -10,6 +10,7 @@ use std::collections::BTreeSet;
 
 use lopdf::{Dictionary, Object, ObjectId};
 
+use crate::annotations::MAX_PER_DOCUMENT;
 use crate::revision::RevisionStore;
 use crate::structure::Scope;
 use crate::syntax::is_regular;
@@ -19,11 +20,36 @@ use crate::{CoreError, Document, Unsupported};
 /// hostile file cannot hold up a commit.
 const MAX_WALK: usize = 2_000_000;
 
+/// `/F`: hidden.
+const HIDDEN: i64 = 2;
+
+/// The markup annotations (ISO 32000-2 §12.5.6.2): what Hide all hides.
+const MARKUP: &[&[u8]] = &[
+    b"Text",
+    b"FreeText",
+    b"Line",
+    b"Square",
+    b"Circle",
+    b"Polygon",
+    b"PolyLine",
+    b"Highlight",
+    b"Underline",
+    b"Squiggly",
+    b"StrikeOut",
+    b"Stamp",
+    b"Caret",
+    b"Ink",
+    b"FileAttachment",
+    b"Sound",
+    b"Redact",
+];
+
 impl RevisionStore {
     /// The bytes to put after `doc`'s for PDFium to render these revisions, empty when none
-    /// applies and no layers are given. With `visible` (one value per
+    /// applies and nothing else is asked. With `visible` (one value per
     /// [`Structure::layers`](crate::structure::Structure), in order) it shows those layers and
-    /// hides the others; groups not listed keep their state.
+    /// hides the others; groups not listed keep their state. With `hide_comments` every markup
+    /// annotation gets the hidden bit (a4-5, decision 12): widgets, links and signatures stay.
     ///
     /// # Errors
     ///
@@ -33,22 +59,83 @@ impl RevisionStore {
         &self,
         doc: &Document,
         visible: Option<&[bool]>,
+        hide_comments: bool,
     ) -> Result<Vec<u8>, CoreError> {
-        let bytes = match visible {
-            Some(visible) => {
+        let bytes = if visible.is_some() || hide_comments {
+            let mut shown = self.clone();
+            shown.begin()?;
+            if let Some(visible) = visible {
                 let (root, catalog) = self.catalog_showing(doc, visible)?;
-                let mut shown = self.clone();
-                shown.begin()?;
                 shown.put(root, Object::Dictionary(catalog))?;
-                shown.commit()?;
-                shown.incremental_update(doc)?
             }
-            None => self.incremental_update(doc)?,
+            if hide_comments {
+                for (id, object) in self.markup_hidden(doc) {
+                    shown.put(id, object)?;
+                }
+            }
+            shown.commit()?;
+            shown.incremental_update(doc)?
+        } else {
+            self.incremental_update(doc)?
         };
         Ok(bytes
             .get(doc.source().bytes().len()..)
             .unwrap_or_default()
             .to_vec())
+    }
+
+    /// The objects that hide every markup annotation still drawn: each one's own object, and a
+    /// page's dictionary for those written directly in its `/Annots`.
+    fn markup_hidden(&self, doc: &Document) -> Vec<(ObjectId, Object)> {
+        let scope = self.scope(doc);
+        let hidden = |annotation: &Dictionary| -> Option<Dictionary> {
+            let subtype = scope.get_name(annotation, b"Subtype")?;
+            let flags = scope.get_int(annotation, b"F").unwrap_or(0);
+            if !MARKUP.contains(&subtype) || flags & HIDDEN != 0 {
+                return None;
+            }
+            let mut annotation = annotation.clone();
+            annotation.set("F", flags | HIDDEN);
+            Some(annotation)
+        };
+        let mut queued = Vec::new();
+        let mut seen = BTreeSet::new();
+        let mut left = MAX_PER_DOCUMENT;
+        for page in self.pages(doc) {
+            let Some(dict) = scope.dictionary(page.id) else {
+                continue;
+            };
+            let Some(items) = scope.get_array(dict, b"Annots") else {
+                continue;
+            };
+            let mut direct = items.clone();
+            let mut any_direct = false;
+            for item in &mut direct {
+                let Some(next) = left.checked_sub(1) else {
+                    break;
+                };
+                left = next;
+                if let Ok(id) = item.as_reference() {
+                    if seen.insert(id)
+                        && let Some(annotation) = scope.dict(&Object::Reference(id))
+                        && let Some(annotation) = hidden(annotation)
+                    {
+                        queued.push((id, Object::Dictionary(annotation)));
+                    }
+                } else if let Ok(annotation) = item.as_dict()
+                    && let Some(annotation) = hidden(annotation)
+                {
+                    *item = Object::Dictionary(annotation);
+                    any_direct = true;
+                }
+            }
+            if any_direct {
+                let mut dict = dict.clone();
+                dict.set("Annots", direct);
+                queued.push((page.id, Object::Dictionary(dict)));
+            }
+        }
+        queued
     }
 
     /// The catalog's id and its dictionary with `visible` as the layers' state.
@@ -430,14 +517,23 @@ mod tests {
             assert_eq!(visible(&original), [true, true, false], "modern {modern}");
             let document = opened(&original);
             let store = RevisionStore::new(&document);
-            assert!(store.render_appendix(&document, None).unwrap().is_empty());
+            assert!(
+                store
+                    .render_appendix(&document, None, false)
+                    .unwrap()
+                    .is_empty()
+            );
             for wanted in [
                 [false, true, true],
                 [true, true, false],
                 [false, false, false],
             ] {
                 let mut copy = original.clone();
-                copy.extend(store.render_appendix(&document, Some(&wanted)).unwrap());
+                copy.extend(
+                    store
+                        .render_appendix(&document, Some(&wanted), false)
+                        .unwrap(),
+                );
                 assert!(copy.starts_with(&original));
                 assert_eq!(visible(&copy), wanted, "modern {modern}");
                 assert_eq!(opened(&copy).page_count(), 1);
@@ -458,7 +554,7 @@ mod tests {
         let mut copy = original.clone();
         copy.extend(
             store
-                .render_appendix(&document, Some(&[false, true, true]))
+                .render_appendix(&document, Some(&[false, true, true]), false)
                 .unwrap(),
         );
         assert_eq!(visible(&copy), [false, true, true]);

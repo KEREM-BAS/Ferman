@@ -329,6 +329,15 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
         _ = rmdir(directory)
       }
       result(nil)
+    case "openUrl":
+      // Only what the engine offers, after the app's prompt (G145); the OS opens it.
+      guard let text = call.arguments as? String, let url = URL(string: text),
+        let scheme = url.scheme?.lowercased(), ["http", "https", "mailto"].contains(scheme)
+      else {
+        result(false)
+        return
+      }
+      result(NSWorkspace.shared.open(url))
     case "pdfHandler":
       guard let url = NSWorkspace.shared.urlForApplication(toOpen: .pdf) else {
         result(nil)

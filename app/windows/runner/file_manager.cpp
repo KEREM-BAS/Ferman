@@ -1,9 +1,12 @@
 #include "file_manager.h"
 
 #include <flutter/standard_method_codec.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <windows.h>
 
+#include <algorithm>
+#include <cctype>
 #include <string>
 #include <variant>
 
@@ -45,6 +48,24 @@ bool ShowInExplorer(const std::string& path) {
   return SUCCEEDED(shown);
 }
 
+// Opens |url| with the system's handler: only what the engine offers, after
+// the app's prompt (G145).
+bool OpenUrl(const std::string& url) {
+  std::string scheme = url.substr(0, url.find(':'));
+  std::transform(scheme.begin(), scheme.end(), scheme.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  if (scheme != "http" && scheme != "https" && scheme != "mailto") {
+    return false;
+  }
+  std::wstring wide = Utf16FromUtf8(url);
+  if (wide.empty()) {
+    return false;
+  }
+  HINSTANCE opened = ::ShellExecuteW(nullptr, L"open", wide.c_str(), nullptr,
+                                     nullptr, SW_SHOWNORMAL);
+  return reinterpret_cast<INT_PTR>(opened) > 32;
+}
+
 }  // namespace
 
 FileChannel::FileChannel(flutter::BinaryMessenger* messenger)
@@ -52,13 +73,17 @@ FileChannel::FileChannel(flutter::BinaryMessenger* messenger)
           messenger, kChannelName,
           &flutter::StandardMethodCodec::GetInstance())) {
   channel_->SetMethodCallHandler([](const auto& call, auto result) {
+    const auto* text = std::get_if<std::string>(call.arguments());
+    if (call.method_name() == "openUrl") {
+      result->Success(flutter::EncodableValue(text != nullptr && OpenUrl(*text)));
+      return;
+    }
     if (call.method_name() != "show") {
       result->NotImplemented();
       return;
     }
-    const auto* path = std::get_if<std::string>(call.arguments());
     result->Success(
-        flutter::EncodableValue(path != nullptr && ShowInExplorer(*path)));
+        flutter::EncodableValue(text != nullptr && ShowInExplorer(*text)));
   });
 }
 

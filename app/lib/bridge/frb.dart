@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -737,6 +737,150 @@ Future<RevisionInfo> commitEdit({
 /// `NotFound` for a transaction that is not open.
 Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
+
+/// Shows or hides every markup annotation of `document` in every view (a4-5): render-only, never
+/// saved. Returns every page's new render key.
+///
+/// See [`facade::Engine::show_comments`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+Future<BigInt> showComments({
+  required BigInt document,
+  required bool visible,
+}) => FermanBridge.instance.api.crateFrbShowComments(
+  document: document,
+  visible: visible,
+);
+
+/// Flattens annotations `handles` with their replies as a background job: with `copy` it first
+/// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
+///
+/// See [`facade::Engine::flatten_annotations_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `copy` exists, and `NotFound`.
+Stream<JobEvent> startFlattenAnnotationsJob({
+  required BigInt document,
+  required Uint64List handles,
+  String? copy,
+  String? staging,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartFlattenAnnotationsJob(
+  document: document,
+  handles: handles,
+  copy: copy,
+  staging: staging,
+  name: name,
+);
+
+/// Writes the comments of `document` to the new file `output` as a background job (a4-4).
+///
+/// See [`facade::Engine::comment_summary_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `output` exists, and `NotFound`.
+Stream<JobEvent> startCommentSummaryJob({
+  required BigInt document,
+  required SummaryFormat format,
+  required SummaryOptions options,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCommentSummaryJob(
+  document: document,
+  format: format,
+  options: options,
+  output: output,
+  staging: staging,
+);
+
+/// The links of `document` as its committed revisions leave them.
+///
+/// See [`facade::Engine::links`].
+///
+/// # Errors
+///
+/// `NotFound`.
+Future<LinkList> links({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbLinks(document: document);
+
+/// The topmost link of the page `page` at a point in displayed points. It follows nothing.
+///
+/// See [`facade::Engine::link_at`].
+///
+/// # Errors
+///
+/// `InvalidInput` and `NotFound`.
+Future<LinkInfo?> linkAt({
+  required BigInt document,
+  required BigInt page,
+  required double x,
+  required double y,
+}) => FermanBridge.instance.api.crateFrbLinkAt(
+  document: document,
+  page: page,
+  x: x,
+  y: y,
+);
+
+/// Creates `link` on the page `page` as one history step. Only a web address, an e-mail address or
+/// a page of this document can be its target.
+///
+/// See [`facade::Engine::add_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> addLink({
+  required BigInt document,
+  required BigInt page,
+  required NewLink link,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddLink(
+  document: document,
+  page: page,
+  link: link,
+  name: name,
+);
+
+/// Applies `change` to link `handle` as one history step.
+///
+/// See [`facade::Engine::update_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> updateLink({
+  required BigInt document,
+  required BigInt handle,
+  required LinkChange change,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbUpdateLink(
+  document: document,
+  handle: handle,
+  change: change,
+  name: name,
+);
+
+/// Deletes link `handle` as one history step.
+///
+/// See [`facade::Engine::delete_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> deleteLink({
+  required BigInt document,
+  required BigInt handle,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteLink(
+  document: document,
+  handle: handle,
+  name: name,
+);
 
 /// The annotations of `document` as its committed revisions leave them. Links, form widgets and
 /// popups are not listed.
@@ -3244,6 +3388,206 @@ class LineInfo {
           baselineEnd == other.baselineEnd;
 }
 
+/// What a link change sets; `None` leaves it.
+class LinkChange {
+  /// A new box.
+  final PageRect? rect;
+
+  /// A new target, which replaces what the link did.
+  final LinkDestination? destination;
+
+  /// A new border.
+  final LinkLook? look;
+
+  /// `/C`.
+  final AnnotationColor? color;
+
+  const LinkChange({this.rect, this.destination, this.look, this.color});
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^ destination.hashCode ^ look.hashCode ^ color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkChange &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          destination == other.destination &&
+          look == other.look &&
+          color == other.color;
+}
+
+/// Where a new link goes: `page`'s handle when it has one, else `address`, web or mail by `mail`.
+class LinkDestination {
+  /// An `http` or `https` address, or an e-mail address.
+  final String address;
+
+  /// Whether `address` is an e-mail address.
+  final bool mail;
+
+  /// A page by its handle.
+  final BigInt? page;
+
+  const LinkDestination({required this.address, required this.mail, this.page});
+
+  @override
+  int get hashCode => address.hashCode ^ mail.hashCode ^ page.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkDestination &&
+          runtimeType == other.runtimeType &&
+          address == other.address &&
+          mail == other.mail &&
+          page == other.page;
+}
+
+/// One link, in displayed points.
+class LinkInfo {
+  /// Its identity for the other calls.
+  final BigInt handle;
+
+  /// Its page's handle.
+  final BigInt page;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// Its text's lines, four corners each.
+  final List<AnnotationPoints> quads;
+
+  /// Where it goes.
+  final LinkKind kind;
+
+  /// The address, or what a refused link names: to show, and to open only for `Web` and `Mail`.
+  final String target;
+
+  /// The handle of the page, for `Page`.
+  final BigInt? targetPage;
+
+  /// The page a `Broken` link names, from 1, when it says.
+  final BigInt? wantedPage;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// `/C`.
+  final AnnotationColor? color;
+
+  const LinkInfo({
+    required this.handle,
+    required this.page,
+    required this.rect,
+    required this.quads,
+    required this.kind,
+    required this.target,
+    this.targetPage,
+    this.wantedPage,
+    required this.look,
+    this.color,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      page.hashCode ^
+      rect.hashCode ^
+      quads.hashCode ^
+      kind.hashCode ^
+      target.hashCode ^
+      targetPage.hashCode ^
+      wantedPage.hashCode ^
+      look.hashCode ^
+      color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          page == other.page &&
+          rect == other.rect &&
+          quads == other.quads &&
+          kind == other.kind &&
+          target == other.target &&
+          targetPage == other.targetPage &&
+          wantedPage == other.wantedPage &&
+          look == other.look &&
+          color == other.color;
+}
+
+/// Where a link goes, and whether it may be offered. Only `Web` and `Mail` can be opened, after the
+/// app's prompt with the full target showing; `Page` just goes; the others open nothing.
+enum LinkKind {
+  /// An `http` or `https` address.
+  web,
+
+  /// A `mailto:` address.
+  mail,
+
+  /// A page of this document.
+  page,
+
+  /// A destination that leads nowhere.
+  broken,
+
+  /// Refused: `/JavaScript` or a `javascript:` address.
+  script,
+
+  /// Refused: `/Launch`.
+  launch,
+
+  /// Refused: another file, `/GoToR`, `/GoToE` or a `file:` address.
+  file,
+
+  /// Refused: an address of another scheme, or one that does not read cleanly.
+  address,
+
+  /// Refused: an action Ferman does not know, kept in the file as it came.
+  action,
+
+  /// It does nothing.
+  nothing,
+}
+
+/// A document's links.
+class LinkList {
+  /// In page order.
+  final List<LinkInfo> links;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const LinkList({required this.links, required this.truncated});
+
+  @override
+  int get hashCode => links.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkList &&
+          runtimeType == other.runtimeType &&
+          links == other.links &&
+          truncated == other.truncated;
+}
+
+/// A link's border.
+enum LinkLook {
+  /// No line.
+  invisible,
+
+  /// A line under it.
+  underline,
+
+  /// A thin box.
+  box,
+}
+
 /// A character of the new text that missing-glyph step 3 draws.
 class MissingChar {
   /// The character.
@@ -3445,6 +3789,51 @@ class NewAnnotation {
           meta == other.meta &&
           tilt == other.tilt &&
           icon == other.icon;
+}
+
+/// A new link, in displayed points.
+class NewLink {
+  /// Its box.
+  final PageRect rect;
+
+  /// Its text's lines: top left, top right, bottom left and bottom right as the reader sees them.
+  final List<AnnotationPoints> quads;
+
+  /// Where it goes.
+  final LinkDestination destination;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// `/C`.
+  final AnnotationColor color;
+
+  const NewLink({
+    required this.rect,
+    required this.quads,
+    required this.destination,
+    required this.look,
+    required this.color,
+  });
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^
+      quads.hashCode ^
+      destination.hashCode ^
+      look.hashCode ^
+      color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewLink &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          quads == other.quads &&
+          destination == other.destination &&
+          look == other.look &&
+          color == other.color;
 }
 
 /// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
@@ -4714,6 +5103,154 @@ enum SubstitutionKind {
 
   /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
   marked,
+}
+
+/// What a comment summary is written as.
+enum SummaryFormat {
+  /// CSV, one comment per row.
+  csv,
+
+  /// A PDF: numbered markers on each page, with its comments beside it.
+  pageAndComments,
+
+  /// A PDF: a list, grouped by page.
+  commentsOnly,
+
+  /// A PDF: the full page followed by its comments.
+  pageThenList,
+}
+
+/// A kind's name in the app's language.
+class SummaryKindName {
+  /// The kind.
+  final AnnotationKind kind;
+
+  /// Its name.
+  final String name;
+
+  const SummaryKindName({required this.kind, required this.name});
+
+  @override
+  int get hashCode => kind.hashCode ^ name.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SummaryKindName &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          name == other.name;
+}
+
+/// What a comment summary holds, and its words in the app's language.
+class SummaryOptions {
+  /// Open comments.
+  final bool open;
+
+  /// Resolved comments.
+  final bool resolved;
+
+  /// Replies under each.
+  final bool replies;
+
+  /// Pages without comments.
+  final bool emptyPages;
+
+  /// The order.
+  final SummarySort sort;
+
+  /// A page's heading, with `{n}` for its number.
+  final String pageLabel;
+
+  /// The CSV's header row: page, type, author, date, text, replies, status.
+  final List<String> columns;
+
+  /// Each kind's name.
+  final List<SummaryKindName> kinds;
+
+  /// The status of an open comment.
+  final String openLabel;
+
+  /// The status of a resolved one.
+  final String resolvedLabel;
+
+  /// What a page, or a summary, with no comment says.
+  final String noComments;
+
+  /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+  final String datePattern;
+
+  /// A PDF's paper width, in points.
+  final double paperWidth;
+
+  /// A PDF's paper height, in points.
+  final double paperHeight;
+
+  const SummaryOptions({
+    required this.open,
+    required this.resolved,
+    required this.replies,
+    required this.emptyPages,
+    required this.sort,
+    required this.pageLabel,
+    required this.columns,
+    required this.kinds,
+    required this.openLabel,
+    required this.resolvedLabel,
+    required this.noComments,
+    required this.datePattern,
+    required this.paperWidth,
+    required this.paperHeight,
+  });
+
+  @override
+  int get hashCode =>
+      open.hashCode ^
+      resolved.hashCode ^
+      replies.hashCode ^
+      emptyPages.hashCode ^
+      sort.hashCode ^
+      pageLabel.hashCode ^
+      columns.hashCode ^
+      kinds.hashCode ^
+      openLabel.hashCode ^
+      resolvedLabel.hashCode ^
+      noComments.hashCode ^
+      datePattern.hashCode ^
+      paperWidth.hashCode ^
+      paperHeight.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SummaryOptions &&
+          runtimeType == other.runtimeType &&
+          open == other.open &&
+          resolved == other.resolved &&
+          replies == other.replies &&
+          emptyPages == other.emptyPages &&
+          sort == other.sort &&
+          pageLabel == other.pageLabel &&
+          columns == other.columns &&
+          kinds == other.kinds &&
+          openLabel == other.openLabel &&
+          resolvedLabel == other.resolvedLabel &&
+          noComments == other.noComments &&
+          datePattern == other.datePattern &&
+          paperWidth == other.paperWidth &&
+          paperHeight == other.paperHeight;
+}
+
+/// The order of a summary's comments.
+enum SummarySort {
+  /// Page order.
+  page,
+
+  /// Oldest first.
+  date,
+
+  /// By author, then page order.
+  author,
 }
 
 /// The direction a block's text runs in.

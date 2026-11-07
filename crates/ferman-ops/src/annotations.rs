@@ -8,7 +8,7 @@
 //! annotation draws: a text edit of a highlight or a move of a drawn one keeps its appearance (a
 //! form follows `/Rect`), and a stamp's or an unknown type's drawing is never replaced.
 
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write as _;
 
 use ferman_core::annotations::{Annotation, AnnotationKind, LineEnd, MAX_TEXT};
@@ -46,7 +46,7 @@ const KAPPA: f32 = 0.552_284_8;
 /// The space between a text box's edge and its text, in points.
 const TEXT_PADDING: f32 = 4.0;
 /// Text line height, per unit of font size.
-const LINE_HEIGHT: f32 = 1.3;
+pub(crate) const LINE_HEIGHT: f32 = 1.3;
 /// Text ascent above the first baseline, per unit of font size.
 const ASCENT: f32 = 1.0;
 /// `.fm-stamp`: its opacity, border, outline with its offset, and corner.
@@ -120,7 +120,7 @@ pub struct AnnotationChange {
     pub font_size: Option<f32>,
 }
 
-fn plan_error() -> OpsError {
+pub(crate) fn plan_error() -> OpsError {
     CoreError::Write(WriteError::AnnotationPlan).into()
 }
 
@@ -128,7 +128,7 @@ fn missing() -> OpsError {
     CoreError::Write(WriteError::NoSuchAnnotation).into()
 }
 
-fn check_coordinates(values: impl IntoIterator<Item = f32>) -> Result<(), OpsError> {
+pub(crate) fn check_coordinates(values: impl IntoIterator<Item = f32>) -> Result<(), OpsError> {
     if values
         .into_iter()
         .all(|value| value.is_finite() && value.abs() <= LARGEST_COORDINATE)
@@ -167,15 +167,15 @@ fn check_text(text: &str) -> Result<(), OpsError> {
     Ok(())
 }
 
-fn normalized([x0, y0, x1, y1]: [f32; 4]) -> [f32; 4] {
+pub(crate) fn normalized([x0, y0, x1, y1]: [f32; 4]) -> [f32; 4] {
     [x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1)]
 }
 
-fn numbers(values: impl IntoIterator<Item = f32>) -> Value {
+pub(crate) fn numbers(values: impl IntoIterator<Item = f32>) -> Value {
     Value::Array(values.into_iter().map(Value::Real).collect())
 }
 
-fn name(value: &[u8]) -> Value {
+pub(crate) fn name(value: &[u8]) -> Value {
     Value::Name(value.to_vec())
 }
 
@@ -379,7 +379,7 @@ fn page_turn(document: &Document, revisions: &RevisionStore, page: usize) -> Res
 
 /// A content stream being written.
 #[derive(Default)]
-struct Ops(String);
+pub(crate) struct Ops(pub(crate) String);
 
 impl Ops {
     fn num(&mut self, value: f32) -> &mut Self {
@@ -389,32 +389,32 @@ impl Ops {
         self
     }
 
-    fn nums(&mut self, values: &[f32], op: &str) -> &mut Self {
+    pub(crate) fn nums(&mut self, values: &[f32], op: &str) -> &mut Self {
         for value in values {
             self.num(*value);
         }
         self.op(op)
     }
 
-    fn op(&mut self, op: &str) -> &mut Self {
+    pub(crate) fn op(&mut self, op: &str) -> &mut Self {
         self.0.push_str(op);
         self.0.push('\n');
         self
     }
 
-    fn stroke_colour(&mut self, rgb: [f32; 3]) -> &mut Self {
+    pub(crate) fn stroke_colour(&mut self, rgb: [f32; 3]) -> &mut Self {
         self.nums(&rgb, "RG")
     }
 
-    fn fill_colour(&mut self, rgb: [f32; 3]) -> &mut Self {
+    pub(crate) fn fill_colour(&mut self, rgb: [f32; 3]) -> &mut Self {
         self.nums(&rgb, "rg")
     }
 
-    fn moved(&mut self, [x, y]: [f32; 2]) -> &mut Self {
+    pub(crate) fn moved(&mut self, [x, y]: [f32; 2]) -> &mut Self {
         self.nums(&[x, y], "m")
     }
 
-    fn line(&mut self, [x, y]: [f32; 2]) -> &mut Self {
+    pub(crate) fn line(&mut self, [x, y]: [f32; 2]) -> &mut Self {
         self.nums(&[x, y], "l")
     }
 
@@ -752,7 +752,7 @@ impl Face {
 }
 
 /// The fonts of one appearance: IBM Plex by script, then what the library has for the rest.
-struct Faces<'a> {
+pub(crate) struct Faces<'a> {
     library: &'a FontLibrary,
     weight: u16,
     faces: Vec<Face>,
@@ -762,7 +762,7 @@ struct Faces<'a> {
 }
 
 impl<'a> Faces<'a> {
-    fn new(library: &'a FontLibrary, weight: u16) -> Self {
+    pub(crate) fn new(library: &'a FontLibrary, weight: u16) -> Self {
         Self {
             library,
             weight,
@@ -796,7 +796,7 @@ impl<'a> Faces<'a> {
 
     /// The first face in use that has `c`, opening others in turn. Never a silent substitute: a
     /// character no font here has stops the appearance.
-    fn for_char(&mut self, c: char, current: Option<usize>) -> Result<usize, OpsError> {
+    pub(crate) fn for_char(&mut self, c: char, current: Option<usize>) -> Result<usize, OpsError> {
         if let Some(current) = current
             && (c.is_whitespace() || c.is_control() || self.faces[current].covers(c))
         {
@@ -868,7 +868,7 @@ impl<'a> Faces<'a> {
     /// Lays `line` out in visual order from x = 0: each glyph's face, id and place per unit of
     /// font size, its text noted for the subset; and the line's width per unit of font size,
     /// `spacing` added after each glyph.
-    fn shape_line(
+    pub(crate) fn shape_line(
         &mut self,
         line: &str,
         rtl: bool,
@@ -926,7 +926,7 @@ impl<'a> Faces<'a> {
 }
 
 /// A glyph laid out.
-struct Placed {
+pub(crate) struct Placed {
     face: usize,
     glyph: GlyphId,
     x: f32,
@@ -934,12 +934,12 @@ struct Placed {
 }
 
 /// A line of an appearance's text, in the reader's upright space.
-struct SetLine {
-    glyphs: Vec<Placed>,
-    x: f32,
-    baseline: f32,
-    size: f32,
-    color: [f32; 3],
+pub(crate) struct SetLine {
+    pub(crate) glyphs: Vec<Placed>,
+    pub(crate) x: f32,
+    pub(crate) baseline: f32,
+    pub(crate) size: f32,
+    pub(crate) color: [f32; 3],
 }
 
 /// Whether a paragraph reads right to left, by its first strong letter.
@@ -962,7 +962,7 @@ fn settable(text: &str) -> &str {
 }
 
 /// `text` wrapped in a box `width` by `height`, from its top: the lines that fit.
-fn wrapped(
+pub(crate) fn wrapped(
     faces: &mut Faces<'_>,
     text: &str,
     (width, height): (f32, f32),
@@ -1027,16 +1027,14 @@ fn wrapped(
     Ok(lines)
 }
 
-/// Writes `lines`' operators, offset by `origin`, with `faces` embedded as `/F0`, `/F1` and on:
-/// each a subset of what the lines use. Returns the `/Font` resource.
-fn set_text(
+/// Embeds `faces` as `/{prefix}0`, `/{prefix}1` and on, each a subset of what they noted. Returns
+/// the `/Font` entries, and for each face the code of each glyph.
+pub(crate) fn embed_faces(
     document: &Document,
     revisions: &mut RevisionStore,
-    ops: &mut Ops,
     faces: &Faces<'_>,
-    lines: &[SetLine],
-    origin: (f32, f32),
-) -> Result<Value, OpsError> {
+    prefix: &str,
+) -> Result<FaceCodes, OpsError> {
     let mut fonts = Vec::new();
     let mut codes: Vec<HashMap<u32, Vec<u8>>> = Vec::new();
     for (at, face) in faces.faces.iter().enumerate() {
@@ -1049,11 +1047,11 @@ fn set_text(
             face.index,
             None,
             &face.wanted,
-            format!("F{at}").into_bytes(),
+            format!("{prefix}{at}").into_bytes(),
         )
         .ok_or(OpsError::NoFontForText)?;
         let id = revisions.add_embedded_font(document, &font)?;
-        fonts.push((format!("F{at}").into_bytes(), Value::Reference(id)));
+        fonts.push((format!("{prefix}{at}").into_bytes(), Value::Reference(id)));
         codes.push(
             glyphs
                 .into_iter()
@@ -1061,17 +1059,35 @@ fn set_text(
                 .collect(),
         );
     }
+    Ok(FaceCodes {
+        fonts,
+        codes,
+        prefix: prefix.to_owned(),
+    })
+}
+
+/// Embedded faces: what [`embed_faces`] returns.
+pub(crate) struct FaceCodes {
+    /// The `/Font` entries.
+    pub(crate) fonts: Vec<(Vec<u8>, Value)>,
+    codes: Vec<HashMap<u32, Vec<u8>>>,
+    prefix: String,
+}
+
+/// Writes `lines`' operators, offset by `origin`, in `faces`.
+pub(crate) fn text_ops(ops: &mut Ops, faces: &FaceCodes, lines: &[SetLine], origin: (f32, f32)) {
     ops.op("BT");
     for line in lines {
         ops.fill_colour(line.color);
         let mut current = None;
         for glyph in &line.glyphs {
             if current != Some(glyph.face) {
-                let _ = write!(ops.0, "/F{} ", glyph.face);
+                let _ = write!(ops.0, "/{}{} ", faces.prefix, glyph.face);
                 ops.nums(&[line.size], "Tf");
                 current = Some(glyph.face);
             }
-            let Some(code) = codes
+            let Some(code) = faces
+                .codes
                 .get(glyph.face)
                 .and_then(|map| map.get(&glyph.glyph.0))
             else {
@@ -1093,7 +1109,21 @@ fn set_text(
         }
     }
     ops.op("ET");
-    Ok(Value::Dictionary(fonts))
+}
+
+/// Writes `lines`' operators, offset by `origin`, with `faces` embedded as `/F0`, `/F1` and on:
+/// each a subset of what the lines use. Returns the `/Font` resource.
+fn set_text(
+    document: &Document,
+    revisions: &mut RevisionStore,
+    ops: &mut Ops,
+    faces: &Faces<'_>,
+    lines: &[SetLine],
+    origin: (f32, f32),
+) -> Result<Value, OpsError> {
+    let embedded = embed_faces(document, revisions, faces, "F")?;
+    text_ops(ops, &embedded, lines, origin);
+    Ok(Value::Dictionary(embedded.fonts))
 }
 
 /// The form holding `content`: its `/BBox` is `rect`, in user space.
@@ -1680,6 +1710,74 @@ pub fn delete(
         if gone.contains(&annotation.handle) {
             revisions.drop_annotation(document, annotation.page, annotation.handle)?;
         }
+    }
+    Ok(())
+}
+
+/// Draws annotations `handles` into their pages' content and takes them, their replies and popups
+/// out, as one step (a4-5b). One with no appearance gets Ferman's first, when it would be drawn; a
+/// stamp or an unknown type with none has nothing to draw and stays as it came. Form widgets go
+/// straight to [`RevisionStore::flatten_annotations`]. A handle not listed is skipped.
+///
+/// # Errors
+///
+/// [`OpsError::NoFontForText`], and the errors of the transaction.
+pub fn flatten(
+    document: &Document,
+    revisions: &mut RevisionStore,
+    handles: &[u64],
+    library: Option<&FontLibrary>,
+) -> Result<(), OpsError> {
+    const NOT_DRAWN: u32 = 2 | 32;
+    let list = revisions.annotations(document).annotations;
+    let mut chosen: BTreeSet<u64> = handles.iter().copied().collect();
+    loop {
+        let before = chosen.len();
+        for annotation in &list {
+            if annotation
+                .replies_to
+                .is_some_and(|top| chosen.contains(&top))
+            {
+                chosen.insert(annotation.handle);
+            }
+        }
+        if chosen.len() == before {
+            break;
+        }
+    }
+    let mut pages: BTreeMap<usize, Vec<u64>> = BTreeMap::new();
+    // Last first, each given its object: a direct annotation's handle is its place among those
+    // before it, which giving an earlier one an object would change.
+    for annotation in list.iter().rev() {
+        if !chosen.contains(&annotation.handle) {
+            continue;
+        }
+        let drawn = annotation.flags & NOT_DRAWN == 0;
+        let needs_appearance = drawn && !annotation.has_appearance;
+        if needs_appearance
+            && matches!(
+                annotation.kind,
+                AnnotationKind::Stamp | AnnotationKind::Other
+            )
+        {
+            continue;
+        }
+        let object = revisions.annotation_object(document, annotation.page, annotation.handle)?;
+        let handle = object.handle();
+        if needs_appearance {
+            let turn = page_turn(document, revisions, annotation.page)?;
+            let form = appearance(document, revisions, annotation, turn, library)?;
+            revisions.change_annotation(
+                document,
+                annotation.page,
+                handle,
+                vec![(b"AP".to_vec(), Some(appearance_entry(form)))],
+            )?;
+        }
+        pages.entry(annotation.page).or_default().push(handle);
+    }
+    for (page, handles) in pages {
+        revisions.flatten_annotations(document, page, &handles)?;
     }
     Ok(())
 }

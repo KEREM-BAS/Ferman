@@ -359,6 +359,61 @@ abstract interface class EngineService {
   /// Deletes annotation [handle], with its popup and replies, as one step.
   Future<RevisionInfo> deleteAnnotation(int document, int handle, String name);
 
+  /// Shows or hides every markup annotation of [document] in every view (a4-5):
+  /// render-only, never saved. Widgets, links and signatures stay. Returns
+  /// every page's new render key.
+  Future<int> showComments(int document, {required bool visible});
+
+  /// Flattens annotations [handles] with their replies as a job (a4-5b): with
+  /// [copy] it first writes the document as it stands to that new file, and if
+  /// that fails nothing changes. Its change waits for [applyJobChange], which
+  /// asks for a signed document's confirmation.
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  });
+
+  /// Writes the comments of [document] to the new file [output] as a job
+  /// (a4-4).
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  });
+
+  /// The links of [document] as its committed revisions leave them (a3-6).
+  Future<LinkList> links(int document);
+
+  /// The topmost link of the page [page] at [point], in displayed points. It
+  /// follows nothing.
+  Future<LinkInfo?> linkAt(int document, int page, Offset point);
+
+  /// Creates [link] on the page [page] as one step. Only a web address, an
+  /// e-mail address or a page of this document can be its target.
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  );
+
+  /// Applies [change] to link [handle] as one step; an action Ferman does not
+  /// know stays unless the change replaces it.
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  );
+
+  /// Deletes link [handle] as one step.
+  Future<RevisionInfo> deleteLink(int document, int handle, String name);
+
   /// Replies to annotation [handle] as [author], as one step. Mentions are
   /// text: nothing is sent to anyone.
   Future<AnnotationCommit> replyToAnnotation(
@@ -888,6 +943,58 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<int> showComments(int document, {required bool visible}) async =>
+      throw error;
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<LinkList> links(int document) async => throw error;
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async =>
+      throw error;
+
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deleteLink(
     int document,
     int handle,
     String name,

@@ -3,18 +3,23 @@
 //! Geometry crosses in displayed points, as a page's text blocks do: on a turned page the engine
 //! turns it, so the app never meets `/Rotate`.
 
+use std::panic::AssertUnwindSafe;
+use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ferman_core::annotations::{Annotation, AnnotationKind, LineEnd};
 use ferman_core::structure::{Page, PdfDate};
 use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_ops::annotations::{self as ops, AnnotationChange, NewAnnotation};
+use ferman_ops::summary::{self, SummaryLayout, SummaryOptions};
 use ferman_render::DocumentId;
 
 use super::edit::RevisionInfo;
 use super::engine::Engine;
-use super::error::ApiError;
-use super::guard::guard_async;
+use super::error::{ApiError, ErrorKind, MessageKey};
+use super::guard::{guard, guard_async};
+use super::jobs::{JobChange, JobId, JobSink, JobStop};
 
 /// One annotation for the panel and the overlay. Geometry is in displayed points.
 #[derive(Debug, Clone, PartialEq)]
@@ -90,25 +95,25 @@ pub struct AnnotationCommit {
     pub revision: RevisionInfo,
 }
 
-fn to_display(page: &Page, [x, y]: [f32; 2]) -> [f32; 2] {
+pub(super) fn to_display(page: &Page, [x, y]: [f32; 2]) -> [f32; 2] {
     let (x, y) = page.display_point(x, y);
     [x, y]
 }
 
-fn to_user(page: &Page, [x, y]: [f32; 2]) -> [f32; 2] {
+pub(super) fn to_user(page: &Page, [x, y]: [f32; 2]) -> [f32; 2] {
     let (x, y) = page.user_point(x, y);
     [x, y]
 }
 
 /// A user-space box as displayed `[left, top, right, bottom]`.
-fn rect_to_display(page: &Page, [l, b, r, t]: [f32; 4]) -> [f32; 4] {
+pub(super) fn rect_to_display(page: &Page, [l, b, r, t]: [f32; 4]) -> [f32; 4] {
     let [x0, y0] = to_display(page, [l, b]);
     let [x1, y1] = to_display(page, [r, t]);
     [x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1)]
 }
 
 /// A displayed `[left, top, right, bottom]` as a user-space box.
-fn rect_to_user(page: &Page, [l, t, r, b]: [f32; 4]) -> [f32; 4] {
+pub(super) fn rect_to_user(page: &Page, [l, t, r, b]: [f32; 4]) -> [f32; 4] {
     let [x0, y0] = to_user(page, [l, t]);
     let [x1, y1] = to_user(page, [r, b]);
     [x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1)]
@@ -512,6 +517,158 @@ impl Engine {
         })
         .await
     }
+}
+
+/// What a comment summary is written as.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SummaryFormat {
+    /// CSV, one comment per row.
+    Csv,
+    /// A PDF on paper of this width and height, in points.
+    Pdf(SummaryLayout, f32, f32),
+}
+
+impl Engine {
+    /// Flattens annotations `handles` with their replies as a job (a4-5b): with `copy` it first
+    /// writes the document as it stands to that new file through the safe path, and if that fails
+    /// nothing changes (decision 15). Its change, for
+    /// [`apply_job_change`](Self::apply_job_change), is one step `name`, refused if the document
+    /// moved since. It changes page content, so it asks what editing asks and always breaks a
+    /// signature: the commit wants the confirmation of a signed document (G146). Undo brings the
+    /// annotations back, after a save too (G155). A stamp or an unknown type with no appearance
+    /// stays, and one Ferman can draw that PDFium does not shows from then on.
+    ///
+    /// # Errors
+    ///
+    /// `NotEditable` for a document that cannot be edited, `InvalidInput` when `copy` exists, and
+    /// `NotFound`. A copy that cannot be written fails the job.
+    pub fn flatten_annotations_job(
+        &self,
+        document: DocumentId,
+        handles: Vec<u64>,
+        copy: Option<PathBuf>,
+        staging: Option<PathBuf>,
+        name: String,
+        sink: Box<dyn JobSink>,
+    ) -> Result<JobId, ApiError> {
+        guard(AssertUnwindSafe(|| {
+            if copy
+                .as_ref()
+                .is_some_and(|copy| copy.try_exists().unwrap_or(true))
+            {
+                return Err(exists());
+            }
+            let snapshot = self.job_snapshot(document)?;
+            snapshot.may_change(DocumentOp::EditText)?;
+            let fonts = Arc::clone(&self.fonts);
+            let read = snapshot.clone();
+            self.start_job(Some(&read), sink, move |run| {
+                run.checkpoint()?;
+                if let Some(copy) = copy {
+                    let bytes = snapshot
+                        .store()
+                        .incremental_update(snapshot.base())
+                        .map_err(ApiError::from)?;
+                    run.output_pdf(copy, &bytes, staging)?;
+                }
+                let mut pages: Vec<usize> = snapshot
+                    .store()
+                    .annotations(snapshot.base())
+                    .annotations
+                    .iter()
+                    .filter(|annotation| handles.contains(&annotation.handle))
+                    .map(|annotation| annotation.page)
+                    .collect();
+                pages.dedup();
+                let library = fonts.library();
+                Ok(Some(JobChange {
+                    op: DocumentOp::EditText,
+                    fields: Vec::new(),
+                    name,
+                    pages,
+                    summary: no_step_texts(),
+                    write: Box::new(move |doc, working| {
+                        Ok(ops::flatten(doc, working, &handles, Some(&library))?)
+                    }),
+                }))
+            })
+        }))
+    }
+
+    /// Writes the comments of `document` to the new file `output` as a job (a4-4). A PDF with
+    /// pictures of pages carries them unencrypted, so it asks what Extract asks.
+    ///
+    /// # Errors
+    ///
+    /// `NotEditable` for pages that forbid leaving the document, `InvalidInput` when `output`
+    /// exists, and `NotFound`. Text no font here has fails the job.
+    pub fn comment_summary_job(
+        &self,
+        document: DocumentId,
+        format: SummaryFormat,
+        options: SummaryOptions,
+        output: PathBuf,
+        staging: Option<PathBuf>,
+        sink: Box<dyn JobSink>,
+    ) -> Result<JobId, ApiError> {
+        guard(AssertUnwindSafe(|| {
+            if output.try_exists().unwrap_or(true) {
+                return Err(exists());
+            }
+            let snapshot = self.job_snapshot(document)?;
+            if matches!(format, SummaryFormat::Pdf(layout, ..) if layout != SummaryLayout::CommentsOnly)
+            {
+                snapshot.may_assemble()?;
+            }
+            let fonts = Arc::clone(&self.fonts);
+            let read = snapshot.clone();
+            self.start_job(Some(&read), sink, move |run| {
+                run.checkpoint()?;
+                let (base, store) = (snapshot.base(), snapshot.store());
+                let SummaryFormat::Pdf(layout, width, height) = format else {
+                    let list = store.annotations(base).annotations;
+                    run.output_file(output, &summary::csv(&list, &options), staging)?;
+                    return Ok(None);
+                };
+                let library = fonts.library();
+                let total = u32::try_from(store.pages(base).len()).unwrap_or(u32::MAX);
+                let mut done = 0u32;
+                let bytes = {
+                    let mut step = || -> Result<(), JobStop> {
+                        run.checkpoint()?;
+                        done = done.saturating_add(1).min(total);
+                        run.progress(
+                            // A progress fraction: precision does not matter.
+                            Some(f64::from(done) as f32 / f64::from(total.max(1)) as f32),
+                            MessageKey::JOB_PAGE_OF,
+                            vec![
+                                ("page".to_owned(), done.to_string()),
+                                ("pages".to_owned(), total.to_string()),
+                            ],
+                        );
+                        Ok(())
+                    };
+                    summary::pdf(
+                        base,
+                        store,
+                        &ferman_core::OpenOptions::default().limits,
+                        &options,
+                        layout,
+                        (width, height),
+                        &snapshot.file_stem(),
+                        &library,
+                        &mut step,
+                    )?
+                };
+                run.output_pdf(output, &bytes, staging)?;
+                Ok(None)
+            })
+        }))
+    }
+}
+
+fn exists() -> ApiError {
+    ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL).with_details("the file exists")
 }
 
 #[cfg(test)]

@@ -38,6 +38,11 @@ fuzz_target!(|input: &[u8]| {
         };
         let store = RevisionStore::new(&document);
         let list = store.annotations(&document);
+        let links = store.links(&document, None);
+        for link in &links.links {
+            assert!(link.page < store.pages(&document).len());
+            let _ = link.contains(1.0, 1.0);
+        }
         let handles: HashSet<u64> = list.annotations.iter().map(|a| a.handle).collect();
         assert_eq!(handles.len(), list.annotations.len(), "identities repeat");
         for annotation in &list.annotations {

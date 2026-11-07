@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 174848717;
+  int get rustContentHash => 1489562571;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -84,6 +84,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required BigInt page,
     required NewAnnotation annotation,
+    required String name,
+  });
+
+  Future<AnnotationCommit> crateFrbAddLink({
+    required BigInt document,
+    required BigInt page,
+    required NewLink link,
     required String name,
   });
 
@@ -173,6 +180,12 @@ abstract class FermanBridgeApi extends BaseApi {
     required String name,
   });
 
+  Future<RevisionInfo> crateFrbDeleteLink({
+    required BigInt document,
+    required BigInt handle,
+    required String name,
+  });
+
   Future<RevisionInfo> crateFrbDeletePages({
     required BigInt document,
     required Uint64List pages,
@@ -214,6 +227,15 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<EditPreview> crateFrbKeepAsIs({required BigInt transaction});
+
+  Future<LinkInfo?> crateFrbLinkAt({
+    required BigInt document,
+    required BigInt page,
+    required double x,
+    required double y,
+  });
+
+  Future<LinkList> crateFrbLinks({required BigInt document});
 
   Future<List<RecoverableDocument>> crateFrbListRecoverable();
 
@@ -400,6 +422,11 @@ abstract class FermanBridgeApi extends BaseApi {
 
   Future<void> crateFrbSetRecoveryEnabled({required bool enabled});
 
+  Future<BigInt> crateFrbShowComments({
+    required BigInt document,
+    required bool visible,
+  });
+
   Future<BigInt> crateFrbShowLayers({
     required BigInt document,
     required List<bool> visible,
@@ -421,6 +448,14 @@ abstract class FermanBridgeApi extends BaseApi {
     String? staging,
   });
 
+  Stream<JobEvent> crateFrbStartCommentSummaryJob({
+    required BigInt document,
+    required SummaryFormat format,
+    required SummaryOptions options,
+    required String output,
+    String? staging,
+  });
+
   Stream<JobEvent> crateFrbStartCopyDocumentJob({
     required BigInt document,
     required String output,
@@ -432,6 +467,14 @@ abstract class FermanBridgeApi extends BaseApi {
     required Uint64List pages,
     required String output,
     String? staging,
+  });
+
+  Stream<JobEvent> crateFrbStartFlattenAnnotationsJob({
+    required BigInt document,
+    required Uint64List handles,
+    String? copy,
+    String? staging,
+    required String name,
   });
 
   Stream<JobEvent> crateFrbStartInsertPagesJob({
@@ -478,6 +521,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required BigInt handle,
     required AnnotationChange change,
+    required String name,
+  });
+
+  Future<AnnotationCommit> crateFrbUpdateLink({
+    required BigInt document,
+    required BigInt handle,
+    required LinkChange change,
     required String name,
   });
 
@@ -534,6 +584,38 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbAddAnnotationConstMeta => const TaskConstMeta(
     debugName: "add_annotation",
     argNames: ["document", "page", "annotation", "name"],
+  );
+
+  @override
+  Future<AnnotationCommit> crateFrbAddLink({
+    required BigInt document,
+    required BigInt page,
+    required NewLink link,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(page);
+          var arg2 = cst_encode_box_autoadd_new_link(link);
+          var arg3 = cst_encode_String(name);
+          return wire.wire__crate__frb__add_link(port_, arg0, arg1, arg2, arg3);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbAddLinkConstMeta,
+        argValues: [document, page, link, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbAddLinkConstMeta => const TaskConstMeta(
+    debugName: "add_link",
+    argNames: ["document", "page", "link", "name"],
   );
 
   @override
@@ -1095,6 +1177,36 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<RevisionInfo> crateFrbDeleteLink({
+    required BigInt document,
+    required BigInt handle,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_String(name);
+          return wire.wire__crate__frb__delete_link(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbDeleteLinkConstMeta,
+        argValues: [document, handle, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbDeleteLinkConstMeta => const TaskConstMeta(
+    debugName: "delete_link",
+    argNames: ["document", "handle", "name"],
+  );
+
+  @override
   Future<RevisionInfo> crateFrbDeletePages({
     required BigInt document,
     required Uint64List pages,
@@ -1351,6 +1463,60 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbKeepAsIsConstMeta =>
       const TaskConstMeta(debugName: "keep_as_is", argNames: ["transaction"]);
+
+  @override
+  Future<LinkInfo?> crateFrbLinkAt({
+    required BigInt document,
+    required BigInt page,
+    required double x,
+    required double y,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(page);
+          var arg2 = cst_encode_f_32(x);
+          var arg3 = cst_encode_f_32(y);
+          return wire.wire__crate__frb__link_at(port_, arg0, arg1, arg2, arg3);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_opt_box_autoadd_link_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbLinkAtConstMeta,
+        argValues: [document, page, x, y],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbLinkAtConstMeta => const TaskConstMeta(
+    debugName: "link_at",
+    argNames: ["document", "page", "x", "y"],
+  );
+
+  @override
+  Future<LinkList> crateFrbLinks({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__links(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_link_list,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbLinksConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbLinksConstMeta =>
+      const TaskConstMeta(debugName: "links", argNames: ["document"]);
 
   @override
   Future<List<RecoverableDocument>> crateFrbListRecoverable() {
@@ -2482,6 +2648,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<BigInt> crateFrbShowComments({
+    required BigInt document,
+    required bool visible,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_bool(visible);
+          return wire.wire__crate__frb__show_comments(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_u_64,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbShowCommentsConstMeta,
+        argValues: [document, visible],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbShowCommentsConstMeta => const TaskConstMeta(
+    debugName: "show_comments",
+    argNames: ["document", "visible"],
+  );
+
+  @override
   Future<BigInt> crateFrbShowLayers({
     required BigInt document,
     required List<bool> visible,
@@ -2598,6 +2792,61 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Stream<JobEvent> crateFrbStartCommentSummaryJob({
+    required BigInt document,
+    required SummaryFormat format,
+    required SummaryOptions options,
+    required String output,
+    String? staging,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_summary_format(format);
+            var arg2 = cst_encode_box_autoadd_summary_options(options);
+            var arg3 = cst_encode_String(output);
+            var arg4 = cst_encode_opt_String(staging);
+            var arg5 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_comment_summary_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartCommentSummaryJobConstMeta,
+          argValues: [document, format, options, output, staging, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartCommentSummaryJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_comment_summary_job",
+        argNames: [
+          "document",
+          "format",
+          "options",
+          "output",
+          "staging",
+          "sink",
+        ],
+      );
+
+  @override
   Stream<JobEvent> crateFrbStartCopyDocumentJob({
     required BigInt document,
     required String output,
@@ -2682,6 +2931,54 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(
         debugName: "start_extract_pages_job",
         argNames: ["document", "pages", "output", "staging", "sink"],
+      );
+
+  @override
+  Stream<JobEvent> crateFrbStartFlattenAnnotationsJob({
+    required BigInt document,
+    required Uint64List handles,
+    String? copy,
+    String? staging,
+    required String name,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_list_prim_u_64_strict(handles);
+            var arg2 = cst_encode_opt_String(copy);
+            var arg3 = cst_encode_opt_String(staging);
+            var arg4 = cst_encode_String(name);
+            var arg5 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_flatten_annotations_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartFlattenAnnotationsJobConstMeta,
+          argValues: [document, handles, copy, staging, name, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartFlattenAnnotationsJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_flatten_annotations_job",
+        argNames: ["document", "handles", "copy", "staging", "name", "sink"],
       );
 
   @override
@@ -2994,6 +3291,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbUpdateAnnotationConstMeta => const TaskConstMeta(
     debugName: "update_annotation",
+    argNames: ["document", "handle", "change", "name"],
+  );
+
+  @override
+  Future<AnnotationCommit> crateFrbUpdateLink({
+    required BigInt document,
+    required BigInt handle,
+    required LinkChange change,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_64(handle);
+          var arg2 = cst_encode_box_autoadd_link_change(change);
+          var arg3 = cst_encode_String(name);
+          return wire.wire__crate__frb__update_link(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_annotation_commit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbUpdateLinkConstMeta,
+        argValues: [document, handle, change, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbUpdateLinkConstMeta => const TaskConstMeta(
+    debugName: "update_link",
     argNames: ["document", "handle", "change", "name"],
   );
 
@@ -3391,6 +3726,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  LinkChange dco_decode_box_autoadd_link_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_link_change(raw);
+  }
+
+  @protected
+  LinkDestination dco_decode_box_autoadd_link_destination(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_link_destination(raw);
+  }
+
+  @protected
+  LinkInfo dco_decode_box_autoadd_link_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_link_info(raw);
+  }
+
+  @protected
+  LinkLook dco_decode_box_autoadd_link_look(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_link_look(raw);
+  }
+
+  @protected
   MissingGlyphs dco_decode_box_autoadd_missing_glyphs(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_missing_glyphs(raw);
@@ -3400,6 +3759,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   NewAnnotation dco_decode_box_autoadd_new_annotation(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_new_annotation(raw);
+  }
+
+  @protected
+  NewLink dco_decode_box_autoadd_new_link(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_new_link(raw);
   }
 
   @protected
@@ -3460,6 +3825,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Security dco_decode_box_autoadd_security(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_security(raw);
+  }
+
+  @protected
+  SummaryOptions dco_decode_box_autoadd_summary_options(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_summary_options(raw);
   }
 
   @protected
@@ -3953,6 +4324,77 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  LinkChange dco_decode_link_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return LinkChange(
+      rect: dco_decode_opt_box_autoadd_page_rect(arr[0]),
+      destination: dco_decode_opt_box_autoadd_link_destination(arr[1]),
+      look: dco_decode_opt_box_autoadd_link_look(arr[2]),
+      color: dco_decode_opt_box_autoadd_annotation_color(arr[3]),
+    );
+  }
+
+  @protected
+  LinkDestination dco_decode_link_destination(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return LinkDestination(
+      address: dco_decode_String(arr[0]),
+      mail: dco_decode_bool(arr[1]),
+      page: dco_decode_opt_box_autoadd_u_64(arr[2]),
+    );
+  }
+
+  @protected
+  LinkInfo dco_decode_link_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    return LinkInfo(
+      handle: dco_decode_u_64(arr[0]),
+      page: dco_decode_u_64(arr[1]),
+      rect: dco_decode_page_rect(arr[2]),
+      quads: dco_decode_list_annotation_points(arr[3]),
+      kind: dco_decode_link_kind(arr[4]),
+      target: dco_decode_String(arr[5]),
+      targetPage: dco_decode_opt_box_autoadd_u_64(arr[6]),
+      wantedPage: dco_decode_opt_box_autoadd_u_64(arr[7]),
+      look: dco_decode_link_look(arr[8]),
+      color: dco_decode_opt_box_autoadd_annotation_color(arr[9]),
+    );
+  }
+
+  @protected
+  LinkKind dco_decode_link_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return LinkKind.values[raw as int];
+  }
+
+  @protected
+  LinkList dco_decode_link_list(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return LinkList(
+      links: dco_decode_list_link_info(arr[0]),
+      truncated: dco_decode_bool(arr[1]),
+    );
+  }
+
+  @protected
+  LinkLook dco_decode_link_look(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return LinkLook.values[raw as int];
+  }
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_String).toList();
@@ -4067,6 +4509,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<LinkInfo> dco_decode_list_link_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_link_info).toList();
+  }
+
+  @protected
   List<MissingChar> dco_decode_list_missing_char(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_missing_char).toList();
@@ -4171,6 +4619,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<SummaryKindName> dco_decode_list_summary_kind_name(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_summary_kind_name).toList();
+  }
+
+  @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_wanted_item).toList();
@@ -4234,6 +4688,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       meta: dco_decode_opt_String(arr[11]),
       tilt: dco_decode_f_32(arr[12]),
       icon: dco_decode_opt_String(arr[13]),
+    );
+  }
+
+  @protected
+  NewLink dco_decode_new_link(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return NewLink(
+      rect: dco_decode_page_rect(arr[0]),
+      quads: dco_decode_list_annotation_points(arr[1]),
+      destination: dco_decode_link_destination(arr[2]),
+      look: dco_decode_link_look(arr[3]),
+      color: dco_decode_annotation_color(arr[4]),
     );
   }
 
@@ -4354,6 +4823,24 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   int? dco_decode_opt_box_autoadd_i_16(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_i_16(raw);
+  }
+
+  @protected
+  LinkDestination? dco_decode_opt_box_autoadd_link_destination(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_link_destination(raw);
+  }
+
+  @protected
+  LinkInfo? dco_decode_opt_box_autoadd_link_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_link_info(raw);
+  }
+
+  @protected
+  LinkLook? dco_decode_opt_box_autoadd_link_look(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_link_look(raw);
   }
 
   @protected
@@ -4858,6 +5345,54 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  SummaryFormat dco_decode_summary_format(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SummaryFormat.values[raw as int];
+  }
+
+  @protected
+  SummaryKindName dco_decode_summary_kind_name(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SummaryKindName(
+      kind: dco_decode_annotation_kind(arr[0]),
+      name: dco_decode_String(arr[1]),
+    );
+  }
+
+  @protected
+  SummaryOptions dco_decode_summary_options(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 14)
+      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    return SummaryOptions(
+      open: dco_decode_bool(arr[0]),
+      resolved: dco_decode_bool(arr[1]),
+      replies: dco_decode_bool(arr[2]),
+      emptyPages: dco_decode_bool(arr[3]),
+      sort: dco_decode_summary_sort(arr[4]),
+      pageLabel: dco_decode_String(arr[5]),
+      columns: dco_decode_list_String(arr[6]),
+      kinds: dco_decode_list_summary_kind_name(arr[7]),
+      openLabel: dco_decode_String(arr[8]),
+      resolvedLabel: dco_decode_String(arr[9]),
+      noComments: dco_decode_String(arr[10]),
+      datePattern: dco_decode_String(arr[11]),
+      paperWidth: dco_decode_f_32(arr[12]),
+      paperHeight: dco_decode_f_32(arr[13]),
+    );
+  }
+
+  @protected
+  SummarySort dco_decode_summary_sort(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SummarySort.values[raw as int];
+  }
+
+  @protected
   TextDirection dco_decode_text_direction(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return TextDirection.values[raw as int];
@@ -5349,6 +5884,32 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  LinkChange sse_decode_box_autoadd_link_change(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_link_change(deserializer));
+  }
+
+  @protected
+  LinkDestination sse_decode_box_autoadd_link_destination(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_link_destination(deserializer));
+  }
+
+  @protected
+  LinkInfo sse_decode_box_autoadd_link_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_link_info(deserializer));
+  }
+
+  @protected
+  LinkLook sse_decode_box_autoadd_link_look(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_link_look(deserializer));
+  }
+
+  @protected
   MissingGlyphs sse_decode_box_autoadd_missing_glyphs(
     SseDeserializer deserializer,
   ) {
@@ -5362,6 +5923,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_new_annotation(deserializer));
+  }
+
+  @protected
+  NewLink sse_decode_box_autoadd_new_link(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_new_link(deserializer));
   }
 
   @protected
@@ -5434,6 +6001,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Security sse_decode_box_autoadd_security(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_security(deserializer));
+  }
+
+  @protected
+  SummaryOptions sse_decode_box_autoadd_summary_options(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_summary_options(deserializer));
   }
 
   @protected
@@ -5970,6 +6545,85 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  LinkChange sse_decode_link_change(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_rect = sse_decode_opt_box_autoadd_page_rect(deserializer);
+    var var_destination = sse_decode_opt_box_autoadd_link_destination(
+      deserializer,
+    );
+    var var_look = sse_decode_opt_box_autoadd_link_look(deserializer);
+    var var_color = sse_decode_opt_box_autoadd_annotation_color(deserializer);
+    return LinkChange(
+      rect: var_rect,
+      destination: var_destination,
+      look: var_look,
+      color: var_color,
+    );
+  }
+
+  @protected
+  LinkDestination sse_decode_link_destination(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_address = sse_decode_String(deserializer);
+    var var_mail = sse_decode_bool(deserializer);
+    var var_page = sse_decode_opt_box_autoadd_u_64(deserializer);
+    return LinkDestination(
+      address: var_address,
+      mail: var_mail,
+      page: var_page,
+    );
+  }
+
+  @protected
+  LinkInfo sse_decode_link_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_handle = sse_decode_u_64(deserializer);
+    var var_page = sse_decode_u_64(deserializer);
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_quads = sse_decode_list_annotation_points(deserializer);
+    var var_kind = sse_decode_link_kind(deserializer);
+    var var_target = sse_decode_String(deserializer);
+    var var_targetPage = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_wantedPage = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_look = sse_decode_link_look(deserializer);
+    var var_color = sse_decode_opt_box_autoadd_annotation_color(deserializer);
+    return LinkInfo(
+      handle: var_handle,
+      page: var_page,
+      rect: var_rect,
+      quads: var_quads,
+      kind: var_kind,
+      target: var_target,
+      targetPage: var_targetPage,
+      wantedPage: var_wantedPage,
+      look: var_look,
+      color: var_color,
+    );
+  }
+
+  @protected
+  LinkKind sse_decode_link_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return LinkKind.values[inner];
+  }
+
+  @protected
+  LinkList sse_decode_link_list(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_links = sse_decode_list_link_info(deserializer);
+    var var_truncated = sse_decode_bool(deserializer);
+    return LinkList(links: var_links, truncated: var_truncated);
+  }
+
+  @protected
+  LinkLook sse_decode_link_look(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return LinkLook.values[inner];
+  }
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -6216,6 +6870,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<LinkInfo> sse_decode_list_link_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <LinkInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_link_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -6413,6 +7079,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<SummaryKindName> sse_decode_list_summary_kind_name(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SummaryKindName>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_summary_kind_name(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -6500,6 +7180,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       meta: var_meta,
       tilt: var_tilt,
       icon: var_icon,
+    );
+  }
+
+  @protected
+  NewLink sse_decode_new_link(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_rect = sse_decode_page_rect(deserializer);
+    var var_quads = sse_decode_list_annotation_points(deserializer);
+    var var_destination = sse_decode_link_destination(deserializer);
+    var var_look = sse_decode_link_look(deserializer);
+    var var_color = sse_decode_annotation_color(deserializer);
+    return NewLink(
+      rect: var_rect,
+      quads: var_quads,
+      destination: var_destination,
+      look: var_look,
+      color: var_color,
     );
   }
 
@@ -6717,6 +7414,41 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_i_16(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  LinkDestination? sse_decode_opt_box_autoadd_link_destination(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_link_destination(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  LinkInfo? sse_decode_opt_box_autoadd_link_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_link_info(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  LinkLook? sse_decode_opt_box_autoadd_link_look(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_link_look(deserializer));
     } else {
       return null;
     }
@@ -7341,6 +8073,63 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  SummaryFormat sse_decode_summary_format(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SummaryFormat.values[inner];
+  }
+
+  @protected
+  SummaryKindName sse_decode_summary_kind_name(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_annotation_kind(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    return SummaryKindName(kind: var_kind, name: var_name);
+  }
+
+  @protected
+  SummaryOptions sse_decode_summary_options(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_open = sse_decode_bool(deserializer);
+    var var_resolved = sse_decode_bool(deserializer);
+    var var_replies = sse_decode_bool(deserializer);
+    var var_emptyPages = sse_decode_bool(deserializer);
+    var var_sort = sse_decode_summary_sort(deserializer);
+    var var_pageLabel = sse_decode_String(deserializer);
+    var var_columns = sse_decode_list_String(deserializer);
+    var var_kinds = sse_decode_list_summary_kind_name(deserializer);
+    var var_openLabel = sse_decode_String(deserializer);
+    var var_resolvedLabel = sse_decode_String(deserializer);
+    var var_noComments = sse_decode_String(deserializer);
+    var var_datePattern = sse_decode_String(deserializer);
+    var var_paperWidth = sse_decode_f_32(deserializer);
+    var var_paperHeight = sse_decode_f_32(deserializer);
+    return SummaryOptions(
+      open: var_open,
+      resolved: var_resolved,
+      replies: var_replies,
+      emptyPages: var_emptyPages,
+      sort: var_sort,
+      pageLabel: var_pageLabel,
+      columns: var_columns,
+      kinds: var_kinds,
+      openLabel: var_openLabel,
+      resolvedLabel: var_resolvedLabel,
+      noComments: var_noComments,
+      datePattern: var_datePattern,
+      paperWidth: var_paperWidth,
+      paperHeight: var_paperHeight,
+    );
+  }
+
+  @protected
+  SummarySort sse_decode_summary_sort(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SummarySort.values[inner];
+  }
+
+  @protected
   TextDirection sse_decode_text_direction(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -7566,6 +8355,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_link_kind(LinkKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_link_look(LinkLook raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_missing_reason_kind(MissingReasonKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -7639,6 +8440,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_substitution_kind(SubstitutionKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_summary_format(SummaryFormat raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_summary_sort(SummarySort raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -8054,6 +8867,42 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_link_change(
+    LinkChange self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_link_change(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_link_destination(
+    LinkDestination self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_link_destination(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_link_info(
+    LinkInfo self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_link_info(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_link_look(
+    LinkLook self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_link_look(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_missing_glyphs(
     MissingGlyphs self,
     SseSerializer serializer,
@@ -8069,6 +8918,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_new_annotation(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_new_link(NewLink self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_new_link(self, serializer);
   }
 
   @protected
@@ -8156,6 +9011,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_security(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_summary_options(
+    SummaryOptions self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_summary_options(self, serializer);
   }
 
   @protected
@@ -8556,6 +9420,60 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_link_change(LinkChange self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_page_rect(self.rect, serializer);
+    sse_encode_opt_box_autoadd_link_destination(self.destination, serializer);
+    sse_encode_opt_box_autoadd_link_look(self.look, serializer);
+    sse_encode_opt_box_autoadd_annotation_color(self.color, serializer);
+  }
+
+  @protected
+  void sse_encode_link_destination(
+    LinkDestination self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.address, serializer);
+    sse_encode_bool(self.mail, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.page, serializer);
+  }
+
+  @protected
+  void sse_encode_link_info(LinkInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.handle, serializer);
+    sse_encode_u_64(self.page, serializer);
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_list_annotation_points(self.quads, serializer);
+    sse_encode_link_kind(self.kind, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.targetPage, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.wantedPage, serializer);
+    sse_encode_link_look(self.look, serializer);
+    sse_encode_opt_box_autoadd_annotation_color(self.color, serializer);
+  }
+
+  @protected
+  void sse_encode_link_kind(LinkKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_link_list(LinkList self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_link_info(self.links, serializer);
+    sse_encode_bool(self.truncated, serializer);
+  }
+
+  @protected
+  void sse_encode_link_look(LinkLook self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
@@ -8775,6 +9693,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_link_info(
+    List<LinkInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_link_info(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_missing_char(
     List<MissingChar> self,
     SseSerializer serializer,
@@ -8973,6 +9903,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_summary_kind_name(
+    List<SummaryKindName> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_summary_kind_name(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_wanted_item(
     List<WantedItem> self,
     SseSerializer serializer,
@@ -9031,6 +9973,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.meta, serializer);
     sse_encode_f_32(self.tilt, serializer);
     sse_encode_opt_String(self.icon, serializer);
+  }
+
+  @protected
+  void sse_encode_new_link(NewLink self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_page_rect(self.rect, serializer);
+    sse_encode_list_annotation_points(self.quads, serializer);
+    sse_encode_link_destination(self.destination, serializer);
+    sse_encode_link_look(self.look, serializer);
+    sse_encode_annotation_color(self.color, serializer);
   }
 
   @protected
@@ -9223,6 +10175,45 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_i_16(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_destination(
+    LinkDestination? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_link_destination(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_info(
+    LinkInfo? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_link_info(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_link_look(
+    LinkLook? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_link_look(self, serializer);
     }
   }
 
@@ -9718,6 +10709,50 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     SubstitutionKind self,
     SseSerializer serializer,
   ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_summary_format(SummaryFormat self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_summary_kind_name(
+    SummaryKindName self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_annotation_kind(self.kind, serializer);
+    sse_encode_String(self.name, serializer);
+  }
+
+  @protected
+  void sse_encode_summary_options(
+    SummaryOptions self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.open, serializer);
+    sse_encode_bool(self.resolved, serializer);
+    sse_encode_bool(self.replies, serializer);
+    sse_encode_bool(self.emptyPages, serializer);
+    sse_encode_summary_sort(self.sort, serializer);
+    sse_encode_String(self.pageLabel, serializer);
+    sse_encode_list_String(self.columns, serializer);
+    sse_encode_list_summary_kind_name(self.kinds, serializer);
+    sse_encode_String(self.openLabel, serializer);
+    sse_encode_String(self.resolvedLabel, serializer);
+    sse_encode_String(self.noComments, serializer);
+    sse_encode_String(self.datePattern, serializer);
+    sse_encode_f_32(self.paperWidth, serializer);
+    sse_encode_f_32(self.paperHeight, serializer);
+  }
+
+  @protected
+  void sse_encode_summary_sort(SummarySort self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }

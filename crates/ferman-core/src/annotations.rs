@@ -209,10 +209,10 @@ pub struct AnnotationList {
 }
 
 /// What the reader may still take.
-struct Budget {
-    numbers: usize,
-    text: usize,
-    truncated: bool,
+pub(crate) struct Budget {
+    pub(crate) numbers: usize,
+    pub(crate) text: usize,
+    pub(crate) truncated: bool,
 }
 
 impl Budget {
@@ -228,12 +228,12 @@ impl Budget {
 }
 
 /// The handle of the annotation object `id`, as [`Page::handle`] makes a page's.
-fn handle_of(id: ObjectId) -> u64 {
+pub(crate) fn handle_of(id: ObjectId) -> u64 {
     (u64::from(id.0) << 16) | u64::from(id.1)
 }
 
 /// The handle of the `ordinal`th direct annotation of page object `page`.
-fn direct_handle(page: ObjectId, ordinal: usize) -> u64 {
+pub(crate) fn direct_handle(page: ObjectId, ordinal: usize) -> u64 {
     let ordinal = u64::try_from(ordinal).unwrap_or(u64::MAX) & 0xFF_FFFF;
     DIRECT | ((u64::from(page.0) & 0x0FFF_FFFF) << 24) | ordinal
 }
@@ -260,7 +260,7 @@ fn numbers(scope: &Scope<'_>, object: &Object, budget: &mut Budget) -> Vec<f32> 
         .collect()
 }
 
-fn entry_numbers(
+pub(crate) fn entry_numbers(
     scope: &Scope<'_>,
     dict: &Dictionary,
     key: &[u8],
@@ -276,7 +276,7 @@ fn pairs(values: &[f32]) -> Vec<[f32; 2]> {
 }
 
 /// `/C` or `/IC`: no numbers for none, else gray, RGB or CMYK as red, green and blue.
-fn colour(values: &[f32]) -> Option<[f32; 3]> {
+pub(crate) fn colour(values: &[f32]) -> Option<[f32; 3]> {
     match *values {
         [gray] => Some([gray, gray, gray]),
         [red, green, blue] => Some([red, green, blue]),
@@ -522,7 +522,7 @@ fn short_date(scope: &Scope<'_>, dict: &Dictionary, key: &[u8]) -> Option<PdfDat
 }
 
 /// A number that grows with the moment `date` names, for comparing two dates.
-fn instant(date: &PdfDate) -> i64 {
+pub fn instant(date: &PdfDate) -> i64 {
     // A year is at most 65,535 and an offset an i16: this cannot overflow.
     #[allow(clippy::arithmetic_side_effects)]
     {

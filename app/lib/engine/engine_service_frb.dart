@@ -1192,6 +1192,195 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<int> showComments(int document, {required bool visible}) async {
+    try {
+      final key = await bridge.showComments(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startFlattenAnnotationsJob(
+      document: BigInt.from(document),
+      handles: Uint64List.fromList([for (final handle in handles) handle]),
+      copy: copy,
+      staging: staging,
+      name: name,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCommentSummaryJob(
+      document: BigInt.from(document),
+      format: bridge.SummaryFormat.values.byName(format.name),
+      options: bridge.SummaryOptions(
+        open: options.open,
+        resolved: options.resolved,
+        replies: options.replies,
+        emptyPages: options.emptyPages,
+        sort: bridge.SummarySort.values.byName(options.sort.name),
+        pageLabel: options.pageLabel,
+        columns: options.columns,
+        kinds: [
+          for (final MapEntry(:key, :value) in options.kinds.entries)
+            bridge.SummaryKindName(
+              kind: bridge.AnnotationKind.values.byName(key.name),
+              name: value,
+            ),
+        ],
+        openLabel: options.openLabel,
+        resolvedLabel: options.resolvedLabel,
+        noComments: options.noComments,
+        datePattern: options.datePattern,
+        paperWidth: options.paperWidth,
+        paperHeight: options.paperHeight,
+      ),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Future<LinkList> links(int document) async {
+    try {
+      final list = await bridge.links(document: BigInt.from(document));
+      return LinkList(
+        links: [for (final link in list.links) _link(link)],
+        truncated: list.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async {
+    try {
+      final link = await bridge.linkAt(
+        document: BigInt.from(document),
+        page: BigInt.from(page),
+        x: point.dx,
+        y: point.dy,
+      );
+      return link == null ? null : _link(link);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addLink(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      link: bridge.NewLink(
+        rect: _bridgeRect(link.rect),
+        quads: _bridgePoints(link.quads),
+        destination: _bridgeDestination(link.destination),
+        look: bridge.LinkLook.values.byName(link.look.name),
+        color: _bridgeColor(link.color),
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.updateLink(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      change: bridge.LinkChange(
+        rect: switch (change.rect) {
+          null => null,
+          final rect => _bridgeRect(rect),
+        },
+        destination: switch (change.destination) {
+          null => null,
+          final destination => _bridgeDestination(destination),
+        },
+        look: switch (change.look) {
+          null => null,
+          final look => bridge.LinkLook.values.byName(look.name),
+        },
+        color: switch (change.color) {
+          null => null,
+          final color => _bridgeColor(color),
+        },
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deleteLink(int document, int handle, String name) =>
+      _revision(
+        () => bridge.deleteLink(
+          document: BigInt.from(document),
+          handle: BigInt.from(handle),
+          name: name,
+        ),
+      );
+
+  static bridge.LinkDestination _bridgeDestination(
+    LinkDestination destination,
+  ) => bridge.LinkDestination(
+    address: destination.address,
+    mail: destination.mail,
+    page: switch (destination.page) {
+      null => null,
+      final page => BigInt.from(page),
+    },
+  );
+
+  static LinkInfo _link(bridge.LinkInfo link) => LinkInfo(
+    handle: link.handle.toSigned(64).toInt(),
+    page: link.page.toSigned(64).toInt(),
+    rect: _rect(link.rect),
+    quads: [
+      for (final part in link.quads)
+        [for (final point in part.points) Offset(point.x, point.y)],
+    ],
+    kind: LinkKind.values.byName(link.kind.name),
+    target: link.target,
+    targetPage: link.targetPage?.toSigned(64).toInt(),
+    wantedPage: link.wantedPage?.toSigned(64).toInt(),
+    look: LinkLook.values.byName(link.look.name),
+    color: switch (link.color) {
+      null => null,
+      final color => AnnotationColor(color.red, color.green, color.blue),
+    },
+  );
+
+  @override
   Future<AnnotationCommit> replyToAnnotation(
     int document,
     int handle, {

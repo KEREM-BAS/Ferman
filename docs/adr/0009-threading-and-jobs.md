@@ -89,7 +89,9 @@ its own feature, off for the CLI and the web; the rest of the engine stays on th
   revision through the incremental writer, on top of the document's revisions, and a
   password-opened document reloads with the password the render thread holds until it closes
   ([Q22](../QUESTIONS.md#q22)). Only a repaired document keeps its layers (B111). A commit gives new
-  render keys only to the pages it changed; `show_layers` still gives every page one.
+  render keys only to the pages it changed; `show_layers` still gives every page one. **Since M4
+  W2** Hide all goes the same way (`show_comments`, the hidden bit on markup annotations), alone or
+  with the layers.
 - **Since M4 W0, jobs' temp files:** `<system temp>/ferman-job-<pid>-<id>`, mode 0700, with a lock
   file; `Engine::start` sweeps the folders no running process holds.
 

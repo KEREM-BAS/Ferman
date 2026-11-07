@@ -21,7 +21,9 @@
 //! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels.
 //! - `combine`: combine, extract, insert from a file and replace.
 //! - `split`: split planning.
-//! - [`annotations`]: annotation types with appearance streams and replies; flattening follows.
+//! - [`annotations`]: annotation types with appearance streams, replies and flattening.
+//! - [`links`]: link annotations, and which targets may be offered.
+//! - [`summary`]: the comment summary as PDF and CSV.
 //! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
 //! - `signatures`: simple typed, drawn and image signatures.
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
@@ -31,8 +33,10 @@
 pub mod annotations;
 pub mod combine;
 pub mod images;
+pub mod links;
 pub mod pages;
 pub mod split;
+pub mod summary;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

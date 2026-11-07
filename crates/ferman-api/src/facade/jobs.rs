@@ -147,6 +147,24 @@ impl JobSnapshot {
         &self.store
     }
 
+    /// Whether a change for `op` could go through at all, for a job that writes a file before it.
+    /// A signature's confirmation comes at the commit, which keeps the change for another try.
+    pub(super) fn may_change(&self, op: DocumentOp) -> Result<(), ApiError> {
+        if let Some(reason) = self.model.read_only {
+            return Err(ApiError::not_editable(reason));
+        }
+        if self
+            .model
+            .security()
+            .is_some_and(|security| !security.owner && !security.permissions.allows(op))
+        {
+            return Err(ApiError::not_editable(
+                ferman_text::NotEditableReason::Restricted,
+            ));
+        }
+        Ok(())
+    }
+
     /// The document's own file name, without its extension.
     pub(super) fn file_stem(&self) -> String {
         self.model
@@ -338,6 +356,7 @@ fn sweep(temp: &Path) {
 
 /// A file waiting for the job's end.
 struct Pending {
+    pdf: bool,
     temp: PathBuf,
     target: PathBuf,
     staging: Option<PathBuf>,
@@ -422,14 +441,40 @@ impl JobRun {
         bytes: &[u8],
         staging: Option<PathBuf>,
     ) -> Result<(), ApiError> {
+        self.output(target, bytes, staging, true)
+    }
+
+    fn output(
+        &mut self,
+        target: PathBuf,
+        bytes: &[u8],
+        staging: Option<PathBuf>,
+        pdf: bool,
+    ) -> Result<(), ApiError> {
         let temp = self.temp_file()?;
         fs::write(&temp, bytes).map_err(temp_failure)?;
         self.pending.push(Pending {
             temp,
             target,
             staging,
+            pdf,
         });
         Ok(())
+    }
+
+    /// As [`output_pdf`](Self::output_pdf), for a file that is no PDF: the same path without the
+    /// PDF checks.
+    ///
+    /// # Errors
+    ///
+    /// As [`output_pdf`](Self::output_pdf).
+    pub fn output_file(
+        &mut self,
+        target: PathBuf,
+        bytes: &[u8],
+        staging: Option<PathBuf>,
+    ) -> Result<(), ApiError> {
+        self.output(target, bytes, staging, false)
     }
 
     fn send(&mut self, paused: bool, result: Option<JobResult>) {
@@ -468,9 +513,13 @@ impl JobRun {
 /// One waiting file through the safe write.
 fn publish_one(pending: &Pending) -> Result<JobOutput, ApiError> {
     let bytes = fs::read(&pending.temp).map_err(temp_failure)?;
-    let staged =
-        ferman_core::save::save_new_pdf(&pending.target, pending.staging.as_deref(), &bytes)
-            .map_err(|err| ApiError::from(err).of_save())?;
+    let save = if pending.pdf {
+        ferman_core::save::save_new_pdf
+    } else {
+        ferman_core::save::save_new_file
+    };
+    let staged = save(&pending.target, pending.staging.as_deref(), &bytes)
+        .map_err(|err| ApiError::from(err).of_save())?;
     Ok(JobOutput {
         path: pending.target.clone(),
         staged,

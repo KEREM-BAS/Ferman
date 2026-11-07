@@ -1484,6 +1484,172 @@ class FakeEngineService implements EngineService {
     ]);
   }
 
+  /// The requests of every [showComments], oldest first.
+  final List<bool> commentRequests = [];
+
+  @override
+  Future<int> showComments(int document, {required bool visible}) async {
+    commentRequests.add(visible);
+    _pageKeys.remove(document);
+    return _renderKeys[document] = ++_lastRenderKey;
+  }
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) {
+    assembleJobs.add('flatten ${handles.length} $copy');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('summary ${format.name} $output');
+    return _waitingJob();
+  }
+
+  /// Each document's links, as tests set them or the calls change them.
+  final Map<int, List<LinkInfo>> fakeLinks = {};
+  int _lastLinkHandle = 1 << 40;
+
+  /// The addresses that may be written; anything else is refused, as the
+  /// engine refuses it.
+  static bool _offered(LinkDestination destination) {
+    if (destination.page != null) return true;
+    final address = destination.address;
+    if (destination.mail) return !address.contains(' ');
+    return address.startsWith(RegExp('https?://', caseSensitive: false));
+  }
+
+  void _checkDestination(LinkDestination? destination) {
+    if (destination != null && !_offered(destination)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+  }
+
+  static LinkInfo _linkTo(LinkInfo old, LinkChange change) {
+    final destination = change.destination;
+    return LinkInfo(
+      handle: old.handle,
+      page: old.page,
+      rect: change.rect ?? old.rect,
+      quads: old.quads,
+      kind: destination == null
+          ? old.kind
+          : destination.page != null
+          ? LinkKind.page
+          : destination.mail
+          ? LinkKind.mail
+          : LinkKind.web,
+      target: destination == null
+          ? old.target
+          : destination.mail
+          ? 'mailto:${destination.address}'
+          : destination.address,
+      targetPage: destination == null ? old.targetPage : destination.page,
+      wantedPage: old.wantedPage,
+      look: change.look ?? old.look,
+      color: change.color ?? old.color,
+    );
+  }
+
+  @override
+  Future<LinkList> links(int document) async =>
+      LinkList(links: [...?fakeLinks[document]]);
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async {
+    for (final link in (fakeLinks[document] ?? const <LinkInfo>[]).reversed) {
+      if (link.page == page && link.rect.contains(point)) return link;
+    }
+    return null;
+  }
+
+  // shortcut: the fake's links do not follow undo, as its annotations do; add
+  // versions when commit 17's Links panel needs them.
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) async {
+    _checkDestination(link.destination);
+    final handle = ++_lastLinkHandle;
+    (fakeLinks[document] ??= []).add(
+      _linkTo(
+        LinkInfo(
+          handle: handle,
+          page: page,
+          rect: link.rect,
+          kind: LinkKind.nothing,
+          quads: link.quads,
+        ),
+        LinkChange(
+          destination: link.destination,
+          look: link.look,
+          color: link.color,
+        ),
+      ),
+    );
+    return AnnotationCommit(
+      handle: handle,
+      revision: _pagesChanged(document, name, [page], (all) => [...all]),
+    );
+  }
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) async {
+    _checkDestination(change.destination);
+    final links = fakeLinks[document] ?? [];
+    final at = links.indexWhere((link) => link.handle == handle);
+    if (at < 0) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    links[at] = _linkTo(links[at], change);
+    return AnnotationCommit(
+      handle: handle,
+      revision: _pagesChanged(document, name, [
+        links[at].page,
+      ], (all) => [...all]),
+    );
+  }
+
+  @override
+  Future<RevisionInfo> deleteLink(int document, int handle, String name) async {
+    final links = fakeLinks[document] ?? [];
+    final at = links.indexWhere((link) => link.handle == handle);
+    if (at < 0) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final page = links.removeAt(at).page;
+    return _pagesChanged(document, name, [page], (all) => [...all]);
+  }
+
   @override
   Future<AnnotationCommit> replyToAnnotation(
     int document,

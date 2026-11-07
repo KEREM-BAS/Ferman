@@ -2616,3 +2616,265 @@ class RestoredDocument {
   /// could not reload.
   final int? renderKey;
 }
+
+/// What a comment summary is written as (a4-4).
+enum SummaryFormat {
+  /// CSV, one comment per row.
+  csv,
+
+  /// A PDF: numbered markers on each page, with its comments beside it.
+  pageAndComments,
+
+  /// A PDF: a list, grouped by page.
+  commentsOnly,
+
+  /// A PDF: the full page followed by its comments.
+  pageThenList,
+}
+
+/// The order of a summary's comments.
+enum SummarySort {
+  /// Page order.
+  page,
+
+  /// Oldest first.
+  date,
+
+  /// By author, then page order.
+  author,
+}
+
+/// What a comment summary holds, and its words in the app's language.
+final class SummaryOptions {
+  /// The options.
+  const new({
+    required this.open,
+    required this.resolved,
+    required this.replies,
+    required this.emptyPages,
+    required this.sort,
+    required this.pageLabel,
+    required this.columns,
+    required this.kinds,
+    required this.openLabel,
+    required this.resolvedLabel,
+    required this.noComments,
+    required this.datePattern,
+    required this.paperWidth,
+    required this.paperHeight,
+  });
+
+  /// Open comments.
+  final bool open;
+
+  /// Resolved comments.
+  final bool resolved;
+
+  /// Replies under each.
+  final bool replies;
+
+  /// Pages without comments.
+  final bool emptyPages;
+
+  /// The order.
+  final SummarySort sort;
+
+  /// A page's heading, with `{n}` for its number.
+  final String pageLabel;
+
+  /// The CSV's header row: page, type, author, date, text, replies, status.
+  final List<String> columns;
+
+  /// Each kind's name.
+  final Map<AnnotationKind, String> kinds;
+
+  /// The status of an open comment.
+  final String openLabel;
+
+  /// The status of a resolved one.
+  final String resolvedLabel;
+
+  /// What a page, or a summary, with no comment says.
+  final String noComments;
+
+  /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+  final String datePattern;
+
+  /// A PDF's paper width, in points.
+  final double paperWidth;
+
+  /// A PDF's paper height, in points.
+  final double paperHeight;
+}
+
+/// A link's border (a3-6).
+enum LinkLook {
+  /// No line.
+  invisible,
+
+  /// A line under it.
+  underline,
+
+  /// A thin box.
+  box,
+}
+
+/// Where a link goes, and whether it may be offered. Only [web] and [mail] can
+/// be opened, after the prompt with the full target showing (G145); [page] just
+/// goes; the others open nothing.
+enum LinkKind {
+  /// An `http` or `https` address.
+  web,
+
+  /// A `mailto:` address.
+  mail,
+
+  /// A page of this document.
+  page,
+
+  /// A destination that leads nowhere.
+  broken,
+
+  /// Refused: a script.
+  script,
+
+  /// Refused: a program or file to launch.
+  launch,
+
+  /// Refused: another file.
+  file,
+
+  /// Refused: an address of another scheme, or one that does not read cleanly.
+  address,
+
+  /// Refused: an action Ferman does not know, kept in the file as it came.
+  action,
+
+  /// It does nothing.
+  nothing,
+}
+
+/// One link, in displayed points.
+final class LinkInfo {
+  /// A link.
+  const new({
+    required this.handle,
+    required this.page,
+    required this.rect,
+    required this.kind,
+    this.quads = const [],
+    this.target = '',
+    this.targetPage,
+    this.wantedPage,
+    this.look = LinkLook.invisible,
+    this.color,
+  });
+
+  /// Its identity for the other calls.
+  final int handle;
+
+  /// Its page's handle.
+  final int page;
+
+  /// Its box.
+  final Rect rect;
+
+  /// Its text's lines, four corners each.
+  final List<List<Offset>> quads;
+
+  /// Where it goes.
+  final LinkKind kind;
+
+  /// The address, or what a refused link names: to show, and to open only for
+  /// [LinkKind.web] and [LinkKind.mail]. Untrusted text from the document.
+  final String target;
+
+  /// The handle of the page, for [LinkKind.page].
+  final int? targetPage;
+
+  /// The page a [LinkKind.broken] link names, from 1, when it says.
+  final int? wantedPage;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// Its colour.
+  final AnnotationColor? color;
+}
+
+/// A document's links.
+final class LinkList {
+  /// The list.
+  const new({required this.links, this.truncated = false});
+
+  /// In page order.
+  final List<LinkInfo> links;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// Where a new link goes: [page]'s handle when it has one, else [address], web
+/// or mail by [mail].
+final class LinkDestination {
+  /// An address.
+  const new address(this.address, {this.mail = false}) : page = null;
+
+  /// A page by its handle.
+  const new page(int this.page) : address = '', mail = false;
+
+  /// An `http` or `https` address, or an e-mail address.
+  final String address;
+
+  /// Whether [address] is an e-mail address.
+  final bool mail;
+
+  /// A page by its handle.
+  final int? page;
+}
+
+/// A new link, in displayed points.
+final class NewLink {
+  /// A link.
+  const new({
+    required this.rect,
+    required this.destination,
+    required this.color,
+    this.quads = const [],
+    this.look = LinkLook.invisible,
+  });
+
+  /// Its box.
+  final Rect rect;
+
+  /// Its text's lines: top left, top right, bottom left and bottom right as the
+  /// reader sees them.
+  final List<List<Offset>> quads;
+
+  /// Where it goes.
+  final LinkDestination destination;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// Its colour.
+  final AnnotationColor color;
+}
+
+/// What a link change sets; null leaves it.
+final class LinkChange {
+  /// A change.
+  const new({this.rect, this.destination, this.look, this.color});
+
+  /// A new box.
+  final Rect? rect;
+
+  /// A new target, which replaces what the link did.
+  final LinkDestination? destination;
+
+  /// A new border.
+  final LinkLook? look;
+
+  /// Its colour.
+  final AnnotationColor? color;
+}

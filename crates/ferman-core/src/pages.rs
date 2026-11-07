@@ -17,7 +17,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use lopdf::{Dictionary, Object, ObjectId, StringFormat};
 
-use crate::revision::RevisionStore;
+use crate::revision::{RevisionStore, compressed, decoded, free};
 use crate::structure::{LETTER, LabelRange, LabelStyle, Scope, inherited_entry, label_ranges};
 use crate::write::{ObjectRef, Value};
 use crate::{CoreError, Document, WriteError, text_string};
@@ -286,6 +286,41 @@ impl RevisionStore {
             self.put(id, Object::Dictionary(annotation))?;
         }
         self.put(page, Object::Dictionary(dict))
+    }
+
+    /// A new form that draws page `page`'s content as it stands in the open transaction, with
+    /// its resources, clipped to `bbox` (a4-4's page beside its comments). The page stays.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`], [`WriteError::ObjectNumbers`], and those of decoding within
+    /// the document's limits.
+    pub fn page_as_form(
+        &mut self,
+        doc: &Document,
+        page: ObjectRef,
+        bbox: [f32; 4],
+    ) -> Result<ObjectRef, CoreError> {
+        self.transaction_open()?;
+        let mut data = Vec::new();
+        for id in self.contents(doc, page.0) {
+            if let Some(Object::Stream(stream)) = self.scope(doc).object(id) {
+                data.extend(decoded(stream, doc)?);
+                data.push(b'\n');
+            }
+        }
+        let (resources, _) = self.page_resources(doc, page.0, b"XObject");
+        let mut dict = Dictionary::new();
+        dict.set("Type", Object::Name(b"XObject".to_vec()));
+        dict.set("Subtype", Object::Name(b"Form".to_vec()));
+        dict.set(
+            "BBox",
+            bbox.iter().copied().map(Object::Real).collect::<Vec<_>>(),
+        );
+        dict.set("Resources", resources);
+        let id = (free(self.next_number())?, 0);
+        self.put_counted(doc, vec![(id, Object::Stream(compressed(dict, &data)?))])?;
+        Ok(ObjectRef(id))
     }
 
     /// The document's page label ranges as these revisions leave them, in page order.

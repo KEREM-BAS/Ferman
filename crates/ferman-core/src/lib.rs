@@ -34,6 +34,10 @@
 //! - [`write`](mod@write): what an operation above ferman-core writes with, without naming
 //!   lopdf: objects as plain [`Value`](write::Value)s, new object numbers, page entries and
 //!   `/Annots` (ADR 0003, question 11 of the M4 plan).
+//! - [`links`]: link annotations and what each does, read and never run (a3-6).
+//! - `flatten` (private): annotations drawn into page content
+//!   ([`RevisionStore::flatten_annotations`](revision::RevisionStore::flatten_annotations)), for
+//!   a4-5b and forms' Finish.
 //! - [`assemble`]: pages of one document copied into another, with their bookmarks, attachments,
 //!   form fields and layers (Insert, Replace, Extract, Split and Combine, M4 plan, W1).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
@@ -73,12 +77,14 @@ pub mod assemble;
 mod content;
 pub mod document;
 pub mod filters;
+mod flatten;
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzzing;
 mod incremental;
 pub mod interpret;
 pub mod limits;
+pub mod links;
 pub mod pages;
 #[allow(unsafe_code)]
 mod platform;

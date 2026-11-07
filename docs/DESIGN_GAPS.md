@@ -2017,6 +2017,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** a3-6's panel says "Ferman asks before opening a web link or a file from a PDF" and draws no prompt. It says nothing about `/Launch` or `javascript:`. A link's target is text from an untrusted document.
 - **Decision:** `/Launch` never runs. `javascript:` is refused. Web, file and GoToR links ask first, with new copy that shows the target. They open through the OS, so Ferman itself connects to nothing. Links inside the document just go.
 - **Status:** Decided (owner, M4 plan, decision 13, 2026-11-06).
+- **Built (W2, engine):** only `http`, `https` and `mailto` targets are offered; file and GoToR links are read and named, and refused rather than asked about, as W2's work order says. That is narrower than this decision: the owner may want the prompt for them back. The prompt itself comes with the Links panel (commit 17).
 - **Evidence:** `design/03b Edit content.dc.html` line 103; [Q13](QUESTIONS.md#q13).
 
 <a id="g146"></a>
