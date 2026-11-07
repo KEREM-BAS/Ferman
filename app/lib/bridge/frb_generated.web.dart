@@ -143,6 +143,9 @@ abstract class FermanBridgeApiImplPlatform
   int dco_decode_box_autoadd_i_32(dynamic raw);
 
   @protected
+  InfoEdit dco_decode_box_autoadd_info_edit(dynamic raw);
+
+  @protected
   LinkChange dco_decode_box_autoadd_link_change(dynamic raw);
 
   @protected
@@ -368,6 +371,9 @@ abstract class FermanBridgeApiImplPlatform
   PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
+  InfoEdit dco_decode_info_edit(dynamic raw);
+
+  @protected
   InputStatus dco_decode_input_status(dynamic raw);
 
   @protected
@@ -495,6 +501,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageMargins?> dco_decode_list_opt_box_autoadd_page_margins(dynamic raw);
+
+  @protected
+  List<OutlineEdit> dco_decode_list_outline_edit(dynamic raw);
 
   @protected
   List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
@@ -689,6 +698,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
+
+  @protected
+  OutlineEdit dco_decode_outline_edit(dynamic raw);
 
   @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
@@ -1003,6 +1015,9 @@ abstract class FermanBridgeApiImplPlatform
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
+  InfoEdit sse_decode_box_autoadd_info_edit(SseDeserializer deserializer);
+
+  @protected
   LinkChange sse_decode_box_autoadd_link_change(SseDeserializer deserializer);
 
   @protected
@@ -1256,6 +1271,9 @@ abstract class FermanBridgeApiImplPlatform
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
+  InfoEdit sse_decode_info_edit(SseDeserializer deserializer);
+
+  @protected
   InputStatus sse_decode_input_status(SseDeserializer deserializer);
 
   @protected
@@ -1407,6 +1425,9 @@ abstract class FermanBridgeApiImplPlatform
   List<PageMargins?> sse_decode_list_opt_box_autoadd_page_margins(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<OutlineEdit> sse_decode_list_outline_edit(SseDeserializer deserializer);
 
   @protected
   List<OutlineEntry> sse_decode_list_outline_entry(
@@ -1649,6 +1670,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint32List? sse_decode_opt_list_prim_u_32_strict(
     SseDeserializer deserializer,
   );
+
+  @protected
+  OutlineEdit sse_decode_outline_edit(SseDeserializer deserializer);
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
@@ -2159,6 +2183,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_info_edit(InfoEdit raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_info_edit(raw);
+  }
+
+  @protected
   JSAny cst_encode_box_autoadd_link_change(LinkChange raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_link_change(raw);
@@ -2439,6 +2469,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_page_info(raw.pages),
       cst_encode_list_outline_entry(raw.outline),
       cst_encode_list_attachment(raw.attachments),
+      cst_encode_document_info(raw.info),
     ].jsify()!;
   }
 
@@ -2688,6 +2719,17 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_i_64(PlatformInt64 raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return castNativeBigInt(raw);
+  }
+
+  @protected
+  JSAny cst_encode_info_edit(InfoEdit raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.title),
+      cst_encode_String(raw.author),
+      cst_encode_String(raw.subject),
+      cst_encode_String(raw.keywords),
+    ].jsify()!;
   }
 
   @protected
@@ -2959,6 +3001,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_opt_box_autoadd_page_margins(List<PageMargins?> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_opt_box_autoadd_page_margins).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_outline_edit(List<OutlineEdit> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_outline_edit).toList().jsify()!;
   }
 
   @protected
@@ -3383,6 +3431,18 @@ abstract class FermanBridgeApiImplPlatform
   JSAny? cst_encode_opt_list_prim_u_32_strict(Uint32List? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_list_prim_u_32_strict(raw);
+  }
+
+  @protected
+  JSAny cst_encode_outline_edit(OutlineEdit raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_box_autoadd_u_32(raw.item),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_String(raw.title),
+      cst_encode_u_32(raw.depth),
+      cst_encode_bool(raw.open),
+    ].jsify()!;
   }
 
   @protected
@@ -4153,6 +4213,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_info_edit(
+    InfoEdit self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_link_change(
     LinkChange self,
     SseSerializer serializer,
@@ -4480,6 +4546,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
+  void sse_encode_info_edit(InfoEdit self, SseSerializer serializer);
+
+  @protected
   void sse_encode_input_status(InputStatus self, SseSerializer serializer);
 
   @protected
@@ -4677,6 +4746,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_opt_box_autoadd_page_margins(
     List<PageMargins?> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_outline_edit(
+    List<OutlineEdit> self,
     SseSerializer serializer,
   );
 
@@ -5008,6 +5083,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_outline_edit(OutlineEdit self, SseSerializer serializer);
+
+  @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
 
   @protected
@@ -5267,6 +5345,20 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__apply_job_change(NativePortType port_, JSAny job) =>
       wasmModule.wire__crate__frb__apply_job_change(port_, job);
+
+  void wire__crate__frb__attach_file(
+    NativePortType port_,
+    JSAny document,
+    String path,
+    String file_name,
+    String name,
+  ) => wasmModule.wire__crate__frb__attach_file(
+    port_,
+    document,
+    path,
+    file_name,
+    name,
+  );
 
   void wire__crate__frb__begin_edit(
     NativePortType port_,
@@ -5581,6 +5673,18 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__redo(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__redo(port_, document);
 
+  void wire__crate__frb__remove_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String name,
+  ) => wasmModule.wire__crate__frb__remove_attachment(
+    port_,
+    document,
+    index,
+    name,
+  );
+
   void wire__crate__frb__reply_to_annotation(
     NativePortType port_,
     JSAny document,
@@ -5857,6 +5961,20 @@ class FermanBridgeWire implements BaseWire {
     JSAny settings,
   ) => wasmModule.wire__crate__frb__set_font_settings(port_, settings);
 
+  void wire__crate__frb__set_info(
+    NativePortType port_,
+    JSAny document,
+    JSAny info,
+    String name,
+  ) => wasmModule.wire__crate__frb__set_info(port_, document, info, name);
+
+  void wire__crate__frb__set_outline(
+    NativePortType port_,
+    JSAny document,
+    JSAny items,
+    String name,
+  ) => wasmModule.wire__crate__frb__set_outline(port_, document, items, name);
+
   void wire__crate__frb__set_page_labels(
     NativePortType port_,
     JSAny document,
@@ -5902,6 +6020,12 @@ class FermanBridgeWire implements BaseWire {
     JSAny document,
     bool visible,
   ) => wasmModule.wire__crate__frb__show_comments(port_, document, visible);
+
+  void wire__crate__frb__show_form_widgets(
+    NativePortType port_,
+    JSAny document,
+    bool visible,
+  ) => wasmModule.wire__crate__frb__show_form_widgets(port_, document, visible);
 
   void wire__crate__frb__show_layers(
     NativePortType port_,
@@ -6222,6 +6346,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny job,
   );
 
+  external void wire__crate__frb__attach_file(
+    NativePortType port_,
+    JSAny document,
+    String path,
+    String file_name,
+    String name,
+  );
+
   external void wire__crate__frb__begin_edit(
     NativePortType port_,
     JSAny document,
@@ -6483,6 +6615,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
 
   external void wire__crate__frb__redo(NativePortType port_, JSAny document);
 
+  external void wire__crate__frb__remove_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String name,
+  );
+
   external void wire__crate__frb__reply_to_annotation(
     NativePortType port_,
     JSAny document,
@@ -6669,6 +6808,20 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny settings,
   );
 
+  external void wire__crate__frb__set_info(
+    NativePortType port_,
+    JSAny document,
+    JSAny info,
+    String name,
+  );
+
+  external void wire__crate__frb__set_outline(
+    NativePortType port_,
+    JSAny document,
+    JSAny items,
+    String name,
+  );
+
   external void wire__crate__frb__set_page_labels(
     NativePortType port_,
     JSAny document,
@@ -6697,6 +6850,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   );
 
   external void wire__crate__frb__show_comments(
+    NativePortType port_,
+    JSAny document,
+    bool visible,
+  );
+
+  external void wire__crate__frb__show_form_widgets(
     NativePortType port_,
     JSAny document,
     bool visible,

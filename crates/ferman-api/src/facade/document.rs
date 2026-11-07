@@ -162,11 +162,19 @@ pub(super) struct Revised {
     pub(super) blocks: HashMap<u64, Arc<ferman_text::PageText>>,
     /// The text of each page once read, by page handle, for searches after the first.
     pub(super) texts: HashMap<u64, Arc<PageText>>,
-    /// The layers [`Engine::show_layers`] last showed, which every reload keeps; `None` until it
-    /// is first called.
+    /// What every reload shows besides the revisions.
+    pub(super) shown: Shown,
+}
+
+/// What a document's reloads show besides its revisions, render-only (ADR 0009).
+#[derive(Debug, Clone, Default)]
+pub(super) struct Shown {
+    /// The layers [`Engine::show_layers`] last showed; `None` until it is first called.
     pub(super) layers: Option<Vec<bool>>,
-    /// Whether [`Engine::show_comments`] last hid the comments, which every reload keeps.
+    /// Whether [`Engine::show_comments`] last hid the comments.
     pub(super) comments_hidden: bool,
+    /// Whether [`Engine::show_form_widgets`] last left the widgets to Fill & Sign (B203).
+    pub(super) widgets_hidden: bool,
 }
 
 impl Model {
@@ -194,8 +202,7 @@ impl Model {
                 generation: 0,
                 blocks: HashMap::new(),
                 texts,
-                layers: None,
-                comments_hidden: false,
+                shown: Shown::default(),
             }),
             path,
             rendered: Mutex::new(Rendered {
@@ -224,17 +231,25 @@ impl Model {
         let store = Arc::clone(&self.revised().store);
         let doc = &self.document;
         let mut shown = self.shown.lock().unwrap_or_else(PoisonError::into_inner);
-        let (pages, outline, attachments) =
-            (store.pages(doc), store.outline(doc), store.attachments(doc));
+        let (pages, outline, attachments, info) = (
+            store.pages(doc),
+            store.outline(doc),
+            store.attachments(doc),
+            store.info(doc),
+        );
         let same = match &*shown {
             Some(shown) => {
-                shown.pages == pages && shown.outline == outline && shown.attachments == attachments
+                shown.pages == pages
+                    && shown.outline == outline
+                    && shown.attachments == attachments
+                    && shown.info == *info
             }
             None => {
                 let opened = doc.structure();
                 opened.pages == pages
                     && opened.outline == outline
                     && opened.attachments == attachments
+                    && opened.info == *info
             }
         };
         if same {
@@ -244,11 +259,13 @@ impl Model {
             pages: pages.to_vec(),
             outline: outline.to_vec(),
             attachments: attachments.to_vec(),
+            info: info.clone(),
         });
         Some(DocumentStructure {
             pages: pages.iter().map(page_info).collect(),
             outline: outline.to_vec(),
             attachments: attachments.to_vec(),
+            info: info.clone(),
         })
     }
 
@@ -299,6 +316,8 @@ pub struct DocumentStructure {
     pub outline: Vec<OutlineItem>,
     /// Embedded files and file attachment annotations.
     pub attachments: Vec<Attachment>,
+    /// The document information.
+    pub info: Info,
 }
 
 /// Why a document opened read-only (docs/ARCHITECTURE.md §5.2). In M2 every document is
@@ -392,6 +411,7 @@ impl Engine {
                 })
                 .collect();
             let layers_switchable = !structure.layers.is_empty() && model.repair().is_none();
+            let has_fields = structure.forms.fields > 0;
             let mut opened = OpenedDocument {
                 id: rendered.id,
                 read_only,
@@ -436,8 +456,30 @@ impl Engine {
                 opened.pages = change.pages;
                 opened.outline = change.outline;
                 opened.attachments = change.attachments;
+                opened.info = change.info;
             }
-            self.models()?.insert(rendered.id, Arc::new(model));
+            let model = Arc::new(model);
+            self.models()?.insert(rendered.id, Arc::clone(&model));
+            // Form widgets draw through the render-only appendix (B203) from the first tile on.
+            if has_fields {
+                let store = Arc::clone(&model.revised().store);
+                let appendix = super::assemble::off_the_worker(move || {
+                    Ok(store.render_appendix(&model.document, None, false, true)?)
+                })
+                .await;
+                // A repaired document cannot be written, so its widgets do not draw (B111).
+                let drawn = match appendix {
+                    Ok(appendix) if appendix.is_empty() => Ok(0),
+                    Ok(appendix) => render
+                        .reload(rendered.id, Arc::from(appendix), None)
+                        .await
+                        .map_err(ApiError::from),
+                    Err(err) => Err(err),
+                };
+                if let Err(err) = drawn {
+                    tracing::warn!(error = %err, "the form widgets are not drawn");
+                }
+            }
             Ok(opened)
         }
     }
@@ -502,6 +544,44 @@ impl Engine {
         document: DocumentId,
         visible: bool,
     ) -> Result<u64, ApiError> {
+        self.reshow(document, move |session| session.hide_comments(!visible))
+            .await
+    }
+
+    /// Draws the form widgets of `document` in every view, or leaves them to Fill & Sign's
+    /// overlay, which draws each field with its value (B203): render-only, like
+    /// [`show_comments`](Self::show_comments), and the widgets draw again at the next open.
+    /// Returns every page's new render key, or 0 when nothing changes.
+    ///
+    /// # Errors
+    ///
+    /// As [`show_comments`](Self::show_comments).
+    pub async fn show_form_widgets(
+        &self,
+        document: DocumentId,
+        visible: bool,
+    ) -> Result<u64, ApiError> {
+        let same = self
+            .models()?
+            .get(&document)
+            .is_some_and(|model| model.revised().shown.widgets_hidden != visible);
+        if same {
+            return Ok(0);
+        }
+        self.reshow(document, move |session| session.hide_widgets(!visible))
+            .await
+    }
+
+    /// Reloads `document` with what `shown` makes every reload show, and returns every page's
+    /// new render key.
+    async fn reshow(
+        &self,
+        document: DocumentId,
+        shown: impl Fn(&mut super::edit::Session) -> Result<super::edit::Reload, ApiError>
+        + Copy
+        + Send
+        + 'static,
+    ) -> Result<u64, ApiError> {
         guard_async(async move {
             if self
                 .models()?
@@ -516,9 +596,7 @@ impl Engine {
             // As show_layers: a commit that reached the render thread first has it build again.
             loop {
                 self.render()?;
-                let reload = self
-                    .ask(document, move |session| session.hide_comments(!visible))
-                    .await?;
+                let reload = self.ask(document, shown).await?;
                 if let Some((key, _)) = self.send_reload(document, reload, true).await {
                     return Ok(key?);
                 }

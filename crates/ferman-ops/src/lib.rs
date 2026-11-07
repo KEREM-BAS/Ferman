@@ -29,6 +29,7 @@
 //! - [`signatures`]: simple typed, drawn and image signatures.
 //! - [`compress`]: presets, the estimate, image recompression and unused-object removal; the job
 //!   is ferman-api's.
+//! - [`document`]: the outline, the document information and attached files.
 //!
 //! Version history needs no operation here: ferman-core's `versions` keeps the saved bytes, and
 //! ferman-api's actor calls it from its saves (ADR 0022).
@@ -37,6 +38,7 @@
 pub mod annotations;
 pub mod combine;
 pub mod compress;
+pub mod document;
 pub mod fill;
 pub mod forms;
 pub mod images;

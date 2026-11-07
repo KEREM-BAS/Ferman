@@ -1188,7 +1188,7 @@ fn free_key(key: &[u8], taken: impl Fn(&[u8]) -> bool) -> Option<Vec<u8>> {
 }
 
 /// Adds `entries` to the name tree `name` of `catalog`, which becomes one sorted leaf.
-fn merge_names(
+pub(crate) fn merge_names(
     doc: &Document,
     store: &RevisionStore,
     catalog: &mut Dictionary,

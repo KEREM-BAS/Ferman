@@ -1007,6 +1007,7 @@ class DocumentStructure {
     required this.pages,
     this.outline = const [],
     this.attachments = const [],
+    this.info,
   });
 
   /// Its pages.
@@ -1017,6 +1018,64 @@ class DocumentStructure {
 
   /// Its embedded files.
   final List<Attachment> attachments;
+
+  /// Its information; null leaves the document's as it is.
+  final DocumentInfo? info;
+}
+
+/// One outline item as `EngineService.setOutline` writes it, in reading order:
+/// each item followed by its children.
+@immutable
+class OutlineEdit {
+  /// Creates an item: [item] keeps one of [OpenedDocument.outline] (by its
+  /// index there), with its destination and style; a new one goes to [page].
+  const new({
+    required this.title,
+    this.item,
+    this.page,
+    this.depth = 0,
+    this.open = true,
+  });
+
+  /// The item it keeps, by its index in [OpenedDocument.outline]; null for a
+  /// new item.
+  final int? item;
+
+  /// The page a new item goes to, from 0.
+  final int? page;
+
+  /// Its title.
+  final String title;
+
+  /// Its nesting, from 0; at most one more than the item before it.
+  final int depth;
+
+  /// Whether it shows its children.
+  final bool open;
+}
+
+/// The information a2-7 edits; an empty value removes its entry.
+@immutable
+class InfoEdit {
+  /// Creates the values.
+  const new({
+    this.title = '',
+    this.author = '',
+    this.subject = '',
+    this.keywords = '',
+  });
+
+  /// `/Title`.
+  final String title;
+
+  /// `/Author`.
+  final String author;
+
+  /// `/Subject`.
+  final String subject;
+
+  /// `/Keywords`.
+  final String keywords;
 }
 
 /// One outline item (bookmark) of an [OpenedDocument].
@@ -1178,6 +1237,9 @@ enum DocumentOp {
 
   /// Printing, which changes nothing in the file.
   print,
+
+  /// Changing the document's information or attachments.
+  modify,
 }
 
 /// What an operation may do to a document as it stands (G35).
@@ -1456,12 +1518,14 @@ class OpenedDocument {
     pages: structure.pages,
     outline: structure.outline,
     attachments: structure.attachments,
+    info: structure.info,
   );
 
   OpenedDocument _copy({
     List<PageInfo>? pages,
     List<OutlineEntry>? outline,
     List<Attachment>? attachments,
+    DocumentInfo? info,
     Security? Function()? security,
   }) => OpenedDocument(
     id: id,
@@ -1478,7 +1542,7 @@ class OpenedDocument {
     certification: certification,
     version: version,
     fileSize: fileSize,
-    info: info,
+    info: info ?? this.info,
     language: language,
     tagged: tagged,
     linearized: linearized,

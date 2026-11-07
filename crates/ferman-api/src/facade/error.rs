@@ -365,6 +365,7 @@ impl From<ferman_core::CoreError> for ApiError {
                 | ferman_core::WriteError::NothingToRedo
                 | ferman_core::WriteError::NoSuchPage
                 | ferman_core::WriteError::PagePlan
+                | ferman_core::WriteError::StructurePlan
                 | ferman_core::WriteError::NoSuchAnnotation
                 | ferman_core::WriteError::AnnotationPlan,
             ) => (ErrorKind::InvalidInput, MessageKey::INTERNAL),
@@ -588,6 +589,7 @@ mod tests {
             WriteError::NothingToRedo,
             WriteError::NoSuchPage,
             WriteError::PagePlan,
+            WriteError::StructurePlan,
             WriteError::NoSuchAnnotation,
             WriteError::AnnotationPlan,
         ] {

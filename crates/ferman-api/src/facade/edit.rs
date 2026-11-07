@@ -75,6 +75,8 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::thread;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
+use ferman_core::metadata::InfoEdit;
+use ferman_core::outline::OutlineEdit;
 use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
@@ -91,7 +93,7 @@ use ferman_text::{
     OverflowPlan, Substitution, SubstitutionKind, TextBlock,
 };
 
-use super::document::{DocumentStructure, Model};
+use super::document::{DocumentStructure, Model, Shown};
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
@@ -453,7 +455,7 @@ fn same_file(a: &Path, b: &Path) -> bool {
 
 /// The revised bytes for the render thread: the serial of the publish, what follows the original
 /// bytes, and the revisions they show.
-type Reload = Option<(u64, Arc<[u8]>, Arc<RevisionStore>)>;
+pub(super) type Reload = Option<(u64, Arc<[u8]>, Arc<RevisionStore>)>;
 
 /// The transaction ids handed out; 0 is never one.
 static NEXT_TRANSACTION: AtomicU64 = AtomicU64::new(1);
@@ -1980,7 +1982,7 @@ impl Session {
     /// Publishes the committed revisions for the readers and returns the revised bytes for the
     /// render thread, or `None` when they cannot be written (logged).
     pub(super) fn publish(&self) -> Reload {
-        let (serial, layers, hidden) = {
+        let (serial, shown) = {
             let mut revised = self.model.revised();
             revised.store = Arc::clone(&self.committed);
             revised.generation = revised.generation.saturating_add(1);
@@ -1988,18 +1990,16 @@ impl Session {
             // shortcut: an edit of one page makes the next search read every page again; keep
             // the text of pages it did not touch if a search after an edit proves slow.
             revised.texts.clear();
-            (
-                revised.generation,
-                revised.layers.clone(),
-                revised.comments_hidden,
-            )
+            (revised.generation, revised.shown.clone())
         };
         // shortcut: the whole file is built to cut off its update; build the update alone when
         // large files make edits slow.
-        match self
-            .committed
-            .render_appendix(&self.model.document, layers.as_deref(), hidden)
-        {
+        match self.committed.render_appendix(
+            &self.model.document,
+            shown.layers.as_deref(),
+            shown.comments_hidden,
+            !shown.widgets_hidden,
+        ) {
             Ok(appendix) => Some((serial, Arc::from(appendix), Arc::clone(&self.committed))),
             Err(err) => {
                 tracing::warn!(error = %err, "the revised bytes could not be built");
@@ -2011,29 +2011,34 @@ impl Session {
     /// Makes `visible` the layers every reload shows, and returns the bytes that show them over
     /// the committed revisions.
     pub(super) fn show_layers(&self, visible: Vec<bool>) -> Result<Reload, ApiError> {
-        let hidden = self.model.revised().comments_hidden;
-        let appendix =
-            self.committed
-                .render_appendix(&self.model.document, Some(&visible), hidden)?;
-        let mut revised = self.model.revised();
-        revised.layers = Some(visible);
-        revised.generation = revised.generation.saturating_add(1);
-        Ok(Some((
-            revised.generation,
-            Arc::from(appendix),
-            Arc::clone(&self.committed),
-        )))
+        self.shown(|shown| shown.layers = Some(visible))
     }
 
     /// Makes every reload hide the markup annotations, or show them again, and returns the bytes
     /// for now, over the committed revisions.
     pub(super) fn hide_comments(&self, hide: bool) -> Result<Reload, ApiError> {
-        let layers = self.model.revised().layers.clone();
-        let appendix =
-            self.committed
-                .render_appendix(&self.model.document, layers.as_deref(), hide)?;
+        self.shown(|shown| shown.comments_hidden = hide)
+    }
+
+    /// Makes every reload leave the form widgets to Fill & Sign's overlay, or draw them again
+    /// (B203), and returns the bytes for now, over the committed revisions.
+    pub(super) fn hide_widgets(&self, hide: bool) -> Result<Reload, ApiError> {
+        self.shown(|shown| shown.widgets_hidden = hide)
+    }
+
+    /// Makes every reload show what `change` sets, and returns the bytes for now, over the
+    /// committed revisions; nothing changes if they cannot be built.
+    fn shown(&self, change: impl FnOnce(&mut Shown)) -> Result<Reload, ApiError> {
+        let mut wanted = self.model.revised().shown.clone();
+        change(&mut wanted);
+        let appendix = self.committed.render_appendix(
+            &self.model.document,
+            wanted.layers.as_deref(),
+            wanted.comments_hidden,
+            !wanted.widgets_hidden,
+        )?;
         let mut revised = self.model.revised();
-        revised.comments_hidden = hide;
+        revised.shown = wanted;
         revised.generation = revised.generation.saturating_add(1);
         Ok(Some((
             revised.generation,
@@ -2698,6 +2703,133 @@ impl Engine {
     ) -> Result<RevisionInfo, ApiError> {
         self.organize(document, Vec::new(), name, move |doc, working, _| {
             ferman_ops::pages::set_labels(doc, working, &ranges)
+        })
+        .await
+    }
+
+    /// Makes `items` the outline of `document` (a2-3a: rename, add, nest, reorder, delete) as the
+    /// step `name` of the history.
+    ///
+    /// # Errors
+    ///
+    /// As the page operations, and `InvalidInput` for items that cannot apply
+    /// ([`RevisionStore::set_outline`]).
+    pub async fn set_outline(
+        &self,
+        document: DocumentId,
+        items: Vec<OutlineEdit>,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.organize(document, Vec::new(), name, move |doc, working, _| {
+            ferman_ops::document::set_outline(doc, working, &items)
+        })
+        .await
+    }
+
+    /// Makes `info` the information of `document` (a2-7), in `/Info` and its XMP, as the step
+    /// `name` of the history.
+    ///
+    /// # Errors
+    ///
+    /// `NotEditable` for a document whose permissions forbid changing it or that cannot be
+    /// changed, `ConfirmationRequired` for a signed document before its confirmation,
+    /// `InvalidInput` for a file without an `/Info` object or while a transaction is open, and
+    /// `NotFound` for a document that is not open.
+    pub async fn set_info(
+        &self,
+        document: DocumentId,
+        info: InfoEdit,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        self.modify(document, name, move |doc, working| {
+            ferman_ops::document::set_info(doc, working, &info)
+        })
+        .await
+    }
+
+    /// Attaches the file at `path` to `document` under `file_name` (a2-3b) as the step `name` of
+    /// the history; its bytes are read now, off the caller's thread.
+    ///
+    /// # Errors
+    ///
+    /// As [`set_info`](Self::set_info), `Io` and the other file errors when `path` cannot be
+    /// read, and `ResourceLimit` for a file past the size of one change.
+    pub async fn attach_file(
+        &self,
+        document: DocumentId,
+        path: PathBuf,
+        file_name: String,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let data = super::assemble::off_the_worker(move || {
+                std::fs::read(&path)
+                    .map_err(|err| ApiError::from(ferman_core::CoreError::Io { kind: err.kind() }))
+            })
+            .await?;
+            let modified =
+                super::annotations::pdf_date(u64::try_from(now_millis() / 1000).unwrap_or(0));
+            let file = ferman_core::attach::NewAttachment {
+                name: file_name,
+                data,
+                media_type: None,
+                modified: Some(modified),
+            };
+            self.modify(document, name, move |doc, working| {
+                ferman_ops::document::attach_file(doc, working, file)
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Takes attachment `index` ([`DocumentStructure::attachments`]) out of `document` as the
+    /// step `name` of the history; a file attachment annotation is a comment and is deleted as one.
+    ///
+    /// # Errors
+    ///
+    /// As [`set_info`](Self::set_info), and `InvalidInput` for an index past the attachments or
+    /// an annotation's.
+    pub async fn remove_attachment(
+        &self,
+        document: DocumentId,
+        index: u32,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        let index = usize::try_from(index).unwrap_or(usize::MAX);
+        self.modify(document, name, move |doc, working| {
+            ferman_ops::document::remove_attachment(doc, working, index)
+        })
+        .await
+    }
+
+    /// Commits what `write` writes as the step `name`, which names no page, under the permission
+    /// to change the document.
+    async fn modify(
+        &self,
+        document: DocumentId,
+        name: String,
+        write: impl FnOnce(
+            &ferman_core::Document,
+            &mut RevisionStore,
+        ) -> Result<(), ferman_ops::OpsError>
+        + Send
+        + 'static,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| {
+                    session.commit_change(
+                        DocumentOp::Modify,
+                        &[],
+                        name,
+                        &[],
+                        (String::new(), String::new()),
+                        |doc, working| Ok(write(doc, working)?),
+                    )
+                })
+                .await?;
+            Ok(self.revision_info(document, current, reload).await)
         })
         .await
     }

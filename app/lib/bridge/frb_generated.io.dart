@@ -141,6 +141,9 @@ abstract class FermanBridgeApiImplPlatform
   int dco_decode_box_autoadd_i_32(dynamic raw);
 
   @protected
+  InfoEdit dco_decode_box_autoadd_info_edit(dynamic raw);
+
+  @protected
   LinkChange dco_decode_box_autoadd_link_change(dynamic raw);
 
   @protected
@@ -366,6 +369,9 @@ abstract class FermanBridgeApiImplPlatform
   PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
+  InfoEdit dco_decode_info_edit(dynamic raw);
+
+  @protected
   InputStatus dco_decode_input_status(dynamic raw);
 
   @protected
@@ -493,6 +499,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageMargins?> dco_decode_list_opt_box_autoadd_page_margins(dynamic raw);
+
+  @protected
+  List<OutlineEdit> dco_decode_list_outline_edit(dynamic raw);
 
   @protected
   List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
@@ -687,6 +696,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
+
+  @protected
+  OutlineEdit dco_decode_outline_edit(dynamic raw);
 
   @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
@@ -1001,6 +1013,9 @@ abstract class FermanBridgeApiImplPlatform
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
+  InfoEdit sse_decode_box_autoadd_info_edit(SseDeserializer deserializer);
+
+  @protected
   LinkChange sse_decode_box_autoadd_link_change(SseDeserializer deserializer);
 
   @protected
@@ -1254,6 +1269,9 @@ abstract class FermanBridgeApiImplPlatform
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
+  InfoEdit sse_decode_info_edit(SseDeserializer deserializer);
+
+  @protected
   InputStatus sse_decode_input_status(SseDeserializer deserializer);
 
   @protected
@@ -1405,6 +1423,9 @@ abstract class FermanBridgeApiImplPlatform
   List<PageMargins?> sse_decode_list_opt_box_autoadd_page_margins(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<OutlineEdit> sse_decode_list_outline_edit(SseDeserializer deserializer);
 
   @protected
   List<OutlineEntry> sse_decode_list_outline_entry(
@@ -1647,6 +1668,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint32List? sse_decode_opt_list_prim_u_32_strict(
     SseDeserializer deserializer,
   );
+
+  @protected
+  OutlineEdit sse_decode_outline_edit(SseDeserializer deserializer);
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
@@ -2033,6 +2057,16 @@ abstract class FermanBridgeApiImplPlatform
   ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_info_edit> cst_encode_box_autoadd_info_edit(
+    InfoEdit raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_info_edit();
+    cst_api_fill_to_wire_info_edit(raw, ptr.ref);
+    return ptr;
   }
 
   @protected
@@ -2594,6 +2628,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_opt_box_autoadd_page_margins(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       ans.ref.ptr[i] = cst_encode_opt_box_autoadd_page_margins(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_outline_edit> cst_encode_list_outline_edit(
+    List<OutlineEdit> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_outline_edit(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_outline_edit(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -3364,6 +3410,14 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_box_autoadd_info_edit(
+    InfoEdit apiObj,
+    ffi.Pointer<wire_cst_info_edit> wireObj,
+  ) {
+    cst_api_fill_to_wire_info_edit(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_link_change(
     LinkChange apiObj,
     ffi.Pointer<wire_cst_link_change> wireObj,
@@ -3633,6 +3687,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.pages = cst_encode_list_page_info(apiObj.pages);
     wireObj.outline = cst_encode_list_outline_entry(apiObj.outline);
     wireObj.attachments = cst_encode_list_attachment(apiObj.attachments);
+    cst_api_fill_to_wire_document_info(apiObj.info, wireObj.info);
   }
 
   @protected
@@ -3883,6 +3938,17 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_info_edit(
+    InfoEdit apiObj,
+    wire_cst_info_edit wireObj,
+  ) {
+    wireObj.title = cst_encode_String(apiObj.title);
+    wireObj.author = cst_encode_String(apiObj.author);
+    wireObj.subject = cst_encode_String(apiObj.subject);
+    wireObj.keywords = cst_encode_String(apiObj.keywords);
+  }
+
+  @protected
   void cst_api_fill_to_wire_job_event(
     JobEvent apiObj,
     wire_cst_job_event wireObj,
@@ -4097,6 +4163,18 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.scripts = cst_encode_u_32(apiObj.scripts);
     wireObj.form_fields = cst_encode_u_32(apiObj.formFields);
     wireObj.scanned = cst_encode_bool(apiObj.scanned);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_outline_edit(
+    OutlineEdit apiObj,
+    wire_cst_outline_edit wireObj,
+  ) {
+    wireObj.item = cst_encode_opt_box_autoadd_u_32(apiObj.item);
+    wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
+    wireObj.title = cst_encode_String(apiObj.title);
+    wireObj.depth = cst_encode_u_32(apiObj.depth);
+    wireObj.open = cst_encode_bool(apiObj.open);
   }
 
   @protected
@@ -4893,6 +4971,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_info_edit(
+    InfoEdit self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_link_change(
     LinkChange self,
     SseSerializer serializer,
@@ -5220,6 +5304,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
+  void sse_encode_info_edit(InfoEdit self, SseSerializer serializer);
+
+  @protected
   void sse_encode_input_status(InputStatus self, SseSerializer serializer);
 
   @protected
@@ -5417,6 +5504,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_opt_box_autoadd_page_margins(
     List<PageMargins?> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_outline_edit(
+    List<OutlineEdit> self,
     SseSerializer serializer,
   );
 
@@ -5746,6 +5839,9 @@ abstract class FermanBridgeApiImplPlatform
     Uint32List? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_outline_edit(OutlineEdit self, SseSerializer serializer);
 
   @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
@@ -6158,6 +6254,45 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__apply_job_change =
       _wire__crate__frb__apply_job_changePtr
           .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__attach_file(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> file_name,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__attach_file(
+      port_,
+      document,
+      path,
+      file_name,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__attach_filePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__attach_file');
+  late final _wire__crate__frb__attach_file = _wire__crate__frb__attach_filePtr
+      .asFunction<
+        void Function(
+          int,
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
 
   void wire__crate__frb__begin_edit(
     int port_,
@@ -7138,6 +7273,37 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__redo = _wire__crate__frb__redoPtr
       .asFunction<void Function(int, int)>();
 
+  void wire__crate__frb__remove_attachment(
+    int port_,
+    int document,
+    int index,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__remove_attachment(port_, document, index, name);
+  }
+
+  late final _wire__crate__frb__remove_attachmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__remove_attachment');
+  late final _wire__crate__frb__remove_attachment =
+      _wire__crate__frb__remove_attachmentPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__frb__reply_to_annotation(
     int port_,
     int document,
@@ -7956,6 +8122,66 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, ffi.Pointer<wire_cst_font_settings>)
           >();
 
+  void wire__crate__frb__set_info(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_info_edit> info,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__set_info(port_, document, info, name);
+  }
+
+  late final _wire__crate__frb__set_infoPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_info_edit>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__set_info');
+  late final _wire__crate__frb__set_info = _wire__crate__frb__set_infoPtr
+      .asFunction<
+        void Function(
+          int,
+          int,
+          ffi.Pointer<wire_cst_info_edit>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
+  void wire__crate__frb__set_outline(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_outline_edit> items,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__set_outline(port_, document, items, name);
+  }
+
+  late final _wire__crate__frb__set_outlinePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_outline_edit>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__set_outline');
+  late final _wire__crate__frb__set_outline = _wire__crate__frb__set_outlinePtr
+      .asFunction<
+        void Function(
+          int,
+          int,
+          ffi.Pointer<wire_cst_list_outline_edit>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
   void wire__crate__frb__set_page_labels(
     int port_,
     int document,
@@ -8069,6 +8295,22 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_wire__crate__frb__show_comments');
   late final _wire__crate__frb__show_comments =
       _wire__crate__frb__show_commentsPtr
+          .asFunction<void Function(int, int, bool)>();
+
+  void wire__crate__frb__show_form_widgets(
+    int port_,
+    int document,
+    bool visible,
+  ) {
+    return _wire__crate__frb__show_form_widgets(port_, document, visible);
+  }
+
+  late final _wire__crate__frb__show_form_widgetsPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool)>
+      >('frbgen_ferman_wire__crate__frb__show_form_widgets');
+  late final _wire__crate__frb__show_form_widgets =
+      _wire__crate__frb__show_form_widgetsPtr
           .asFunction<void Function(int, int, bool)>();
 
   void wire__crate__frb__show_layers(
@@ -9049,6 +9291,17 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_i_32 = _cst_new_box_autoadd_i_32Ptr
       .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
 
+  ffi.Pointer<wire_cst_info_edit> cst_new_box_autoadd_info_edit() {
+    return _cst_new_box_autoadd_info_edit();
+  }
+
+  late final _cst_new_box_autoadd_info_editPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_cst_info_edit> Function()>>(
+        'frbgen_ferman_cst_new_box_autoadd_info_edit',
+      );
+  late final _cst_new_box_autoadd_info_edit = _cst_new_box_autoadd_info_editPtr
+      .asFunction<ffi.Pointer<wire_cst_info_edit> Function()>();
+
   ffi.Pointer<wire_cst_link_change> cst_new_box_autoadd_link_change() {
     return _cst_new_box_autoadd_link_change();
   }
@@ -9751,6 +10004,19 @@ class FermanBridgeWire implements BaseWire {
             )
           >();
 
+  ffi.Pointer<wire_cst_list_outline_edit> cst_new_list_outline_edit(int len) {
+    return _cst_new_list_outline_edit(len);
+  }
+
+  late final _cst_new_list_outline_editPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_outline_edit> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_outline_edit');
+  late final _cst_new_list_outline_edit = _cst_new_list_outline_editPtr
+      .asFunction<ffi.Pointer<wire_cst_list_outline_edit> Function(int)>();
+
   ffi.Pointer<wire_cst_list_outline_entry> cst_new_list_outline_entry(int len) {
     return _cst_new_list_outline_entry(len);
   }
@@ -10395,6 +10661,37 @@ final class wire_cst_font_settings extends ffi.Struct {
   external bool keep_lines;
 }
 
+final class wire_cst_info_edit extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> title;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> subject;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> keywords;
+}
+
+final class wire_cst_outline_edit extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint32> item;
+
+  external ffi.Pointer<ffi.Uint32> page;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> title;
+
+  @ffi.Uint32()
+  external int depth;
+
+  @ffi.Bool()
+  external bool open;
+}
+
+final class wire_cst_list_outline_edit extends ffi.Struct {
+  external ffi.Pointer<wire_cst_outline_edit> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_label_range extends ffi.Struct {
   @ffi.Uint32()
   external int start;
@@ -10651,12 +10948,32 @@ final class wire_cst_list_attachment extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_document_info extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> title;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> subject;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> keywords;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> creator;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> producer;
+
+  external ffi.Pointer<wire_cst_pdf_date> created;
+
+  external ffi.Pointer<wire_cst_pdf_date> modified;
+}
+
 final class wire_cst_document_structure extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_page_info> pages;
 
   external ffi.Pointer<wire_cst_list_outline_entry> outline;
 
   external ffi.Pointer<wire_cst_list_attachment> attachments;
+
+  external wire_cst_document_info info;
 }
 
 final class wire_cst_extend_blocked extends ffi.Struct {
@@ -11537,24 +11854,6 @@ final class wire_cst_compress_analysis extends ffi.Struct {
 
   @ffi.Bool()
   external bool signed_;
-}
-
-final class wire_cst_document_info extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> title;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> author;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> subject;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> keywords;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> creator;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> producer;
-
-  external ffi.Pointer<wire_cst_pdf_date> created;
-
-  external ffi.Pointer<wire_cst_pdf_date> modified;
 }
 
 final class wire_cst_page_blocks extends ffi.Struct {

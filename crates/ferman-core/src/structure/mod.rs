@@ -312,6 +312,8 @@ pub struct RevisedStructure {
     pub outline: Vec<OutlineItem>,
     /// Embedded files and file attachment annotations.
     pub attachments: Vec<Attachment>,
+    /// The document information.
+    pub info: Info,
 }
 
 /// Whether the two parsers agree (ADR 0004, G102): lopdf's model and PDFium.
@@ -378,7 +380,10 @@ impl Structure {
                 let unknown = fields.is_empty() && signed.iter().any(|s| !s.locks.is_empty());
                 allowed && !unknown && !fields.iter().any(locked)
             }
-            DocumentOp::EditText | DocumentOp::Organize | DocumentOp::Print => false,
+            DocumentOp::EditText
+            | DocumentOp::Organize
+            | DocumentOp::Print
+            | DocumentOp::Modify => false,
         };
         if keeps {
             OpGate::KeepsSignatures
@@ -669,6 +674,7 @@ pub(crate) fn revised(
         pages: pages(&scope, &ids),
         outline: navigation::outline(&scope),
         attachments: navigation::attachments(&scope),
+        info: info(&scope),
     }
 }
 

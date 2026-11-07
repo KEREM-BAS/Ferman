@@ -1281,8 +1281,11 @@ class FakeEngineService implements EngineService {
     int document,
     String name,
     List<int> touched,
-    List<PageInfo> Function(List<PageInfo> pages) change,
-  ) {
+    List<PageInfo> Function(List<PageInfo> pages) change, {
+    List<OutlineEntry>? outline,
+    List<Attachment>? attachments,
+    DocumentInfo? info,
+  }) {
     _closed(document, can: true);
     final opened = _openedById(document);
     final pages = _handled(opened);
@@ -1304,8 +1307,9 @@ class FakeEngineService implements EngineService {
     final blocks = _blocks(document, 0);
     final next = DocumentStructure(
       pages: after,
-      outline: opened.outline,
-      attachments: opened.attachments,
+      outline: outline ?? opened.outline,
+      attachments: attachments ?? opened.attachments,
+      info: info ?? opened.info,
     );
     _histories[document] = (
       steps: [
@@ -1320,6 +1324,7 @@ class FakeEngineService implements EngineService {
             pages: pages,
             outline: opened.outline,
             attachments: opened.attachments,
+            info: opened.info,
           ),
           structureAfter: next,
         ),
@@ -1759,6 +1764,115 @@ class FakeEngineService implements EngineService {
         if (annotation.handle != handle && annotation.thread != handle)
           annotation,
     ]);
+  }
+
+  /// The outlines [setOutline] wrote, oldest first.
+  final List<List<OutlineEdit>> outlineEdits = [];
+
+  @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) async {
+    outlineEdits.add(items);
+    final before = _openedById(document).outline;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      outline: [
+        for (final item in items)
+          OutlineEntry(
+            title: item.title,
+            page: switch (item.item) {
+              final kept? => before[kept].page,
+              null => item.page,
+            },
+            depth: item.depth,
+            open: item.open,
+          ),
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name) async {
+    final before = _openedById(document).info;
+    String? value(String text) => text.isEmpty ? null : text;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      info: DocumentInfo(
+        title: value(info.title),
+        author: value(info.author),
+        subject: value(info.subject),
+        keywords: value(info.keywords),
+        creator: before.creator,
+        producer: before.producer,
+        created: before.created,
+        modified: before.modified,
+      ),
+    );
+  }
+
+  /// The files [attachFile] attached: document, path and name.
+  final List<(int, String, String)> attachedFiles = [];
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) async {
+    attachedFiles.add((document, path, fileName));
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      attachments: [
+        ..._openedById(document).attachments,
+        Attachment(name: fileName),
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> removeAttachment(
+    int document,
+    int index,
+    String name,
+  ) async {
+    final attachments = [..._openedById(document).attachments];
+    if (index < 0 || index >= attachments.length) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    attachments.removeAt(index);
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      attachments: attachments,
+    );
+  }
+
+  /// The requests of every [showFormWidgets], oldest first.
+  final List<bool> formWidgetRequests = [];
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async {
+    formWidgetRequests.add(visible);
+    _pageKeys.remove(document);
+    return _renderKeys[document] = ++_lastRenderKey;
   }
 
   /// The requests of every [showComments], oldest first.

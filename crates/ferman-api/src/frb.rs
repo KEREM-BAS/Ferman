@@ -1085,6 +1085,8 @@ pub struct DocumentStructure {
     pub outline: Vec<OutlineEntry>,
     /// Its embedded files.
     pub attachments: Vec<Attachment>,
+    /// Its information.
+    pub info: DocumentInfo,
 }
 
 /// Where the history stands after a commit, rollback, undo or redo.
@@ -2575,6 +2577,21 @@ pub async fn show_comments(document: u64, visible: bool) -> Result<u64, ApiError
         .map_err(api_error_dto)
 }
 
+/// Draws the form widgets of `document` in every view, or leaves them to Fill & Sign's overlay
+/// (B203): render-only, never saved. Returns every page's new render key, 0 when nothing changes.
+///
+/// See [`facade::Engine::show_form_widgets`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+pub async fn show_form_widgets(document: u64, visible: bool) -> Result<u64, ApiError> {
+    engine()?
+        .show_form_widgets(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
 /// Flattens annotations `handles` with their replies as a background job: with `copy` it first
 /// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
 ///
@@ -3657,6 +3674,140 @@ pub async fn set_page_labels(
         .map_err(api_error_dto)
 }
 
+/// One outline item as [`set_outline`] writes it, in reading order: each item followed by its
+/// children.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutlineEdit {
+    /// The item it keeps, by its place in [`OpenedDocument::outline`] as it stands now; `None`
+    /// for a new item.
+    pub item: Option<u32>,
+    /// The page a new item goes to, from 0.
+    pub page: Option<u32>,
+    /// Its title.
+    pub title: String,
+    /// Its nesting, from 0; at most one more than the item before it.
+    pub depth: u32,
+    /// Whether it shows its children.
+    pub open: bool,
+}
+
+/// Makes `items` the outline of `document` (a2-3a) as one history step: renamed, added, nested,
+/// moved and deleted items at once. An item kept keeps its destination, colour and style.
+///
+/// See [`facade::Engine::set_outline`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`], and `InvalidInput` for items that cannot apply.
+pub async fn set_outline(
+    document: u64,
+    items: Vec<OutlineEdit>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let index =
+        |value: Option<u32>| value.map(|value| usize::try_from(value).unwrap_or(usize::MAX));
+    let items = items
+        .into_iter()
+        .map(|item| facade::OutlineEdit {
+            item: index(item.item),
+            page: index(item.page),
+            title: item.title,
+            depth: item.depth,
+            open: item.open,
+        })
+        .collect();
+    engine()?
+        .set_outline(facade::DocumentId::from_raw(document), items, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The document information a2-7 edits; an empty value removes its entry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InfoEdit {
+    /// The title.
+    pub title: String,
+    /// The author.
+    pub author: String,
+    /// The subject.
+    pub subject: String,
+    /// The keywords.
+    pub keywords: String,
+}
+
+/// Makes `info` the information of `document` (a2-7), in `/Info` and its XMP, as one history
+/// step.
+///
+/// See [`facade::Engine::set_info`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` for a file without an `/Info` object,
+/// and `NotFound`.
+pub async fn set_info(
+    document: u64,
+    info: InfoEdit,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let info = facade::InfoEdit {
+        title: info.title,
+        author: info.author,
+        subject: info.subject,
+        keywords: info.keywords,
+    };
+    engine()?
+        .set_info(facade::DocumentId::from_raw(document), info, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Attaches the file at `path` to `document` as `file_name` (a2-3b), one history step.
+///
+/// See [`facade::Engine::attach_file`].
+///
+/// # Errors
+///
+/// As [`set_info`], the file errors, and `ResourceLimit` for a file too large for one change.
+pub async fn attach_file(
+    document: u64,
+    path: String,
+    file_name: String,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .attach_file(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            file_name,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Takes attachment `index` of [`OpenedDocument::attachments`] out of `document`, one history
+/// step; a file attachment annotation is a comment and is not taken out here.
+///
+/// See [`facade::Engine::remove_attachment`].
+///
+/// # Errors
+///
+/// As [`set_info`], and `InvalidInput` for an annotation's attachment or an index past them.
+pub async fn remove_attachment(
+    document: u64,
+    index: u32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .remove_attachment(facade::DocumentId::from_raw(document), index, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -4277,6 +4428,8 @@ pub enum DocumentOp {
     Fill,
     /// Printing, which changes nothing in the file.
     Print,
+    /// Changing the document's information or attachments.
+    Modify,
 }
 
 /// What a form field is.
@@ -4944,6 +5097,7 @@ pub async fn op_gate(
         DocumentOp::Comment => facade::DocumentOp::Comment,
         DocumentOp::Fill => facade::DocumentOp::Fill,
         DocumentOp::Print => facade::DocumentOp::Print,
+        DocumentOp::Modify => facade::DocumentOp::Modify,
     };
     engine()?
         .op_gate(facade::DocumentId::from_raw(document), op, fields)
@@ -5314,6 +5468,7 @@ fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
             pages: pages_dto(structure.pages),
             outline: outline_dto(structure.outline),
             attachments: attachments_dto(structure.attachments),
+            info: info_dto(structure.info),
         }),
     }
 }
@@ -5628,16 +5783,7 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             .collect(),
         version: document.version,
         file_size: document.file_size,
-        info: DocumentInfo {
-            title: document.info.title,
-            author: document.info.author,
-            subject: document.info.subject,
-            keywords: document.info.keywords,
-            creator: document.info.creator,
-            producer: document.info.producer,
-            created: document.info.created.map(pdf_date_dto),
-            modified: document.info.modified.map(pdf_date_dto),
-        },
+        info: info_dto(document.info),
         language: document.language,
         tagged: document.tagged,
         linearized: document.linearized,
@@ -5722,6 +5868,7 @@ fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
             page,
             open,
             children,
+            ..
         } = item;
         let next = depth.saturating_add(1);
         stack.extend(children.into_iter().rev().map(|child| (next, child)));
@@ -5733,6 +5880,19 @@ fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
         });
     }
     entries
+}
+
+fn info_dto(info: facade::Info) -> DocumentInfo {
+    DocumentInfo {
+        title: info.title,
+        author: info.author,
+        subject: info.subject,
+        keywords: info.keywords,
+        creator: info.creator,
+        producer: info.producer,
+        created: info.created.map(pdf_date_dto),
+        modified: info.modified.map(pdf_date_dto),
+    }
 }
 
 fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {

@@ -249,9 +249,12 @@ impl Engine {
                     })?
             };
             let appendix = off_the_worker(move || {
-                Ok(snapshot
-                    .store()
-                    .render_appendix(snapshot.base(), None, !include_comments)?)
+                Ok(snapshot.store().render_appendix(
+                    snapshot.base(),
+                    None,
+                    !include_comments,
+                    true,
+                )?)
             })
             .await?;
             let render = self.render()?;

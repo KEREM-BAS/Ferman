@@ -597,6 +597,40 @@ abstract interface class EngineService {
     String name,
   );
 
+  /// Makes [items] the outline of [document] (a2-3a: rename, add, nest,
+  /// reorder, delete) as one step. Throws an [EngineException] with
+  /// [EngineErrorKind.invalidInput] for items that cannot apply, and as
+  /// [setPageLabels] otherwise ([DocumentOp.organize]).
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  );
+
+  /// Makes [info] the information of [document] (a2-7), in `/Info` and its
+  /// XMP, as one step ([DocumentOp.modify]). Throws an [EngineException] with
+  /// [EngineErrorKind.invalidInput] for a file without an `/Info` object.
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name);
+
+  /// Attaches the file at [path] to [document] as [fileName] (a2-3b), one
+  /// step ([DocumentOp.modify]); its bytes are read now.
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  );
+
+  /// Takes attachment [index] of [OpenedDocument.attachments] out of
+  /// [document], one step ([DocumentOp.modify]). A file attachment
+  /// annotation's is a comment: [EngineErrorKind.invalidInput].
+  Future<RevisionInfo> removeAttachment(int document, int index, String name);
+
+  /// Draws the form widgets of [document] in every view, or leaves them to
+  /// Fill & Sign's overlay, which draws each field (B203): render-only, never
+  /// saved. Returns every page's new render key, 0 when nothing changes.
+  Future<int> showFormWidgets(int document, {required bool visible});
+
   /// Steps [document] back one step of its history.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
@@ -1282,6 +1316,39 @@ class UnavailableEngineService implements EngineService {
     List<PageLabelRange> ranges,
     String name,
   ) async => throw error;
+
+  @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> setInfo(
+    int document,
+    InfoEdit info,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> removeAttachment(
+    int document,
+    int index,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async =>
+      throw error;
 
   @override
   Future<RevisionInfo> undo(int document) async => throw error;

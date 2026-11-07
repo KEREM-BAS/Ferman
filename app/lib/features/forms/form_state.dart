@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ferman/app/toast_host.dart';
+import 'package:ferman/design/components/navigation/ferman_mode.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
@@ -570,4 +571,59 @@ List<List<Offset>> markStrokes(FillTool tool, Rect box) {
       ],
     ],
   };
+}
+
+/// Whether the canvas draws the open document's form widgets (B203), and the
+/// render key that says so.
+@immutable
+final class FormWidgetsVisibility {
+  /// Drawn, by default.
+  const new({this.visible = true, this.renderKey = 0});
+
+  /// Whether the canvas draws them.
+  final bool visible;
+
+  /// Every page's render key after the last change; 0 before one.
+  final int renderKey;
+}
+
+/// Form widgets on the canvas, as `formWidgetsShownProvider`: drawn in every
+/// mode and tool but Fill & Sign's fields, whose overlay draws each field with
+/// its value, so no value shows twice. Render-only, never saved; the canvas
+/// listens while it shows a document.
+@riverpod
+class FormWidgetsShown extends _$FormWidgetsShown {
+  @override
+  FormWidgetsVisibility build() {
+    final document = ref.watch(openDocumentProvider.select((d) => d?.id));
+    final fields = ref.watch(
+      openDocumentProvider.select((d) => d?.formFields ?? 0),
+    );
+    if (document == null || fields == 0) return const FormWidgetsVisibility();
+    final overlay =
+        ref.watch(shellModeProvider) == FermanMode.sign &&
+        ref
+                .watch(fillToolsStateProvider)
+                .effective(ref.watch(documentFormProvider).value) ==
+            FillTool.fields;
+    unawaited(_show(document, visible: !overlay));
+    return FormWidgetsVisibility(visible: !overlay);
+  }
+
+  Future<void> _show(int document, {required bool visible}) async {
+    final int key;
+    try {
+      key = await ref
+          .read(engineServiceProvider)
+          .showFormWidgets(document, visible: visible);
+    } on EngineException {
+      // A repaired document cannot be reloaded so: the canvas keeps what it
+      // drew, and the overlay draws on top as before B203.
+      return;
+    }
+    if (!ref.mounted || key == 0) return;
+    if (ref.read(openDocumentProvider)?.id == document) {
+      state = FormWidgetsVisibility(visible: visible, renderKey: key);
+    }
+  }
 }

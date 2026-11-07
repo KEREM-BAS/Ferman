@@ -70,6 +70,8 @@ pub use versions::VersionInfo;
 pub use ferman_core::annotations::AnnotationKind;
 pub use ferman_core::forms::FieldKind;
 pub use ferman_core::links::LinkLook;
+pub use ferman_core::metadata::InfoEdit;
+pub use ferman_core::outline::OutlineEdit;
 pub use ferman_core::structure::{
     Agreement, Attachment, Direction, FontKind, FontUse, Info, LabelRange, LabelStyle, Layer,
     OpGate, OutlineItem, PdfDate, Scripts, Signature,

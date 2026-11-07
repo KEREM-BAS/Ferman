@@ -10,8 +10,9 @@ use lopdf::{Dictionary, Object, ObjectId};
 use super::{PdfDate, Scope};
 use crate::text_string;
 
-/// One outline item (bookmark).
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// One outline item (bookmark). Two items are equal when they read the same, whatever their
+/// objects: a rewrite numbers them anew.
+#[derive(Debug, Clone, Eq)]
 pub struct OutlineItem {
     /// Its title.
     pub title: String,
@@ -21,6 +22,17 @@ pub struct OutlineItem {
     pub open: bool,
     /// Its children.
     pub children: Vec<OutlineItem>,
+    /// Its object.
+    pub(crate) id: ObjectId,
+}
+
+impl PartialEq for OutlineItem {
+    fn eq(&self, other: &Self) -> bool {
+        self.title == other.title
+            && self.page == other.page
+            && self.open == other.open
+            && self.children == other.children
+    }
 }
 
 /// An embedded file (a2-3b): from the `/EmbeddedFiles` name tree, or a file attachment
@@ -43,6 +55,8 @@ pub struct Attachment {
     pub page: Option<u32>,
     /// The embedded file stream.
     pub(crate) file: Option<ObjectId>,
+    /// Its key in the `/EmbeddedFiles` tree; `None` for a file attachment annotation's.
+    pub(crate) key: Option<Vec<u8>>,
 }
 
 /// The entries of a name or number tree (`kind` is `Names` or `Nums`), in tree order; keys of
@@ -204,6 +218,7 @@ fn items<'a>(
             page: named.target(scope, item),
             open: scope.get_int(item, b"Count").is_some_and(|count| count > 0),
             children: items(scope, named, item, depth.saturating_add(1), seen),
+            id,
         });
         next = item.get(b"Next").ok();
     }
@@ -215,12 +230,9 @@ pub(crate) fn attachments(scope: &Scope<'_>) -> Vec<Attachment> {
     let mut out = Vec::new();
     for (key, spec) in names(scope, b"EmbeddedFiles") {
         if let Some(spec) = scope.dict(spec) {
-            out.push(attachment(
-                scope,
-                spec,
-                Some(text_string::decode(key)),
-                None,
-            ));
+            let mut found = attachment(scope, spec, Some(text_string::decode(key)), None);
+            found.key = Some(key.to_vec());
+            out.push(found);
         }
     }
     for (annotation, page) in &scope.annotation_page {
@@ -273,6 +285,7 @@ fn attachment(
             .map(|name| String::from_utf8_lossy(name).into_owned()),
         page,
         file: file_ref,
+        key: None,
     }
 }
 

@@ -292,7 +292,7 @@ fn quote_of(text: &PageText, shown: &AnnotationInfo, checks: &mut usize) -> Opti
 }
 
 /// `seconds` since the Unix epoch as a PDF date in UTC: readers show it in their own zone.
-fn pdf_date(seconds: u64) -> String {
+pub(super) fn pdf_date(seconds: u64) -> String {
     let days = i64::try_from(seconds / 86_400).unwrap_or(0);
     let rest = seconds % 86_400;
     // Civil from days (Howard Hinnant's algorithm), for a date after 1970.

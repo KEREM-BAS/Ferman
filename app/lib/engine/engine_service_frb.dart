@@ -1989,6 +1989,81 @@ class FrbEngineService implements EngineService {
   );
 
   @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) => _revision(
+    () => bridge.setOutline(
+      document: BigInt.from(document),
+      items: [
+        for (final item in items)
+          bridge.OutlineEdit(
+            item: item.item,
+            page: item.page,
+            title: item.title,
+            depth: item.depth,
+            open: item.open,
+          ),
+      ],
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name) =>
+      _revision(
+        () => bridge.setInfo(
+          document: BigInt.from(document),
+          info: bridge.InfoEdit(
+            title: info.title,
+            author: info.author,
+            subject: info.subject,
+            keywords: info.keywords,
+          ),
+          name: name,
+        ),
+      );
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) => _revision(
+    () => bridge.attachFile(
+      document: BigInt.from(document),
+      path: path,
+      fileName: fileName,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> removeAttachment(int document, int index, String name) =>
+      _revision(
+        () => bridge.removeAttachment(
+          document: BigInt.from(document),
+          index: index,
+          name: name,
+        ),
+      );
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async {
+    try {
+      final key = await bridge.showFormWidgets(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
   Future<RevisionInfo> undo(int document) =>
       _revision(() => bridge.undo(document: BigInt.from(document)));
 
@@ -2016,6 +2091,7 @@ class FrbEngineService implements EngineService {
             pages: _pages(structure.pages),
             outline: _outline(structure.outline),
             attachments: _attachments(structure.attachments),
+            info: _info(structure.info),
           ),
         },
       );
@@ -2377,6 +2453,7 @@ class FrbEngineService implements EngineService {
           DocumentOp.comment => bridge.DocumentOp.comment,
           DocumentOp.fill => bridge.DocumentOp.fill,
           DocumentOp.print => bridge.DocumentOp.print,
+          DocumentOp.modify => bridge.DocumentOp.modify,
         },
         fields: fields,
       );
@@ -2767,16 +2844,7 @@ OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
   ],
   version: document.version,
   fileSize: document.fileSize.toInt(),
-  info: DocumentInfo(
-    title: document.info.title,
-    author: document.info.author,
-    subject: document.info.subject,
-    keywords: document.info.keywords,
-    creator: document.info.creator,
-    producer: document.info.producer,
-    created: _date(document.info.created),
-    modified: _date(document.info.modified),
-  ),
+  info: _info(document.info),
   language: document.language,
   tagged: document.tagged,
   linearized: document.linearized,
@@ -2829,6 +2897,17 @@ Security? _security(bridge.Security? security) => switch (security) {
 };
 
 /// The date as the file writes it, in no time zone, so it shows as written.
+DocumentInfo _info(bridge.DocumentInfo info) => DocumentInfo(
+  title: info.title,
+  author: info.author,
+  subject: info.subject,
+  keywords: info.keywords,
+  creator: info.creator,
+  producer: info.producer,
+  created: _date(info.created),
+  modified: _date(info.modified),
+);
+
 DateTime? _date(bridge.PdfDate? date) => date == null
     ? null
     : DateTime(date.year, date.month, date.day, date.hour, date.minute);

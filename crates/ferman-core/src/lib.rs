@@ -80,6 +80,7 @@
 pub mod annotations;
 mod appendix;
 pub mod assemble;
+pub mod attach;
 pub mod compress;
 mod content;
 pub mod document;
@@ -93,6 +94,8 @@ mod incremental;
 pub mod interpret;
 pub mod limits;
 pub mod links;
+pub mod metadata;
+pub mod outline;
 pub mod pages;
 #[allow(unsafe_code)]
 mod platform;
@@ -308,6 +311,9 @@ pub enum WriteError {
     /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
     /// out of range, label ranges out of order.
     PagePlan,
+    /// An outline, information or attachment change that cannot apply: an item kept twice or past
+    /// the outline, a level skipped, a page or an attachment the document does not have.
+    StructurePlan,
     /// An annotation the page does not name.
     NoSuchAnnotation,
     /// An annotation change that cannot apply: geometry its kind cannot take, a style on a kind
@@ -336,6 +342,7 @@ impl std::fmt::Display for WriteError {
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
             Self::PagePlan => f.write_str("a page operation that cannot apply"),
+            Self::StructurePlan => f.write_str("a structure change that cannot apply"),
             Self::NoSuchAnnotation => f.write_str("no such annotation"),
             Self::AnnotationPlan => f.write_str("an annotation change that cannot apply"),
             Self::PageStateLeaks => f.write_str("a page whose content closes too many states"),

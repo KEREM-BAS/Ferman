@@ -322,6 +322,13 @@ impl RevisionStore {
             .map_or(&doc.structure().attachments, |revised| &revised.attachments)
     }
 
+    /// The document information as they leave it.
+    #[must_use]
+    pub fn info<'a>(&'a self, doc: &'a Document) -> &'a crate::structure::Info {
+        self.revised(doc)
+            .map_or(&doc.structure().info, |revised| &revised.info)
+    }
+
     /// Where the page with `handle` ([`Page::handle`]) is now; `None` once it is gone.
     #[must_use]
     pub fn page_index(&self, doc: &Document, handle: u64) -> Option<usize> {

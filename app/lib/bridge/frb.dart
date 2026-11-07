@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `preset`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `save_options`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `info_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `preset`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `save_options`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgePrint`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -754,6 +754,22 @@ Future<BigInt> showComments({
   visible: visible,
 );
 
+/// Draws the form widgets of `document` in every view, or leaves them to Fill & Sign's overlay
+/// (B203): render-only, never saved. Returns every page's new render key, 0 when nothing changes.
+///
+/// See [`facade::Engine::show_form_widgets`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+Future<BigInt> showFormWidgets({
+  required BigInt document,
+  required bool visible,
+}) => FermanBridge.instance.api.crateFrbShowFormWidgets(
+  document: document,
+  visible: visible,
+);
+
 /// Flattens annotations `handles` with their replies as a background job: with `copy` it first
 /// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
 ///
@@ -1168,6 +1184,80 @@ Future<RevisionInfo> setPageLabels({
 }) => FermanBridge.instance.api.crateFrbSetPageLabels(
   document: document,
   ranges: ranges,
+  name: name,
+);
+
+/// Makes `items` the outline of `document` (a2-3a) as one history step: renamed, added, nested,
+/// moved and deleted items at once. An item kept keeps its destination, colour and style.
+///
+/// See [`facade::Engine::set_outline`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`], and `InvalidInput` for items that cannot apply.
+Future<RevisionInfo> setOutline({
+  required BigInt document,
+  required List<OutlineEdit> items,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetOutline(
+  document: document,
+  items: items,
+  name: name,
+);
+
+/// Makes `info` the information of `document` (a2-7), in `/Info` and its XMP, as one history
+/// step.
+///
+/// See [`facade::Engine::set_info`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` for a file without an `/Info` object,
+/// and `NotFound`.
+Future<RevisionInfo> setInfo({
+  required BigInt document,
+  required InfoEdit info,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetInfo(
+  document: document,
+  info: info,
+  name: name,
+);
+
+/// Attaches the file at `path` to `document` as `file_name` (a2-3b), one history step.
+///
+/// See [`facade::Engine::attach_file`].
+///
+/// # Errors
+///
+/// As [`set_info`], the file errors, and `ResourceLimit` for a file too large for one change.
+Future<RevisionInfo> attachFile({
+  required BigInt document,
+  required String path,
+  required String fileName,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAttachFile(
+  document: document,
+  path: path,
+  fileName: fileName,
+  name: name,
+);
+
+/// Takes attachment `index` of [`OpenedDocument::attachments`] out of `document`, one history
+/// step; a file attachment annotation is a comment and is not taken out here.
+///
+/// See [`facade::Engine::remove_attachment`].
+///
+/// # Errors
+///
+/// As [`set_info`], and `InvalidInput` for an annotation's attachment or an index past them.
+Future<RevisionInfo> removeAttachment({
+  required BigInt document,
+  required int index,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbRemoveAttachment(
+  document: document,
+  index: index,
   name: name,
 );
 
@@ -2800,6 +2890,9 @@ enum DocumentOp {
 
   /// Printing, which changes nothing in the file.
   print,
+
+  /// Changing the document's information or attachments.
+  modify,
 }
 
 /// What an encrypted document allows without its owner password (a2-10b's rows).
@@ -2876,14 +2969,19 @@ class DocumentStructure {
   /// Its embedded files.
   final List<Attachment> attachments;
 
+  /// Its information.
+  final DocumentInfo info;
+
   const DocumentStructure({
     required this.pages,
     required this.outline,
     required this.attachments,
+    required this.info,
   });
 
   @override
-  int get hashCode => pages.hashCode ^ outline.hashCode ^ attachments.hashCode;
+  int get hashCode =>
+      pages.hashCode ^ outline.hashCode ^ attachments.hashCode ^ info.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2892,7 +2990,8 @@ class DocumentStructure {
           runtimeType == other.runtimeType &&
           pages == other.pages &&
           outline == other.outline &&
-          attachments == other.attachments;
+          attachments == other.attachments &&
+          info == other.info;
 }
 
 /// What a block's page would read after [`apply_edit`].
@@ -4030,6 +4129,42 @@ class HistoryStep {
           reverts == other.reverts;
 }
 
+/// The document information a2-7 edits; an empty value removes its entry.
+class InfoEdit {
+  /// The title.
+  final String title;
+
+  /// The author.
+  final String author;
+
+  /// The subject.
+  final String subject;
+
+  /// The keywords.
+  final String keywords;
+
+  const InfoEdit({
+    required this.title,
+    required this.author,
+    required this.subject,
+    required this.keywords,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ author.hashCode ^ subject.hashCode ^ keywords.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InfoEdit &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          author == other.author &&
+          subject == other.subject &&
+          keywords == other.keywords;
+}
+
 /// Whether an input can be used, for its row in a6-3 (G45).
 enum InputStatus {
   /// It can.
@@ -5018,6 +5153,53 @@ class OpenedDocument {
           scripts == other.scripts &&
           formFields == other.formFields &&
           scanned == other.scanned;
+}
+
+/// One outline item as [`set_outline`] writes it, in reading order: each item followed by its
+/// children.
+class OutlineEdit {
+  /// The item it keeps, by its place in [`OpenedDocument::outline`] as it stands now; `None`
+  /// for a new item.
+  final int? item;
+
+  /// The page a new item goes to, from 0.
+  final int? page;
+
+  /// Its title.
+  final String title;
+
+  /// Its nesting, from 0; at most one more than the item before it.
+  final int depth;
+
+  /// Whether it shows its children.
+  final bool open;
+
+  const OutlineEdit({
+    this.item,
+    this.page,
+    required this.title,
+    required this.depth,
+    required this.open,
+  });
+
+  @override
+  int get hashCode =>
+      item.hashCode ^
+      page.hashCode ^
+      title.hashCode ^
+      depth.hashCode ^
+      open.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OutlineEdit &&
+          runtimeType == other.runtimeType &&
+          item == other.item &&
+          page == other.page &&
+          title == other.title &&
+          depth == other.depth &&
+          open == other.open;
 }
 
 /// One outline item (bookmark) of an [`OpenedDocument`].
