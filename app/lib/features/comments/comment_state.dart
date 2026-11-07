@@ -15,6 +15,7 @@ import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart'
     show pageCommandsProvider;
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -75,8 +76,6 @@ final class CommentTools {
   const new({
     this.tool = AnnotationTool.highlight,
     this.color = design.AnnotationColor.yellow,
-    this.shape = ShapeTool.rectangle,
-    this.keep = false,
   });
 
   /// The active tool.
@@ -85,12 +84,6 @@ final class CommentTools {
   /// The colour new marks take.
   final design.AnnotationColor color;
 
-  /// The last choice of the Shapes menu, the button's default.
-  final ShapeTool shape;
-
-  /// The Shapes menu's "Keep tool selected".
-  final bool keep;
-
   /// Whether [tool] marks text the pointer selects.
   bool get marksText => textMarkKind(tool) != null;
 
@@ -98,14 +91,7 @@ final class CommentTools {
   CommentTools copyWith({
     AnnotationTool? tool,
     design.AnnotationColor? color,
-    ShapeTool? shape,
-    bool? keep,
-  }) => CommentTools(
-    tool: tool ?? this.tool,
-    color: color ?? this.color,
-    shape: shape ?? this.shape,
-    keep: keep ?? this.keep,
-  );
+  }) => CommentTools(tool: tool ?? this.tool, color: color ?? this.color);
 }
 
 /// The text mark [tool] makes, if it makes one.
@@ -129,17 +115,13 @@ class CommentTool extends _$CommentTool {
   void color(design.AnnotationColor color) =>
       state = state.copyWith(color: color);
 
-  /// Picks [shape] in the Shapes menu, with the Shapes tool.
-  void shape(ShapeTool shape) =>
-      state = state.copyWith(tool: AnnotationTool.shapes, shape: shape);
-
-  /// Flips "Keep tool selected".
-  void toggleKeep() => state = state.copyWith(keep: !state.keep);
-
   /// A mark was placed: shapes and pinned objects go back to Select, unless
-  /// kept. Text marks and Draw stay, for the next one.
+  /// kept (a4-1's Keep tool selected). Text marks and Draw stay, for the next
+  /// one.
   void placed() {
-    if (state.keep || state.marksText || state.tool == AnnotationTool.pen) {
+    if (ref.read(commentToolMenusProvider).keepSelected ||
+        state.marksText ||
+        state.tool == AnnotationTool.pen) {
       return;
     }
     state = state.copyWith(tool: AnnotationTool.select);
@@ -307,11 +289,13 @@ class CommentCommands extends _$CommentCommands {
   }
 
   /// Creates what [draft] gives on the page [page], by its handle, and selects
-  /// it; with [composing] its card waits for the text.
+  /// it; with [composing] its card waits for the text. [step] names it in the
+  /// history when "Add comment" says too little.
   Future<void> add(
     int page,
     NewAnnotation Function(String author) draft, {
     bool composing = false,
+    String? step,
   }) async {
     final author = await _author();
     if (author == null || !ref.mounted) return;
@@ -322,7 +306,7 @@ class CommentCommands extends _$CommentCommands {
           document,
           page,
           draft(author),
-          _l10n.commentStepAdd,
+          step ?? _l10n.commentStepAdd,
         );
         handle = commit.handle;
         return commit.revision;

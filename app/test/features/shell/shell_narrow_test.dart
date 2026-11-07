@@ -605,9 +605,7 @@ void main() {
             mode == FermanMode.view && _viewing.contains(entry.label) ||
                     mode == FermanMode.organize &&
                         _organizing.contains(entry.label) ||
-                    mode == FermanMode.comment &&
-                        entry.label != 'Stamp' &&
-                        entry.label != 'Measure' ||
+                    mode == FermanMode.comment && entry.label != 'Measure' ||
                     entry.label == 'Split' ||
                     entry.label == 'Combine files' ||
                     entry.label == 'Create PDF'

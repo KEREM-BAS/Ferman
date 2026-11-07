@@ -222,17 +222,19 @@ void showCreateStampDialog(WidgetRef ref, String yourName) => ref
     .read(organizeDialogProvider.notifier)
     .show(CreateStampDialog(yourName: yourName));
 
-/// a4-1's Shapes menu, also the Shapes submenu of the overflow menu (B093).
+/// a4-1's Shapes menu, also the Shapes submenu of the overflow menu (B093);
+/// [keys] shows their keys, which only the menu itself takes (decision 24).
 List<MenuItem> shapeMenuItems(
   AppLocalizations l10n,
-  CommentToolMenuState state,
-) => [
+  CommentToolMenuState state, {
+  bool keys = true,
+}) => [
   for (final shape in ShapeTool.values)
     MenuItem(
       id: shape.id,
       label: shape.label(l10n),
       icon: shape.icon,
-      shortcut: [shape.shortcut],
+      shortcut: keys ? [shape.shortcut] : null,
       checked: shape == state.shape,
     ),
   const MenuItem.divider(),
@@ -302,10 +304,9 @@ Map<AnnotationTool, AnnotationToolMenu> commentToolMenusOf(
     }
   }
 
-  final shapeItems = shapeMenuItems(l10n, state);
   return {
     AnnotationTool.shapes: AnnotationToolMenu(
-      items: shapeItems,
+      items: shapeMenuItems(l10n, state, keys: false),
       onSelected: shapeChosen,
       around: (button) => Popover(
         open: state.open == AnnotationTool.shapes,
@@ -328,7 +329,7 @@ Map<AnnotationTool, AnnotationToolMenu> commentToolMenusOf(
             width: shapesMenuWidth,
             child: Menu(
               semanticLabel: l10n.shellAnnotationShapes,
-              items: shapeItems,
+              items: shapeMenuItems(l10n, state),
               autofocus: true,
               onClose: menus.close,
               onSelected: shapeChosen,

@@ -3673,24 +3673,6 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get commentKindOther => isolate(super.commentKindOther);
 
   @override
-  String get commentShapeEllipse => isolate(super.commentShapeEllipse);
-
-  @override
-  String get commentShapeArrow => isolate(super.commentShapeArrow);
-
-  @override
-  String get commentShapeLine => isolate(super.commentShapeLine);
-
-  @override
-  String get commentShapePolygon => isolate(super.commentShapePolygon);
-
-  @override
-  String get commentShapeOther => isolate(super.commentShapeOther);
-
-  @override
-  String get commentKeepTool => isolate(super.commentKeepTool);
-
-  @override
   String commentStyleBar(String kind) => isolate(super.commentStyleBar(kind));
 
   @override

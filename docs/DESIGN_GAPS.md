@@ -67,7 +67,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 17 | 35 | 1 | 1 | 2 | 1 | 2 |
+| Entries | 59 | 35 | 17 | 38 | 1 | 1 | 2 | 1 | 2 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -227,6 +227,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G163](#g163) | conflict | M4 | Organize: page labels | a6-5 has no A, B, C style though documents use it, and draws none of its errors | Decided |
 | [G164](#g164) | missing state | M4 | Organize: replace | G45 does not say what a replace with a different count does | Decided |
 | [G165](#g165) | missing state | M4 | Organize: Create PDF and Combine | No board draws Create PDF; a6-3 draws Excel as converted and its result with page images | Decided |
+| [G166](#g166) | missing state | M4 | Comment: placing shapes and stamps | a4-1 and a4-3 draw the menus, not the keyboard's way, the stamp file or the size limits | Decided |
+| [G167](#g167) | missing state | M4 | Links: copy | a3-6 says "a web link or a file", draws no Add link title, empty panel or prompt | Decided |
+| [G168](#g168) | missing state | M4 | Comments: what the engine writes | No board or brief line says how replies draw, which zone dates use or whether notes turn | Decided |
 
 ## Entries
 
@@ -830,6 +833,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** Not drawn: a setting for the commenter's name (no desktop Settings pane, no a13-15 row and no onboarding step from a1-1 to a1-2c asks for it, yet a4-2 shows authors and a4-3's dynamic stamps "fill in your name"); an annotation context menu; an empty comments panel and a filter with no match; deleting a comment with undo; Comment mode on a signed or permission-restricted document; and editing of Text (X) and Callout (C) annotations. Annotation properties are partly drawn: a4-1 has a floating "Rectangle style" bar with Colour, Stroke width, Opacity, Open comment and Delete, and a13-7 has a colour and width palette on mobile.
 - **Decision:** The first comment asks once for the name to show on comments, prefilled from the OS account name, editable and allowed to stay empty; it is stored as "Your name for comments" in Settings › General. A context menu offers the style bar's actions. The comments panel uses EmptyState for empty and no-match ([G29](#g29)). Delete shows the undo toast (the a11-6 pattern). Signed and restricted documents get the notices from [G35](#g35) and [G27](#g27). Text and Callout editing reuses Edit mode's text-box editing. With the M4 plan (owner, 2026-11-06): Text and Callout are built on a text annotation's own editor in M4, so this entry no longer waits for Edit mode's text boxes (B042, P2).
 - **Status:** Decided
+- **Built (M4 W2):** the name dialog, the Settings row, the context menu and both EmptyStates.
 - **Evidence:** The FmSettings General pane (lines 24–31) has no name field. FmComments props have no empty state. FmWindow.dc.html line 235 lists Text (X) and Callout (C).
 
 <a id="g47"></a>
@@ -1692,6 +1696,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** a2-4a's "Look in" offers Page text and Comments, both on by default, Form fields and Bookmarks. a2-4b and a2-3e show the results in the sidebar grouped by page ("Page 1", with its count), and every result drawn is page text. Nothing shows where a match in a comment, a form field or a bookmark title goes or how it is told apart, and a bookmark sits on no page.
 - **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** results stay grouped by page, as a2-3e draws. A comment or a form field belongs to the page it is on, and a bookmark to the page it opens. Inside a group, page text comes first in reading order, then comments, fields and bookmarks, each with an icon before its snippet: `message-square` and `text-cursor-input`, the badges of the Pages thumbnails, and `bookmark` from the design system's icon set. The kind (comment, form field, bookmark) is part of the result's accessible name. A bookmark that opens no page is listed after the last page.
 - **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Built (M4 W2):** comments show after their page's text, with `message-square`. Form fields come with B128.
 - **Evidence:** `design/02 View.dc.html` lines 100 (a2-3e), 119 (the a2-4a options) and 124–131 (a2-4b); `design/FmSidebar.dc.html` lines 30–31 and 43–44 (the Pages badges and their legend: `message-square` for comments, `text-cursor-input` for form fields) and 166–176 (`results`: page groups of page text only).
 
 <a id="g111"></a>
@@ -2017,7 +2022,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** a3-6's panel says "Ferman asks before opening a web link or a file from a PDF" and draws no prompt. It says nothing about `/Launch` or `javascript:`. A link's target is text from an untrusted document.
 - **Decision:** `/Launch` never runs. `javascript:` is refused. Web, file and GoToR links ask first, with new copy that shows the target. They open through the OS, so Ferman itself connects to nothing. Links inside the document just go.
 - **Status:** Decided (owner, M4 plan, decision 13, 2026-11-06).
-- **Built (W2, engine):** only `http`, `https` and `mailto` targets are offered; file and GoToR links are read and named, and refused rather than asked about, as W2's work order says. That is narrower than this decision: the owner may want the prompt for them back. The prompt itself comes with the Links panel (commit 17).
+- **Built (W2, engine):** only `http`, `https` and `mailto` targets are offered; file and GoToR links are read and named, and refused rather than asked about, as W2's work order says. That is narrower than this decision: the owner may want the prompt for them back. The prompt and the panel came with commit 17: a refused link says so in a toast, and a target over 8192 bytes is refused. File links are B200.
 - **Evidence:** `design/03b Edit content.dc.html` line 103; [Q13](QUESTIONS.md#q13).
 
 <a id="g146"></a>
@@ -2279,3 +2284,42 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The dialog is built from design-system components: blank page, files, and the clipboard disabled (B176). An Excel or Word row shows disabled and holds Combine back until P3 (B175). The result shows blank sheets (B196). Split writes through the folder panel's grant ([G143](#g143)).
 - **Status:** Decided.
 - **Evidence:** `app/lib/features/organize/organize_dialogs.dart`, `app/lib/features/organize/combine_tab.dart`, `app/lib/features/organize/split_dialog.dart`.
+
+<a id="g166"></a>
+
+### G166 · Placing shapes and stamps: what no board draws
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Comment: placing shapes and stamps
+- **Artboards:** `a4-1`, `a4-3`, `a4-3b`
+- **Gap or conflict:** The boards draw the menus and a placed mark. They do not draw a way to place one without a pointer, the stamp file G153 asks for, a library search with no match, the library in the overflow menu (B093), or how far a stamp can be sized.
+- **Decision:** Enter places a mark mid-page: 144 × 72 pt, a 36 pt pentagon for a polygon, a stamp at its usual size. A stamp file is `.fermanstamp`, JSON with a `fermanStamp: 1` mark. The library says when nothing matches and is a submenu in the overflow menu. A saved stamp's menu has Delete beside G153's Export. A placed stamp's text is 13.5 pt for the boards' 18 px, and ⌥-drag holds it to 0.4 to 8 times that.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/stamps/mark_placement_overlay.dart`, `app/lib/features/stamps/stamp_design.dart`, `app/lib/features/stamps/stamp_library.dart`.
+
+<a id="g167"></a>
+
+### G167 · Links: copy the board does not have
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Links: copy
+- **Artboards:** `a3-6`
+- **Gap or conflict:** a3-6's note says "a web link or a file", though file links are refused (G145, B200). The Add link title, the panel's empty and cut-short lines and the prompt's copy are not drawn. The selected link has a 1 px outline offset.
+- **Decision:** The note says only "a web link". The rest is new copy in the board's voice. The selected link's outline is drawn without the offset.
+- **Status:** Decided.
+- **Evidence:** `design/03b Edit content.dc.html` line 103; `app/lib/features/editor/link_popover.dart`.
+
+<a id="g168"></a>
+
+### G168 · What the engine writes for a comment
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Comments: what the engine writes
+- **Artboards:** `a4-1`, `a4-2`
+- **Gap or conflict:** Nothing says how a reply draws, which zone a comment's date uses, or whether a new note turns with its page.
+- **Decision:** A reply draws an empty form, so no reader puts an icon over the mark. Dates are written in UTC, as no clock zone crosses the bridge. New notes do not set NoRotate: their appearance is upright already.
+- **Status:** Decided.
+- **Evidence:** `crates/ferman-ops/src/annotations.rs`; [ARCHITECTURE §5.8](ARCHITECTURE.md#58-pages-annotations-and-forms-m4).

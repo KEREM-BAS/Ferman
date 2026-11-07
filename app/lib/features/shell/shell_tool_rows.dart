@@ -4,7 +4,6 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/comments/comment_state.dart';
-import 'package:ferman/features/comments/comment_style_bar.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/links.dart';
@@ -24,12 +23,14 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/l10n/region.dart';
+import 'package:ferman/platform/account_name.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -686,6 +687,10 @@ class _CommentTools extends ConsumerWidget {
     final live = ref.watch(viewerProvider.select((view) => view != null));
     final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
     final shown = ref.watch(commentsShownProvider).visible;
+    final menus = ref.read(commentToolMenusProvider.notifier);
+    final yourName =
+        ref.watch(settingsProvider.select((s) => s.commenterName)) ??
+        accountName();
     return Row(
       children: [
         Expanded(
@@ -697,38 +702,30 @@ class _CommentTools extends ConsumerWidget {
             showLabels: true,
             tool: tools.tool,
             color: tools.color,
-            onToolChanged: live ? notifier.pick : null,
+            onToolChanged: live
+                ? (tool) {
+                    notifier.pick(tool);
+                    if (tool.hasMenu) menus.show(tool);
+                  }
+                : null,
             onColorChanged: live ? notifier.color : null,
             disabledReasons: {
               AnnotationTool.measure: Feature.measure.disabledReason(context),
-              AnnotationTool.stamp: Feature.stamps.disabledReason(context),
               if (refusal != null)
                 for (final tool in AnnotationTool.values)
                   if (tool != AnnotationTool.select &&
-                      tool != AnnotationTool.measure &&
-                      tool != AnnotationTool.stamp)
+                      tool != AnnotationTool.measure)
                     tool: refusal,
             },
             colorsDisabledReason: refusal,
             overflowLabel: l10n.moreTools,
-            toolItem: (tool, button) => tool == AnnotationTool.shapes
-                ? ToolbarItem(
-                    collapsible: true,
-                    menuItem: MenuItem(
-                      id: button.label,
-                      label: button.label,
-                      icon: button.icon,
-                      shortcut: button.shortcut,
-                      checked: button.active,
-                      disabled: button.disabled || !live,
-                      disabledReason: button.disabledReason,
-                      submenu: ShapesMenu.items(l10n, tools, keys: false),
-                    ),
-                    onMenuSelected: (item) =>
-                        ShapesMenu.choose(notifier, item.id),
-                    child: ShapesMenu(button: button),
-                  )
-                : null,
+            onToolMenuRequested: menus.show,
+            toolMenus: commentToolMenusOf(
+              context,
+              ref,
+              onTool: notifier.pick,
+              yourName: yourName,
+            ),
           ),
         ),
         Padding(

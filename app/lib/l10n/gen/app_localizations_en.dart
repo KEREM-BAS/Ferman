@@ -4298,24 +4298,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentKindOther => 'Comment';
 
   @override
-  String get commentShapeEllipse => 'Ellipse';
-
-  @override
-  String get commentShapeArrow => 'Arrow';
-
-  @override
-  String get commentShapeLine => 'Line';
-
-  @override
-  String get commentShapePolygon => 'Polygon';
-
-  @override
-  String get commentShapeOther => 'Rectangle';
-
-  @override
-  String get commentKeepTool => 'Keep tool selected';
-
-  @override
   String commentStyleBar(String kind) {
     return '$kind style';
   }

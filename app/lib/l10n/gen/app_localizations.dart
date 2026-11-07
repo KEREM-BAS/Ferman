@@ -6855,42 +6855,6 @@ abstract class AppLocalizations {
   /// **'Comment'**
   String get commentKindOther;
 
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Ellipse'**
-  String get commentShapeEllipse;
-
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Arrow'**
-  String get commentShapeArrow;
-
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Line'**
-  String get commentShapeLine;
-
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Polygon'**
-  String get commentShapePolygon;
-
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Rectangle'**
-  String get commentShapeOther;
-
-  /// a4-1's Shapes menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep tool selected'**
-  String get commentKeepTool;
-
   /// a4-1's floating bar's name.
   ///
   /// In en, this message translates to:

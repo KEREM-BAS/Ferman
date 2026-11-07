@@ -46,24 +46,6 @@ enum CommentSort {
   author,
 }
 
-/// A choice of a4-1's Shapes menu.
-enum ShapeTool {
-  /// A rectangle.
-  rectangle,
-
-  /// An ellipse.
-  ellipse,
-
-  /// A line ending in an arrow.
-  arrow,
-
-  /// A line.
-  line,
-
-  /// A polygon, clicked vertex by vertex.
-  polygon,
-}
-
 /// What FmComments lists.
 @immutable
 final class CommentFilters {

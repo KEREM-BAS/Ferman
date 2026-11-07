@@ -242,7 +242,7 @@ final class CommentToolProvider
   }
 }
 
-String _$commentToolHash() => r'796a0c9217be14790fec2c264bb887e44b486a82';
+String _$commentToolHash() => r'edd74c2695095499099b822f2244554bbca525d2';
 
 /// The Comment row's state, as `commentToolProvider`.
 
@@ -493,7 +493,7 @@ final class CommentCommandsProvider
   }
 }
 
-String _$commentCommandsHash() => r'31a3606d4816354f3635b7015fdcbfb1e427cf45';
+String _$commentCommandsHash() => r'8a0d2e3774b7b28fcdce188eb51da0c4bebebcb0';
 
 /// What the comment tools do, each one step of the history (a4-1, a4-2), as
 /// `commentCommandsProvider`. A signed document asks first (a3-16a).

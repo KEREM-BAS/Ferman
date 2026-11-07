@@ -4277,24 +4277,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commentKindOther => 'Yorum';
 
   @override
-  String get commentShapeEllipse => 'Elips';
-
-  @override
-  String get commentShapeArrow => 'Ok';
-
-  @override
-  String get commentShapeLine => 'Çizgi';
-
-  @override
-  String get commentShapePolygon => 'Çokgen';
-
-  @override
-  String get commentShapeOther => 'Dikdörtgen';
-
-  @override
-  String get commentKeepTool => 'Araç seçili kalsın';
-
-  @override
   String commentStyleBar(String kind) {
     return '$kind stili';
   }

@@ -557,6 +557,7 @@ void main() {
         'Callout',
         'Draw',
         'Shapes▾',
+        'Stamp▾',
         'switch:Show comments',
       };
       // Edit's tools that work since M3: Edit text, Edit history, Review edits
@@ -618,7 +619,6 @@ void main() {
       // The comment tools wait for a shown document.
       expect(annotations.onToolChanged, isNull);
       expect(annotations.disabledReasons, {
-        AnnotationTool.stamp: futureVersion,
         AnnotationTool.measure: futureVersion,
       });
     });

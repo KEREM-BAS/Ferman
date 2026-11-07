@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:ferman/design/components/annotations/annotation_color.dart'
-    as design;
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/stamps/comment_tool_menus.dart';
@@ -13,6 +12,7 @@ import 'package:ferman/features/stamps/mark_placement_overlay.dart';
 import 'package:ferman/features/stamps/stamp_design.dart';
 import 'package:ferman/features/stamps/stamp_library.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/features/viewer/document_view.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/region.dart';
@@ -145,8 +145,7 @@ void main() {
     late FakeEngineService engine;
     late FakeFilePickerService picker;
     late ProviderContainer container;
-    late int finished;
-    late List<int> placed;
+    late WidgetTester host;
     OverlayEntry? entry;
 
     Future<void> open(WidgetTester tester) async {
@@ -169,8 +168,11 @@ void main() {
       await tester.pumpAndSettle();
       container.read(shellModeProvider.notifier).select(FermanMode.comment);
       await settle(tester);
-      finished = 0;
-      placed = [];
+      host = tester;
+      await container
+          .read(settingsProvider.notifier)
+          .change((old) => old.copyWith(commenterName: 'Av. Deniz Aksoy'));
+      await settle(tester);
     }
 
     /// Shows [child] over the window, as the shell will show it over the
@@ -185,24 +187,21 @@ void main() {
       await settle(tester);
     }
 
-    Future<void> placing(WidgetTester tester, AnnotationTool tool) => show(
-      tester,
-      Positioned.fill(
-        child: MarkPlacementOverlay(
-          tool: tool,
-          color: design.AnnotationColor.red,
-          author: 'Av. Deniz Aksoy',
-          onPlaced: placed.add,
-          onFinished: () => finished++,
-        ),
-      ),
-    );
+    /// The shell mounts the overlay once the tool is on.
+    Future<void> placing(WidgetTester tester, AnnotationTool tool) async {
+      container.read(commentToolProvider.notifier).pick(tool);
+      await settle(tester);
+    }
+
+    AnnotationTool activeTool() => container.read(commentToolProvider).tool;
 
     /// Where the point [at] of the first page is on the window.
     Offset onPage(Offset at) {
       final view = container.read(viewerProvider)!;
       final page = view.placement.rects[0]!.shift(-view.offset);
-      return page.topLeft + at * view.scale;
+      return host.getTopLeft(find.byType(DocumentView)) +
+          page.topLeft +
+          at * view.scale;
     }
 
     Future<List<AnnotationInfo>> marks() async =>
@@ -225,8 +224,8 @@ void main() {
       expect(mark.author, 'Av. Deniz Aksoy');
       expect(mark.rect.left, moreOrLessEquals(100, epsilon: 1));
       expect(mark.rect.bottom, moreOrLessEquals(400, epsilon: 1));
-      expect(placed, [mark.handle]);
-      expect(finished, 1);
+      expect(container.read(commentSelectionProvider)?.handle, mark.handle);
+      expect(activeTool(), AnnotationTool.select);
     });
 
     testWidgets('a slip of the mouse places nothing', (tester) async {
@@ -240,7 +239,7 @@ void main() {
       await gesture.up();
       await settle(tester);
       expect(await marks(), isEmpty);
-      expect(finished, 0);
+      expect(activeTool(), AnnotationTool.shapes);
     });
 
     testWidgets('Keep tool selected leaves the tool on', (tester) async {
@@ -255,7 +254,7 @@ void main() {
       );
       await settle(tester);
       expect((await marks()).single.kind, AnnotationKind.circle);
-      expect(finished, 0);
+      expect(activeTool(), AnnotationTool.shapes);
     });
 
     testWidgets('a polygon takes a click per corner and Enter', (tester) async {
@@ -315,10 +314,10 @@ void main() {
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pump();
-      expect(finished, 0);
+      expect(activeTool(), AnnotationTool.shapes);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pump();
-      expect(finished, 1);
+      expect(activeTool(), AnnotationTool.select);
       expect(await marks(), isEmpty);
     });
 
@@ -335,7 +334,7 @@ void main() {
       final mark = (await marks()).single;
       expect(mark.kind, AnnotationKind.stamp);
       expect(mark.rect.center.dx, moreOrLessEquals(300, epsilon: 1));
-      expect(finished, 1);
+      expect(activeTool(), AnnotationTool.select);
     });
 
     testWidgets('Enter places the stamp mid-page', (tester) async {
@@ -349,6 +348,27 @@ void main() {
       final mark = (await marks()).single;
       expect(mark.icon, 'Approved');
       expect(mark.rect.center.dy, moreOrLessEquals(421, epsilon: 1));
+    });
+
+    testWidgets('the row opens the library, and a click places its choice', (
+      tester,
+    ) async {
+      await open(tester);
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) => widget is ToolButton && widget.label == 'Stamp',
+        ),
+      );
+      await settle(tester);
+      expect(find.byType(StampLibrary), findsOneWidget);
+      expect(activeTool(), AnnotationTool.stamp);
+      await tester.tap(find.text('APPROVED').first);
+      await settle(tester);
+      expect(find.byType(StampLibrary), findsNothing);
+      await tester.tapAt(onPage(const Offset(300, 400)));
+      await settle(tester);
+      expect((await marks()).single.kind, AnnotationKind.stamp);
+      expect(activeTool(), AnnotationTool.select);
     });
 
     testWidgets('no stamp chosen, the overlay is out of the way', (

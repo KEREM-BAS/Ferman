@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1081 messages in `app_en.arb`; translated: Turkish 1081, Arabic 1081.
+1267 messages in `app_en.arb`; translated: Turkish 1267, Arabic 1267.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -883,7 +883,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `editPanelReset` | Reset text style | Metin stilini sıfırla | إعادة تعيين نمط النص | a3-2: button in the heading. |
 | `editPanelHint` | Text reflows inside the frame. Drag a handle to resize it. | Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin. | يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم. | a3-2: the note at the panel's end. |
 | `editBarLabel` | Format selection | Seçimi biçimlendir | تنسيق التحديد | a3-1c: the accessible name of the floating format bar. |
-| `editBarLink` | Add link | Bağlantı ekle | إضافة رابط | a3-1c: button, disabled until links work. |
+| `editBarLink` | Add link | Bağlantı ekle | إضافة رابط | a3-1c: button; a3-6: the panel's + button. |
 | `editBarHighlight` | Highlight (adds a comment) | Vurgula (yorum ekler) | تمييز (يضيف تعليقًا) | a3-1c: button, disabled until comments work. |
 | `editBarComment` | Comment on selection | Seçime yorum ekle | التعليق على التحديد | a3-1c: button, disabled until comments work. |
 | `editBarReplace` | Find and replace these words | Bu sözcükleri bul ve değiştir | البحث عن هذه الكلمات واستبدالها | a3-1c: button, disabled until find and replace works. |
@@ -1137,5 +1137,191 @@ The table below is generated from the ARB files by `tools/l10n`
 | `jobCreatingTitle` | Creating {name} | {name} oluşturuluyor | جارٍ إنشاء {name} | a11-6b: the title of a task that creates a PDF. |
 | `jobCreatedTitle` | Created {name} | {name} oluşturuldu | تم إنشاء {name} | a11-6b: the title of the finished Create PDF. |
 | `jobCreateFailedTitle` | Couldn’t create {name} | {name} oluşturulamadı | تعذر إنشاء {name} | a11-6b: the title of a failed Create PDF; also a toast. |
+| `commentsTitle` | Comments | Yorumlar | التعليقات | FmComments's heading. |
+| `commentsFilter` | Filter and sort | Filtrele ve sırala | تصفية وفرز | FmComments: the filter button. |
+| `commentsMore` | More: export summary, flatten, hide all | Diğer: özeti dışa aktar, düzleştir, tümünü gizle | المزيد: تصدير الملخص، التسطيح، إخفاء الكل | FmComments: the More button. |
+| `commentsStatus` | Status | Durum | الحالة | FmComments: the status control's name. |
+| `commentsStatusOpen` | Open {count} | Açık {count} | مفتوحة {count} | FmComments: status. |
+| `commentsStatusResolved` | Resolved {count} | Çözüldü {count} | محلولة {count} | FmComments: status. |
+| `commentsStatusAll` | All {count} | Tümü {count} | الكل {count} | FmComments: status. |
+| `commentsFilterAuthor` | Author | Yazar | المؤلف | FmComments: filter's name. |
+| `commentsFilterType` | Type | Tür | النوع | FmComments: filter's name. |
+| `commentsFilterSort` | Sort | Sıralama | الفرز | FmComments: filter's name. |
+| `commentsAllPeople` | All people | Tüm kişiler | جميع الأشخاص | FmComments: author filter. |
+| `commentsTypeNotes` | Notes | Notlar | الملاحظات | FmComments: type filter. |
+| `commentsTypeMarkup` | Text markup | Metin işaretleri | ترميز النص | FmComments: type filter. |
+| `commentsTypeDrawings` | Drawings | Çizimler | الرسومات | FmComments: type filter. |
+| `commentsTypeStamps` | Stamps | Damgalar | الأختام | FmComments: type filter. |
+| `commentsTypeOther` | All types | Tüm türler | جميع الأنواع | FmComments: type filter. |
+| `commentsSortNewest` | Newest | En yeni | الأحدث | FmComments: sort. |
+| `commentsSortAuthor` | Author | Yazar | المؤلف | FmComments: sort. |
+| `commentsSortOther` | Page order | Sayfa sırası | ترتيب الصفحات | FmComments: sort. |
+| `commentsCertifiedNote` | This document is certified to allow comments: they keep its certification valid. | Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır. | تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها. | FmComments: G35's notice. |
+| `commentsTruncated` | This file has more comments than Ferman lists. | Bu dosyada Ferman'ın listelediğinden daha çok yorum var. | يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman. | FmComments: a reader's limit cut the list. |
+| `commentsEmptyTitle` | No comments | Yorum yok | لا توجد تعليقات | FmComments: empty (G46). |
+| `commentsEmptyBody` | Pick a tool above, then mark up the page. | Yukarıdan bir araç seçin, sonra sayfada işaretleyin. | اختر أداة من الأعلى، ثم أضف علامات على الصفحة. | FmComments: empty (G46). |
+| `commentsNoMatchTitle` | No comments match | Eşleşen yorum yok | لا توجد تعليقات مطابقة | FmComments: no match (G46). |
+| `commentsNoMatchBody` | Change the status or filters to see others. | Diğerlerini görmek için durumu veya filtreleri değiştirin. | غيّر الحالة أو عوامل التصفية لرؤية غيرها. | FmComments: no match (G46). |
+| `commentsFootnote` | Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications. | Yorumlar PDF'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez. | تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات. | FmComments's footer. |
+| `commentsExportSummary` | Export summary… | Özeti dışa aktar… | تصدير الملخص… | FmComments: More. |
+| `commentsFlatten` | Flatten… | Düzleştir… | تسطيح… | FmComments: More. |
+| `commentsHideAll` | Hide all | Tümünü gizle | إخفاء الكل | FmComments: More. |
+| `commentsHidden` | {count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}} | {count, plural, other{{shown} yorum gizli}} | {count, plural, =1{تعليق واحد مخفي} other{{shown} من التعليقات مخفية}} | a4-5's notice. |
+| `commentKindHighlight` | Highlight | Vurgu | تمييز | A kind of annotation. |
+| `commentKindUnderline` | Underline | Altı çizili | تسطير | A kind of annotation. |
+| `commentKindStrikeOut` | Strikethrough | Üstü çizili | يتوسطه خط | A kind of annotation. |
+| `commentKindSquiggly` | Squiggly underline | Dalgalı alt çizgi | تسطير متموج | A kind of annotation. |
+| `commentKindNote` | Note | Not | ملاحظة | A kind of annotation. |
+| `commentKindFreeText` | Text | Metin | نص | A kind of annotation. |
+| `commentKindCallout` | Callout | Belirtme | وسيلة شرح | A kind of annotation. |
+| `commentKindInk` | Drawing | Çizim | رسم | A kind of annotation. |
+| `commentKindSquare` | Rectangle | Dikdörtgen | مستطيل | A kind of annotation. |
+| `commentKindCircle` | Ellipse | Elips | شكل بيضاوي | A kind of annotation. |
+| `commentKindLine` | Line | Çizgi | خط | A kind of annotation. |
+| `commentKindPolygon` | Polygon | Çokgen | مضلع | A kind of annotation. |
+| `commentKindStamp` | Stamp | Damga | ختم | A kind of annotation. |
+| `commentKindOther` | Comment | Yorum | تعليق | A kind of annotation. |
+| `commentStyleBar` | {kind} style | {kind} stili | نمط {kind} | a4-1's floating bar's name. |
+| `commentStrokeWidth` | Stroke width | Çizgi kalınlığı | سُمك الخط | a4-1's style bar. |
+| `commentOpacity` | Opacity | Opaklık | العتامة | a4-1's style bar. |
+| `commentOpen` | Open comment | Yorumu aç | فتح التعليق | a4-1's style bar. |
+| `commentDelete` | Delete | Sil | حذف | a4-1's style bar. |
+| `commentMenu` | Comment | Yorum | تعليق | G46's context menu's name. |
+| `commentEditText` | Edit text | Metni düzenle | تحرير النص | G46's context menu. |
+| `commentMore` | More | Diğer | المزيد | a4-1d: the note's More. |
+| `commentCloseNote` | Close note | Notu kapat | إغلاق الملاحظة | a4-1d: the note's Close. |
+| `commentNoteFrom` | Note from {author} | {author} notu | ملاحظة من {author} | a4-1d: the note's name. |
+| `commentReply` | Reply | Yanıtla | رد | a4-2's Reply. |
+| `commentResolve` | Resolve | Çöz | حل | a4-2's Resolve. |
+| `commentReopen` | Reopen | Yeniden aç | إعادة فتح | a4-2's Reopen. |
+| `commentPeople` | People in this document | Bu belgedeki kişiler | الأشخاص في هذا المستند | a4-2's mention list. |
+| `commentQuote` | “{text}” | “{text}” | «{text}» | The annotated text on a card. |
+| `commentReplies` | {count, plural, =1{{shown} reply} other{{shown} replies}} | {count, plural, other{{shown} yanıt}} | {count, plural, =1{رد واحد} other{{shown} من الردود}} | FmComments: collapsed replies. |
+| `commentResolvedBy` | Resolved by {name} · {time} | {name} çözdü · {time} | حلّها {name} · {time} | FmComments: a resolved card. |
+| `commentYesterday` | Yesterday | Dün | أمس | FmComments: a comment's time. |
+| `commentCardLabel` | {author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}} | {author}, {page}. sayfada {kind}{resolved, plural, =0{} other{, çözüldü}}{count, plural, =0{} other{, {shown} yanıt}} | {author}، {kind} في الصفحة {page}{resolved, plural, =0{} other{، محلولة}}{count, plural, =0{} =1{، رد واحد} other{، {shown} من الردود}} | a4-2: how a card is announced. |
+| `commentStepAdd` | Add comment | Yorum ekle | إضافة تعليق | History step. |
+| `commentStepChange` | Change comment | Yorumu değiştir | تغيير التعليق | History step. |
+| `commentStepDelete` | Delete comment | Yorumu sil | حذف التعليق | History step. |
+| `commentStepReply` | Reply to comment | Yorumu yanıtla | الرد على التعليق | History step. |
+| `commentStepResolve` | Resolve comment | Yorumu çöz | حل التعليق | History step. |
+| `commentStepReopen` | Reopen comment | Yorumu yeniden aç | إعادة فتح التعليق | History step. |
+| `commentDeletedToast` | Comment deleted | Yorum silindi | تم حذف التعليق | G46: the delete's toast. |
+| `commentDeletedNote` | With its replies. | Yanıtlarıyla birlikte. | مع ردوده. | G46: the delete's toast. |
+| `commentNameTitle` | Your name on comments | Yorumlardaki adınız | اسمك في التعليقات | G46: the first comment asks. |
+| `commentNameBody` | Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty. | Bu PDF'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel'den değiştirebilir veya boş bırakabilirsiniz. | يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا. | G46: the first comment asks. |
+| `commentNameSave` | Continue | Devam et | متابعة | G46: the first comment asks. |
+| `settingsCommenterName` | Your name for comments | Yorumlar için adınız | اسمك للتعليقات | Settings › General (G46). |
+| `commentTextField` | Comment text | Yorum metni | نص التعليق | G46: the on-page editor's name. |
+| `commentSummaryFile` | Comments.pdf | Yorumlar.pdf | التعليقات.pdf | The summary's suggested file name. |
+| `commentColumnPage` | Page | Sayfa | الصفحة | Summary CSV column. |
+| `commentColumnType` | Type | Tür | النوع | Summary CSV column. |
+| `commentColumnAuthor` | Author | Yazar | المؤلف | Summary CSV column. |
+| `commentColumnDate` | Date | Tarih | التاريخ | Summary CSV column. |
+| `commentColumnText` | Text | Metin | النص | Summary CSV column. |
+| `commentColumnReplies` | Replies | Yanıtlar | الردود | Summary CSV column. |
+| `commentColumnStatus` | Status | Durum | الحالة | Summary CSV column. |
+| `commentStatusOpen` | Open | Açık | مفتوح | Summary: an open comment. |
+| `commentStatusResolved` | Resolved | Çözüldü | محلول | Summary: a resolved comment. |
+| `jobSummaryRunningTitle` | Writing {name} | {name} yazılıyor | جارٍ كتابة {name} | Task drawer: the summary. |
+| `jobSummaryDoneTitle` | Wrote {name} | {name} yazıldı | تمت كتابة {name} | Task drawer: the summary. |
+| `jobSummaryFailedTitle` | Couldn’t write {name} | {name} yazılamadı | تعذرت كتابة {name} | Task drawer: the summary. |
+| `sidebarSearchComment` | Comment: {text} | Yorum: {text} | تعليق: {text} | Search results: a match in a comment (B128). |
+| `stampsTitle` | Stamps | Damgalar | الأختام | Name of the stamp library popover for screen readers (a4-3). |
+| `stampsSearch` | Search stamps | Damga ara | البحث في الأختام | Search field of the stamp library (a4-3). |
+| `stampsNoMatch` | No stamps match your search | Aramanızla eşleşen damga yok | لا توجد أختام تطابق بحثك | Stamp library: a search with no result. No board draws it. |
+| `stampGroupStandard` | Standard | Standart | قياسية | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampGroupNamed` | With name and date | Ad ve tarihli | بالاسم والتاريخ | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampGroupMine` | My stamps | Damgalarım | أختامي | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampCreate` | Create stamp… | Damga oluştur… | إنشاء ختم… | Stamp library: opens the Create stamp dialog (a4-3). |
+| `stampImport` | Import… | İçe aktar… | استيراد… | Stamp library: asks for a stamp file (a4-3). |
+| `stampExport` | Export… | Dışa aktar… | تصدير… | Menu of a stamp in My stamps: writes it to a file (G153). |
+| `stampDelete` | Delete | Sil | حذف | Menu of a stamp in My stamps: removes it (G153). |
+| `stampFileFilter` | Ferman stamps | Ferman damgaları | أختام Ferman | File type in the open panel for a stamp file. |
+| `stampImportFailed` | This stamp can’t be imported | Bu damga içe aktarılamıyor | يتعذر استيراد هذا الختم | Toast title: the chosen file is no stamp. |
+| `stampImportFailedBody` | The file isn’t a Ferman stamp, or it is damaged. | Dosya bir Ferman damgası değil ya da bozuk. | الملف ليس ختم Ferman أو أنه تالف. | Toast message: the chosen file is no stamp. |
+| `stampExportFailed` | The stamp couldn’t be exported | Damga dışa aktarılamadı | تعذر تصدير الختم | Toast title: the stamp's file could not be written. |
+| `stampsFull` | My stamps is full. Delete one first. | Damgalarım dolu. Önce birini silin. | قائمة «أختامي» ممتلئة. احذف أحدها أولاً. | Toast title: the limit of saved stamps is reached. |
+| `createStampTitle` | Create stamp | Damga oluştur | إنشاء ختم | Title of the Create stamp dialog (a4-3b). |
+| `createStampText` | Text | Metin | النص | Create stamp: the field for the stamp's text (a4-3b). |
+| `createStampSecondLine` | Second line | İkinci satır | السطر الثاني | Create stamp: heading of the second line's choices (a4-3b). |
+| `createStampMyName` | My name | Adım | اسمي | Create stamp: the second line has the name (a4-3b). |
+| `createStampDate` | Date | Tarih | التاريخ | Create stamp: the second line has the date (a4-3b). |
+| `createStampTime` | Time | Saat | الوقت | Create stamp: the second line has the time (a4-3b). |
+| `createStampName` | Name on the stamp | Damgadaki ad | الاسم على الختم | Create stamp: accessible name of the name field (a4-3b). |
+| `createStampColour` | Colour | Renk | اللون | Create stamp: heading of the ink choice (a4-3b). |
+| `stampToneSeal` | Seal | Mühür | أحمر الختم | Create stamp: the seal-red ink (a4-3b). |
+| `stampToneInk` | Ink | Mürekkep | حبر | Create stamp: the blue ink (a4-3b). |
+| `stampToneGreen` | Green | Yeşil | أخضر | Create stamp: the green ink (a4-3b). |
+| `stampToneGrey` | Grey | Gri | رمادي | Create stamp: the grey ink (a4-3b). |
+| `createStampCaps` | Language for capitals | Büyük harf dili | لغة الأحرف الكبيرة | Create stamp: the language whose rules make the capitals (a4-3b). |
+| `createStampLanguageTurkish` | Turkish (İNCELENDİ) | Türkçe (İNCELENDİ) | التركية (İNCELENDİ) | Create stamp: a language for capitals, with a sample (a4-3b). |
+| `createStampLanguageEnglish` | English | İngilizce | الإنجليزية | Create stamp: a language for capitals (a4-3b). |
+| `createStampLanguageGerman` | German | Almanca | الألمانية | Create stamp: a language for capitals (a4-3b). |
+| `createStampPreview` | Preview | Önizleme | معاينة | Create stamp: heading of the preview (a4-3b). |
+| `createStampSavedNote` | Saved to My stamps on this device. | Bu cihazda Damgalarım’a kaydedilir. | يُحفظ في «أختامي» على هذا الجهاز. | Create stamp: the note under the preview (a4-3b). |
+| `createStampSave` | Save stamp | Damgayı kaydet | حفظ الختم | Create stamp: the primary button (a4-3b). |
+| `shapeRectangle` | Rectangle | Dikdörtgen | مستطيل | Shapes menu (a4-1). |
+| `shapeEllipse` | Ellipse | Elips | شكل بيضاوي | Shapes menu (a4-1). |
+| `shapeArrow` | Arrow | Ok | سهم | Shapes menu (a4-1). |
+| `shapeLine` | Line | Çizgi | خط | Shapes menu (a4-1). |
+| `shapePolygon` | Polygon | Çokgen | مضلع | Shapes menu (a4-1). |
+| `shapesKeepTool` | Keep tool selected | Aracı seçili tut | إبقاء الأداة محددة | Shapes menu: a placed shape leaves the tool on (a4-1). |
+| `stepAddShape` | Add shape | Şekil ekle | إضافة شكل | Name of the history step that adds a shape. |
+| `stepAddStamp` | Add stamp | Damga ekle | إضافة ختم | Name of the history step that adds a stamp. |
+| `placeStampHint` | Click the page to place the stamp, or press Enter to place it mid-page. | Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın. | انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة. | Screen readers: the page while a stamp is being placed. |
+| `placeShapeHint` | Drag on the page to draw the shape, or press Enter to place it mid-page. | Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın. | اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة. | Screen readers: the page while a shape is being drawn. |
+| `placePolygonHint` | Click each corner of the polygon, then press Enter or click the first corner. | Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın. | انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى. | Screen readers: the page while a polygon is being drawn. |
+| `linksTitle` | Links | Bağlantılar | الروابط | a3-6: the Links panel's title. |
+| `linksNote` | Ferman asks before opening a web link from a PDF. | Ferman, PDF'teki bir web bağlantısını açmadan önce sorar. | يسأل Ferman قبل فتح رابط ويب من ملف PDF. | a3-6: the panel's note. The board also says 'or a file'; file links are refused (G145). |
+| `linksEmpty` | No links in this document. | Bu belgede bağlantı yok. | لا توجد روابط في هذا المستند. | a3-6: the panel with no links; not drawn. |
+| `linksTruncated` | This document has too many links to list them all. | Bu belgede hepsi listelenemeyecek kadar çok bağlantı var. | يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها. | a3-6: a limit cut the list short. |
+| `linksSelectTextFirst` | Select the text to link first | Önce bağlantı verilecek metni seçin | حدّد أولًا النص المراد ربطه | a3-6: why Add link is disabled with nothing selected. |
+| `linksKindWeb` | Web | Web | ويب | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindMail` | E-mail | E-posta | بريد إلكتروني | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindPage` | Page | Sayfa | صفحة | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindScript` | Script, not run | Betik, çalıştırılmaz | برنامج نصي، لا يُشغَّل | a3-6: a link that would run a script (G145). |
+| `linksKindLaunch` | Program, not started | Program, başlatılmaz | برنامج، لا يُشغَّل | a3-6: a link that would start a program (G145). |
+| `linksKindFile` | File, not opened | Dosya, açılmaz | ملف، لا يُفتح | a3-6: a link to another file (G145). |
+| `linksKindAddress` | Address, not opened | Adres, açılmaz | عنوان، لا يُفتح | a3-6: an address of a scheme Ferman does not open (G145). |
+| `linksKindAction` | Unknown action, kept | Bilinmeyen eylem, korunur | إجراء غير معروف، يُحتفظ به | a3-6: an action Ferman does not know; it stays in the file. |
+| `linksKindNothing` | Does nothing | Hiçbir şey yapmaz | لا يفعل شيئًا | a3-6: a link with no action. |
+| `linksPage` | Page {page} | Sayfa {page} | الصفحة {page} | a3-6: where a link to a page goes. |
+| `linksPageMissing` | Missing page | Eksik sayfa | صفحة مفقودة | a3-6: a broken link that names no page. |
+| `linksMeta` | {kind} · page {page} | {kind} · sayfa {page} | {kind} · الصفحة {page} | a3-6: a row's second line. |
+| `linksMetaEditing` | {kind} · page {page} · editing | {kind} · sayfa {page} · düzenleniyor | {kind} · الصفحة {page} · قيد التحرير | a3-6: the second line of the row being edited. |
+| `linkAddTitle` | Add link | Bağlantı ekle | إضافة رابط | a3-6: the popover's title for a new link. |
+| `linkEditTitle` | Edit link | Bağlantıyı düzenle | تحرير الرابط | a3-6: the popover's title. |
+| `linkTo` | Link to | Bağlantı hedefi | الربط إلى | a3-6: the name of the type control. |
+| `linkTypeFile` | File | Dosya | ملف | a3-6: a segment of Edit link, disabled (B200). |
+| `linkFieldWeb` | Web address | Web adresi | عنوان الويب | a3-6: the field's label. |
+| `linkFieldMail` | E-mail address | E-posta adresi | عنوان البريد الإلكتروني | a3-6: the field's label. |
+| `linkFieldPage` | Page number | Sayfa numarası | رقم الصفحة | a3-6: the field's label. |
+| `linkAppearance` | Appearance | Görünüm | المظهر | a3-6: the field's label. |
+| `linkLookNone` | Invisible (text keeps its look) | Görünmez (metin görünümünü korur) | غير مرئي (يحتفظ النص بمظهره) | a3-6: an appearance. |
+| `linkLookUnderline` | Underline | Alt çizgi | تسطير | a3-6: an appearance. |
+| `linkLookBox` | Thin box | İnce kutu | إطار رفيع | a3-6: an appearance. |
+| `linkRemove` | Remove link | Bağlantıyı kaldır | إزالة الرابط | a3-6: button. |
+| `linkSave` | Save link | Bağlantıyı kaydet | حفظ الرابط | a3-6: button. |
+| `linkStepAdd` | Add link | Bağlantı ekle | إضافة رابط | The history step's name. |
+| `linkStepEdit` | Edit link | Bağlantıyı düzenle | تحرير الرابط | The history step's name. |
+| `linkStepRemove` | Remove link | Bağlantıyı kaldır | إزالة الرابط | The history step's name. |
+| `linkErrorWeb` | Type a web address that starts with http:// or https://. | http:// veya https:// ile başlayan bir web adresi yazın. | اكتب عنوان ويب يبدأ بـ http:// أو https://. | a3-6: the Web field's error. |
+| `linkErrorMail` | Type an e-mail address, like name@example.com. | name@example.com gibi bir e-posta adresi yazın. | اكتب عنوان بريد إلكتروني مثل name@example.com. | a3-6: the E-mail field's error. |
+| `linkFailedTitle` | The link wasn't changed | Bağlantı değiştirilemedi | تعذّر تغيير الرابط | A toast's title when the engine refuses a link change. |
+| `linkOpenWebTitle` | Open this web address? | Bu web adresi açılsın mı? | هل تريد فتح عنوان الويب هذا؟ | G145: the prompt before a web link. |
+| `linkOpenMailTitle` | Write to this address? | Bu adrese e-posta yazılsın mı? | هل تريد مراسلة هذا العنوان؟ | G145: the prompt before an e-mail link. |
+| `linkOpenDescription` | This link comes from the document. It opens in your own apps, so check that you trust where it goes. | Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun. | هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته. | G145: the prompt's description. |
+| `linkOpenAction` | Open link | Bağlantıyı aç | فتح الرابط | G145: the prompt's button. |
+| `linkOpenFailed` | The link couldn't be opened | Bağlantı açılamadı | تعذّر فتح الرابط | A toast when the system opens nothing. |
+| `linkBrokenTitle` | This link leads nowhere | Bu bağlantı hiçbir yere gitmiyor | هذا الرابط لا يؤدي إلى أي مكان | A toast when a broken link is clicked. |
+| `linkRefusedTitle` | Ferman didn't follow this link | Ferman bu bağlantıyı izlemedi | لم يتبع Ferman هذا الرابط | A toast when a link is not offered (G145). |
+| `linkRefusedScript` | It would run a script, and Ferman doesn't run a document's scripts. | Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz. | كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات. | G145. |
+| `linkRefusedLaunch` | It would start {target}, and Ferman never starts programs for a document. | {target} başlatılacaktı; Ferman belgeler için asla program başlatmaz. | كان سيشغّل {target}، ولا يشغّل Ferman البرامج للمستندات أبدًا. | G145. |
+| `linkRefusedFile` | It points to another file, {target}, and Ferman doesn't open files from links. | Başka bir dosyayı, {target}, gösteriyor; Ferman bağlantılardan dosya açmaz. | يشير إلى ملف آخر، {target}، ولا يفتح Ferman الملفات من الروابط. | G145. |
+| `linkRefusedAddress` | Ferman doesn't open this kind of address: {target} | Ferman bu tür adresleri açmaz: {target} | لا يفتح Ferman هذا النوع من العناوين: {target} | G145. |
+| `linkRefusedAction` | It does something Ferman doesn't know, so it stays in the file and doesn't run. | Ferman'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz. | يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ. | G145. |
+| `linksBrokenMeta` | {count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}} | {count, plural, other{Bozuk: bu belgede {pages} sayfa var}} | {count, plural, =1{معطّل: يحتوي هذا المستند على صفحة واحدة ({pages})} =2{معطّل: يحتوي هذا المستند على صفحتين ({pages})} few{معطّل: يحتوي هذا المستند على {pages} صفحات} other{معطّل: يحتوي هذا المستند على {pages} صفحة}} | a3-6: a link to a page the document does not have. |
+| `linkErrorPage` | {count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}} | {count, plural, other{1 ile {pages} arasında bir sayfa yazın.}} | {count, plural, =1{يحتوي هذا المستند على صفحة واحدة ({pages}).} other{اكتب صفحة من 1 إلى {pages}.}} | a3-6: the Page field's error. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

@@ -132,7 +132,7 @@ Future<void> main() async {
     'comment_selected': (tester) async {
       await _opened(tester);
       final container = _container(tester);
-      container.read(commentToolProvider.notifier).shape(ShapeTool.rectangle);
+      container.read(commentToolProvider.notifier).pick(AnnotationTool.shapes);
       container.read(commentSelectionProvider.notifier).select(3);
       await tester.pumpAndSettle();
     },

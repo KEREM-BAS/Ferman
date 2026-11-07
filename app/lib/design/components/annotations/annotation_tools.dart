@@ -98,7 +98,6 @@ class AnnotationTools extends StatefulWidget {
     this.disabledReasons = const {},
     this.colorsDisabledReason,
     this.onToolMenuRequested,
-    this.toolItem,
     this.toolMenus = const {},
     this.overflowLabel,
   });
@@ -151,11 +150,6 @@ class AnnotationTools extends StatefulWidget {
   /// Called with a tool that has a menu when ArrowDown asks for the menu;
   /// null falls back to selecting the tool. Not a design-system prop.
   final ValueChanged<AnnotationTool>? onToolMenuRequested;
-
-  /// Wraps a tool's button to hang its menu from it: a [ToolbarItem] with the
-  /// menu's entry for the overflow menu (B093); null, or a null result, leaves
-  /// the plain button. Not a design-system prop.
-  final Widget? Function(AnnotationTool tool, ToolButton button)? toolItem;
 
   /// The menus of the tools that have one built. Not a design-system prop.
   final Map<AnnotationTool, AnnotationToolMenu> toolMenus;
@@ -272,7 +266,9 @@ class _AnnotationToolsState extends State<AnnotationTools> {
         id: button.label,
         label: button.label,
         icon: button.icon,
+        shortcut: button.shortcut,
         checked: button.active,
+        disabled: widget.onToolChanged == null,
         submenu: menu.items,
       ),
       onMenuSelected: menu.onSelected,
@@ -321,7 +317,7 @@ class _AnnotationToolsState extends State<AnnotationTools> {
           ? () => onMenu(tool)
           : null,
     );
-    return widget.toolItem?.call(tool, button) ?? _withMenu(tool, button);
+    return _withMenu(tool, button);
   }
 
   @override

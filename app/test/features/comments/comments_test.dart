@@ -1,7 +1,6 @@
 import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
-import 'package:ferman/features/comments/comment_model.dart';
 import 'package:ferman/features/comments/comment_overlay.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comment_style_bar.dart';
@@ -234,7 +233,7 @@ void main() {
   ) async {
     final engine = _engine(annotations: const []);
     final container = await _open(tester, engine);
-    container.read(commentToolProvider.notifier).shape(ShapeTool.rectangle);
+    container.read(commentToolProvider.notifier).pick(AnnotationTool.shapes);
     await tester.pump();
     await _drag(
       tester,
@@ -394,7 +393,7 @@ void main() {
     (tester) async {
       final engine = _engine(annotations: const []);
       final container = await _open(tester, engine, name: null);
-      container.read(commentToolProvider.notifier).shape(ShapeTool.rectangle);
+      container.read(commentToolProvider.notifier).pick(AnnotationTool.shapes);
       await tester.pump();
       Future<void> draw() => _drag(
         tester,
@@ -407,7 +406,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(await _list(engine), isEmpty);
 
-      container.read(commentToolProvider.notifier).shape(ShapeTool.rectangle);
+      container.read(commentToolProvider.notifier).pick(AnnotationTool.shapes);
       await tester.pump();
       await draw();
       await tester.enterText(
@@ -422,7 +421,7 @@ void main() {
       expect((await _list(engine)).single.author, 'Elif Şahin');
       expect(container.read(settingsProvider).commenterName, 'Elif Şahin');
 
-      container.read(commentToolProvider.notifier).shape(ShapeTool.rectangle);
+      container.read(commentToolProvider.notifier).pick(AnnotationTool.shapes);
       await tester.pump();
       await _drag(
         tester,

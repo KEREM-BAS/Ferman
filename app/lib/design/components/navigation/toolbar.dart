@@ -192,10 +192,6 @@ class ToolbarItem extends StatelessWidget {
   /// [ToolbarOverflow.hide] when the item has no menu entry.
   final ToolbarOverflow? overflow;
 
-  /// Whether [child], not itself a [ToolButton], holds one whose label can hide
-  /// behind its icon.
-  final bool collapsible;
-
   @override
   Widget build(BuildContext context) => child;
 

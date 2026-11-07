@@ -148,9 +148,6 @@ enum Feature {
 
   // Comments, forms and signatures.
 
-  /// Stamps: Comment › Stamp and its library (a4-3, a4-3b).
-  stamps('B014'),
-
   /// Flatten comments: the Comments panel's More › Flatten (a4-5b).
   flattenComments('B198'),
 

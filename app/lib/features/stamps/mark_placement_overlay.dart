@@ -1,17 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:ferman/app/toast_host.dart';
 import 'package:ferman/design/components/annotations/annotation_color.dart'
     as design;
 import 'package:ferman/design/components/annotations/annotation_tool.dart';
 import 'package:ferman/design/components/annotations/stamp.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
-import 'package:ferman/features/editor/edit_session.dart';
-import 'package:ferman/features/organize/organize_dialogs.dart';
-import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/stamps/stamp_clock.dart';
 import 'package:ferman/features/stamps/stamp_design.dart';
@@ -19,6 +15,7 @@ import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -108,15 +105,15 @@ NewAnnotation defaultShape(
 /// ellipse, arrow or line is dragged; a polygon takes a click per corner and
 /// closes on its first corner, a double click or Enter; a stamp takes a click,
 /// and ⌥-drag sets its size (a4-3). Each mark commits as one step when it is
-/// finished, never during the drag (M4 plan, decision 16). Enter with nothing
-/// drawn places the mark mid-page; Esc drops the draft, then leaves the tool.
+/// finished, never during the drag (M4 plan, decision 16), through
+/// [CommentCommands.add], which asks for the name once (G46), selects the mark
+/// and ends the tool unless kept. Enter with nothing drawn places the mark
+/// mid-page; Esc drops the draft, then leaves the tool.
 class MarkPlacementOverlay extends ConsumerStatefulWidget {
   /// The overlay for [tool], [AnnotationTool.shapes] or [AnnotationTool.stamp].
   const new({
     required this.tool,
     required this.color,
-    required this.author,
-    this.onPlaced,
     this.onFinished,
     super.key,
   });
@@ -127,14 +124,7 @@ class MarkPlacementOverlay extends ConsumerStatefulWidget {
   /// The tool row's colour, for shapes; a stamp has its own ink.
   final design.AnnotationColor color;
 
-  /// The commenter's name (G46).
-  final String author;
-
-  /// Called with a mark's handle once it is a step of the history.
-  final ValueChanged<int>? onPlaced;
-
-  /// Called when the tool should end: after a placed mark, unless Keep tool
-  /// selected, and on Esc.
+  /// Called on Esc with no draft: the tool should end.
   final VoidCallback? onFinished;
 
   @override
@@ -147,8 +137,6 @@ class MarkPlacementOverlay extends ConsumerStatefulWidget {
     properties
       ..add(EnumProperty<AnnotationTool>('tool', tool))
       ..add(EnumProperty<design.AnnotationColor>('color', color))
-      ..add(StringProperty('author', author))
-      ..add(ObjectFlagProperty<ValueChanged<int>?>.has('onPlaced', onPlaced))
       ..add(ObjectFlagProperty<VoidCallback?>.has('onFinished', onFinished));
   }
 }
@@ -241,43 +229,19 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
     );
   }
 
-  void _commit(int page, NewAnnotation mark, String name) {
+  void _commit(
+    int page,
+    NewAnnotation Function(String author) mark,
+    String step,
+  ) {
     final view = ref.read(viewerProvider);
     if (view == null) return;
-    final document = view.document.id;
-    final handle = view.document.pageHandle(page);
-    final engine = ref.read(engineServiceProvider);
-    final toasts = ref.read(toastNoticesProvider.notifier);
-    final tab = ref.read(shellDocumentsProvider).active?.name ?? '';
-    final onPlaced = widget.onPlaced;
-    int? placed;
     unawaited(
       ref
-          .read(documentEditorProvider.notifier)
-          .pageChange(
-            document,
-            () async {
-              final commit = await engine.addAnnotation(
-                document,
-                handle,
-                mark,
-                name,
-              );
-              placed = commit.handle;
-              return commit.revision;
-            },
-            committed: () {
-              if (placed case final placed?) onPlaced?.call(placed);
-            },
-          )
-          .then((error) {
-            if (error != null) showPageChangeFailure(toasts, error, tab);
-          }),
+          .read(commentCommandsProvider.notifier)
+          .add(view.document.pageHandle(page), mark, step: step),
     );
     _clear();
-    if (!ref.read(commentToolMenusProvider).keepSelected) {
-      widget.onFinished?.call();
-    }
   }
 
   void _placeStamp(
@@ -292,12 +256,12 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
     final theme = context.ferman;
     _commit(
       page,
-      stampAnnotation(
+      (author) => stampAnnotation(
         stamp,
         center: center,
         page: Size(info.width, info.height),
         ink: Stamp.inkOf(stamp.tone, theme),
-        author: widget.author,
+        author: author,
         now: ref.read(stampClockProvider)(),
         format: RegionFormat.forRegion(ref.read(regionProvider).region),
         style: theme.typography.body,
@@ -313,13 +277,15 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
   void _closePolygon(AppLocalizations l10n) {
     final page = _page;
     if (page == null || _corners.length < 3) return;
+    final color = _color();
+    final corners = List.of(_corners);
     _commit(
       page,
-      shapeAnnotation(
+      (author) => shapeAnnotation(
         ShapeTool.polygon,
-        color: _color(),
-        author: widget.author,
-        points: List.of(_corners),
+        color: color,
+        author: author,
+        points: corners,
       ),
       l10n.stepAddShape,
     );
@@ -399,7 +365,7 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
         stamp.metaAt(
           ref.read(stampClockProvider)(),
           RegionFormat.forRegion(ref.read(regionProvider).region),
-          widget.author,
+          ref.read(settingsProvider).commenterName ?? '',
         ),
         stampFontSize,
         context.ferman.typography.body,
@@ -416,12 +382,13 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
         scale: scale.clamp(minStampScale, maxStampScale),
       );
     } else if (shape != null) {
+      final color = _color();
       _commit(
         page,
-        shapeAnnotation(
+        (author) => shapeAnnotation(
           shape,
-          color: _color(),
-          author: widget.author,
+          color: color,
+          author: author,
           a: start,
           b: end,
         ),
@@ -465,9 +432,10 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
     if (_stamp case final stamp?) {
       _placeStamp(stamp, page, center, l10n);
     } else if (_shape case final shape?) {
+      final color = _color();
       _commit(
         page,
-        defaultShape(shape, center, color: _color(), author: widget.author),
+        (author) => defaultShape(shape, center, color: color, author: author),
         l10n.stepAddShape,
       );
     }
@@ -512,33 +480,37 @@ class _MarkPlacementOverlayState extends ConsumerState<MarkPlacementOverlay> {
             if (page == null || _corners.isEmpty) return;
             setState(() => _hover = _onPage(view, page, event.localPosition));
           },
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            dragStartBehavior: DragStartBehavior.down,
-            onTapUp: (details) => _onTapUp(view, details, l10n),
-            onPanStart: (details) => _onPanStart(view, details),
-            onPanUpdate: (details) => _onPanUpdate(view, details),
-            onPanEnd: (_) => _onPanEnd(l10n),
-            // Every click ends in this, and a polygon's corners stay.
-            onPanCancel: () {
-              if (_start != null) _clear();
-            },
-            child: CustomPaint(
-              painter: origin == null
-                  ? null
-                  : _DraftPainter(
-                      origin: origin - view.offset,
-                      scale: view.scale,
-                      color: stamp != null
-                          ? Stamp.inkOf(stamp.tone, theme)
-                          : widget.color.resolve(theme),
-                      shape: _sizing ? ShapeTool.rectangle : shape,
-                      start: _start,
-                      end: _end,
-                      corners: List.of(_corners),
-                      hover: _hover,
-                    ),
-              child: const SizedBox.expand(),
+          // The view takes focus on a press; the tool's keys come back with it.
+          child: Listener(
+            onPointerUp: (_) => _focus.requestFocus(),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              dragStartBehavior: DragStartBehavior.down,
+              onTapUp: (details) => _onTapUp(view, details, l10n),
+              onPanStart: (details) => _onPanStart(view, details),
+              onPanUpdate: (details) => _onPanUpdate(view, details),
+              onPanEnd: (_) => _onPanEnd(l10n),
+              // Every click ends in this, and a polygon's corners stay.
+              onPanCancel: () {
+                if (_start != null) _clear();
+              },
+              child: CustomPaint(
+                painter: origin == null
+                    ? null
+                    : _DraftPainter(
+                        origin: origin - view.offset,
+                        scale: view.scale,
+                        color: stamp != null
+                            ? Stamp.inkOf(stamp.tone, theme)
+                            : widget.color.resolve(theme),
+                        shape: _sizing ? ShapeTool.rectangle : shape,
+                        start: _start,
+                        end: _end,
+                        corners: List.of(_corners),
+                        hover: _hover,
+                      ),
+                child: const SizedBox.expand(),
+              ),
             ),
           ),
         ),

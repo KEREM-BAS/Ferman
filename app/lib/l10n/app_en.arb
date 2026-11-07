@@ -5806,30 +5806,6 @@
   "@commentKindOther": {
     "description": "A kind of annotation."
   },
-  "commentShapeEllipse": "Ellipse",
-  "@commentShapeEllipse": {
-    "description": "a4-1's Shapes menu."
-  },
-  "commentShapeArrow": "Arrow",
-  "@commentShapeArrow": {
-    "description": "a4-1's Shapes menu."
-  },
-  "commentShapeLine": "Line",
-  "@commentShapeLine": {
-    "description": "a4-1's Shapes menu."
-  },
-  "commentShapePolygon": "Polygon",
-  "@commentShapePolygon": {
-    "description": "a4-1's Shapes menu."
-  },
-  "commentShapeOther": "Rectangle",
-  "@commentShapeOther": {
-    "description": "a4-1's Shapes menu."
-  },
-  "commentKeepTool": "Keep tool selected",
-  "@commentKeepTool": {
-    "description": "a4-1's Shapes menu."
-  },
   "commentStyleBar": "{kind} style",
   "@commentStyleBar": {
     "description": "a4-1's floating bar's name.",

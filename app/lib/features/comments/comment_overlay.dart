@@ -35,14 +35,6 @@ final class _Drawing extends _Gesture {
   final List<Offset> points;
 }
 
-/// Clicking a polygon's vertices.
-final class _Polygon extends _Gesture {
-  new(super.page, Offset start) : vertices = [start];
-
-  final List<Offset> vertices;
-  Offset? over;
-}
-
 /// Moving or resizing the selected annotation; [handle] null moves it.
 final class _Reshaping extends _Gesture {
   new(super.page, this.annotation, this.handle, this.start, this.box);
@@ -136,34 +128,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
 
   bool get _refused => ref.read(commentRefusalProvider) != null;
 
-  @override
-  void initState() {
-    super.initState();
-    HardwareKeyboard.instance.addHandler(_onKey);
-  }
-
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_onKey);
-    super.dispose();
-  }
-
-  /// Esc drops a polygon, Enter closes it; other keys belong to whoever has
-  /// focus.
-  bool _onKey(KeyEvent event) {
-    final polygon = _gesture;
-    if (polygon is! _Polygon || event is! KeyDownEvent) return false;
-    if (event.logicalKey == LogicalKeyboardKey.escape) {
-      setState(() => _gesture = null);
-      return true;
-    }
-    if (event.logicalKey == LogicalKeyboardKey.enter) {
-      _closePolygon(polygon);
-      return true;
-    }
-    return false;
-  }
-
   Rect? _pageRect(int page) => _view.placement.rects.elementAtOrNull(page);
 
   /// The page under [local] and the point in it.
@@ -236,11 +200,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     final double_ = last != null && event.timeStamp - last < kDoubleTapTimeout;
     _lastClick = event.timeStamp;
     final tools = ref.read(commentToolProvider);
-    final polygon = _gesture;
-    if (polygon is _Polygon) {
-      _addVertex(polygon, event.localPosition, closes: double_);
-      return;
-    }
     if (found == null) {
       _selection.clear();
       return;
@@ -261,12 +220,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
       case AnnotationTool.pen || AnnotationTool.text || AnnotationTool.callout
           when !_refused:
         setState(() => _gesture = _Drawing(page, point));
-      case AnnotationTool.shapes when !_refused:
-        setState(
-          () => _gesture = tools.shape == ShapeTool.polygon
-              ? _Polygon(page, point)
-              : _Drawing(page, point),
-        );
       case _:
     }
   }
@@ -328,7 +281,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
               ? _kept(page, annotation.rect.shift(at - gesture.start))
               : resizedBox(annotation.rect, handle, at);
         });
-      case _Polygon() || null:
+      case null:
     }
   }
 
@@ -366,7 +319,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
             _commands.update(annotation.handle, AnnotationChange(rect: box)),
           );
         }
-      case _Polygon() || null:
+      case null:
     }
   }
 
@@ -414,66 +367,8 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
             leader: [start, box.centerLeft],
           );
         });
-      case AnnotationTool.shapes when big:
-        final shape = tools.shape;
-        unawaited(
-          _commands.add(
-            handle,
-            (author) => switch (shape) {
-              ShapeTool.rectangle || ShapeTool.ellipse => NewAnnotation(
-                kind: shape == ShapeTool.rectangle
-                    ? AnnotationKind.square
-                    : AnnotationKind.circle,
-                color: color,
-                author: author,
-                rect: Rect.fromPoints(start, end),
-                stroke: 2,
-              ),
-              ShapeTool.arrow || ShapeTool.line => NewAnnotation(
-                kind: AnnotationKind.line,
-                color: color,
-                author: author,
-                points: [
-                  [start, end],
-                ],
-                arrow: shape == ShapeTool.arrow,
-                stroke: 2,
-              ),
-              ShapeTool.polygon => throw StateError('polygons click'),
-            },
-          ),
-        );
       case _:
     }
-  }
-
-  void _addVertex(_Polygon polygon, Offset local, {required bool closes}) {
-    if (closes) {
-      _closePolygon(polygon);
-      return;
-    }
-    setState(() {
-      polygon.vertices.add(_onPage(polygon.page, local));
-      polygon.over = null;
-    });
-  }
-
-  void _closePolygon(_Polygon polygon) {
-    setState(() => _gesture = null);
-    if (polygon.vertices.length < 3) return;
-    final color = _toolColor();
-    unawaited(
-      _commands.add(
-        _document.pageHandle(polygon.page),
-        (author) => NewAnnotation(
-          kind: AnnotationKind.polygon,
-          color: color,
-          author: author,
-          points: [polygon.vertices],
-          stroke: 2,
-        ),
-      ),
-    );
   }
 
   void _editText(AnnotationInfo annotation) {
@@ -539,11 +434,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
   }
 
   void _hover(PointerHoverEvent event) {
-    final polygon = _gesture;
-    if (polygon is _Polygon) {
-      setState(() => polygon.over = _onPage(polygon.page, event.localPosition));
-      return;
-    }
     if (ref.read(commentToolProvider).tool != AnnotationTool.select) return;
     final found = _pageAt(event.localPosition);
     final over = found != null && _at(found.$1, found.$2) != null;
@@ -572,7 +462,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
       AnnotationTool.select =>
         _overMark ? SystemMouseCursors.click : MouseCursor.defer,
       AnnotationTool.pen ||
-      AnnotationTool.shapes ||
       AnnotationTool.text ||
       AnnotationTool.callout ||
       AnnotationTool.note => SystemMouseCursors.precise,
@@ -611,11 +500,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
                   ghost: _ghost(gesture, tools),
                   ghostIsLine:
                       tools.tool == AnnotationTool.pen ||
-                      tools.tool == AnnotationTool.callout ||
-                      tools.shape == ShapeTool.arrow ||
-                      tools.shape == ShapeTool.line ||
-                      gesture is _Polygon,
-                  round: tools.shape == ShapeTool.ellipse,
+                      tools.tool == AnnotationTool.callout,
                   color: tools.color.resolve(theme),
                   accent: theme.colors.accent,
                   handleFill: theme.pageColors.pageBg,
@@ -687,10 +572,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
       switch (gesture) {
         _Drawing(:final page, :final points) => [
           for (final point in points) _pointToLocal(page, point),
-        ],
-        _Polygon(:final page, :final vertices, :final over) => [
-          for (final point in vertices) _pointToLocal(page, point),
-          if (over != null) _pointToLocal(page, over),
         ],
         _ => const [],
       };
@@ -933,7 +814,6 @@ class _MarksPainter extends CustomPainter {
     required this.handles,
     required this.ghost,
     required this.ghostIsLine,
-    required this.round,
     required this.color,
     required this.accent,
     required this.handleFill,
@@ -944,7 +824,6 @@ class _MarksPainter extends CustomPainter {
   final bool handles;
   final List<Offset> ghost;
   final bool ghostIsLine;
-  final bool round;
   final Color color;
   final Color accent;
   final Color handleFill;
@@ -980,12 +859,7 @@ class _MarksPainter extends CustomPainter {
     if (ghostIsLine) {
       canvas.drawPath(Path()..addPolygon(ghost, false), pen);
     } else {
-      final box = Rect.fromPoints(ghost.first, ghost.last);
-      if (round) {
-        canvas.drawOval(box, pen);
-      } else {
-        canvas.drawRect(box, pen);
-      }
+      canvas.drawRect(Rect.fromPoints(ghost.first, ghost.last), pen);
     }
   }
 

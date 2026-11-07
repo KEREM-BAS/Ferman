@@ -77,13 +77,4 @@ extension CommentLabels on AppLocalizations {
     CommentSort.newest => commentsSortNewest,
     CommentSort.author => commentsSortAuthor,
   };
-
-  /// The name of [shape] in a4-1's menu.
-  String commentShapeName(ShapeTool shape) => switch (shape) {
-    ShapeTool.rectangle => commentShapeOther,
-    ShapeTool.ellipse => commentShapeEllipse,
-    ShapeTool.arrow => commentShapeArrow,
-    ShapeTool.line => commentShapeLine,
-    ShapeTool.polygon => commentShapePolygon,
-  };
 }

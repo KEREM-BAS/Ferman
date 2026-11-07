@@ -15,6 +15,7 @@ import 'package:ferman/features/editor/edit_marks.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/link_popover.dart';
 import 'package:ferman/features/editor/links.dart';
+import 'package:ferman/features/stamps/mark_placement_overlay.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
 import 'package:ferman/features/viewer/text_state.dart';
@@ -836,6 +837,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
         : hover?.empty;
     final linkTool = ref.watch(linkToolProvider);
     final linkOn = widget.edit && linkTool.on;
+    final commentTools = ref.watch(commentToolProvider);
+    final placing =
+        widget.comment &&
+        commentTools.tool.hasMenu &&
+        ref.watch(commentsShownProvider).visible &&
+        ref.watch(commentRefusalProvider) == null;
     final overLink = switch (hover) {
       final over? when _selectsText =>
         linkOver(
@@ -948,6 +955,20 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                       child: CommentOverlay(
                         view: state,
                         uiDirection: widget.uiDirection,
+                      ),
+                    ),
+                  // Shapes and stamps, inside the Listener so the wheel still
+                  // scrolls. shortcut: with Keep tool selected it covers the
+                  // style bar of the mark just placed, until Esc; upgrade if
+                  // anyone styles marks in a row.
+                  if (placing)
+                    Positioned.fill(
+                      child: MarkPlacementOverlay(
+                        tool: commentTools.tool,
+                        color: commentTools.color,
+                        onFinished: () => ref
+                            .read(commentToolProvider.notifier)
+                            .pick(AnnotationTool.select),
                       ),
                     ),
                   if (marquee != null &&

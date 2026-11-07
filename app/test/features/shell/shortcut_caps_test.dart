@@ -103,8 +103,7 @@ final Map<String, ShellCommand> _choiceCommands = {
 final Set<String> _waitForDocument = {
   // Comment's tools.
   for (final tool in AnnotationTool.values)
-    if (tool != AnnotationTool.stamp && tool != AnnotationTool.measure)
-      _l10n.annotationToolLabel(tool),
+    if (tool != AnnotationTool.measure) _l10n.annotationToolLabel(tool),
   _l10n.shellShowComments,
   _l10n.shellColor,
   // Organize's tools that work with a document.

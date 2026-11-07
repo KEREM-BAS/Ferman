@@ -4443,24 +4443,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commentKindOther => 'تعليق';
 
   @override
-  String get commentShapeEllipse => 'شكل بيضاوي';
-
-  @override
-  String get commentShapeArrow => 'سهم';
-
-  @override
-  String get commentShapeLine => 'خط';
-
-  @override
-  String get commentShapePolygon => 'مضلع';
-
-  @override
-  String get commentShapeOther => 'مستطيل';
-
-  @override
-  String get commentKeepTool => 'إبقاء الأداة محددة';
-
-  @override
   String commentStyleBar(String kind) {
     return 'نمط $kind';
   }
