@@ -4966,4 +4966,342 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get formPanelTitle => 'النموذج';
+
+  @override
+  String get formMore => 'المزيد: مسح النموذج وتصدير البيانات';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$filled من $total من الحقول المطلوبة';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted حقل',
+      many: '$formatted حقلًا',
+      few: '$formatted حقول',
+      two: 'حقلان',
+      one: 'حقل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقي $formatted حقل مطلوب',
+      many: 'بقي $formatted حقلًا مطلوبًا',
+      few: 'بقيت $formatted حقول مطلوبة',
+      two: 'بقي حقلان مطلوبان',
+      one: 'بقي حقل مطلوب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'تمت تعبئة كل الحقول المطلوبة';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'الحقل $current من $total';
+  }
+
+  @override
+  String get formHighlight => 'تمييز الحقول';
+
+  @override
+  String get formShowOrder => 'إظهار ترتيب التنقل';
+
+  @override
+  String get formHideOrder => 'إخفاء ترتيب التنقل';
+
+  @override
+  String get formSignedTitle => 'نموذج موقَّع';
+
+  @override
+  String get formSignedKeeps => 'تسمح شهادته بالتعبئة، لذا تبقى صالحة.';
+
+  @override
+  String get formSignedBreaks => 'تعبئته ستُبطل توقيعه.';
+
+  @override
+  String get formFontNoticeTitle => 'أُضيفت محارف بخط IBM Plex';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'لا يحوي خط هذا النموذج بعض المحارف التي كتبتها، لذا أضاف Ferman الخط $fonts إلى المستند لأجلها.';
+  }
+
+  @override
+  String get formDismiss => 'إغلاق';
+
+  @override
+  String get formRequired => 'مطلوب';
+
+  @override
+  String get formMarkedField => 'يتعذّر عرض بعض المحارف بخط هذا الحقل';
+
+  @override
+  String get formClear => 'مسح النموذج…';
+
+  @override
+  String get formFinish => 'إنهاء';
+
+  @override
+  String get formExportData => 'تصدير البيانات…';
+
+  @override
+  String get formBannerTitle => 'ملف PDF هذا نموذج قابل للتعبئة.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted حقل، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      many:
+          '$formatted حقلًا، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      few:
+          '$formatted حقول، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      two: 'حقلان، المطلوب منهما $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      one: 'حقل واحد، المطلوب منه $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'إخفاء';
+
+  @override
+  String get fillBannerTitle => 'لا يحوي ملف PDF هذا حقول نماذج.';
+
+  @override
+  String get fillBannerBody =>
+      'انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول.';
+
+  @override
+  String get fillFindFields => 'العثور على الحقول';
+
+  @override
+  String get formPreviousField => 'الحقل السابق';
+
+  @override
+  String get formNextField => 'الحقل التالي';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'الحقل $current من $total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted حقل',
+      many: '$formatted حقلًا',
+      few: '$formatted حقول',
+      two: 'حقلان',
+      one: 'حقل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'كل المطلوب مُعبّأ';
+
+  @override
+  String get formSignHere => 'وقّع هنا';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استخدم $formatted محرف على الأكثر.',
+      many: 'استخدم $formatted محرفًا على الأكثر.',
+      few: 'استخدم $formatted محارف على الأكثر.',
+      two: 'استخدم محرفين على الأكثر.',
+      one: 'استخدم محرفًا واحدًا على الأكثر.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'أدخل التاريخ بالصيغة $pattern.';
+  }
+
+  @override
+  String get formErrorNumber => 'أدخل رقمًا.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return 'أدخل رقمًا من $min إلى $max.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'أدخل رقمًا لا يقل عن $min.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'أدخل رقمًا لا يزيد على $max.';
+  }
+
+  @override
+  String get formErrorRequired => 'مطلوب للإرسال.';
+
+  @override
+  String get formErrorSign => 'وقّع قبل الإنهاء.';
+
+  @override
+  String get formErrorChoose => 'اختر أحد الخيارات.';
+
+  @override
+  String get formChooseDate => 'اختر تاريخًا';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'الصيغة $pattern · من النموذج';
+  }
+
+  @override
+  String get formPreviousMonth => 'الشهر السابق';
+
+  @override
+  String get formNextMonth => 'الشهر التالي';
+
+  @override
+  String get formToday => 'اليوم';
+
+  @override
+  String formStepFill(String name) {
+    return 'تعبئة «$name»';
+  }
+
+  @override
+  String get formStepClear => 'مسح النموذج';
+
+  @override
+  String get formStepFinish => 'إنهاء النموذج';
+
+  @override
+  String get fillStepText => 'إضافة نص';
+
+  @override
+  String get fillStepMark => 'إضافة علامة';
+
+  @override
+  String get formXfaRemovedTitle => 'أُزيلت بيانات XFA من النموذج';
+
+  @override
+  String get formXfaRemovedBody =>
+      'كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف.';
+
+  @override
+  String get formFinishTitle => 'إنهاء النموذج';
+
+  @override
+  String get formFinishBody =>
+      'تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه.';
+
+  @override
+  String get formFinishFlatten => 'تسطيح الحقول';
+
+  @override
+  String get formFinishFlattenBody =>
+      'تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك.';
+
+  @override
+  String get formFinishKeep => 'إبقاء الحقول قابلة للتحرير';
+
+  @override
+  String get formFinishKeepBody => 'يمكن لأي شخص يفتح الملف تغيير القيم.';
+
+  @override
+  String get formFinishSave => 'حفظ';
+
+  @override
+  String get formFinishSaveAs => 'حفظ باسم…';
+
+  @override
+  String get formClearTitle => 'هل تريد مسح النموذج؟';
+
+  @override
+  String get formClearBody =>
+      'تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك.';
+
+  @override
+  String get formClearConfirm => 'مسح النموذج';
+
+  @override
+  String get formFontAskTitle => 'محارف غير موجودة في خط هذا الحقل';
+
+  @override
+  String get formFontAskBody =>
+      'يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها.';
+
+  @override
+  String get formFontAskPlex => 'استخدام IBM Plex';
+
+  @override
+  String get formFontAskKeep => 'إبقاء خط الحقل';
+
+  @override
+  String get fillPanelTitle => 'تعبئة أي شيء';
+
+  @override
+  String get fillToolText => 'نص';
+
+  @override
+  String get fillToolCheck => 'علامة صح';
+
+  @override
+  String get fillToolCross => 'علامة خطأ';
+
+  @override
+  String get fillToolDot => 'نقطة';
+
+  @override
+  String get fillToolToday => 'تاريخ اليوم';
+
+  @override
+  String get fillToolSignature => 'توقيع';
+
+  @override
+  String get fillOptions => 'الخيارات';
+
+  @override
+  String get fillSnap => 'المحاذاة إلى الأسطر والمربعات';
+
+  @override
+  String get fillComb => 'محرف واحد في كل مربع';
+
+  @override
+  String get fillInk => 'الحبر';
+
+  @override
+  String get fillInkBlack => 'أسود';
+
+  @override
+  String get fillInkBlue => 'أزرق (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'لم يُبحث في التعليقات.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'حقل نموذج: $text';
+  }
 }

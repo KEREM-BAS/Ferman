@@ -546,6 +546,8 @@ void main() {
         'Page labels',
         'Insert▾',
       };
+      // Fill & Sign's tools that wait for a document.
+      const filling = {'Fill fields', 'Add text', 'Checkmark', 'Date'};
       // Comment's tools that wait for a document.
       const commenting = {
         'Select',
@@ -594,7 +596,8 @@ void main() {
             reason,
             mode == FermanMode.view && viewing.contains(name) ||
                     mode == FermanMode.organize && organizing.contains(name) ||
-                    mode == FermanMode.comment && commenting.contains(name)
+                    mode == FermanMode.comment && commenting.contains(name) ||
+                    mode == FermanMode.sign && filling.contains(name)
                 ? isNull
                 : mode == FermanMode.edit
                 ? working[name] ?? futureVersion

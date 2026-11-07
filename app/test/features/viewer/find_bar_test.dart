@@ -343,8 +343,8 @@ void main() {
     expect(findState(tester).searched, isNull);
   });
 
-  testWidgets('Look in › Bookmarks searches the bookmarks too; comments and '
-      'form fields wait (B114)', (tester) async {
+  testWidgets('Look in › Bookmarks and Form fields search them too; the page '
+      'text is always searched (B114, B128)', (tester) async {
     final engine = await pumpDocument(tester);
     await controlF(tester);
     await tester.enterText(field(), 'kira');
@@ -357,12 +357,19 @@ void main() {
     expect(checkbox('Bookmarks').disabled, isFalse);
     expect(checkbox('Comments').checked, isTrue);
     expect(checkbox('Comments').disabled, isFalse);
-    expect(checkbox('Form fields').disabledReason, futureVersion);
+    expect(checkbox('Page text').checked, isTrue);
+    expect(checkbox('Page text').disabledReason, futureVersion);
     checkbox('Bookmarks').onChanged!(true);
     await settle(tester);
     expect(engine.searches.last, (
       'kira',
       const SearchOptions(bookmarks: true),
+    ));
+    checkbox('Form fields').onChanged!(true);
+    await settle(tester);
+    expect(engine.searches.last, (
+      'kira',
+      const SearchOptions(bookmarks: true, fields: true),
     ));
   });
 }

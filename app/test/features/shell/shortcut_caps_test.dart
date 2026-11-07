@@ -123,6 +123,11 @@ final Set<String> _waitForDocument = {
   'Page layout',
   'Previous page',
   'Next page',
+  // Fill & Sign's tools that work with a document.
+  'Fill fields',
+  'Add text',
+  'Checkmark',
+  'Date',
 };
 
 /// The commands that have a control but whose keys no M1 surface shows
@@ -179,6 +184,11 @@ const Set<ShellCommand> _keysOnly = {
   ShellCommand.previousField,
   ShellCommand.todaysDate,
   ShellCommand.addSignature,
+  // Fill anything's tools show their keys in its panel (a5-4), not the row.
+  ShellCommand.fillText,
+  ShellCommand.fillCheck,
+  ShellCommand.fillCross,
+  ShellCommand.fillDot,
   // Organize: the page grid's keys and Insert from file (B056); FmWindow
   // draws Duplicate and Extract without keys.
   ShellCommand.duplicatePages,
@@ -296,7 +306,8 @@ void main() {
               (!inRow ||
                   mode == FermanMode.view ||
                   mode == FermanMode.organize ||
-                  mode == FermanMode.comment) &&
+                  mode == FermanMode.comment ||
+                  mode == FermanMode.sign) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -464,7 +475,8 @@ void main() {
             if (entry.disabled &&
                 ((mode != FermanMode.view &&
                         mode != FermanMode.organize &&
-                        mode != FermanMode.comment) ||
+                        mode != FermanMode.comment &&
+                        mode != FermanMode.sign) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

@@ -4129,6 +4129,270 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String linkErrorPage(int count, String pages) =>
       isolate(super.linkErrorPage(count, pages));
+
+  @override
+  String get formPanelTitle => isolate(super.formPanelTitle);
+
+  @override
+  String get formMore => isolate(super.formMore);
+
+  @override
+  String formRequiredProgress(String filled, String total) =>
+      isolate(super.formRequiredProgress(filled, total));
+
+  @override
+  String formSummaryFields(int count, String formatted) =>
+      isolate(super.formSummaryFields(count, formatted));
+
+  @override
+  String formRequiredLeft(int count, String formatted) =>
+      isolate(super.formRequiredLeft(count, formatted));
+
+  @override
+  String get formAllRequiredFilled => isolate(super.formAllRequiredFilled);
+
+  @override
+  String formFieldOf(String current, String total) =>
+      isolate(super.formFieldOf(current, total));
+
+  @override
+  String get formHighlight => isolate(super.formHighlight);
+
+  @override
+  String get formShowOrder => isolate(super.formShowOrder);
+
+  @override
+  String get formHideOrder => isolate(super.formHideOrder);
+
+  @override
+  String get formSignedTitle => isolate(super.formSignedTitle);
+
+  @override
+  String get formSignedKeeps => isolate(super.formSignedKeeps);
+
+  @override
+  String get formSignedBreaks => isolate(super.formSignedBreaks);
+
+  @override
+  String get formFontNoticeTitle => isolate(super.formFontNoticeTitle);
+
+  @override
+  String formFontNoticeBody(String fonts) =>
+      isolate(super.formFontNoticeBody(fonts));
+
+  @override
+  String get formDismiss => isolate(super.formDismiss);
+
+  @override
+  String get formRequired => isolate(super.formRequired);
+
+  @override
+  String get formMarkedField => isolate(super.formMarkedField);
+
+  @override
+  String get formClear => isolate(super.formClear);
+
+  @override
+  String get formFinish => isolate(super.formFinish);
+
+  @override
+  String get formExportData => isolate(super.formExportData);
+
+  @override
+  String get formBannerTitle => isolate(super.formBannerTitle);
+
+  @override
+  String formBannerBody(int count, String formatted, String required) =>
+      isolate(super.formBannerBody(count, formatted, required));
+
+  @override
+  String get formBannerHide => isolate(super.formBannerHide);
+
+  @override
+  String get fillBannerTitle => isolate(super.fillBannerTitle);
+
+  @override
+  String get fillBannerBody => isolate(super.fillBannerBody);
+
+  @override
+  String get fillFindFields => isolate(super.fillFindFields);
+
+  @override
+  String get formPreviousField => isolate(super.formPreviousField);
+
+  @override
+  String get formNextField => isolate(super.formNextField);
+
+  @override
+  String formNavField(String current, String total) =>
+      isolate(super.formNavField(current, total));
+
+  @override
+  String formNavFields(int count, String formatted) =>
+      isolate(super.formNavFields(count, formatted));
+
+  @override
+  String get formNavAllFilled => isolate(super.formNavAllFilled);
+
+  @override
+  String get formSignHere => isolate(super.formSignHere);
+
+  @override
+  String formErrorTooLong(int count, String formatted) =>
+      isolate(super.formErrorTooLong(count, formatted));
+
+  @override
+  String formErrorDate(String pattern) => isolate(super.formErrorDate(pattern));
+
+  @override
+  String get formErrorNumber => isolate(super.formErrorNumber);
+
+  @override
+  String formErrorRange(String min, String max) =>
+      isolate(super.formErrorRange(min, max));
+
+  @override
+  String formErrorMin(String min) => isolate(super.formErrorMin(min));
+
+  @override
+  String formErrorMax(String max) => isolate(super.formErrorMax(max));
+
+  @override
+  String get formErrorRequired => isolate(super.formErrorRequired);
+
+  @override
+  String get formErrorSign => isolate(super.formErrorSign);
+
+  @override
+  String get formErrorChoose => isolate(super.formErrorChoose);
+
+  @override
+  String get formChooseDate => isolate(super.formChooseDate);
+
+  @override
+  String formDateFormat(String pattern) =>
+      isolate(super.formDateFormat(pattern));
+
+  @override
+  String get formPreviousMonth => isolate(super.formPreviousMonth);
+
+  @override
+  String get formNextMonth => isolate(super.formNextMonth);
+
+  @override
+  String get formToday => isolate(super.formToday);
+
+  @override
+  String formStepFill(String name) => isolate(super.formStepFill(name));
+
+  @override
+  String get formStepClear => isolate(super.formStepClear);
+
+  @override
+  String get formStepFinish => isolate(super.formStepFinish);
+
+  @override
+  String get fillStepText => isolate(super.fillStepText);
+
+  @override
+  String get fillStepMark => isolate(super.fillStepMark);
+
+  @override
+  String get formXfaRemovedTitle => isolate(super.formXfaRemovedTitle);
+
+  @override
+  String get formXfaRemovedBody => isolate(super.formXfaRemovedBody);
+
+  @override
+  String get formFinishTitle => isolate(super.formFinishTitle);
+
+  @override
+  String get formFinishBody => isolate(super.formFinishBody);
+
+  @override
+  String get formFinishFlatten => isolate(super.formFinishFlatten);
+
+  @override
+  String get formFinishFlattenBody => isolate(super.formFinishFlattenBody);
+
+  @override
+  String get formFinishKeep => isolate(super.formFinishKeep);
+
+  @override
+  String get formFinishKeepBody => isolate(super.formFinishKeepBody);
+
+  @override
+  String get formFinishSave => isolate(super.formFinishSave);
+
+  @override
+  String get formFinishSaveAs => isolate(super.formFinishSaveAs);
+
+  @override
+  String get formClearTitle => isolate(super.formClearTitle);
+
+  @override
+  String get formClearBody => isolate(super.formClearBody);
+
+  @override
+  String get formClearConfirm => isolate(super.formClearConfirm);
+
+  @override
+  String get formFontAskTitle => isolate(super.formFontAskTitle);
+
+  @override
+  String get formFontAskBody => isolate(super.formFontAskBody);
+
+  @override
+  String get formFontAskPlex => isolate(super.formFontAskPlex);
+
+  @override
+  String get formFontAskKeep => isolate(super.formFontAskKeep);
+
+  @override
+  String get fillPanelTitle => isolate(super.fillPanelTitle);
+
+  @override
+  String get fillToolText => isolate(super.fillToolText);
+
+  @override
+  String get fillToolCheck => isolate(super.fillToolCheck);
+
+  @override
+  String get fillToolCross => isolate(super.fillToolCross);
+
+  @override
+  String get fillToolDot => isolate(super.fillToolDot);
+
+  @override
+  String get fillToolToday => isolate(super.fillToolToday);
+
+  @override
+  String get fillToolSignature => isolate(super.fillToolSignature);
+
+  @override
+  String get fillOptions => isolate(super.fillOptions);
+
+  @override
+  String get fillSnap => isolate(super.fillSnap);
+
+  @override
+  String get fillComb => isolate(super.fillComb);
+
+  @override
+  String get fillInk => isolate(super.fillInk);
+
+  @override
+  String get fillInkBlack => isolate(super.fillInkBlack);
+
+  @override
+  String get fillInkBlue => isolate(super.fillInkBlue);
+
+  @override
+  String get findNotSearchedComments => isolate(super.findNotSearchedComments);
+
+  @override
+  String sidebarSearchFormField(String text) =>
+      isolate(super.sidebarSearchFormField(text));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

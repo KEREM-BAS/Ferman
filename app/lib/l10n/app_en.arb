@@ -6504,5 +6504,451 @@
         "type": "String"
       }
     }
+  },
+  "formPanelTitle": "Form",
+  "@formPanelTitle": {
+    "description": "FmFormPanel's heading (a5-1)."
+  },
+  "formMore": "More: clear form, export data",
+  "@formMore": {
+    "description": "FmFormPanel: the More button."
+  },
+  "formRequiredProgress": "{filled} of {total} required fields",
+  "@formRequiredProgress": {
+    "description": "FmFormPanel: the required count over its bar (a5-1).",
+    "placeholders": {
+      "filled": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "formSummaryFields": "{count, plural, =1{1 field} other{{formatted} fields}}",
+  "@formSummaryFields": {
+    "description": "FmFormPanel's summary: how many fields.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "formRequiredLeft": "{count, plural, =1{1 required left} other{{formatted} required left}}",
+  "@formRequiredLeft": {
+    "description": "FmFormPanel and the field navigation: required fields still empty.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "formAllRequiredFilled": "All required fields are filled",
+  "@formAllRequiredFilled": {
+    "description": "FmFormPanel's summary once every required field is filled."
+  },
+  "formFieldOf": "field {current} of {total}",
+  "@formFieldOf": {
+    "description": "FmFormPanel's summary: the field the person is in.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "formHighlight": "Highlight fields",
+  "@formHighlight": {
+    "description": "FmFormPanel: the switch that tints the fields."
+  },
+  "formShowOrder": "Show tab order",
+  "@formShowOrder": {
+    "description": "FmFormPanel and the form bar: shows the fields' order numbers."
+  },
+  "formHideOrder": "Hide tab order",
+  "@formHideOrder": {
+    "description": "The form bar's button while the order shows."
+  },
+  "formSignedTitle": "Signed form",
+  "@formSignedTitle": {
+    "description": "FmFormPanel: the signed-form notice's title (G47)."
+  },
+  "formSignedKeeps": "Its certification allows filling in, so it stays valid.",
+  "@formSignedKeeps": {
+    "description": "FmFormPanel: the signed-form notice when filling keeps the certification (G35)."
+  },
+  "formSignedBreaks": "Filling it in will invalidate its signature.",
+  "@formSignedBreaks": {
+    "description": "FmFormPanel: the signed-form notice when filling breaks a signature (G35)."
+  },
+  "formFontNoticeTitle": "Characters added in IBM Plex",
+  "@formFontNoticeTitle": {
+    "description": "FmFormPanel: said once when a value takes bundled Plex (M4 decision 18)."
+  },
+  "formFontNoticeBody": "This form’s font has no glyphs for some characters you typed, so Ferman added {fonts} to the document for them.",
+  "@formFontNoticeBody": {
+    "description": "FmFormPanel: the font notice's text.",
+    "placeholders": {
+      "fonts": {
+        "type": "String"
+      }
+    }
+  },
+  "formDismiss": "Dismiss",
+  "@formDismiss": {
+    "description": "FmFormPanel: closes the font notice."
+  },
+  "formRequired": "Required",
+  "@formRequired": {
+    "description": "FmFormPanel: a required field not filled yet."
+  },
+  "formMarkedField": "Some characters can’t be shown in this field’s font",
+  "@formMarkedField": {
+    "description": "FmFormPanel: a field whose missing characters were kept out (Keep)."
+  },
+  "formClear": "Clear form…",
+  "@formClear": {
+    "description": "FmFormPanel's footer and More menu."
+  },
+  "formFinish": "Finish",
+  "@formFinish": {
+    "description": "FmFormPanel's primary button."
+  },
+  "formExportData": "Export data…",
+  "@formExportData": {
+    "description": "FmFormPanel's More menu: not built yet."
+  },
+  "formBannerTitle": "This PDF is a fillable form.",
+  "@formBannerTitle": {
+    "description": "The bar over a form in Fill & Sign (a5-1)."
+  },
+  "formBannerBody": "{count, plural, =1{1 field, {required} required. Tab moves to the next field.} other{{formatted} fields, {required} required. Tab moves to the next field.}}",
+  "@formBannerBody": {
+    "description": "The form bar's text.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      },
+      "required": {
+        "type": "String"
+      }
+    }
+  },
+  "formBannerHide": "Hide",
+  "@formBannerHide": {
+    "description": "The form bar: hides it."
+  },
+  "fillBannerTitle": "This PDF has no form fields.",
+  "@fillBannerTitle": {
+    "description": "The bar over a page without fields (a5-4)."
+  },
+  "fillBannerBody": "Click a line or box to type, or let Ferman find the fields.",
+  "@fillBannerBody": {
+    "description": "The no-fields bar's text."
+  },
+  "fillFindFields": "Find fields",
+  "@fillFindFields": {
+    "description": "The no-fields bar's button (Prepare form, P4)."
+  },
+  "formPreviousField": "Previous field",
+  "@formPreviousField": {
+    "description": "The field navigation's button."
+  },
+  "formNextField": "Next field",
+  "@formNextField": {
+    "description": "The field navigation's button."
+  },
+  "formNavField": "Field {current} of {total}",
+  "@formNavField": {
+    "description": "The field navigation: the field the person is in.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "formNavFields": "{count, plural, =1{1 field} other{{formatted} fields}}",
+  "@formNavFields": {
+    "description": "The field navigation before any field is chosen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "formNavAllFilled": "All required filled",
+  "@formNavAllFilled": {
+    "description": "The field navigation's badge once every required field is filled (a5-3d)."
+  },
+  "formSignHere": "Sign here",
+  "@formSignHere": {
+    "description": "An empty signature field on the page (a5-2b)."
+  },
+  "formErrorTooLong": "{count, plural, =1{Use at most 1 character.} other{Use at most {formatted} characters.}}",
+  "@formErrorTooLong": {
+    "description": "A field's error: too long.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "formErrorDate": "Enter a date as {pattern}.",
+  "@formErrorDate": {
+    "description": "A field's error: not a date in its format.",
+    "placeholders": {
+      "pattern": {
+        "type": "String"
+      }
+    }
+  },
+  "formErrorNumber": "Enter a number.",
+  "@formErrorNumber": {
+    "description": "A field's error: not a number."
+  },
+  "formErrorRange": "Enter a number from {min} to {max}.",
+  "@formErrorRange": {
+    "description": "A field's error: out of its range (a5-2).",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "formErrorMin": "Enter a number of at least {min}.",
+  "@formErrorMin": {
+    "description": "A field's error: under its least value.",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "formErrorMax": "Enter a number of at most {max}.",
+  "@formErrorMax": {
+    "description": "A field's error: over its greatest value.",
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "formErrorRequired": "Required to submit.",
+  "@formErrorRequired": {
+    "description": "A required field left empty, after Finish (a5-2b)."
+  },
+  "formErrorSign": "Sign before finishing.",
+  "@formErrorSign": {
+    "description": "A required signature field left empty, after Finish (a5-2b)."
+  },
+  "formErrorChoose": "Choose an option.",
+  "@formErrorChoose": {
+    "description": "A required choice left empty, after Finish (a5-2b)."
+  },
+  "formChooseDate": "Choose a date",
+  "@formChooseDate": {
+    "description": "The date picker's name (a5-2)."
+  },
+  "formDateFormat": "Format {pattern} · from the form",
+  "@formDateFormat": {
+    "description": "The date picker's note (a5-2).",
+    "placeholders": {
+      "pattern": {
+        "type": "String"
+      }
+    }
+  },
+  "formPreviousMonth": "Previous month",
+  "@formPreviousMonth": {
+    "description": "The date picker's button."
+  },
+  "formNextMonth": "Next month",
+  "@formNextMonth": {
+    "description": "The date picker's button."
+  },
+  "formToday": "Today",
+  "@formToday": {
+    "description": "The date picker's button."
+  },
+  "formStepFill": "Fill “{name}”",
+  "@formStepFill": {
+    "description": "The history step of a field's value.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "formStepClear": "Clear form",
+  "@formStepClear": {
+    "description": "The history step of Clear form."
+  },
+  "formStepFinish": "Finish form",
+  "@formStepFinish": {
+    "description": "The history step of Finish's flatten."
+  },
+  "fillStepText": "Add text",
+  "@fillStepText": {
+    "description": "The history step of Fill anything's text."
+  },
+  "fillStepMark": "Add mark",
+  "@fillStepMark": {
+    "description": "The history step of Fill anything's check, cross or dot."
+  },
+  "formXfaRemovedTitle": "The form’s XFA data was removed",
+  "@formXfaRemovedTitle": {
+    "description": "Toast: a value removed the form's XFA (M4 question 12)."
+  },
+  "formXfaRemovedBody": "Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.",
+  "@formXfaRemovedBody": {
+    "description": "Toast: the XFA notice's text."
+  },
+  "formFinishTitle": "Finish the form",
+  "@formFinishTitle": {
+    "description": "G47's Finish dialog."
+  },
+  "formFinishBody": "All required fields are filled. Choose how to keep the form, then save it.",
+  "@formFinishBody": {
+    "description": "G47's Finish dialog: its text."
+  },
+  "formFinishFlatten": "Flatten the fields",
+  "@formFinishFlatten": {
+    "description": "G47's Finish dialog: the first choice."
+  },
+  "formFinishFlattenBody": "They become part of the page and can no longer be changed.",
+  "@formFinishFlattenBody": {
+    "description": "G47's Finish dialog: what flattening does."
+  },
+  "formFinishKeep": "Keep the fields editable",
+  "@formFinishKeep": {
+    "description": "G47's Finish dialog: the second choice."
+  },
+  "formFinishKeepBody": "Anyone who opens the file can still change the values.",
+  "@formFinishKeepBody": {
+    "description": "G47's Finish dialog: what keeping does."
+  },
+  "formFinishSave": "Save",
+  "@formFinishSave": {
+    "description": "G47's Finish dialog: the default button."
+  },
+  "formFinishSaveAs": "Save as…",
+  "@formFinishSaveAs": {
+    "description": "G47's Finish dialog: saves to another file."
+  },
+  "formClearTitle": "Clear the form?",
+  "@formClearTitle": {
+    "description": "G47's Clear form confirmation."
+  },
+  "formClearBody": "Every value in this form is removed. Signatures stay. You can undo this.",
+  "@formClearBody": {
+    "description": "G47's Clear form confirmation: its text."
+  },
+  "formClearConfirm": "Clear form",
+  "@formClearConfirm": {
+    "description": "G47's Clear form confirmation: the button."
+  },
+  "formFontAskTitle": "Characters missing from this field’s font",
+  "@formFontAskTitle": {
+    "description": "Ask each time (a11-1c, M4 decision 18)."
+  },
+  "formFontAskBody": "Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.",
+  "@formFontAskBody": {
+    "description": "Ask each time: its text."
+  },
+  "formFontAskPlex": "Use IBM Plex",
+  "@formFontAskPlex": {
+    "description": "Ask each time: the default button."
+  },
+  "formFontAskKeep": "Keep the field’s font",
+  "@formFontAskKeep": {
+    "description": "Ask each time: keeps the font, marks the field."
+  },
+  "fillPanelTitle": "Fill anything",
+  "@fillPanelTitle": {
+    "description": "Fill anything's panel (a5-4)."
+  },
+  "fillToolText": "Text",
+  "@fillToolText": {
+    "description": "Fill anything: Text."
+  },
+  "fillToolCheck": "Check",
+  "@fillToolCheck": {
+    "description": "Fill anything: Check."
+  },
+  "fillToolCross": "Cross",
+  "@fillToolCross": {
+    "description": "Fill anything: Cross."
+  },
+  "fillToolDot": "Dot",
+  "@fillToolDot": {
+    "description": "Fill anything: Dot."
+  },
+  "fillToolToday": "Today’s date",
+  "@fillToolToday": {
+    "description": "Fill anything: Today's date."
+  },
+  "fillToolSignature": "Signature",
+  "@fillToolSignature": {
+    "description": "Fill anything: Signature."
+  },
+  "fillOptions": "Options",
+  "@fillOptions": {
+    "description": "Fill anything: the options' section."
+  },
+  "fillSnap": "Snap to lines and boxes",
+  "@fillSnap": {
+    "description": "Fill anything's option."
+  },
+  "fillComb": "One character per comb box",
+  "@fillComb": {
+    "description": "Fill anything's option."
+  },
+  "fillInk": "Ink",
+  "@fillInk": {
+    "description": "Fill anything's ink."
+  },
+  "fillInkBlack": "Black",
+  "@fillInkBlack": {
+    "description": "Fill anything's ink: black."
+  },
+  "fillInkBlue": "Blue (#1A3170)",
+  "@fillInkBlue": {
+    "description": "Fill anything's ink: blue."
+  },
+  "findNotSearchedComments": "Comments weren’t searched.",
+  "@findNotSearchedComments": {
+    "description": "a2-4d: after findNoneBody, with Form fields ticked and Comments not."
+  },
+  "sidebarSearchFormField": "Form field: {text}",
+  "@sidebarSearchFormField": {
+    "description": "Search results: a match in a form field's value (B128).",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
   }
 }

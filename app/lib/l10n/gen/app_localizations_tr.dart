@@ -4788,4 +4788,328 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get formPanelTitle => 'Form';
+
+  @override
+  String get formMore => 'Diğer: formu temizle, verileri dışa aktar';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$total zorunlu alandan $filled tanesi';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted zorunlu alan kaldı',
+      one: '1 zorunlu alan kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'Tüm zorunlu alanlar dolduruldu';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'alan $current/$total';
+  }
+
+  @override
+  String get formHighlight => 'Alanları vurgula';
+
+  @override
+  String get formShowOrder => 'Sekme sırasını göster';
+
+  @override
+  String get formHideOrder => 'Sekme sırasını gizle';
+
+  @override
+  String get formSignedTitle => 'İmzalı form';
+
+  @override
+  String get formSignedKeeps =>
+      'Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır.';
+
+  @override
+  String get formSignedBreaks => 'Doldurmak imzasını geçersiz kılar.';
+
+  @override
+  String get formFontNoticeTitle => 'Karakterler IBM Plex ile eklendi';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'Bu formun yazı tipinde yazdığınız bazı karakterler yok; Ferman bunlar için belgeye $fonts ekledi.';
+  }
+
+  @override
+  String get formDismiss => 'Kapat';
+
+  @override
+  String get formRequired => 'Zorunlu';
+
+  @override
+  String get formMarkedField =>
+      'Bazı karakterler bu alanın yazı tipinde gösterilemiyor';
+
+  @override
+  String get formClear => 'Formu temizle…';
+
+  @override
+  String get formFinish => 'Bitir';
+
+  @override
+  String get formExportData => 'Verileri dışa aktar…';
+
+  @override
+  String get formBannerTitle => 'Bu PDF doldurulabilir bir form.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
+      one: '1 alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'Gizle';
+
+  @override
+  String get fillBannerTitle => 'Bu PDF’te form alanı yok.';
+
+  @override
+  String get fillBannerBody =>
+      'Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun.';
+
+  @override
+  String get fillFindFields => 'Alanları bul';
+
+  @override
+  String get formPreviousField => 'Önceki alan';
+
+  @override
+  String get formNextField => 'Sonraki alan';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'Alan $current/$total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'Tüm zorunlular dolu';
+
+  @override
+  String get formSignHere => 'Burayı imzalayın';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'En fazla $formatted karakter kullanın.',
+      one: 'En fazla 1 karakter kullanın.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'Tarihi $pattern biçiminde girin.';
+  }
+
+  @override
+  String get formErrorNumber => 'Bir sayı girin.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return '$min ile $max arasında bir sayı girin.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'En az $min olan bir sayı girin.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'En fazla $max olan bir sayı girin.';
+  }
+
+  @override
+  String get formErrorRequired => 'Göndermek için zorunlu.';
+
+  @override
+  String get formErrorSign => 'Bitirmeden önce imzalayın.';
+
+  @override
+  String get formErrorChoose => 'Bir seçenek belirleyin.';
+
+  @override
+  String get formChooseDate => 'Bir tarih seçin';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'Biçim $pattern · formdan';
+  }
+
+  @override
+  String get formPreviousMonth => 'Önceki ay';
+
+  @override
+  String get formNextMonth => 'Sonraki ay';
+
+  @override
+  String get formToday => 'Bugün';
+
+  @override
+  String formStepFill(String name) {
+    return '“$name” alanını doldur';
+  }
+
+  @override
+  String get formStepClear => 'Formu temizle';
+
+  @override
+  String get formStepFinish => 'Formu bitir';
+
+  @override
+  String get fillStepText => 'Metin ekle';
+
+  @override
+  String get fillStepMark => 'İşaret ekle';
+
+  @override
+  String get formXfaRemovedTitle => 'Formun XFA verisi kaldırıldı';
+
+  @override
+  String get formXfaRemovedBody =>
+      'XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır.';
+
+  @override
+  String get formFinishTitle => 'Formu bitir';
+
+  @override
+  String get formFinishBody =>
+      'Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin.';
+
+  @override
+  String get formFinishFlatten => 'Alanları düzleştir';
+
+  @override
+  String get formFinishFlattenBody =>
+      'Sayfanın parçası olurlar ve artık değiştirilemezler.';
+
+  @override
+  String get formFinishKeep => 'Alanlar düzenlenebilir kalsın';
+
+  @override
+  String get formFinishKeepBody =>
+      'Dosyayı açan herkes değerleri yine değiştirebilir.';
+
+  @override
+  String get formFinishSave => 'Kaydet';
+
+  @override
+  String get formFinishSaveAs => 'Farklı kaydet…';
+
+  @override
+  String get formClearTitle => 'Form temizlensin mi?';
+
+  @override
+  String get formClearBody =>
+      'Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz.';
+
+  @override
+  String get formClearConfirm => 'Formu temizle';
+
+  @override
+  String get formFontAskTitle => 'Bu alanın yazı tipinde eksik karakterler var';
+
+  @override
+  String get formFontAskBody =>
+      'Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir.';
+
+  @override
+  String get formFontAskPlex => 'IBM Plex kullan';
+
+  @override
+  String get formFontAskKeep => 'Alanın yazı tipini koru';
+
+  @override
+  String get fillPanelTitle => 'Her şeyi doldur';
+
+  @override
+  String get fillToolText => 'Metin';
+
+  @override
+  String get fillToolCheck => 'Onay işareti';
+
+  @override
+  String get fillToolCross => 'Çarpı';
+
+  @override
+  String get fillToolDot => 'Nokta';
+
+  @override
+  String get fillToolToday => 'Bugünün tarihi';
+
+  @override
+  String get fillToolSignature => 'İmza';
+
+  @override
+  String get fillOptions => 'Seçenekler';
+
+  @override
+  String get fillSnap => 'Çizgilere ve kutulara hizala';
+
+  @override
+  String get fillComb => 'Her kutuya bir karakter';
+
+  @override
+  String get fillInk => 'Mürekkep';
+
+  @override
+  String get fillInkBlack => 'Siyah';
+
+  @override
+  String get fillInkBlue => 'Mavi (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'Yorumlar aranmadı.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'Form alanı: $text';
+  }
 }

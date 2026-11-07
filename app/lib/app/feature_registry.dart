@@ -134,9 +134,9 @@ enum Feature {
   /// Regular expressions in search: the find bar's toggle and option.
   searchRegex('B113'),
 
-  /// Searching form fields: the find bar's Look in options Form fields and
-  /// Page text, and a2-4d's action.
-  searchScopes('B128'),
+  /// Searching without the page text: the find bar's Look in › Page text,
+  /// always on.
+  searchWithoutPageText('B205'),
 
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
@@ -154,9 +154,9 @@ enum Feature {
   /// Measure and calibrate: Comment › Measure and Tools › Measure.
   measure('B051'),
 
-  /// Form filling: Fill & Sign › Fill fields, Add text, Checkmark and Date,
-  /// and the first-run tile "Fill and sign forms".
-  formFilling('B052'),
+  /// The form panel's More › Export data… (and resetting to the form's
+  /// defaults, which has no entry yet).
+  formDataExport('B207'),
 
   /// Simple signatures: Start › Sign, Fill & Sign › Sign and Initials, and
   /// Settings › Signatures and certificates.

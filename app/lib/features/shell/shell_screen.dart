@@ -8,6 +8,7 @@ import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/editor/links_panel.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/forms/form_panel.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/organize_panel.dart';
@@ -91,6 +92,10 @@ class FmWindow extends ConsumerWidget {
     // FmComments is Comment mode's panel (a4-1).
     final comments =
         ref.watch(shellModeProvider) == FermanMode.comment &&
+        active?.document != null;
+    // FmFormPanel or Fill anything is Fill & Sign's panel (a5-1, a5-4).
+    final filling =
+        ref.watch(shellModeProvider) == FermanMode.sign &&
         active?.document != null;
     // So does Crop and page size (a6-4).
     final crop = ref.watch(cropShowingProvider);
@@ -201,6 +206,8 @@ class FmWindow extends ConsumerWidget {
                                   ? OrganizePanel(width: widths.panel)
                                   : comments
                                   ? CommentsPanel(width: widths.panel)
+                                  : filling
+                                  ? FillSignPanel(width: widths.panel)
                                   : FmDocPanel(width: widths.panel),
                             ),
                           ),

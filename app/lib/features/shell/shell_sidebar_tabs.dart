@@ -1022,6 +1022,8 @@ class _Result extends StatelessWidget {
           ? AppLocalizations.of(context).sidebarSearchBookmark(line)
           : match.comment != null
           ? AppLocalizations.of(context).sidebarSearchComment(line)
+          : match.field != null
+          ? AppLocalizations.of(context).sidebarSearchFormField(line)
           : line,
       builder: (context, states, _) => Container(
         padding: EdgeInsetsDirectional.symmetric(
@@ -1043,7 +1045,9 @@ class _Result extends StatelessWidget {
             style: style,
             children: [
               // A match in a bookmark's title (Look in › Bookmarks, B114).
-              if (match.bookmark || match.comment != null)
+              if (match.bookmark ||
+                  match.comment != null ||
+                  match.field != null)
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: Padding(
@@ -1053,7 +1057,9 @@ class _Result extends StatelessWidget {
                     child: Icon(
                       match.bookmark
                           ? IconName.bookmark
-                          : IconName.messageSquare,
+                          : match.comment != null
+                          ? IconName.messageSquare
+                          : IconName.textCursorInput,
                       size: theme.density.iconSm,
                       color: theme.colors.iconSecondary,
                     ),

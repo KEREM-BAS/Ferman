@@ -4813,4 +4813,328 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get formPanelTitle => 'Form';
+
+  @override
+  String get formMore => 'More: clear form, export data';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$filled of $total required fields';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted required left',
+      one: '1 required left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'All required fields are filled';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'field $current of $total';
+  }
+
+  @override
+  String get formHighlight => 'Highlight fields';
+
+  @override
+  String get formShowOrder => 'Show tab order';
+
+  @override
+  String get formHideOrder => 'Hide tab order';
+
+  @override
+  String get formSignedTitle => 'Signed form';
+
+  @override
+  String get formSignedKeeps =>
+      'Its certification allows filling in, so it stays valid.';
+
+  @override
+  String get formSignedBreaks => 'Filling it in will invalidate its signature.';
+
+  @override
+  String get formFontNoticeTitle => 'Characters added in IBM Plex';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'This form’s font has no glyphs for some characters you typed, so Ferman added $fonts to the document for them.';
+  }
+
+  @override
+  String get formDismiss => 'Dismiss';
+
+  @override
+  String get formRequired => 'Required';
+
+  @override
+  String get formMarkedField =>
+      'Some characters can’t be shown in this field’s font';
+
+  @override
+  String get formClear => 'Clear form…';
+
+  @override
+  String get formFinish => 'Finish';
+
+  @override
+  String get formExportData => 'Export data…';
+
+  @override
+  String get formBannerTitle => 'This PDF is a fillable form.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted fields, $required required. Tab moves to the next field.',
+      one: '1 field, $required required. Tab moves to the next field.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'Hide';
+
+  @override
+  String get fillBannerTitle => 'This PDF has no form fields.';
+
+  @override
+  String get fillBannerBody =>
+      'Click a line or box to type, or let Ferman find the fields.';
+
+  @override
+  String get fillFindFields => 'Find fields';
+
+  @override
+  String get formPreviousField => 'Previous field';
+
+  @override
+  String get formNextField => 'Next field';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'Field $current of $total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'All required filled';
+
+  @override
+  String get formSignHere => 'Sign here';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use at most $formatted characters.',
+      one: 'Use at most 1 character.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'Enter a date as $pattern.';
+  }
+
+  @override
+  String get formErrorNumber => 'Enter a number.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return 'Enter a number from $min to $max.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'Enter a number of at least $min.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'Enter a number of at most $max.';
+  }
+
+  @override
+  String get formErrorRequired => 'Required to submit.';
+
+  @override
+  String get formErrorSign => 'Sign before finishing.';
+
+  @override
+  String get formErrorChoose => 'Choose an option.';
+
+  @override
+  String get formChooseDate => 'Choose a date';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'Format $pattern · from the form';
+  }
+
+  @override
+  String get formPreviousMonth => 'Previous month';
+
+  @override
+  String get formNextMonth => 'Next month';
+
+  @override
+  String get formToday => 'Today';
+
+  @override
+  String formStepFill(String name) {
+    return 'Fill “$name”';
+  }
+
+  @override
+  String get formStepClear => 'Clear form';
+
+  @override
+  String get formStepFinish => 'Finish form';
+
+  @override
+  String get fillStepText => 'Add text';
+
+  @override
+  String get fillStepMark => 'Add mark';
+
+  @override
+  String get formXfaRemovedTitle => 'The form’s XFA data was removed';
+
+  @override
+  String get formXfaRemovedBody =>
+      'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.';
+
+  @override
+  String get formFinishTitle => 'Finish the form';
+
+  @override
+  String get formFinishBody =>
+      'All required fields are filled. Choose how to keep the form, then save it.';
+
+  @override
+  String get formFinishFlatten => 'Flatten the fields';
+
+  @override
+  String get formFinishFlattenBody =>
+      'They become part of the page and can no longer be changed.';
+
+  @override
+  String get formFinishKeep => 'Keep the fields editable';
+
+  @override
+  String get formFinishKeepBody =>
+      'Anyone who opens the file can still change the values.';
+
+  @override
+  String get formFinishSave => 'Save';
+
+  @override
+  String get formFinishSaveAs => 'Save as…';
+
+  @override
+  String get formClearTitle => 'Clear the form?';
+
+  @override
+  String get formClearBody =>
+      'Every value in this form is removed. Signatures stay. You can undo this.';
+
+  @override
+  String get formClearConfirm => 'Clear form';
+
+  @override
+  String get formFontAskTitle => 'Characters missing from this field’s font';
+
+  @override
+  String get formFontAskBody =>
+      'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.';
+
+  @override
+  String get formFontAskPlex => 'Use IBM Plex';
+
+  @override
+  String get formFontAskKeep => 'Keep the field’s font';
+
+  @override
+  String get fillPanelTitle => 'Fill anything';
+
+  @override
+  String get fillToolText => 'Text';
+
+  @override
+  String get fillToolCheck => 'Check';
+
+  @override
+  String get fillToolCross => 'Cross';
+
+  @override
+  String get fillToolDot => 'Dot';
+
+  @override
+  String get fillToolToday => 'Today’s date';
+
+  @override
+  String get fillToolSignature => 'Signature';
+
+  @override
+  String get fillOptions => 'Options';
+
+  @override
+  String get fillSnap => 'Snap to lines and boxes';
+
+  @override
+  String get fillComb => 'One character per comb box';
+
+  @override
+  String get fillInk => 'Ink';
+
+  @override
+  String get fillInkBlack => 'Black';
+
+  @override
+  String get fillInkBlue => 'Blue (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'Comments weren’t searched.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'Form field: $text';
+  }
 }

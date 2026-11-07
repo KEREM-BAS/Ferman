@@ -4,6 +4,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/comments/comments_panel.dart';
+import 'package:ferman/features/forms/form_panel.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/organize/combine_tab.dart';
@@ -300,6 +301,8 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                           () => _ownerUnlock = view.document.id,
                                         ),
                                       ),
+                                    if (mode == FermanMode.sign)
+                                      const FormBanner(),
                                     Expanded(
                                       child: Stack(
                                         children: [
@@ -336,6 +339,9 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                                       comment:
                                                           mode ==
                                                           FermanMode.comment,
+                                                      fill:
+                                                          mode ==
+                                                          FermanMode.sign,
                                                     ),
                                                   ),
                                           ),

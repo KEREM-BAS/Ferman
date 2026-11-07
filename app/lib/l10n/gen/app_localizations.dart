@@ -7725,6 +7725,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}}'**
   String linkErrorPage(int count, String pages);
+
+  /// FmFormPanel's heading (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get formPanelTitle;
+
+  /// FmFormPanel: the More button.
+  ///
+  /// In en, this message translates to:
+  /// **'More: clear form, export data'**
+  String get formMore;
+
+  /// FmFormPanel: the required count over its bar (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{filled} of {total} required fields'**
+  String formRequiredProgress(String filled, String total);
+
+  /// FmFormPanel's summary: how many fields.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{formatted} fields}}'**
+  String formSummaryFields(int count, String formatted);
+
+  /// FmFormPanel and the field navigation: required fields still empty.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 required left} other{{formatted} required left}}'**
+  String formRequiredLeft(int count, String formatted);
+
+  /// FmFormPanel's summary once every required field is filled.
+  ///
+  /// In en, this message translates to:
+  /// **'All required fields are filled'**
+  String get formAllRequiredFilled;
+
+  /// FmFormPanel's summary: the field the person is in.
+  ///
+  /// In en, this message translates to:
+  /// **'field {current} of {total}'**
+  String formFieldOf(String current, String total);
+
+  /// FmFormPanel: the switch that tints the fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight fields'**
+  String get formHighlight;
+
+  /// FmFormPanel and the form bar: shows the fields' order numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Show tab order'**
+  String get formShowOrder;
+
+  /// The form bar's button while the order shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tab order'**
+  String get formHideOrder;
+
+  /// FmFormPanel: the signed-form notice's title (G47).
+  ///
+  /// In en, this message translates to:
+  /// **'Signed form'**
+  String get formSignedTitle;
+
+  /// FmFormPanel: the signed-form notice when filling keeps the certification (G35).
+  ///
+  /// In en, this message translates to:
+  /// **'Its certification allows filling in, so it stays valid.'**
+  String get formSignedKeeps;
+
+  /// FmFormPanel: the signed-form notice when filling breaks a signature (G35).
+  ///
+  /// In en, this message translates to:
+  /// **'Filling it in will invalidate its signature.'**
+  String get formSignedBreaks;
+
+  /// FmFormPanel: said once when a value takes bundled Plex (M4 decision 18).
+  ///
+  /// In en, this message translates to:
+  /// **'Characters added in IBM Plex'**
+  String get formFontNoticeTitle;
+
+  /// FmFormPanel: the font notice's text.
+  ///
+  /// In en, this message translates to:
+  /// **'This form’s font has no glyphs for some characters you typed, so Ferman added {fonts} to the document for them.'**
+  String formFontNoticeBody(String fonts);
+
+  /// FmFormPanel: closes the font notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get formDismiss;
+
+  /// FmFormPanel: a required field not filled yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get formRequired;
+
+  /// FmFormPanel: a field whose missing characters were kept out (Keep).
+  ///
+  /// In en, this message translates to:
+  /// **'Some characters can’t be shown in this field’s font'**
+  String get formMarkedField;
+
+  /// FmFormPanel's footer and More menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form…'**
+  String get formClear;
+
+  /// FmFormPanel's primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get formFinish;
+
+  /// FmFormPanel's More menu: not built yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data…'**
+  String get formExportData;
+
+  /// The bar over a form in Fill & Sign (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is a fillable form.'**
+  String get formBannerTitle;
+
+  /// The form bar's text.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field, {required} required. Tab moves to the next field.} other{{formatted} fields, {required} required. Tab moves to the next field.}}'**
+  String formBannerBody(int count, String formatted, String required);
+
+  /// The form bar: hides it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get formBannerHide;
+
+  /// The bar over a page without fields (a5-4).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no form fields.'**
+  String get fillBannerTitle;
+
+  /// The no-fields bar's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Click a line or box to type, or let Ferman find the fields.'**
+  String get fillBannerBody;
+
+  /// The no-fields bar's button (Prepare form, P4).
+  ///
+  /// In en, this message translates to:
+  /// **'Find fields'**
+  String get fillFindFields;
+
+  /// The field navigation's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous field'**
+  String get formPreviousField;
+
+  /// The field navigation's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next field'**
+  String get formNextField;
+
+  /// The field navigation: the field the person is in.
+  ///
+  /// In en, this message translates to:
+  /// **'Field {current} of {total}'**
+  String formNavField(String current, String total);
+
+  /// The field navigation before any field is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{formatted} fields}}'**
+  String formNavFields(int count, String formatted);
+
+  /// The field navigation's badge once every required field is filled (a5-3d).
+  ///
+  /// In en, this message translates to:
+  /// **'All required filled'**
+  String get formNavAllFilled;
+
+  /// An empty signature field on the page (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Sign here'**
+  String get formSignHere;
+
+  /// A field's error: too long.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use at most 1 character.} other{Use at most {formatted} characters.}}'**
+  String formErrorTooLong(int count, String formatted);
+
+  /// A field's error: not a date in its format.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a date as {pattern}.'**
+  String formErrorDate(String pattern);
+
+  /// A field's error: not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number.'**
+  String get formErrorNumber;
+
+  /// A field's error: out of its range (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from {min} to {max}.'**
+  String formErrorRange(String min, String max);
+
+  /// A field's error: under its least value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number of at least {min}.'**
+  String formErrorMin(String min);
+
+  /// A field's error: over its greatest value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number of at most {max}.'**
+  String formErrorMax(String max);
+
+  /// A required field left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Required to submit.'**
+  String get formErrorRequired;
+
+  /// A required signature field left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Sign before finishing.'**
+  String get formErrorSign;
+
+  /// A required choice left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an option.'**
+  String get formErrorChoose;
+
+  /// The date picker's name (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get formChooseDate;
+
+  /// The date picker's note (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Format {pattern} · from the form'**
+  String formDateFormat(String pattern);
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get formPreviousMonth;
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get formNextMonth;
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get formToday;
+
+  /// The history step of a field's value.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill “{name}”'**
+  String formStepFill(String name);
+
+  /// The history step of Clear form.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form'**
+  String get formStepClear;
+
+  /// The history step of Finish's flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish form'**
+  String get formStepFinish;
+
+  /// The history step of Fill anything's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Add text'**
+  String get fillStepText;
+
+  /// The history step of Fill anything's check, cross or dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add mark'**
+  String get fillStepMark;
+
+  /// Toast: a value removed the form's XFA (M4 question 12).
+  ///
+  /// In en, this message translates to:
+  /// **'The form’s XFA data was removed'**
+  String get formXfaRemovedTitle;
+
+  /// Toast: the XFA notice's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.'**
+  String get formXfaRemovedBody;
+
+  /// G47's Finish dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the form'**
+  String get formFinishTitle;
+
+  /// G47's Finish dialog: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'All required fields are filled. Choose how to keep the form, then save it.'**
+  String get formFinishBody;
+
+  /// G47's Finish dialog: the first choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten the fields'**
+  String get formFinishFlatten;
+
+  /// G47's Finish dialog: what flattening does.
+  ///
+  /// In en, this message translates to:
+  /// **'They become part of the page and can no longer be changed.'**
+  String get formFinishFlattenBody;
+
+  /// G47's Finish dialog: the second choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the fields editable'**
+  String get formFinishKeep;
+
+  /// G47's Finish dialog: what keeping does.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone who opens the file can still change the values.'**
+  String get formFinishKeepBody;
+
+  /// G47's Finish dialog: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get formFinishSave;
+
+  /// G47's Finish dialog: saves to another file.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as…'**
+  String get formFinishSaveAs;
+
+  /// G47's Clear form confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the form?'**
+  String get formClearTitle;
+
+  /// G47's Clear form confirmation: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Every value in this form is removed. Signatures stay. You can undo this.'**
+  String get formClearBody;
+
+  /// G47's Clear form confirmation: the button.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form'**
+  String get formClearConfirm;
+
+  /// Ask each time (a11-1c, M4 decision 18).
+  ///
+  /// In en, this message translates to:
+  /// **'Characters missing from this field’s font'**
+  String get formFontAskTitle;
+
+  /// Ask each time: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.'**
+  String get formFontAskBody;
+
+  /// Ask each time: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Use IBM Plex'**
+  String get formFontAskPlex;
+
+  /// Ask each time: keeps the font, marks the field.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the field’s font'**
+  String get formFontAskKeep;
+
+  /// Fill anything's panel (a5-4).
+  ///
+  /// In en, this message translates to:
+  /// **'Fill anything'**
+  String get fillPanelTitle;
+
+  /// Fill anything: Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get fillToolText;
+
+  /// Fill anything: Check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get fillToolCheck;
+
+  /// Fill anything: Cross.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross'**
+  String get fillToolCross;
+
+  /// Fill anything: Dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Dot'**
+  String get fillToolDot;
+
+  /// Fill anything: Today's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s date'**
+  String get fillToolToday;
+
+  /// Fill anything: Signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get fillToolSignature;
+
+  /// Fill anything: the options' section.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get fillOptions;
+
+  /// Fill anything's option.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap to lines and boxes'**
+  String get fillSnap;
+
+  /// Fill anything's option.
+  ///
+  /// In en, this message translates to:
+  /// **'One character per comb box'**
+  String get fillComb;
+
+  /// Fill anything's ink.
+  ///
+  /// In en, this message translates to:
+  /// **'Ink'**
+  String get fillInk;
+
+  /// Fill anything's ink: black.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get fillInkBlack;
+
+  /// Fill anything's ink: blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue (#1A3170)'**
+  String get fillInkBlue;
+
+  /// a2-4d: after findNoneBody, with Form fields ticked and Comments not.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments weren’t searched.'**
+  String get findNotSearchedComments;
+
+  /// Search results: a match in a form field's value (B128).
+  ///
+  /// In en, this message translates to:
+  /// **'Form field: {text}'**
+  String sidebarSearchFormField(String text);
 }
 
 class _AppLocalizationsDelegate

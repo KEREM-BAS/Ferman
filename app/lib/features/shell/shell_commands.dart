@@ -9,6 +9,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/links.dart';
+import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/extract_pages_dialog.dart';
 import 'package:ferman/features/organize/insert_file_dialog.dart';
@@ -147,6 +148,8 @@ class ShellCommandScope extends ConsumerWidget {
           ..._organizeHandlers(ref),
         if (ref.read(shellModeProvider) == FermanMode.comment)
           ..._commentHandlers(ref),
+        if (ref.read(shellModeProvider) == FermanMode.sign)
+          ..._fillHandlers(ref, panel: panels.panel),
       },
       // Typing not yet committed counts too: Save commits it first.
       if (active?.document != null && (active!.unsaved || edits.active != null))
@@ -181,6 +184,34 @@ class ShellCommandScope extends ConsumerWidget {
               .read(commentsShownProvider.notifier)
               .show(visible: !ref.read(commentsShownProvider).visible),
         ),
+    };
+  }
+
+  /// Fill & Sign's keys: Tab and ⇧Tab between a form's fields, and Fill
+  /// anything's tools, live only with its panel open (M4 decision 24).
+  static Map<ShellCommand, VoidCallback> _fillHandlers(
+    WidgetRef ref, {
+    required bool panel,
+  }) {
+    final form = ref.read(documentFormProvider).value;
+    if (form == null) return const {};
+    final session = ref.read(formSessionProvider.notifier);
+    final tools = ref.read(fillToolsStateProvider);
+    final pick = ref.read(fillToolsStateProvider.notifier).pick;
+    return {
+      if (form.fields.isNotEmpty) ...{
+        ShellCommand.nextField: () => session.move(form, 1),
+        ShellCommand.previousField: () => session.move(form, -1),
+      },
+      if (panel &&
+          tools.effective(form) != FillTool.fields &&
+          ref.read(fillRefusalProvider) == null) ...{
+        ShellCommand.fillText: () => pick(FillTool.text),
+        ShellCommand.fillCheck: () => pick(FillTool.check),
+        ShellCommand.fillCross: () => pick(FillTool.cross),
+        ShellCommand.fillDot: () => pick(FillTool.dot),
+        ShellCommand.todaysDate: () => pick(FillTool.date),
+      },
     };
   }
 
@@ -239,6 +270,12 @@ class ShellCommandScope extends ConsumerWidget {
         ref
           ..watch(commentRefusalProvider)
           ..watch(commentsShownProvider);
+      }
+      if (mode == FermanMode.sign) {
+        ref
+          ..watch(documentFormProvider)
+          ..watch(fillToolsStateProvider)
+          ..watch(fillRefusalProvider);
       }
     }
     return Actions(

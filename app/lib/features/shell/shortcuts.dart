@@ -599,6 +599,35 @@ enum ShellCommand {
     modes: {FermanMode.sign},
   ),
 
+  /// Fill & Sign: Fill anything's Text (a5-4), live only with its panel open
+  /// (M4 decision 24).
+  fillText(
+    mac: [KeyBinding(_Key.keyT)],
+    windows: [KeyBinding(_Key.keyT)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Check (a5-4), as [fillText].
+  fillCheck(
+    mac: [KeyBinding(_Key.keyK)],
+    windows: [KeyBinding(_Key.keyK)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Cross (a5-4), as [fillText].
+  fillCross(
+    mac: [KeyBinding(_Key.keyX)],
+    windows: [KeyBinding(_Key.keyX)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Dot (a5-4), as [fillText].
+  fillDot(
+    mac: [KeyBinding(_Key.keyD)],
+    windows: [KeyBinding(_Key.keyD)],
+    modes: {FermanMode.sign},
+  ),
+
   /// Fill & Sign: adds a signature (a11-2, a11-3; moved off ⌥⌘S by G44).
   addSignature(
     mac: [KeyBinding(_Key.keyS, shift: true)],

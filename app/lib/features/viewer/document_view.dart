@@ -15,6 +15,9 @@ import 'package:ferman/features/editor/edit_marks.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/link_popover.dart';
 import 'package:ferman/features/editor/links.dart';
+import 'package:ferman/features/forms/fill_anything.dart';
+import 'package:ferman/features/forms/form_overlay.dart';
+import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/stamps/mark_placement_overlay.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
@@ -72,6 +75,7 @@ class DocumentView extends ConsumerStatefulWidget {
     this.tools = true,
     this.edit = false,
     this.comment = false,
+    this.fill = false,
   });
 
   /// The UI's direction, for the copy on a failed page.
@@ -86,6 +90,10 @@ class DocumentView extends ConsumerStatefulWidget {
   /// Whether Comment mode's layer applies (a4-1, [CommentOverlay]); its text
   /// tools mark what the Select tool's dragging selects.
   final bool comment;
+
+  /// Whether Fill & Sign's layers apply: the form's fields ([FormOverlay],
+  /// a5-1) or Fill anything's ([FillAnythingOverlay], a5-4).
+  final bool fill;
 
   /// How far outside a block's frame, in points, the pointer still finds
   /// it.
@@ -113,7 +121,8 @@ class DocumentView extends ConsumerStatefulWidget {
       ..add(EnumProperty('uiDirection', uiDirection))
       ..add(FlagProperty('tools', value: tools, ifFalse: 'no tools'))
       ..add(FlagProperty('edit', value: edit, ifTrue: 'edit'))
-      ..add(FlagProperty('comment', value: comment, ifTrue: 'comment'));
+      ..add(FlagProperty('comment', value: comment, ifTrue: 'comment'))
+      ..add(FlagProperty('fill', value: fill, ifTrue: 'fill'));
   }
 }
 
@@ -255,7 +264,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     super.didUpdateWidget(old);
     if (old.edit != widget.edit ||
         old.tools != widget.tools ||
-        old.comment != widget.comment) {
+        old.comment != widget.comment ||
+        old.fill != widget.fill) {
       _clearText();
     }
     // Leaving Edit mode commits the typing (the coalescing rule).
@@ -468,6 +478,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     if (widget.edit && _inEditor(event.position)) return;
     if (widget.comment && _inCommentDraft(event.position)) return;
     if (_inLinkPopover(event.position)) return;
+    // Fill & Sign's layers have the pointer and give focus themselves, so a
+    // click in a field never takes it from the field's own editor.
+    if (widget.fill) {
+      ContextMenuController.removeAny();
+      return;
+    }
     Focus.maybeOf(context)?.requestFocus();
     // Comment mode's layer, nearer the pointer, has just opened its own menu.
     if (!widget.comment || event.buttons != kSecondaryMouseButton) {
@@ -480,6 +496,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
             (_linkTool ||
                 (!widget.edit &&
                     !widget.comment &&
+                    !widget.fill &&
                     _tool != ViewerTool.marquee))
         ? event.localPosition
         : null;
@@ -858,6 +875,11 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     final linkTool = ref.watch(linkToolProvider);
     final linkOn = widget.edit && linkTool.on;
     final commentTools = ref.watch(commentToolProvider);
+    final fillTool = widget.fill
+        ? ref
+              .watch(fillToolsStateProvider)
+              .effective(ref.watch(documentFormProvider).value)
+        : null;
     final placing =
         widget.comment &&
         commentTools.tool.hasMenu &&
@@ -977,6 +999,15 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                         uiDirection: widget.uiDirection,
                         draftKey: _commentDraftKey,
                       ),
+                    ),
+                  if (widget.fill)
+                    Positioned.fill(
+                      child: fillTool == FillTool.fields
+                          ? FormOverlay(
+                              view: state,
+                              uiDirection: widget.uiDirection,
+                            )
+                          : FillAnythingOverlay(view: state),
                     ),
                   // Shapes and stamps, inside the Listener so the wheel still
                   // scrolls. shortcut: with Keep tool selected it covers the

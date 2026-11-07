@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1269 messages in `app_en.arb`; translated: Turkish 1269, Arabic 1269.
+1353 messages in `app_en.arb`; translated: Turkish 1353, Arabic 1353.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1325,5 +1325,89 @@ The table below is generated from the ARB files by `tools/l10n`
 | `linkRefusedAction` | It does something Ferman doesn't know, so it stays in the file and doesn't run. | Ferman'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz. | يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ. | G145. |
 | `linksBrokenMeta` | {count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}} | {count, plural, other{Bozuk: bu belgede {pages} sayfa var}} | {count, plural, =1{معطّل: يحتوي هذا المستند على صفحة واحدة ({pages})} =2{معطّل: يحتوي هذا المستند على صفحتين ({pages})} few{معطّل: يحتوي هذا المستند على {pages} صفحات} other{معطّل: يحتوي هذا المستند على {pages} صفحة}} | a3-6: a link to a page the document does not have. |
 | `linkErrorPage` | {count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}} | {count, plural, other{1 ile {pages} arasında bir sayfa yazın.}} | {count, plural, =1{يحتوي هذا المستند على صفحة واحدة ({pages}).} other{اكتب صفحة من 1 إلى {pages}.}} | a3-6: the Page field's error. |
+| `formPanelTitle` | Form | Form | النموذج | FmFormPanel's heading (a5-1). |
+| `formMore` | More: clear form, export data | Diğer: formu temizle, verileri dışa aktar | المزيد: مسح النموذج وتصدير البيانات | FmFormPanel: the More button. |
+| `formRequiredProgress` | {filled} of {total} required fields | {total} zorunlu alandan {filled} tanesi | {filled} من {total} من الحقول المطلوبة | FmFormPanel: the required count over its bar (a5-1). |
+| `formSummaryFields` | {count, plural, =1{1 field} other{{formatted} fields}} | {count, plural, =1{1 alan} other{{formatted} alan}} | {count, plural, =1{حقل واحد} =2{حقلان} few{{formatted} حقول} many{{formatted} حقلًا} other{{formatted} حقل}} | FmFormPanel's summary: how many fields. |
+| `formRequiredLeft` | {count, plural, =1{1 required left} other{{formatted} required left}} | {count, plural, =1{1 zorunlu alan kaldı} other{{formatted} zorunlu alan kaldı}} | {count, plural, =1{بقي حقل مطلوب واحد} =2{بقي حقلان مطلوبان} few{بقيت {formatted} حقول مطلوبة} many{بقي {formatted} حقلًا مطلوبًا} other{بقي {formatted} حقل مطلوب}} | FmFormPanel and the field navigation: required fields still empty. |
+| `formAllRequiredFilled` | All required fields are filled | Tüm zorunlu alanlar dolduruldu | تمت تعبئة كل الحقول المطلوبة | FmFormPanel's summary once every required field is filled. |
+| `formFieldOf` | field {current} of {total} | alan {current}/{total} | الحقل {current} من {total} | FmFormPanel's summary: the field the person is in. |
+| `formHighlight` | Highlight fields | Alanları vurgula | تمييز الحقول | FmFormPanel: the switch that tints the fields. |
+| `formShowOrder` | Show tab order | Sekme sırasını göster | إظهار ترتيب التنقل | FmFormPanel and the form bar: shows the fields' order numbers. |
+| `formHideOrder` | Hide tab order | Sekme sırasını gizle | إخفاء ترتيب التنقل | The form bar's button while the order shows. |
+| `formSignedTitle` | Signed form | İmzalı form | نموذج موقَّع | FmFormPanel: the signed-form notice's title (G47). |
+| `formSignedKeeps` | Its certification allows filling in, so it stays valid. | Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır. | تسمح شهادته بالتعبئة، لذا تبقى صالحة. | FmFormPanel: the signed-form notice when filling keeps the certification (G35). |
+| `formSignedBreaks` | Filling it in will invalidate its signature. | Doldurmak imzasını geçersiz kılar. | تعبئته ستُبطل توقيعه. | FmFormPanel: the signed-form notice when filling breaks a signature (G35). |
+| `formFontNoticeTitle` | Characters added in IBM Plex | Karakterler IBM Plex ile eklendi | أُضيفت محارف بخط IBM Plex | FmFormPanel: said once when a value takes bundled Plex (M4 decision 18). |
+| `formFontNoticeBody` | This form’s font has no glyphs for some characters you typed, so Ferman added {fonts} to the document for them. | Bu formun yazı tipinde yazdığınız bazı karakterler yok; Ferman bunlar için belgeye {fonts} ekledi. | لا يحوي خط هذا النموذج بعض المحارف التي كتبتها، لذا أضاف Ferman الخط {fonts} إلى المستند لأجلها. | FmFormPanel: the font notice's text. |
+| `formDismiss` | Dismiss | Kapat | إغلاق | FmFormPanel: closes the font notice. |
+| `formRequired` | Required | Zorunlu | مطلوب | FmFormPanel: a required field not filled yet. |
+| `formMarkedField` | Some characters can’t be shown in this field’s font | Bazı karakterler bu alanın yazı tipinde gösterilemiyor | يتعذّر عرض بعض المحارف بخط هذا الحقل | FmFormPanel: a field whose missing characters were kept out (Keep). |
+| `formClear` | Clear form… | Formu temizle… | مسح النموذج… | FmFormPanel's footer and More menu. |
+| `formFinish` | Finish | Bitir | إنهاء | FmFormPanel's primary button. |
+| `formExportData` | Export data… | Verileri dışa aktar… | تصدير البيانات… | FmFormPanel's More menu: not built yet. |
+| `formBannerTitle` | This PDF is a fillable form. | Bu PDF doldurulabilir bir form. | ملف PDF هذا نموذج قابل للتعبئة. | The bar over a form in Fill &amp; Sign (a5-1). |
+| `formBannerBody` | {count, plural, =1{1 field, {required} required. Tab moves to the next field.} other{{formatted} fields, {required} required. Tab moves to the next field.}} | {count, plural, =1{1 alan, {required} zorunlu. Sekme tuşu sonraki alana geçer.} other{{formatted} alan, {required} zorunlu. Sekme tuşu sonraki alana geçer.}} | {count, plural, =1{حقل واحد، المطلوب منه {required}. ينقلك مفتاح Tab إلى الحقل التالي.} =2{حقلان، المطلوب منهما {required}. ينقلك مفتاح Tab إلى الحقل التالي.} few{{formatted} حقول، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.} many{{formatted} حقلًا، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.} other{{formatted} حقل، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.}} | The form bar's text. |
+| `formBannerHide` | Hide | Gizle | إخفاء | The form bar: hides it. |
+| `fillBannerTitle` | This PDF has no form fields. | Bu PDF’te form alanı yok. | لا يحوي ملف PDF هذا حقول نماذج. | The bar over a page without fields (a5-4). |
+| `fillBannerBody` | Click a line or box to type, or let Ferman find the fields. | Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun. | انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول. | The no-fields bar's text. |
+| `fillFindFields` | Find fields | Alanları bul | العثور على الحقول | The no-fields bar's button (Prepare form, P4). |
+| `formPreviousField` | Previous field | Önceki alan | الحقل السابق | The field navigation's button. |
+| `formNextField` | Next field | Sonraki alan | الحقل التالي | The field navigation's button. |
+| `formNavField` | Field {current} of {total} | Alan {current}/{total} | الحقل {current} من {total} | The field navigation: the field the person is in. |
+| `formNavFields` | {count, plural, =1{1 field} other{{formatted} fields}} | {count, plural, =1{1 alan} other{{formatted} alan}} | {count, plural, =1{حقل واحد} =2{حقلان} few{{formatted} حقول} many{{formatted} حقلًا} other{{formatted} حقل}} | The field navigation before any field is chosen. |
+| `formNavAllFilled` | All required filled | Tüm zorunlular dolu | كل المطلوب مُعبّأ | The field navigation's badge once every required field is filled (a5-3d). |
+| `formSignHere` | Sign here | Burayı imzalayın | وقّع هنا | An empty signature field on the page (a5-2b). |
+| `formErrorTooLong` | {count, plural, =1{Use at most 1 character.} other{Use at most {formatted} characters.}} | {count, plural, =1{En fazla 1 karakter kullanın.} other{En fazla {formatted} karakter kullanın.}} | {count, plural, =1{استخدم محرفًا واحدًا على الأكثر.} =2{استخدم محرفين على الأكثر.} few{استخدم {formatted} محارف على الأكثر.} many{استخدم {formatted} محرفًا على الأكثر.} other{استخدم {formatted} محرف على الأكثر.}} | A field's error: too long. |
+| `formErrorDate` | Enter a date as {pattern}. | Tarihi {pattern} biçiminde girin. | أدخل التاريخ بالصيغة {pattern}. | A field's error: not a date in its format. |
+| `formErrorNumber` | Enter a number. | Bir sayı girin. | أدخل رقمًا. | A field's error: not a number. |
+| `formErrorRange` | Enter a number from {min} to {max}. | {min} ile {max} arasında bir sayı girin. | أدخل رقمًا من {min} إلى {max}. | A field's error: out of its range (a5-2). |
+| `formErrorMin` | Enter a number of at least {min}. | En az {min} olan bir sayı girin. | أدخل رقمًا لا يقل عن {min}. | A field's error: under its least value. |
+| `formErrorMax` | Enter a number of at most {max}. | En fazla {max} olan bir sayı girin. | أدخل رقمًا لا يزيد على {max}. | A field's error: over its greatest value. |
+| `formErrorRequired` | Required to submit. | Göndermek için zorunlu. | مطلوب للإرسال. | A required field left empty, after Finish (a5-2b). |
+| `formErrorSign` | Sign before finishing. | Bitirmeden önce imzalayın. | وقّع قبل الإنهاء. | A required signature field left empty, after Finish (a5-2b). |
+| `formErrorChoose` | Choose an option. | Bir seçenek belirleyin. | اختر أحد الخيارات. | A required choice left empty, after Finish (a5-2b). |
+| `formChooseDate` | Choose a date | Bir tarih seçin | اختر تاريخًا | The date picker's name (a5-2). |
+| `formDateFormat` | Format {pattern} · from the form | Biçim {pattern} · formdan | الصيغة {pattern} · من النموذج | The date picker's note (a5-2). |
+| `formPreviousMonth` | Previous month | Önceki ay | الشهر السابق | The date picker's button. |
+| `formNextMonth` | Next month | Sonraki ay | الشهر التالي | The date picker's button. |
+| `formToday` | Today | Bugün | اليوم | The date picker's button. |
+| `formStepFill` | Fill “{name}” | “{name}” alanını doldur | تعبئة «{name}» | The history step of a field's value. |
+| `formStepClear` | Clear form | Formu temizle | مسح النموذج | The history step of Clear form. |
+| `formStepFinish` | Finish form | Formu bitir | إنهاء النموذج | The history step of Finish's flatten. |
+| `fillStepText` | Add text | Metin ekle | إضافة نص | The history step of Fill anything's text. |
+| `fillStepMark` | Add mark | İşaret ekle | إضافة علامة | The history step of Fill anything's check, cross or dot. |
+| `formXfaRemovedTitle` | The form’s XFA data was removed | Formun XFA verisi kaldırıldı | أُزيلت بيانات XFA من النموذج | Toast: a value removed the form's XFA (M4 question 12). |
+| `formXfaRemovedBody` | Readers that use XFA would have shown the old values. The original stays in the file’s earlier version. | XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır. | كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف. | Toast: the XFA notice's text. |
+| `formFinishTitle` | Finish the form | Formu bitir | إنهاء النموذج | G47's Finish dialog. |
+| `formFinishBody` | All required fields are filled. Choose how to keep the form, then save it. | Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin. | تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه. | G47's Finish dialog: its text. |
+| `formFinishFlatten` | Flatten the fields | Alanları düzleştir | تسطيح الحقول | G47's Finish dialog: the first choice. |
+| `formFinishFlattenBody` | They become part of the page and can no longer be changed. | Sayfanın parçası olurlar ve artık değiştirilemezler. | تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك. | G47's Finish dialog: what flattening does. |
+| `formFinishKeep` | Keep the fields editable | Alanlar düzenlenebilir kalsın | إبقاء الحقول قابلة للتحرير | G47's Finish dialog: the second choice. |
+| `formFinishKeepBody` | Anyone who opens the file can still change the values. | Dosyayı açan herkes değerleri yine değiştirebilir. | يمكن لأي شخص يفتح الملف تغيير القيم. | G47's Finish dialog: what keeping does. |
+| `formFinishSave` | Save | Kaydet | حفظ | G47's Finish dialog: the default button. |
+| `formFinishSaveAs` | Save as… | Farklı kaydet… | حفظ باسم… | G47's Finish dialog: saves to another file. |
+| `formClearTitle` | Clear the form? | Form temizlensin mi? | هل تريد مسح النموذج؟ | G47's Clear form confirmation. |
+| `formClearBody` | Every value in this form is removed. Signatures stay. You can undo this. | Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz. | تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك. | G47's Clear form confirmation: its text. |
+| `formClearConfirm` | Clear form | Formu temizle | مسح النموذج | G47's Clear form confirmation: the button. |
+| `formFontAskTitle` | Characters missing from this field’s font | Bu alanın yazı tipinde eksik karakterler var | محارف غير موجودة في خط هذا الحقل | Ask each time (a11-1c, M4 decision 18). |
+| `formFontAskBody` | Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out. | Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir. | يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها. | Ask each time: its text. |
+| `formFontAskPlex` | Use IBM Plex | IBM Plex kullan | استخدام IBM Plex | Ask each time: the default button. |
+| `formFontAskKeep` | Keep the field’s font | Alanın yazı tipini koru | إبقاء خط الحقل | Ask each time: keeps the font, marks the field. |
+| `fillPanelTitle` | Fill anything | Her şeyi doldur | تعبئة أي شيء | Fill anything's panel (a5-4). |
+| `fillToolText` | Text | Metin | نص | Fill anything: Text. |
+| `fillToolCheck` | Check | Onay işareti | علامة صح | Fill anything: Check. |
+| `fillToolCross` | Cross | Çarpı | علامة خطأ | Fill anything: Cross. |
+| `fillToolDot` | Dot | Nokta | نقطة | Fill anything: Dot. |
+| `fillToolToday` | Today’s date | Bugünün tarihi | تاريخ اليوم | Fill anything: Today's date. |
+| `fillToolSignature` | Signature | İmza | توقيع | Fill anything: Signature. |
+| `fillOptions` | Options | Seçenekler | الخيارات | Fill anything: the options' section. |
+| `fillSnap` | Snap to lines and boxes | Çizgilere ve kutulara hizala | المحاذاة إلى الأسطر والمربعات | Fill anything's option. |
+| `fillComb` | One character per comb box | Her kutuya bir karakter | محرف واحد في كل مربع | Fill anything's option. |
+| `fillInk` | Ink | Mürekkep | الحبر | Fill anything's ink. |
+| `fillInkBlack` | Black | Siyah | أسود | Fill anything's ink: black. |
+| `fillInkBlue` | Blue (#1A3170) | Mavi (#1A3170) | أزرق (#1A3170) | Fill anything's ink: blue. |
+| `findNotSearchedComments` | Comments weren’t searched. | Yorumlar aranmadı. | لم يُبحث في التعليقات. | a2-4d: after findNoneBody, with Form fields ticked and Comments not. |
+| `sidebarSearchFormField` | Form field: {text} | Form alanı: {text} | حقل نموذج: {text} | Search results: a match in a form field's value (B128). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

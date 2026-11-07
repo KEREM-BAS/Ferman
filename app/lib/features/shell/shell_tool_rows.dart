@@ -8,6 +8,8 @@ import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/forms/form_panel.dart';
+import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
@@ -758,46 +760,49 @@ class _CommentTools extends ConsumerWidget {
 }
 
 /// Fill & Sign (FmWindow lines 88–104): Fill fields, Add text, Checkmark,
-/// Date | Sign, Initials, Digital signature, e-imza | Prepare form. The
-/// field navigation after the spacer shows only on a form, so not in M1.
+/// Date | Sign, Initials, Digital signature, e-imza | Prepare form … the
+/// field navigation on a form (a5-1). Add text, Checkmark and Date are Fill
+/// anything's Text, Check and Today's date (a5-4).
 class _SignTools extends ConsumerWidget {
   const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final form = ref.watch(documentFormProvider).value;
+    final tool = ref.watch(fillToolsStateProvider).effective(form);
+    final refusal = ref.watch(fillRefusalProvider)?.call(l10n);
+    final pick = ref.read(fillToolsStateProvider.notifier).pick;
+    ToolButton fill(FillTool which, IconName icon, String label) {
+      final usable =
+          live &&
+          (which == FillTool.fields
+              ? (form?.fields.isNotEmpty ?? false)
+              : refusal == null);
+      return ToolButton(
+        icon: icon,
+        label: label,
+        active: tool == which,
+        disabled: !usable,
+        disabledReason: live && which != FillTool.fields ? refusal : null,
+        onPressed: usable ? () => pick(which) : null,
+      );
+    }
+
     return Toolbar(
       semanticLabel: l10n.shellFillSignTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.textCursorInput,
-          label: l10n.shellToolFillFields,
-          active: true,
+        fill(
+          FillTool.fields,
+          IconName.textCursorInput,
+          l10n.shellToolFillFields,
         ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.type,
-          label: l10n.shellToolAddText,
-          active: false,
-        ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.squareCheck,
-          label: l10n.shellToolCheckmark,
-          active: false,
-        ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.calendar,
-          label: l10n.shellToolDate,
-          active: false,
-        ),
+        fill(FillTool.text, IconName.type, l10n.shellToolAddText),
+        fill(FillTool.check, IconName.squareCheck, l10n.shellToolCheckmark),
+        // FmWindow draws Date without its keys (⇧D, Fill anything's).
+        fill(FillTool.date, IconName.calendar, l10n.shellToolDate),
         const ToolbarSeparator(),
         _future(
           context,
@@ -837,6 +842,11 @@ class _SignTools extends ConsumerWidget {
           active: false,
         ),
         const ToolbarSpacer(),
+        // Hidden before anything else when the row runs out of room.
+        const ToolbarItem(
+          overflow: ToolbarOverflow.hide,
+          child: FieldNavigation(),
+        ),
       ],
     );
   }
