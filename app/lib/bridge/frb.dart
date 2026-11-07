@@ -1578,6 +1578,9 @@ class AnnotationInfo {
   /// Its text.
   final String? contents;
 
+  /// The page text under its marks or box, for the panel's quote.
+  final String? quote;
+
   /// Rich text goes with it; replacing the text removes it.
   final bool rich;
 
@@ -1625,6 +1628,7 @@ class AnnotationInfo {
     this.fontSize,
     this.author,
     this.contents,
+    this.quote,
     required this.rich,
     this.created,
     this.modified,
@@ -1653,6 +1657,7 @@ class AnnotationInfo {
       fontSize.hashCode ^
       author.hashCode ^
       contents.hashCode ^
+      quote.hashCode ^
       rich.hashCode ^
       created.hashCode ^
       modified.hashCode ^
@@ -1683,6 +1688,7 @@ class AnnotationInfo {
           fontSize == other.fontSize &&
           author == other.author &&
           contents == other.contents &&
+          quote == other.quote &&
           rich == other.rich &&
           created == other.created &&
           modified == other.modified &&
@@ -4770,6 +4776,9 @@ class SearchMatch {
   /// Whether it is in a bookmark's title (the snippet), with no rectangles.
   final bool bookmark;
 
+  /// The annotation whose text it is in (the snippet), with its box as the rectangle.
+  final BigInt? comment;
+
   const SearchMatch({
     required this.page,
     required this.rects,
@@ -4777,6 +4786,7 @@ class SearchMatch {
     required this.snippetStart,
     required this.snippetEnd,
     required this.bookmark,
+    this.comment,
   });
 
   @override
@@ -4786,7 +4796,8 @@ class SearchMatch {
       snippet.hashCode ^
       snippetStart.hashCode ^
       snippetEnd.hashCode ^
-      bookmark.hashCode;
+      bookmark.hashCode ^
+      comment.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -4798,7 +4809,8 @@ class SearchMatch {
           snippet == other.snippet &&
           snippetStart == other.snippetStart &&
           snippetEnd == other.snippetEnd &&
-          bookmark == other.bookmark;
+          bookmark == other.bookmark &&
+          comment == other.comment;
 }
 
 /// How a search matches (a2-4a).
@@ -4815,11 +4827,15 @@ class SearchOptions {
   /// Search the bookmarks' titles too (Look in › Bookmarks).
   final bool bookmarks;
 
+  /// Search the annotations' text too (Look in › Comments).
+  final bool comments;
+
   const SearchOptions({
     required this.matchCase,
     required this.wholeWords,
     required this.ignoreAccents,
     required this.bookmarks,
+    required this.comments,
   });
 
   @override
@@ -4827,7 +4843,8 @@ class SearchOptions {
       matchCase.hashCode ^
       wholeWords.hashCode ^
       ignoreAccents.hashCode ^
-      bookmarks.hashCode;
+      bookmarks.hashCode ^
+      comments.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -4837,7 +4854,8 @@ class SearchOptions {
           matchCase == other.matchCase &&
           wholeWords == other.wholeWords &&
           ignoreAccents == other.ignoreAccents &&
-          bookmarks == other.bookmarks;
+          bookmarks == other.bookmarks &&
+          comments == other.comments;
 }
 
 /// An encrypted document's security (a2-10a, a2-10b).

@@ -1634,6 +1634,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_f_32(raw.fontSize),
       cst_encode_opt_String(raw.author),
       cst_encode_opt_String(raw.contents),
+      cst_encode_opt_String(raw.quote),
       cst_encode_bool(raw.rich),
       cst_encode_opt_box_autoadd_pdf_date(raw.created),
       cst_encode_opt_box_autoadd_pdf_date(raw.modified),
@@ -2996,6 +2997,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_u_32(raw.snippetStart),
       cst_encode_u_32(raw.snippetEnd),
       cst_encode_bool(raw.bookmark),
+      cst_encode_opt_box_autoadd_u_64(raw.comment),
     ].jsify()!;
   }
 
@@ -3007,6 +3009,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_bool(raw.wholeWords),
       cst_encode_bool(raw.ignoreAccents),
       cst_encode_bool(raw.bookmarks),
+      cst_encode_bool(raw.comments),
     ].jsify()!;
   }
 

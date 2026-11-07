@@ -355,7 +355,8 @@ void main() {
       ),
     );
     expect(checkbox('Bookmarks').disabled, isFalse);
-    expect(checkbox('Comments').disabledReason, futureVersion);
+    expect(checkbox('Comments').checked, isTrue);
+    expect(checkbox('Comments').disabled, isFalse);
     expect(checkbox('Form fields').disabledReason, futureVersion);
     checkbox('Bookmarks').onChanged!(true);
     await settle(tester);

@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:ferman/design/components/components.dart';
+import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_model.dart';
+import 'package:ferman/features/comments/comment_overlay.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/block_editor.dart';
 import 'package:ferman/features/editor/edit_callouts.dart';
 import 'package:ferman/features/editor/edit_marks.dart';
@@ -65,6 +68,7 @@ class DocumentView extends ConsumerStatefulWidget {
     super.key,
     this.tools = true,
     this.edit = false,
+    this.comment = false,
   });
 
   /// The UI's direction, for the copy on a failed page.
@@ -75,6 +79,10 @@ class DocumentView extends ConsumerStatefulWidget {
 
   /// Whether Edit mode's hover frames apply.
   final bool edit;
+
+  /// Whether Comment mode's layer applies (a4-1, [CommentOverlay]); its text
+  /// tools mark what the Select tool's dragging selects.
+  final bool comment;
 
   /// How far outside a block's frame, in points, the pointer still finds
   /// it.
@@ -95,7 +103,8 @@ class DocumentView extends ConsumerStatefulWidget {
     properties
       ..add(EnumProperty('uiDirection', uiDirection))
       ..add(FlagProperty('tools', value: tools, ifFalse: 'no tools'))
-      ..add(FlagProperty('edit', value: edit, ifTrue: 'edit'));
+      ..add(FlagProperty('edit', value: edit, ifTrue: 'edit'))
+      ..add(FlagProperty('comment', value: comment, ifTrue: 'comment'));
   }
 }
 
@@ -172,6 +181,16 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       _stale.addAll(_images.keys);
       _request(force: true);
     });
+    // Show comments: every page is drawn again (a4-5).
+    _keys.raise(ref.read(commentsShownProvider).renderKey);
+    ref.listenManual(commentsShownProvider.select((s) => s.renderKey), (
+      _,
+      key,
+    ) {
+      _keys.raise(key);
+      _stale.addAll(_images.keys);
+      _request(force: true);
+    });
     // A commit, undo or redo changed the pages: draw them and read their
     // text again.
     ref.listenManual(documentEditorProvider.select((s) => s.renderKey), (
@@ -218,7 +237,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   @override
   void didUpdateWidget(DocumentView old) {
     super.didUpdateWidget(old);
-    if (old.edit != widget.edit || old.tools != widget.tools) {
+    if (old.edit != widget.edit ||
+        old.tools != widget.tools ||
+        old.comment != widget.comment) {
       _clearText();
     }
     // Leaving Edit mode commits the typing (the coalescing rule).
@@ -440,6 +461,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       unawaited(_openEditor(_targetAt(event.localPosition)));
       return;
     }
+    // Comment mode's layer has the pointer, but for text marks.
+    if (widget.comment && !_marking) return;
     switch (_tool) {
       case ViewerTool.hand:
         setState(() => _grabbing = true);
@@ -469,6 +492,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     if (start != null && end != null && event is PointerUpEvent) {
       _viewer.zoomToRect(Rect.fromPoints(start, end));
     }
+    if (_selecting && _marking && event is PointerUpEvent) {
+      unawaited(_finishMark(event.localPosition));
+    }
     _selecting = false;
     setState(() {
       _grabbing = false;
@@ -478,8 +504,32 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
 
   // Text: blocks, hover, caret and selection.
 
-  /// Whether the Select tool selects text: View mode with Select chosen.
-  bool get _selectsText => widget.tools && _tool == ViewerTool.select;
+  /// Whether the Select tool selects text: View mode with Select chosen, or
+  /// Comment mode with a text mark's tool.
+  bool get _selectsText =>
+      (widget.tools && _tool == ViewerTool.select) || _marking;
+
+  /// Whether the pointer selects text to mark (a4-1).
+  bool get _marking =>
+      widget.comment &&
+      ref.read(commentToolProvider).marksText &&
+      ref.read(commentsShownProvider).visible &&
+      ref.read(commentRefusalProvider) == null;
+
+  /// The drag ended: what it selected becomes the tool's mark.
+  Future<void> _finishMark(Offset local) async {
+    final tools = ref.read(commentToolProvider);
+    final color = markColorOf(tools.color.resolve(context.ferman));
+    await _extendSelection(_targetAt(local));
+    if (!mounted) return;
+    final selection = ref.read(canvasSelectionProvider);
+    final kind = textMarkKind(tools.tool);
+    if (selection == null || kind == null) return;
+    ref.read(canvasSelectionProvider.notifier).select(null);
+    await ref
+        .read(commentCommandsProvider.notifier)
+        .markText(kind, selection, color);
+  }
 
   /// The page, its block and the point in page space under [local], a
   /// position on the canvas; null off the pages.
@@ -808,6 +858,13 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
                         ),
                       ),
                   if (widget.edit) ..._editLayer(context, state),
+                  if (widget.comment)
+                    Positioned.fill(
+                      child: CommentOverlay(
+                        view: state,
+                        uiDirection: widget.uiDirection,
+                      ),
+                    ),
                   if (marquee != null &&
                       marquee.longestSide >= Viewer.marqueeMinimum)
                     PositionedDirectional(

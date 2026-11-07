@@ -3342,6 +3342,7 @@ impl SseDecode for crate::frb::AnnotationInfo {
         let mut var_fontSize = <Option<f32>>::sse_decode(deserializer);
         let mut var_author = <Option<String>>::sse_decode(deserializer);
         let mut var_contents = <Option<String>>::sse_decode(deserializer);
+        let mut var_quote = <Option<String>>::sse_decode(deserializer);
         let mut var_rich = <bool>::sse_decode(deserializer);
         let mut var_created = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
         let mut var_modified = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
@@ -3367,6 +3368,7 @@ impl SseDecode for crate::frb::AnnotationInfo {
             font_size: var_fontSize,
             author: var_author,
             contents: var_contents,
+            quote: var_quote,
             rich: var_rich,
             created: var_created,
             modified: var_modified,
@@ -5703,6 +5705,7 @@ impl SseDecode for crate::frb::SearchMatch {
         let mut var_snippetStart = <u32>::sse_decode(deserializer);
         let mut var_snippetEnd = <u32>::sse_decode(deserializer);
         let mut var_bookmark = <bool>::sse_decode(deserializer);
+        let mut var_comment = <Option<u64>>::sse_decode(deserializer);
         return crate::frb::SearchMatch {
             page: var_page,
             rects: var_rects,
@@ -5710,6 +5713,7 @@ impl SseDecode for crate::frb::SearchMatch {
             snippet_start: var_snippetStart,
             snippet_end: var_snippetEnd,
             bookmark: var_bookmark,
+            comment: var_comment,
         };
     }
 }
@@ -5721,11 +5725,13 @@ impl SseDecode for crate::frb::SearchOptions {
         let mut var_wholeWords = <bool>::sse_decode(deserializer);
         let mut var_ignoreAccents = <bool>::sse_decode(deserializer);
         let mut var_bookmarks = <bool>::sse_decode(deserializer);
+        let mut var_comments = <bool>::sse_decode(deserializer);
         return crate::frb::SearchOptions {
             match_case: var_matchCase,
             whole_words: var_wholeWords,
             ignore_accents: var_ignoreAccents,
             bookmarks: var_bookmarks,
+            comments: var_comments,
         };
     }
 }
@@ -6191,6 +6197,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationInfo {
             self.font_size.into_into_dart().into_dart(),
             self.author.into_into_dart().into_dart(),
             self.contents.into_into_dart().into_dart(),
+            self.quote.into_into_dart().into_dart(),
             self.rich.into_into_dart().into_dart(),
             self.created.into_into_dart().into_dart(),
             self.modified.into_into_dart().into_dart(),
@@ -7882,6 +7889,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchMatch {
             self.snippet_start.into_into_dart().into_dart(),
             self.snippet_end.into_into_dart().into_dart(),
             self.bookmark.into_into_dart().into_dart(),
+            self.comment.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -7900,6 +7908,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchOptions {
             self.whole_words.into_into_dart().into_dart(),
             self.ignore_accents.into_into_dart().into_dart(),
             self.bookmarks.into_into_dart().into_dart(),
+            self.comments.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -8353,6 +8362,7 @@ impl SseEncode for crate::frb::AnnotationInfo {
         <Option<f32>>::sse_encode(self.font_size, serializer);
         <Option<String>>::sse_encode(self.author, serializer);
         <Option<String>>::sse_encode(self.contents, serializer);
+        <Option<String>>::sse_encode(self.quote, serializer);
         <bool>::sse_encode(self.rich, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.created, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.modified, serializer);
@@ -10276,6 +10286,7 @@ impl SseEncode for crate::frb::SearchMatch {
         <u32>::sse_encode(self.snippet_start, serializer);
         <u32>::sse_encode(self.snippet_end, serializer);
         <bool>::sse_encode(self.bookmark, serializer);
+        <Option<u64>>::sse_encode(self.comment, serializer);
     }
 }
 
@@ -10286,6 +10297,7 @@ impl SseEncode for crate::frb::SearchOptions {
         <bool>::sse_encode(self.whole_words, serializer);
         <bool>::sse_encode(self.ignore_accents, serializer);
         <bool>::sse_encode(self.bookmarks, serializer);
+        <bool>::sse_encode(self.comments, serializer);
     }
 }
 
@@ -10685,6 +10697,7 @@ mod io {
                 font_size: self.font_size.cst_decode(),
                 author: self.author.cst_decode(),
                 contents: self.contents.cst_decode(),
+                quote: self.quote.cst_decode(),
                 rich: self.rich.cst_decode(),
                 created: self.created.cst_decode(),
                 modified: self.modified.cst_decode(),
@@ -12062,6 +12075,7 @@ mod io {
                 snippet_start: self.snippet_start.cst_decode(),
                 snippet_end: self.snippet_end.cst_decode(),
                 bookmark: self.bookmark.cst_decode(),
+                comment: self.comment.cst_decode(),
             }
         }
     }
@@ -12073,6 +12087,7 @@ mod io {
                 whole_words: self.whole_words.cst_decode(),
                 ignore_accents: self.ignore_accents.cst_decode(),
                 bookmarks: self.bookmarks.cst_decode(),
+                comments: self.comments.cst_decode(),
             }
         }
     }
@@ -12286,6 +12301,7 @@ mod io {
                 font_size: core::ptr::null_mut(),
                 author: core::ptr::null_mut(),
                 contents: core::ptr::null_mut(),
+                quote: core::ptr::null_mut(),
                 rich: Default::default(),
                 created: core::ptr::null_mut(),
                 modified: core::ptr::null_mut(),
@@ -13263,6 +13279,7 @@ mod io {
                 snippet_start: Default::default(),
                 snippet_end: Default::default(),
                 bookmark: Default::default(),
+                comment: core::ptr::null_mut(),
             }
         }
     }
@@ -13278,6 +13295,7 @@ mod io {
                 whole_words: Default::default(),
                 ignore_accents: Default::default(),
                 bookmarks: Default::default(),
+                comments: Default::default(),
             }
         }
     }
@@ -15144,6 +15162,7 @@ mod io {
         font_size: *mut f32,
         author: *mut wire_cst_list_prim_u_8_strict,
         contents: *mut wire_cst_list_prim_u_8_strict,
+        quote: *mut wire_cst_list_prim_u_8_strict,
         rich: bool,
         created: *mut wire_cst_pdf_date,
         modified: *mut wire_cst_pdf_date,
@@ -15935,6 +15954,7 @@ mod io {
         snippet_start: u32,
         snippet_end: u32,
         bookmark: bool,
+        comment: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -15943,6 +15963,7 @@ mod io {
         whole_words: bool,
         ignore_accents: bool,
         bookmarks: bool,
+        comments: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -16206,8 +16227,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                24,
-                "Expected 24 elements, got {}",
+                25,
+                "Expected 25 elements, got {}",
                 self_.length()
             );
             crate::frb::AnnotationInfo {
@@ -16224,17 +16245,18 @@ mod web {
                 font_size: self_.get(10).cst_decode(),
                 author: self_.get(11).cst_decode(),
                 contents: self_.get(12).cst_decode(),
-                rich: self_.get(13).cst_decode(),
-                created: self_.get(14).cst_decode(),
-                modified: self_.get(15).cst_decode(),
-                icon: self_.get(16).cst_decode(),
-                replies_to: self_.get(17).cst_decode(),
-                thread: self_.get(18).cst_decode(),
-                state: self_.get(19).cst_decode(),
-                resolved: self_.get(20).cst_decode(),
-                resolved_by: self_.get(21).cst_decode(),
-                resolved_at: self_.get(22).cst_decode(),
-                mentions: self_.get(23).cst_decode(),
+                quote: self_.get(13).cst_decode(),
+                rich: self_.get(14).cst_decode(),
+                created: self_.get(15).cst_decode(),
+                modified: self_.get(16).cst_decode(),
+                icon: self_.get(17).cst_decode(),
+                replies_to: self_.get(18).cst_decode(),
+                thread: self_.get(19).cst_decode(),
+                state: self_.get(20).cst_decode(),
+                resolved: self_.get(21).cst_decode(),
+                resolved_by: self_.get(22).cst_decode(),
+                resolved_at: self_.get(23).cst_decode(),
+                mentions: self_.get(24).cst_decode(),
             }
         }
     }
@@ -18035,8 +18057,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                6,
-                "Expected 6 elements, got {}",
+                7,
+                "Expected 7 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchMatch {
@@ -18046,6 +18068,7 @@ mod web {
                 snippet_start: self_.get(3).cst_decode(),
                 snippet_end: self_.get(4).cst_decode(),
                 bookmark: self_.get(5).cst_decode(),
+                comment: self_.get(6).cst_decode(),
             }
         }
     }
@@ -18059,8 +18082,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                4,
-                "Expected 4 elements, got {}",
+                5,
+                "Expected 5 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchOptions {
@@ -18068,6 +18091,7 @@ mod web {
                 whole_words: self_.get(1).cst_decode(),
                 ignore_accents: self_.get(2).cst_decode(),
                 bookmarks: self_.get(3).cst_decode(),
+                comments: self_.get(4).cst_decode(),
             }
         }
     }

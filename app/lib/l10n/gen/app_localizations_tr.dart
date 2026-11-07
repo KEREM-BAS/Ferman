@@ -4125,4 +4125,355 @@ class AppLocalizationsTr extends AppLocalizations {
   String jobCreateFailedTitle(String name) {
     return '$name oluşturulamadı';
   }
+
+  @override
+  String get commentsTitle => 'Yorumlar';
+
+  @override
+  String get commentsFilter => 'Filtrele ve sırala';
+
+  @override
+  String get commentsMore => 'Diğer: özeti dışa aktar, düzleştir, tümünü gizle';
+
+  @override
+  String get commentsStatus => 'Durum';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'Açık $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'Çözüldü $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'Tümü $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'Yazar';
+
+  @override
+  String get commentsFilterType => 'Tür';
+
+  @override
+  String get commentsFilterSort => 'Sıralama';
+
+  @override
+  String get commentsAllPeople => 'Tüm kişiler';
+
+  @override
+  String get commentsTypeNotes => 'Notlar';
+
+  @override
+  String get commentsTypeMarkup => 'Metin işaretleri';
+
+  @override
+  String get commentsTypeDrawings => 'Çizimler';
+
+  @override
+  String get commentsTypeStamps => 'Damgalar';
+
+  @override
+  String get commentsTypeOther => 'Tüm türler';
+
+  @override
+  String get commentsSortNewest => 'En yeni';
+
+  @override
+  String get commentsSortAuthor => 'Yazar';
+
+  @override
+  String get commentsSortOther => 'Sayfa sırası';
+
+  @override
+  String get commentsCertifiedNote =>
+      'Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır.';
+
+  @override
+  String get commentsTruncated =>
+      'Bu dosyada Ferman\'ın listelediğinden daha çok yorum var.';
+
+  @override
+  String get commentsEmptyTitle => 'Yorum yok';
+
+  @override
+  String get commentsEmptyBody =>
+      'Yukarıdan bir araç seçin, sonra sayfada işaretleyin.';
+
+  @override
+  String get commentsNoMatchTitle => 'Eşleşen yorum yok';
+
+  @override
+  String get commentsNoMatchBody =>
+      'Diğerlerini görmek için durumu veya filtreleri değiştirin.';
+
+  @override
+  String get commentsFootnote =>
+      'Yorumlar PDF\'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez.';
+
+  @override
+  String get commentsExportSummary => 'Özeti dışa aktar…';
+
+  @override
+  String get commentsFlatten => 'Düzleştir…';
+
+  @override
+  String get commentsHideAll => 'Tümünü gizle';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown yorum gizli',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'Vurgu';
+
+  @override
+  String get commentKindUnderline => 'Altı çizili';
+
+  @override
+  String get commentKindStrikeOut => 'Üstü çizili';
+
+  @override
+  String get commentKindSquiggly => 'Dalgalı alt çizgi';
+
+  @override
+  String get commentKindNote => 'Not';
+
+  @override
+  String get commentKindFreeText => 'Metin';
+
+  @override
+  String get commentKindCallout => 'Belirtme';
+
+  @override
+  String get commentKindInk => 'Çizim';
+
+  @override
+  String get commentKindSquare => 'Dikdörtgen';
+
+  @override
+  String get commentKindCircle => 'Elips';
+
+  @override
+  String get commentKindLine => 'Çizgi';
+
+  @override
+  String get commentKindPolygon => 'Çokgen';
+
+  @override
+  String get commentKindStamp => 'Damga';
+
+  @override
+  String get commentKindOther => 'Yorum';
+
+  @override
+  String get commentShapeEllipse => 'Elips';
+
+  @override
+  String get commentShapeArrow => 'Ok';
+
+  @override
+  String get commentShapeLine => 'Çizgi';
+
+  @override
+  String get commentShapePolygon => 'Çokgen';
+
+  @override
+  String get commentShapeOther => 'Dikdörtgen';
+
+  @override
+  String get commentKeepTool => 'Araç seçili kalsın';
+
+  @override
+  String commentStyleBar(String kind) {
+    return '$kind stili';
+  }
+
+  @override
+  String get commentStrokeWidth => 'Çizgi kalınlığı';
+
+  @override
+  String get commentOpacity => 'Opaklık';
+
+  @override
+  String get commentOpen => 'Yorumu aç';
+
+  @override
+  String get commentDelete => 'Sil';
+
+  @override
+  String get commentMenu => 'Yorum';
+
+  @override
+  String get commentEditText => 'Metni düzenle';
+
+  @override
+  String get commentMore => 'Diğer';
+
+  @override
+  String get commentCloseNote => 'Notu kapat';
+
+  @override
+  String commentNoteFrom(String author) {
+    return '$author notu';
+  }
+
+  @override
+  String get commentReply => 'Yanıtla';
+
+  @override
+  String get commentResolve => 'Çöz';
+
+  @override
+  String get commentReopen => 'Yeniden aç';
+
+  @override
+  String get commentPeople => 'Bu belgedeki kişiler';
+
+  @override
+  String commentQuote(String text) {
+    return '“$text”';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown yanıt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return '$name çözdü · $time';
+  }
+
+  @override
+  String get commentYesterday => 'Dün';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: ', çözüldü',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: ', $shown yanıt',
+      zero: '',
+    );
+    return '$author, $page. sayfada $kind$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'Yorum ekle';
+
+  @override
+  String get commentStepChange => 'Yorumu değiştir';
+
+  @override
+  String get commentStepDelete => 'Yorumu sil';
+
+  @override
+  String get commentStepReply => 'Yorumu yanıtla';
+
+  @override
+  String get commentStepResolve => 'Yorumu çöz';
+
+  @override
+  String get commentStepReopen => 'Yorumu yeniden aç';
+
+  @override
+  String get commentDeletedToast => 'Yorum silindi';
+
+  @override
+  String get commentDeletedNote => 'Yanıtlarıyla birlikte.';
+
+  @override
+  String get commentNameTitle => 'Yorumlardaki adınız';
+
+  @override
+  String get commentNameBody =>
+      'Bu PDF\'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel\'den değiştirebilir veya boş bırakabilirsiniz.';
+
+  @override
+  String get commentNameSave => 'Devam et';
+
+  @override
+  String get settingsCommenterName => 'Yorumlar için adınız';
+
+  @override
+  String get commentTextField => 'Yorum metni';
+
+  @override
+  String get commentSummaryFile => 'Yorumlar.pdf';
+
+  @override
+  String get commentColumnPage => 'Sayfa';
+
+  @override
+  String get commentColumnType => 'Tür';
+
+  @override
+  String get commentColumnAuthor => 'Yazar';
+
+  @override
+  String get commentColumnDate => 'Tarih';
+
+  @override
+  String get commentColumnText => 'Metin';
+
+  @override
+  String get commentColumnReplies => 'Yanıtlar';
+
+  @override
+  String get commentColumnStatus => 'Durum';
+
+  @override
+  String get commentStatusOpen => 'Açık';
+
+  @override
+  String get commentStatusResolved => 'Çözüldü';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return '$name yazılıyor';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return '$name yazıldı';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return '$name yazılamadı';
+  }
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'Yorum: $text';
+  }
 }

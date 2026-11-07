@@ -100,7 +100,13 @@ final Map<String, ShellCommand> _choiceCommands = {
 
 /// The View row's and the status bar's viewing controls: disabled without
 /// a reason while no document shows.
-const Set<String> _waitForDocument = {
+final Set<String> _waitForDocument = {
+  // Comment's tools.
+  for (final tool in AnnotationTool.values)
+    if (tool != AnnotationTool.stamp && tool != AnnotationTool.measure)
+      _l10n.annotationToolLabel(tool),
+  _l10n.shellShowComments,
+  _l10n.shellColor,
   // Organize's tools that work with a document.
   'Insert',
   'Extract',
@@ -288,7 +294,8 @@ void main() {
           final waits =
               (!inRow ||
                   mode == FermanMode.view ||
-                  mode == FermanMode.organize) &&
+                  mode == FermanMode.organize ||
+                  mode == FermanMode.comment) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -454,7 +461,9 @@ void main() {
         final disabled = [
           for (final entry in entries)
             if (entry.disabled &&
-                ((mode != FermanMode.view && mode != FermanMode.organize) ||
+                ((mode != FermanMode.view &&
+                        mode != FermanMode.organize &&
+                        mode != FermanMode.comment) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

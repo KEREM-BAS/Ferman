@@ -566,10 +566,11 @@ void main() {
             )
             .toList();
         expect(_shown(_overflowButton(mode)), isTrue);
-        final outside = [
+        // A tool with a menu is both its item and its button.
+        final outside = {
           for (final item in items)
             if (!inRow(item)) nameOf(item)!,
-        ];
+        }.toList();
         await tester.tap(_overflowButton(mode));
         await settle(tester);
         final menu = tester.widget<Menu>(find.byType(Menu));
@@ -603,6 +604,9 @@ void main() {
             mode == FermanMode.view && _viewing.contains(entry.label) ||
                     mode == FermanMode.organize &&
                         _organizing.contains(entry.label) ||
+                    mode == FermanMode.comment &&
+                        entry.label != 'Stamp' &&
+                        entry.label != 'Measure' ||
                     entry.label == 'Split' ||
                     entry.label == 'Combine files' ||
                     entry.label == 'Create PDF'
@@ -684,7 +688,8 @@ void main() {
       );
       expect(highlight.checked, isTrue);
       expect(highlight.shortcut, ['H']);
-      expect(highlight.disabledReason, futureVersion);
+      // It waits for a shown document.
+      expect(highlight.disabledReason, isNull);
       // The menu has keyboard focus; Escape gives it back to the button.
       expect(
         FocusManager.instance.primaryFocus?.debugLabel,

@@ -546,6 +546,19 @@ void main() {
         'Page labels',
         'Insert▾',
       };
+      // Comment's tools that wait for a document.
+      const commenting = {
+        'Select',
+        'Highlight',
+        'Underline',
+        'Strikethrough',
+        'Note',
+        'Text',
+        'Callout',
+        'Draw',
+        'Shapes▾',
+        'switch:Show comments',
+      };
       // Edit's tools that work since M3: Edit text, Edit history, Review edits
       // (the row's one button), and undo and redo with nothing to undo or redo
       // yet.
@@ -578,7 +591,8 @@ void main() {
           expect(
             reason,
             mode == FermanMode.view && viewing.contains(name) ||
-                    mode == FermanMode.organize && organizing.contains(name)
+                    mode == FermanMode.organize && organizing.contains(name) ||
+                    mode == FermanMode.comment && commenting.contains(name)
                 ? isNull
                 : mode == FermanMode.edit
                 ? working[name] ?? futureVersion
@@ -600,9 +614,12 @@ void main() {
       expect(annotations.tools, AnnotationTool.values);
       expect(annotations.showLabels, isTrue);
       expect(annotations.tool, AnnotationTool.highlight);
-      expect(annotations.disabledReasons.keys, AnnotationTool.values);
-      expect(annotations.disabledReasons.values.toSet(), {futureVersion});
-      expect(annotations.colorsDisabledReason, futureVersion);
+      // The comment tools wait for a shown document.
+      expect(annotations.onToolChanged, isNull);
+      expect(annotations.disabledReasons, {
+        AnnotationTool.stamp: futureVersion,
+        AnnotationTool.measure: futureVersion,
+      });
     });
 
     testWidgets("draw each mode's first tool on and show its keys", (

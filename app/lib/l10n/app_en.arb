@@ -5606,5 +5606,483 @@
         "type": "String"
       }
     }
+  },
+  "commentsTitle": "Comments",
+  "@commentsTitle": {
+    "description": "FmComments's heading."
+  },
+  "commentsFilter": "Filter and sort",
+  "@commentsFilter": {
+    "description": "FmComments: the filter button."
+  },
+  "commentsMore": "More: export summary, flatten, hide all",
+  "@commentsMore": {
+    "description": "FmComments: the More button."
+  },
+  "commentsStatus": "Status",
+  "@commentsStatus": {
+    "description": "FmComments: the status control's name."
+  },
+  "commentsStatusOpen": "Open {count}",
+  "@commentsStatusOpen": {
+    "description": "FmComments: status.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "commentsStatusResolved": "Resolved {count}",
+  "@commentsStatusResolved": {
+    "description": "FmComments: status.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "commentsStatusAll": "All {count}",
+  "@commentsStatusAll": {
+    "description": "FmComments: status.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "commentsFilterAuthor": "Author",
+  "@commentsFilterAuthor": {
+    "description": "FmComments: filter's name."
+  },
+  "commentsFilterType": "Type",
+  "@commentsFilterType": {
+    "description": "FmComments: filter's name."
+  },
+  "commentsFilterSort": "Sort",
+  "@commentsFilterSort": {
+    "description": "FmComments: filter's name."
+  },
+  "commentsAllPeople": "All people",
+  "@commentsAllPeople": {
+    "description": "FmComments: author filter."
+  },
+  "commentsTypeNotes": "Notes",
+  "@commentsTypeNotes": {
+    "description": "FmComments: type filter."
+  },
+  "commentsTypeMarkup": "Text markup",
+  "@commentsTypeMarkup": {
+    "description": "FmComments: type filter."
+  },
+  "commentsTypeDrawings": "Drawings",
+  "@commentsTypeDrawings": {
+    "description": "FmComments: type filter."
+  },
+  "commentsTypeStamps": "Stamps",
+  "@commentsTypeStamps": {
+    "description": "FmComments: type filter."
+  },
+  "commentsTypeOther": "All types",
+  "@commentsTypeOther": {
+    "description": "FmComments: type filter."
+  },
+  "commentsSortNewest": "Newest",
+  "@commentsSortNewest": {
+    "description": "FmComments: sort."
+  },
+  "commentsSortAuthor": "Author",
+  "@commentsSortAuthor": {
+    "description": "FmComments: sort."
+  },
+  "commentsSortOther": "Page order",
+  "@commentsSortOther": {
+    "description": "FmComments: sort."
+  },
+  "commentsCertifiedNote": "This document is certified to allow comments: they keep its certification valid.",
+  "@commentsCertifiedNote": {
+    "description": "FmComments: G35's notice."
+  },
+  "commentsTruncated": "This file has more comments than Ferman lists.",
+  "@commentsTruncated": {
+    "description": "FmComments: a reader's limit cut the list."
+  },
+  "commentsEmptyTitle": "No comments",
+  "@commentsEmptyTitle": {
+    "description": "FmComments: empty (G46)."
+  },
+  "commentsEmptyBody": "Pick a tool above, then mark up the page.",
+  "@commentsEmptyBody": {
+    "description": "FmComments: empty (G46)."
+  },
+  "commentsNoMatchTitle": "No comments match",
+  "@commentsNoMatchTitle": {
+    "description": "FmComments: no match (G46)."
+  },
+  "commentsNoMatchBody": "Change the status or filters to see others.",
+  "@commentsNoMatchBody": {
+    "description": "FmComments: no match (G46)."
+  },
+  "commentsFootnote": "Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.",
+  "@commentsFootnote": {
+    "description": "FmComments's footer."
+  },
+  "commentsExportSummary": "Export summary…",
+  "@commentsExportSummary": {
+    "description": "FmComments: More."
+  },
+  "commentsFlatten": "Flatten…",
+  "@commentsFlatten": {
+    "description": "FmComments: More."
+  },
+  "commentsHideAll": "Hide all",
+  "@commentsHideAll": {
+    "description": "FmComments: More."
+  },
+  "commentsHidden": "{count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}}",
+  "@commentsHidden": {
+    "description": "a4-5's notice.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "commentKindHighlight": "Highlight",
+  "@commentKindHighlight": {
+    "description": "A kind of annotation."
+  },
+  "commentKindUnderline": "Underline",
+  "@commentKindUnderline": {
+    "description": "A kind of annotation."
+  },
+  "commentKindStrikeOut": "Strikethrough",
+  "@commentKindStrikeOut": {
+    "description": "A kind of annotation."
+  },
+  "commentKindSquiggly": "Squiggly underline",
+  "@commentKindSquiggly": {
+    "description": "A kind of annotation."
+  },
+  "commentKindNote": "Note",
+  "@commentKindNote": {
+    "description": "A kind of annotation."
+  },
+  "commentKindFreeText": "Text",
+  "@commentKindFreeText": {
+    "description": "A kind of annotation."
+  },
+  "commentKindCallout": "Callout",
+  "@commentKindCallout": {
+    "description": "A kind of annotation."
+  },
+  "commentKindInk": "Drawing",
+  "@commentKindInk": {
+    "description": "A kind of annotation."
+  },
+  "commentKindSquare": "Rectangle",
+  "@commentKindSquare": {
+    "description": "A kind of annotation."
+  },
+  "commentKindCircle": "Ellipse",
+  "@commentKindCircle": {
+    "description": "A kind of annotation."
+  },
+  "commentKindLine": "Line",
+  "@commentKindLine": {
+    "description": "A kind of annotation."
+  },
+  "commentKindPolygon": "Polygon",
+  "@commentKindPolygon": {
+    "description": "A kind of annotation."
+  },
+  "commentKindStamp": "Stamp",
+  "@commentKindStamp": {
+    "description": "A kind of annotation."
+  },
+  "commentKindOther": "Comment",
+  "@commentKindOther": {
+    "description": "A kind of annotation."
+  },
+  "commentShapeEllipse": "Ellipse",
+  "@commentShapeEllipse": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentShapeArrow": "Arrow",
+  "@commentShapeArrow": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentShapeLine": "Line",
+  "@commentShapeLine": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentShapePolygon": "Polygon",
+  "@commentShapePolygon": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentShapeOther": "Rectangle",
+  "@commentShapeOther": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentKeepTool": "Keep tool selected",
+  "@commentKeepTool": {
+    "description": "a4-1's Shapes menu."
+  },
+  "commentStyleBar": "{kind} style",
+  "@commentStyleBar": {
+    "description": "a4-1's floating bar's name.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "commentStrokeWidth": "Stroke width",
+  "@commentStrokeWidth": {
+    "description": "a4-1's style bar."
+  },
+  "commentOpacity": "Opacity",
+  "@commentOpacity": {
+    "description": "a4-1's style bar."
+  },
+  "commentOpen": "Open comment",
+  "@commentOpen": {
+    "description": "a4-1's style bar."
+  },
+  "commentDelete": "Delete",
+  "@commentDelete": {
+    "description": "a4-1's style bar."
+  },
+  "commentMenu": "Comment",
+  "@commentMenu": {
+    "description": "G46's context menu's name."
+  },
+  "commentEditText": "Edit text",
+  "@commentEditText": {
+    "description": "G46's context menu."
+  },
+  "commentMore": "More",
+  "@commentMore": {
+    "description": "a4-1d: the note's More."
+  },
+  "commentCloseNote": "Close note",
+  "@commentCloseNote": {
+    "description": "a4-1d: the note's Close."
+  },
+  "commentNoteFrom": "Note from {author}",
+  "@commentNoteFrom": {
+    "description": "a4-1d: the note's name.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "commentReply": "Reply",
+  "@commentReply": {
+    "description": "a4-2's Reply."
+  },
+  "commentResolve": "Resolve",
+  "@commentResolve": {
+    "description": "a4-2's Resolve."
+  },
+  "commentReopen": "Reopen",
+  "@commentReopen": {
+    "description": "a4-2's Reopen."
+  },
+  "commentPeople": "People in this document",
+  "@commentPeople": {
+    "description": "a4-2's mention list."
+  },
+  "commentQuote": "“{text}”",
+  "@commentQuote": {
+    "description": "The annotated text on a card.",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "commentReplies": "{count, plural, =1{{shown} reply} other{{shown} replies}}",
+  "@commentReplies": {
+    "description": "FmComments: collapsed replies.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "commentResolvedBy": "Resolved by {name} · {time}",
+  "@commentResolvedBy": {
+    "description": "FmComments: a resolved card.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "commentYesterday": "Yesterday",
+  "@commentYesterday": {
+    "description": "FmComments: a comment's time."
+  },
+  "commentCardLabel": "{author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}}",
+  "@commentCardLabel": {
+    "description": "a4-2: how a card is announced.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      },
+      "resolved": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "commentStepAdd": "Add comment",
+  "@commentStepAdd": {
+    "description": "History step."
+  },
+  "commentStepChange": "Change comment",
+  "@commentStepChange": {
+    "description": "History step."
+  },
+  "commentStepDelete": "Delete comment",
+  "@commentStepDelete": {
+    "description": "History step."
+  },
+  "commentStepReply": "Reply to comment",
+  "@commentStepReply": {
+    "description": "History step."
+  },
+  "commentStepResolve": "Resolve comment",
+  "@commentStepResolve": {
+    "description": "History step."
+  },
+  "commentStepReopen": "Reopen comment",
+  "@commentStepReopen": {
+    "description": "History step."
+  },
+  "commentDeletedToast": "Comment deleted",
+  "@commentDeletedToast": {
+    "description": "G46: the delete's toast."
+  },
+  "commentDeletedNote": "With its replies.",
+  "@commentDeletedNote": {
+    "description": "G46: the delete's toast."
+  },
+  "commentNameTitle": "Your name on comments",
+  "@commentNameTitle": {
+    "description": "G46: the first comment asks."
+  },
+  "commentNameBody": "Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.",
+  "@commentNameBody": {
+    "description": "G46: the first comment asks."
+  },
+  "commentNameSave": "Continue",
+  "@commentNameSave": {
+    "description": "G46: the first comment asks."
+  },
+  "settingsCommenterName": "Your name for comments",
+  "@settingsCommenterName": {
+    "description": "Settings › General (G46)."
+  },
+  "commentTextField": "Comment text",
+  "@commentTextField": {
+    "description": "G46: the on-page editor's name."
+  },
+  "commentSummaryFile": "Comments.pdf",
+  "@commentSummaryFile": {
+    "description": "The summary's suggested file name."
+  },
+  "commentColumnPage": "Page",
+  "@commentColumnPage": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnType": "Type",
+  "@commentColumnType": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnAuthor": "Author",
+  "@commentColumnAuthor": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnDate": "Date",
+  "@commentColumnDate": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnText": "Text",
+  "@commentColumnText": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnReplies": "Replies",
+  "@commentColumnReplies": {
+    "description": "Summary CSV column."
+  },
+  "commentColumnStatus": "Status",
+  "@commentColumnStatus": {
+    "description": "Summary CSV column."
+  },
+  "commentStatusOpen": "Open",
+  "@commentStatusOpen": {
+    "description": "Summary: an open comment."
+  },
+  "commentStatusResolved": "Resolved",
+  "@commentStatusResolved": {
+    "description": "Summary: a resolved comment."
+  },
+  "jobSummaryRunningTitle": "Writing {name}",
+  "@jobSummaryRunningTitle": {
+    "description": "Task drawer: the summary.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobSummaryDoneTitle": "Wrote {name}",
+  "@jobSummaryDoneTitle": {
+    "description": "Task drawer: the summary.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobSummaryFailedTitle": "Couldn’t write {name}",
+  "@jobSummaryFailedTitle": {
+    "description": "Task drawer: the summary.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarSearchComment": "Comment: {text}",
+  "@sidebarSearchComment": {
+    "description": "Search results: a match in a comment (B128).",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
   }
 }

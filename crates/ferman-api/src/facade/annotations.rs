@@ -14,12 +14,14 @@ use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_ops::annotations::{self as ops, AnnotationChange, NewAnnotation};
 use ferman_ops::summary::{self, SummaryLayout, SummaryOptions};
 use ferman_render::DocumentId;
+use ferman_text::extract::PageText;
 
 use super::edit::RevisionInfo;
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
 use super::jobs::{JobChange, JobId, JobSink, JobStop};
+use super::search::page_text;
 
 /// One annotation for the panel and the overlay. Geometry is in displayed points.
 #[derive(Debug, Clone, PartialEq)]
@@ -51,6 +53,9 @@ pub struct AnnotationInfo {
     pub author: Option<String>,
     /// `/Contents`.
     pub contents: Option<String>,
+    /// The page text under its marks or box, for the panel's quote (a4-2): none for a note, text
+    /// box, callout or stamp, or with no text under it.
+    pub quote: Option<String>,
     /// Whether rich text (`/RC`) goes with it; replacing the text removes it.
     pub rich: bool,
     /// `/CreationDate`.
@@ -192,6 +197,7 @@ fn info(page: &Page, annotation: Annotation) -> AnnotationInfo {
         stroke: annotation.stroke,
         font_size: annotation.font_size,
         rich: annotation.rich,
+        quote: None,
         created: annotation.created,
         modified: annotation.modified,
         replies_to: annotation.replies_to,
@@ -206,6 +212,66 @@ fn info(page: &Page, annotation: Annotation) -> AnnotationInfo {
         state: annotation.state,
         mentions: annotation.mentions,
     }
+}
+
+/// Whether a kind marks page text or draws over it, so its panel card quotes that text.
+fn quoted(kind: AnnotationKind) -> bool {
+    !matches!(
+        kind,
+        AnnotationKind::Note
+            | AnnotationKind::FreeText
+            | AnnotationKind::Callout
+            | AnnotationKind::Stamp
+            | AnnotationKind::Other
+    )
+}
+
+/// The most characters of a quote.
+const MAX_QUOTE: usize = 200;
+
+/// The characters of `text` whose middle lies in `shown`'s quads, or else its box, with white space
+/// made single.
+fn quote_of(text: &PageText, shown: &AnnotationInfo) -> Option<String> {
+    let bounds = |part: &Vec<[f32; 2]>| {
+        part.iter().fold(
+            [f32::MAX, f32::MAX, f32::MIN, f32::MIN],
+            |[l, t, r, b], [x, y]| [l.min(*x), t.min(*y), r.max(*x), b.max(*y)],
+        )
+    };
+    let areas: Vec<[f32; 4]> = if matches!(
+        shown.kind,
+        AnnotationKind::Highlight
+            | AnnotationKind::Underline
+            | AnnotationKind::StrikeOut
+            | AnnotationKind::Squiggly
+    ) {
+        shown.points.iter().map(bounds).collect()
+    } else {
+        vec![shown.rect]
+    };
+    let mut quote = String::new();
+    let mut gap = false;
+    for (character, frame) in text.text.chars().zip(&text.boxes) {
+        let inside = frame.is_some_and(|[l, t, r, b]| {
+            let (x, y) = (f32::midpoint(l, r), f32::midpoint(t, b));
+            areas
+                .iter()
+                .any(|area| x >= area[0] && x <= area[2] && y >= area[1] && y <= area[3])
+        });
+        if !inside || character.is_whitespace() {
+            gap = true;
+            continue;
+        }
+        if gap && !quote.is_empty() {
+            quote.push(' ');
+        }
+        gap = false;
+        quote.push(character);
+        if quote.chars().count() >= MAX_QUOTE {
+            break;
+        }
+    }
+    (!quote.is_empty()).then_some(quote)
 }
 
 /// `seconds` since the Unix epoch as a PDF date in UTC: readers show it in their own zone.
@@ -255,11 +321,30 @@ impl Engine {
             let (base, store) = (snapshot.base(), snapshot.store());
             let list = store.annotations(base);
             let pages = store.pages(base);
+            let model = self
+                .models()?
+                .get(&document)
+                .cloned()
+                .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+            let (revised, generation) = {
+                let revised = model.revised();
+                (Arc::clone(&revised.store), revised.generation)
+            };
             Ok(AnnotationList {
                 annotations: list
                     .annotations
                     .into_iter()
-                    .filter_map(|annotation| Some(info(pages.get(annotation.page)?, annotation)))
+                    .filter_map(|annotation| {
+                        let at = u32::try_from(annotation.page).ok()?;
+                        let mut shown = info(pages.get(annotation.page)?, annotation);
+                        // shortcut: each list reads the text of the pages with marks, through the
+                        // search's cache; ask for quotes per card if a heavily marked file is slow.
+                        if quoted(shown.kind) {
+                            let text = page_text(&model, &revised, generation, at);
+                            shown.quote = quote_of(&text, &shown);
+                        }
+                        Some(shown)
+                    })
                     .collect(),
                 people: list.people,
                 truncated: list.truncated,

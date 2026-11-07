@@ -3535,6 +3535,314 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String jobCreateFailedTitle(String name) =>
       isolate(super.jobCreateFailedTitle(name));
+
+  @override
+  String get commentsTitle => isolate(super.commentsTitle);
+
+  @override
+  String get commentsFilter => isolate(super.commentsFilter);
+
+  @override
+  String get commentsMore => isolate(super.commentsMore);
+
+  @override
+  String get commentsStatus => isolate(super.commentsStatus);
+
+  @override
+  String commentsStatusOpen(String count) =>
+      isolate(super.commentsStatusOpen(count));
+
+  @override
+  String commentsStatusResolved(String count) =>
+      isolate(super.commentsStatusResolved(count));
+
+  @override
+  String commentsStatusAll(String count) =>
+      isolate(super.commentsStatusAll(count));
+
+  @override
+  String get commentsFilterAuthor => isolate(super.commentsFilterAuthor);
+
+  @override
+  String get commentsFilterType => isolate(super.commentsFilterType);
+
+  @override
+  String get commentsFilterSort => isolate(super.commentsFilterSort);
+
+  @override
+  String get commentsAllPeople => isolate(super.commentsAllPeople);
+
+  @override
+  String get commentsTypeNotes => isolate(super.commentsTypeNotes);
+
+  @override
+  String get commentsTypeMarkup => isolate(super.commentsTypeMarkup);
+
+  @override
+  String get commentsTypeDrawings => isolate(super.commentsTypeDrawings);
+
+  @override
+  String get commentsTypeStamps => isolate(super.commentsTypeStamps);
+
+  @override
+  String get commentsTypeOther => isolate(super.commentsTypeOther);
+
+  @override
+  String get commentsSortNewest => isolate(super.commentsSortNewest);
+
+  @override
+  String get commentsSortAuthor => isolate(super.commentsSortAuthor);
+
+  @override
+  String get commentsSortOther => isolate(super.commentsSortOther);
+
+  @override
+  String get commentsCertifiedNote => isolate(super.commentsCertifiedNote);
+
+  @override
+  String get commentsTruncated => isolate(super.commentsTruncated);
+
+  @override
+  String get commentsEmptyTitle => isolate(super.commentsEmptyTitle);
+
+  @override
+  String get commentsEmptyBody => isolate(super.commentsEmptyBody);
+
+  @override
+  String get commentsNoMatchTitle => isolate(super.commentsNoMatchTitle);
+
+  @override
+  String get commentsNoMatchBody => isolate(super.commentsNoMatchBody);
+
+  @override
+  String get commentsFootnote => isolate(super.commentsFootnote);
+
+  @override
+  String get commentsExportSummary => isolate(super.commentsExportSummary);
+
+  @override
+  String get commentsFlatten => isolate(super.commentsFlatten);
+
+  @override
+  String get commentsHideAll => isolate(super.commentsHideAll);
+
+  @override
+  String commentsHidden(int count, String shown) =>
+      isolate(super.commentsHidden(count, shown));
+
+  @override
+  String get commentKindHighlight => isolate(super.commentKindHighlight);
+
+  @override
+  String get commentKindUnderline => isolate(super.commentKindUnderline);
+
+  @override
+  String get commentKindStrikeOut => isolate(super.commentKindStrikeOut);
+
+  @override
+  String get commentKindSquiggly => isolate(super.commentKindSquiggly);
+
+  @override
+  String get commentKindNote => isolate(super.commentKindNote);
+
+  @override
+  String get commentKindFreeText => isolate(super.commentKindFreeText);
+
+  @override
+  String get commentKindCallout => isolate(super.commentKindCallout);
+
+  @override
+  String get commentKindInk => isolate(super.commentKindInk);
+
+  @override
+  String get commentKindSquare => isolate(super.commentKindSquare);
+
+  @override
+  String get commentKindCircle => isolate(super.commentKindCircle);
+
+  @override
+  String get commentKindLine => isolate(super.commentKindLine);
+
+  @override
+  String get commentKindPolygon => isolate(super.commentKindPolygon);
+
+  @override
+  String get commentKindStamp => isolate(super.commentKindStamp);
+
+  @override
+  String get commentKindOther => isolate(super.commentKindOther);
+
+  @override
+  String get commentShapeEllipse => isolate(super.commentShapeEllipse);
+
+  @override
+  String get commentShapeArrow => isolate(super.commentShapeArrow);
+
+  @override
+  String get commentShapeLine => isolate(super.commentShapeLine);
+
+  @override
+  String get commentShapePolygon => isolate(super.commentShapePolygon);
+
+  @override
+  String get commentShapeOther => isolate(super.commentShapeOther);
+
+  @override
+  String get commentKeepTool => isolate(super.commentKeepTool);
+
+  @override
+  String commentStyleBar(String kind) => isolate(super.commentStyleBar(kind));
+
+  @override
+  String get commentStrokeWidth => isolate(super.commentStrokeWidth);
+
+  @override
+  String get commentOpacity => isolate(super.commentOpacity);
+
+  @override
+  String get commentOpen => isolate(super.commentOpen);
+
+  @override
+  String get commentDelete => isolate(super.commentDelete);
+
+  @override
+  String get commentMenu => isolate(super.commentMenu);
+
+  @override
+  String get commentEditText => isolate(super.commentEditText);
+
+  @override
+  String get commentMore => isolate(super.commentMore);
+
+  @override
+  String get commentCloseNote => isolate(super.commentCloseNote);
+
+  @override
+  String commentNoteFrom(String author) =>
+      isolate(super.commentNoteFrom(author));
+
+  @override
+  String get commentReply => isolate(super.commentReply);
+
+  @override
+  String get commentResolve => isolate(super.commentResolve);
+
+  @override
+  String get commentReopen => isolate(super.commentReopen);
+
+  @override
+  String get commentPeople => isolate(super.commentPeople);
+
+  @override
+  String commentQuote(String text) => isolate(super.commentQuote(text));
+
+  @override
+  String commentReplies(int count, String shown) =>
+      isolate(super.commentReplies(count, shown));
+
+  @override
+  String commentResolvedBy(String name, String time) =>
+      isolate(super.commentResolvedBy(name, time));
+
+  @override
+  String get commentYesterday => isolate(super.commentYesterday);
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) => isolate(
+    super.commentCardLabel(author, kind, page, resolved, count, shown),
+  );
+
+  @override
+  String get commentStepAdd => isolate(super.commentStepAdd);
+
+  @override
+  String get commentStepChange => isolate(super.commentStepChange);
+
+  @override
+  String get commentStepDelete => isolate(super.commentStepDelete);
+
+  @override
+  String get commentStepReply => isolate(super.commentStepReply);
+
+  @override
+  String get commentStepResolve => isolate(super.commentStepResolve);
+
+  @override
+  String get commentStepReopen => isolate(super.commentStepReopen);
+
+  @override
+  String get commentDeletedToast => isolate(super.commentDeletedToast);
+
+  @override
+  String get commentDeletedNote => isolate(super.commentDeletedNote);
+
+  @override
+  String get commentNameTitle => isolate(super.commentNameTitle);
+
+  @override
+  String get commentNameBody => isolate(super.commentNameBody);
+
+  @override
+  String get commentNameSave => isolate(super.commentNameSave);
+
+  @override
+  String get settingsCommenterName => isolate(super.settingsCommenterName);
+
+  @override
+  String get commentTextField => isolate(super.commentTextField);
+
+  @override
+  String get commentSummaryFile => isolate(super.commentSummaryFile);
+
+  @override
+  String get commentColumnPage => isolate(super.commentColumnPage);
+
+  @override
+  String get commentColumnType => isolate(super.commentColumnType);
+
+  @override
+  String get commentColumnAuthor => isolate(super.commentColumnAuthor);
+
+  @override
+  String get commentColumnDate => isolate(super.commentColumnDate);
+
+  @override
+  String get commentColumnText => isolate(super.commentColumnText);
+
+  @override
+  String get commentColumnReplies => isolate(super.commentColumnReplies);
+
+  @override
+  String get commentColumnStatus => isolate(super.commentColumnStatus);
+
+  @override
+  String get commentStatusOpen => isolate(super.commentStatusOpen);
+
+  @override
+  String get commentStatusResolved => isolate(super.commentStatusResolved);
+
+  @override
+  String jobSummaryRunningTitle(String name) =>
+      isolate(super.jobSummaryRunningTitle(name));
+
+  @override
+  String jobSummaryDoneTitle(String name) =>
+      isolate(super.jobSummaryDoneTitle(name));
+
+  @override
+  String jobSummaryFailedTitle(String name) =>
+      isolate(super.jobSummaryFailedTitle(name));
+
+  @override
+  String sidebarSearchComment(String text) =>
+      isolate(super.sidebarSearchComment(text));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

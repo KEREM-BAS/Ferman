@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/feature_registry.dart';
-import 'package:ferman/design/components/components.dart' show FermanMode;
+import 'package:ferman/design/components/components.dart'
+    show AnnotationTool, FermanMode;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/extract_pages_dialog.dart';
@@ -138,6 +140,8 @@ class ShellCommandScope extends ConsumerWidget {
         if (ref.read(shellModeProvider) == FermanMode.organize &&
             !ref.read(cropShowingProvider))
           ..._organizeHandlers(ref),
+        if (ref.read(shellModeProvider) == FermanMode.comment)
+          ..._commentHandlers(ref),
       },
       // Typing not yet committed counts too: Save commits it first.
       if (active?.document != null && (active!.unsaved || edits.active != null))
@@ -146,6 +150,31 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.saveAs: saver.openSheet,
         ShellCommand.saveCopy: () => saver.openSheet(copy: true),
       },
+    };
+  }
+
+  /// Comment's tool keys (a4-1), not while comments cannot be added, and Show
+  /// comments (⇧⌘H).
+  static Map<ShellCommand, VoidCallback> _commentHandlers(WidgetRef ref) {
+    final tool = ref.read(commentToolProvider.notifier);
+    return {
+      ShellCommand.annotationSelect: () => tool.pick(AnnotationTool.select),
+      if (ref.read(commentRefusalProvider) == null) ...{
+        ShellCommand.highlight: () => tool.pick(AnnotationTool.highlight),
+        ShellCommand.underline: () => tool.pick(AnnotationTool.underline),
+        ShellCommand.strikethrough: () =>
+            tool.pick(AnnotationTool.strikethrough),
+        ShellCommand.note: () => tool.pick(AnnotationTool.note),
+        ShellCommand.textBox: () => tool.pick(AnnotationTool.text),
+        ShellCommand.callout: () => tool.pick(AnnotationTool.callout),
+        ShellCommand.draw: () => tool.pick(AnnotationTool.pen),
+        ShellCommand.shapes: () => tool.pick(AnnotationTool.shapes),
+      },
+      ShellCommand.showComments: () => unawaited(
+        ref
+            .read(commentsShownProvider.notifier)
+            .show(visible: !ref.read(commentsShownProvider).visible),
+      ),
     };
   }
 
@@ -199,6 +228,11 @@ class ShellCommandScope extends ConsumerWidget {
         ref
           ..watch(selectedPagesProvider)
           ..watch(organizeRefusalProvider);
+      }
+      if (mode == FermanMode.comment) {
+        ref
+          ..watch(commentRefusalProvider)
+          ..watch(commentsShownProvider);
       }
     }
     return Actions(

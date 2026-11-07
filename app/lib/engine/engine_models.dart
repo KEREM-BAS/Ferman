@@ -3,7 +3,7 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
-import 'dart:ui' show Offset, Rect;
+import 'dart:ui' show Color, Offset, Rect;
 
 import 'package:flutter/foundation.dart';
 
@@ -314,6 +314,9 @@ class AnnotationColor {
 
   /// Blue.
   final double blue;
+
+  /// As a [Color], for a swatch.
+  Color get color => Color.from(alpha: 1, red: red, green: green, blue: blue);
 }
 
 /// One annotation, in displayed points.
@@ -335,6 +338,7 @@ class AnnotationInfo {
     this.fontSize,
     this.author,
     this.contents,
+    this.quote,
     this.rich = false,
     this.created,
     this.modified,
@@ -388,6 +392,9 @@ class AnnotationInfo {
 
   /// Its text.
   final String? contents;
+
+  /// The page text under its marks or box, for the panel's quote (a4-2).
+  final String? quote;
 
   /// Rich text goes with it; replacing the text removes it.
   final bool rich;
@@ -1591,6 +1598,7 @@ class SearchOptions {
     this.wholeWords = false,
     this.ignoreAccents = true,
     this.bookmarks = false,
+    this.comments = true,
   });
 
   /// Match case.
@@ -1605,17 +1613,21 @@ class SearchOptions {
   /// Look in the bookmarks' titles too (a2-4a, B114).
   final bool bookmarks;
 
+  /// Look in the annotations' text too (a2-4a, on by default, B128).
+  final bool comments;
+
   @override
   bool operator ==(Object other) =>
       other is SearchOptions &&
       other.matchCase == matchCase &&
       other.wholeWords == wholeWords &&
       other.ignoreAccents == ignoreAccents &&
-      other.bookmarks == bookmarks;
+      other.bookmarks == bookmarks &&
+      other.comments == comments;
 
   @override
   int get hashCode =>
-      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks);
+      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks, comments);
 }
 
 /// One match of a search.
@@ -1629,6 +1641,7 @@ class SearchMatch {
     required this.snippetStart,
     required this.snippetEnd,
     this.bookmark = false,
+    this.comment,
   });
 
   /// Its page, from 0.
@@ -1650,6 +1663,10 @@ class SearchMatch {
   /// Whether it is in a bookmark's title, [snippet], pointing at [page];
   /// it has no [rects].
   final bool bookmark;
+
+  /// The annotation whose text it is in, [snippet] being that text's line and
+  /// [rects] the annotation's box.
+  final int? comment;
 }
 
 /// What a running search reports.

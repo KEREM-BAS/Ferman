@@ -148,9 +148,11 @@ enum Feature {
 
   // Comments, forms and signatures.
 
-  /// Comments and annotations: the Comment row's tools but Measure, its
-  /// colours and Show comments.
-  comments('B050'),
+  /// Stamps: Comment › Stamp and its library (a4-3, a4-3b).
+  stamps('B014'),
+
+  /// Flatten comments: the Comments panel's More › Flatten (a4-5b).
+  flattenComments('B198'),
 
   /// Measure and calibrate: Comment › Measure and Tools › Measure.
   measure('B051'),

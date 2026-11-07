@@ -4291,4 +4291,357 @@ class AppLocalizationsAr extends AppLocalizations {
   String jobCreateFailedTitle(String name) {
     return 'تعذر إنشاء $name';
   }
+
+  @override
+  String get commentsTitle => 'التعليقات';
+
+  @override
+  String get commentsFilter => 'تصفية وفرز';
+
+  @override
+  String get commentsMore => 'المزيد: تصدير الملخص، التسطيح، إخفاء الكل';
+
+  @override
+  String get commentsStatus => 'الحالة';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'مفتوحة $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'محلولة $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'الكل $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'المؤلف';
+
+  @override
+  String get commentsFilterType => 'النوع';
+
+  @override
+  String get commentsFilterSort => 'الفرز';
+
+  @override
+  String get commentsAllPeople => 'جميع الأشخاص';
+
+  @override
+  String get commentsTypeNotes => 'الملاحظات';
+
+  @override
+  String get commentsTypeMarkup => 'ترميز النص';
+
+  @override
+  String get commentsTypeDrawings => 'الرسومات';
+
+  @override
+  String get commentsTypeStamps => 'الأختام';
+
+  @override
+  String get commentsTypeOther => 'جميع الأنواع';
+
+  @override
+  String get commentsSortNewest => 'الأحدث';
+
+  @override
+  String get commentsSortAuthor => 'المؤلف';
+
+  @override
+  String get commentsSortOther => 'ترتيب الصفحات';
+
+  @override
+  String get commentsCertifiedNote =>
+      'تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها.';
+
+  @override
+  String get commentsTruncated =>
+      'يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman.';
+
+  @override
+  String get commentsEmptyTitle => 'لا توجد تعليقات';
+
+  @override
+  String get commentsEmptyBody =>
+      'اختر أداة من الأعلى، ثم أضف علامات على الصفحة.';
+
+  @override
+  String get commentsNoMatchTitle => 'لا توجد تعليقات مطابقة';
+
+  @override
+  String get commentsNoMatchBody => 'غيّر الحالة أو عوامل التصفية لرؤية غيرها.';
+
+  @override
+  String get commentsFootnote =>
+      'تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات.';
+
+  @override
+  String get commentsExportSummary => 'تصدير الملخص…';
+
+  @override
+  String get commentsFlatten => 'تسطيح…';
+
+  @override
+  String get commentsHideAll => 'إخفاء الكل';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown من التعليقات مخفية',
+      one: 'تعليق واحد مخفي',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'تمييز';
+
+  @override
+  String get commentKindUnderline => 'تسطير';
+
+  @override
+  String get commentKindStrikeOut => 'يتوسطه خط';
+
+  @override
+  String get commentKindSquiggly => 'تسطير متموج';
+
+  @override
+  String get commentKindNote => 'ملاحظة';
+
+  @override
+  String get commentKindFreeText => 'نص';
+
+  @override
+  String get commentKindCallout => 'وسيلة شرح';
+
+  @override
+  String get commentKindInk => 'رسم';
+
+  @override
+  String get commentKindSquare => 'مستطيل';
+
+  @override
+  String get commentKindCircle => 'شكل بيضاوي';
+
+  @override
+  String get commentKindLine => 'خط';
+
+  @override
+  String get commentKindPolygon => 'مضلع';
+
+  @override
+  String get commentKindStamp => 'ختم';
+
+  @override
+  String get commentKindOther => 'تعليق';
+
+  @override
+  String get commentShapeEllipse => 'شكل بيضاوي';
+
+  @override
+  String get commentShapeArrow => 'سهم';
+
+  @override
+  String get commentShapeLine => 'خط';
+
+  @override
+  String get commentShapePolygon => 'مضلع';
+
+  @override
+  String get commentShapeOther => 'مستطيل';
+
+  @override
+  String get commentKeepTool => 'إبقاء الأداة محددة';
+
+  @override
+  String commentStyleBar(String kind) {
+    return 'نمط $kind';
+  }
+
+  @override
+  String get commentStrokeWidth => 'سُمك الخط';
+
+  @override
+  String get commentOpacity => 'العتامة';
+
+  @override
+  String get commentOpen => 'فتح التعليق';
+
+  @override
+  String get commentDelete => 'حذف';
+
+  @override
+  String get commentMenu => 'تعليق';
+
+  @override
+  String get commentEditText => 'تحرير النص';
+
+  @override
+  String get commentMore => 'المزيد';
+
+  @override
+  String get commentCloseNote => 'إغلاق الملاحظة';
+
+  @override
+  String commentNoteFrom(String author) {
+    return 'ملاحظة من $author';
+  }
+
+  @override
+  String get commentReply => 'رد';
+
+  @override
+  String get commentResolve => 'حل';
+
+  @override
+  String get commentReopen => 'إعادة فتح';
+
+  @override
+  String get commentPeople => 'الأشخاص في هذا المستند';
+
+  @override
+  String commentQuote(String text) {
+    return '«$text»';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown من الردود',
+      one: 'رد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return 'حلّها $name · $time';
+  }
+
+  @override
+  String get commentYesterday => 'أمس';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: '، محلولة',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '، $shown من الردود',
+      one: '، رد واحد',
+      zero: '',
+    );
+    return '$author، $kind في الصفحة $page$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'إضافة تعليق';
+
+  @override
+  String get commentStepChange => 'تغيير التعليق';
+
+  @override
+  String get commentStepDelete => 'حذف التعليق';
+
+  @override
+  String get commentStepReply => 'الرد على التعليق';
+
+  @override
+  String get commentStepResolve => 'حل التعليق';
+
+  @override
+  String get commentStepReopen => 'إعادة فتح التعليق';
+
+  @override
+  String get commentDeletedToast => 'تم حذف التعليق';
+
+  @override
+  String get commentDeletedNote => 'مع ردوده.';
+
+  @override
+  String get commentNameTitle => 'اسمك في التعليقات';
+
+  @override
+  String get commentNameBody =>
+      'يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا.';
+
+  @override
+  String get commentNameSave => 'متابعة';
+
+  @override
+  String get settingsCommenterName => 'اسمك للتعليقات';
+
+  @override
+  String get commentTextField => 'نص التعليق';
+
+  @override
+  String get commentSummaryFile => 'التعليقات.pdf';
+
+  @override
+  String get commentColumnPage => 'الصفحة';
+
+  @override
+  String get commentColumnType => 'النوع';
+
+  @override
+  String get commentColumnAuthor => 'المؤلف';
+
+  @override
+  String get commentColumnDate => 'التاريخ';
+
+  @override
+  String get commentColumnText => 'النص';
+
+  @override
+  String get commentColumnReplies => 'الردود';
+
+  @override
+  String get commentColumnStatus => 'الحالة';
+
+  @override
+  String get commentStatusOpen => 'مفتوح';
+
+  @override
+  String get commentStatusResolved => 'محلول';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return 'جارٍ كتابة $name';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return 'تمت كتابة $name';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return 'تعذرت كتابة $name';
+  }
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'تعليق: $text';
+  }
 }

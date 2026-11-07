@@ -329,6 +329,7 @@ fn a_search_streams_its_matches_and_ends() {
             "kira".to_owned(),
             SearchOptions::default(),
             false,
+            false,
             Box::new(Found(events)),
         )
         .unwrap();
@@ -371,6 +372,7 @@ fn a_search_streams_its_matches_and_ends() {
             "e".to_owned(),
             SearchOptions::default(),
             false,
+            false,
             Box::new(Found(events)),
         )
         .unwrap();
@@ -398,6 +400,7 @@ fn a_search_of_a_scan_ends_textless() {
             scan.id,
             "kira".to_owned(),
             SearchOptions::default(),
+            false,
             false,
             Box::new(Found(events)),
         )
@@ -430,6 +433,7 @@ fn a_search_can_look_in_the_bookmarks() {
                 word.clone(),
                 SearchOptions::default(),
                 bookmarks,
+                false,
                 Box::new(Found(events)),
             )
             .unwrap();

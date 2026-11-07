@@ -266,6 +266,7 @@ fn search(doc: DocumentId, query: &str) -> Vec<u32> {
             query.to_owned(),
             SearchOptions::default(),
             false,
+            false,
             Box::new(found.clone()),
         )
         .unwrap();

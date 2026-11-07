@@ -2664,6 +2664,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.font_size = cst_encode_opt_box_autoadd_f_32(apiObj.fontSize);
     wireObj.author = cst_encode_opt_String(apiObj.author);
     wireObj.contents = cst_encode_opt_String(apiObj.contents);
+    wireObj.quote = cst_encode_opt_String(apiObj.quote);
     wireObj.rich = cst_encode_bool(apiObj.rich);
     wireObj.created = cst_encode_opt_box_autoadd_pdf_date(apiObj.created);
     wireObj.modified = cst_encode_opt_box_autoadd_pdf_date(apiObj.modified);
@@ -3640,6 +3641,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.snippet_start = cst_encode_u_32(apiObj.snippetStart);
     wireObj.snippet_end = cst_encode_u_32(apiObj.snippetEnd);
     wireObj.bookmark = cst_encode_bool(apiObj.bookmark);
+    wireObj.comment = cst_encode_opt_box_autoadd_u_64(apiObj.comment);
   }
 
   @protected
@@ -3651,6 +3653,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.whole_words = cst_encode_bool(apiObj.wholeWords);
     wireObj.ignore_accents = cst_encode_bool(apiObj.ignoreAccents);
     wireObj.bookmarks = cst_encode_bool(apiObj.bookmarks);
+    wireObj.comments = cst_encode_bool(apiObj.comments);
   }
 
   @protected
@@ -8618,6 +8621,9 @@ final class wire_cst_search_options extends ffi.Struct {
 
   @ffi.Bool()
   external bool bookmarks;
+
+  @ffi.Bool()
+  external bool comments;
 }
 
 final class wire_cst_text_position extends ffi.Struct {
@@ -9124,6 +9130,8 @@ final class wire_cst_annotation_info extends ffi.Struct {
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> contents;
 
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> quote;
+
   @ffi.Bool()
   external bool rich;
 
@@ -9462,6 +9470,8 @@ final class wire_cst_search_match extends ffi.Struct {
 
   @ffi.Bool()
   external bool bookmark;
+
+  external ffi.Pointer<ffi.Uint64> comment;
 }
 
 final class wire_cst_list_search_match extends ffi.Struct {

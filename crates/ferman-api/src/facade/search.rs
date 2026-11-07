@@ -13,12 +13,14 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, PoisonError};
 use std::thread;
 
+use ferman_core::Document;
 use ferman_core::revision::RevisionStore;
 use ferman_core::structure::OutlineItem;
 use ferman_render::DocumentId;
 use ferman_text::SearchOptions;
 use ferman_text::extract::{CharBox, PageText};
 
+use super::annotations::rect_to_display;
 use super::document::Model;
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
@@ -63,6 +65,9 @@ pub struct SearchMatch {
     /// Whether it is in a bookmark's title, not the page text: the snippet is the title and
     /// there are no rectangles.
     pub bookmark: bool,
+    /// The annotation whose text it is in, not the page text: the snippet is that text's line and
+    /// the rectangle the annotation's box.
+    pub comment: Option<u64>,
 }
 
 /// What a search reports, in order: `Started`, then `Matches` and `Progress` as pages are read,
@@ -98,8 +103,9 @@ pub trait SearchSink: Send {
 
 impl Engine {
     /// Searches `document` for `query` with `options` on a thread of its own, and the bookmarks'
-    /// titles too with `bookmarks` (a2-4a's Look in); `sink` receives `Started` before any match.
-    /// A bookmark's matches come with its page's, before the page text's.
+    /// titles and the annotations' text too with `bookmarks` and `comments` (a2-4a's Look in);
+    /// `sink` receives `Started` before any match. A bookmark's matches come with its page's,
+    /// before the page text's, and a comment's after them (G110).
     ///
     /// # Errors
     ///
@@ -111,6 +117,7 @@ impl Engine {
         query: String,
         mut options: SearchOptions,
         bookmarks: bool,
+        comments: bool,
         mut sink: Box<dyn SearchSink>,
     ) -> Result<SearchId, ApiError> {
         // The state a panic could leave is the searches' map, whose lock is taken as it is.
@@ -144,7 +151,11 @@ impl Engine {
                 .spawn(move || {
                     // A panic ends the search; the sink is dropped and the stream ends.
                     let _ = guard(AssertUnwindSafe(|| {
-                        run(&model, &query, &options, bookmarks, &cancel, sink.as_mut());
+                        let places = Places {
+                            bookmarks,
+                            comments,
+                        };
+                        run(&model, &query, &options, places, &cancel, sink.as_mut());
                         Ok(())
                     }));
                 })
@@ -163,12 +174,19 @@ impl Engine {
     }
 }
 
+/// What a search looks in beside the page text.
+#[derive(Clone, Copy)]
+struct Places {
+    bookmarks: bool,
+    comments: bool,
+}
+
 /// The search itself.
 fn run(
     model: &Model,
     query: &str,
     options: &SearchOptions,
-    bookmarks: bool,
+    places: Places,
     cancel: &AtomicBool,
     sink: &mut dyn SearchSink,
 ) {
@@ -179,8 +197,13 @@ fn run(
     };
     let document = &model.document;
     let pages = u32::try_from(store.pages(document).len()).unwrap_or(u32::MAX);
-    let titles = if bookmarks {
+    let titles = if places.bookmarks {
         titles_by_page(store.outline(document))
+    } else {
+        Vec::new()
+    };
+    let comments = if places.comments {
+        comments_by_page(&store, document)
     } else {
         Vec::new()
     };
@@ -209,6 +232,17 @@ fn run(
                 ferman_text::find(&text.text, query, options)
                     .into_iter()
                     .map(|range| found(page, &text, range)),
+            )
+            .chain(
+                comments
+                    .get(usize::try_from(page).unwrap_or(usize::MAX))
+                    .into_iter()
+                    .flatten()
+                    .flat_map(|comment| {
+                        ferman_text::find(&comment.text, query, options)
+                            .into_iter()
+                            .map(move |range| in_comment(page, comment, range))
+                    }),
             )
             .collect();
         if !matches.is_empty() && !sink.deliver(SearchEvent::Matches(matches)) {
@@ -246,6 +280,61 @@ fn titles_by_page(outline: &[OutlineItem]) -> Vec<Vec<String>> {
     by_page
 }
 
+/// An annotation's text on a page.
+struct CommentText {
+    handle: u64,
+    rect: CharBox,
+    text: String,
+}
+
+/// The annotations' text by their page. The reader's limits bound the walk.
+fn comments_by_page(store: &RevisionStore, document: &Document) -> Vec<Vec<CommentText>> {
+    let pages = store.pages(document);
+    let mut by_page: Vec<Vec<CommentText>> = Vec::new();
+    for annotation in store.annotations(document).annotations {
+        let (Some(text), Some(page)) = (annotation.contents, pages.get(annotation.page)) else {
+            continue;
+        };
+        if by_page.len() <= annotation.page {
+            by_page.resize_with(annotation.page.saturating_add(1), Vec::new);
+        }
+        if let Some(comments) = by_page.get_mut(annotation.page) {
+            comments.push(CommentText {
+                handle: annotation.handle,
+                rect: rect_to_display(page, annotation.rect),
+                text,
+            });
+        }
+    }
+    by_page
+}
+
+/// A match of `range`'s characters in `comment`'s text, shown by the line it starts on.
+fn in_comment(page: u32, comment: &CommentText, range: Range<usize>) -> SearchMatch {
+    let chars: Vec<char> = comment.text.chars().collect();
+    let line_start = chars
+        .get(..range.start)
+        .and_then(|before| before.iter().rposition(|&c| c == '\n'))
+        .map_or(0, |at| at.saturating_add(1));
+    let line_end = chars
+        .get(range.start..)
+        .and_then(|after| after.iter().position(|&c| c == '\n'))
+        .map_or(chars.len(), |at| at.saturating_add(range.start));
+    let offset = |at: usize| u32::try_from(at.saturating_sub(line_start)).unwrap_or(u32::MAX);
+    SearchMatch {
+        page,
+        rects: vec![comment.rect],
+        snippet: chars
+            .get(line_start..line_end)
+            .unwrap_or_default()
+            .iter()
+            .collect(),
+        snippet_range: offset(range.start)..offset(range.end.min(line_end)),
+        bookmark: false,
+        comment: Some(comment.handle),
+    }
+}
+
 /// A match of `range`'s characters in a bookmark's `title`, which points at `page`.
 fn in_title(page: u32, title: &str, range: Range<usize>) -> SearchMatch {
     let offset = |at: usize| u32::try_from(at).unwrap_or(u32::MAX);
@@ -255,12 +344,18 @@ fn in_title(page: u32, title: &str, range: Range<usize>) -> SearchMatch {
         snippet: title.to_owned(),
         snippet_range: offset(range.start)..offset(range.end),
         bookmark: true,
+        comment: None,
     }
 }
 
 /// The text of `page` of `store`'s revisions, read once while they are the newest published; a
 /// page whose content cannot be read has none.
-fn page_text(model: &Model, store: &RevisionStore, generation: u64, page: u32) -> Arc<PageText> {
+pub(super) fn page_text(
+    model: &Model,
+    store: &RevisionStore,
+    generation: u64,
+    page: u32,
+) -> Arc<PageText> {
     let index = usize::try_from(page).unwrap_or(usize::MAX);
     let handle = store
         .pages(&model.document)
@@ -334,5 +429,6 @@ fn found(page: u32, text: &PageText, range: Range<usize>) -> SearchMatch {
         snippet,
         snippet_range: offset(range.start)..offset(range.end.min(line_end)),
         bookmark: false,
+        comment: None,
     }
 }

@@ -3469,8 +3469,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   AnnotationInfo dco_decode_annotation_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 24)
-      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
+    if (arr.length != 25)
+      throw Exception('unexpected arr length: expect 25 but see ${arr.length}');
     return AnnotationInfo(
       handle: dco_decode_u_64(arr[0]),
       page: dco_decode_u_64(arr[1]),
@@ -3485,17 +3485,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       fontSize: dco_decode_opt_box_autoadd_f_32(arr[10]),
       author: dco_decode_opt_String(arr[11]),
       contents: dco_decode_opt_String(arr[12]),
-      rich: dco_decode_bool(arr[13]),
-      created: dco_decode_opt_box_autoadd_pdf_date(arr[14]),
-      modified: dco_decode_opt_box_autoadd_pdf_date(arr[15]),
-      icon: dco_decode_opt_String(arr[16]),
-      repliesTo: dco_decode_opt_box_autoadd_u_64(arr[17]),
-      thread: dco_decode_u_64(arr[18]),
-      state: dco_decode_opt_String(arr[19]),
-      resolved: dco_decode_bool(arr[20]),
-      resolvedBy: dco_decode_opt_String(arr[21]),
-      resolvedAt: dco_decode_opt_box_autoadd_pdf_date(arr[22]),
-      mentions: dco_decode_list_String(arr[23]),
+      quote: dco_decode_opt_String(arr[13]),
+      rich: dco_decode_bool(arr[14]),
+      created: dco_decode_opt_box_autoadd_pdf_date(arr[15]),
+      modified: dco_decode_opt_box_autoadd_pdf_date(arr[16]),
+      icon: dco_decode_opt_String(arr[17]),
+      repliesTo: dco_decode_opt_box_autoadd_u_64(arr[18]),
+      thread: dco_decode_u_64(arr[19]),
+      state: dco_decode_opt_String(arr[20]),
+      resolved: dco_decode_bool(arr[21]),
+      resolvedBy: dco_decode_opt_String(arr[22]),
+      resolvedAt: dco_decode_opt_box_autoadd_pdf_date(arr[23]),
+      mentions: dco_decode_list_String(arr[24]),
     );
   }
 
@@ -5220,8 +5221,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchMatch dco_decode_search_match(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return SearchMatch(
       page: dco_decode_u_32(arr[0]),
       rects: dco_decode_list_page_rect(arr[1]),
@@ -5229,6 +5230,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       snippetStart: dco_decode_u_32(arr[3]),
       snippetEnd: dco_decode_u_32(arr[4]),
       bookmark: dco_decode_bool(arr[5]),
+      comment: dco_decode_opt_box_autoadd_u_64(arr[6]),
     );
   }
 
@@ -5236,13 +5238,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchOptions dco_decode_search_options(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return SearchOptions(
       matchCase: dco_decode_bool(arr[0]),
       wholeWords: dco_decode_bool(arr[1]),
       ignoreAccents: dco_decode_bool(arr[2]),
       bookmarks: dco_decode_bool(arr[3]),
+      comments: dco_decode_bool(arr[4]),
     );
   }
 
@@ -5596,6 +5599,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_fontSize = sse_decode_opt_box_autoadd_f_32(deserializer);
     var var_author = sse_decode_opt_String(deserializer);
     var var_contents = sse_decode_opt_String(deserializer);
+    var var_quote = sse_decode_opt_String(deserializer);
     var var_rich = sse_decode_bool(deserializer);
     var var_created = sse_decode_opt_box_autoadd_pdf_date(deserializer);
     var var_modified = sse_decode_opt_box_autoadd_pdf_date(deserializer);
@@ -5621,6 +5625,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       fontSize: var_fontSize,
       author: var_author,
       contents: var_contents,
+      quote: var_quote,
       rich: var_rich,
       created: var_created,
       modified: var_modified,
@@ -7946,6 +7951,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_snippetStart = sse_decode_u_32(deserializer);
     var var_snippetEnd = sse_decode_u_32(deserializer);
     var var_bookmark = sse_decode_bool(deserializer);
+    var var_comment = sse_decode_opt_box_autoadd_u_64(deserializer);
     return SearchMatch(
       page: var_page,
       rects: var_rects,
@@ -7953,6 +7959,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       snippetStart: var_snippetStart,
       snippetEnd: var_snippetEnd,
       bookmark: var_bookmark,
+      comment: var_comment,
     );
   }
 
@@ -7963,11 +7970,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_wholeWords = sse_decode_bool(deserializer);
     var var_ignoreAccents = sse_decode_bool(deserializer);
     var var_bookmarks = sse_decode_bool(deserializer);
+    var var_comments = sse_decode_bool(deserializer);
     return SearchOptions(
       matchCase: var_matchCase,
       wholeWords: var_wholeWords,
       ignoreAccents: var_ignoreAccents,
       bookmarks: var_bookmarks,
+      comments: var_comments,
     );
   }
 
@@ -8619,6 +8628,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_box_autoadd_f_32(self.fontSize, serializer);
     sse_encode_opt_String(self.author, serializer);
     sse_encode_opt_String(self.contents, serializer);
+    sse_encode_opt_String(self.quote, serializer);
     sse_encode_bool(self.rich, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.created, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.modified, serializer);
@@ -10631,6 +10641,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_32(self.snippetStart, serializer);
     sse_encode_u_32(self.snippetEnd, serializer);
     sse_encode_bool(self.bookmark, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.comment, serializer);
   }
 
   @protected
@@ -10640,6 +10651,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self.wholeWords, serializer);
     sse_encode_bool(self.ignoreAccents, serializer);
     sse_encode_bool(self.bookmarks, serializer);
+    sse_encode_bool(self.comments, serializer);
   }
 
   @protected

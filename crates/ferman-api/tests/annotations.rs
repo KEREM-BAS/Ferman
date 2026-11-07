@@ -8,12 +8,12 @@
 #![allow(clippy::panic, clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{OnceLock, mpsc};
 
 use ferman_api::facade::{
     AnnotationChange, AnnotationInfo, AnnotationKind, DocumentId, Engine, EngineConfig, ErrorKind,
     FontSettings, NewAnnotation, OpGate, OpenedDocument, PageInfo, PageRaster, PdfiumLibrary,
-    block_on, compare, device_region,
+    SearchEvent, SearchOptions, SearchSink, block_on, compare, device_region,
 };
 use ferman_core::DocumentOp;
 
@@ -648,4 +648,77 @@ fn text_no_font_has_is_refused_and_writes_nothing() {
     assert!(block_on(engine().history(doc)).unwrap().steps.is_empty());
     block_on(engine().close(doc)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// A search's events, sent to this test's thread.
+struct Found(mpsc::Sender<SearchEvent>);
+
+impl SearchSink for Found {
+    fn deliver(&mut self, event: SearchEvent) -> bool {
+        self.0.send(event).is_ok()
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_mark_quotes_its_text_and_a_comment_is_found() {
+    let (_dir, path) = copy("quote", "kira-tr");
+    let opened = open(&path);
+    let page = opened.pages[0].handle;
+    let blocks = block_on(engine().text_blocks(opened.id, 0)).unwrap();
+    let line = &blocks.blocks[0].lines[0];
+    let [l, t, r, b] = line.bbox;
+    let mut mark = draft(
+        AnnotationKind::Highlight,
+        [l, t, r, b],
+        vec![vec![[l, t], [r, t], [l, b], [r, b]]],
+    );
+    mark.contents = "Depozito üç\naylık kalsın".to_owned();
+    let added =
+        block_on(engine().add_annotation(opened.id, page, mark, "Highlight".to_owned())).unwrap();
+    let shown = find(opened.id, added.handle);
+    assert_eq!(
+        shown.quote.as_deref(),
+        Some(
+            line.text
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .as_str()
+        ),
+    );
+
+    let search = |comments: bool| {
+        let (events, received) = mpsc::channel();
+        engine()
+            .search(
+                opened.id,
+                "aylik".to_owned(),
+                SearchOptions {
+                    ignore_accents: true,
+                    ..SearchOptions::default()
+                },
+                false,
+                comments,
+                Box::new(Found(events)),
+            )
+            .unwrap();
+        let mut found = Vec::new();
+        for event in received.iter() {
+            match event {
+                SearchEvent::Matches(matches) => found.extend(matches),
+                SearchEvent::Done { .. } => break,
+                _ => {}
+            }
+        }
+        found
+    };
+    assert!(search(false).iter().all(|found| found.comment.is_none()));
+    let found = search(true);
+    let comment = found.iter().find(|found| found.comment.is_some()).unwrap();
+    assert_eq!(comment.comment, Some(added.handle));
+    assert_eq!(comment.page, 0);
+    assert_eq!(comment.snippet, "aylık kalsın");
+    assert_eq!(comment.snippet_range, 0..5);
+    assert_eq!(comment.rects.len(), 1);
 }

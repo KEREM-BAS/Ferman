@@ -330,6 +330,7 @@ class FrbEngineService implements EngineService {
           wholeWords: options.wholeWords,
           ignoreAccents: options.ignoreAccents,
           bookmarks: options.bookmarks,
+          comments: options.comments,
         ),
       )
       .handleError(
@@ -351,6 +352,7 @@ class FrbEngineService implements EngineService {
                 snippetStart: _units(found.snippet, found.snippetStart),
                 snippetEnd: _units(found.snippet, found.snippetEnd),
                 bookmark: found.bookmark,
+                comment: found.comment?.toInt(),
               ),
           ]),
           bridge.SearchEventKind.progress => SearchProgress(
@@ -1472,6 +1474,7 @@ class FrbEngineService implements EngineService {
         fontSize: item.fontSize,
         author: item.author,
         contents: item.contents,
+        quote: item.quote,
         rich: item.rich,
         created: _instant(item.created),
         modified: _instant(item.modified),

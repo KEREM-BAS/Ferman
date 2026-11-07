@@ -33,6 +33,7 @@ final class AppSettings {
     this.recoveryCopies = true,
     this.reflow = true,
     this.markEdited = true,
+    this.commenterName,
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -80,6 +81,10 @@ final class AppSettings {
       recoveryCopies: json[_recoveryCopies] != false,
       reflow: json[_reflow] != false,
       markEdited: json[_markEdited] != false,
+      commenterName: switch (json[_commenterName]) {
+        final String name => name,
+        _ => null,
+      },
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -112,6 +117,7 @@ final class AppSettings {
   static const String _recoveryCopies = 'recoveryCopies';
   static const String _reflow = 'reflow';
   static const String _markEdited = 'markEdited';
+  static const String _commenterName = 'commenterName';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -131,6 +137,7 @@ final class AppSettings {
     _recoveryCopies,
     _reflow,
     _markEdited,
+    _commenterName,
   };
 
   /// Settings → General → Theme.
@@ -195,6 +202,10 @@ final class AppSettings {
   /// marks on the canvas, which never reach the file.
   final bool markEdited;
 
+  /// The name on comments (G46, "Your name for comments"); null until the
+  /// first comment asks. It may be empty.
+  final String? commenterName;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -224,6 +235,7 @@ final class AppSettings {
     _recoveryCopies: recoveryCopies,
     _reflow: reflow,
     _markEdited: markEdited,
+    _commenterName: ?commenterName,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -246,6 +258,7 @@ final class AppSettings {
     bool? recoveryCopies,
     bool? reflow,
     bool? markEdited,
+    String? commenterName,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -266,6 +279,7 @@ final class AppSettings {
     recoveryCopies: recoveryCopies ?? this.recoveryCopies,
     reflow: reflow ?? this.reflow,
     markEdited: markEdited ?? this.markEdited,
+    commenterName: commenterName ?? this.commenterName,
     unknown: unknown,
     version: version,
   );
@@ -290,6 +304,7 @@ final class AppSettings {
       other.recoveryCopies == recoveryCopies &&
       other.reflow == reflow &&
       other.markEdited == markEdited &&
+      other.commenterName == commenterName &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -312,6 +327,7 @@ final class AppSettings {
     recoveryCopies,
     reflow,
     markEdited,
+    commenterName,
     version,
     Object.hashAllUnordered(unknown.keys),
   );

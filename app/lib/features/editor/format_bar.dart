@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -31,15 +32,20 @@ void restyleBlock(BuildContext context, WidgetRef ref, BlockStyle style) {
 }
 
 /// The floating bar over a selection in a block being edited (a3-1c):
-/// Bold, Italic, Underline and Text colour, then Add link, Highlight,
-/// Comment on selection and Find and replace, disabled until they work.
+/// Bold, Italic, Underline and Text colour, then Add link and Find and replace,
+/// disabled until they work, and Highlight and Comment on selection.
 ///
 /// The engine styles whole blocks, so the bar changes the whole block, as
 /// the text panel does (G141). Font, size and alignment are not on the board
 /// and stay in the panel. [onDone] gives the focus back to the block's field.
 class FormatBar extends ConsumerStatefulWidget {
   /// The bar for a block styled [info].
-  const new({required this.info, required this.onDone, super.key});
+  const new({
+    required this.info,
+    required this.onDone,
+    required this.onMark,
+    super.key,
+  });
 
   /// a3-1c's `top: -50px` less the bar's 32 px height.
   static const double gap = 18;
@@ -50,6 +56,10 @@ class FormatBar extends ConsumerStatefulWidget {
   /// Called when an action has finished with the focus.
   final VoidCallback onDone;
 
+  /// Highlight or Comment on the selection: commits the typing and marks what
+  /// was selected, `composing` waiting for the comment's text.
+  final void Function({required bool composing}) onMark;
+
   @override
   ConsumerState<FormatBar> createState() => _FormatBarState();
 
@@ -58,7 +68,13 @@ class FormatBar extends ConsumerStatefulWidget {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty<BlockStyleInfo>('info', info))
-      ..add(ObjectFlagProperty<VoidCallback>.has('onDone', onDone));
+      ..add(ObjectFlagProperty<VoidCallback>.has('onDone', onDone))
+      ..add(
+        ObjectFlagProperty<void Function({required bool composing})>.has(
+          'onMark',
+          onMark,
+        ),
+      );
   }
 }
 
@@ -82,6 +98,7 @@ class _FormatBarState extends ConsumerState<FormatBar> {
     final l10n = AppLocalizations.of(context);
     final info = widget.info;
     final platform = ref.watch(shortcutPlatformProvider);
+    final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
     final mac = platform == ShortcutPlatform.mac;
     List<String> keys(LogicalKeyboardKey key) =>
         KeyBinding(key, meta: mac, control: !mac).caps(platform);
@@ -161,13 +178,19 @@ class _FormatBarState extends ConsumerState<FormatBar> {
           icon: IconName.highlighter,
           label: l10n.editBarHighlight,
           size: IconButtonSize.sm,
-          disabledReason: Feature.comments.disabledReason(context),
+          disabledReason: refusal,
+          onPressed: refusal != null
+              ? null
+              : () => widget.onMark(composing: false),
         ),
         IconButton(
           icon: IconName.messageSquare,
           label: l10n.editBarComment,
           size: IconButtonSize.sm,
-          disabledReason: Feature.comments.disabledReason(context),
+          disabledReason: refusal,
+          onPressed: refusal != null
+              ? null
+              : () => widget.onMark(composing: true),
         ),
         IconButton(
           icon: IconName.replace,

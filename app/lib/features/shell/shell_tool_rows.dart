@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/comments/comment_state.dart';
+import 'package:ferman/features/comments/comment_style_bar.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
@@ -677,7 +679,11 @@ class _CommentTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final comments = Feature.comments.disabledReason(context);
+    final tools = ref.watch(commentToolProvider);
+    final notifier = ref.read(commentToolProvider.notifier);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
+    final shown = ref.watch(commentsShownProvider).visible;
     return Row(
       children: [
         Expanded(
@@ -687,16 +693,40 @@ class _CommentTools extends ConsumerWidget {
             colorsSemanticLabel: l10n.shellColor,
             colorLabelOf: l10n.annotationColorLabel,
             showLabels: true,
-            // Measure is a measure tool of its own (B051), the others are
-            // comments (B050).
+            tool: tools.tool,
+            color: tools.color,
+            onToolChanged: live ? notifier.pick : null,
+            onColorChanged: live ? notifier.color : null,
             disabledReasons: {
-              for (final tool in AnnotationTool.values)
-                tool: tool == AnnotationTool.measure
-                    ? Feature.measure.disabledReason(context)
-                    : comments,
+              AnnotationTool.measure: Feature.measure.disabledReason(context),
+              AnnotationTool.stamp: Feature.stamps.disabledReason(context),
+              if (refusal != null)
+                for (final tool in AnnotationTool.values)
+                  if (tool != AnnotationTool.select &&
+                      tool != AnnotationTool.measure &&
+                      tool != AnnotationTool.stamp)
+                    tool: refusal,
             },
-            colorsDisabledReason: comments,
+            colorsDisabledReason: refusal,
             overflowLabel: l10n.moreTools,
+            toolItem: (tool, button) => tool == AnnotationTool.shapes
+                ? ToolbarItem(
+                    collapsible: true,
+                    menuItem: MenuItem(
+                      id: button.label,
+                      label: button.label,
+                      icon: button.icon,
+                      shortcut: button.shortcut,
+                      checked: button.active,
+                      disabled: button.disabled || !live,
+                      disabledReason: button.disabledReason,
+                      submenu: ShapesMenu.items(l10n, tools, keys: false),
+                    ),
+                    onMenuSelected: (item) =>
+                        ShapesMenu.choose(notifier, item.id),
+                    child: ShapesMenu(button: button),
+                  )
+                : null,
           ),
         ),
         Padding(
@@ -705,10 +735,16 @@ class _CommentTools extends ConsumerWidget {
             end: theme.space.space2_5,
           ),
           child: Switch(
-            value: true,
+            value: shown,
             label: l10n.shellShowComments,
-            disabled: true,
-            disabledReason: comments,
+            disabled: !live,
+            onChanged: live
+                ? (visible) => unawaited(
+                    ref
+                        .read(commentsShownProvider.notifier)
+                        .show(visible: visible),
+                  )
+                : null,
           ),
         ),
       ],

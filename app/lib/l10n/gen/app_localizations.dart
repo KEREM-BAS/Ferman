@@ -6590,6 +6590,589 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t create {name}'**
   String jobCreateFailedTitle(String name);
+
+  /// FmComments's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// FmComments: the filter button.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter and sort'**
+  String get commentsFilter;
+
+  /// FmComments: the More button.
+  ///
+  /// In en, this message translates to:
+  /// **'More: export summary, flatten, hide all'**
+  String get commentsMore;
+
+  /// FmComments: the status control's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get commentsStatus;
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {count}'**
+  String commentsStatusOpen(String count);
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved {count}'**
+  String commentsStatusResolved(String count);
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String commentsStatusAll(String count);
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentsFilterAuthor;
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get commentsFilterType;
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get commentsFilterSort;
+
+  /// FmComments: author filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All people'**
+  String get commentsAllPeople;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get commentsTypeNotes;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Text markup'**
+  String get commentsTypeMarkup;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawings'**
+  String get commentsTypeDrawings;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps'**
+  String get commentsTypeStamps;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get commentsTypeOther;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get commentsSortNewest;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentsSortAuthor;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Page order'**
+  String get commentsSortOther;
+
+  /// FmComments: G35's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'This document is certified to allow comments: they keep its certification valid.'**
+  String get commentsCertifiedNote;
+
+  /// FmComments: a reader's limit cut the list.
+  ///
+  /// In en, this message translates to:
+  /// **'This file has more comments than Ferman lists.'**
+  String get commentsTruncated;
+
+  /// FmComments: empty (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'No comments'**
+  String get commentsEmptyTitle;
+
+  /// FmComments: empty (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a tool above, then mark up the page.'**
+  String get commentsEmptyBody;
+
+  /// FmComments: no match (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'No comments match'**
+  String get commentsNoMatchTitle;
+
+  /// FmComments: no match (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Change the status or filters to see others.'**
+  String get commentsNoMatchBody;
+
+  /// FmComments's footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.'**
+  String get commentsFootnote;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Export summary…'**
+  String get commentsExportSummary;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten…'**
+  String get commentsFlatten;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide all'**
+  String get commentsHideAll;
+
+  /// a4-5's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}}'**
+  String commentsHidden(int count, String shown);
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight'**
+  String get commentKindHighlight;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get commentKindUnderline;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Strikethrough'**
+  String get commentKindStrikeOut;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Squiggly underline'**
+  String get commentKindSquiggly;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get commentKindNote;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get commentKindFreeText;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Callout'**
+  String get commentKindCallout;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing'**
+  String get commentKindInk;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get commentKindSquare;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Ellipse'**
+  String get commentKindCircle;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get commentKindLine;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get commentKindPolygon;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp'**
+  String get commentKindStamp;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentKindOther;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Ellipse'**
+  String get commentShapeEllipse;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrow'**
+  String get commentShapeArrow;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get commentShapeLine;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get commentShapePolygon;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get commentShapeOther;
+
+  /// a4-1's Shapes menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tool selected'**
+  String get commentKeepTool;
+
+  /// a4-1's floating bar's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} style'**
+  String commentStyleBar(String kind);
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Stroke width'**
+  String get commentStrokeWidth;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get commentOpacity;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Open comment'**
+  String get commentOpen;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commentDelete;
+
+  /// G46's context menu's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentMenu;
+
+  /// G46's context menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit text'**
+  String get commentEditText;
+
+  /// a4-1d: the note's More.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get commentMore;
+
+  /// a4-1d: the note's Close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close note'**
+  String get commentCloseNote;
+
+  /// a4-1d: the note's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Note from {author}'**
+  String commentNoteFrom(String author);
+
+  /// a4-2's Reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get commentReply;
+
+  /// a4-2's Resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get commentResolve;
+
+  /// a4-2's Reopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get commentReopen;
+
+  /// a4-2's mention list.
+  ///
+  /// In en, this message translates to:
+  /// **'People in this document'**
+  String get commentPeople;
+
+  /// The annotated text on a card.
+  ///
+  /// In en, this message translates to:
+  /// **'“{text}”'**
+  String commentQuote(String text);
+
+  /// FmComments: collapsed replies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{shown} reply} other{{shown} replies}}'**
+  String commentReplies(int count, String shown);
+
+  /// FmComments: a resolved card.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved by {name} · {time}'**
+  String commentResolvedBy(String name, String time);
+
+  /// FmComments: a comment's time.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get commentYesterday;
+
+  /// a4-2: how a card is announced.
+  ///
+  /// In en, this message translates to:
+  /// **'{author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}}'**
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  );
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Add comment'**
+  String get commentStepAdd;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Change comment'**
+  String get commentStepChange;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get commentStepDelete;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to comment'**
+  String get commentStepReply;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve comment'**
+  String get commentStepResolve;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen comment'**
+  String get commentStepReopen;
+
+  /// G46: the delete's toast.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get commentDeletedToast;
+
+  /// G46: the delete's toast.
+  ///
+  /// In en, this message translates to:
+  /// **'With its replies.'**
+  String get commentDeletedNote;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name on comments'**
+  String get commentNameTitle;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.'**
+  String get commentNameBody;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commentNameSave;
+
+  /// Settings › General (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Your name for comments'**
+  String get settingsCommenterName;
+
+  /// G46: the on-page editor's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment text'**
+  String get commentTextField;
+
+  /// The summary's suggested file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments.pdf'**
+  String get commentSummaryFile;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get commentColumnPage;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get commentColumnType;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentColumnAuthor;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get commentColumnDate;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get commentColumnText;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get commentColumnReplies;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get commentColumnStatus;
+
+  /// Summary: an open comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commentStatusOpen;
+
+  /// Summary: a resolved comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get commentStatusResolved;
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing {name}'**
+  String jobSummaryRunningTitle(String name);
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrote {name}'**
+  String jobSummaryDoneTitle(String name);
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t write {name}'**
+  String jobSummaryFailedTitle(String name);
+
+  /// Search results: a match in a comment (B128).
+  ///
+  /// In en, this message translates to:
+  /// **'Comment: {text}'**
+  String sidebarSearchComment(String text);
 }
 
 class _AppLocalizationsDelegate

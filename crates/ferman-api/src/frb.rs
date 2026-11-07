@@ -548,6 +548,8 @@ pub struct SearchOptions {
     pub ignore_accents: bool,
     /// Search the bookmarks' titles too (Look in › Bookmarks).
     pub bookmarks: bool,
+    /// Search the annotations' text too (Look in › Comments).
+    pub comments: bool,
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -623,6 +625,8 @@ pub struct SearchMatch {
     pub snippet_end: u32,
     /// Whether it is in a bookmark's title (the snippet), with no rectangles.
     pub bookmark: bool,
+    /// The annotation whose text it is in (the snippet), with its box as the rectangle.
+    pub comment: Option<u64>,
 }
 
 /// What a search event says.
@@ -1516,7 +1520,7 @@ pub async fn search(
     options: SearchOptions,
     sink: StreamSink<SearchEvent>,
 ) -> Result<(), ApiError> {
-    let bookmarks = options.bookmarks;
+    let (bookmarks, comments) = (options.bookmarks, options.comments);
     let options = facade::SearchOptions {
         match_case: options.match_case,
         whole_words: options.whole_words,
@@ -1529,6 +1533,7 @@ pub async fn search(
             query,
             options,
             bookmarks,
+            comments,
             Box::new(BridgeSearch(sink)),
         )
         .map(drop)
@@ -2342,6 +2347,8 @@ pub struct AnnotationInfo {
     pub author: Option<String>,
     /// Its text.
     pub contents: Option<String>,
+    /// The page text under its marks or box, for the panel's quote.
+    pub quote: Option<String>,
     /// Rich text goes with it; replacing the text removes it.
     pub rich: bool,
     /// When it was made.
@@ -2522,6 +2529,7 @@ fn annotation_dto(annotation: facade::AnnotationInfo) -> AnnotationInfo {
         font_size: annotation.font_size,
         author: annotation.author,
         contents: annotation.contents,
+        quote: annotation.quote,
         rich: annotation.rich,
         created: annotation.created.map(pdf_date_dto),
         modified: annotation.modified.map(pdf_date_dto),
@@ -4146,6 +4154,7 @@ impl facade::SearchSink for BridgeSearch {
                         snippet_start: found.snippet_range.start,
                         snippet_end: found.snippet_range.end,
                         bookmark: found.bookmark,
+                        comment: found.comment,
                     })
                     .collect(),
                 ..empty

@@ -40,6 +40,9 @@ enum BackgroundJobKind {
 
   /// Create PDF (B019): a new file that opens once written.
   create,
+
+  /// A comment summary written as a new file (a4-4).
+  commentSummary,
 }
 
 /// A row of the task drawer (a11-6b).
@@ -101,6 +104,7 @@ final class BackgroundJob {
     BackgroundJobKind.split => IconName.split,
     BackgroundJobKind.combine => IconName.merge,
     BackgroundJobKind.create => IconName.filePlus2,
+    BackgroundJobKind.commentSummary => IconName.messageSquare,
   };
 
   /// The row's title in [state].
@@ -153,6 +157,15 @@ final class BackgroundJob {
       (BackgroundJobKind.create, TaskState.error) => l10n.jobCreateFailedTitle(
         name,
       ),
+      (
+        BackgroundJobKind.commentSummary,
+        TaskState.running || TaskState.paused,
+      ) =>
+        l10n.jobSummaryRunningTitle(name),
+      (BackgroundJobKind.commentSummary, TaskState.done) =>
+        l10n.jobSummaryDoneTitle(name),
+      (BackgroundJobKind.commentSummary, TaskState.error) =>
+        l10n.jobSummaryFailedTitle(name),
     };
   }
 
@@ -463,6 +476,41 @@ class BackgroundJobsNotifier extends _$BackgroundJobsNotifier {
               PaperSize.a4 => ImagePaper.a4,
               PaperSize.letter => ImagePaper.letter,
             },
+            output: output,
+            staging: staging,
+          ),
+    );
+  }
+
+  /// Writes the comments of [document] to the new file [output] as a job. A
+  /// name that is taken says so: a job never overwrites.
+  Future<void> commentSummary(
+    int document, {
+    required String output,
+    required SummaryFormat format,
+    required SummaryOptions options,
+  }) async {
+    final name = fileName(output);
+    if (await fileExists(output)) {
+      ref
+          .read(toastNoticesProvider.notifier)
+          .show(
+            tone: ToastTone.danger,
+            title: (l10n) => l10n.combineOutputExists(bidiIsolate(name)),
+          );
+      return;
+    }
+    final staging = await ref.read(fileAccessProvider).staging(output);
+    _start(
+      BackgroundJobKind.commentSummary,
+      name,
+      staging,
+      ref
+          .read(engineServiceProvider)
+          .commentSummaryJob(
+            document,
+            format,
+            options,
             output: output,
             staging: staging,
           ),

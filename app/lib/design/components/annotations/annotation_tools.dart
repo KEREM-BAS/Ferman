@@ -55,8 +55,8 @@ import 'package:flutter/widgets.dart';
 /// moves too, as a "Color" submenu ([colorsSemanticLabel]) of the colours
 /// with the current one checked, disabled with [colorsDisabledReason] when
 /// the group is. A tool in the menu shows its shortcut, is checked when it
-/// is the active tool and keeps its disabled reason; its own menu
-/// ([AnnotationTool.hasMenu]) is not offered there yet.
+/// is the active tool and keeps its disabled reason; a tool with its own menu
+/// comes through [toolItem], whose [ToolbarItem] gives its submenu there.
 class AnnotationTools extends StatefulWidget {
   /// The tool row for [tools], with [tool] active and [color] current.
   const new({
@@ -75,6 +75,7 @@ class AnnotationTools extends StatefulWidget {
     this.disabledReasons = const {},
     this.colorsDisabledReason,
     this.onToolMenuRequested,
+    this.toolItem,
     this.overflowLabel,
   });
 
@@ -126,6 +127,11 @@ class AnnotationTools extends StatefulWidget {
   /// Called with a tool that has a menu when ArrowDown asks for the menu;
   /// null falls back to selecting the tool. Not a design-system prop.
   final ValueChanged<AnnotationTool>? onToolMenuRequested;
+
+  /// Wraps a tool's button to hang its menu from it: a [ToolbarItem] with the
+  /// menu's entry for the overflow menu (B093); null, or a null result, leaves
+  /// the plain button. Not a design-system prop.
+  final Widget? Function(AnnotationTool tool, ToolButton button)? toolItem;
 
   /// The name of the overflow button of a narrow row, the localized "More
   /// tools" (G21); null gives the row no overflow menu. Not a
@@ -246,11 +252,35 @@ class _AnnotationToolsState extends State<AnnotationTools> {
     return KeyEventResult.ignored;
   }
 
+  Widget _tool(AnnotationTool tool, FermanTheme theme) {
+    final onToolChanged = widget.onToolChanged;
+    final onMenu = widget.onToolMenuRequested;
+    final button = ToolButton(
+      icon: tool.icon,
+      label: widget.toolLabelOf(tool),
+      showLabel: widget.showLabels,
+      active: tool == widget.tool,
+      hasMenu: tool.hasMenu,
+      swatch: tool.colored && tool == widget.tool
+          ? widget.color.resolve(theme)
+          : null,
+      shortcut: switch (tool.shortcut) {
+        final key? => [key],
+        null => null,
+      },
+      disabled: widget.disabledReasons.containsKey(tool),
+      disabledReason: widget.disabledReasons[tool],
+      onPressed: onToolChanged == null ? null : () => onToolChanged(tool),
+      onMenuRequested: tool.hasMenu && onMenu != null
+          ? () => onMenu(tool)
+          : null,
+    );
+    return widget.toolItem?.call(tool, button) ?? button;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
-    final onToolChanged = widget.onToolChanged;
-    final onMenu = widget.onToolMenuRequested;
     final active = widget.tool;
     final colorsDisabled =
         widget.colorsDisabledReason != null || !active.colored;
@@ -264,29 +294,7 @@ class _AnnotationToolsState extends State<AnnotationTools> {
         semanticLabel: widget.semanticLabel,
         overflowLabel: widget.overflowLabel,
         children: [
-          for (final tool in widget.tools)
-            ToolButton(
-              icon: tool.icon,
-              label: widget.toolLabelOf(tool),
-              showLabel: widget.showLabels,
-              active: tool == active,
-              hasMenu: tool.hasMenu,
-              swatch: tool.colored && tool == active
-                  ? widget.color.resolve(theme)
-                  : null,
-              shortcut: switch (tool.shortcut) {
-                final key? => [key],
-                null => null,
-              },
-              disabled: widget.disabledReasons.containsKey(tool),
-              disabledReason: widget.disabledReasons[tool],
-              onPressed: onToolChanged == null
-                  ? null
-                  : () => onToolChanged(tool),
-              onMenuRequested: tool.hasMenu && onMenu != null
-                  ? () => onMenu(tool)
-                  : null,
-            ),
+          for (final tool in widget.tools) _tool(tool, theme),
           const ToolbarSeparator(),
           // The colours stay until every tool has moved into the menu.
           ToolbarItem(

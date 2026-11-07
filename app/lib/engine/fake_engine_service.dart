@@ -440,6 +440,25 @@ class FakeEngineService implements EngineService {
     for (final matches in searchResults[query] ?? const <List<SearchMatch>>[]) {
       yield SearchMatches(matches);
     }
+    if (options.comments) {
+      final open = documents.values.firstWhere((open) => open.id == document);
+      for (final annotation in _annotationsNow(document)) {
+        final page = open.pageIndexOf(annotation.page);
+        final text = annotation.contents ?? '';
+        final at = text.indexOf(query);
+        if (page == null || at < 0) continue;
+        yield SearchMatches([
+          SearchMatch(
+            page: page,
+            rects: [annotation.rect],
+            snippet: text,
+            snippetStart: at,
+            snippetEnd: at + query.length,
+            comment: annotation.handle,
+          ),
+        ]);
+      }
+    }
     yield SearchProgress(searched: pages, pages: pages);
     yield SearchDone(textless: textless);
   }
@@ -1451,6 +1470,7 @@ class FakeEngineService implements EngineService {
       fontSize: change.fontSize ?? old.fontSize,
       author: old.author,
       contents: change.contents ?? old.contents,
+      quote: old.quote,
       rich: old.rich && change.contents == null,
       created: old.created,
       modified: now(),
@@ -1713,6 +1733,7 @@ class FakeEngineService implements EngineService {
             fontSize: top.fontSize,
             author: top.author,
             contents: top.contents,
+            quote: top.quote,
             rich: top.rich,
             created: top.created,
             modified: top.modified,

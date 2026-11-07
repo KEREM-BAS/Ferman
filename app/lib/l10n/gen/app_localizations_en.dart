@@ -4146,4 +4146,357 @@ class AppLocalizationsEn extends AppLocalizations {
   String jobCreateFailedTitle(String name) {
     return 'Couldn’t create $name';
   }
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String get commentsFilter => 'Filter and sort';
+
+  @override
+  String get commentsMore => 'More: export summary, flatten, hide all';
+
+  @override
+  String get commentsStatus => 'Status';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'Open $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'Resolved $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'All $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'Author';
+
+  @override
+  String get commentsFilterType => 'Type';
+
+  @override
+  String get commentsFilterSort => 'Sort';
+
+  @override
+  String get commentsAllPeople => 'All people';
+
+  @override
+  String get commentsTypeNotes => 'Notes';
+
+  @override
+  String get commentsTypeMarkup => 'Text markup';
+
+  @override
+  String get commentsTypeDrawings => 'Drawings';
+
+  @override
+  String get commentsTypeStamps => 'Stamps';
+
+  @override
+  String get commentsTypeOther => 'All types';
+
+  @override
+  String get commentsSortNewest => 'Newest';
+
+  @override
+  String get commentsSortAuthor => 'Author';
+
+  @override
+  String get commentsSortOther => 'Page order';
+
+  @override
+  String get commentsCertifiedNote =>
+      'This document is certified to allow comments: they keep its certification valid.';
+
+  @override
+  String get commentsTruncated =>
+      'This file has more comments than Ferman lists.';
+
+  @override
+  String get commentsEmptyTitle => 'No comments';
+
+  @override
+  String get commentsEmptyBody => 'Pick a tool above, then mark up the page.';
+
+  @override
+  String get commentsNoMatchTitle => 'No comments match';
+
+  @override
+  String get commentsNoMatchBody =>
+      'Change the status or filters to see others.';
+
+  @override
+  String get commentsFootnote =>
+      'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.';
+
+  @override
+  String get commentsExportSummary => 'Export summary…';
+
+  @override
+  String get commentsFlatten => 'Flatten…';
+
+  @override
+  String get commentsHideAll => 'Hide all';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown comments hidden',
+      one: '$shown comment hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'Highlight';
+
+  @override
+  String get commentKindUnderline => 'Underline';
+
+  @override
+  String get commentKindStrikeOut => 'Strikethrough';
+
+  @override
+  String get commentKindSquiggly => 'Squiggly underline';
+
+  @override
+  String get commentKindNote => 'Note';
+
+  @override
+  String get commentKindFreeText => 'Text';
+
+  @override
+  String get commentKindCallout => 'Callout';
+
+  @override
+  String get commentKindInk => 'Drawing';
+
+  @override
+  String get commentKindSquare => 'Rectangle';
+
+  @override
+  String get commentKindCircle => 'Ellipse';
+
+  @override
+  String get commentKindLine => 'Line';
+
+  @override
+  String get commentKindPolygon => 'Polygon';
+
+  @override
+  String get commentKindStamp => 'Stamp';
+
+  @override
+  String get commentKindOther => 'Comment';
+
+  @override
+  String get commentShapeEllipse => 'Ellipse';
+
+  @override
+  String get commentShapeArrow => 'Arrow';
+
+  @override
+  String get commentShapeLine => 'Line';
+
+  @override
+  String get commentShapePolygon => 'Polygon';
+
+  @override
+  String get commentShapeOther => 'Rectangle';
+
+  @override
+  String get commentKeepTool => 'Keep tool selected';
+
+  @override
+  String commentStyleBar(String kind) {
+    return '$kind style';
+  }
+
+  @override
+  String get commentStrokeWidth => 'Stroke width';
+
+  @override
+  String get commentOpacity => 'Opacity';
+
+  @override
+  String get commentOpen => 'Open comment';
+
+  @override
+  String get commentDelete => 'Delete';
+
+  @override
+  String get commentMenu => 'Comment';
+
+  @override
+  String get commentEditText => 'Edit text';
+
+  @override
+  String get commentMore => 'More';
+
+  @override
+  String get commentCloseNote => 'Close note';
+
+  @override
+  String commentNoteFrom(String author) {
+    return 'Note from $author';
+  }
+
+  @override
+  String get commentReply => 'Reply';
+
+  @override
+  String get commentResolve => 'Resolve';
+
+  @override
+  String get commentReopen => 'Reopen';
+
+  @override
+  String get commentPeople => 'People in this document';
+
+  @override
+  String commentQuote(String text) {
+    return '“$text”';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown replies',
+      one: '$shown reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return 'Resolved by $name · $time';
+  }
+
+  @override
+  String get commentYesterday => 'Yesterday';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: ', resolved',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: ', $shown replies',
+      one: ', $shown reply',
+      zero: '',
+    );
+    return '$author, $kind on page $page$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'Add comment';
+
+  @override
+  String get commentStepChange => 'Change comment';
+
+  @override
+  String get commentStepDelete => 'Delete comment';
+
+  @override
+  String get commentStepReply => 'Reply to comment';
+
+  @override
+  String get commentStepResolve => 'Resolve comment';
+
+  @override
+  String get commentStepReopen => 'Reopen comment';
+
+  @override
+  String get commentDeletedToast => 'Comment deleted';
+
+  @override
+  String get commentDeletedNote => 'With its replies.';
+
+  @override
+  String get commentNameTitle => 'Your name on comments';
+
+  @override
+  String get commentNameBody =>
+      'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.';
+
+  @override
+  String get commentNameSave => 'Continue';
+
+  @override
+  String get settingsCommenterName => 'Your name for comments';
+
+  @override
+  String get commentTextField => 'Comment text';
+
+  @override
+  String get commentSummaryFile => 'Comments.pdf';
+
+  @override
+  String get commentColumnPage => 'Page';
+
+  @override
+  String get commentColumnType => 'Type';
+
+  @override
+  String get commentColumnAuthor => 'Author';
+
+  @override
+  String get commentColumnDate => 'Date';
+
+  @override
+  String get commentColumnText => 'Text';
+
+  @override
+  String get commentColumnReplies => 'Replies';
+
+  @override
+  String get commentColumnStatus => 'Status';
+
+  @override
+  String get commentStatusOpen => 'Open';
+
+  @override
+  String get commentStatusResolved => 'Resolved';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return 'Writing $name';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return 'Wrote $name';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return 'Couldn’t write $name';
+  }
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'Comment: $text';
+  }
 }

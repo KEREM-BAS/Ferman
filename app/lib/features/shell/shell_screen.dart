@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/comments/comments_panel.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/review_list.dart';
@@ -83,6 +84,10 @@ class FmWindow extends ConsumerWidget {
     final organizing =
         ref.watch(shellModeProvider) == FermanMode.organize &&
         ref.watch(selectedPagesProvider).isNotEmpty;
+    // FmComments is Comment mode's panel (a4-1).
+    final comments =
+        ref.watch(shellModeProvider) == FermanMode.comment &&
+        active?.document != null;
     // So does Crop and page size (a6-4).
     final crop = ref.watch(cropShowingProvider);
     return ShellCommandScope(
@@ -188,6 +193,8 @@ class FmWindow extends ConsumerWidget {
                                   ? EditHistoryPanel(width: widths.panel)
                                   : organizing
                                   ? OrganizePanel(width: widths.panel)
+                                  : comments
+                                  ? CommentsPanel(width: widths.panel)
                                   : FmDocPanel(width: widths.panel),
                             ),
                           ),
