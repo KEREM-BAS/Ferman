@@ -412,7 +412,7 @@ fn recovered_name(original: &Path, suffix: Option<&str>) -> PathBuf {
 
 /// Runs `work` on a thread of its own, so file work never holds an async worker, and a panic
 /// becomes an error ([`guard`]).
-async fn off_thread<T: Send + 'static>(
+pub(super) async fn off_thread<T: Send + 'static>(
     work: impl FnOnce() -> Result<T, ApiError> + Send + 'static,
 ) -> Result<T, ApiError> {
     let (reply, receiver) = futures_channel::oneshot::channel();

@@ -484,6 +484,13 @@ enum ShellCommand {
     modes: {FermanMode.edit},
   ),
 
+  /// Edit: Add link on the selection (G144: ⌘K stays the palette).
+  addLink(
+    mac: [KeyBinding(_Key.keyK, meta: true, shift: true)],
+    windows: [KeyBinding(_Key.keyK, control: true, shift: true)],
+    modes: {FermanMode.edit},
+  ),
+
   /// Edit: Find & replace (FmWindow `k.replace`).
   findAndReplace(
     mac: [KeyBinding(_Key.keyF, meta: true, alt: true)],
@@ -589,6 +596,35 @@ enum ShellCommand {
   todaysDate(
     mac: [KeyBinding(_Key.keyD, shift: true)],
     windows: [KeyBinding(_Key.keyD, shift: true)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Text (a5-4), live only with its panel open
+  /// (M4 decision 24).
+  fillText(
+    mac: [KeyBinding(_Key.keyT)],
+    windows: [KeyBinding(_Key.keyT)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Check (a5-4), as [fillText].
+  fillCheck(
+    mac: [KeyBinding(_Key.keyK)],
+    windows: [KeyBinding(_Key.keyK)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Cross (a5-4), as [fillText].
+  fillCross(
+    mac: [KeyBinding(_Key.keyX)],
+    windows: [KeyBinding(_Key.keyX)],
+    modes: {FermanMode.sign},
+  ),
+
+  /// Fill & Sign: Fill anything's Dot (a5-4), as [fillText].
+  fillDot(
+    mac: [KeyBinding(_Key.keyD)],
+    windows: [KeyBinding(_Key.keyD)],
     modes: {FermanMode.sign},
   ),
 

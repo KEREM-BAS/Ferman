@@ -14,7 +14,7 @@ use std::time::Duration;
 use ferman_api::facade::{
     DocumentId, Engine, EngineConfig, ErrorKind, Item, MAX_THUMBNAIL_SIZE, OpenedDocument,
     PageBlocks, PageRaster, PdfiumLibrary, Priority, RESOLUTIONS, SearchEvent, SearchOptions,
-    SearchSink, ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on, compare,
+    SearchPlaces, SearchSink, ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on, compare,
 };
 
 struct Sink(mpsc::Sender<ViewEvent>);
@@ -265,7 +265,7 @@ fn search(doc: DocumentId, query: &str) -> Vec<u32> {
             doc,
             query.to_owned(),
             SearchOptions::default(),
-            false,
+            SearchPlaces::default(),
             Box::new(found.clone()),
         )
         .unwrap();

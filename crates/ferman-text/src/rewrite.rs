@@ -4456,7 +4456,7 @@ fn differences_glyph(font: &PdfFont, program: &FontProgram<'_>, c: char) -> Opti
 
 /// The code of `font` that draws `c` and reads back as it: the lowest whose text is `c` and
 /// whose glyph the font has.
-fn encode(font: &PdfFont, program: Option<&FontProgram<'_>>, c: char) -> Option<u8> {
+pub(crate) fn encode(font: &PdfFont, program: Option<&FontProgram<'_>>, c: char) -> Option<u8> {
     // U+FFFD is what a code without text reads as, not a character a code draws.
     if c == char::REPLACEMENT_CHARACTER {
         return None;

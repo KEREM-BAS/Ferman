@@ -17,7 +17,12 @@ import 'package:flutter/widgets.dart' hide Icon;
 @immutable
 class NoteReply {
   /// A reply by [author] at [time] saying [text].
-  const new({required this.author, required this.time, required this.text});
+  const new({
+    required this.author,
+    required this.time,
+    required this.text,
+    this.mentions = const [],
+  });
 
   /// Who replied.
   final String author;
@@ -28,12 +33,16 @@ class NoteReply {
   /// The reply.
   final String text;
 
+  /// The people its text mentions as `@name`, shown in the accent colour.
+  final List<String> mentions;
+
   @override
   bool operator ==(Object other) =>
       other is NoteReply &&
       other.author == author &&
       other.time == time &&
-      other.text == text;
+      other.text == text &&
+      listEquals(other.mentions, mentions);
 
   @override
   int get hashCode => Object.hash(author, time, text);

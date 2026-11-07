@@ -224,6 +224,35 @@ void main() {
     expect(view().zoom, zoomStepAfter(4));
   });
 
+  test('reveal scrolls the least that shows a box low and right on its page, '
+      'in either layout', () {
+    for (final layout in [PageLayout.continuous, PageLayout.single]) {
+      viewer()
+        ..setLayout(layout)
+        ..zoomTo(2)
+        ..goToPage(2);
+      const box = Rect.fromLTWH(480, 700, 100, 20);
+      viewer().reveal(2, box);
+      final rect = view().placement.rects[2]!;
+      final shown = Rect.fromLTRB(
+        rect.left + box.left * view().scale,
+        rect.top + box.top * view().scale,
+        rect.left + box.right * view().scale,
+        rect.top + box.bottom * view().scale,
+      );
+      expect(view().visible.contains(shown.topLeft), isTrue, reason: '$layout');
+      expect(
+        view().visible.contains(shown.bottomRight),
+        isTrue,
+        reason: '$layout',
+      );
+      // Already in view: nothing moves.
+      final offset = view().offset;
+      viewer().reveal(2, box);
+      expect(view().offset, offset);
+    }
+  });
+
   test('the page field takes labels first, then numbers in any digits', () {
     expect(pageForInput(' ii ', document.pages), 1);
     expect(pageForInput('1', document.pages), 2);

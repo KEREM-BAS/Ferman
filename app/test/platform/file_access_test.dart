@@ -46,6 +46,24 @@ void main() {
     expect(await access.access('x'), isNull);
   });
 
+  test('openUrl asks the runner; without a handler, or when it fails, it is '
+      'false', () async {
+    expect(await access.openUrl('https://example.org'), isFalse);
+    final urls = <Object?>[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.method, 'openUrl');
+      urls.add(call.arguments);
+      return true;
+    });
+    expect(await access.openUrl('https://example.org'), isTrue);
+    expect(urls, ['https://example.org']);
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => throw PlatformException(code: 'broken'),
+    );
+    expect(await access.openUrl('https://example.org'), isFalse);
+  });
+
   test('release and show pass the path to the runner; without a handler, '
       'or when it fails, show is false', () async {
     final calls = <MethodCall>[];

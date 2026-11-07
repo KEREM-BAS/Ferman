@@ -168,6 +168,55 @@ void main() {
       expect(row.detail(l10n, format), l10n.jobFailedDiskFull);
     });
 
+    test('a page flatten cannot change says so in its own words (B202)', () {
+      final l10n = AppLocalizationsEn();
+      final format = RegionFormat.forRegion(Region.turkiye);
+      const unsupported = EngineException(
+        kind: EngineErrorKind.unsupported,
+        messageKey: 'errorUnsupported',
+      );
+      BackgroundJob failed(BackgroundJobKind kind) => BackgroundJob(
+        id: 1,
+        kind: kind,
+        name: 'Kira.pdf',
+        state: TaskState.error,
+        error: unsupported,
+      );
+      expect(
+        failed(BackgroundJobKind.commentSummary).detail(l10n, format),
+        l10n.jobSummaryPageUnsupported,
+      );
+      expect(
+        failed(BackgroundJobKind.flattenComments).detail(l10n, format),
+        l10n.jobFlattenPageUnsupported,
+      );
+      expect(
+        failed(BackgroundJobKind.flattenComments).title(l10n),
+        l10n.jobFlattenFailedTitle('\u2068Kira.pdf\u2069'),
+      );
+    });
+
+    test(
+      'a flatten is a row of its own, its copy named for the engine',
+      () async {
+        access.stagingDirectory = '/staging';
+        await container
+            .read(backgroundJobsProvider.notifier)
+            .flattenComments(
+              9,
+              'Kira.pdf',
+              const [1, 2],
+              step: 'Flatten comments',
+              copy: '/docs/Kira — with comments.pdf',
+            );
+        expect(
+          engine.assembleJobs.last,
+          'flatten 2 /docs/Kira — with comments.pdf',
+        );
+        expect(_row(container).kind, BackgroundJobKind.flattenComments);
+      },
+    );
+
     test('a staged output is swapped in', () async {
       access.stagingDirectory = '/staging';
       await _started(container);

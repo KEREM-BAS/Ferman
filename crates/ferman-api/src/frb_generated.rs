@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -921826719;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1189760347;
 
 // Section: executor
 
@@ -47,6 +47,134 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__frb__add_annotation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    page: impl CstDecode<u64>,
+    annotation: impl CstDecode<crate::frb::NewAnnotation>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "add_annotation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_page = page.cst_decode();
+            let api_annotation = annotation.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::add_annotation(
+                            api_document,
+                            api_page,
+                            api_annotation,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__add_link_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    page: impl CstDecode<u64>,
+    link: impl CstDecode<crate::frb::NewLink>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "add_link",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_page = page.cst_decode();
+            let api_link = link.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::add_link(api_document, api_page, api_link, api_name)
+                                .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__add_signature_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    page: impl CstDecode<u64>,
+    signature: impl CstDecode<crate::frb::NewSignature>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "add_signature",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_page = page.cst_decode();
+            let api_signature = signature.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::add_signature(
+                            api_document,
+                            api_page,
+                            api_signature,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__annotations_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "annotations",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::annotations(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__api_version_impl() -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco
 {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
@@ -313,6 +441,35 @@ fn wire__crate__frb__choose_font_impl(
         },
     )
 }
+fn wire__crate__frb__clear_form_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "clear_form",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_missing = missing.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::clear_form(api_document, api_missing, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__close_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -541,6 +698,65 @@ fn wire__crate__frb__debug_panic_impl(port_: flutter_rust_bridge::for_generated:
         },
     )
 }
+fn wire__crate__frb__delete_annotation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "delete_annotation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::delete_annotation(api_document, api_handle, api_name)
+                                .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__delete_link_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "delete_link",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::delete_link(api_document, api_handle, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__delete_pages_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -562,6 +778,33 @@ fn wire__crate__frb__delete_pages_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::delete_pages(api_document, api_pages, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__delete_saved_signature_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    dir: impl CstDecode<String>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "delete_saved_signature",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_dir = dir.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::delete_saved_signature(api_dir, api_name).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -646,6 +889,61 @@ fn wire__crate__frb__engine_info_impl(port_: flutter_rust_bridge::for_generated:
         },
     )
 }
+fn wire__crate__frb__fill_targets_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    page: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "fill_targets",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_page = page.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::fill_targets(api_document, api_page).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__finish_form_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "finish_form",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_missing = missing.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::finish_form(api_document, api_missing, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__finish_save_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -691,6 +989,54 @@ fn wire__crate__frb__font_coverage_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::font_coverage(api_document, api_letters).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__form_fields_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "form_fields",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::form_fields(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__handwriting_styles_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    text: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "handwriting_styles",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_text = text.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::handwriting_styles(api_text).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -781,6 +1127,61 @@ fn wire__crate__frb__keep_as_is_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::keep_as_is(api_transaction).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__link_at_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    page: impl CstDecode<u64>,
+    x: impl CstDecode<f32>,
+    y: impl CstDecode<f32>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "link_at",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_page = page.cst_decode();
+            let api_x = x.cst_decode();
+            let api_y = y.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::link_at(api_document, api_page, api_x, api_y).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__links_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "links",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::links(api_document).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1044,6 +1445,45 @@ fn wire__crate__frb__redo_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::redo(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__reply_to_annotation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    author: impl CstDecode<String>,
+    text: impl CstDecode<String>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "reply_to_annotation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_author = author.cst_decode();
+            let api_text = text.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::reply_to_annotation(
+                            api_document,
+                            api_handle,
+                            api_author,
+                            api_text,
+                            api_name,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1559,6 +1999,30 @@ fn wire__crate__frb__save_unsigned_copy_impl(
         },
     )
 }
+fn wire__crate__frb__saved_signatures_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    dir: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "saved_signatures",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_dir = dir.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::saved_signatures(api_dir).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__search_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -1625,6 +2089,45 @@ fn wire__crate__frb__selection_impl(
         },
     )
 }
+fn wire__crate__frb__set_annotation_resolved_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    author: impl CstDecode<String>,
+    resolved: impl CstDecode<bool>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_annotation_resolved",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_author = author.cst_decode();
+            let api_resolved = resolved.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_annotation_resolved(
+                            api_document,
+                            api_handle,
+                            api_author,
+                            api_resolved,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__set_block_language_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     transaction: impl CstDecode<u64>,
@@ -1671,6 +2174,45 @@ fn wire__crate__frb__set_block_style_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::set_block_style(api_transaction, api_style).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__set_field_value_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    values: impl CstDecode<Vec<String>>,
+    missing: impl CstDecode<Option<crate::frb::MissingFont>>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_field_value",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_values = values.cst_decode();
+            let api_missing = missing.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_field_value(
+                            api_document,
+                            api_handle,
+                            api_values,
+                            api_missing,
+                            api_name,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1798,6 +2340,33 @@ fn wire__crate__frb__set_recovery_enabled_impl(
         },
     )
 }
+fn wire__crate__frb__show_comments_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    visible: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "show_comments",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_visible = visible.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::show_comments(api_document, api_visible).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__show_layers_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -1905,6 +2474,48 @@ fn wire__crate__frb__start_combine_job_impl(
         },
     )
 }
+fn wire__crate__frb__start_comment_summary_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    format: impl CstDecode<crate::frb::SummaryFormat>,
+    options: impl CstDecode<crate::frb::SummaryOptions>,
+    output: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
+    sink: impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "start_comment_summary_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_format = format.cst_decode();
+            let api_options = options.cst_decode();
+            let api_output = output.cst_decode();
+            let api_staging = staging.cst_decode();
+            let api_sink = sink.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::start_comment_summary_job(
+                            api_document,
+                            api_format,
+                            api_options,
+                            api_output,
+                            api_staging,
+                            api_sink,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__start_copy_document_job_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -1969,6 +2580,48 @@ fn wire__crate__frb__start_extract_pages_job_impl(
                             api_pages,
                             api_output,
                             api_staging,
+                            api_sink,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__start_flatten_annotations_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handles: impl CstDecode<Vec<u64>>,
+    copy: impl CstDecode<Option<String>>,
+    staging: impl CstDecode<Option<String>>,
+    name: impl CstDecode<String>,
+    sink: impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "start_flatten_annotations_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handles = handles.cst_decode();
+            let api_copy = copy.cst_decode();
+            let api_staging = staging.cst_decode();
+            let api_name = name.cst_decode();
+            let api_sink = sink.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::start_flatten_annotations_job(
+                            api_document,
+                            api_handles,
+                            api_copy,
+                            api_staging,
+                            api_name,
                             api_sink,
                         )
                         .await?;
@@ -2213,6 +2866,74 @@ fn wire__crate__frb__unlock_owner_impl(
         },
     )
 }
+fn wire__crate__frb__update_annotation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    change: impl CstDecode<crate::frb::AnnotationChange>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "update_annotation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_change = change.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::update_annotation(
+                            api_document,
+                            api_handle,
+                            api_change,
+                            api_name,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__update_link_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    handle: impl CstDecode<u64>,
+    change: impl CstDecode<crate::frb::LinkChange>,
+    name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "update_link",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_handle = handle.cst_decode();
+            let api_change = change.cst_decode();
+            let api_name = name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::update_link(api_document, api_handle, api_change, api_name)
+                                .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__white_margins_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -2263,6 +2984,35 @@ fn wire__crate__frb__would_break_signatures_impl(
         },
     )
 }
+fn wire__crate__frb__write_saved_signature_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    dir: impl CstDecode<String>,
+    name: impl CstDecode<String>,
+    bytes: impl CstDecode<Vec<u8>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "write_saved_signature",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_dir = dir.cst_decode();
+            let api_name = name.cst_decode();
+            let api_bytes = bytes.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::write_saved_signature(api_dir, api_name, api_bytes).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 
 // Section: dart2rust
 
@@ -2275,6 +3025,28 @@ impl CstDecode<crate::frb::Alignment> for i32 {
             2 => crate::frb::Alignment::Center,
             3 => crate::frb::Alignment::Justified,
             _ => unreachable!("Invalid variant for Alignment: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::AnnotationKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::AnnotationKind {
+        match self {
+            0 => crate::frb::AnnotationKind::Highlight,
+            1 => crate::frb::AnnotationKind::Underline,
+            2 => crate::frb::AnnotationKind::StrikeOut,
+            3 => crate::frb::AnnotationKind::Squiggly,
+            4 => crate::frb::AnnotationKind::Note,
+            5 => crate::frb::AnnotationKind::FreeText,
+            6 => crate::frb::AnnotationKind::Callout,
+            7 => crate::frb::AnnotationKind::Ink,
+            8 => crate::frb::AnnotationKind::Square,
+            9 => crate::frb::AnnotationKind::Circle,
+            10 => crate::frb::AnnotationKind::Line,
+            11 => crate::frb::AnnotationKind::Polygon,
+            12 => crate::frb::AnnotationKind::Stamp,
+            13 => crate::frb::AnnotationKind::Other,
+            _ => unreachable!("Invalid variant for AnnotationKind: {}", self),
         }
     }
 }
@@ -2362,6 +3134,12 @@ impl CstDecode<f32> for f32 {
         self
     }
 }
+impl CstDecode<f64> for f64 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> f64 {
+        self
+    }
+}
 impl CstDecode<crate::frb::FailReason> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::FailReason {
@@ -2372,6 +3150,58 @@ impl CstDecode<crate::frb::FailReason> for i32 {
             3 => crate::frb::FailReason::OutOfMemory,
             4 => crate::frb::FailReason::Internal,
             _ => unreachable!("Invalid variant for FailReason: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldFormatKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldFormatKind {
+        match self {
+            0 => crate::frb::FieldFormatKind::None,
+            1 => crate::frb::FieldFormatKind::Date,
+            2 => crate::frb::FieldFormatKind::Number,
+            3 => crate::frb::FieldFormatKind::Percent,
+            _ => unreachable!("Invalid variant for FieldFormatKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldKind {
+        match self {
+            0 => crate::frb::FieldKind::Text,
+            1 => crate::frb::FieldKind::Check,
+            2 => crate::frb::FieldKind::Radio,
+            3 => crate::frb::FieldKind::Push,
+            4 => crate::frb::FieldKind::Combo,
+            5 => crate::frb::FieldKind::List,
+            6 => crate::frb::FieldKind::Signature,
+            7 => crate::frb::FieldKind::Other,
+            _ => unreachable!("Invalid variant for FieldKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FieldProblemKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FieldProblemKind {
+        match self {
+            0 => crate::frb::FieldProblemKind::TooLong,
+            1 => crate::frb::FieldProblemKind::NotADate,
+            2 => crate::frb::FieldProblemKind::NotANumber,
+            3 => crate::frb::FieldProblemKind::OutOfRange,
+            _ => unreachable!("Invalid variant for FieldProblemKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FillTargetKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FillTargetKind {
+        match self {
+            0 => crate::frb::FillTargetKind::Line,
+            1 => crate::frb::FillTargetKind::Box,
+            2 => crate::frb::FillTargetKind::Check,
+            3 => crate::frb::FillTargetKind::Comb,
+            _ => unreachable!("Invalid variant for FillTargetKind: {}", self),
         }
     }
 }
@@ -2480,6 +3310,46 @@ impl CstDecode<crate::frb::LabelStyle> for i32 {
             4 => crate::frb::LabelStyle::LettersUpper,
             5 => crate::frb::LabelStyle::LettersLower,
             _ => unreachable!("Invalid variant for LabelStyle: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::LinkKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::LinkKind {
+        match self {
+            0 => crate::frb::LinkKind::Web,
+            1 => crate::frb::LinkKind::Mail,
+            2 => crate::frb::LinkKind::Page,
+            3 => crate::frb::LinkKind::Broken,
+            4 => crate::frb::LinkKind::Script,
+            5 => crate::frb::LinkKind::Launch,
+            6 => crate::frb::LinkKind::File,
+            7 => crate::frb::LinkKind::Address,
+            8 => crate::frb::LinkKind::Action,
+            9 => crate::frb::LinkKind::Nothing,
+            _ => unreachable!("Invalid variant for LinkKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::LinkLook> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::LinkLook {
+        match self {
+            0 => crate::frb::LinkLook::Invisible,
+            1 => crate::frb::LinkLook::Underline,
+            2 => crate::frb::LinkLook::Box,
+            _ => unreachable!("Invalid variant for LinkLook: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::MissingFont> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::MissingFont {
+        match self {
+            0 => crate::frb::MissingFont::Bundled,
+            1 => crate::frb::MissingFont::Ask,
+            2 => crate::frb::MissingFont::Keep,
+            _ => unreachable!("Invalid variant for MissingFont: {}", self),
         }
     }
 }
@@ -2616,6 +3486,17 @@ impl CstDecode<crate::frb::SearchEventKind> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::SignatureInkKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::SignatureInkKind {
+        match self {
+            0 => crate::frb::SignatureInkKind::Typed,
+            1 => crate::frb::SignatureInkKind::Drawn,
+            2 => crate::frb::SignatureInkKind::Image,
+            _ => unreachable!("Invalid variant for SignatureInkKind: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::SplitKind> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::SplitKind {
@@ -2636,6 +3517,29 @@ impl CstDecode<crate::frb::SubstitutionKind> for i32 {
             1 => crate::frb::SubstitutionKind::Similar,
             2 => crate::frb::SubstitutionKind::Marked,
             _ => unreachable!("Invalid variant for SubstitutionKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::SummaryFormat> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::SummaryFormat {
+        match self {
+            0 => crate::frb::SummaryFormat::Csv,
+            1 => crate::frb::SummaryFormat::PageAndComments,
+            2 => crate::frb::SummaryFormat::CommentsOnly,
+            3 => crate::frb::SummaryFormat::PageThenList,
+            _ => unreachable!("Invalid variant for SummaryFormat: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::SummarySort> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::SummarySort {
+        match self {
+            0 => crate::frb::SummarySort::Page,
+            1 => crate::frb::SummarySort::Date,
+            2 => crate::frb::SummarySort::Author,
+            _ => unreachable!("Invalid variant for SummarySort: {}", self),
         }
     }
 }
@@ -2738,6 +3642,158 @@ impl SseDecode for crate::frb::Alignment {
             3 => crate::frb::Alignment::Justified,
             _ => unreachable!("Invalid variant for Alignment: {}", inner),
         };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_contents = <Option<String>>::sse_decode(deserializer);
+        let mut var_rect = <Option<crate::frb::PageRect>>::sse_decode(deserializer);
+        let mut var_points = <Option<Vec<crate::frb::AnnotationPoints>>>::sse_decode(deserializer);
+        let mut var_color = <Option<crate::frb::AnnotationColor>>::sse_decode(deserializer);
+        let mut var_stroke = <Option<f32>>::sse_decode(deserializer);
+        let mut var_opacity = <Option<f32>>::sse_decode(deserializer);
+        let mut var_fontSize = <Option<f32>>::sse_decode(deserializer);
+        return crate::frb::AnnotationChange {
+            contents: var_contents,
+            rect: var_rect,
+            points: var_points,
+            color: var_color,
+            stroke: var_stroke,
+            opacity: var_opacity,
+            font_size: var_fontSize,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationColor {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_red = <f32>::sse_decode(deserializer);
+        let mut var_green = <f32>::sse_decode(deserializer);
+        let mut var_blue = <f32>::sse_decode(deserializer);
+        return crate::frb::AnnotationColor {
+            red: var_red,
+            green: var_green,
+            blue: var_blue,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_handle = <u64>::sse_decode(deserializer);
+        let mut var_revision = <crate::frb::RevisionInfo>::sse_decode(deserializer);
+        return crate::frb::AnnotationCommit {
+            handle: var_handle,
+            revision: var_revision,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_handle = <u64>::sse_decode(deserializer);
+        let mut var_page = <u64>::sse_decode(deserializer);
+        let mut var_kind = <crate::frb::AnnotationKind>::sse_decode(deserializer);
+        let mut var_subtype = <String>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_points = <Vec<crate::frb::AnnotationPoints>>::sse_decode(deserializer);
+        let mut var_arrow = <bool>::sse_decode(deserializer);
+        let mut var_color = <Option<crate::frb::AnnotationColor>>::sse_decode(deserializer);
+        let mut var_opacity = <f32>::sse_decode(deserializer);
+        let mut var_stroke = <f32>::sse_decode(deserializer);
+        let mut var_fontSize = <Option<f32>>::sse_decode(deserializer);
+        let mut var_author = <Option<String>>::sse_decode(deserializer);
+        let mut var_contents = <Option<String>>::sse_decode(deserializer);
+        let mut var_quote = <Option<String>>::sse_decode(deserializer);
+        let mut var_rich = <bool>::sse_decode(deserializer);
+        let mut var_created = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
+        let mut var_modified = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
+        let mut var_icon = <Option<String>>::sse_decode(deserializer);
+        let mut var_repliesTo = <Option<u64>>::sse_decode(deserializer);
+        let mut var_thread = <u64>::sse_decode(deserializer);
+        let mut var_state = <Option<String>>::sse_decode(deserializer);
+        let mut var_resolved = <bool>::sse_decode(deserializer);
+        let mut var_resolvedBy = <Option<String>>::sse_decode(deserializer);
+        let mut var_resolvedAt = <Option<crate::frb::PdfDate>>::sse_decode(deserializer);
+        let mut var_mentions = <Vec<String>>::sse_decode(deserializer);
+        return crate::frb::AnnotationInfo {
+            handle: var_handle,
+            page: var_page,
+            kind: var_kind,
+            subtype: var_subtype,
+            rect: var_rect,
+            points: var_points,
+            arrow: var_arrow,
+            color: var_color,
+            opacity: var_opacity,
+            stroke: var_stroke,
+            font_size: var_fontSize,
+            author: var_author,
+            contents: var_contents,
+            quote: var_quote,
+            rich: var_rich,
+            created: var_created,
+            modified: var_modified,
+            icon: var_icon,
+            replies_to: var_repliesTo,
+            thread: var_thread,
+            state: var_state,
+            resolved: var_resolved,
+            resolved_by: var_resolvedBy,
+            resolved_at: var_resolvedAt,
+            mentions: var_mentions,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::AnnotationKind::Highlight,
+            1 => crate::frb::AnnotationKind::Underline,
+            2 => crate::frb::AnnotationKind::StrikeOut,
+            3 => crate::frb::AnnotationKind::Squiggly,
+            4 => crate::frb::AnnotationKind::Note,
+            5 => crate::frb::AnnotationKind::FreeText,
+            6 => crate::frb::AnnotationKind::Callout,
+            7 => crate::frb::AnnotationKind::Ink,
+            8 => crate::frb::AnnotationKind::Square,
+            9 => crate::frb::AnnotationKind::Circle,
+            10 => crate::frb::AnnotationKind::Line,
+            11 => crate::frb::AnnotationKind::Polygon,
+            12 => crate::frb::AnnotationKind::Stamp,
+            13 => crate::frb::AnnotationKind::Other,
+            _ => unreachable!("Invalid variant for AnnotationKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationList {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_annotations = <Vec<crate::frb::AnnotationInfo>>::sse_decode(deserializer);
+        let mut var_people = <Vec<String>>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        return crate::frb::AnnotationList {
+            annotations: var_annotations,
+            people: var_people,
+            truncated: var_truncated,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::AnnotationPoints {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_points = <Vec<crate::frb::PagePoint>>::sse_decode(deserializer);
+        return crate::frb::AnnotationPoints { points: var_points };
     }
 }
 
@@ -3181,6 +4237,13 @@ impl SseDecode for f32 {
     }
 }
 
+impl SseDecode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_f64::<NativeEndian>().unwrap()
+    }
+}
+
 impl SseDecode for crate::frb::FailReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3192,6 +4255,212 @@ impl SseDecode for crate::frb::FailReason {
             3 => crate::frb::FailReason::OutOfMemory,
             4 => crate::frb::FailReason::Internal,
             _ => unreachable!("Invalid variant for FailReason: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_revision = <crate::frb::RevisionInfo>::sse_decode(deserializer);
+        let mut var_problem = <Option<crate::frb::FieldProblem>>::sse_decode(deserializer);
+        let mut var_fonts = <Vec<String>>::sse_decode(deserializer);
+        let mut var_marked = <bool>::sse_decode(deserializer);
+        let mut var_xfaRemoved = <bool>::sse_decode(deserializer);
+        let mut var_asksFont = <bool>::sse_decode(deserializer);
+        return crate::frb::FieldCommit {
+            revision: var_revision,
+            problem: var_problem,
+            fonts: var_fonts,
+            marked: var_marked,
+            xfa_removed: var_xfaRemoved,
+            asks_font: var_asksFont,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldFormatKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldFormatKind::None,
+            1 => crate::frb::FieldFormatKind::Date,
+            2 => crate::frb::FieldFormatKind::Number,
+            3 => crate::frb::FieldFormatKind::Percent,
+            _ => unreachable!("Invalid variant for FieldFormatKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_handle = <u64>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_label = <Option<String>>::sse_decode(deserializer);
+        let mut var_kind = <crate::frb::FieldKind>::sse_decode(deserializer);
+        let mut var_readOnly = <bool>::sse_decode(deserializer);
+        let mut var_required_ = <bool>::sse_decode(deserializer);
+        let mut var_multiline = <bool>::sse_decode(deserializer);
+        let mut var_password = <bool>::sse_decode(deserializer);
+        let mut var_comb = <bool>::sse_decode(deserializer);
+        let mut var_multiSelect = <bool>::sse_decode(deserializer);
+        let mut var_editable = <bool>::sse_decode(deserializer);
+        let mut var_values = <Vec<String>>::sse_decode(deserializer);
+        let mut var_options = <Vec<crate::frb::FieldOption>>::sse_decode(deserializer);
+        let mut var_maxLen = <Option<u32>>::sse_decode(deserializer);
+        let mut var_widgets = <Vec<crate::frb::FieldWidget>>::sse_decode(deserializer);
+        let mut var_format = <crate::frb::FieldFormatKind>::sse_decode(deserializer);
+        let mut var_datePattern = <Option<String>>::sse_decode(deserializer);
+        let mut var_decimals = <Option<i32>>::sse_decode(deserializer);
+        let mut var_min = <Option<f64>>::sse_decode(deserializer);
+        let mut var_max = <Option<f64>>::sse_decode(deserializer);
+        let mut var_problem = <Option<crate::frb::FieldProblem>>::sse_decode(deserializer);
+        let mut var_signed = <bool>::sse_decode(deserializer);
+        let mut var_signature = <Option<u64>>::sse_decode(deserializer);
+        let mut var_filled = <bool>::sse_decode(deserializer);
+        return crate::frb::FieldInfo {
+            handle: var_handle,
+            name: var_name,
+            label: var_label,
+            kind: var_kind,
+            read_only: var_readOnly,
+            required: var_required_,
+            multiline: var_multiline,
+            password: var_password,
+            comb: var_comb,
+            multi_select: var_multiSelect,
+            editable: var_editable,
+            values: var_values,
+            options: var_options,
+            max_len: var_maxLen,
+            widgets: var_widgets,
+            format: var_format,
+            date_pattern: var_datePattern,
+            decimals: var_decimals,
+            min: var_min,
+            max: var_max,
+            problem: var_problem,
+            signed: var_signed,
+            signature: var_signature,
+            filled: var_filled,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldKind::Text,
+            1 => crate::frb::FieldKind::Check,
+            2 => crate::frb::FieldKind::Radio,
+            3 => crate::frb::FieldKind::Push,
+            4 => crate::frb::FieldKind::Combo,
+            5 => crate::frb::FieldKind::List,
+            6 => crate::frb::FieldKind::Signature,
+            7 => crate::frb::FieldKind::Other,
+            _ => unreachable!("Invalid variant for FieldKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldOption {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_export_ = <String>::sse_decode(deserializer);
+        let mut var_display = <String>::sse_decode(deserializer);
+        return crate::frb::FieldOption {
+            export: var_export_,
+            display: var_display,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldProblem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::FieldProblemKind>::sse_decode(deserializer);
+        let mut var_maxLen = <Option<u32>>::sse_decode(deserializer);
+        let mut var_pattern = <Option<String>>::sse_decode(deserializer);
+        let mut var_min = <Option<f64>>::sse_decode(deserializer);
+        let mut var_max = <Option<f64>>::sse_decode(deserializer);
+        return crate::frb::FieldProblem {
+            kind: var_kind,
+            max_len: var_maxLen,
+            pattern: var_pattern,
+            min: var_min,
+            max: var_max,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldProblemKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FieldProblemKind::TooLong,
+            1 => crate::frb::FieldProblemKind::NotADate,
+            2 => crate::frb::FieldProblemKind::NotANumber,
+            3 => crate::frb::FieldProblemKind::OutOfRange,
+            _ => unreachable!("Invalid variant for FieldProblemKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FieldWidget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_page = <u64>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_onState = <Option<String>>::sse_decode(deserializer);
+        return crate::frb::FieldWidget {
+            page: var_page,
+            rect: var_rect,
+            on_state: var_onState,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FillTarget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::FillTargetKind>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_cells = <u32>::sse_decode(deserializer);
+        return crate::frb::FillTarget {
+            kind: var_kind,
+            rect: var_rect,
+            cells: var_cells,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FillTargetKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FillTargetKind::Line,
+            1 => crate::frb::FillTargetKind::Box,
+            2 => crate::frb::FillTargetKind::Check,
+            3 => crate::frb::FillTargetKind::Comb,
+            _ => unreachable!("Invalid variant for FillTargetKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FillTargets {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_targets = <Vec<crate::frb::FillTarget>>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        return crate::frb::FillTargets {
+            targets: var_targets,
+            truncated: var_truncated,
         };
     }
 }
@@ -3333,6 +4602,38 @@ impl SseDecode for crate::frb::FontType {
             4 => crate::frb::FontType::Type3,
             5 => crate::frb::FontType::Other,
             _ => unreachable!("Invalid variant for FontType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FormInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_fields = <Vec<crate::frb::FieldInfo>>::sse_decode(deserializer);
+        let mut var_required_ = <u32>::sse_decode(deserializer);
+        let mut var_requiredLeft = <u32>::sse_decode(deserializer);
+        let mut var_problems = <u32>::sse_decode(deserializer);
+        let mut var_hasXfa = <bool>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        return crate::frb::FormInfo {
+            fields: var_fields,
+            required: var_required_,
+            required_left: var_requiredLeft,
+            problems: var_problems,
+            has_xfa: var_hasXfa,
+            truncated: var_truncated,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::HandwritingStyle {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_family = <String>::sse_decode(deserializer);
+        let mut var_covered = <bool>::sse_decode(deserializer);
+        return crate::frb::HandwritingStyle {
+            family: var_family,
+            covered: var_covered,
         };
     }
 }
@@ -3537,6 +4838,109 @@ impl SseDecode for crate::frb::LineInfo {
     }
 }
 
+impl SseDecode for crate::frb::LinkChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_rect = <Option<crate::frb::PageRect>>::sse_decode(deserializer);
+        let mut var_destination = <Option<crate::frb::LinkDestination>>::sse_decode(deserializer);
+        let mut var_look = <Option<crate::frb::LinkLook>>::sse_decode(deserializer);
+        let mut var_color = <Option<crate::frb::AnnotationColor>>::sse_decode(deserializer);
+        return crate::frb::LinkChange {
+            rect: var_rect,
+            destination: var_destination,
+            look: var_look,
+            color: var_color,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LinkDestination {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_address = <String>::sse_decode(deserializer);
+        let mut var_mail = <bool>::sse_decode(deserializer);
+        let mut var_page = <Option<u64>>::sse_decode(deserializer);
+        return crate::frb::LinkDestination {
+            address: var_address,
+            mail: var_mail,
+            page: var_page,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LinkInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_handle = <u64>::sse_decode(deserializer);
+        let mut var_page = <u64>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_quads = <Vec<crate::frb::AnnotationPoints>>::sse_decode(deserializer);
+        let mut var_kind = <crate::frb::LinkKind>::sse_decode(deserializer);
+        let mut var_target = <String>::sse_decode(deserializer);
+        let mut var_targetPage = <Option<u64>>::sse_decode(deserializer);
+        let mut var_wantedPage = <Option<u64>>::sse_decode(deserializer);
+        let mut var_look = <crate::frb::LinkLook>::sse_decode(deserializer);
+        let mut var_color = <Option<crate::frb::AnnotationColor>>::sse_decode(deserializer);
+        return crate::frb::LinkInfo {
+            handle: var_handle,
+            page: var_page,
+            rect: var_rect,
+            quads: var_quads,
+            kind: var_kind,
+            target: var_target,
+            target_page: var_targetPage,
+            wanted_page: var_wantedPage,
+            look: var_look,
+            color: var_color,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LinkKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::LinkKind::Web,
+            1 => crate::frb::LinkKind::Mail,
+            2 => crate::frb::LinkKind::Page,
+            3 => crate::frb::LinkKind::Broken,
+            4 => crate::frb::LinkKind::Script,
+            5 => crate::frb::LinkKind::Launch,
+            6 => crate::frb::LinkKind::File,
+            7 => crate::frb::LinkKind::Address,
+            8 => crate::frb::LinkKind::Action,
+            9 => crate::frb::LinkKind::Nothing,
+            _ => unreachable!("Invalid variant for LinkKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LinkList {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_links = <Vec<crate::frb::LinkInfo>>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        return crate::frb::LinkList {
+            links: var_links,
+            truncated: var_truncated,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::LinkLook {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::LinkLook::Invisible,
+            1 => crate::frb::LinkLook::Underline,
+            2 => crate::frb::LinkLook::Box,
+            _ => unreachable!("Invalid variant for LinkLook: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3544,6 +4948,30 @@ impl SseDecode for Vec<String> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::AnnotationInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::AnnotationInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::AnnotationPoints> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::AnnotationPoints>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3633,6 +5061,54 @@ impl SseDecode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::FieldInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FieldOption> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldOption>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FieldWidget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FieldWidget>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FillTarget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FillTarget>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::FontCandidate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3676,6 +5152,18 @@ impl SseDecode for Vec<crate::frb::FontSubstitution> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::FontSubstitution>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::HandwritingStyle> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::HandwritingStyle>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3741,6 +5229,18 @@ impl SseDecode for Vec<crate::frb::LineInfo> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::LinkInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::LinkInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::MissingChar> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3796,6 +5296,18 @@ impl SseDecode for Vec<crate::frb::PageInfo> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::PageInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::PagePoint> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::PagePoint>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3885,6 +5397,18 @@ impl SseDecode for Vec<crate::frb::RepairFix> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::SavedSignature> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::SavedSignature>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3933,6 +5457,18 @@ impl SseDecode for Vec<crate::frb::SplitOutput> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::SummaryKindName> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::SummaryKindName>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::WantedItem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3953,6 +5489,19 @@ impl SseDecode for crate::frb::MissingChar {
         return crate::frb::MissingChar {
             text: var_text,
             at: var_at,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::MissingFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::MissingFont::Bundled,
+            1 => crate::frb::MissingFont::Ask,
+            2 => crate::frb::MissingFont::Keep,
+            _ => unreachable!("Invalid variant for MissingFont: {}", inner),
         };
     }
 }
@@ -3992,6 +5541,84 @@ impl SseDecode for crate::frb::MissingReasonKind {
             1 => crate::frb::MissingReasonKind::NotEmbeddable,
             2 => crate::frb::MissingReasonKind::Restricted,
             _ => unreachable!("Invalid variant for MissingReasonKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::NewAnnotation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::AnnotationKind>::sse_decode(deserializer);
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_points = <Vec<crate::frb::AnnotationPoints>>::sse_decode(deserializer);
+        let mut var_color = <crate::frb::AnnotationColor>::sse_decode(deserializer);
+        let mut var_stroke = <f32>::sse_decode(deserializer);
+        let mut var_opacity = <f32>::sse_decode(deserializer);
+        let mut var_contents = <String>::sse_decode(deserializer);
+        let mut var_author = <String>::sse_decode(deserializer);
+        let mut var_fontSize = <f32>::sse_decode(deserializer);
+        let mut var_arrow = <bool>::sse_decode(deserializer);
+        let mut var_label = <String>::sse_decode(deserializer);
+        let mut var_meta = <Option<String>>::sse_decode(deserializer);
+        let mut var_tilt = <f32>::sse_decode(deserializer);
+        let mut var_icon = <Option<String>>::sse_decode(deserializer);
+        let mut var_comb = <Option<u32>>::sse_decode(deserializer);
+        return crate::frb::NewAnnotation {
+            kind: var_kind,
+            rect: var_rect,
+            points: var_points,
+            color: var_color,
+            stroke: var_stroke,
+            opacity: var_opacity,
+            contents: var_contents,
+            author: var_author,
+            font_size: var_fontSize,
+            arrow: var_arrow,
+            label: var_label,
+            meta: var_meta,
+            tilt: var_tilt,
+            icon: var_icon,
+            comb: var_comb,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::NewLink {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_quads = <Vec<crate::frb::AnnotationPoints>>::sse_decode(deserializer);
+        let mut var_destination = <crate::frb::LinkDestination>::sse_decode(deserializer);
+        let mut var_look = <crate::frb::LinkLook>::sse_decode(deserializer);
+        let mut var_color = <crate::frb::AnnotationColor>::sse_decode(deserializer);
+        return crate::frb::NewLink {
+            rect: var_rect,
+            quads: var_quads,
+            destination: var_destination,
+            look: var_look,
+            color: var_color,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::NewSignature {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_rect = <crate::frb::PageRect>::sse_decode(deserializer);
+        let mut var_ink = <crate::frb::SignatureInk>::sse_decode(deserializer);
+        let mut var_color = <crate::frb::AnnotationColor>::sse_decode(deserializer);
+        let mut var_tilt = <f32>::sse_decode(deserializer);
+        let mut var_initials = <bool>::sse_decode(deserializer);
+        let mut var_field = <Option<String>>::sse_decode(deserializer);
+        let mut var_author = <String>::sse_decode(deserializer);
+        return crate::frb::NewSignature {
+            rect: var_rect,
+            ink: var_ink,
+            color: var_color,
+            tilt: var_tilt,
+            initials: var_initials,
+            field: var_field,
+            author: var_author,
         };
     }
 }
@@ -4108,6 +5735,17 @@ impl SseDecode for Option<crate::frb::Alignment> {
     }
 }
 
+impl SseDecode for Option<crate::frb::AnnotationColor> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::AnnotationColor>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::ApiError> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4174,6 +5812,17 @@ impl SseDecode for Option<f32> {
     }
 }
 
+impl SseDecode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4185,11 +5834,88 @@ impl SseDecode for Option<crate::frb::FailReason> {
     }
 }
 
+impl SseDecode for Option<crate::frb::FieldProblem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::FieldProblem>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::FontEmbedding> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::FontEmbedding>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i16>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::LinkDestination> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::LinkDestination>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::LinkInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::LinkInfo>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::LinkLook> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::LinkLook>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::MissingFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::MissingFont>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -4245,6 +5971,17 @@ impl SseDecode for Option<crate::frb::PageMargins> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::PageMargins>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::PageRect> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::PageRect>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -4322,6 +6059,19 @@ impl SseDecode for Option<crate::frb::ViewItem> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::ViewItem>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<crate::frb::AnnotationPoints>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<crate::frb::AnnotationPoints>>::sse_decode(
+                deserializer,
+            ));
         } else {
             return None;
         }
@@ -4503,12 +6253,16 @@ impl SseDecode for crate::frb::PdfDate {
         let mut var_day = <u8>::sse_decode(deserializer);
         let mut var_hour = <u8>::sse_decode(deserializer);
         let mut var_minute = <u8>::sse_decode(deserializer);
+        let mut var_second = <u8>::sse_decode(deserializer);
+        let mut var_offsetMinutes = <Option<i16>>::sse_decode(deserializer);
         return crate::frb::PdfDate {
             year: var_year,
             month: var_month,
             day: var_day,
             hour: var_hour,
             minute: var_minute,
+            second: var_second,
+            offset_minutes: var_offsetMinutes,
         };
     }
 }
@@ -4671,6 +6425,18 @@ impl SseDecode for crate::frb::RevisionInfo {
     }
 }
 
+impl SseDecode for crate::frb::SavedSignature {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_bytes = <Vec<u8>>::sse_decode(deserializer);
+        return crate::frb::SavedSignature {
+            name: var_name,
+            bytes: var_bytes,
+        };
+    }
+}
+
 impl SseDecode for crate::frb::SearchEvent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4716,6 +6482,8 @@ impl SseDecode for crate::frb::SearchMatch {
         let mut var_snippetStart = <u32>::sse_decode(deserializer);
         let mut var_snippetEnd = <u32>::sse_decode(deserializer);
         let mut var_bookmark = <bool>::sse_decode(deserializer);
+        let mut var_comment = <Option<u64>>::sse_decode(deserializer);
+        let mut var_field = <Option<u64>>::sse_decode(deserializer);
         return crate::frb::SearchMatch {
             page: var_page,
             rects: var_rects,
@@ -4723,6 +6491,8 @@ impl SseDecode for crate::frb::SearchMatch {
             snippet_start: var_snippetStart,
             snippet_end: var_snippetEnd,
             bookmark: var_bookmark,
+            comment: var_comment,
+            field: var_field,
         };
     }
 }
@@ -4734,11 +6504,15 @@ impl SseDecode for crate::frb::SearchOptions {
         let mut var_wholeWords = <bool>::sse_decode(deserializer);
         let mut var_ignoreAccents = <bool>::sse_decode(deserializer);
         let mut var_bookmarks = <bool>::sse_decode(deserializer);
+        let mut var_comments = <bool>::sse_decode(deserializer);
+        let mut var_fields = <bool>::sse_decode(deserializer);
         return crate::frb::SearchOptions {
             match_case: var_matchCase,
             whole_words: var_wholeWords,
             ignore_accents: var_ignoreAccents,
             bookmarks: var_bookmarks,
+            comments: var_comments,
+            fields: var_fields,
         };
     }
 }
@@ -4789,6 +6563,39 @@ impl SseDecode for crate::frb::Signature {
             signer: var_signer,
             signed_at: var_signedAt,
             page: var_page,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SignatureInk {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::SignatureInkKind>::sse_decode(deserializer);
+        let mut var_text = <String>::sse_decode(deserializer);
+        let mut var_family = <String>::sse_decode(deserializer);
+        let mut var_strokes = <Vec<crate::frb::AnnotationPoints>>::sse_decode(deserializer);
+        let mut var_width = <f32>::sse_decode(deserializer);
+        let mut var_image = <Vec<u8>>::sse_decode(deserializer);
+        return crate::frb::SignatureInk {
+            kind: var_kind,
+            text: var_text,
+            family: var_family,
+            strokes: var_strokes,
+            width: var_width,
+            image: var_image,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SignatureInkKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::SignatureInkKind::Typed,
+            1 => crate::frb::SignatureInkKind::Drawn,
+            2 => crate::frb::SignatureInkKind::Image,
+            _ => unreachable!("Invalid variant for SignatureInkKind: {}", inner),
         };
     }
 }
@@ -4866,6 +6673,81 @@ impl SseDecode for crate::frb::SubstitutionKind {
             1 => crate::frb::SubstitutionKind::Similar,
             2 => crate::frb::SubstitutionKind::Marked,
             _ => unreachable!("Invalid variant for SubstitutionKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SummaryFormat {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::SummaryFormat::Csv,
+            1 => crate::frb::SummaryFormat::PageAndComments,
+            2 => crate::frb::SummaryFormat::CommentsOnly,
+            3 => crate::frb::SummaryFormat::PageThenList,
+            _ => unreachable!("Invalid variant for SummaryFormat: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SummaryKindName {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::AnnotationKind>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        return crate::frb::SummaryKindName {
+            kind: var_kind,
+            name: var_name,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SummaryOptions {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_open = <bool>::sse_decode(deserializer);
+        let mut var_resolved = <bool>::sse_decode(deserializer);
+        let mut var_replies = <bool>::sse_decode(deserializer);
+        let mut var_emptyPages = <bool>::sse_decode(deserializer);
+        let mut var_sort = <crate::frb::SummarySort>::sse_decode(deserializer);
+        let mut var_pageLabel = <String>::sse_decode(deserializer);
+        let mut var_columns = <Vec<String>>::sse_decode(deserializer);
+        let mut var_kinds = <Vec<crate::frb::SummaryKindName>>::sse_decode(deserializer);
+        let mut var_openLabel = <String>::sse_decode(deserializer);
+        let mut var_resolvedLabel = <String>::sse_decode(deserializer);
+        let mut var_noComments = <String>::sse_decode(deserializer);
+        let mut var_datePattern = <String>::sse_decode(deserializer);
+        let mut var_paperWidth = <f32>::sse_decode(deserializer);
+        let mut var_paperHeight = <f32>::sse_decode(deserializer);
+        return crate::frb::SummaryOptions {
+            open: var_open,
+            resolved: var_resolved,
+            replies: var_replies,
+            empty_pages: var_emptyPages,
+            sort: var_sort,
+            page_label: var_pageLabel,
+            columns: var_columns,
+            kinds: var_kinds,
+            open_label: var_openLabel,
+            resolved_label: var_resolvedLabel,
+            no_comments: var_noComments,
+            date_pattern: var_datePattern,
+            paper_width: var_paperWidth,
+            paper_height: var_paperHeight,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SummarySort {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::SummarySort::Page,
+            1 => crate::frb::SummarySort::Date,
+            2 => crate::frb::SummarySort::Author,
+            _ => unreachable!("Invalid variant for SummarySort: {}", inner),
         };
     }
 }
@@ -5049,6 +6931,164 @@ impl flutter_rust_bridge::IntoDart for crate::frb::Alignment {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::Alignment {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::Alignment> for crate::frb::Alignment {
     fn into_into_dart(self) -> crate::frb::Alignment {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationChange {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.contents.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.points.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.stroke.into_into_dart().into_dart(),
+            self.opacity.into_into_dart().into_dart(),
+            self.font_size.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationChange {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationChange>
+    for crate::frb::AnnotationChange
+{
+    fn into_into_dart(self) -> crate::frb::AnnotationChange {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationColor {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.red.into_into_dart().into_dart(),
+            self.green.into_into_dart().into_dart(),
+            self.blue.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationColor {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationColor>
+    for crate::frb::AnnotationColor
+{
+    fn into_into_dart(self) -> crate::frb::AnnotationColor {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationCommit {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.handle.into_into_dart().into_dart(),
+            self.revision.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationCommit {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationCommit>
+    for crate::frb::AnnotationCommit
+{
+    fn into_into_dart(self) -> crate::frb::AnnotationCommit {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.handle.into_into_dart().into_dart(),
+            self.page.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.subtype.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.points.into_into_dart().into_dart(),
+            self.arrow.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.opacity.into_into_dart().into_dart(),
+            self.stroke.into_into_dart().into_dart(),
+            self.font_size.into_into_dart().into_dart(),
+            self.author.into_into_dart().into_dart(),
+            self.contents.into_into_dart().into_dart(),
+            self.quote.into_into_dart().into_dart(),
+            self.rich.into_into_dart().into_dart(),
+            self.created.into_into_dart().into_dart(),
+            self.modified.into_into_dart().into_dart(),
+            self.icon.into_into_dart().into_dart(),
+            self.replies_to.into_into_dart().into_dart(),
+            self.thread.into_into_dart().into_dart(),
+            self.state.into_into_dart().into_dart(),
+            self.resolved.into_into_dart().into_dart(),
+            self.resolved_by.into_into_dart().into_dart(),
+            self.resolved_at.into_into_dart().into_dart(),
+            self.mentions.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationInfo> for crate::frb::AnnotationInfo {
+    fn into_into_dart(self) -> crate::frb::AnnotationInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Highlight => 0.into_dart(),
+            Self::Underline => 1.into_dart(),
+            Self::StrikeOut => 2.into_dart(),
+            Self::Squiggly => 3.into_dart(),
+            Self::Note => 4.into_dart(),
+            Self::FreeText => 5.into_dart(),
+            Self::Callout => 6.into_dart(),
+            Self::Ink => 7.into_dart(),
+            Self::Square => 8.into_dart(),
+            Self::Circle => 9.into_dart(),
+            Self::Line => 10.into_dart(),
+            Self::Polygon => 11.into_dart(),
+            Self::Stamp => 12.into_dart(),
+            Self::Other => 13.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationKind> for crate::frb::AnnotationKind {
+    fn into_into_dart(self) -> crate::frb::AnnotationKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationList {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.annotations.into_into_dart().into_dart(),
+            self.people.into_into_dart().into_dart(),
+            self.truncated.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationList {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationList> for crate::frb::AnnotationList {
+    fn into_into_dart(self) -> crate::frb::AnnotationList {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::AnnotationPoints {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.points.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::AnnotationPoints {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::AnnotationPoints>
+    for crate::frb::AnnotationPoints
+{
+    fn into_into_dart(self) -> crate::frb::AnnotationPoints {
         self
     }
 }
@@ -5549,6 +7589,229 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::FailReason> for crate::frb::F
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldCommit {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.revision.into_into_dart().into_dart(),
+            self.problem.into_into_dart().into_dart(),
+            self.fonts.into_into_dart().into_dart(),
+            self.marked.into_into_dart().into_dart(),
+            self.xfa_removed.into_into_dart().into_dart(),
+            self.asks_font.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldCommit {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldCommit> for crate::frb::FieldCommit {
+    fn into_into_dart(self) -> crate::frb::FieldCommit {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldFormatKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::None => 0.into_dart(),
+            Self::Date => 1.into_dart(),
+            Self::Number => 2.into_dart(),
+            Self::Percent => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldFormatKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldFormatKind>
+    for crate::frb::FieldFormatKind
+{
+    fn into_into_dart(self) -> crate::frb::FieldFormatKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.handle.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.label.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.read_only.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+            self.multiline.into_into_dart().into_dart(),
+            self.password.into_into_dart().into_dart(),
+            self.comb.into_into_dart().into_dart(),
+            self.multi_select.into_into_dart().into_dart(),
+            self.editable.into_into_dart().into_dart(),
+            self.values.into_into_dart().into_dart(),
+            self.options.into_into_dart().into_dart(),
+            self.max_len.into_into_dart().into_dart(),
+            self.widgets.into_into_dart().into_dart(),
+            self.format.into_into_dart().into_dart(),
+            self.date_pattern.into_into_dart().into_dart(),
+            self.decimals.into_into_dart().into_dart(),
+            self.min.into_into_dart().into_dart(),
+            self.max.into_into_dart().into_dart(),
+            self.problem.into_into_dart().into_dart(),
+            self.signed.into_into_dart().into_dart(),
+            self.signature.into_into_dart().into_dart(),
+            self.filled.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldInfo> for crate::frb::FieldInfo {
+    fn into_into_dart(self) -> crate::frb::FieldInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Text => 0.into_dart(),
+            Self::Check => 1.into_dart(),
+            Self::Radio => 2.into_dart(),
+            Self::Push => 3.into_dart(),
+            Self::Combo => 4.into_dart(),
+            Self::List => 5.into_dart(),
+            Self::Signature => 6.into_dart(),
+            Self::Other => 7.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldKind> for crate::frb::FieldKind {
+    fn into_into_dart(self) -> crate::frb::FieldKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldOption {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.export.into_into_dart().into_dart(),
+            self.display.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldOption {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldOption> for crate::frb::FieldOption {
+    fn into_into_dart(self) -> crate::frb::FieldOption {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldProblem {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.max_len.into_into_dart().into_dart(),
+            self.pattern.into_into_dart().into_dart(),
+            self.min.into_into_dart().into_dart(),
+            self.max.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldProblem {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldProblem> for crate::frb::FieldProblem {
+    fn into_into_dart(self) -> crate::frb::FieldProblem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldProblemKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::TooLong => 0.into_dart(),
+            Self::NotADate => 1.into_dart(),
+            Self::NotANumber => 2.into_dart(),
+            Self::OutOfRange => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldProblemKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldProblemKind>
+    for crate::frb::FieldProblemKind
+{
+    fn into_into_dart(self) -> crate::frb::FieldProblemKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FieldWidget {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.page.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.on_state.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FieldWidget {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FieldWidget> for crate::frb::FieldWidget {
+    fn into_into_dart(self) -> crate::frb::FieldWidget {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FillTarget {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.cells.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FillTarget {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FillTarget> for crate::frb::FillTarget {
+    fn into_into_dart(self) -> crate::frb::FillTarget {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FillTargetKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Line => 0.into_dart(),
+            Self::Box => 1.into_dart(),
+            Self::Check => 2.into_dart(),
+            Self::Comb => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FillTargetKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FillTargetKind> for crate::frb::FillTargetKind {
+    fn into_into_dart(self) -> crate::frb::FillTargetKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FillTargets {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.targets.into_into_dart().into_dart(),
+            self.truncated.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FillTargets {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FillTargets> for crate::frb::FillTargets {
+    fn into_into_dart(self) -> crate::frb::FillTargets {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::FontCandidate {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5702,6 +7965,44 @@ impl flutter_rust_bridge::IntoDart for crate::frb::FontType {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontType {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontType> for crate::frb::FontType {
     fn into_into_dart(self) -> crate::frb::FontType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FormInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.fields.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+            self.required_left.into_into_dart().into_dart(),
+            self.problems.into_into_dart().into_dart(),
+            self.has_xfa.into_into_dart().into_dart(),
+            self.truncated.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FormInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FormInfo> for crate::frb::FormInfo {
+    fn into_into_dart(self) -> crate::frb::FormInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::HandwritingStyle {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.family.into_into_dart().into_dart(),
+            self.covered.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::HandwritingStyle {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::HandwritingStyle>
+    for crate::frb::HandwritingStyle
+{
+    fn into_into_dart(self) -> crate::frb::HandwritingStyle {
         self
     }
 }
@@ -5911,6 +8212,124 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::LineInfo> for crate::frb::Lin
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkChange {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.rect.into_into_dart().into_dart(),
+            self.destination.into_into_dart().into_dart(),
+            self.look.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkChange {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkChange> for crate::frb::LinkChange {
+    fn into_into_dart(self) -> crate::frb::LinkChange {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkDestination {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.address.into_into_dart().into_dart(),
+            self.mail.into_into_dart().into_dart(),
+            self.page.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkDestination {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkDestination>
+    for crate::frb::LinkDestination
+{
+    fn into_into_dart(self) -> crate::frb::LinkDestination {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.handle.into_into_dart().into_dart(),
+            self.page.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.quads.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.target.into_into_dart().into_dart(),
+            self.target_page.into_into_dart().into_dart(),
+            self.wanted_page.into_into_dart().into_dart(),
+            self.look.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkInfo> for crate::frb::LinkInfo {
+    fn into_into_dart(self) -> crate::frb::LinkInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Web => 0.into_dart(),
+            Self::Mail => 1.into_dart(),
+            Self::Page => 2.into_dart(),
+            Self::Broken => 3.into_dart(),
+            Self::Script => 4.into_dart(),
+            Self::Launch => 5.into_dart(),
+            Self::File => 6.into_dart(),
+            Self::Address => 7.into_dart(),
+            Self::Action => 8.into_dart(),
+            Self::Nothing => 9.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkKind> for crate::frb::LinkKind {
+    fn into_into_dart(self) -> crate::frb::LinkKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkList {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.links.into_into_dart().into_dart(),
+            self.truncated.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkList {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkList> for crate::frb::LinkList {
+    fn into_into_dart(self) -> crate::frb::LinkList {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::LinkLook {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Invisible => 0.into_dart(),
+            Self::Underline => 1.into_dart(),
+            Self::Box => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LinkLook {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::LinkLook> for crate::frb::LinkLook {
+    fn into_into_dart(self) -> crate::frb::LinkLook {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::MissingChar {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5923,6 +8342,23 @@ impl flutter_rust_bridge::IntoDart for crate::frb::MissingChar {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingChar {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingChar> for crate::frb::MissingChar {
     fn into_into_dart(self) -> crate::frb::MissingChar {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::MissingFont {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Bundled => 0.into_dart(),
+            Self::Ask => 1.into_dart(),
+            Self::Keep => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingFont {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingFont> for crate::frb::MissingFont {
+    fn into_into_dart(self) -> crate::frb::MissingFont {
         self
     }
 }
@@ -5965,6 +8401,75 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingReasonKind>
     for crate::frb::MissingReasonKind
 {
     fn into_into_dart(self) -> crate::frb::MissingReasonKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::NewAnnotation {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.rect.into_into_dart().into_dart(),
+            self.points.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.stroke.into_into_dart().into_dart(),
+            self.opacity.into_into_dart().into_dart(),
+            self.contents.into_into_dart().into_dart(),
+            self.author.into_into_dart().into_dart(),
+            self.font_size.into_into_dart().into_dart(),
+            self.arrow.into_into_dart().into_dart(),
+            self.label.into_into_dart().into_dart(),
+            self.meta.into_into_dart().into_dart(),
+            self.tilt.into_into_dart().into_dart(),
+            self.icon.into_into_dart().into_dart(),
+            self.comb.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::NewAnnotation {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::NewAnnotation> for crate::frb::NewAnnotation {
+    fn into_into_dart(self) -> crate::frb::NewAnnotation {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::NewLink {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.rect.into_into_dart().into_dart(),
+            self.quads.into_into_dart().into_dart(),
+            self.destination.into_into_dart().into_dart(),
+            self.look.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::NewLink {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::NewLink> for crate::frb::NewLink {
+    fn into_into_dart(self) -> crate::frb::NewLink {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::NewSignature {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.rect.into_into_dart().into_dart(),
+            self.ink.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.tilt.into_into_dart().into_dart(),
+            self.initials.into_into_dart().into_dart(),
+            self.field.into_into_dart().into_dart(),
+            self.author.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::NewSignature {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::NewSignature> for crate::frb::NewSignature {
+    fn into_into_dart(self) -> crate::frb::NewSignature {
         self
     }
 }
@@ -6250,6 +8755,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::PdfDate {
             self.day.into_into_dart().into_dart(),
             self.hour.into_into_dart().into_dart(),
             self.minute.into_into_dart().into_dart(),
+            self.second.into_into_dart().into_dart(),
+            self.offset_minutes.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -6446,6 +8953,22 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::RevisionInfo> for crate::frb:
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SavedSignature {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.bytes.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SavedSignature {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SavedSignature> for crate::frb::SavedSignature {
+    fn into_into_dart(self) -> crate::frb::SavedSignature {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::SearchEvent {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -6496,6 +9019,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchMatch {
             self.snippet_start.into_into_dart().into_dart(),
             self.snippet_end.into_into_dart().into_dart(),
             self.bookmark.into_into_dart().into_dart(),
+            self.comment.into_into_dart().into_dart(),
+            self.field.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -6514,6 +9039,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchOptions {
             self.whole_words.into_into_dart().into_dart(),
             self.ignore_accents.into_into_dart().into_dart(),
             self.bookmarks.into_into_dart().into_dart(),
+            self.comments.into_into_dart().into_dart(),
+            self.fields.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -6576,6 +9103,45 @@ impl flutter_rust_bridge::IntoDart for crate::frb::Signature {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::Signature {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::Signature> for crate::frb::Signature {
     fn into_into_dart(self) -> crate::frb::Signature {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SignatureInk {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.text.into_into_dart().into_dart(),
+            self.family.into_into_dart().into_dart(),
+            self.strokes.into_into_dart().into_dart(),
+            self.width.into_into_dart().into_dart(),
+            self.image.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SignatureInk {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SignatureInk> for crate::frb::SignatureInk {
+    fn into_into_dart(self) -> crate::frb::SignatureInk {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SignatureInkKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Typed => 0.into_dart(),
+            Self::Drawn => 1.into_dart(),
+            Self::Image => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SignatureInkKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SignatureInkKind>
+    for crate::frb::SignatureInkKind
+{
+    fn into_into_dart(self) -> crate::frb::SignatureInkKind {
         self
     }
 }
@@ -6668,6 +9234,87 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::SubstitutionKind>
     for crate::frb::SubstitutionKind
 {
     fn into_into_dart(self) -> crate::frb::SubstitutionKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SummaryFormat {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Csv => 0.into_dart(),
+            Self::PageAndComments => 1.into_dart(),
+            Self::CommentsOnly => 2.into_dart(),
+            Self::PageThenList => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SummaryFormat {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SummaryFormat> for crate::frb::SummaryFormat {
+    fn into_into_dart(self) -> crate::frb::SummaryFormat {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SummaryKindName {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SummaryKindName {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SummaryKindName>
+    for crate::frb::SummaryKindName
+{
+    fn into_into_dart(self) -> crate::frb::SummaryKindName {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SummaryOptions {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.open.into_into_dart().into_dart(),
+            self.resolved.into_into_dart().into_dart(),
+            self.replies.into_into_dart().into_dart(),
+            self.empty_pages.into_into_dart().into_dart(),
+            self.sort.into_into_dart().into_dart(),
+            self.page_label.into_into_dart().into_dart(),
+            self.columns.into_into_dart().into_dart(),
+            self.kinds.into_into_dart().into_dart(),
+            self.open_label.into_into_dart().into_dart(),
+            self.resolved_label.into_into_dart().into_dart(),
+            self.no_comments.into_into_dart().into_dart(),
+            self.date_pattern.into_into_dart().into_dart(),
+            self.paper_width.into_into_dart().into_dart(),
+            self.paper_height.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SummaryOptions {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SummaryOptions> for crate::frb::SummaryOptions {
+    fn into_into_dart(self) -> crate::frb::SummaryOptions {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SummarySort {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Page => 0.into_dart(),
+            Self::Date => 1.into_dart(),
+            Self::Author => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SummarySort {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SummarySort> for crate::frb::SummarySort {
+    fn into_into_dart(self) -> crate::frb::SummarySort {
         self
     }
 }
@@ -6837,6 +9484,111 @@ impl SseEncode for crate::frb::Alignment {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<String>>::sse_encode(self.contents, serializer);
+        <Option<crate::frb::PageRect>>::sse_encode(self.rect, serializer);
+        <Option<Vec<crate::frb::AnnotationPoints>>>::sse_encode(self.points, serializer);
+        <Option<crate::frb::AnnotationColor>>::sse_encode(self.color, serializer);
+        <Option<f32>>::sse_encode(self.stroke, serializer);
+        <Option<f32>>::sse_encode(self.opacity, serializer);
+        <Option<f32>>::sse_encode(self.font_size, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationColor {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <f32>::sse_encode(self.red, serializer);
+        <f32>::sse_encode(self.green, serializer);
+        <f32>::sse_encode(self.blue, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.handle, serializer);
+        <crate::frb::RevisionInfo>::sse_encode(self.revision, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.handle, serializer);
+        <u64>::sse_encode(self.page, serializer);
+        <crate::frb::AnnotationKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.subtype, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Vec<crate::frb::AnnotationPoints>>::sse_encode(self.points, serializer);
+        <bool>::sse_encode(self.arrow, serializer);
+        <Option<crate::frb::AnnotationColor>>::sse_encode(self.color, serializer);
+        <f32>::sse_encode(self.opacity, serializer);
+        <f32>::sse_encode(self.stroke, serializer);
+        <Option<f32>>::sse_encode(self.font_size, serializer);
+        <Option<String>>::sse_encode(self.author, serializer);
+        <Option<String>>::sse_encode(self.contents, serializer);
+        <Option<String>>::sse_encode(self.quote, serializer);
+        <bool>::sse_encode(self.rich, serializer);
+        <Option<crate::frb::PdfDate>>::sse_encode(self.created, serializer);
+        <Option<crate::frb::PdfDate>>::sse_encode(self.modified, serializer);
+        <Option<String>>::sse_encode(self.icon, serializer);
+        <Option<u64>>::sse_encode(self.replies_to, serializer);
+        <u64>::sse_encode(self.thread, serializer);
+        <Option<String>>::sse_encode(self.state, serializer);
+        <bool>::sse_encode(self.resolved, serializer);
+        <Option<String>>::sse_encode(self.resolved_by, serializer);
+        <Option<crate::frb::PdfDate>>::sse_encode(self.resolved_at, serializer);
+        <Vec<String>>::sse_encode(self.mentions, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::AnnotationKind::Highlight => 0,
+                crate::frb::AnnotationKind::Underline => 1,
+                crate::frb::AnnotationKind::StrikeOut => 2,
+                crate::frb::AnnotationKind::Squiggly => 3,
+                crate::frb::AnnotationKind::Note => 4,
+                crate::frb::AnnotationKind::FreeText => 5,
+                crate::frb::AnnotationKind::Callout => 6,
+                crate::frb::AnnotationKind::Ink => 7,
+                crate::frb::AnnotationKind::Square => 8,
+                crate::frb::AnnotationKind::Circle => 9,
+                crate::frb::AnnotationKind::Line => 10,
+                crate::frb::AnnotationKind::Polygon => 11,
+                crate::frb::AnnotationKind::Stamp => 12,
+                crate::frb::AnnotationKind::Other => 13,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationList {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::AnnotationInfo>>::sse_encode(self.annotations, serializer);
+        <Vec<String>>::sse_encode(self.people, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::AnnotationPoints {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::PagePoint>>::sse_encode(self.points, serializer);
     }
 }
 
@@ -7166,6 +9918,13 @@ impl SseEncode for f32 {
     }
 }
 
+impl SseEncode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_f64::<NativeEndian>(self).unwrap();
+    }
+}
+
 impl SseEncode for crate::frb::FailReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7182,6 +9941,169 @@ impl SseEncode for crate::frb::FailReason {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::FieldCommit {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::RevisionInfo>::sse_encode(self.revision, serializer);
+        <Option<crate::frb::FieldProblem>>::sse_encode(self.problem, serializer);
+        <Vec<String>>::sse_encode(self.fonts, serializer);
+        <bool>::sse_encode(self.marked, serializer);
+        <bool>::sse_encode(self.xfa_removed, serializer);
+        <bool>::sse_encode(self.asks_font, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldFormatKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldFormatKind::None => 0,
+                crate::frb::FieldFormatKind::Date => 1,
+                crate::frb::FieldFormatKind::Number => 2,
+                crate::frb::FieldFormatKind::Percent => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.handle, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.label, serializer);
+        <crate::frb::FieldKind>::sse_encode(self.kind, serializer);
+        <bool>::sse_encode(self.read_only, serializer);
+        <bool>::sse_encode(self.required, serializer);
+        <bool>::sse_encode(self.multiline, serializer);
+        <bool>::sse_encode(self.password, serializer);
+        <bool>::sse_encode(self.comb, serializer);
+        <bool>::sse_encode(self.multi_select, serializer);
+        <bool>::sse_encode(self.editable, serializer);
+        <Vec<String>>::sse_encode(self.values, serializer);
+        <Vec<crate::frb::FieldOption>>::sse_encode(self.options, serializer);
+        <Option<u32>>::sse_encode(self.max_len, serializer);
+        <Vec<crate::frb::FieldWidget>>::sse_encode(self.widgets, serializer);
+        <crate::frb::FieldFormatKind>::sse_encode(self.format, serializer);
+        <Option<String>>::sse_encode(self.date_pattern, serializer);
+        <Option<i32>>::sse_encode(self.decimals, serializer);
+        <Option<f64>>::sse_encode(self.min, serializer);
+        <Option<f64>>::sse_encode(self.max, serializer);
+        <Option<crate::frb::FieldProblem>>::sse_encode(self.problem, serializer);
+        <bool>::sse_encode(self.signed, serializer);
+        <Option<u64>>::sse_encode(self.signature, serializer);
+        <bool>::sse_encode(self.filled, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldKind::Text => 0,
+                crate::frb::FieldKind::Check => 1,
+                crate::frb::FieldKind::Radio => 2,
+                crate::frb::FieldKind::Push => 3,
+                crate::frb::FieldKind::Combo => 4,
+                crate::frb::FieldKind::List => 5,
+                crate::frb::FieldKind::Signature => 6,
+                crate::frb::FieldKind::Other => 7,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldOption {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.export, serializer);
+        <String>::sse_encode(self.display, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldProblem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::FieldProblemKind>::sse_encode(self.kind, serializer);
+        <Option<u32>>::sse_encode(self.max_len, serializer);
+        <Option<String>>::sse_encode(self.pattern, serializer);
+        <Option<f64>>::sse_encode(self.min, serializer);
+        <Option<f64>>::sse_encode(self.max, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FieldProblemKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FieldProblemKind::TooLong => 0,
+                crate::frb::FieldProblemKind::NotADate => 1,
+                crate::frb::FieldProblemKind::NotANumber => 2,
+                crate::frb::FieldProblemKind::OutOfRange => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FieldWidget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.page, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Option<String>>::sse_encode(self.on_state, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FillTarget {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::FillTargetKind>::sse_encode(self.kind, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <u32>::sse_encode(self.cells, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FillTargetKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FillTargetKind::Line => 0,
+                crate::frb::FillTargetKind::Box => 1,
+                crate::frb::FillTargetKind::Check => 2,
+                crate::frb::FillTargetKind::Comb => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FillTargets {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::FillTarget>>::sse_encode(self.targets, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
     }
 }
 
@@ -7297,6 +10219,26 @@ impl SseEncode for crate::frb::FontType {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::FormInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::FieldInfo>>::sse_encode(self.fields, serializer);
+        <u32>::sse_encode(self.required, serializer);
+        <u32>::sse_encode(self.required_left, serializer);
+        <u32>::sse_encode(self.problems, serializer);
+        <bool>::sse_encode(self.has_xfa, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::HandwritingStyle {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.family, serializer);
+        <bool>::sse_encode(self.covered, serializer);
     }
 }
 
@@ -7470,12 +10412,116 @@ impl SseEncode for crate::frb::LineInfo {
     }
 }
 
+impl SseEncode for crate::frb::LinkChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<crate::frb::PageRect>>::sse_encode(self.rect, serializer);
+        <Option<crate::frb::LinkDestination>>::sse_encode(self.destination, serializer);
+        <Option<crate::frb::LinkLook>>::sse_encode(self.look, serializer);
+        <Option<crate::frb::AnnotationColor>>::sse_encode(self.color, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::LinkDestination {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.address, serializer);
+        <bool>::sse_encode(self.mail, serializer);
+        <Option<u64>>::sse_encode(self.page, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::LinkInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.handle, serializer);
+        <u64>::sse_encode(self.page, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Vec<crate::frb::AnnotationPoints>>::sse_encode(self.quads, serializer);
+        <crate::frb::LinkKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.target, serializer);
+        <Option<u64>>::sse_encode(self.target_page, serializer);
+        <Option<u64>>::sse_encode(self.wanted_page, serializer);
+        <crate::frb::LinkLook>::sse_encode(self.look, serializer);
+        <Option<crate::frb::AnnotationColor>>::sse_encode(self.color, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::LinkKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::LinkKind::Web => 0,
+                crate::frb::LinkKind::Mail => 1,
+                crate::frb::LinkKind::Page => 2,
+                crate::frb::LinkKind::Broken => 3,
+                crate::frb::LinkKind::Script => 4,
+                crate::frb::LinkKind::Launch => 5,
+                crate::frb::LinkKind::File => 6,
+                crate::frb::LinkKind::Address => 7,
+                crate::frb::LinkKind::Action => 8,
+                crate::frb::LinkKind::Nothing => 9,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::LinkList {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::LinkInfo>>::sse_encode(self.links, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::LinkLook {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::LinkLook::Invisible => 0,
+                crate::frb::LinkLook::Underline => 1,
+                crate::frb::LinkLook::Box => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <String>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::AnnotationInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::AnnotationInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::AnnotationPoints> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::AnnotationPoints>::sse_encode(item, serializer);
         }
     }
 }
@@ -7550,6 +10596,46 @@ impl SseEncode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::FieldInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FieldOption> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldOption>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FieldWidget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FieldWidget>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FillTarget> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FillTarget>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::FontCandidate> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7586,6 +10672,16 @@ impl SseEncode for Vec<crate::frb::FontSubstitution> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::FontSubstitution>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::HandwritingStyle> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::HandwritingStyle>::sse_encode(item, serializer);
         }
     }
 }
@@ -7640,6 +10736,16 @@ impl SseEncode for Vec<crate::frb::LineInfo> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::LinkInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::LinkInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::MissingChar> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7686,6 +10792,16 @@ impl SseEncode for Vec<crate::frb::PageInfo> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::PageInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::PagePoint> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::PagePoint>::sse_encode(item, serializer);
         }
     }
 }
@@ -7760,6 +10876,16 @@ impl SseEncode for Vec<crate::frb::RepairFix> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::SavedSignature> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::SavedSignature>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7800,6 +10926,16 @@ impl SseEncode for Vec<crate::frb::SplitOutput> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::SummaryKindName> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::SummaryKindName>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::WantedItem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7815,6 +10951,23 @@ impl SseEncode for crate::frb::MissingChar {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.text, serializer);
         <u32>::sse_encode(self.at, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::MissingFont {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::MissingFont::Bundled => 0,
+                crate::frb::MissingFont::Ask => 1,
+                crate::frb::MissingFont::Keep => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -7847,6 +11000,51 @@ impl SseEncode for crate::frb::MissingReasonKind {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::NewAnnotation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::AnnotationKind>::sse_encode(self.kind, serializer);
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Vec<crate::frb::AnnotationPoints>>::sse_encode(self.points, serializer);
+        <crate::frb::AnnotationColor>::sse_encode(self.color, serializer);
+        <f32>::sse_encode(self.stroke, serializer);
+        <f32>::sse_encode(self.opacity, serializer);
+        <String>::sse_encode(self.contents, serializer);
+        <String>::sse_encode(self.author, serializer);
+        <f32>::sse_encode(self.font_size, serializer);
+        <bool>::sse_encode(self.arrow, serializer);
+        <String>::sse_encode(self.label, serializer);
+        <Option<String>>::sse_encode(self.meta, serializer);
+        <f32>::sse_encode(self.tilt, serializer);
+        <Option<String>>::sse_encode(self.icon, serializer);
+        <Option<u32>>::sse_encode(self.comb, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::NewLink {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <Vec<crate::frb::AnnotationPoints>>::sse_encode(self.quads, serializer);
+        <crate::frb::LinkDestination>::sse_encode(self.destination, serializer);
+        <crate::frb::LinkLook>::sse_encode(self.look, serializer);
+        <crate::frb::AnnotationColor>::sse_encode(self.color, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::NewSignature {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+        <crate::frb::SignatureInk>::sse_encode(self.ink, serializer);
+        <crate::frb::AnnotationColor>::sse_encode(self.color, serializer);
+        <f32>::sse_encode(self.tilt, serializer);
+        <bool>::sse_encode(self.initials, serializer);
+        <Option<String>>::sse_encode(self.field, serializer);
+        <String>::sse_encode(self.author, serializer);
     }
 }
 
@@ -7943,6 +11141,16 @@ impl SseEncode for Option<crate::frb::Alignment> {
     }
 }
 
+impl SseEncode for Option<crate::frb::AnnotationColor> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::AnnotationColor>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::ApiError> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -8003,6 +11211,16 @@ impl SseEncode for Option<f32> {
     }
 }
 
+impl SseEncode for Option<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f64>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -8013,12 +11231,82 @@ impl SseEncode for Option<crate::frb::FailReason> {
     }
 }
 
+impl SseEncode for Option<crate::frb::FieldProblem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::FieldProblem>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::FontEmbedding> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::FontEmbedding>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i16>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::LinkDestination> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::LinkDestination>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::LinkInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::LinkInfo>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::LinkLook> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::LinkLook>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::MissingFont> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::MissingFont>::sse_encode(value, serializer);
         }
     }
 }
@@ -8069,6 +11357,16 @@ impl SseEncode for Option<crate::frb::PageMargins> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::PageMargins>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::PageRect> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::PageRect>::sse_encode(value, serializer);
         }
     }
 }
@@ -8139,6 +11437,16 @@ impl SseEncode for Option<crate::frb::ViewItem> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::ViewItem>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<crate::frb::AnnotationPoints>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<crate::frb::AnnotationPoints>>::sse_encode(value, serializer);
         }
     }
 }
@@ -8287,6 +11595,8 @@ impl SseEncode for crate::frb::PdfDate {
         <u8>::sse_encode(self.day, serializer);
         <u8>::sse_encode(self.hour, serializer);
         <u8>::sse_encode(self.minute, serializer);
+        <u8>::sse_encode(self.second, serializer);
+        <Option<i16>>::sse_encode(self.offset_minutes, serializer);
     }
 }
 
@@ -8428,6 +11738,14 @@ impl SseEncode for crate::frb::RevisionInfo {
     }
 }
 
+impl SseEncode for crate::frb::SavedSignature {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <Vec<u8>>::sse_encode(self.bytes, serializer);
+    }
+}
+
 impl SseEncode for crate::frb::SearchEvent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -8468,6 +11786,8 @@ impl SseEncode for crate::frb::SearchMatch {
         <u32>::sse_encode(self.snippet_start, serializer);
         <u32>::sse_encode(self.snippet_end, serializer);
         <bool>::sse_encode(self.bookmark, serializer);
+        <Option<u64>>::sse_encode(self.comment, serializer);
+        <Option<u64>>::sse_encode(self.field, serializer);
     }
 }
 
@@ -8478,6 +11798,8 @@ impl SseEncode for crate::frb::SearchOptions {
         <bool>::sse_encode(self.whole_words, serializer);
         <bool>::sse_encode(self.ignore_accents, serializer);
         <bool>::sse_encode(self.bookmarks, serializer);
+        <bool>::sse_encode(self.comments, serializer);
+        <bool>::sse_encode(self.fields, serializer);
     }
 }
 
@@ -8509,6 +11831,35 @@ impl SseEncode for crate::frb::Signature {
         <Option<String>>::sse_encode(self.signer, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.signed_at, serializer);
         <Option<u32>>::sse_encode(self.page, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::SignatureInk {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::SignatureInkKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.text, serializer);
+        <String>::sse_encode(self.family, serializer);
+        <Vec<crate::frb::AnnotationPoints>>::sse_encode(self.strokes, serializer);
+        <f32>::sse_encode(self.width, serializer);
+        <Vec<u8>>::sse_encode(self.image, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::SignatureInkKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::SignatureInkKind::Typed => 0,
+                crate::frb::SignatureInkKind::Drawn => 1,
+                crate::frb::SignatureInkKind::Image => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -8569,6 +11920,69 @@ impl SseEncode for crate::frb::SubstitutionKind {
                 crate::frb::SubstitutionKind::SameFont => 0,
                 crate::frb::SubstitutionKind::Similar => 1,
                 crate::frb::SubstitutionKind::Marked => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::SummaryFormat {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::SummaryFormat::Csv => 0,
+                crate::frb::SummaryFormat::PageAndComments => 1,
+                crate::frb::SummaryFormat::CommentsOnly => 2,
+                crate::frb::SummaryFormat::PageThenList => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::SummaryKindName {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::AnnotationKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.name, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::SummaryOptions {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.open, serializer);
+        <bool>::sse_encode(self.resolved, serializer);
+        <bool>::sse_encode(self.replies, serializer);
+        <bool>::sse_encode(self.empty_pages, serializer);
+        <crate::frb::SummarySort>::sse_encode(self.sort, serializer);
+        <String>::sse_encode(self.page_label, serializer);
+        <Vec<String>>::sse_encode(self.columns, serializer);
+        <Vec<crate::frb::SummaryKindName>>::sse_encode(self.kinds, serializer);
+        <String>::sse_encode(self.open_label, serializer);
+        <String>::sse_encode(self.resolved_label, serializer);
+        <String>::sse_encode(self.no_comments, serializer);
+        <String>::sse_encode(self.date_pattern, serializer);
+        <f32>::sse_encode(self.paper_width, serializer);
+        <f32>::sse_encode(self.paper_height, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::SummarySort {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::SummarySort::Page => 0,
+                crate::frb::SummarySort::Date => 1,
+                crate::frb::SummarySort::Author => 2,
                 _ => {
                     unimplemented!("");
                 }
@@ -8764,6 +12178,89 @@ mod io {
             String::from_utf8(vec).unwrap()
         }
     }
+    impl CstDecode<crate::frb::AnnotationChange> for wire_cst_annotation_change {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationChange {
+            crate::frb::AnnotationChange {
+                contents: self.contents.cst_decode(),
+                rect: self.rect.cst_decode(),
+                points: self.points.cst_decode(),
+                color: self.color.cst_decode(),
+                stroke: self.stroke.cst_decode(),
+                opacity: self.opacity.cst_decode(),
+                font_size: self.font_size.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationColor> for wire_cst_annotation_color {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationColor {
+            crate::frb::AnnotationColor {
+                red: self.red.cst_decode(),
+                green: self.green.cst_decode(),
+                blue: self.blue.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationCommit> for wire_cst_annotation_commit {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationCommit {
+            crate::frb::AnnotationCommit {
+                handle: self.handle.cst_decode(),
+                revision: self.revision.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationInfo> for wire_cst_annotation_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationInfo {
+            crate::frb::AnnotationInfo {
+                handle: self.handle.cst_decode(),
+                page: self.page.cst_decode(),
+                kind: self.kind.cst_decode(),
+                subtype: self.subtype.cst_decode(),
+                rect: self.rect.cst_decode(),
+                points: self.points.cst_decode(),
+                arrow: self.arrow.cst_decode(),
+                color: self.color.cst_decode(),
+                opacity: self.opacity.cst_decode(),
+                stroke: self.stroke.cst_decode(),
+                font_size: self.font_size.cst_decode(),
+                author: self.author.cst_decode(),
+                contents: self.contents.cst_decode(),
+                quote: self.quote.cst_decode(),
+                rich: self.rich.cst_decode(),
+                created: self.created.cst_decode(),
+                modified: self.modified.cst_decode(),
+                icon: self.icon.cst_decode(),
+                replies_to: self.replies_to.cst_decode(),
+                thread: self.thread.cst_decode(),
+                state: self.state.cst_decode(),
+                resolved: self.resolved.cst_decode(),
+                resolved_by: self.resolved_by.cst_decode(),
+                resolved_at: self.resolved_at.cst_decode(),
+                mentions: self.mentions.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationList> for wire_cst_annotation_list {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationList {
+            crate::frb::AnnotationList {
+                annotations: self.annotations.cst_decode(),
+                people: self.people.cst_decode(),
+                truncated: self.truncated.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationPoints> for wire_cst_annotation_points {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationPoints {
+            crate::frb::AnnotationPoints {
+                points: self.points.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::ApiError> for wire_cst_api_error {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::ApiError {
@@ -8858,6 +12355,20 @@ mod io {
             CstDecode::<crate::frb::Alignment>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::frb::AnnotationChange> for *mut wire_cst_annotation_change {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationChange {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::AnnotationChange>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationColor> for *mut wire_cst_annotation_color {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationColor {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::AnnotationColor>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::frb::ApiError> for *mut wire_cst_api_error {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::ApiError {
@@ -8906,11 +12417,24 @@ mod io {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
+    impl CstDecode<f64> for *mut f64 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
     impl CstDecode<crate::frb::FailReason> for *mut i32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FailReason {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::FailReason>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem> for *mut wire_cst_field_problem {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::FieldProblem>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::FontEmbedding> for *mut i32 {
@@ -8927,11 +12451,79 @@ mod io {
             CstDecode::<crate::frb::FontSettings>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<i16> for *mut i16 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i16 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<i32> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::frb::LinkChange> for *mut wire_cst_link_change {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkChange {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::LinkChange>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::LinkDestination> for *mut wire_cst_link_destination {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkDestination {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::LinkDestination>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::LinkInfo> for *mut wire_cst_link_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkInfo {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::LinkInfo>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::LinkLook> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkLook {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::LinkLook>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingFont> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingFont {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::MissingFont>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::frb::MissingGlyphs> for *mut wire_cst_missing_glyphs {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::MissingGlyphs {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::MissingGlyphs>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::NewAnnotation> for *mut wire_cst_new_annotation {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewAnnotation {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::NewAnnotation>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::NewLink> for *mut wire_cst_new_link {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewLink {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::NewLink>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::NewSignature> for *mut wire_cst_new_signature {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewSignature {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::NewSignature>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::NotEditableReason> for *mut i32 {
@@ -9002,6 +12594,13 @@ mod io {
         fn cst_decode(self) -> crate::frb::Security {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::Security>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::SummaryOptions> for *mut wire_cst_summary_options {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryOptions {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::SummaryOptions>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::TextPosition> for *mut wire_cst_text_position {
@@ -9178,6 +12777,100 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::FieldCommit> for wire_cst_field_commit {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldCommit {
+            crate::frb::FieldCommit {
+                revision: self.revision.cst_decode(),
+                problem: self.problem.cst_decode(),
+                fonts: self.fonts.cst_decode(),
+                marked: self.marked.cst_decode(),
+                xfa_removed: self.xfa_removed.cst_decode(),
+                asks_font: self.asks_font.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldInfo> for wire_cst_field_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldInfo {
+            crate::frb::FieldInfo {
+                handle: self.handle.cst_decode(),
+                name: self.name.cst_decode(),
+                label: self.label.cst_decode(),
+                kind: self.kind.cst_decode(),
+                read_only: self.read_only.cst_decode(),
+                required: self.required.cst_decode(),
+                multiline: self.multiline.cst_decode(),
+                password: self.password.cst_decode(),
+                comb: self.comb.cst_decode(),
+                multi_select: self.multi_select.cst_decode(),
+                editable: self.editable.cst_decode(),
+                values: self.values.cst_decode(),
+                options: self.options.cst_decode(),
+                max_len: self.max_len.cst_decode(),
+                widgets: self.widgets.cst_decode(),
+                format: self.format.cst_decode(),
+                date_pattern: self.date_pattern.cst_decode(),
+                decimals: self.decimals.cst_decode(),
+                min: self.min.cst_decode(),
+                max: self.max.cst_decode(),
+                problem: self.problem.cst_decode(),
+                signed: self.signed.cst_decode(),
+                signature: self.signature.cst_decode(),
+                filled: self.filled.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldOption> for wire_cst_field_option {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldOption {
+            crate::frb::FieldOption {
+                export: self.export.cst_decode(),
+                display: self.display.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem> for wire_cst_field_problem {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            crate::frb::FieldProblem {
+                kind: self.kind.cst_decode(),
+                max_len: self.max_len.cst_decode(),
+                pattern: self.pattern.cst_decode(),
+                min: self.min.cst_decode(),
+                max: self.max.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldWidget> for wire_cst_field_widget {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldWidget {
+            crate::frb::FieldWidget {
+                page: self.page.cst_decode(),
+                rect: self.rect.cst_decode(),
+                on_state: self.on_state.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FillTarget> for wire_cst_fill_target {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FillTarget {
+            crate::frb::FillTarget {
+                kind: self.kind.cst_decode(),
+                rect: self.rect.cst_decode(),
+                cells: self.cells.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FillTargets> for wire_cst_fill_targets {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FillTargets {
+            crate::frb::FillTargets {
+                targets: self.targets.cst_decode(),
+                truncated: self.truncated.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontCandidate> for wire_cst_font_candidate {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FontCandidate {
@@ -9238,6 +12931,28 @@ mod io {
                 to_font: self.to_font.cst_decode(),
                 origin: self.origin.cst_decode(),
                 announced: self.announced.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FormInfo> for wire_cst_form_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FormInfo {
+            crate::frb::FormInfo {
+                fields: self.fields.cst_decode(),
+                required: self.required.cst_decode(),
+                required_left: self.required_left.cst_decode(),
+                problems: self.problems.cst_decode(),
+                has_xfa: self.has_xfa.cst_decode(),
+                truncated: self.truncated.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::HandwritingStyle> for wire_cst_handwriting_style {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::HandwritingStyle {
+            crate::frb::HandwritingStyle {
+                family: self.family.cst_decode(),
+                covered: self.covered.cst_decode(),
             }
         }
     }
@@ -9322,9 +13037,76 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::LinkChange> for wire_cst_link_change {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkChange {
+            crate::frb::LinkChange {
+                rect: self.rect.cst_decode(),
+                destination: self.destination.cst_decode(),
+                look: self.look.cst_decode(),
+                color: self.color.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkDestination> for wire_cst_link_destination {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkDestination {
+            crate::frb::LinkDestination {
+                address: self.address.cst_decode(),
+                mail: self.mail.cst_decode(),
+                page: self.page.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkInfo> for wire_cst_link_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkInfo {
+            crate::frb::LinkInfo {
+                handle: self.handle.cst_decode(),
+                page: self.page.cst_decode(),
+                rect: self.rect.cst_decode(),
+                quads: self.quads.cst_decode(),
+                kind: self.kind.cst_decode(),
+                target: self.target.cst_decode(),
+                target_page: self.target_page.cst_decode(),
+                wanted_page: self.wanted_page.cst_decode(),
+                look: self.look.cst_decode(),
+                color: self.color.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkList> for wire_cst_link_list {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkList {
+            crate::frb::LinkList {
+                links: self.links.cst_decode(),
+                truncated: self.truncated.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for *mut wire_cst_list_String {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::AnnotationInfo>> for *mut wire_cst_list_annotation_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::AnnotationInfo> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::AnnotationPoints>> for *mut wire_cst_list_annotation_points {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::AnnotationPoints> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -9402,6 +13184,46 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FieldInfo>> for *mut wire_cst_list_field_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldInfo> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldOption>> for *mut wire_cst_list_field_option {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldOption> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldWidget>> for *mut wire_cst_list_field_widget {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldWidget> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FillTarget>> for *mut wire_cst_list_fill_target {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FillTarget> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontCandidate>> for *mut wire_cst_list_font_candidate {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontCandidate> {
@@ -9435,6 +13257,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::FontSubstitution>> for *mut wire_cst_list_font_substitution {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontSubstitution> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::HandwritingStyle>> for *mut wire_cst_list_handwriting_style {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::HandwritingStyle> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -9485,6 +13317,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::LineInfo>> for *mut wire_cst_list_line_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::LineInfo> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::LinkInfo>> for *mut wire_cst_list_link_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::LinkInfo> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -9544,6 +13386,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::PagePoint>> for *mut wire_cst_list_page_point {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::PagePoint> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::PageRect>> for *mut wire_cst_list_page_rect {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::PageRect> {
@@ -9566,6 +13418,15 @@ mod io {
     impl CstDecode<Vec<u64>> for *mut wire_cst_list_prim_u_64_strict {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<u64> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_loose {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
             unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -9604,6 +13465,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::RepairFix>> for *mut wire_cst_list_repair_fix {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::SavedSignature>> for *mut wire_cst_list_saved_signature {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::SavedSignature> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -9651,6 +13522,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::SummaryKindName>> for *mut wire_cst_list_summary_kind_name {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::SummaryKindName> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::WantedItem>> for *mut wire_cst_list_wanted_item {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::WantedItem> {
@@ -9683,6 +13564,54 @@ mod io {
                 italic: self.italic.cst_decode(),
                 candidates: self.candidates.cst_decode(),
                 drawn: self.drawn.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewAnnotation> for wire_cst_new_annotation {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewAnnotation {
+            crate::frb::NewAnnotation {
+                kind: self.kind.cst_decode(),
+                rect: self.rect.cst_decode(),
+                points: self.points.cst_decode(),
+                color: self.color.cst_decode(),
+                stroke: self.stroke.cst_decode(),
+                opacity: self.opacity.cst_decode(),
+                contents: self.contents.cst_decode(),
+                author: self.author.cst_decode(),
+                font_size: self.font_size.cst_decode(),
+                arrow: self.arrow.cst_decode(),
+                label: self.label.cst_decode(),
+                meta: self.meta.cst_decode(),
+                tilt: self.tilt.cst_decode(),
+                icon: self.icon.cst_decode(),
+                comb: self.comb.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewLink> for wire_cst_new_link {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewLink {
+            crate::frb::NewLink {
+                rect: self.rect.cst_decode(),
+                quads: self.quads.cst_decode(),
+                destination: self.destination.cst_decode(),
+                look: self.look.cst_decode(),
+                color: self.color.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewSignature> for wire_cst_new_signature {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewSignature {
+            crate::frb::NewSignature {
+                rect: self.rect.cst_decode(),
+                ink: self.ink.cst_decode(),
+                color: self.color.cst_decode(),
+                tilt: self.tilt.cst_decode(),
+                initials: self.initials.cst_decode(),
+                field: self.field.cst_decode(),
+                author: self.author.cst_decode(),
             }
         }
     }
@@ -9810,6 +13739,8 @@ mod io {
                 day: self.day.cst_decode(),
                 hour: self.hour.cst_decode(),
                 minute: self.minute.cst_decode(),
+                second: self.second.cst_decode(),
+                offset_minutes: self.offset_minutes.cst_decode(),
             }
         }
     }
@@ -9884,6 +13815,15 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::SavedSignature> for wire_cst_saved_signature {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SavedSignature {
+            crate::frb::SavedSignature {
+                name: self.name.cst_decode(),
+                bytes: self.bytes.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SearchEvent> for wire_cst_search_event {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::SearchEvent {
@@ -9908,6 +13848,8 @@ mod io {
                 snippet_start: self.snippet_start.cst_decode(),
                 snippet_end: self.snippet_end.cst_decode(),
                 bookmark: self.bookmark.cst_decode(),
+                comment: self.comment.cst_decode(),
+                field: self.field.cst_decode(),
             }
         }
     }
@@ -9919,6 +13861,8 @@ mod io {
                 whole_words: self.whole_words.cst_decode(),
                 ignore_accents: self.ignore_accents.cst_decode(),
                 bookmarks: self.bookmarks.cst_decode(),
+                comments: self.comments.cst_decode(),
+                fields: self.fields.cst_decode(),
             }
         }
     }
@@ -9956,6 +13900,19 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::SignatureInk> for wire_cst_signature_ink {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SignatureInk {
+            crate::frb::SignatureInk {
+                kind: self.kind.cst_decode(),
+                text: self.text.cst_decode(),
+                family: self.family.cst_decode(),
+                strokes: self.strokes.cst_decode(),
+                width: self.width.cst_decode(),
+                image: self.image.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SplitFile> for wire_cst_split_file {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::SplitFile {
@@ -9987,6 +13944,36 @@ mod io {
                 blank_pages: self.blank_pages.cst_decode(),
                 encrypted: self.encrypted.cst_decode(),
                 signed: self.signed.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::SummaryKindName> for wire_cst_summary_kind_name {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryKindName {
+            crate::frb::SummaryKindName {
+                kind: self.kind.cst_decode(),
+                name: self.name.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::SummaryOptions> for wire_cst_summary_options {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryOptions {
+            crate::frb::SummaryOptions {
+                open: self.open.cst_decode(),
+                resolved: self.resolved.cst_decode(),
+                replies: self.replies.cst_decode(),
+                empty_pages: self.empty_pages.cst_decode(),
+                sort: self.sort.cst_decode(),
+                page_label: self.page_label.cst_decode(),
+                columns: self.columns.cst_decode(),
+                kinds: self.kinds.cst_decode(),
+                open_label: self.open_label.cst_decode(),
+                resolved_label: self.resolved_label.cst_decode(),
+                no_comments: self.no_comments.cst_decode(),
+                date_pattern: self.date_pattern.cst_decode(),
+                paper_width: self.paper_width.cst_decode(),
+                paper_height: self.paper_height.cst_decode(),
             }
         }
     }
@@ -10039,6 +14026,113 @@ mod io {
                 item: self.item.cst_decode(),
                 priority: self.priority.cst_decode(),
             }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_change {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                contents: core::ptr::null_mut(),
+                rect: core::ptr::null_mut(),
+                points: core::ptr::null_mut(),
+                color: core::ptr::null_mut(),
+                stroke: core::ptr::null_mut(),
+                opacity: core::ptr::null_mut(),
+                font_size: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_change {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_color {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                red: Default::default(),
+                green: Default::default(),
+                blue: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_color {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_commit {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                handle: Default::default(),
+                revision: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_commit {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                handle: Default::default(),
+                page: Default::default(),
+                kind: Default::default(),
+                subtype: core::ptr::null_mut(),
+                rect: Default::default(),
+                points: core::ptr::null_mut(),
+                arrow: Default::default(),
+                color: core::ptr::null_mut(),
+                opacity: Default::default(),
+                stroke: Default::default(),
+                font_size: core::ptr::null_mut(),
+                author: core::ptr::null_mut(),
+                contents: core::ptr::null_mut(),
+                quote: core::ptr::null_mut(),
+                rich: Default::default(),
+                created: core::ptr::null_mut(),
+                modified: core::ptr::null_mut(),
+                icon: core::ptr::null_mut(),
+                replies_to: core::ptr::null_mut(),
+                thread: Default::default(),
+                state: core::ptr::null_mut(),
+                resolved: Default::default(),
+                resolved_by: core::ptr::null_mut(),
+                resolved_at: core::ptr::null_mut(),
+                mentions: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_list {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                annotations: core::ptr::null_mut(),
+                people: core::ptr::null_mut(),
+                truncated: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_list {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_annotation_points {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                points: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_annotation_points {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
         }
     }
     impl NewWithNullPtr for wire_cst_api_error {
@@ -10346,6 +14440,128 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_field_commit {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                revision: Default::default(),
+                problem: core::ptr::null_mut(),
+                fonts: core::ptr::null_mut(),
+                marked: Default::default(),
+                xfa_removed: Default::default(),
+                asks_font: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_commit {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                handle: Default::default(),
+                name: core::ptr::null_mut(),
+                label: core::ptr::null_mut(),
+                kind: Default::default(),
+                read_only: Default::default(),
+                required: Default::default(),
+                multiline: Default::default(),
+                password: Default::default(),
+                comb: Default::default(),
+                multi_select: Default::default(),
+                editable: Default::default(),
+                values: core::ptr::null_mut(),
+                options: core::ptr::null_mut(),
+                max_len: core::ptr::null_mut(),
+                widgets: core::ptr::null_mut(),
+                format: Default::default(),
+                date_pattern: core::ptr::null_mut(),
+                decimals: core::ptr::null_mut(),
+                min: core::ptr::null_mut(),
+                max: core::ptr::null_mut(),
+                problem: core::ptr::null_mut(),
+                signed: Default::default(),
+                signature: core::ptr::null_mut(),
+                filled: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_option {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                export: core::ptr::null_mut(),
+                display: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_option {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_problem {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                max_len: core::ptr::null_mut(),
+                pattern: core::ptr::null_mut(),
+                min: core::ptr::null_mut(),
+                max: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_problem {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_field_widget {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                page: Default::default(),
+                rect: Default::default(),
+                on_state: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_field_widget {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_fill_target {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                rect: Default::default(),
+                cells: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_fill_target {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_fill_targets {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                targets: core::ptr::null_mut(),
+                truncated: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_fill_targets {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_font_candidate {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -10425,6 +14641,36 @@ mod io {
         }
     }
     impl Default for wire_cst_font_substitution {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_form_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                fields: core::ptr::null_mut(),
+                required: Default::default(),
+                required_left: Default::default(),
+                problems: Default::default(),
+                has_xfa: Default::default(),
+                truncated: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_form_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_handwriting_style {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                family: core::ptr::null_mut(),
+                covered: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_handwriting_style {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -10538,6 +14784,69 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_link_change {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                rect: core::ptr::null_mut(),
+                destination: core::ptr::null_mut(),
+                look: core::ptr::null_mut(),
+                color: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_link_change {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_link_destination {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                address: core::ptr::null_mut(),
+                mail: Default::default(),
+                page: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_link_destination {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_link_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                handle: Default::default(),
+                page: Default::default(),
+                rect: Default::default(),
+                quads: core::ptr::null_mut(),
+                kind: Default::default(),
+                target: core::ptr::null_mut(),
+                target_page: core::ptr::null_mut(),
+                wanted_page: core::ptr::null_mut(),
+                look: Default::default(),
+                color: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_link_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_link_list {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                links: core::ptr::null_mut(),
+                truncated: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_link_list {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_missing_char {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -10567,6 +14876,66 @@ mod io {
         }
     }
     impl Default for wire_cst_missing_glyphs {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_new_annotation {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                rect: Default::default(),
+                points: core::ptr::null_mut(),
+                color: Default::default(),
+                stroke: Default::default(),
+                opacity: Default::default(),
+                contents: core::ptr::null_mut(),
+                author: core::ptr::null_mut(),
+                font_size: Default::default(),
+                arrow: Default::default(),
+                label: core::ptr::null_mut(),
+                meta: core::ptr::null_mut(),
+                tilt: Default::default(),
+                icon: core::ptr::null_mut(),
+                comb: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_new_annotation {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_new_link {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                rect: Default::default(),
+                quads: core::ptr::null_mut(),
+                destination: Default::default(),
+                look: Default::default(),
+                color: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_new_link {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_new_signature {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                rect: Default::default(),
+                ink: Default::default(),
+                color: Default::default(),
+                tilt: Default::default(),
+                initials: Default::default(),
+                field: core::ptr::null_mut(),
+                author: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_new_signature {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -10730,6 +15099,8 @@ mod io {
                 day: Default::default(),
                 hour: Default::default(),
                 minute: Default::default(),
+                second: Default::default(),
+                offset_minutes: core::ptr::null_mut(),
             }
         }
     }
@@ -10840,6 +15211,19 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_saved_signature {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                name: core::ptr::null_mut(),
+                bytes: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_saved_signature {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_search_event {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -10867,6 +15251,8 @@ mod io {
                 snippet_start: Default::default(),
                 snippet_end: Default::default(),
                 bookmark: Default::default(),
+                comment: core::ptr::null_mut(),
+                field: core::ptr::null_mut(),
             }
         }
     }
@@ -10882,6 +15268,8 @@ mod io {
                 whole_words: Default::default(),
                 ignore_accents: Default::default(),
                 bookmarks: Default::default(),
+                comments: Default::default(),
+                fields: Default::default(),
             }
         }
     }
@@ -10936,6 +15324,23 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_signature_ink {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                text: core::ptr::null_mut(),
+                family: core::ptr::null_mut(),
+                strokes: core::ptr::null_mut(),
+                width: Default::default(),
+                image: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_signature_ink {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_split_file {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -10978,6 +15383,44 @@ mod io {
         }
     }
     impl Default for wire_cst_split_preview {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_summary_kind_name {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                name: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_summary_kind_name {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_summary_options {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                open: Default::default(),
+                resolved: Default::default(),
+                replies: Default::default(),
+                empty_pages: Default::default(),
+                sort: Default::default(),
+                page_label: core::ptr::null_mut(),
+                columns: core::ptr::null_mut(),
+                kinds: core::ptr::null_mut(),
+                open_label: core::ptr::null_mut(),
+                resolved_label: core::ptr::null_mut(),
+                no_comments: core::ptr::null_mut(),
+                date_pattern: core::ptr::null_mut(),
+                paper_width: Default::default(),
+                paper_height: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_summary_options {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -11048,6 +15491,44 @@ mod io {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__add_annotation(
+        port_: i64,
+        document: u64,
+        page: u64,
+        annotation: *mut wire_cst_new_annotation,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__add_annotation_impl(port_, document, page, annotation, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__add_link(
+        port_: i64,
+        document: u64,
+        page: u64,
+        link: *mut wire_cst_new_link,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__add_link_impl(port_, document, page, link, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__add_signature(
+        port_: i64,
+        document: u64,
+        page: u64,
+        signature: *mut wire_cst_new_signature,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__add_signature_impl(port_, document, page, signature, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__annotations(port_: i64, document: u64) {
+        wire__crate__frb__annotations_impl(port_, document)
     }
 
     #[unsafe(no_mangle)]
@@ -11135,6 +15616,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__clear_form(
+        port_: i64,
+        document: u64,
+        missing: *mut i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__clear_form_impl(port_, document, missing, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__close(
         port_: i64,
         document: u64,
@@ -11204,6 +15695,26 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__delete_annotation(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__delete_annotation_impl(port_, document, handle, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__delete_link(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__delete_link_impl(port_, document, handle, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__delete_pages(
         port_: i64,
         document: u64,
@@ -11211,6 +15722,15 @@ mod io {
         name: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__delete_pages_impl(port_, document, pages, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__delete_saved_signature(
+        port_: i64,
+        dir: *mut wire_cst_list_prim_u_8_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__delete_saved_signature_impl(port_, dir, name)
     }
 
     #[unsafe(no_mangle)]
@@ -11238,6 +15758,25 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__fill_targets(
+        port_: i64,
+        document: u64,
+        page: u64,
+    ) {
+        wire__crate__frb__fill_targets_impl(port_, document, page)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_form(
+        port_: i64,
+        document: u64,
+        missing: *mut i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__finish_form_impl(port_, document, missing, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_save(
         port_: i64,
         document: u64,
@@ -11253,6 +15792,19 @@ mod io {
         letters: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__font_coverage_impl(port_, document, letters)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__form_fields(port_: i64, document: u64) {
+        wire__crate__frb__form_fields_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__handwriting_styles(
+        port_: i64,
+        text: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__handwriting_styles_impl(port_, text)
     }
 
     #[unsafe(no_mangle)]
@@ -11278,6 +15830,22 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__keep_as_is(port_: i64, transaction: u64) {
         wire__crate__frb__keep_as_is_impl(port_, transaction)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__link_at(
+        port_: i64,
+        document: u64,
+        page: u64,
+        x: f32,
+        y: f32,
+    ) {
+        wire__crate__frb__link_at_impl(port_, document, page, x, y)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__links(port_: i64, document: u64) {
+        wire__crate__frb__links_impl(port_, document)
     }
 
     #[unsafe(no_mangle)]
@@ -11356,6 +15924,18 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__redo(port_: i64, document: u64) {
         wire__crate__frb__redo_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__reply_to_annotation(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        author: *mut wire_cst_list_prim_u_8_strict,
+        text: *mut wire_cst_list_prim_u_8_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__reply_to_annotation_impl(port_, document, handle, author, text, name)
     }
 
     #[unsafe(no_mangle)]
@@ -11519,6 +16099,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__saved_signatures(
+        port_: i64,
+        dir: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__saved_signatures_impl(port_, dir)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__search(
         port_: i64,
         document: u64,
@@ -11541,6 +16129,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_annotation_resolved(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        author: *mut wire_cst_list_prim_u_8_strict,
+        resolved: bool,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__set_annotation_resolved_impl(
+            port_, document, handle, author, resolved, name,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__set_block_language(
         port_: i64,
         transaction: u64,
@@ -11556,6 +16158,18 @@ mod io {
         style: *mut wire_cst_block_style,
     ) {
         wire__crate__frb__set_block_style_impl(port_, transaction, style)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_field_value(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        values: *mut wire_cst_list_String,
+        missing: *mut i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__set_field_value_impl(port_, document, handle, values, missing, name)
     }
 
     #[unsafe(no_mangle)]
@@ -11598,6 +16212,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__show_comments(
+        port_: i64,
+        document: u64,
+        visible: bool,
+    ) {
+        wire__crate__frb__show_comments_impl(port_, document, visible)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__show_layers(
         port_: i64,
         document: u64,
@@ -11634,6 +16257,21 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__start_comment_summary_job(
+        port_: i64,
+        document: u64,
+        format: i32,
+        options: *mut wire_cst_summary_options,
+        output: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__start_comment_summary_job_impl(
+            port_, document, format, options, output, staging, sink,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__start_copy_document_job(
         port_: i64,
         document: u64,
@@ -11655,6 +16293,21 @@ mod io {
     ) {
         wire__crate__frb__start_extract_pages_job_impl(
             port_, document, pages, output, staging, sink,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__start_flatten_annotations_job(
+        port_: i64,
+        document: u64,
+        handles: *mut wire_cst_list_prim_u_64_strict,
+        copy: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__start_flatten_annotations_job_impl(
+            port_, document, handles, copy, staging, name, sink,
         )
     }
 
@@ -11742,6 +16395,28 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__update_annotation(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        change: *mut wire_cst_annotation_change,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__update_annotation_impl(port_, document, handle, change, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__update_link(
+        port_: i64,
+        document: u64,
+        handle: u64,
+        change: *mut wire_cst_link_change,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__update_link_impl(port_, document, handle, change, name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__white_margins(
         port_: i64,
         document: u64,
@@ -11759,8 +16434,34 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__write_saved_signature(
+        port_: i64,
+        dir: *mut wire_cst_list_prim_u_8_strict,
+        name: *mut wire_cst_list_prim_u_8_strict,
+        bytes: *mut wire_cst_list_prim_u_8_loose,
+    ) {
+        wire__crate__frb__write_saved_signature_impl(port_, dir, name, bytes)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_alignment(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_annotation_change()
+    -> *mut wire_cst_annotation_change {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_annotation_change::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_annotation_color()
+    -> *mut wire_cst_annotation_color {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_annotation_color::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -11812,8 +16513,21 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_f_64(value: f64) -> *mut f64 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_fail_reason(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_field_problem()
+    -> *mut wire_cst_field_problem {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_field_problem::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -11830,10 +16544,71 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_i_16(value: i16) -> *mut i16 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_i_32(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_link_change() -> *mut wire_cst_link_change {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_link_change::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_link_destination()
+    -> *mut wire_cst_link_destination {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_link_destination::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_link_info() -> *mut wire_cst_link_info {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wire_cst_link_info::new_with_null_ptr())
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_link_look(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_font(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_glyphs()
     -> *mut wire_cst_missing_glyphs {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_missing_glyphs::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_new_annotation()
+    -> *mut wire_cst_new_annotation {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_new_annotation::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_new_link() -> *mut wire_cst_new_link {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wire_cst_new_link::new_with_null_ptr())
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_new_signature()
+    -> *mut wire_cst_new_signature {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_new_signature::new_with_null_ptr(),
         )
     }
 
@@ -11901,6 +16676,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_summary_options()
+    -> *mut wire_cst_summary_options {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_summary_options::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_text_position()
     -> *mut wire_cst_text_position {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
@@ -11933,6 +16716,34 @@ mod io {
         let wrap = wire_cst_list_String {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <*mut wire_cst_list_prim_u_8_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_annotation_info(
+        len: i32,
+    ) -> *mut wire_cst_list_annotation_info {
+        let wrap = wire_cst_list_annotation_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_annotation_info>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_annotation_points(
+        len: i32,
+    ) -> *mut wire_cst_list_annotation_points {
+        let wrap = wire_cst_list_annotation_points {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_annotation_points>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -12034,6 +16845,62 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_info(
+        len: i32,
+    ) -> *mut wire_cst_list_field_info {
+        let wrap = wire_cst_list_field_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_info>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_option(
+        len: i32,
+    ) -> *mut wire_cst_list_field_option {
+        let wrap = wire_cst_list_field_option {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_option>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_field_widget(
+        len: i32,
+    ) -> *mut wire_cst_list_field_widget {
+        let wrap = wire_cst_list_field_widget {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_field_widget>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_fill_target(
+        len: i32,
+    ) -> *mut wire_cst_list_fill_target {
+        let wrap = wire_cst_list_fill_target {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_fill_target>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_font_candidate(
         len: i32,
     ) -> *mut wire_cst_list_font_candidate {
@@ -12082,6 +16949,20 @@ mod io {
         let wrap = wire_cst_list_font_substitution {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_font_substitution>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_handwriting_style(
+        len: i32,
+    ) -> *mut wire_cst_list_handwriting_style {
+        let wrap = wire_cst_list_handwriting_style {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_handwriting_style>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -12158,6 +17039,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_link_info(
+        len: i32,
+    ) -> *mut wire_cst_list_link_info {
+        let wrap = wire_cst_list_link_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_link_info>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_missing_char(
         len: i32,
     ) -> *mut wire_cst_list_missing_char {
@@ -12225,6 +17120,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_page_point(
+        len: i32,
+    ) -> *mut wire_cst_list_page_point {
+        let wrap = wire_cst_list_page_point {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_page_point>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_page_rect(
         len: i32,
     ) -> *mut wire_cst_list_page_rect {
@@ -12254,6 +17163,17 @@ mod io {
         len: i32,
     ) -> *mut wire_cst_list_prim_u_64_strict {
         let ans = wire_cst_list_prim_u_64_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_prim_u_8_loose(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_u_8_loose {
+        let ans = wire_cst_list_prim_u_8_loose {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
             len,
         };
@@ -12306,6 +17226,20 @@ mod io {
         let wrap = wire_cst_list_repair_fix {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_repair_fix>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_saved_signature(
+        len: i32,
+    ) -> *mut wire_cst_list_saved_signature {
+        let wrap = wire_cst_list_saved_signature {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_saved_signature>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -12370,6 +17304,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_summary_kind_name(
+        len: i32,
+    ) -> *mut wire_cst_list_summary_kind_name {
+        let wrap = wire_cst_list_summary_kind_name {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_summary_kind_name>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_wanted_item(
         len: i32,
     ) -> *mut wire_cst_list_wanted_item {
@@ -12383,6 +17331,71 @@ mod io {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
     }
 
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_change {
+        contents: *mut wire_cst_list_prim_u_8_strict,
+        rect: *mut wire_cst_page_rect,
+        points: *mut wire_cst_list_annotation_points,
+        color: *mut wire_cst_annotation_color,
+        stroke: *mut f32,
+        opacity: *mut f32,
+        font_size: *mut f32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_color {
+        red: f32,
+        green: f32,
+        blue: f32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_commit {
+        handle: u64,
+        revision: wire_cst_revision_info,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_info {
+        handle: u64,
+        page: u64,
+        kind: i32,
+        subtype: *mut wire_cst_list_prim_u_8_strict,
+        rect: wire_cst_page_rect,
+        points: *mut wire_cst_list_annotation_points,
+        arrow: bool,
+        color: *mut wire_cst_annotation_color,
+        opacity: f32,
+        stroke: f32,
+        font_size: *mut f32,
+        author: *mut wire_cst_list_prim_u_8_strict,
+        contents: *mut wire_cst_list_prim_u_8_strict,
+        quote: *mut wire_cst_list_prim_u_8_strict,
+        rich: bool,
+        created: *mut wire_cst_pdf_date,
+        modified: *mut wire_cst_pdf_date,
+        icon: *mut wire_cst_list_prim_u_8_strict,
+        replies_to: *mut u64,
+        thread: u64,
+        state: *mut wire_cst_list_prim_u_8_strict,
+        resolved: bool,
+        resolved_by: *mut wire_cst_list_prim_u_8_strict,
+        resolved_at: *mut wire_cst_pdf_date,
+        mentions: *mut wire_cst_list_String,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_list {
+        annotations: *mut wire_cst_list_annotation_info,
+        people: *mut wire_cst_list_String,
+        truncated: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_annotation_points {
+        points: *mut wire_cst_list_page_point,
+    }
     #[repr(C)]
     #[derive(Clone, Copy)]
     pub struct wire_cst_api_error {
@@ -12557,6 +17570,79 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_field_commit {
+        revision: wire_cst_revision_info,
+        problem: *mut wire_cst_field_problem,
+        fonts: *mut wire_cst_list_String,
+        marked: bool,
+        xfa_removed: bool,
+        asks_font: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_info {
+        handle: u64,
+        name: *mut wire_cst_list_prim_u_8_strict,
+        label: *mut wire_cst_list_prim_u_8_strict,
+        kind: i32,
+        read_only: bool,
+        required: bool,
+        multiline: bool,
+        password: bool,
+        comb: bool,
+        multi_select: bool,
+        editable: bool,
+        values: *mut wire_cst_list_String,
+        options: *mut wire_cst_list_field_option,
+        max_len: *mut u32,
+        widgets: *mut wire_cst_list_field_widget,
+        format: i32,
+        date_pattern: *mut wire_cst_list_prim_u_8_strict,
+        decimals: *mut i32,
+        min: *mut f64,
+        max: *mut f64,
+        problem: *mut wire_cst_field_problem,
+        signed: bool,
+        signature: *mut u64,
+        filled: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_option {
+        export: *mut wire_cst_list_prim_u_8_strict,
+        display: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_problem {
+        kind: i32,
+        max_len: *mut u32,
+        pattern: *mut wire_cst_list_prim_u_8_strict,
+        min: *mut f64,
+        max: *mut f64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_field_widget {
+        page: u64,
+        rect: wire_cst_page_rect,
+        on_state: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_fill_target {
+        kind: i32,
+        rect: wire_cst_page_rect,
+        cells: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_fill_targets {
+        targets: *mut wire_cst_list_fill_target,
+        truncated: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_font_candidate {
         origin: i32,
         postscript_name: *mut wire_cst_list_prim_u_8_strict,
@@ -12602,6 +17688,22 @@ mod io {
         to_font: *mut wire_cst_list_prim_u_8_strict,
         origin: i32,
         announced: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_form_info {
+        fields: *mut wire_cst_list_field_info,
+        required: u32,
+        required_left: u32,
+        problems: u32,
+        has_xfa: bool,
+        truncated: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_handwriting_style {
+        family: *mut wire_cst_list_prim_u_8_strict,
+        covered: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -12665,8 +17767,55 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_link_change {
+        rect: *mut wire_cst_page_rect,
+        destination: *mut wire_cst_link_destination,
+        look: *mut i32,
+        color: *mut wire_cst_annotation_color,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_link_destination {
+        address: *mut wire_cst_list_prim_u_8_strict,
+        mail: bool,
+        page: *mut u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_link_info {
+        handle: u64,
+        page: u64,
+        rect: wire_cst_page_rect,
+        quads: *mut wire_cst_list_annotation_points,
+        kind: i32,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        target_page: *mut u64,
+        wanted_page: *mut u64,
+        look: i32,
+        color: *mut wire_cst_annotation_color,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_link_list {
+        links: *mut wire_cst_list_link_info,
+        truncated: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_String {
         ptr: *mut *mut wire_cst_list_prim_u_8_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_annotation_info {
+        ptr: *mut wire_cst_annotation_info,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_annotation_points {
+        ptr: *mut wire_cst_annotation_points,
         len: i32,
     }
     #[repr(C)]
@@ -12713,6 +17862,30 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_info {
+        ptr: *mut wire_cst_field_info,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_option {
+        ptr: *mut wire_cst_field_option,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_field_widget {
+        ptr: *mut wire_cst_field_widget,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_fill_target {
+        ptr: *mut wire_cst_fill_target,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_font_candidate {
         ptr: *mut wire_cst_font_candidate,
         len: i32,
@@ -12733,6 +17906,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_font_substitution {
         ptr: *mut wire_cst_font_substitution,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_handwriting_style {
+        ptr: *mut wire_cst_handwriting_style,
         len: i32,
     }
     #[repr(C)]
@@ -12767,6 +17946,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_link_info {
+        ptr: *mut wire_cst_link_info,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_missing_char {
         ptr: *mut wire_cst_missing_char,
         len: i32,
@@ -12797,6 +17982,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_page_point {
+        ptr: *mut wire_cst_page_point,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_page_rect {
         ptr: *mut wire_cst_page_rect,
         len: i32,
@@ -12811,6 +18002,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_prim_u_64_strict {
         ptr: *mut u64,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_u_8_loose {
+        ptr: *mut u8,
         len: i32,
     }
     #[repr(C)]
@@ -12839,6 +18036,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_saved_signature {
+        ptr: *mut wire_cst_saved_signature,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_search_match {
         ptr: *mut wire_cst_search_match,
         len: i32,
@@ -12859,6 +18062,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_split_output {
         ptr: *mut wire_cst_split_output,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_summary_kind_name {
+        ptr: *mut wire_cst_summary_kind_name,
         len: i32,
     }
     #[repr(C)]
@@ -12885,6 +18094,45 @@ mod io {
         italic: bool,
         candidates: *mut wire_cst_list_font_candidate,
         drawn: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_new_annotation {
+        kind: i32,
+        rect: wire_cst_page_rect,
+        points: *mut wire_cst_list_annotation_points,
+        color: wire_cst_annotation_color,
+        stroke: f32,
+        opacity: f32,
+        contents: *mut wire_cst_list_prim_u_8_strict,
+        author: *mut wire_cst_list_prim_u_8_strict,
+        font_size: f32,
+        arrow: bool,
+        label: *mut wire_cst_list_prim_u_8_strict,
+        meta: *mut wire_cst_list_prim_u_8_strict,
+        tilt: f32,
+        icon: *mut wire_cst_list_prim_u_8_strict,
+        comb: *mut u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_new_link {
+        rect: wire_cst_page_rect,
+        quads: *mut wire_cst_list_annotation_points,
+        destination: wire_cst_link_destination,
+        look: i32,
+        color: wire_cst_annotation_color,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_new_signature {
+        rect: wire_cst_page_rect,
+        ink: wire_cst_signature_ink,
+        color: wire_cst_annotation_color,
+        tilt: f32,
+        initials: bool,
+        field: *mut wire_cst_list_prim_u_8_strict,
+        author: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -12982,6 +18230,8 @@ mod io {
         day: u8,
         hour: u8,
         minute: u8,
+        second: u8,
+        offset_minutes: *mut i16,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -13038,6 +18288,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_saved_signature {
+        name: *mut wire_cst_list_prim_u_8_strict,
+        bytes: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_search_event {
         kind: i32,
         search: u64,
@@ -13056,6 +18312,8 @@ mod io {
         snippet_start: u32,
         snippet_end: u32,
         bookmark: bool,
+        comment: *mut u64,
+        field: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -13064,6 +18322,8 @@ mod io {
         whole_words: bool,
         ignore_accents: bool,
         bookmarks: bool,
+        comments: bool,
+        fields: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -13092,6 +18352,16 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_signature_ink {
+        kind: i32,
+        text: *mut wire_cst_list_prim_u_8_strict,
+        family: *mut wire_cst_list_prim_u_8_strict,
+        strokes: *mut wire_cst_list_annotation_points,
+        width: f32,
+        image: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_split_file {
         name: *mut wire_cst_list_prim_u_8_strict,
         first: u32,
@@ -13114,6 +18384,30 @@ mod io {
         blank_pages: u32,
         encrypted: bool,
         signed: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_summary_kind_name {
+        kind: i32,
+        name: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_summary_options {
+        open: bool,
+        resolved: bool,
+        replies: bool,
+        empty_pages: bool,
+        sort: i32,
+        page_label: *mut wire_cst_list_prim_u_8_strict,
+        columns: *mut wire_cst_list_String,
+        kinds: *mut wire_cst_list_summary_kind_name,
+        open_label: *mut wire_cst_list_prim_u_8_strict,
+        resolved_label: *mut wire_cst_list_prim_u_8_strict,
+        no_comments: *mut wire_cst_list_prim_u_8_strict,
+        date_pattern: *mut wire_cst_list_prim_u_8_strict,
+        paper_width: f32,
+        paper_height: f32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -13225,6 +18519,155 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
             self
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationChange>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationChange {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                7,
+                "Expected 7 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationChange {
+                contents: self_.get(0).cst_decode(),
+                rect: self_.get(1).cst_decode(),
+                points: self_.get(2).cst_decode(),
+                color: self_.get(3).cst_decode(),
+                stroke: self_.get(4).cst_decode(),
+                opacity: self_.get(5).cst_decode(),
+                font_size: self_.get(6).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationColor>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationColor {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationColor {
+                red: self_.get(0).cst_decode(),
+                green: self_.get(1).cst_decode(),
+                blue: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationCommit>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationCommit {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationCommit {
+                handle: self_.get(0).cst_decode(),
+                revision: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                25,
+                "Expected 25 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationInfo {
+                handle: self_.get(0).cst_decode(),
+                page: self_.get(1).cst_decode(),
+                kind: self_.get(2).cst_decode(),
+                subtype: self_.get(3).cst_decode(),
+                rect: self_.get(4).cst_decode(),
+                points: self_.get(5).cst_decode(),
+                arrow: self_.get(6).cst_decode(),
+                color: self_.get(7).cst_decode(),
+                opacity: self_.get(8).cst_decode(),
+                stroke: self_.get(9).cst_decode(),
+                font_size: self_.get(10).cst_decode(),
+                author: self_.get(11).cst_decode(),
+                contents: self_.get(12).cst_decode(),
+                quote: self_.get(13).cst_decode(),
+                rich: self_.get(14).cst_decode(),
+                created: self_.get(15).cst_decode(),
+                modified: self_.get(16).cst_decode(),
+                icon: self_.get(17).cst_decode(),
+                replies_to: self_.get(18).cst_decode(),
+                thread: self_.get(19).cst_decode(),
+                state: self_.get(20).cst_decode(),
+                resolved: self_.get(21).cst_decode(),
+                resolved_by: self_.get(22).cst_decode(),
+                resolved_at: self_.get(23).cst_decode(),
+                mentions: self_.get(24).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationList>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationList {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationList {
+                annotations: self_.get(0).cst_decode(),
+                people: self_.get(1).cst_decode(),
+                truncated: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::AnnotationPoints>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationPoints {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                1,
+                "Expected 1 elements, got {}",
+                self_.length()
+            );
+            crate::frb::AnnotationPoints {
+                points: self_.get(0).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::frb::ApiError> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
@@ -13661,6 +19104,177 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::FieldCommit>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldCommit {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldCommit {
+                revision: self_.get(0).cst_decode(),
+                problem: self_.get(1).cst_decode(),
+                fonts: self_.get(2).cst_decode(),
+                marked: self_.get(3).cst_decode(),
+                xfa_removed: self_.get(4).cst_decode(),
+                asks_font: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                24,
+                "Expected 24 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldInfo {
+                handle: self_.get(0).cst_decode(),
+                name: self_.get(1).cst_decode(),
+                label: self_.get(2).cst_decode(),
+                kind: self_.get(3).cst_decode(),
+                read_only: self_.get(4).cst_decode(),
+                required: self_.get(5).cst_decode(),
+                multiline: self_.get(6).cst_decode(),
+                password: self_.get(7).cst_decode(),
+                comb: self_.get(8).cst_decode(),
+                multi_select: self_.get(9).cst_decode(),
+                editable: self_.get(10).cst_decode(),
+                values: self_.get(11).cst_decode(),
+                options: self_.get(12).cst_decode(),
+                max_len: self_.get(13).cst_decode(),
+                widgets: self_.get(14).cst_decode(),
+                format: self_.get(15).cst_decode(),
+                date_pattern: self_.get(16).cst_decode(),
+                decimals: self_.get(17).cst_decode(),
+                min: self_.get(18).cst_decode(),
+                max: self_.get(19).cst_decode(),
+                problem: self_.get(20).cst_decode(),
+                signed: self_.get(21).cst_decode(),
+                signature: self_.get(22).cst_decode(),
+                filled: self_.get(23).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldOption>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldOption {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldOption {
+                export: self_.get(0).cst_decode(),
+                display: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblem>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblem {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                5,
+                "Expected 5 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldProblem {
+                kind: self_.get(0).cst_decode(),
+                max_len: self_.get(1).cst_decode(),
+                pattern: self_.get(2).cst_decode(),
+                min: self_.get(3).cst_decode(),
+                max: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FieldWidget>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldWidget {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FieldWidget {
+                page: self_.get(0).cst_decode(),
+                rect: self_.get(1).cst_decode(),
+                on_state: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FillTarget>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FillTarget {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FillTarget {
+                kind: self_.get(0).cst_decode(),
+                rect: self_.get(1).cst_decode(),
+                cells: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FillTargets>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FillTargets {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FillTargets {
+                targets: self_.get(0).cst_decode(),
+                truncated: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontCandidate>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -13776,6 +19390,48 @@ mod web {
                 to_font: self_.get(3).cst_decode(),
                 origin: self_.get(4).cst_decode(),
                 announced: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FormInfo> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FormInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FormInfo {
+                fields: self_.get(0).cst_decode(),
+                required: self_.get(1).cst_decode(),
+                required_left: self_.get(2).cst_decode(),
+                problems: self_.get(3).cst_decode(),
+                has_xfa: self_.get(4).cst_decode(),
+                truncated: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::HandwritingStyle>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::HandwritingStyle {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::HandwritingStyle {
+                family: self_.get(0).cst_decode(),
+                covered: self_.get(1).cst_decode(),
             }
         }
     }
@@ -13929,9 +19585,120 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::LinkChange>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkChange {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::frb::LinkChange {
+                rect: self_.get(0).cst_decode(),
+                destination: self_.get(1).cst_decode(),
+                look: self_.get(2).cst_decode(),
+                color: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkDestination>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkDestination {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::LinkDestination {
+                address: self_.get(0).cst_decode(),
+                mail: self_.get(1).cst_decode(),
+                page: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkInfo> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                10,
+                "Expected 10 elements, got {}",
+                self_.length()
+            );
+            crate::frb::LinkInfo {
+                handle: self_.get(0).cst_decode(),
+                page: self_.get(1).cst_decode(),
+                rect: self_.get(2).cst_decode(),
+                quads: self_.get(3).cst_decode(),
+                kind: self_.get(4).cst_decode(),
+                target: self_.get(5).cst_decode(),
+                target_page: self_.get(6).cst_decode(),
+                wanted_page: self_.get(7).cst_decode(),
+                look: self_.get(8).cst_decode(),
+                color: self_.get(9).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::LinkList> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkList {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::LinkList {
+                links: self_.get(0).cst_decode(),
+                truncated: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::AnnotationInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::AnnotationInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::AnnotationPoints>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::AnnotationPoints> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -14021,6 +19788,54 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FieldInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldOption>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldOption> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FieldWidget>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FieldWidget> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FillTarget>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FillTarget> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontCandidate>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -14062,6 +19877,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontSubstitution> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::HandwritingStyle>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::HandwritingStyle> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -14129,6 +19956,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::LinkInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::LinkInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::MissingChar>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -14182,6 +20021,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::PageInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::PagePoint>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::PagePoint> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -14255,6 +20106,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::SavedSignature>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::SavedSignature> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::SearchMatch>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -14296,6 +20159,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::SplitOutput> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::SummaryKindName>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::SummaryKindName> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -14359,6 +20234,85 @@ mod web {
                 italic: self_.get(6).cst_decode(),
                 candidates: self_.get(7).cst_decode(),
                 drawn: self_.get(8).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewAnnotation>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewAnnotation {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                15,
+                "Expected 15 elements, got {}",
+                self_.length()
+            );
+            crate::frb::NewAnnotation {
+                kind: self_.get(0).cst_decode(),
+                rect: self_.get(1).cst_decode(),
+                points: self_.get(2).cst_decode(),
+                color: self_.get(3).cst_decode(),
+                stroke: self_.get(4).cst_decode(),
+                opacity: self_.get(5).cst_decode(),
+                contents: self_.get(6).cst_decode(),
+                author: self_.get(7).cst_decode(),
+                font_size: self_.get(8).cst_decode(),
+                arrow: self_.get(9).cst_decode(),
+                label: self_.get(10).cst_decode(),
+                meta: self_.get(11).cst_decode(),
+                tilt: self_.get(12).cst_decode(),
+                icon: self_.get(13).cst_decode(),
+                comb: self_.get(14).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewLink> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewLink {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                5,
+                "Expected 5 elements, got {}",
+                self_.length()
+            );
+            crate::frb::NewLink {
+                rect: self_.get(0).cst_decode(),
+                quads: self_.get(1).cst_decode(),
+                destination: self_.get(2).cst_decode(),
+                look: self_.get(3).cst_decode(),
+                color: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::NewSignature>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::NewSignature {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                7,
+                "Expected 7 elements, got {}",
+                self_.length()
+            );
+            crate::frb::NewSignature {
+                rect: self_.get(0).cst_decode(),
+                ink: self_.get(1).cst_decode(),
+                color: self_.get(2).cst_decode(),
+                tilt: self_.get(3).cst_decode(),
+                initials: self_.get(4).cst_decode(),
+                field: self_.get(5).cst_decode(),
+                author: self_.get(6).cst_decode(),
             }
         }
     }
@@ -14590,8 +20544,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                5,
-                "Expected 5 elements, got {}",
+                7,
+                "Expected 7 elements, got {}",
                 self_.length()
             );
             crate::frb::PdfDate {
@@ -14600,6 +20554,8 @@ mod web {
                 day: self_.get(2).cst_decode(),
                 hour: self_.get(3).cst_decode(),
                 minute: self_.get(4).cst_decode(),
+                second: self_.get(5).cst_decode(),
+                offset_minutes: self_.get(6).cst_decode(),
             }
         }
     }
@@ -14747,6 +20703,26 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::SavedSignature>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SavedSignature {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::SavedSignature {
+                name: self_.get(0).cst_decode(),
+                bytes: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SearchEvent>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -14782,8 +20758,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                6,
-                "Expected 6 elements, got {}",
+                8,
+                "Expected 8 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchMatch {
@@ -14793,6 +20769,8 @@ mod web {
                 snippet_start: self_.get(3).cst_decode(),
                 snippet_end: self_.get(4).cst_decode(),
                 bookmark: self_.get(5).cst_decode(),
+                comment: self_.get(6).cst_decode(),
+                field: self_.get(7).cst_decode(),
             }
         }
     }
@@ -14806,8 +20784,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                4,
-                "Expected 4 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchOptions {
@@ -14815,6 +20793,8 @@ mod web {
                 whole_words: self_.get(1).cst_decode(),
                 ignore_accents: self_.get(2).cst_decode(),
                 bookmarks: self_.get(3).cst_decode(),
+                comments: self_.get(4).cst_decode(),
+                fields: self_.get(5).cst_decode(),
             }
         }
     }
@@ -14883,6 +20863,30 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::SignatureInk>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SignatureInk {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::SignatureInk {
+                kind: self_.get(0).cst_decode(),
+                text: self_.get(1).cst_decode(),
+                family: self_.get(2).cst_decode(),
+                strokes: self_.get(3).cst_decode(),
+                width: self_.get(4).cst_decode(),
+                image: self_.get(5).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SplitFile>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -14947,6 +20951,58 @@ mod web {
                 blank_pages: self_.get(2).cst_decode(),
                 encrypted: self_.get(3).cst_decode(),
                 signed: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::SummaryKindName>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryKindName {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::SummaryKindName {
+                kind: self_.get(0).cst_decode(),
+                name: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::SummaryOptions>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryOptions {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                14,
+                "Expected 14 elements, got {}",
+                self_.length()
+            );
+            crate::frb::SummaryOptions {
+                open: self_.get(0).cst_decode(),
+                resolved: self_.get(1).cst_decode(),
+                replies: self_.get(2).cst_decode(),
+                empty_pages: self_.get(3).cst_decode(),
+                sort: self_.get(4).cst_decode(),
+                page_label: self_.get(5).cst_decode(),
+                columns: self_.get(6).cst_decode(),
+                kinds: self_.get(7).cst_decode(),
+                open_label: self_.get(8).cst_decode(),
+                resolved_label: self_.get(9).cst_decode(),
+                no_comments: self_.get(10).cst_decode(),
+                date_pattern: self_.get(11).cst_decode(),
+                paper_width: self_.get(12).cst_decode(),
+                paper_height: self_.get(13).cst_decode(),
             }
         }
     }
@@ -15099,6 +21155,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::AnnotationKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::AnnotationKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<bool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> bool {
@@ -15151,11 +21215,49 @@ mod web {
             self.unchecked_into_f64() as _
         }
     }
+    impl CstDecode<f64> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f64 {
+            self.unchecked_into_f64() as _
+        }
+    }
     impl CstDecode<crate::frb::FailReason>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FailReason {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldFormatKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldFormatKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FieldProblemKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FieldProblemKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FillTargetKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FillTargetKind {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -15227,6 +21329,18 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::LinkKind> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::LinkLook> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::LinkLook {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<Vec<u32>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<u32> {
@@ -15251,6 +21365,14 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingFont>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingFont {
+            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<crate::frb::MissingReasonKind>
@@ -15335,6 +21457,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::SignatureInkKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SignatureInkKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::frb::SplitKind>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -15348,6 +21478,22 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::SubstitutionKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::SummaryFormat>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummaryFormat {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::SummarySort>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SummarySort {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -15390,6 +21536,47 @@ mod web {
         fn cst_decode(self) -> crate::frb::ViewEventKind {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__add_annotation(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        page: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        annotation: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__add_annotation_impl(port_, document, page, annotation, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__add_link(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        page: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        link: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__add_link_impl(port_, document, page, link, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__add_signature(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        page: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        signature: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__add_signature_impl(port_, document, page, signature, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__annotations(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__annotations_impl(port_, document)
     }
 
     #[wasm_bindgen]
@@ -15483,6 +21670,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__clear_form(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__clear_form_impl(port_, document, missing, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__close(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -15558,6 +21755,26 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__delete_annotation(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__delete_annotation_impl(port_, document, handle, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__delete_link(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__delete_link_impl(port_, document, handle, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__delete_pages(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -15565,6 +21782,15 @@ mod web {
         name: String,
     ) {
         wire__crate__frb__delete_pages_impl(port_, document, pages, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__delete_saved_signature(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        dir: String,
+        name: String,
+    ) {
+        wire__crate__frb__delete_saved_signature_impl(port_, dir, name)
     }
 
     #[wasm_bindgen]
@@ -15592,6 +21818,25 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__fill_targets(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        page: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__fill_targets_impl(port_, document, page)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__finish_form(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__finish_form_impl(port_, document, missing, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__finish_save(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -15607,6 +21852,22 @@ mod web {
         letters: String,
     ) {
         wire__crate__frb__font_coverage_impl(port_, document, letters)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__form_fields(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__form_fields_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__handwriting_styles(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        text: String,
+    ) {
+        wire__crate__frb__handwriting_styles_impl(port_, text)
     }
 
     #[wasm_bindgen]
@@ -15638,6 +21899,25 @@ mod web {
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__keep_as_is_impl(port_, transaction)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__link_at(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        page: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        x: f32,
+        y: f32,
+    ) {
+        wire__crate__frb__link_at_impl(port_, document, page, x, y)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__links(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__links_impl(port_, document)
     }
 
     #[wasm_bindgen]
@@ -15727,6 +22007,18 @@ mod web {
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__redo_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__reply_to_annotation(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        author: String,
+        text: String,
+        name: String,
+    ) {
+        wire__crate__frb__reply_to_annotation_impl(port_, document, handle, author, text, name)
     }
 
     #[wasm_bindgen]
@@ -15896,6 +22188,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__saved_signatures(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        dir: String,
+    ) {
+        wire__crate__frb__saved_signatures_impl(port_, dir)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__search(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -15918,6 +22218,20 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__set_annotation_resolved(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        author: String,
+        resolved: bool,
+        name: String,
+    ) {
+        wire__crate__frb__set_annotation_resolved_impl(
+            port_, document, handle, author, resolved, name,
+        )
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__set_block_language(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -15933,6 +22247,18 @@ mod web {
         style: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__set_block_style_impl(port_, transaction, style)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__set_field_value(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        values: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        missing: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__set_field_value_impl(port_, document, handle, values, missing, name)
     }
 
     #[wasm_bindgen]
@@ -15975,6 +22301,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__show_comments(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        visible: bool,
+    ) {
+        wire__crate__frb__show_comments_impl(port_, document, visible)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__show_layers(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -16011,6 +22346,21 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__start_comment_summary_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        format: i32,
+        options: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        output: String,
+        staging: Option<String>,
+        sink: String,
+    ) {
+        wire__crate__frb__start_comment_summary_job_impl(
+            port_, document, format, options, output, staging, sink,
+        )
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__start_copy_document_job(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -16032,6 +22382,21 @@ mod web {
     ) {
         wire__crate__frb__start_extract_pages_job_impl(
             port_, document, pages, output, staging, sink,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__start_flatten_annotations_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handles: Box<[u64]>,
+        copy: Option<String>,
+        staging: Option<String>,
+        name: String,
+        sink: String,
+    ) {
+        wire__crate__frb__start_flatten_annotations_job_impl(
+            port_, document, handles, copy, staging, name, sink,
         )
     }
 
@@ -16122,6 +22487,28 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__update_annotation(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        change: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__update_annotation_impl(port_, document, handle, change, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__update_link(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        handle: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        change: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        name: String,
+    ) {
+        wire__crate__frb__update_link_impl(port_, document, handle, change, name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__white_margins(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -16136,6 +22523,16 @@ mod web {
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__would_break_signatures_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__write_saved_signature(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        dir: String,
+        name: String,
+        bytes: Box<[u8]>,
+    ) {
+        wire__crate__frb__write_saved_signature_impl(port_, dir, name, bytes)
     }
 }
 #[cfg(target_family = "wasm")]

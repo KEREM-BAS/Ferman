@@ -19,15 +19,17 @@ use unicode_bidi::{BidiInfo, Level};
 
 /// A directional run of a line, as a byte range of the text.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct Run {
-    pub(crate) range: Range<usize>,
+pub struct Run {
+    /// Its bytes in the text.
+    pub range: Range<usize>,
     /// Right to left (an odd embedding level).
-    pub(crate) rtl: bool,
+    pub rtl: bool,
 }
 
 /// The runs of `line`, a byte range of one paragraph of `text` (paragraphs end at line feeds),
 /// in visual order from the left, with the paragraph level right to left when `rtl`.
-pub(crate) fn visual_runs(text: &str, line: Range<usize>, rtl: bool) -> Vec<Run> {
+#[must_use]
+pub fn visual_runs(text: &str, line: Range<usize>, rtl: bool) -> Vec<Run> {
     if line.is_empty() {
         return Vec::new();
     }

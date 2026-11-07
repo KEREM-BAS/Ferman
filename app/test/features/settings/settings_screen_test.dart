@@ -112,7 +112,7 @@ void main() {
     testWidgets('the search is disabled with the reason', (tester) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester);
-      final field = tester.widget<TextField>(find.byType(TextField));
+      final field = tester.widget<TextField>(find.byType(TextField).first);
       expect(field.disabled, isTrue);
       expect(field.disabledReason, _future);
     });

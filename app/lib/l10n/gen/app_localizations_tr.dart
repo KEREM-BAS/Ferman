@@ -1308,7 +1308,7 @@ class AppLocalizationsTr extends AppLocalizations {
       other: '$pages sayfanın tamamında',
       one: 'tek sayfada',
     );
-    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.';
+    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı.';
   }
 
   @override
@@ -1319,8 +1319,14 @@ class AppLocalizationsTr extends AppLocalizations {
       other: '$pages sayfanın tamamında',
       one: 'tek sayfada',
     );
-    return 'Ferman $_temp0 aradı. Yorumlar ve form alanları aranmadı.';
+    return 'Ferman $_temp0 aradı.';
   }
+
+  @override
+  String get findNotSearchedFields => 'Form alanları aranmadı.';
+
+  @override
+  String get findNotSearchedBoth => 'Yorumlar ve form alanları aranmadı.';
 
   @override
   String get sidebarSearchField => 'Belgede ara';
@@ -4124,5 +4130,1265 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String jobCreateFailedTitle(String name) {
     return '$name oluşturulamadı';
+  }
+
+  @override
+  String get commentsTitle => 'Yorumlar';
+
+  @override
+  String get commentsFilter => 'Filtrele ve sırala';
+
+  @override
+  String get commentsMore => 'Diğer: özeti dışa aktar, düzleştir, tümünü gizle';
+
+  @override
+  String get commentsStatus => 'Durum';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'Açık $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'Çözüldü $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'Tümü $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'Yazar';
+
+  @override
+  String get commentsFilterType => 'Tür';
+
+  @override
+  String get commentsFilterSort => 'Sıralama';
+
+  @override
+  String get commentsAllPeople => 'Tüm kişiler';
+
+  @override
+  String get commentsTypeNotes => 'Notlar';
+
+  @override
+  String get commentsTypeMarkup => 'Metin işaretleri';
+
+  @override
+  String get commentsTypeDrawings => 'Çizimler';
+
+  @override
+  String get commentsTypeStamps => 'Damgalar';
+
+  @override
+  String get commentsTypeOther => 'Tüm türler';
+
+  @override
+  String get commentsSortNewest => 'En yeni';
+
+  @override
+  String get commentsSortAuthor => 'Yazar';
+
+  @override
+  String get commentsSortOther => 'Sayfa sırası';
+
+  @override
+  String get commentsCertifiedNote =>
+      'Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır.';
+
+  @override
+  String get commentsTruncated =>
+      'Bu dosyada Ferman\'ın listelediğinden daha çok yorum var.';
+
+  @override
+  String get commentsEmptyTitle => 'Yorum yok';
+
+  @override
+  String get commentsEmptyBody =>
+      'Yukarıdan bir araç seçin, sonra sayfada işaretleyin.';
+
+  @override
+  String get commentsNoMatchTitle => 'Eşleşen yorum yok';
+
+  @override
+  String get commentsNoMatchBody =>
+      'Diğerlerini görmek için durumu veya filtreleri değiştirin.';
+
+  @override
+  String get commentsFootnote =>
+      'Yorumlar PDF\'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez.';
+
+  @override
+  String get commentsExportSummary => 'Özeti dışa aktar…';
+
+  @override
+  String get commentsFlatten => 'Düzleştir…';
+
+  @override
+  String get commentsHideAll => 'Tümünü gizle';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown yorum gizli',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'Vurgu';
+
+  @override
+  String get commentKindUnderline => 'Altı çizili';
+
+  @override
+  String get commentKindStrikeOut => 'Üstü çizili';
+
+  @override
+  String get commentKindSquiggly => 'Dalgalı alt çizgi';
+
+  @override
+  String get commentKindNote => 'Not';
+
+  @override
+  String get commentKindFreeText => 'Metin';
+
+  @override
+  String get commentKindCallout => 'Belirtme';
+
+  @override
+  String get commentKindInk => 'Çizim';
+
+  @override
+  String get commentKindSquare => 'Dikdörtgen';
+
+  @override
+  String get commentKindCircle => 'Elips';
+
+  @override
+  String get commentKindLine => 'Çizgi';
+
+  @override
+  String get commentKindPolygon => 'Çokgen';
+
+  @override
+  String get commentKindStamp => 'Damga';
+
+  @override
+  String get commentKindOther => 'Yorum';
+
+  @override
+  String commentStyleBar(String kind) {
+    return '$kind stili';
+  }
+
+  @override
+  String get commentStrokeWidth => 'Çizgi kalınlığı';
+
+  @override
+  String get commentOpacity => 'Opaklık';
+
+  @override
+  String get commentOpen => 'Yorumu aç';
+
+  @override
+  String get commentDelete => 'Sil';
+
+  @override
+  String get commentMenu => 'Yorum';
+
+  @override
+  String get commentEditText => 'Metni düzenle';
+
+  @override
+  String get commentMore => 'Diğer';
+
+  @override
+  String get commentCloseNote => 'Notu kapat';
+
+  @override
+  String commentNoteFrom(String author) {
+    return '$author notu';
+  }
+
+  @override
+  String get commentReply => 'Yanıtla';
+
+  @override
+  String get commentResolve => 'Çöz';
+
+  @override
+  String get commentReopen => 'Yeniden aç';
+
+  @override
+  String get commentPeople => 'Bu belgedeki kişiler';
+
+  @override
+  String commentQuote(String text) {
+    return '“$text”';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown yanıt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return '$name çözdü · $time';
+  }
+
+  @override
+  String get commentYesterday => 'Dün';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: ', çözüldü',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: ', $shown yanıt',
+      zero: '',
+    );
+    return '$author, $page. sayfada $kind$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'Yorum ekle';
+
+  @override
+  String get commentStepChange => 'Yorumu değiştir';
+
+  @override
+  String get commentStepDelete => 'Yorumu sil';
+
+  @override
+  String get commentStepReply => 'Yorumu yanıtla';
+
+  @override
+  String get commentStepResolve => 'Yorumu çöz';
+
+  @override
+  String get commentStepReopen => 'Yorumu yeniden aç';
+
+  @override
+  String get commentDeletedToast => 'Yorum silindi';
+
+  @override
+  String get commentDeletedNote => 'Yanıtlarıyla birlikte.';
+
+  @override
+  String get commentNameTitle => 'Yorumlardaki adınız';
+
+  @override
+  String get commentNameBody =>
+      'Bu PDF\'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel\'den değiştirebilir veya boş bırakabilirsiniz.';
+
+  @override
+  String get commentNameSave => 'Devam et';
+
+  @override
+  String get settingsCommenterName => 'Yorumlar için adınız';
+
+  @override
+  String get commentTextField => 'Yorum metni';
+
+  @override
+  String get commentSummaryFile => 'Yorumlar.pdf';
+
+  @override
+  String get commentColumnPage => 'Sayfa';
+
+  @override
+  String get commentColumnType => 'Tür';
+
+  @override
+  String get commentColumnAuthor => 'Yazar';
+
+  @override
+  String get commentColumnDate => 'Tarih';
+
+  @override
+  String get commentColumnText => 'Metin';
+
+  @override
+  String get commentColumnReplies => 'Yanıtlar';
+
+  @override
+  String get commentColumnStatus => 'Durum';
+
+  @override
+  String get commentStatusOpen => 'Açık';
+
+  @override
+  String get commentStatusResolved => 'Çözüldü';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return '$name yazılıyor';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return '$name yazıldı';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return '$name yazılamadı';
+  }
+
+  @override
+  String get commentSummaryCsvFile => 'Yorumlar.csv';
+
+  @override
+  String get summaryTitle => 'Yorum özetini dışa aktar';
+
+  @override
+  String get summaryFormat => 'Biçim';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'Düzen';
+
+  @override
+  String get summaryPageAndComments => 'Sayfa ve yorumlar';
+
+  @override
+  String get summaryPageAndCommentsHint =>
+      'Her sayfanın yanında numaralı işaretler';
+
+  @override
+  String get summaryCommentsOnly => 'Yalnızca yorumlar';
+
+  @override
+  String get summaryCommentsOnlyHint => 'Sayfaya göre gruplanmış liste';
+
+  @override
+  String get summaryPageThenList => 'Önce sayfa, sonra liste';
+
+  @override
+  String get summaryPageThenListHint => 'Sayfanın tamamı, ardından yorumları';
+
+  @override
+  String summaryOpen(String count) {
+    return 'Açık yorumlar ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'Yanıtlar';
+
+  @override
+  String summaryResolved(String count) {
+    return 'Çözülen yorumlar ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'Yorumsuz sayfalar';
+
+  @override
+  String get summarySortBy => 'Sıralama';
+
+  @override
+  String get summarySortPage => 'Sayfa sırası';
+
+  @override
+  String get summaryPaper => 'Kâğıt';
+
+  @override
+  String get summaryPreview => 'Önizleme';
+
+  @override
+  String get summaryExport => 'Özeti dışa aktar…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorum sayfalara düzleştirilsin mi?',
+      one: '1 yorum sayfalara düzleştirilsin mi?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorumun tümü',
+      one: '1 yorum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Yalnızca çözülen $formatted yorum',
+      one: 'Yalnızca çözülen 1 yorum',
+      zero: 'Çözülen yorum yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'Yorumlu bir kopya sakla';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'Özgün dosyanın yanına “$name” olarak kaydedilir.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — yorumlu';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — yorumlu $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted yorumu düzleştir',
+      one: '1 yorumu düzleştir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'Yorumları düzleştir';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return '$name içindeki yorumlar düzleştiriliyor';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return '$name içindeki yorumlar düzleştirildi';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return '$name içindeki yorumlar düzleştirilemedi';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi.';
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'Yorum: $text';
+  }
+
+  @override
+  String get stampsTitle => 'Damgalar';
+
+  @override
+  String get stampsSearch => 'Damga ara';
+
+  @override
+  String get stampsNoMatch => 'Aramanızla eşleşen damga yok';
+
+  @override
+  String get stampGroupStandard => 'Standart';
+
+  @override
+  String get stampGroupNamed => 'Ad ve tarihli';
+
+  @override
+  String get stampGroupMine => 'Damgalarım';
+
+  @override
+  String get stampCreate => 'Damga oluştur…';
+
+  @override
+  String get stampImport => 'İçe aktar…';
+
+  @override
+  String get stampExport => 'Dışa aktar…';
+
+  @override
+  String get stampDelete => 'Sil';
+
+  @override
+  String get stampFileFilter => 'Ferman damgaları';
+
+  @override
+  String get stampImportFailed => 'Bu damga içe aktarılamıyor';
+
+  @override
+  String get stampImportFailedBody =>
+      'Dosya bir Ferman damgası değil ya da bozuk.';
+
+  @override
+  String get stampExportFailed => 'Damga dışa aktarılamadı';
+
+  @override
+  String get stampsFull => 'Damgalarım dolu. Önce birini silin.';
+
+  @override
+  String get createStampTitle => 'Damga oluştur';
+
+  @override
+  String get createStampText => 'Metin';
+
+  @override
+  String get createStampSecondLine => 'İkinci satır';
+
+  @override
+  String get createStampMyName => 'Adım';
+
+  @override
+  String get createStampDate => 'Tarih';
+
+  @override
+  String get createStampTime => 'Saat';
+
+  @override
+  String get createStampName => 'Damgadaki ad';
+
+  @override
+  String get createStampColour => 'Renk';
+
+  @override
+  String get stampToneSeal => 'Mühür';
+
+  @override
+  String get stampToneInk => 'Mürekkep';
+
+  @override
+  String get stampToneGreen => 'Yeşil';
+
+  @override
+  String get stampToneGrey => 'Gri';
+
+  @override
+  String get createStampCaps => 'Büyük harf dili';
+
+  @override
+  String get createStampLanguageTurkish => 'Türkçe (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'İngilizce';
+
+  @override
+  String get createStampLanguageGerman => 'Almanca';
+
+  @override
+  String get createStampPreview => 'Önizleme';
+
+  @override
+  String get createStampSavedNote => 'Bu cihazda Damgalarım’a kaydedilir.';
+
+  @override
+  String get createStampSave => 'Damgayı kaydet';
+
+  @override
+  String get shapeRectangle => 'Dikdörtgen';
+
+  @override
+  String get shapeEllipse => 'Elips';
+
+  @override
+  String get shapeArrow => 'Ok';
+
+  @override
+  String get shapeLine => 'Çizgi';
+
+  @override
+  String get shapePolygon => 'Çokgen';
+
+  @override
+  String get shapesKeepTool => 'Aracı seçili tut';
+
+  @override
+  String get stepAddShape => 'Şekil ekle';
+
+  @override
+  String get stepAddStamp => 'Damga ekle';
+
+  @override
+  String get placeStampHint =>
+      'Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın.';
+
+  @override
+  String get placeShapeHint =>
+      'Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın.';
+
+  @override
+  String get placePolygonHint =>
+      'Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın.';
+
+  @override
+  String get linksTitle => 'Bağlantılar';
+
+  @override
+  String get linksNote =>
+      'Ferman, PDF\'teki bir web bağlantısını açmadan önce sorar.';
+
+  @override
+  String get linksEmpty => 'Bu belgede bağlantı yok.';
+
+  @override
+  String get linksTruncated =>
+      'Bu belgede hepsi listelenemeyecek kadar çok bağlantı var.';
+
+  @override
+  String get linksSelectTextFirst => 'Önce bağlantı verilecek metni seçin';
+
+  @override
+  String get linksKindWeb => 'Web';
+
+  @override
+  String get linksKindMail => 'E-posta';
+
+  @override
+  String get linksKindPage => 'Sayfa';
+
+  @override
+  String get linksKindScript => 'Betik, çalıştırılmaz';
+
+  @override
+  String get linksKindLaunch => 'Program, başlatılmaz';
+
+  @override
+  String get linksKindFile => 'Dosya, açılmaz';
+
+  @override
+  String get linksKindAddress => 'Adres, açılmaz';
+
+  @override
+  String get linksKindAction => 'Bilinmeyen eylem, korunur';
+
+  @override
+  String get linksKindNothing => 'Hiçbir şey yapmaz';
+
+  @override
+  String linksPage(String page) {
+    return 'Sayfa $page';
+  }
+
+  @override
+  String get linksPageMissing => 'Eksik sayfa';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · sayfa $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · sayfa $page · düzenleniyor';
+  }
+
+  @override
+  String get linkAddTitle => 'Bağlantı ekle';
+
+  @override
+  String get linkEditTitle => 'Bağlantıyı düzenle';
+
+  @override
+  String get linkTo => 'Bağlantı hedefi';
+
+  @override
+  String get linkTypeFile => 'Dosya';
+
+  @override
+  String get linkFieldWeb => 'Web adresi';
+
+  @override
+  String get linkFieldMail => 'E-posta adresi';
+
+  @override
+  String get linkFieldPage => 'Sayfa numarası';
+
+  @override
+  String get linkAppearance => 'Görünüm';
+
+  @override
+  String get linkLookNone => 'Görünmez (metin görünümünü korur)';
+
+  @override
+  String get linkLookUnderline => 'Alt çizgi';
+
+  @override
+  String get linkLookBox => 'İnce kutu';
+
+  @override
+  String get linkRemove => 'Bağlantıyı kaldır';
+
+  @override
+  String get linkSave => 'Bağlantıyı kaydet';
+
+  @override
+  String get linkStepAdd => 'Bağlantı ekle';
+
+  @override
+  String get linkStepEdit => 'Bağlantıyı düzenle';
+
+  @override
+  String get linkStepRemove => 'Bağlantıyı kaldır';
+
+  @override
+  String get linkErrorWeb =>
+      'http:// veya https:// ile başlayan bir web adresi yazın.';
+
+  @override
+  String get linkErrorMail => 'name@example.com gibi bir e-posta adresi yazın.';
+
+  @override
+  String get linkFailedTitle => 'Bağlantı değiştirilemedi';
+
+  @override
+  String get linkOpenWebTitle => 'Bu web adresi açılsın mı?';
+
+  @override
+  String get linkOpenMailTitle => 'Bu adrese e-posta yazılsın mı?';
+
+  @override
+  String get linkOpenDescription =>
+      'Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun.';
+
+  @override
+  String get linkOpenAction => 'Bağlantıyı aç';
+
+  @override
+  String get linkOpenFailed => 'Bağlantı açılamadı';
+
+  @override
+  String get linkBrokenTitle => 'Bu bağlantı hiçbir yere gitmiyor';
+
+  @override
+  String get linkRefusedTitle => 'Ferman bu bağlantıyı izlemedi';
+
+  @override
+  String get linkRefusedScript =>
+      'Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return '$target başlatılacaktı; Ferman belgeler için asla program başlatmaz.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'Başka bir dosyayı, $target, gösteriyor; Ferman bağlantılardan dosya açmaz.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'Ferman bu tür adresleri açmaz: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'Ferman\'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bozuk: bu belgede $pages sayfa var',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '1 ile $pages arasında bir sayfa yazın.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signPadMethod => 'İmza yöntemi';
+
+  @override
+  String get signPadDraw => 'Çiz';
+
+  @override
+  String get signPadType => 'Yaz';
+
+  @override
+  String get signPadImage => 'Görüntü';
+
+  @override
+  String get signPadArea =>
+      'İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin.';
+
+  @override
+  String get signPadTypeName => 'Adınızı yazın';
+
+  @override
+  String get signPadNamePlaceholder => 'Adınız';
+
+  @override
+  String get signPadDrawHint => 'Çizginin üstüne imzalayın';
+
+  @override
+  String get signPadTypeHint => 'Adınızı çizginin üstüne yazın';
+
+  @override
+  String get signPadImageHint =>
+      'İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır.';
+
+  @override
+  String get signPadChooseImage => 'Görüntü seç…';
+
+  @override
+  String get signPadInk => 'Mürekkep rengi';
+
+  @override
+  String get signPadBlack => 'Siyah';
+
+  @override
+  String get signPadBlue => 'Mavi';
+
+  @override
+  String get signPadClear => 'Temizle';
+
+  @override
+  String get signPadSave => 'Bu cihaza kaydet';
+
+  @override
+  String get signDialogTitle => 'İmza ekle';
+
+  @override
+  String get signDialogTitleInitials => 'Paraf ekle';
+
+  @override
+  String get signCreate => 'Oluştur';
+
+  @override
+  String get signKindSignature => 'İmza';
+
+  @override
+  String get signKindInitials => 'Paraf';
+
+  @override
+  String get signHandwriting => 'El yazısı stili';
+
+  @override
+  String get signNoStyle =>
+      'Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın.';
+
+  @override
+  String get signSavedNote => 'Yalnızca bu cihaza kaydedilir.';
+
+  @override
+  String get signMenuLabel => 'Kayıtlı imzalar';
+
+  @override
+  String get signMenuSignatures => 'İmzalar';
+
+  @override
+  String get signMenuAdd => 'İmza ekle…';
+
+  @override
+  String get signMenuCreate => 'İmza oluştur…';
+
+  @override
+  String get signMenuManage => 'Kayıtlı imzaları yönet…';
+
+  @override
+  String get signDrawn => 'Çizilmiş';
+
+  @override
+  String get signDelete => 'Sil';
+
+  @override
+  String get signSaveFailed =>
+      'İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır.';
+
+  @override
+  String get signImageTooLarge =>
+      'Bu görüntü çok büyük. 6 MB’tan küçük birini seçin.';
+
+  @override
+  String get signImageFilter => 'Görüntüler';
+
+  @override
+  String get stepAddSignature => 'İmza ekle';
+
+  @override
+  String get stepAddInitials => 'Paraf ekle';
+
+  @override
+  String get placeSignatureHint =>
+      'Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın.';
+
+  @override
+  String get formPanelTitle => 'Form';
+
+  @override
+  String get formMore => 'Diğer: formu temizle, verileri dışa aktar';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$total zorunlu alandan $filled tanesi';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted zorunlu alan kaldı',
+      one: '1 zorunlu alan kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'Tüm zorunlu alanlar dolduruldu';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'alan $current/$total';
+  }
+
+  @override
+  String get formHighlight => 'Alanları vurgula';
+
+  @override
+  String get formShowOrder => 'Sekme sırasını göster';
+
+  @override
+  String get formHideOrder => 'Sekme sırasını gizle';
+
+  @override
+  String get formSignedTitle => 'İmzalı form';
+
+  @override
+  String get formSignedKeeps =>
+      'Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır.';
+
+  @override
+  String get formSignedBreaks => 'Doldurmak imzasını geçersiz kılar.';
+
+  @override
+  String get formFontNoticeTitle => 'Karakterler IBM Plex ile eklendi';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'Bu formun yazı tipinde yazdığınız bazı karakterler yok; Ferman bunlar için belgeye $fonts ekledi.';
+  }
+
+  @override
+  String get formDismiss => 'Kapat';
+
+  @override
+  String get formRequired => 'Zorunlu';
+
+  @override
+  String get formMarkedField =>
+      'Bazı karakterler bu alanın yazı tipinde gösterilemiyor';
+
+  @override
+  String get formClear => 'Formu temizle…';
+
+  @override
+  String get formFinish => 'Bitir';
+
+  @override
+  String get formExportData => 'Verileri dışa aktar…';
+
+  @override
+  String get formBannerTitle => 'Bu PDF doldurulabilir bir form.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
+      one: '1 alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'Gizle';
+
+  @override
+  String get fillBannerTitle => 'Bu PDF’te form alanı yok.';
+
+  @override
+  String get fillBannerBody =>
+      'Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun.';
+
+  @override
+  String get fillFindFields => 'Alanları bul';
+
+  @override
+  String get formPreviousField => 'Önceki alan';
+
+  @override
+  String get formNextField => 'Sonraki alan';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'Alan $current/$total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'Tüm zorunlular dolu';
+
+  @override
+  String get formSignHere => 'Burayı imzalayın';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'En fazla $formatted karakter kullanın.',
+      one: 'En fazla 1 karakter kullanın.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'Tarihi $pattern biçiminde girin.';
+  }
+
+  @override
+  String get formErrorNumber => 'Bir sayı girin.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return '$min ile $max arasında bir sayı girin.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'En az $min olan bir sayı girin.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'En fazla $max olan bir sayı girin.';
+  }
+
+  @override
+  String get formErrorRequired => 'Göndermek için zorunlu.';
+
+  @override
+  String get formErrorSign => 'Bitirmeden önce imzalayın.';
+
+  @override
+  String get formErrorChoose => 'Bir seçenek belirleyin.';
+
+  @override
+  String get formChooseDate => 'Bir tarih seçin';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'Biçim $pattern · formdan';
+  }
+
+  @override
+  String get formPreviousMonth => 'Önceki ay';
+
+  @override
+  String get formNextMonth => 'Sonraki ay';
+
+  @override
+  String get formToday => 'Bugün';
+
+  @override
+  String formStepFill(String name) {
+    return '“$name” alanını doldur';
+  }
+
+  @override
+  String get formStepClear => 'Formu temizle';
+
+  @override
+  String get formStepFinish => 'Formu bitir';
+
+  @override
+  String get fillStepText => 'Metin ekle';
+
+  @override
+  String get fillStepMark => 'İşaret ekle';
+
+  @override
+  String get formXfaRemovedTitle => 'Formun XFA verisi kaldırıldı';
+
+  @override
+  String get formXfaRemovedBody =>
+      'XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır.';
+
+  @override
+  String get formFinishTitle => 'Formu bitir';
+
+  @override
+  String get formFinishBody =>
+      'Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin.';
+
+  @override
+  String get formFinishFlatten => 'Alanları düzleştir';
+
+  @override
+  String get formFinishFlattenBody =>
+      'Sayfanın parçası olurlar ve artık değiştirilemezler.';
+
+  @override
+  String get formFinishKeep => 'Alanlar düzenlenebilir kalsın';
+
+  @override
+  String get formFinishKeepBody =>
+      'Dosyayı açan herkes değerleri yine değiştirebilir.';
+
+  @override
+  String get formFinishSave => 'Kaydet';
+
+  @override
+  String get formFinishSaveAs => 'Farklı kaydet…';
+
+  @override
+  String get formClearTitle => 'Form temizlensin mi?';
+
+  @override
+  String get formClearBody =>
+      'Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz.';
+
+  @override
+  String get formClearConfirm => 'Formu temizle';
+
+  @override
+  String get formFontAskTitle => 'Bu alanın yazı tipinde eksik karakterler var';
+
+  @override
+  String get formFontAskBody =>
+      'Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir.';
+
+  @override
+  String get formFontAskPlex => 'IBM Plex kullan';
+
+  @override
+  String get formFontAskKeep => 'Alanın yazı tipini koru';
+
+  @override
+  String get fillPanelTitle => 'Her şeyi doldur';
+
+  @override
+  String get fillToolText => 'Metin';
+
+  @override
+  String get fillToolCheck => 'Onay işareti';
+
+  @override
+  String get fillToolCross => 'Çarpı';
+
+  @override
+  String get fillToolDot => 'Nokta';
+
+  @override
+  String get fillToolToday => 'Bugünün tarihi';
+
+  @override
+  String get fillToolSignature => 'İmza';
+
+  @override
+  String get fillOptions => 'Seçenekler';
+
+  @override
+  String get fillSnap => 'Çizgilere ve kutulara hizala';
+
+  @override
+  String get fillComb => 'Her kutuya bir karakter';
+
+  @override
+  String get fillInk => 'Mürekkep';
+
+  @override
+  String get fillInkBlack => 'Siyah';
+
+  @override
+  String get fillInkBlue => 'Mavi (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'Yorumlar aranmadı.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'Form alanı: $text';
   }
 }

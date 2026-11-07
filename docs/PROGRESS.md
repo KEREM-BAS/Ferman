@@ -20,8 +20,8 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 | Application code | in `main` since the M1 merge: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
 | Questions | 25 entries: Q01 to Q20 answered (the last ones on 2026-10-16, as proposed, with the release files for macOS, Windows and Linux on GitHub Releases, [Q15](QUESTIONS.md#q15)); [Q22](QUESTIONS.md#q22) and [Q24](QUESTIONS.md#q24) answered with the M4 plan on 2026-11-06; [Q21](QUESTIONS.md#q21) (memory-mapping files over 256 MB) open since 2026-10-17, [Q23](QUESTIONS.md#q23) (an amendment of ADR 0011 for per-document tab state) and [Q25](QUESTIONS.md#q25) (right-to-left lines the bidi algorithm cannot read back, in M3) since 2026-11-01; see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | none waiting. The [M4 plan](#m4-plan)'s amendments of 0003, 0009, 0015 and 0019 and its answer in 0008 were approved on 2026-11-06. 0020 (test corpus) and 0021 (opening files from the OS), and the details the M2 plan adds to 0008, 0009 and 0010, were approved with the [M2 plan](#m2-plan) on 2026-10-17. The crash-log placeholders of 0010 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) were approved on 2026-10-17; 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, and the reading of "GPL-compatible" in 0016 on 2026-10-16 (see [ADR status](#adr-status)) |
-| Design gaps | 155 recorded: 132 Decided, 0 Needs owner, 23 Resolved (G160 to G165 with Organize; G159 with the assembler; G158 with W0's fonts; G142 to G157 from the M4 plan, recorded in W0; G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part; G100 to G111 were found while planning M2, G112 with the app icons, G113 with the corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop and G118 with the recent files, G119 with the error tabs, which resolved G116, G120 and G121 with the tab state and closing) |
-| Backlog | 114 open and 66 done (2026-11-06; Organize shipped B019, B020, B056, B104 and B190 and added B191, B195 and B196; the assembler shipped B187 and added B188 and B189; W0 shipped B183, B011, B089 and B131's image part, and added B187; B175 to B186 added with the M4 plan, B150, B151, B081, B165 and B166 moved to P2; B135 built with B168 to B174 added; B098 shipped and B164 added and closed at the close of M3, B136 moved to P2, B165 to B167 added). As of 2026-11-04: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it), B107 and B108 from the app icons, B109 from the API commit, B110 and B111 from the sidebar, B112 from text extraction, B113 and B114 from search, B115 to B118 from opening, B119 and B120 from the error tabs, B121 from the restricted bar, B122 from the properties dialog, B123 from the progressive open; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1, B018 (opening files), B028 (the "+N" menu), B010 (desktop file drops) B115 (error tabs and the unlock dialog), B091 (sidebar state per document), B029 (closing documents), B117 (showing every open document) and B119 (Show in folder) in M2 |
+| Design gaps | 162 recorded: 139 Decided, 0 Needs owner, 23 Resolved (G171 and G172 with W3's app; G166 to G170 with W2's app; G160 to G165 with Organize; G159 with the assembler; G158 with W0's fonts; G142 to G157 from the M4 plan, recorded in W0; G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part; G100 to G111 were found while planning M2, G112 with the app icons, G113 with the corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop and G118 with the recent files, G119 with the error tabs, which resolved G116, G120 and G121 with the tab state and closing) |
+| Backlog | 122 open and 73 done (2026-11-07, W3 shipped B024, B052, B128, B198 and B199 and added B203 to B211; W2 shipped B044 and B050, added B197 to B202; Organize shipped B019, B020, B056, B104 and B190 and added B191, B195 and B196; the assembler shipped B187 and added B188 and B189; W0 shipped B183, B011, B089 and B131's image part, and added B187; B175 to B186 added with the M4 plan, B150, B151, B081, B165 and B166 moved to P2; B135 built with B168 to B174 added; B098 shipped and B164 added and closed at the close of M3, B136 moved to P2, B165 to B167 added). As of 2026-11-04: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it), B107 and B108 from the app icons, B109 from the API commit, B110 and B111 from the sidebar, B112 from text extraction, B113 and B114 from search, B115 to B118 from opening, B119 and B120 from the error tabs, B121 from the restricted bar, B122 from the properties dialog, B123 from the progressive open; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1, B018 (opening files), B028 (the "+N" menu), B010 (desktop file drops) B115 (error tabs and the unlock dialog), B091 (sidebar state per document), B029 (closing documents), B117 (showing every open document) and B119 (Show in folder) in M2 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-11-06 |
 
@@ -606,6 +606,141 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     yet, like W0's, so CI's golden step stays red until the `goldens-linux` artifact is committed,
     and a6-1 to a6-5 are then compared with `build/design-refs/` (`compare-map.json` has no pairs for
     them yet).
+  - W2, the annotation reader, writer and appearances (commits 13 and 14, 2026-11-06):
+    `ferman_core::annotations` (reader with limits, `change_annotation`, `drop_annotation`),
+    `ferman_ops::annotations` (create, update, delete, reply, set_resolved, one generator per kind),
+    `facade/annotations.rs`, the bridge, `FrbEngineService` and `FakeEngineService`. Each operation
+    is one step behind the Comment gate. Acceptance in `crates/ferman-api/tests/annotations.rs` on
+    `annots-other-producer`, plain and turned pages; recovery in `tests/recovery.rs`; fuzz target
+    `annotations`. No CLI subcommands, as with W1's page operations. The app's controls come with
+    commit 17, so `comments` stays in the registry. Other line-end styles and cloudy borders are
+    read and kept but not drawn by a redraw (`shortcut:` comments).
+  - W2, flatten, hide all, summary and links (commits 15 and 16, one commit, 2026-11-07):
+    `RevisionStore::flatten_annotations` (any selection of a page's annotations, for W3's Finish),
+    `ferman_ops::annotations::flatten`, `render_appendix`'s `hide_comments` (ADR 0009),
+    `ferman_ops::summary` (CSV and a4-4's three PDF layouts, on `JobRun`'s safe path),
+    `ferman_core::links` and `ferman_ops::links`, the facade with jobs, the bridge, `FrbEngineService`
+    and `FakeEngineService`. Opening a link needs no package: the plan's check came out for a
+    platform channel, `FileAccess.openUrl` (DEPENDENCIES). Acceptance with PDFium in
+    `crates/ferman-api/tests/flatten.rs`; the `annotations` fuzz target reads links too. Flatten
+    takes the edit gate and the signed check, as page content changes (decision 15). B197 files
+    what flatten cannot match. The bridge's calls and the Windows and Linux runners' `openUrl` have
+    not been run (no integration test or build on this Mac); the prompt and the Links panel are
+    commit 17, so `links` and `comments` stay in the registry. **For the owner:** file and GoToR
+    links are refused, narrower than decision 13's "ask first" (G145).
+    **A flake, found and filed by W2's review:** `every_type_is_added_and_edited_on_a_turned_page`
+    in `tests/annotations.rs` failed about one run in three: PDFium's own drawing of a no-`/AP`
+    callout varies when another page was drawn first, on the original bytes with no write by
+    Ferman (B201). The test leaves such boxes out.
+  - W2's review (2026-11-07), 40 findings, all fixed at the root but for what follows.
+    **Engine:** a moved box keeps its appearance (0.01 pt, not `f32::EPSILON`); flatten refuses a
+    page that leaks state past a `Q` too many (B202); replies go undrawn, a `/RT /Group` member
+    stays a mark; `/Popup` only names a real popup of its own; a state dated ahead no longer
+    outlives Resolve or Reopen (a new state takes that date, and a later entry wins a tie, so its
+    "resolved at" can show the future date); the summary sets a long comment whole; quotes have a
+    budget of 64 areas and 50 M tests per list; `offered` refuses every format character. New corpus
+    file `kira-tr-comments-only`. The fuzz target now sets text boxes and flattens: 120 s, 3,297
+    runs, no crash. **Measured** on `long-500`, on the owner's M5 Pro, so not R1: an annotation add
+    2.8 ms, a move 2.6 ms, through the facade (`cargo bench -p ferman-api --bench edit_and_save --
+    annotation`). The owner's check on R1 and R2 stays.
+    **App:** a click in Comment mode follows no link; a click inside the on-page editor keeps it,
+    which is now `FieldInput` with mouse selection and the UI's direction; a draft is committed
+    against its own document when the view goes away; hidden comments and a handle no longer listed
+    select nothing; an open note stays on the canvas; Open comment and a3-1c's Comment bring the
+    panel; a pin drags and takes a right click (G46's menu did not survive the view's press handler
+    before); Reopen shows the refusal; a resolved card has no Resolve; a mark tool turns hidden
+    comments back on (G170); Show comments is off where the engine refuses it (B111); a2-4d's copy
+    follows Look in (G169); a `.CSV` name writes a CSV; a3-1c counts code points; the Arabic plurals.
+    **Direct annotations:** a step drops the selection of one, instead of it moving to a neighbour.
+    A reply or resolve on one therefore clears the selection rather than following it (code
+    `shortcut:`), since those calls return no thread handle.
+    **Not run:** goldens (`comment_name` is new and the stamp menus now open the real row's popover,
+    so `comments` and `stamps` need new references from Linux CI); the OC and NoRotate case has a
+    unit test on its box, not a PDFium run, since no corpus file combines them. The Arabic plurals
+    wait for the native-speaker review.
+  - W2, the app (commit 17, 2026-11-07), built by three agents and joined on `m4-comments-forms`:
+    `features/comments/` (overlay, style bar, FmComments, search hits, the name dialog),
+    `features/stamps/` (the Shapes and Stamp menus, the library, a4-3b, placement) and
+    `features/editor/links.dart` with the Links panel and the prompt. `comments`, `stamps` and
+    `links` left the registry. **At the join:** two areas had each built the Shapes menu and the
+    drawing of shapes; one stays. `MarkPlacementOverlay` places shapes and stamps, inside
+    `DocumentView` over the comment layer, so the wheel still scrolls; `commentToolMenusOf` is the
+    one menu; `AnnotationTools.toolMenus` the one way to hang it; `CommentCommands.add` the one
+    commit, for the name (G46), the selection and Keep tool selected. Its keys (Enter places
+    mid-page, Backspace takes a corner back) are why that overlay won.
+    **Not built, though the Waves row names them:** the panel's Flatten (a4-5b, B198), disabled
+    through the registry with its engine done, and the summary's dialog (a4-4, B199): More › Export
+    summary works, with a4-4's defaults and no dialog.
+    **Goldens still to do:** `comments`, `stamps` and `links` have no reference PNG yet, so CI's
+    golden step stays red until the `goldens-linux` artifact is committed. Then add the compare-map
+    pairs: `comment_selected` to a4-1, `comment_note` to a4-1d, `comment_thread` to a4-2,
+    `comment_hidden` to a4-5, and the stamps' and links' to a4-1, a4-3, a4-3b and a3-6.
+    **For W5:** settings import (decision 34) must validate `myStamps`, as `StampDesign.fromJson`
+    does. a11-3's cheat sheet should list Add link's ⇧⌘K (G144). The prompt uses
+    `organizeDialogProvider` as its modal host, a name worth making general.
+    **For the owner:** which colour should new Text and Callout boxes use? They take `annotRed`, as
+    a4-1's callout draws it. Not run: the app by hand, the bridge's new calls, goldens.
+  - W3, Fill anything and simple signatures (commit 21, 2026-11-07): `ferman_ops::fill` finds a
+    page's lines, boxes, check boxes and combs through the interpreter (whose operator events now
+    carry their numeric operands), capped at 2,000 targets and 100,000 shapes, a limit giving a
+    short list marked so; a comb takes W2's text box with the private key `/FermanComb`, one
+    character a cell, kept through an edit. `ferman_ops::signatures` places a typed (Caveat and
+    Dancing Script at weight 500, Homemade Apple; only in its own style, G158), drawn or image
+    signature (through the image layer's limits, its paper made transparent and cut to the ink)
+    as a stamp with `/Name /FermanSignature` or `/FermanInitials`, and on a field the private key
+    of decision 21, never `/V`; `handwriting_styles` gives decision 23's coverage. Saved
+    signatures are plain files in a folder the app names, written through `safe_write`, read
+    within limits, never logged; the app owns their format. The facade, bridge,
+    `FrbEngineService` and `FakeEngineService` carry `fill_targets`, `handwriting_styles`,
+    `add_signature` and the three saved-signature calls. `form-aks1-flat` now draws the identity
+    number as a comb of 11 cells and the phone and e-mail as lines. Acceptance with PDFium in
+    `crates/ferman-api/tests/signatures.rs`; the `form_fields` fuzz target walks Fill anything
+    too. **Not built:** a placed signature's turn cannot be changed afterwards (delete and place
+    again; a box change scales it), a comb drawn as one frame with ticks or a frame of four lines
+    is not found, the image dialog has no preview of the cleaned image from the engine. The app's
+    controls are commit 22, so `formFilling` and `simpleSignatures` stayed in the registry until
+    then (both have left it since, with commit 22).
+  - W3, the forms engine (commit 20, 2026-11-07): `ferman_core::forms` reads `/AcroForm /Fields`
+    through the revisions without recursion, with limits and a cycle check; literal `AF*`
+    arguments are read as declared formats and ranges, and nothing runs (decision 17).
+    `ferman_ops::forms` sets values with an appearance per widget, in the field's font or bundled
+    Plex embedded and named (decision 18), with nothing generated before the first change
+    (decision 19); validates, counts required fields, clears and finishes through W2's flatten.
+    Form fields join search, which reads the text model's order (B163; copy still uses drawing
+    order). Facade `facade/forms.rs`, `ferman-text/src/field.rs`, acceptance in
+    `crates/ferman-api/tests/forms.rs`, fuzz target `form_fields`, bench `form/set/long_500` and
+    `form/set_bundled/long_500`. Not built: B203 (PDFium's tiles draw no widget, so the app's
+    overlay shows values in Fill & Sign only) and B204 (appearance details).
+  - W3, the app (commit 22, 2026-11-07), built by three agents and joined on `m4-comments-forms`:
+    **Forms** (`features/forms/`): the field overlay with each field's value and look (a5-2b),
+    editors committing on blur, Tab or Enter (decision 16), FmFormPanel with G47's Clear and Finish
+    dialogs, the signed-form notice and decision 18's font notice, the form bar and field
+    navigation, Fill anything (a5-4) with its bare keys live only with its panel open (decision
+    24), and Look in › Form fields (B128). **Signatures** (`features/signatures/`): a5-3's dialog
+    (typed, drawn, image; signature or initials), saved signatures as JSON files in the
+    `Signatures` folder of the app support directory (decision 22), a5-3d's Sign menu with ⌥S,
+    Initials, ⇧S, placement with resize, turn and nudge, and Start's Sign quick tool.
+    **Dialogs** (`features/comments/comment_dialogs.dart`): a4-4's summary dialog (PDF or CSV) and
+    a4-5b's Flatten with Keep a copy, both on `organizeDialogProvider`; flatten goes through the
+    signed check and `pagesFromFile` with staging, and a copy that fails changes nothing (G146).
+    `formFilling`, `searchScopes`, `simpleSignatures` and `flattenComments` left the registry;
+    new values `searchWithoutPageText` (B205), `formDataExport` (B207),
+    `settingsSignatures` (B208), `phoneSign` (B209). B024, B052, B128, B198 and B199 are done;
+    B205 to B211 added. The first-run tile "Fill and sign forms" is now Included.
+    **At the join:** the three areas each took B205 to B207; the signatures' rows became B208 to
+    B210 and the summary preview's B211. Fill anything's Signature row, left on the retired
+    `simpleSignatures`, now opens the signature dialog (behind the Comment gate, as the row's Sign
+    is, G148). The ARB files were rebuilt key by key from the three commits.
+    **Goldens still to do:** `form_fields`, `form_error`, `form_finish`, `fill_anything`, the
+    signatures' `sign_dialog` and `sign_menu`, the comment dialogs', and the first-run free step
+    (its Fill and sign tile turned Included) have no new reference PNG; CI's golden step stays red
+    until the `goldens-linux` artifact is committed. Then add the compare-map pairs: `form_fields`
+    light en to a5-1, dark en to a5-1d, `form_error` to a5-2, `fill_anything` to a5-4,
+    `sign_dialog` to a5-3, `sign_menu` to a5-3d. a5-2b is drawn by the overlay without a golden of
+    its own.
+    **For W5:** the cheat sheet lists T, K, X, D and ⇧D for Fill anything (live only with its panel
+    open, G44) and the Sign menu's ⌥S (G171); Manage saved signatures waits for the Settings pane
+    (B208). Not run: the app by hand, goldens, the bridge's new calls on a build.
 - [ ] The owner approves M4
 
 ### M5 · Release pipeline
@@ -1632,6 +1767,7 @@ budget that applies to a milestone is measured on R1 and R2 and recorded here
 | 2026-11-01 | M2 | `first_page` with its guard: one cold open of `long-500` and its first tile | the first page under 1 s (brief), the whole budget as CI's gross-regression guard | the same Mac, `cargo bench -- --quick` (not R1 or R2) | open and first tile 2.9 ms | CI's Benchmarks (Linux) job |
 | 2026-11-01 | M2 | The integration group "M2 budgets": a 500-page text PDF the test writes, opened through the bridge to page 1's first tile, and searched for a word on every page | first page under 1 s; first match under 200 ms, at least 100 pages a second (asserted in profile builds only) | the owner's MacBook Pro, Apple M5 Pro, **debug** build of app and engine (not R1 or R2; debug builds do not count) | open and first tile 168 ms; first match 4 ms, all 3,500 matches in 1,481 ms, 338 pages a second | `flutter test integration_test -d macos`; the profile numbers for R1 and R2 come from `flutter drive --profile` (owner check) |
 | 2026-11-01 | M2 | The integration group "M2 budgets", profile build | first page under 1 s; first match under 200 ms, at least 100 pages a second | the owner's MacBook Pro, Apple M5 Pro, **profile** build (not R1 or R2) | open and first tile 90 ms; first match under 1 ms, all 3,500 matches in 155 ms, 3,226 pages a second; `debug_bytes` 1 MiB min 23 µs, median 31 µs; **meets every budget on this Mac** | `flutter drive --profile -d macos --no-enable-impeller --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart` (14 of 14) |
+| 2026-11-07 | M4 | A form field's value committed on a page of `long-500` (decision 16): `form/set/long_500` in the field's own font, `form/set_bundled/long_500` in bundled Plex, from the call to the reload, through the facade (`benches/edit_and_save.rs`) | none yet (Still Proposed at the M4 review) | the owner's MacBook Pro, Apple M5 Pro, `cargo bench` (optimised bench profile; not R1 or R2) | 3.20 ms and 3.36 ms (criterion medians, 10 samples) | W3's form engine commit |
 
 Both results are far over the target, because the transfer copies. With codegen 2.13's default
 `full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one
@@ -1729,3 +1865,6 @@ Newest last. One row per session.
 | 2026-11-06 | M4 | W0's code, built by agents in worktrees and integrated on `m4-rest-of-phase-1`: render keys and password reload, gates per operation, jobs and the task drawer, the toast host, the image layer, the fonts and the corpus. At integration: `JobChange` gained `op` and `fields` for the gates' `commit_change`; the open drawer now tells `ToastHost` its height, which neither side had wired (G49); the bridge and generated files were regenerated. The commits `65b1732` to `4dcaed5` do not build `ferman-api` alone: `2f130e5` makes it build again (at `4dcaed5` `cargo check -p ferman-api` stops at E0061). New en, tr and ar strings are the agents' own translations and need the native-speaker review. The checks ran on the owner's Mac (not R1) and CI has not run yet; goldens wait for CI's Linux run. The render bench's timings are not logged here. | this commit |
 | 2026-11-06 | M4 | W1's app, built by agents in worktrees and integrated on `m4-rest-of-phase-1`: the page grid; crop, labels and the page dialogs; Split, Combine and Create PDF. At integration: one `pageChange` for the grid and the dialogs, so a signed document asks in one place; one `organizeDialogProvider` holding a widget, drawn by `ClosingOverlays`; one `chooseFolder`; the dialogs start from the grid's selection; Crop shows the reader in the grid's place, which the two sides had stacked; the dialogs follow the Organize gate; Extract and Insert from file got their keys; a1-6's Combine target, which each side had left to the other, is B191. New gaps G160 to G165. The job rows keep the dialogs' wording ("Reading pages from {name}"), for a drop too. Rust, Flutter and repository checks were run on this Mac; goldens wait for CI's Linux run. | this commit |
 | 2026-11-06 | M4 | W1's review, fixed as one commit. Replace: a new page takes nothing from its new `/Pages` chain, and the old page's widgets leave the form. A deleted page's fields go from `/Fields` in its step, so a rewrite drops their values. A later edit copies a stream a deleted page drew from, so reverting the delete restores the page as it was. The form merge reads an indirect `/DR`. Split's sizes are measured by assembling each file without its stream data (`assembled_size`), so they never run low and Size mode holds its limit. In the app: modified arrows reach the page-move commands from a focused page; the crop toast is withdrawn with its step and Undo takes back crop and size together; a search of a document changed while hidden reruns on return; ⌘A and the move keys leave the Find field alone; Extract's delete is disabled where it would fail and a refused delete leaves the row done; Combine and Page labels fit a narrow window; focus stays in the grid after a delete; moving every page up is a no-op; the Combine tab follows Organize's sidebar rule and holds the mode bar; a selected page is what Crop starts on; the panel draws a dash only for pages side by side; every Organize tool says why it is disabled. B191 moved to W6 and the Save sheet's note on deleted pages to W4 (B138). |
+| 2026-11-07 | M4 | W2's app, built by agents in worktrees and joined on `m4-comments-forms`: comments, shapes and stamps, links. At the join: one Shapes menu and one placement overlay out of two of each; `AnnotationTools.toolMenus` over `toolItem`; every mark commits through `CommentCommands.add`; focus comes back to the overlay after a press; B198 for the file link's row, which two areas took, is B200. The panel's Flatten (B198) and the summary's dialog (B199) stay disabled. Goldens declared, not generated. | this commit |
+| 2026-11-07 | M4 | W3, built by agents in worktrees and joined on `m4-comments-forms`: the forms engine (commit 20), Fill anything and simple signatures in the engine (commit 21), and the app (commit 22) as three areas: forms, signatures, and the comment summary and flatten dialogs. At the join: BACKLOG numbers B205 to B211 sorted out between the areas; Fill anything's Signature row opens the signature dialog; the ARB files rebuilt key by key; the first-run Fill and sign tile turned Included. G171 and G172 recorded. Goldens not generated (Linux CI). | this commit |
+| 2026-11-07 | M4 | W3's review. Finish redraws every field of a `/NeedAppearances` form from its value instead of baking a stale `/AP`, keeps every `/Fields` root it did not read whole (an invisible signature's with only `/P` included: `FormFields::partial_roots`), follows the font policy (Ask asks, the fonts taken are said) and so does Clear (`finish_form` and `clear_form` take `missing` and return a `FieldCommit`); one change embeds each bundled face once for all its widgets, and the free `/DR` prefix reads the keys once; emptying a field writes an empty `/V`, so an inherited value no longer shows through; hours are bounded (H < 24, h 1 to 12). The app takes a form field's or Fill anything's typing before closing, quitting and saving (`DocumentEditor.holdDraft`), Tab and the field rows scroll the least that shows the field (`Viewer.reveal`), the date picker writes every `AFDate_Format` pattern the engine reads, and a value turns with its page's `/Rotate`. The nightly fuzz matrix names `form_fields`; B203's milestone follows Q26. New tests: the script form runs nothing, all 20 fields of form-aks1-tr with the full tab order, Fill anything saved and reopened with its comb. | this commit |

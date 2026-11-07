@@ -2054,7 +2054,7 @@ Notes:
 - FmWindow passes its own tool list (11 tools); see AnnotationTool.
 - Tool and colour names, and the names of the row and the colour group, come from the caller; the bundle hard-codes English (decision 20).
 - The palette has no orange (the bundle's PALETTE): with color orange the active tool's swatch shows orange, no swatch is checked and the first one is the Tab stop (G69).
-- Menus of the hasMenu tools (Shapes, Stamp, Measure) are asked for through onToolMenuRequested; the row builds none (B014).
+- Menus of the hasMenu tools (Shapes, Stamp, Measure) are asked for through onToolMenuRequested; a tool in toolMenus hangs its menu from its button and offers it as a submenu of the overflow menu (ToolbarItem.collapsible, B093). Measure has none built (B014).
 
 #### ANNOTATION_TOOLS
 

@@ -58,7 +58,6 @@ void main() {
     for (final label in [
       'Compress',
       'Convert',
-      'Sign',
       'Recognize text (OCR)',
       'Protect',
       'Compare',

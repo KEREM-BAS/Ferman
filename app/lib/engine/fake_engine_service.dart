@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_service.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 
 /// An [EngineService] for widget tests and goldens: no native library.
 class FakeEngineService implements EngineService {
@@ -439,6 +440,25 @@ class FakeEngineService implements EngineService {
         .length;
     for (final matches in searchResults[query] ?? const <List<SearchMatch>>[]) {
       yield SearchMatches(matches);
+    }
+    if (options.comments) {
+      final open = documents.values.firstWhere((open) => open.id == document);
+      for (final annotation in _annotationsNow(document)) {
+        final page = open.pageIndexOf(annotation.page);
+        final text = annotation.contents ?? '';
+        final at = text.indexOf(query);
+        if (page == null || at < 0) continue;
+        yield SearchMatches([
+          SearchMatch(
+            page: page,
+            rects: [annotation.rect],
+            snippet: text,
+            snippetStart: at,
+            snippetEnd: at + query.length,
+            comment: annotation.handle,
+          ),
+        ]);
+      }
     }
     yield SearchProgress(searched: pages, pages: pages);
     yield SearchDone(textless: textless);
@@ -1330,6 +1350,677 @@ class FakeEngineService implements EngineService {
     handle: ++_lastPageHandle,
   );
 
+  /// Each document's fields by the history's place they were left at; undo
+  /// and redo walk them with the steps.
+  final Map<int, Map<int, List<FieldInfo>>> _fieldVersions = {};
+
+  /// The fields a test gives a document before any step.
+  final Map<int, List<FieldInfo>> initialFields = {};
+
+  List<FieldInfo> _fieldsNow(int document) {
+    final versions = _fieldVersions[document] ?? const {};
+    for (var at = _history(document).current; at > 0; at--) {
+      final version = versions[at];
+      if (version != null) return version;
+    }
+    return initialFields[document] ?? const [];
+  }
+
+  /// One step named [name] that leaves [after], on [pages] by handle.
+  RevisionInfo _fieldStep(
+    int document,
+    String name,
+    List<int> pages,
+    List<FieldInfo> after,
+  ) {
+    final info = _pagesChanged(document, name, pages, (all) => [...all]);
+    final versions = _fieldVersions[document] ??= {};
+    final at = _history(document).current;
+    versions
+      ..removeWhere((step, _) => step >= at)
+      ..[at] = after;
+    return info;
+  }
+
+  @override
+  Future<FormInfo> formFields(int document) async {
+    final fields = _fieldsNow(document);
+    final required = fields.where((f) => f.required && !f.readOnly);
+    return FormInfo(
+      fields: fields,
+      required: required.length,
+      requiredLeft: required.where((f) => !f.filled).length,
+      problems: fields.where((f) => f.problem != null).length,
+    );
+  }
+
+  /// Sets a value as the engine would, without its validation: a read-only,
+  /// push-button or signature field is refused.
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) async {
+    final fields = _fieldsNow(document);
+    final at = fields.indexWhere((field) => field.handle == handle);
+    final field = at < 0 ? null : fields[at];
+    if (field == null ||
+        field.readOnly ||
+        field.kind == FieldKind.push ||
+        field.kind == FieldKind.signature) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    if (listEquals(field.values, values)) {
+      return FieldCommit(
+        revision: RevisionInfo(current: _history(document).current),
+      );
+    }
+    final revision = _fieldStep(
+      document,
+      name,
+      {for (final widget in field.widgets) widget.page}.toList(),
+      [...fields]..[at] = field.withValues(values),
+    );
+    return FieldCommit(revision: revision);
+  }
+
+  /// The families a whole-form change (Clear, Finish) would draw in, as
+  /// when the form's own font lacks characters: with them, such a change
+  /// asks first unless told what to do, and then names them.
+  List<String> wholeFormFonts = const [];
+
+  /// [step] as Clear or Finish would take it under [missing], by
+  /// [wholeFormFonts].
+  FieldCommit _wholeForm(
+    int document,
+    MissingFont? missing,
+    RevisionInfo Function() step,
+  ) {
+    if (wholeFormFonts.isNotEmpty && missing == null) {
+      return FieldCommit(
+        revision: RevisionInfo(current: _history(document).current),
+        asksFont: true,
+      );
+    }
+    return FieldCommit(
+      revision: step(),
+      fonts: missing == MissingFont.bundled ? wholeFormFonts : const [],
+    );
+  }
+
+  @override
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => _wholeForm(document, missing, () {
+    final fields = _fieldsNow(document);
+    return _fieldStep(
+      document,
+      name,
+      [
+        for (final field in fields)
+          for (final widget in field.widgets) widget.page,
+      ],
+      [
+        for (final field in fields)
+          if (field.readOnly ||
+              field.kind == FieldKind.signature ||
+              field.kind == FieldKind.push)
+            field
+          else
+            field.withValues(const []),
+      ],
+    );
+  });
+
+  @override
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => _wholeForm(document, missing, () {
+    final fields = _fieldsNow(document);
+    return _fieldStep(
+      document,
+      name,
+      [
+        for (final field in fields)
+          for (final widget in field.widgets) widget.page,
+      ],
+      [
+        for (final field in fields)
+          if (field.signed) field,
+      ],
+    );
+  });
+
+  /// The places to fill a test gives each page, by page handle.
+  final Map<int, FillTargets> fillTargetsByPage = {};
+
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async =>
+      fillTargetsByPage[page] ?? const FillTargets();
+
+  /// As the bundled fonts answer: Caveat and Dancing Script write Latin with
+  /// Turkish, Homemade Apple not İ, Ğ, ğ, Ş or ş, and none another script.
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async {
+    final latin = text.runes.every((rune) => rune < 0x250);
+    final apple = latin && !text.contains(RegExp('[İĞğŞş]'));
+    return [
+      HandwritingStyle(family: 'Caveat', covered: latin),
+      HandwritingStyle(family: 'Dancing Script', covered: latin),
+      HandwritingStyle(family: 'Homemade Apple', covered: apple),
+    ];
+  }
+
+  /// Places a stamp as the engine lists it, signing its field: one step. A
+  /// field that is no unsigned, unstamped signature field is refused.
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) async {
+    final fields = _fieldsNow(document);
+    final field = signature.field;
+    if (field != null &&
+        !fields.any(
+          (f) =>
+              f.name == field &&
+              f.kind == FieldKind.signature &&
+              !f.signed &&
+              f.signature == null,
+        )) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final handle = ++_lastAnnotationHandle;
+    final added = AnnotationInfo(
+      handle: handle,
+      page: page,
+      kind: AnnotationKind.stamp,
+      rect: signature.rect,
+      color: signature.color,
+      author: signature.author,
+      created: now(),
+      modified: now(),
+      icon: signature.initials ? initialsStampName : signatureStampName,
+      thread: handle,
+    );
+    final revision = _annotationStep(document, name, page, [
+      ..._annotationsNow(document),
+      added,
+    ]);
+    if (field != null) {
+      final at = _history(document).current;
+      (_fieldVersions[document] ??= {})
+        ..removeWhere((step, _) => step >= at)
+        ..[at] = [
+          for (final f in fields)
+            if (f.name == field) f.withSignature(handle) else f,
+        ];
+    }
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  /// The saved signature files, by directory, then name.
+  final Map<String, Map<String, Uint8List>> savedSignatureFiles = {};
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async {
+    final files = savedSignatureFiles[directory] ?? const {};
+    return [
+      for (final name in files.keys.toList()..sort())
+        SavedSignatureFile(name: name, bytes: files[name]!),
+    ];
+  }
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async {
+    if (!RegExp(r'^[A-Za-z0-9_\-][A-Za-z0-9_.\-]{0,63}$').hasMatch(name)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    (savedSignatureFiles[directory] ??= {})[name] = bytes;
+  }
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async {
+    savedSignatureFiles[directory]?.remove(name);
+  }
+
+  /// Each document's annotations by the history's place they were left at;
+  /// undo and redo walk them with the steps.
+  final Map<int, Map<int, List<AnnotationInfo>>> _annotationVersions = {};
+
+  /// The annotations a test gives a document before any step.
+  final Map<int, List<AnnotationInfo>> initialAnnotations = {};
+
+  int _lastAnnotationHandle = 1 << 40;
+
+  List<AnnotationInfo> _annotationsNow(int document) {
+    final versions = _annotationVersions[document] ?? const {};
+    for (var at = _history(document).current; at > 0; at--) {
+      final version = versions[at];
+      if (version != null) return version;
+    }
+    return initialAnnotations[document] ?? const [];
+  }
+
+  /// One step named [name] that leaves [after], on the page of [page].
+  RevisionInfo _annotationStep(
+    int document,
+    String name,
+    int page,
+    List<AnnotationInfo> after,
+  ) {
+    final info = _pagesChanged(document, name, [page], (all) => [...all]);
+    final versions = _annotationVersions[document] ??= {};
+    final at = _history(document).current;
+    versions
+      ..removeWhere((step, _) => step >= at)
+      ..[at] = after;
+    return info;
+  }
+
+  AnnotationInfo _annotationNamed(int document, int handle) {
+    for (final annotation in _annotationsNow(document)) {
+      if (annotation.handle == handle) return annotation;
+    }
+    throw const EngineException(
+      kind: EngineErrorKind.invalidInput,
+      messageKey: 'errorInternal',
+    );
+  }
+
+  @override
+  Future<AnnotationList> annotations(int document) async {
+    final annotations = _annotationsNow(document);
+    return AnnotationList(
+      annotations: annotations,
+      people: {
+        for (final annotation in annotations)
+          if (annotation.author case final author? when author.isNotEmpty)
+            author,
+      }.toList(),
+    );
+  }
+
+  /// Adds a mark as the engine would list it. A squiggly or unknown type is
+  /// refused, as the engine refuses it.
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) async {
+    if (annotation.kind == AnnotationKind.squiggly ||
+        annotation.kind == AnnotationKind.other) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final handle = ++_lastAnnotationHandle;
+    final added = AnnotationInfo(
+      handle: handle,
+      page: page,
+      kind: annotation.kind,
+      rect: annotation.rect,
+      points: annotation.points,
+      arrow: annotation.arrow,
+      color: annotation.color,
+      opacity: annotation.opacity,
+      stroke: annotation.stroke,
+      fontSize: annotation.fontSize,
+      author: annotation.author,
+      contents: annotation.contents,
+      created: now(),
+      modified: now(),
+      icon: annotation.icon,
+      thread: handle,
+    );
+    final revision = _annotationStep(document, name, page, [
+      ..._annotationsNow(document),
+      added,
+    ]);
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) async {
+    final old = _annotationNamed(document, handle);
+    final changed = AnnotationInfo(
+      handle: handle,
+      page: old.page,
+      kind: old.kind,
+      subtype: old.subtype,
+      rect: change.rect ?? old.rect,
+      points: change.points ?? old.points,
+      arrow: old.arrow,
+      color: change.color ?? old.color,
+      opacity: change.opacity ?? old.opacity,
+      stroke: change.stroke ?? old.stroke,
+      fontSize: change.fontSize ?? old.fontSize,
+      author: old.author,
+      contents: change.contents ?? old.contents,
+      quote: old.quote,
+      rich: old.rich && change.contents == null,
+      created: old.created,
+      modified: now(),
+      icon: old.icon,
+      repliesTo: old.repliesTo,
+      thread: old.thread,
+      state: old.state,
+      resolved: old.resolved,
+      resolvedBy: old.resolvedBy,
+      resolvedAt: old.resolvedAt,
+      mentions: old.mentions,
+    );
+    final revision = _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle == handle) changed else annotation,
+    ]);
+    return AnnotationCommit(handle: handle, revision: revision);
+  }
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) async {
+    final old = _annotationNamed(document, handle);
+    return _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle != handle && annotation.thread != handle)
+          annotation,
+    ]);
+  }
+
+  /// The requests of every [showComments], oldest first.
+  final List<bool> commentRequests = [];
+
+  /// What the next [showComments] fails with.
+  EngineException? showCommentsFailure;
+
+  @override
+  Future<int> showComments(int document, {required bool visible}) async {
+    commentRequests.add(visible);
+    if (showCommentsFailure case final failure?) throw failure;
+    _pageKeys.remove(document);
+    return _renderKeys[document] = ++_lastRenderKey;
+  }
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) {
+    assembleJobs.add('flatten ${handles.length} $copy');
+    return _waitingJob();
+  }
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) {
+    assembleJobs.add('summary ${format.name} $output');
+    return _waitingJob();
+  }
+
+  /// Each document's links, as tests set them or the calls change them.
+  final Map<int, List<LinkInfo>> fakeLinks = {};
+  int _lastLinkHandle = 1 << 40;
+
+  /// The addresses that may be written; anything else is refused, as the
+  /// engine refuses it.
+  static bool _offered(LinkDestination destination) {
+    if (destination.page != null) return true;
+    final address = destination.address;
+    if (destination.mail) return !address.contains(' ');
+    return address.startsWith(RegExp('https?://', caseSensitive: false));
+  }
+
+  void _checkDestination(LinkDestination? destination) {
+    if (destination != null && !_offered(destination)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+  }
+
+  static LinkInfo _linkTo(LinkInfo old, LinkChange change) {
+    final destination = change.destination;
+    return LinkInfo(
+      handle: old.handle,
+      page: old.page,
+      rect: change.rect ?? old.rect,
+      quads: old.quads,
+      kind: destination == null
+          ? old.kind
+          : destination.page != null
+          ? LinkKind.page
+          : destination.mail
+          ? LinkKind.mail
+          : LinkKind.web,
+      target: destination == null
+          ? old.target
+          : destination.mail
+          ? 'mailto:${destination.address}'
+          : destination.address,
+      targetPage: destination == null ? old.targetPage : destination.page,
+      wantedPage: old.wantedPage,
+      look: change.look ?? old.look,
+      color: change.color ?? old.color,
+    );
+  }
+
+  @override
+  Future<LinkList> links(int document) async =>
+      LinkList(links: [...?fakeLinks[document]]);
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async {
+    for (final link in (fakeLinks[document] ?? const <LinkInfo>[]).reversed) {
+      if (link.page == page && link.rect.contains(point)) return link;
+    }
+    return null;
+  }
+
+  // shortcut: the fake's links do not follow undo, as its annotations do; add
+  // versions when commit 17's Links panel needs them.
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) async {
+    _checkDestination(link.destination);
+    final handle = ++_lastLinkHandle;
+    (fakeLinks[document] ??= []).add(
+      _linkTo(
+        LinkInfo(
+          handle: handle,
+          page: page,
+          rect: link.rect,
+          kind: LinkKind.nothing,
+          quads: link.quads,
+        ),
+        LinkChange(
+          destination: link.destination,
+          look: link.look,
+          color: link.color,
+        ),
+      ),
+    );
+    return AnnotationCommit(
+      handle: handle,
+      revision: _pagesChanged(document, name, [page], (all) => [...all]),
+    );
+  }
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) async {
+    _checkDestination(change.destination);
+    final links = fakeLinks[document] ?? [];
+    final at = links.indexWhere((link) => link.handle == handle);
+    if (at < 0) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    links[at] = _linkTo(links[at], change);
+    return AnnotationCommit(
+      handle: handle,
+      revision: _pagesChanged(document, name, [
+        links[at].page,
+      ], (all) => [...all]),
+    );
+  }
+
+  @override
+  Future<RevisionInfo> deleteLink(int document, int handle, String name) async {
+    final links = fakeLinks[document] ?? [];
+    final at = links.indexWhere((link) => link.handle == handle);
+    if (at < 0) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final page = links.removeAt(at).page;
+    return _pagesChanged(document, name, [page], (all) => [...all]);
+  }
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) async {
+    final old = _annotationNamed(document, handle);
+    final reply = ++_lastAnnotationHandle;
+    final people = (await annotations(document)).people;
+    final revision = _annotationStep(document, name, old.page, [
+      ..._annotationsNow(document),
+      AnnotationInfo(
+        handle: reply,
+        page: old.page,
+        kind: AnnotationKind.note,
+        rect: old.rect,
+        author: author,
+        contents: text,
+        created: now(),
+        modified: now(),
+        repliesTo: old.thread,
+        thread: old.thread,
+        mentions: [
+          for (final person in people)
+            if (text.contains('@$person')) person,
+        ],
+      ),
+    ]);
+    return AnnotationCommit(handle: reply, revision: revision);
+  }
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) async {
+    final old = _annotationNamed(document, handle);
+    final top = _annotationNamed(document, old.thread);
+    if (top.resolved == resolved) {
+      return RevisionInfo(current: _history(document).current);
+    }
+    return _annotationStep(document, name, old.page, [
+      for (final annotation in _annotationsNow(document))
+        if (annotation.handle == top.handle)
+          AnnotationInfo(
+            handle: top.handle,
+            page: top.page,
+            kind: top.kind,
+            subtype: top.subtype,
+            rect: top.rect,
+            points: top.points,
+            arrow: top.arrow,
+            color: top.color,
+            opacity: top.opacity,
+            stroke: top.stroke,
+            fontSize: top.fontSize,
+            author: top.author,
+            contents: top.contents,
+            quote: top.quote,
+            rich: top.rich,
+            created: top.created,
+            modified: top.modified,
+            icon: top.icon,
+            thread: top.thread,
+            resolved: resolved,
+            resolvedBy: resolved ? author : null,
+            resolvedAt: resolved ? now() : null,
+            mentions: top.mentions,
+          )
+        else
+          annotation,
+      AnnotationInfo(
+        handle: ++_lastAnnotationHandle,
+        page: top.page,
+        kind: AnnotationKind.note,
+        rect: top.rect,
+        author: author,
+        modified: now(),
+        repliesTo: top.handle,
+        thread: top.handle,
+        state: resolved ? 'Completed' : 'None',
+      ),
+    ]);
+  }
+
   @override
   Future<RevisionInfo> rotatePages(
     int document,
@@ -1935,6 +2626,9 @@ class FakeEngineService implements EngineService {
     return BlockCaret(index: best.index, rect: best.rect);
   }
 
+  /// The character indices of every selection, oldest first.
+  final List<(int, int)> selectionRequests = [];
+
   /// The blocks between [anchor] and [focus] in reading order.
   @override
   Future<PageSelection> selection(
@@ -1943,6 +2637,7 @@ class FakeEngineService implements EngineService {
     BlockPosition anchor,
     BlockPosition focus,
   ) async {
+    selectionRequests.add((anchor.index, focus.index));
     final blocks = _blocks(document, page).blocks;
     int order(BlockPosition at) => blocks.indexWhere(
       (block) => block.id == _block(document, page, at.block).id,

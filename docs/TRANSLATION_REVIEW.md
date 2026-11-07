@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1081 messages in `app_en.arb`; translated: Turkish 1081, Arabic 1081.
+1425 messages in `app_en.arb`; translated: Turkish 1425, Arabic 1425.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -451,8 +451,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `statusSearching` | Searching | Aranıyor | جارٍ البحث | The status bar's inline task while a search runs (FmWindow task, B124), before "Page N of M". |
 | `findSearching` | Searching · page {page} of {pages} | Aranıyor · sayfa {page} / {pages} | جارٍ البحث · الصفحة {page} من {pages} | A long search's progress (a2-4c); numbers in the region's format. |
 | `findNoneTitle` | No results for “{query}” | “{query}” için sonuç yok | لا نتائج لـ«{query}» | No results: the title, with the query as typed (a2-4d). |
-| `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
-| `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNotSearchedFields` | Form fields weren’t searched. | Form alanları aranmadı. | لم يُبحث في حقول النماذج. | a2-4d: after findNoneBody, with Comments ticked in Look in. |
+| `findNotSearchedBoth` | Comments and form fields weren’t searched. | Yorumlar ve form alanları aranmadı. | لم يُبحث في التعليقات وحقول النماذج. | a2-4d: after findNoneBody, with Comments not ticked. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
 | `sidebarSearchBookmark` | Bookmark: {title} | Yer imi: {title} | إشارة مرجعية: {title} | Accessible name of a search result found in a bookmark's title (Look in › Bookmarks). |
 | `sidebarSearchNoTextTitle` | No text to search | Aranacak metin yok | لا يوجد نص للبحث فيه | Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m). |
@@ -883,7 +885,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `editPanelReset` | Reset text style | Metin stilini sıfırla | إعادة تعيين نمط النص | a3-2: button in the heading. |
 | `editPanelHint` | Text reflows inside the frame. Drag a handle to resize it. | Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin. | يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم. | a3-2: the note at the panel's end. |
 | `editBarLabel` | Format selection | Seçimi biçimlendir | تنسيق التحديد | a3-1c: the accessible name of the floating format bar. |
-| `editBarLink` | Add link | Bağlantı ekle | إضافة رابط | a3-1c: button, disabled until links work. |
+| `editBarLink` | Add link | Bağlantı ekle | إضافة رابط | a3-1c: button; a3-6: the panel's + button. |
 | `editBarHighlight` | Highlight (adds a comment) | Vurgula (yorum ekler) | تمييز (يضيف تعليقًا) | a3-1c: button, disabled until comments work. |
 | `editBarComment` | Comment on selection | Seçime yorum ekle | التعليق على التحديد | a3-1c: button, disabled until comments work. |
 | `editBarReplace` | Find and replace these words | Bu sözcükleri bul ve değiştir | البحث عن هذه الكلمات واستبدالها | a3-1c: button, disabled until find and replace works. |
@@ -1137,5 +1139,347 @@ The table below is generated from the ARB files by `tools/l10n`
 | `jobCreatingTitle` | Creating {name} | {name} oluşturuluyor | جارٍ إنشاء {name} | a11-6b: the title of a task that creates a PDF. |
 | `jobCreatedTitle` | Created {name} | {name} oluşturuldu | تم إنشاء {name} | a11-6b: the title of the finished Create PDF. |
 | `jobCreateFailedTitle` | Couldn’t create {name} | {name} oluşturulamadı | تعذر إنشاء {name} | a11-6b: the title of a failed Create PDF; also a toast. |
+| `commentsTitle` | Comments | Yorumlar | التعليقات | FmComments's heading. |
+| `commentsFilter` | Filter and sort | Filtrele ve sırala | تصفية وفرز | FmComments: the filter button. |
+| `commentsMore` | More: export summary, flatten, hide all | Diğer: özeti dışa aktar, düzleştir, tümünü gizle | المزيد: تصدير الملخص، التسطيح، إخفاء الكل | FmComments: the More button. |
+| `commentsStatus` | Status | Durum | الحالة | FmComments: the status control's name. |
+| `commentsStatusOpen` | Open {count} | Açık {count} | مفتوحة {count} | FmComments: status. |
+| `commentsStatusResolved` | Resolved {count} | Çözüldü {count} | محلولة {count} | FmComments: status. |
+| `commentsStatusAll` | All {count} | Tümü {count} | الكل {count} | FmComments: status. |
+| `commentsFilterAuthor` | Author | Yazar | المؤلف | FmComments: filter's name. |
+| `commentsFilterType` | Type | Tür | النوع | FmComments: filter's name. |
+| `commentsFilterSort` | Sort | Sıralama | الفرز | FmComments: filter's name. |
+| `commentsAllPeople` | All people | Tüm kişiler | جميع الأشخاص | FmComments: author filter. |
+| `commentsTypeNotes` | Notes | Notlar | الملاحظات | FmComments: type filter. |
+| `commentsTypeMarkup` | Text markup | Metin işaretleri | ترميز النص | FmComments: type filter. |
+| `commentsTypeDrawings` | Drawings | Çizimler | الرسومات | FmComments: type filter. |
+| `commentsTypeStamps` | Stamps | Damgalar | الأختام | FmComments: type filter. |
+| `commentsTypeOther` | All types | Tüm türler | جميع الأنواع | FmComments: type filter. |
+| `commentsSortNewest` | Newest | En yeni | الأحدث | FmComments: sort. |
+| `commentsSortAuthor` | Author | Yazar | المؤلف | FmComments: sort. |
+| `commentsSortOther` | Page order | Sayfa sırası | ترتيب الصفحات | FmComments: sort. |
+| `commentsCertifiedNote` | This document is certified to allow comments: they keep its certification valid. | Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır. | تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها. | FmComments: G35's notice. |
+| `commentsTruncated` | This file has more comments than Ferman lists. | Bu dosyada Ferman'ın listelediğinden daha çok yorum var. | يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman. | FmComments: a reader's limit cut the list. |
+| `commentsEmptyTitle` | No comments | Yorum yok | لا توجد تعليقات | FmComments: empty (G46). |
+| `commentsEmptyBody` | Pick a tool above, then mark up the page. | Yukarıdan bir araç seçin, sonra sayfada işaretleyin. | اختر أداة من الأعلى، ثم أضف علامات على الصفحة. | FmComments: empty (G46). |
+| `commentsNoMatchTitle` | No comments match | Eşleşen yorum yok | لا توجد تعليقات مطابقة | FmComments: no match (G46). |
+| `commentsNoMatchBody` | Change the status or filters to see others. | Diğerlerini görmek için durumu veya filtreleri değiştirin. | غيّر الحالة أو عوامل التصفية لرؤية غيرها. | FmComments: no match (G46). |
+| `commentsFootnote` | Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications. | Yorumlar PDF'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez. | تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات. | FmComments's footer. |
+| `commentsExportSummary` | Export summary… | Özeti dışa aktar… | تصدير الملخص… | FmComments: More. |
+| `commentsFlatten` | Flatten… | Düzleştir… | تسطيح… | FmComments: More. |
+| `commentsHideAll` | Hide all | Tümünü gizle | إخفاء الكل | FmComments: More. |
+| `commentsHidden` | {count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}} | {count, plural, other{{shown} yorum gizli}} | {count, plural, =1{تعليق واحد مخفي} =2{تعليقان مخفيان} few{{shown} تعليقات مخفية} many{{shown} تعليقًا مخفيًا} other{{shown} تعليق مخفي}} | a4-5's notice. |
+| `commentKindHighlight` | Highlight | Vurgu | تمييز | A kind of annotation. |
+| `commentKindUnderline` | Underline | Altı çizili | تسطير | A kind of annotation. |
+| `commentKindStrikeOut` | Strikethrough | Üstü çizili | يتوسطه خط | A kind of annotation. |
+| `commentKindSquiggly` | Squiggly underline | Dalgalı alt çizgi | تسطير متموج | A kind of annotation. |
+| `commentKindNote` | Note | Not | ملاحظة | A kind of annotation. |
+| `commentKindFreeText` | Text | Metin | نص | A kind of annotation. |
+| `commentKindCallout` | Callout | Belirtme | وسيلة شرح | A kind of annotation. |
+| `commentKindInk` | Drawing | Çizim | رسم | A kind of annotation. |
+| `commentKindSquare` | Rectangle | Dikdörtgen | مستطيل | A kind of annotation. |
+| `commentKindCircle` | Ellipse | Elips | شكل بيضاوي | A kind of annotation. |
+| `commentKindLine` | Line | Çizgi | خط | A kind of annotation. |
+| `commentKindPolygon` | Polygon | Çokgen | مضلع | A kind of annotation. |
+| `commentKindStamp` | Stamp | Damga | ختم | A kind of annotation. |
+| `commentKindOther` | Comment | Yorum | تعليق | A kind of annotation. |
+| `commentStyleBar` | {kind} style | {kind} stili | نمط {kind} | a4-1's floating bar's name. |
+| `commentStrokeWidth` | Stroke width | Çizgi kalınlığı | سُمك الخط | a4-1's style bar. |
+| `commentOpacity` | Opacity | Opaklık | العتامة | a4-1's style bar. |
+| `commentOpen` | Open comment | Yorumu aç | فتح التعليق | a4-1's style bar. |
+| `commentDelete` | Delete | Sil | حذف | a4-1's style bar. |
+| `commentMenu` | Comment | Yorum | تعليق | G46's context menu's name. |
+| `commentEditText` | Edit text | Metni düzenle | تحرير النص | G46's context menu. |
+| `commentMore` | More | Diğer | المزيد | a4-1d: the note's More. |
+| `commentCloseNote` | Close note | Notu kapat | إغلاق الملاحظة | a4-1d: the note's Close. |
+| `commentNoteFrom` | Note from {author} | {author} notu | ملاحظة من {author} | a4-1d: the note's name. |
+| `commentReply` | Reply | Yanıtla | رد | a4-2's Reply. |
+| `commentResolve` | Resolve | Çöz | حل | a4-2's Resolve. |
+| `commentReopen` | Reopen | Yeniden aç | إعادة فتح | a4-2's Reopen. |
+| `commentPeople` | People in this document | Bu belgedeki kişiler | الأشخاص في هذا المستند | a4-2's mention list. |
+| `commentQuote` | “{text}” | “{text}” | «{text}» | The annotated text on a card. |
+| `commentReplies` | {count, plural, =1{{shown} reply} other{{shown} replies}} | {count, plural, other{{shown} yanıt}} | {count, plural, =1{رد واحد} =2{ردّان} few{{shown} ردود} many{{shown} ردًا} other{{shown} رد}} | FmComments: collapsed replies. |
+| `commentResolvedBy` | Resolved by {name} · {time} | {name} çözdü · {time} | حلّها {name} · {time} | FmComments: a resolved card. |
+| `commentYesterday` | Yesterday | Dün | أمس | FmComments: a comment's time. |
+| `commentCardLabel` | {author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}} | {author}, {page}. sayfada {kind}{resolved, plural, =0{} other{, çözüldü}}{count, plural, =0{} other{, {shown} yanıt}} | {author}، {kind} في الصفحة {page}{resolved, plural, =0{} other{، محلولة}}{count, plural, =0{} =1{، رد واحد} =2{، ردّان} few{، {shown} ردود} many{، {shown} ردًا} other{، {shown} رد}} | a4-2: how a card is announced. |
+| `commentStepAdd` | Add comment | Yorum ekle | إضافة تعليق | History step. |
+| `commentStepChange` | Change comment | Yorumu değiştir | تغيير التعليق | History step. |
+| `commentStepDelete` | Delete comment | Yorumu sil | حذف التعليق | History step. |
+| `commentStepReply` | Reply to comment | Yorumu yanıtla | الرد على التعليق | History step. |
+| `commentStepResolve` | Resolve comment | Yorumu çöz | حل التعليق | History step. |
+| `commentStepReopen` | Reopen comment | Yorumu yeniden aç | إعادة فتح التعليق | History step. |
+| `commentDeletedToast` | Comment deleted | Yorum silindi | تم حذف التعليق | G46: the delete's toast. |
+| `commentDeletedNote` | With its replies. | Yanıtlarıyla birlikte. | مع ردوده. | G46: the delete's toast. |
+| `commentNameTitle` | Your name on comments | Yorumlardaki adınız | اسمك في التعليقات | G46: the first comment asks. |
+| `commentNameBody` | Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty. | Bu PDF'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel'den değiştirebilir veya boş bırakabilirsiniz. | يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا. | G46: the first comment asks. |
+| `commentNameSave` | Continue | Devam et | متابعة | G46: the first comment asks. |
+| `settingsCommenterName` | Your name for comments | Yorumlar için adınız | اسمك للتعليقات | Settings › General (G46). |
+| `commentTextField` | Comment text | Yorum metni | نص التعليق | G46: the on-page editor's name. |
+| `commentSummaryFile` | Comments.pdf | Yorumlar.pdf | التعليقات.pdf | The summary's suggested file name. |
+| `commentColumnPage` | Page | Sayfa | الصفحة | Summary CSV column. |
+| `commentColumnType` | Type | Tür | النوع | Summary CSV column. |
+| `commentColumnAuthor` | Author | Yazar | المؤلف | Summary CSV column. |
+| `commentColumnDate` | Date | Tarih | التاريخ | Summary CSV column. |
+| `commentColumnText` | Text | Metin | النص | Summary CSV column. |
+| `commentColumnReplies` | Replies | Yanıtlar | الردود | Summary CSV column. |
+| `commentColumnStatus` | Status | Durum | الحالة | Summary CSV column. |
+| `commentStatusOpen` | Open | Açık | مفتوح | Summary: an open comment. |
+| `commentStatusResolved` | Resolved | Çözüldü | محلول | Summary: a resolved comment. |
+| `jobSummaryRunningTitle` | Writing {name} | {name} yazılıyor | جارٍ كتابة {name} | Task drawer: the summary. |
+| `jobSummaryDoneTitle` | Wrote {name} | {name} yazıldı | تمت كتابة {name} | Task drawer: the summary. |
+| `jobSummaryFailedTitle` | Couldn’t write {name} | {name} yazılamadı | تعذرت كتابة {name} | Task drawer: the summary. |
+| `commentSummaryCsvFile` | Comments.csv | Yorumlar.csv | التعليقات.csv | The summary’s suggested file name as a CSV (a4-4). |
+| `summaryTitle` | Export comment summary | Yorum özetini dışa aktar | تصدير ملخص التعليقات | a4-4: the dialog’s title. |
+| `summaryFormat` | Format | Biçim | التنسيق | a4-4: the format control’s label. |
+| `summaryCsv` | CSV | CSV | CSV | a4-4: a format. |
+| `summaryLayout` | Layout | Düzen | التخطيط | a4-4: the layout cards’ group name, for screen readers. |
+| `summaryPageAndComments` | Page and comments | Sayfa ve yorumlar | الصفحة والتعليقات | a4-4: a layout. |
+| `summaryPageAndCommentsHint` | Numbered markers beside each page | Her sayfanın yanında numaralı işaretler | علامات مرقمة بجانب كل صفحة | a4-4: the layout’s line. |
+| `summaryCommentsOnly` | Comments only | Yalnızca yorumlar | التعليقات فقط | a4-4: a layout. |
+| `summaryCommentsOnlyHint` | A list, grouped by page | Sayfaya göre gruplanmış liste | قائمة مجمّعة حسب الصفحة | a4-4: the layout’s line. |
+| `summaryPageThenList` | Page, then list | Önce sayfa, sonra liste | الصفحة ثم القائمة | a4-4: a layout. |
+| `summaryPageThenListHint` | Full page followed by its comments | Sayfanın tamamı, ardından yorumları | الصفحة كاملة تليها تعليقاتها | a4-4: the layout’s line. |
+| `summaryOpen` | Open comments ({count}) | Açık yorumlar ({count}) | التعليقات المفتوحة ({count}) | a4-4: what the summary holds; {count} is formatted. |
+| `summaryReplies` | Replies | Yanıtlar | الردود | a4-4: what the summary holds. |
+| `summaryResolved` | Resolved comments ({count}) | Çözülen yorumlar ({count}) | التعليقات المحلولة ({count}) | a4-4: what the summary holds; {count} is formatted. |
+| `summaryEmptyPages` | Pages without comments | Yorumsuz sayfalar | الصفحات التي بلا تعليقات | a4-4: what the summary holds. |
+| `summarySortBy` | Sort by | Sıralama | الترتيب حسب | a4-4: the order’s label. |
+| `summarySortPage` | Page order | Sayfa sırası | ترتيب الصفحات | a4-4: an order; the others are the Date and Author columns. |
+| `summaryPaper` | Paper | Kâğıt | الورق | a4-4: the paper’s label. |
+| `summaryPreview` | Preview | Önizleme | معاينة | a4-4: the preview’s label. |
+| `summaryExport` | Export summary… | Özeti dışa aktar… | تصدير الملخص… | a4-4: the action; the save panel follows. |
+| `jobSummaryPageUnsupported` | A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works. | Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır. | رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV. | Task drawer: a summary that failed on a page whose content Ferman cannot copy yet (B202). |
+| `flattenTitle` | {count, plural, =1{Flatten 1 comment into the pages?} other{Flatten {formatted} comments into the pages?}} | {count, plural, =1{1 yorum sayfalara düzleştirilsin mi?} other{{formatted} yorum sayfalara düzleştirilsin mi?}} | {count, plural, =0{هل تريد تسطيح التعليقات في الصفحات؟} =1{هل تريد تسطيح تعليق واحد في الصفحات؟} =2{هل تريد تسطيح تعليقين في الصفحات؟} few{هل تريد تسطيح {formatted} تعليقات في الصفحات؟} many{هل تريد تسطيح {formatted} تعليقًا في الصفحات؟} other{هل تريد تسطيح {formatted} تعليق في الصفحات؟}} | a4-5b: the title. |
+| `flattenBody` | They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did. | Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür. | تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت. | a4-5b: the consequence; the last sentence is about appearance, not a signature’s validity (G146). |
+| `flattenAll` | {count, plural, =1{1 comment} other{All {formatted} comments}} | {count, plural, =1{1 yorum} other{{formatted} yorumun tümü}} | {count, plural, =0{كل التعليقات} =1{التعليق الوحيد} =2{التعليقان كلاهما} few{كل التعليقات الـ{formatted}} many{كل التعليقات الـ{formatted}} other{كل التعليقات الـ{formatted}}} | a4-5b: a choice. |
+| `flattenResolved` | {count, plural, =0{No resolved comments} =1{Only the 1 resolved comment} other{Only the {formatted} resolved comments}} | {count, plural, =0{Çözülen yorum yok} =1{Yalnızca çözülen 1 yorum} other{Yalnızca çözülen {formatted} yorum}} | {count, plural, =0{لا توجد تعليقات محلولة} =1{التعليق المحلول فقط} =2{التعليقان المحلولان فقط} few{التعليقات المحلولة الـ{formatted} فقط} many{التعليقات المحلولة الـ{formatted} فقط} other{التعليقات المحلولة الـ{formatted} فقط}} | a4-5b: a choice. |
+| `flattenKeepCopy` | Keep a copy with comments | Yorumlu bir kopya sakla | الاحتفاظ بنسخة مع التعليقات | a4-5b: the copy written first (G146). |
+| `flattenKeepCopyHint` | Saved as “{name}” next to the original. | Özgün dosyanın yanına “{name}” olarak kaydedilir. | تُحفظ باسم «{name}» بجانب الأصل. | a4-5b: the copy’s name. |
+| `flattenCopyName` | {stem} — with comments | {stem} — yorumlu | {stem} — مع التعليقات | a4-5b: the copy’s file name without its extension. |
+| `flattenCopyNameNumbered` | {stem} — with comments {number} | {stem} — yorumlu {number} | {stem} — مع التعليقات {number} | a4-5b: the same, when that name is taken; {number} is 2 or more. |
+| `flattenAction` | {count, plural, =1{Flatten 1 comment} other{Flatten {formatted} comments}} | {count, plural, =1{1 yorumu düzleştir} other{{formatted} yorumu düzleştir}} | {count, plural, =0{تسطيح التعليقات} =1{تسطيح تعليق واحد} =2{تسطيح تعليقين} few{تسطيح {formatted} تعليقات} many{تسطيح {formatted} تعليقًا} other{تسطيح {formatted} تعليق}} | a4-5b: the action. |
+| `commentStepFlatten` | Flatten comments | Yorumları düzleştir | تسطيح التعليقات | History: the flatten step (a4-5b). |
+| `jobFlatteningTitle` | Flattening comments in {name} | {name} içindeki yorumlar düzleştiriliyor | جارٍ تسطيح التعليقات في {name} | Task drawer: flatten. |
+| `jobFlattenedTitle` | Flattened comments in {name} | {name} içindeki yorumlar düzleştirildi | سُطّحت التعليقات في {name} | Task drawer: flatten. |
+| `jobFlattenFailedTitle` | Couldn’t flatten comments in {name} | {name} içindeki yorumlar düzleştirilemedi | تعذر تسطيح التعليقات في {name} | Task drawer: flatten; nothing in the document changed. |
+| `jobFlattenPageUnsupported` | A page is drawn in a way Ferman can’t flatten into yet. Nothing changed. | Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi. | رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء. | Task drawer: a flatten that failed on a page whose content Ferman cannot change yet (B202). |
+| `sidebarSearchComment` | Comment: {text} | Yorum: {text} | تعليق: {text} | Search results: a match in a comment (B128). |
+| `stampsTitle` | Stamps | Damgalar | الأختام | Name of the stamp library popover for screen readers (a4-3). |
+| `stampsSearch` | Search stamps | Damga ara | البحث في الأختام | Search field of the stamp library (a4-3). |
+| `stampsNoMatch` | No stamps match your search | Aramanızla eşleşen damga yok | لا توجد أختام تطابق بحثك | Stamp library: a search with no result. No board draws it. |
+| `stampGroupStandard` | Standard | Standart | قياسية | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampGroupNamed` | With name and date | Ad ve tarihli | بالاسم والتاريخ | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampGroupMine` | My stamps | Damgalarım | أختامي | Stamp library: a group heading, shown in capitals (a4-3). |
+| `stampCreate` | Create stamp… | Damga oluştur… | إنشاء ختم… | Stamp library: opens the Create stamp dialog (a4-3). |
+| `stampImport` | Import… | İçe aktar… | استيراد… | Stamp library: asks for a stamp file (a4-3). |
+| `stampExport` | Export… | Dışa aktar… | تصدير… | Menu of a stamp in My stamps: writes it to a file (G153). |
+| `stampDelete` | Delete | Sil | حذف | Menu of a stamp in My stamps: removes it (G153). |
+| `stampFileFilter` | Ferman stamps | Ferman damgaları | أختام Ferman | File type in the open panel for a stamp file. |
+| `stampImportFailed` | This stamp can’t be imported | Bu damga içe aktarılamıyor | يتعذر استيراد هذا الختم | Toast title: the chosen file is no stamp. |
+| `stampImportFailedBody` | The file isn’t a Ferman stamp, or it is damaged. | Dosya bir Ferman damgası değil ya da bozuk. | الملف ليس ختم Ferman أو أنه تالف. | Toast message: the chosen file is no stamp. |
+| `stampExportFailed` | The stamp couldn’t be exported | Damga dışa aktarılamadı | تعذر تصدير الختم | Toast title: the stamp's file could not be written. |
+| `stampsFull` | My stamps is full. Delete one first. | Damgalarım dolu. Önce birini silin. | قائمة «أختامي» ممتلئة. احذف أحدها أولاً. | Toast title: the limit of saved stamps is reached. |
+| `createStampTitle` | Create stamp | Damga oluştur | إنشاء ختم | Title of the Create stamp dialog (a4-3b). |
+| `createStampText` | Text | Metin | النص | Create stamp: the field for the stamp's text (a4-3b). |
+| `createStampSecondLine` | Second line | İkinci satır | السطر الثاني | Create stamp: heading of the second line's choices (a4-3b). |
+| `createStampMyName` | My name | Adım | اسمي | Create stamp: the second line has the name (a4-3b). |
+| `createStampDate` | Date | Tarih | التاريخ | Create stamp: the second line has the date (a4-3b). |
+| `createStampTime` | Time | Saat | الوقت | Create stamp: the second line has the time (a4-3b). |
+| `createStampName` | Name on the stamp | Damgadaki ad | الاسم على الختم | Create stamp: accessible name of the name field (a4-3b). |
+| `createStampColour` | Colour | Renk | اللون | Create stamp: heading of the ink choice (a4-3b). |
+| `stampToneSeal` | Seal | Mühür | أحمر الختم | Create stamp: the seal-red ink (a4-3b). |
+| `stampToneInk` | Ink | Mürekkep | حبر | Create stamp: the blue ink (a4-3b). |
+| `stampToneGreen` | Green | Yeşil | أخضر | Create stamp: the green ink (a4-3b). |
+| `stampToneGrey` | Grey | Gri | رمادي | Create stamp: the grey ink (a4-3b). |
+| `createStampCaps` | Language for capitals | Büyük harf dili | لغة الأحرف الكبيرة | Create stamp: the language whose rules make the capitals (a4-3b). |
+| `createStampLanguageTurkish` | Turkish (İNCELENDİ) | Türkçe (İNCELENDİ) | التركية (İNCELENDİ) | Create stamp: a language for capitals, with a sample (a4-3b). |
+| `createStampLanguageEnglish` | English | İngilizce | الإنجليزية | Create stamp: a language for capitals (a4-3b). |
+| `createStampLanguageGerman` | German | Almanca | الألمانية | Create stamp: a language for capitals (a4-3b). |
+| `createStampPreview` | Preview | Önizleme | معاينة | Create stamp: heading of the preview (a4-3b). |
+| `createStampSavedNote` | Saved to My stamps on this device. | Bu cihazda Damgalarım’a kaydedilir. | يُحفظ في «أختامي» على هذا الجهاز. | Create stamp: the note under the preview (a4-3b). |
+| `createStampSave` | Save stamp | Damgayı kaydet | حفظ الختم | Create stamp: the primary button (a4-3b). |
+| `shapeRectangle` | Rectangle | Dikdörtgen | مستطيل | Shapes menu (a4-1). |
+| `shapeEllipse` | Ellipse | Elips | شكل بيضاوي | Shapes menu (a4-1). |
+| `shapeArrow` | Arrow | Ok | سهم | Shapes menu (a4-1). |
+| `shapeLine` | Line | Çizgi | خط | Shapes menu (a4-1). |
+| `shapePolygon` | Polygon | Çokgen | مضلع | Shapes menu (a4-1). |
+| `shapesKeepTool` | Keep tool selected | Aracı seçili tut | إبقاء الأداة محددة | Shapes menu: a placed shape leaves the tool on (a4-1). |
+| `stepAddShape` | Add shape | Şekil ekle | إضافة شكل | Name of the history step that adds a shape. |
+| `stepAddStamp` | Add stamp | Damga ekle | إضافة ختم | Name of the history step that adds a stamp. |
+| `placeStampHint` | Click the page to place the stamp, or press Enter to place it mid-page. | Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın. | انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة. | Screen readers: the page while a stamp is being placed. |
+| `placeShapeHint` | Drag on the page to draw the shape, or press Enter to place it mid-page. | Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın. | اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة. | Screen readers: the page while a shape is being drawn. |
+| `placePolygonHint` | Click each corner of the polygon, then press Enter or click the first corner. | Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın. | انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى. | Screen readers: the page while a polygon is being drawn. |
+| `linksTitle` | Links | Bağlantılar | الروابط | a3-6: the Links panel's title. |
+| `linksNote` | Ferman asks before opening a web link from a PDF. | Ferman, PDF'teki bir web bağlantısını açmadan önce sorar. | يسأل Ferman قبل فتح رابط ويب من ملف PDF. | a3-6: the panel's note. The board also says 'or a file'; file links are refused (G145). |
+| `linksEmpty` | No links in this document. | Bu belgede bağlantı yok. | لا توجد روابط في هذا المستند. | a3-6: the panel with no links; not drawn. |
+| `linksTruncated` | This document has too many links to list them all. | Bu belgede hepsi listelenemeyecek kadar çok bağlantı var. | يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها. | a3-6: a limit cut the list short. |
+| `linksSelectTextFirst` | Select the text to link first | Önce bağlantı verilecek metni seçin | حدّد أولًا النص المراد ربطه | a3-6: why Add link is disabled with nothing selected. |
+| `linksKindWeb` | Web | Web | ويب | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindMail` | E-mail | E-posta | بريد إلكتروني | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindPage` | Page | Sayfa | صفحة | a3-6: a kind of link, and a segment of Edit link. |
+| `linksKindScript` | Script, not run | Betik, çalıştırılmaz | برنامج نصي، لا يُشغَّل | a3-6: a link that would run a script (G145). |
+| `linksKindLaunch` | Program, not started | Program, başlatılmaz | برنامج، لا يُشغَّل | a3-6: a link that would start a program (G145). |
+| `linksKindFile` | File, not opened | Dosya, açılmaz | ملف، لا يُفتح | a3-6: a link to another file (G145). |
+| `linksKindAddress` | Address, not opened | Adres, açılmaz | عنوان، لا يُفتح | a3-6: an address of a scheme Ferman does not open (G145). |
+| `linksKindAction` | Unknown action, kept | Bilinmeyen eylem, korunur | إجراء غير معروف، يُحتفظ به | a3-6: an action Ferman does not know; it stays in the file. |
+| `linksKindNothing` | Does nothing | Hiçbir şey yapmaz | لا يفعل شيئًا | a3-6: a link with no action. |
+| `linksPage` | Page {page} | Sayfa {page} | الصفحة {page} | a3-6: where a link to a page goes. |
+| `linksPageMissing` | Missing page | Eksik sayfa | صفحة مفقودة | a3-6: a broken link that names no page. |
+| `linksMeta` | {kind} · page {page} | {kind} · sayfa {page} | {kind} · الصفحة {page} | a3-6: a row's second line. |
+| `linksMetaEditing` | {kind} · page {page} · editing | {kind} · sayfa {page} · düzenleniyor | {kind} · الصفحة {page} · قيد التحرير | a3-6: the second line of the row being edited. |
+| `linkAddTitle` | Add link | Bağlantı ekle | إضافة رابط | a3-6: the popover's title for a new link. |
+| `linkEditTitle` | Edit link | Bağlantıyı düzenle | تحرير الرابط | a3-6: the popover's title. |
+| `linkTo` | Link to | Bağlantı hedefi | الربط إلى | a3-6: the name of the type control. |
+| `linkTypeFile` | File | Dosya | ملف | a3-6: a segment of Edit link, disabled (B200). |
+| `linkFieldWeb` | Web address | Web adresi | عنوان الويب | a3-6: the field's label. |
+| `linkFieldMail` | E-mail address | E-posta adresi | عنوان البريد الإلكتروني | a3-6: the field's label. |
+| `linkFieldPage` | Page number | Sayfa numarası | رقم الصفحة | a3-6: the field's label. |
+| `linkAppearance` | Appearance | Görünüm | المظهر | a3-6: the field's label. |
+| `linkLookNone` | Invisible (text keeps its look) | Görünmez (metin görünümünü korur) | غير مرئي (يحتفظ النص بمظهره) | a3-6: an appearance. |
+| `linkLookUnderline` | Underline | Alt çizgi | تسطير | a3-6: an appearance. |
+| `linkLookBox` | Thin box | İnce kutu | إطار رفيع | a3-6: an appearance. |
+| `linkRemove` | Remove link | Bağlantıyı kaldır | إزالة الرابط | a3-6: button. |
+| `linkSave` | Save link | Bağlantıyı kaydet | حفظ الرابط | a3-6: button. |
+| `linkStepAdd` | Add link | Bağlantı ekle | إضافة رابط | The history step's name. |
+| `linkStepEdit` | Edit link | Bağlantıyı düzenle | تحرير الرابط | The history step's name. |
+| `linkStepRemove` | Remove link | Bağlantıyı kaldır | إزالة الرابط | The history step's name. |
+| `linkErrorWeb` | Type a web address that starts with http:// or https://. | http:// veya https:// ile başlayan bir web adresi yazın. | اكتب عنوان ويب يبدأ بـ http:// أو https://. | a3-6: the Web field's error. |
+| `linkErrorMail` | Type an e-mail address, like name@example.com. | name@example.com gibi bir e-posta adresi yazın. | اكتب عنوان بريد إلكتروني مثل name@example.com. | a3-6: the E-mail field's error. |
+| `linkFailedTitle` | The link wasn't changed | Bağlantı değiştirilemedi | تعذّر تغيير الرابط | A toast's title when the engine refuses a link change. |
+| `linkOpenWebTitle` | Open this web address? | Bu web adresi açılsın mı? | هل تريد فتح عنوان الويب هذا؟ | G145: the prompt before a web link. |
+| `linkOpenMailTitle` | Write to this address? | Bu adrese e-posta yazılsın mı? | هل تريد مراسلة هذا العنوان؟ | G145: the prompt before an e-mail link. |
+| `linkOpenDescription` | This link comes from the document. It opens in your own apps, so check that you trust where it goes. | Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun. | هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته. | G145: the prompt's description. |
+| `linkOpenAction` | Open link | Bağlantıyı aç | فتح الرابط | G145: the prompt's button. |
+| `linkOpenFailed` | The link couldn't be opened | Bağlantı açılamadı | تعذّر فتح الرابط | A toast when the system opens nothing. |
+| `linkBrokenTitle` | This link leads nowhere | Bu bağlantı hiçbir yere gitmiyor | هذا الرابط لا يؤدي إلى أي مكان | A toast when a broken link is clicked. |
+| `linkRefusedTitle` | Ferman didn't follow this link | Ferman bu bağlantıyı izlemedi | لم يتبع Ferman هذا الرابط | A toast when a link is not offered (G145). |
+| `linkRefusedScript` | It would run a script, and Ferman doesn't run a document's scripts. | Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz. | كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات. | G145. |
+| `linkRefusedLaunch` | It would start {target}, and Ferman never starts programs for a document. | {target} başlatılacaktı; Ferman belgeler için asla program başlatmaz. | كان سيشغّل {target}، ولا يشغّل Ferman البرامج للمستندات أبدًا. | G145. |
+| `linkRefusedFile` | It points to another file, {target}, and Ferman doesn't open files from links. | Başka bir dosyayı, {target}, gösteriyor; Ferman bağlantılardan dosya açmaz. | يشير إلى ملف آخر، {target}، ولا يفتح Ferman الملفات من الروابط. | G145. |
+| `linkRefusedAddress` | Ferman doesn't open this kind of address: {target} | Ferman bu tür adresleri açmaz: {target} | لا يفتح Ferman هذا النوع من العناوين: {target} | G145. |
+| `linkRefusedAction` | It does something Ferman doesn't know, so it stays in the file and doesn't run. | Ferman'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz. | يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ. | G145. |
+| `linksBrokenMeta` | {count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}} | {count, plural, other{Bozuk: bu belgede {pages} sayfa var}} | {count, plural, =1{معطّل: يحتوي هذا المستند على صفحة واحدة ({pages})} =2{معطّل: يحتوي هذا المستند على صفحتين ({pages})} few{معطّل: يحتوي هذا المستند على {pages} صفحات} other{معطّل: يحتوي هذا المستند على {pages} صفحة}} | a3-6: a link to a page the document does not have. |
+| `linkErrorPage` | {count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}} | {count, plural, other{1 ile {pages} arasında bir sayfa yazın.}} | {count, plural, =1{يحتوي هذا المستند على صفحة واحدة ({pages}).} other{اكتب صفحة من 1 إلى {pages}.}} | a3-6: the Page field's error. |
+| `signPadMethod` | Signature method | İmza yöntemi | طريقة التوقيع | a5-3: screen-reader name of the Draw, Type and Image choice in the signature pad. |
+| `signPadDraw` | Draw | Çiz | رسم | a5-3b: signature pad mode, drawing with a mouse, trackpad, pen or finger. A verb. |
+| `signPadType` | Type | Yaz | كتابة | a5-3: signature pad mode, the name typed in a handwriting style. A verb. |
+| `signPadImage` | Image | Görüntü | صورة | a5-3c: signature pad mode, a photo or scan of a signature on paper; also the caption of such a saved signature in the Sign menu. |
+| `signPadArea` | Signature drawing area. Draw with a mouse, trackpad, pen or finger. | İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin. | منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع. | a5-3b: screen-reader name of the drawing area. |
+| `signPadTypeName` | Type your name | Adınızı yazın | اكتب اسمك | a5-3: screen-reader name of the name field in the signature pad. |
+| `signPadNamePlaceholder` | Your name | Adınız | اسمك | a5-3: placeholder of the name field in the signature pad. |
+| `signPadDrawHint` | Sign above the line | Çizginin üstüne imzalayın | وقّع فوق الخط | a5-3b: hint in the empty drawing area. |
+| `signPadTypeHint` | Type your name above the line | Adınızı çizginin üstüne yazın | اكتب اسمك فوق الخط | a5-3: hint under the empty name field. |
+| `signPadImageHint` | Choose a photo or scan of your signature. Ferman removes the background. | İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır. | اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية. | a5-3c: text in the empty image box. Ferman is the product name. |
+| `signPadChooseImage` | Choose image… | Görüntü seç… | اختيار صورة… | a5-3c: button that opens the system panel to choose an image. |
+| `signPadInk` | Ink color | Mürekkep rengi | لون الحبر | a5-3: screen-reader name of the ink colour choice. |
+| `signPadBlack` | Black | Siyah | أسود | a5-3: ink colour name, read by screen readers. |
+| `signPadBlue` | Blue | Mavi | أزرق | a5-3: ink colour name, read by screen readers. |
+| `signPadClear` | Clear | Temizle | مسح | a5-3b: button that removes every stroke or the typed name. A verb. |
+| `signPadSave` | Save on this device | Bu cihaza kaydet | الحفظ على هذا الجهاز | a5-3: checkbox; a saved signature appears in the Sign menu next time. |
+| `signDialogTitle` | Add signature | İmza ekle | إضافة توقيع | a5-3: title and main button of the dialog that creates a signature. |
+| `signDialogTitleInitials` | Add initials | Paraf ekle | إضافة الأحرف الأولى | a5-3: title and main button of the same dialog while it creates initials. |
+| `signCreate` | Create | Oluştur | إنشاء | a5-3: screen-reader name of the Signature or Initials choice at the top of the dialog. |
+| `signKindSignature` | Signature | İmza | توقيع | a5-3: choice at the top of the dialog. |
+| `signKindInitials` | Initials | Paraf | الأحرف الأولى | a5-3: choice at the top of the dialog; also the heading of the initials in the Sign menu, shown in capitals. |
+| `signHandwriting` | Handwriting style | El yazısı stili | نمط خط اليد | a5-3: screen-reader name of the three handwriting style tiles. |
+| `signNoStyle` | No handwriting style can write every letter of this name. Draw it or use an image instead. | Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın. | لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك. | a5-3: line shown instead of the style tiles when none of the three fonts has every letter of the typed name, as for an Arabic or Chinese name (design gap G149). |
+| `signSavedNote` | Saved only on this device. | Yalnızca bu cihaza kaydedilir. | يُحفظ على هذا الجهاز فقط. | a5-3: note at the start of the dialog's footer. |
+| `signMenuLabel` | Saved signatures | Kayıtlı imzalar | التواقيع المحفوظة | a5-3d: screen-reader name of the Sign menu. |
+| `signMenuSignatures` | Signatures | İmzalar | التواقيع | a5-3d: heading of the saved signatures in the Sign menu, shown in capitals. |
+| `signMenuAdd` | Add signature… | İmza ekle… | إضافة توقيع… | a5-3d: Sign menu item that opens the dialog. |
+| `signMenuCreate` | Create signature… | İmza oluştur… | إنشاء توقيع… | Sign menu item that opens the dialog while nothing is saved yet (design gap G47). |
+| `signMenuManage` | Manage saved signatures… | Kayıtlı imzaları yönet… | إدارة التواقيع المحفوظة… | a5-3d: Sign menu item that opens Settings › Signatures. |
+| `signDrawn` | Drawn | Çizilmiş | مرسوم | a5-3d: caption of a drawn signature in the Sign menu. |
+| `signDelete` | Delete | Sil | حذف | Menu item of a saved signature in the Sign menu: deletes it from this device. |
+| `signSaveFailed` | The signature couldn’t be saved on this device. It’s still ready to place. | İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır. | تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع. | Toast when a new signature cannot be written to the app's data folder. |
+| `signImageTooLarge` | This image is too large. Choose one under 6 MB. | Bu görüntü çok büyük. 6 MB’tan küçük birini seçin. | هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت. | Toast when the chosen signature image is too large. |
+| `signImageFilter` | Images | Görüntüler | الصور | Filter name in the system open panel for a signature image. |
+| `stepAddSignature` | Add signature | İmza ekle | إضافة توقيع | Name of the history step that places a signature. |
+| `stepAddInitials` | Add initials | Paraf ekle | إضافة الأحرف الأولى | Name of the history step that places initials. |
+| `placeSignatureHint` | Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter. | Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın. | انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter. | Screen-reader hint of the page while a signature is being placed (a5-3d). |
+| `formPanelTitle` | Form | Form | النموذج | FmFormPanel's heading (a5-1). |
+| `formMore` | More: clear form, export data | Diğer: formu temizle, verileri dışa aktar | المزيد: مسح النموذج وتصدير البيانات | FmFormPanel: the More button. |
+| `formRequiredProgress` | {filled} of {total} required fields | {total} zorunlu alandan {filled} tanesi | {filled} من {total} من الحقول المطلوبة | FmFormPanel: the required count over its bar (a5-1). |
+| `formSummaryFields` | {count, plural, =1{1 field} other{{formatted} fields}} | {count, plural, =1{1 alan} other{{formatted} alan}} | {count, plural, =1{حقل واحد} =2{حقلان} few{{formatted} حقول} many{{formatted} حقلًا} other{{formatted} حقل}} | FmFormPanel's summary: how many fields. |
+| `formRequiredLeft` | {count, plural, =1{1 required left} other{{formatted} required left}} | {count, plural, =1{1 zorunlu alan kaldı} other{{formatted} zorunlu alan kaldı}} | {count, plural, =1{بقي حقل مطلوب واحد} =2{بقي حقلان مطلوبان} few{بقيت {formatted} حقول مطلوبة} many{بقي {formatted} حقلًا مطلوبًا} other{بقي {formatted} حقل مطلوب}} | FmFormPanel and the field navigation: required fields still empty. |
+| `formAllRequiredFilled` | All required fields are filled | Tüm zorunlu alanlar dolduruldu | تمت تعبئة كل الحقول المطلوبة | FmFormPanel's summary once every required field is filled. |
+| `formFieldOf` | field {current} of {total} | alan {current}/{total} | الحقل {current} من {total} | FmFormPanel's summary: the field the person is in. |
+| `formHighlight` | Highlight fields | Alanları vurgula | تمييز الحقول | FmFormPanel: the switch that tints the fields. |
+| `formShowOrder` | Show tab order | Sekme sırasını göster | إظهار ترتيب التنقل | FmFormPanel and the form bar: shows the fields' order numbers. |
+| `formHideOrder` | Hide tab order | Sekme sırasını gizle | إخفاء ترتيب التنقل | The form bar's button while the order shows. |
+| `formSignedTitle` | Signed form | İmzalı form | نموذج موقَّع | FmFormPanel: the signed-form notice's title (G47). |
+| `formSignedKeeps` | Its certification allows filling in, so it stays valid. | Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır. | تسمح شهادته بالتعبئة، لذا تبقى صالحة. | FmFormPanel: the signed-form notice when filling keeps the certification (G35). |
+| `formSignedBreaks` | Filling it in will invalidate its signature. | Doldurmak imzasını geçersiz kılar. | تعبئته ستُبطل توقيعه. | FmFormPanel: the signed-form notice when filling breaks a signature (G35). |
+| `formFontNoticeTitle` | Characters added in IBM Plex | Karakterler IBM Plex ile eklendi | أُضيفت محارف بخط IBM Plex | FmFormPanel: said once when a value takes bundled Plex (M4 decision 18). |
+| `formFontNoticeBody` | This form’s font has no glyphs for some characters you typed, so Ferman added {fonts} to the document for them. | Bu formun yazı tipinde yazdığınız bazı karakterler yok; Ferman bunlar için belgeye {fonts} ekledi. | لا يحوي خط هذا النموذج بعض المحارف التي كتبتها، لذا أضاف Ferman الخط {fonts} إلى المستند لأجلها. | FmFormPanel: the font notice's text. |
+| `formDismiss` | Dismiss | Kapat | إغلاق | FmFormPanel: closes the font notice. |
+| `formRequired` | Required | Zorunlu | مطلوب | FmFormPanel: a required field not filled yet. |
+| `formMarkedField` | Some characters can’t be shown in this field’s font | Bazı karakterler bu alanın yazı tipinde gösterilemiyor | يتعذّر عرض بعض المحارف بخط هذا الحقل | FmFormPanel: a field whose missing characters were kept out (Keep). |
+| `formClear` | Clear form… | Formu temizle… | مسح النموذج… | FmFormPanel's footer and More menu. |
+| `formFinish` | Finish | Bitir | إنهاء | FmFormPanel's primary button. |
+| `formExportData` | Export data… | Verileri dışa aktar… | تصدير البيانات… | FmFormPanel's More menu: not built yet. |
+| `formBannerTitle` | This PDF is a fillable form. | Bu PDF doldurulabilir bir form. | ملف PDF هذا نموذج قابل للتعبئة. | The bar over a form in Fill &amp; Sign (a5-1). |
+| `formBannerBody` | {count, plural, =1{1 field, {required} required. Tab moves to the next field.} other{{formatted} fields, {required} required. Tab moves to the next field.}} | {count, plural, =1{1 alan, {required} zorunlu. Sekme tuşu sonraki alana geçer.} other{{formatted} alan, {required} zorunlu. Sekme tuşu sonraki alana geçer.}} | {count, plural, =1{حقل واحد، المطلوب منه {required}. ينقلك مفتاح Tab إلى الحقل التالي.} =2{حقلان، المطلوب منهما {required}. ينقلك مفتاح Tab إلى الحقل التالي.} few{{formatted} حقول، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.} many{{formatted} حقلًا، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.} other{{formatted} حقل، المطلوب منها {required}. ينقلك مفتاح Tab إلى الحقل التالي.}} | The form bar's text. |
+| `formBannerHide` | Hide | Gizle | إخفاء | The form bar: hides it. |
+| `fillBannerTitle` | This PDF has no form fields. | Bu PDF’te form alanı yok. | لا يحوي ملف PDF هذا حقول نماذج. | The bar over a page without fields (a5-4). |
+| `fillBannerBody` | Click a line or box to type, or let Ferman find the fields. | Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun. | انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول. | The no-fields bar's text. |
+| `fillFindFields` | Find fields | Alanları bul | العثور على الحقول | The no-fields bar's button (Prepare form, P4). |
+| `formPreviousField` | Previous field | Önceki alan | الحقل السابق | The field navigation's button. |
+| `formNextField` | Next field | Sonraki alan | الحقل التالي | The field navigation's button. |
+| `formNavField` | Field {current} of {total} | Alan {current}/{total} | الحقل {current} من {total} | The field navigation: the field the person is in. |
+| `formNavFields` | {count, plural, =1{1 field} other{{formatted} fields}} | {count, plural, =1{1 alan} other{{formatted} alan}} | {count, plural, =1{حقل واحد} =2{حقلان} few{{formatted} حقول} many{{formatted} حقلًا} other{{formatted} حقل}} | The field navigation before any field is chosen. |
+| `formNavAllFilled` | All required filled | Tüm zorunlular dolu | كل المطلوب مُعبّأ | The field navigation's badge once every required field is filled (a5-3d). |
+| `formSignHere` | Sign here | Burayı imzalayın | وقّع هنا | An empty signature field on the page (a5-2b). |
+| `formErrorTooLong` | {count, plural, =1{Use at most 1 character.} other{Use at most {formatted} characters.}} | {count, plural, =1{En fazla 1 karakter kullanın.} other{En fazla {formatted} karakter kullanın.}} | {count, plural, =1{استخدم محرفًا واحدًا على الأكثر.} =2{استخدم محرفين على الأكثر.} few{استخدم {formatted} محارف على الأكثر.} many{استخدم {formatted} محرفًا على الأكثر.} other{استخدم {formatted} محرف على الأكثر.}} | A field's error: too long. |
+| `formErrorDate` | Enter a date as {pattern}. | Tarihi {pattern} biçiminde girin. | أدخل التاريخ بالصيغة {pattern}. | A field's error: not a date in its format. |
+| `formErrorNumber` | Enter a number. | Bir sayı girin. | أدخل رقمًا. | A field's error: not a number. |
+| `formErrorRange` | Enter a number from {min} to {max}. | {min} ile {max} arasında bir sayı girin. | أدخل رقمًا من {min} إلى {max}. | A field's error: out of its range (a5-2). |
+| `formErrorMin` | Enter a number of at least {min}. | En az {min} olan bir sayı girin. | أدخل رقمًا لا يقل عن {min}. | A field's error: under its least value. |
+| `formErrorMax` | Enter a number of at most {max}. | En fazla {max} olan bir sayı girin. | أدخل رقمًا لا يزيد على {max}. | A field's error: over its greatest value. |
+| `formErrorRequired` | Required to submit. | Göndermek için zorunlu. | مطلوب للإرسال. | A required field left empty, after Finish (a5-2b). |
+| `formErrorSign` | Sign before finishing. | Bitirmeden önce imzalayın. | وقّع قبل الإنهاء. | A required signature field left empty, after Finish (a5-2b). |
+| `formErrorChoose` | Choose an option. | Bir seçenek belirleyin. | اختر أحد الخيارات. | A required choice left empty, after Finish (a5-2b). |
+| `formChooseDate` | Choose a date | Bir tarih seçin | اختر تاريخًا | The date picker's name (a5-2). |
+| `formDateFormat` | Format {pattern} · from the form | Biçim {pattern} · formdan | الصيغة {pattern} · من النموذج | The date picker's note (a5-2). |
+| `formPreviousMonth` | Previous month | Önceki ay | الشهر السابق | The date picker's button. |
+| `formNextMonth` | Next month | Sonraki ay | الشهر التالي | The date picker's button. |
+| `formToday` | Today | Bugün | اليوم | The date picker's button. |
+| `formStepFill` | Fill “{name}” | “{name}” alanını doldur | تعبئة «{name}» | The history step of a field's value. |
+| `formStepClear` | Clear form | Formu temizle | مسح النموذج | The history step of Clear form. |
+| `formStepFinish` | Finish form | Formu bitir | إنهاء النموذج | The history step of Finish's flatten. |
+| `fillStepText` | Add text | Metin ekle | إضافة نص | The history step of Fill anything's text. |
+| `fillStepMark` | Add mark | İşaret ekle | إضافة علامة | The history step of Fill anything's check, cross or dot. |
+| `formXfaRemovedTitle` | The form’s XFA data was removed | Formun XFA verisi kaldırıldı | أُزيلت بيانات XFA من النموذج | Toast: a value removed the form's XFA (M4 question 12). |
+| `formXfaRemovedBody` | Readers that use XFA would have shown the old values. The original stays in the file’s earlier version. | XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır. | كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف. | Toast: the XFA notice's text. |
+| `formFinishTitle` | Finish the form | Formu bitir | إنهاء النموذج | G47's Finish dialog. |
+| `formFinishBody` | All required fields are filled. Choose how to keep the form, then save it. | Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin. | تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه. | G47's Finish dialog: its text. |
+| `formFinishFlatten` | Flatten the fields | Alanları düzleştir | تسطيح الحقول | G47's Finish dialog: the first choice. |
+| `formFinishFlattenBody` | They become part of the page and can no longer be changed. | Sayfanın parçası olurlar ve artık değiştirilemezler. | تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك. | G47's Finish dialog: what flattening does. |
+| `formFinishKeep` | Keep the fields editable | Alanlar düzenlenebilir kalsın | إبقاء الحقول قابلة للتحرير | G47's Finish dialog: the second choice. |
+| `formFinishKeepBody` | Anyone who opens the file can still change the values. | Dosyayı açan herkes değerleri yine değiştirebilir. | يمكن لأي شخص يفتح الملف تغيير القيم. | G47's Finish dialog: what keeping does. |
+| `formFinishSave` | Save | Kaydet | حفظ | G47's Finish dialog: the default button. |
+| `formFinishSaveAs` | Save as… | Farklı kaydet… | حفظ باسم… | G47's Finish dialog: saves to another file. |
+| `formClearTitle` | Clear the form? | Form temizlensin mi? | هل تريد مسح النموذج؟ | G47's Clear form confirmation. |
+| `formClearBody` | Every value in this form is removed. Signatures stay. You can undo this. | Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz. | تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك. | G47's Clear form confirmation: its text. |
+| `formClearConfirm` | Clear form | Formu temizle | مسح النموذج | G47's Clear form confirmation: the button. |
+| `formFontAskTitle` | Characters missing from this field’s font | Bu alanın yazı tipinde eksik karakterler var | محارف غير موجودة في خط هذا الحقل | Ask each time (a11-1c, M4 decision 18). |
+| `formFontAskBody` | Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out. | Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir. | يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها. | Ask each time: its text. |
+| `formFontAskPlex` | Use IBM Plex | IBM Plex kullan | استخدام IBM Plex | Ask each time: the default button. |
+| `formFontAskKeep` | Keep the field’s font | Alanın yazı tipini koru | إبقاء خط الحقل | Ask each time: keeps the font, marks the field. |
+| `fillPanelTitle` | Fill anything | Her şeyi doldur | تعبئة أي شيء | Fill anything's panel (a5-4). |
+| `fillToolText` | Text | Metin | نص | Fill anything: Text. |
+| `fillToolCheck` | Check | Onay işareti | علامة صح | Fill anything: Check. |
+| `fillToolCross` | Cross | Çarpı | علامة خطأ | Fill anything: Cross. |
+| `fillToolDot` | Dot | Nokta | نقطة | Fill anything: Dot. |
+| `fillToolToday` | Today’s date | Bugünün tarihi | تاريخ اليوم | Fill anything: Today's date. |
+| `fillToolSignature` | Signature | İmza | توقيع | Fill anything: Signature. |
+| `fillOptions` | Options | Seçenekler | الخيارات | Fill anything: the options' section. |
+| `fillSnap` | Snap to lines and boxes | Çizgilere ve kutulara hizala | المحاذاة إلى الأسطر والمربعات | Fill anything's option. |
+| `fillComb` | One character per comb box | Her kutuya bir karakter | محرف واحد في كل مربع | Fill anything's option. |
+| `fillInk` | Ink | Mürekkep | الحبر | Fill anything's ink. |
+| `fillInkBlack` | Black | Siyah | أسود | Fill anything's ink: black. |
+| `fillInkBlue` | Blue (#1A3170) | Mavi (#1A3170) | أزرق (#1A3170) | Fill anything's ink: blue. |
+| `findNotSearchedComments` | Comments weren’t searched. | Yorumlar aranmadı. | لم يُبحث في التعليقات. | a2-4d: after findNoneBody, with Form fields ticked and Comments not. |
+| `sidebarSearchFormField` | Form field: {text} | Form alanı: {text} | حقل نموذج: {text} | Search results: a match in a form field's value (B128). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

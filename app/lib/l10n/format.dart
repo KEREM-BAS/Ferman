@@ -206,6 +206,16 @@ final class RegionFormat {
   /// only.
   String date(DateTime value) => _date.format(value);
 
+  /// [date]'s order with `yyyy`, `MM`, `dd`, then `HH:mm`: how the engine's
+  /// comment summary writes a date (a4-4).
+  String get numericDateTimePattern {
+    final order = (_date.pattern ?? 'y-M-d')
+        .replaceAll(RegExp('y+'), 'yyyy')
+        .replaceAll(RegExp('M+'), 'MM')
+        .replaceAll(RegExp('d+'), 'dd');
+    return '$order HH:mm';
+  }
+
   /// A time of day in hours and minutes: "14:32" (Türkiye), "2:32 PM"
   /// (United States, U+202F before "PM").
   String time(DateTime value) => _time.format(value);

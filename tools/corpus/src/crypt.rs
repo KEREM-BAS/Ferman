@@ -50,6 +50,8 @@ pub const ALL: i32 = -4;
 /// Printing (also at full quality) and extraction for accessibility only: no changes, no
 /// copying, no comments, no form filling, no page assembly.
 pub const PRINT_ONLY: i32 = -3904 | 4 | 512 | 2048;
+/// [`PRINT_ONLY`] and adding comments: still no changes to the content.
+pub const COMMENTS_ONLY: i32 = PRINT_ONLY | 32;
 
 fn md5(parts: &[&[u8]]) -> [u8; 16] {
     let mut hasher = Md5::new();

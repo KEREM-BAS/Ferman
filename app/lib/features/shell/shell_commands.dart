@@ -2,10 +2,14 @@ import 'dart:async';
 
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/feature_registry.dart';
-import 'package:ferman/design/components/components.dart' show FermanMode;
+import 'package:ferman/design/components/components.dart'
+    show AnnotationTool, FermanMode;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/links.dart';
+import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/organize/crop_session.dart';
 import 'package:ferman/features/organize/extract_pages_dialog.dart';
 import 'package:ferman/features/organize/insert_file_dialog.dart';
@@ -16,6 +20,8 @@ import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/signatures/add_signature_dialog.dart';
+import 'package:ferman/features/signatures/sign_tools.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -89,6 +95,7 @@ class ShellCommandScope extends ConsumerWidget {
     final panels = ref.read(shellPanelsProvider);
     final viewer = ref.read(viewerProvider.notifier);
     final editor = ref.read(documentEditorProvider.notifier);
+    final links = ref.read(linkToolProvider.notifier);
     final edits = ref.read(documentEditorProvider);
     final saver = ref.read(documentSaverProvider.notifier);
     return {
@@ -130,6 +137,9 @@ class ShellCommandScope extends ConsumerWidget {
             .read(pageFieldRequestProvider.notifier)
             .request,
         ShellCommand.find: ref.read(findProvider.notifier).open,
+        ShellCommand.editText: () => links.show(on: false),
+        ShellCommand.link: links.toggle,
+        ShellCommand.addLink: links.addSelection,
         ShellCommand.selectTool: () => viewer.setTool(ViewerTool.select),
         ShellCommand.handTool: () => viewer.setTool(ViewerTool.hand),
         ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),
@@ -138,6 +148,14 @@ class ShellCommandScope extends ConsumerWidget {
         if (ref.read(shellModeProvider) == FermanMode.organize &&
             !ref.read(cropShowingProvider))
           ..._organizeHandlers(ref),
+        if (ref.read(shellModeProvider) == FermanMode.comment)
+          ..._commentHandlers(ref),
+        if (ref.read(shellModeProvider) == FermanMode.sign)
+          ..._fillHandlers(ref, panel: panels.panel),
+        if (ref.read(shellModeProvider) == FermanMode.sign &&
+            ref.read(commentRefusalProvider) == null)
+          ShellCommand.addSignature: () =>
+              showAddSignatureDialog(ref, yourName: yourNameOf(ref)),
       },
       // Typing not yet committed counts too: Save commits it first.
       if (active?.document != null && (active!.unsaved || edits.active != null))
@@ -145,6 +163,60 @@ class ShellCommandScope extends ConsumerWidget {
       if (active?.document != null) ...{
         ShellCommand.saveAs: saver.openSheet,
         ShellCommand.saveCopy: () => saver.openSheet(copy: true),
+      },
+    };
+  }
+
+  /// Comment's tool keys (a4-1), not while comments cannot be added, and Show
+  /// comments (⇧⌘H).
+  static Map<ShellCommand, VoidCallback> _commentHandlers(WidgetRef ref) {
+    final tool = ref.read(commentToolProvider.notifier);
+    return {
+      ShellCommand.annotationSelect: () => tool.pick(AnnotationTool.select),
+      if (ref.read(commentRefusalProvider) == null) ...{
+        ShellCommand.highlight: () => tool.pick(AnnotationTool.highlight),
+        ShellCommand.underline: () => tool.pick(AnnotationTool.underline),
+        ShellCommand.strikethrough: () =>
+            tool.pick(AnnotationTool.strikethrough),
+        ShellCommand.note: () => tool.pick(AnnotationTool.note),
+        ShellCommand.textBox: () => tool.pick(AnnotationTool.text),
+        ShellCommand.callout: () => tool.pick(AnnotationTool.callout),
+        ShellCommand.draw: () => tool.pick(AnnotationTool.pen),
+        ShellCommand.shapes: () => tool.pick(AnnotationTool.shapes),
+      },
+      if (ref.read(openDocumentProvider)?.layersSwitchable ?? false)
+        ShellCommand.showComments: () => unawaited(
+          ref
+              .read(commentsShownProvider.notifier)
+              .show(visible: !ref.read(commentsShownProvider).visible),
+        ),
+    };
+  }
+
+  /// Fill & Sign's keys: Tab and ⇧Tab between a form's fields, and Fill
+  /// anything's tools, live only with its panel open (M4 decision 24).
+  static Map<ShellCommand, VoidCallback> _fillHandlers(
+    WidgetRef ref, {
+    required bool panel,
+  }) {
+    final form = ref.read(documentFormProvider).value;
+    if (form == null) return const {};
+    final session = ref.read(formSessionProvider.notifier);
+    final tools = ref.read(fillToolsStateProvider);
+    final pick = ref.read(fillToolsStateProvider.notifier).pick;
+    return {
+      if (form.fields.isNotEmpty) ...{
+        ShellCommand.nextField: () => session.move(form, 1),
+        ShellCommand.previousField: () => session.move(form, -1),
+      },
+      if (panel &&
+          tools.effective(form) != FillTool.fields &&
+          ref.read(fillRefusalProvider) == null) ...{
+        ShellCommand.fillText: () => pick(FillTool.text),
+        ShellCommand.fillCheck: () => pick(FillTool.check),
+        ShellCommand.fillCross: () => pick(FillTool.cross),
+        ShellCommand.fillDot: () => pick(FillTool.dot),
+        ShellCommand.todaysDate: () => pick(FillTool.date),
       },
     };
   }
@@ -199,6 +271,18 @@ class ShellCommandScope extends ConsumerWidget {
         ref
           ..watch(selectedPagesProvider)
           ..watch(organizeRefusalProvider);
+      }
+      if (mode == FermanMode.comment) {
+        ref
+          ..watch(commentRefusalProvider)
+          ..watch(commentsShownProvider);
+      }
+      if (mode == FermanMode.sign) {
+        ref
+          ..watch(documentFormProvider)
+          ..watch(fillToolsStateProvider)
+          ..watch(fillRefusalProvider)
+          ..watch(commentRefusalProvider);
       }
     }
     return Actions(

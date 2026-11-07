@@ -8,7 +8,7 @@
 #include <memory>
 
 // The ferman/files channel (app/lib/platform/file_access.dart) on Windows:
-// only "show", which selects a file in File Explorer (a1-9b). Bookmarks are
+// "openUrl", and "show", which selects a file in File Explorer (a1-9b). Bookmarks are
 // macOS only, so "bookmark", "access" and "release" are not implemented and
 // Dart treats them as none.
 class FileChannel {

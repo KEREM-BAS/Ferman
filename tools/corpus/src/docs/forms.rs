@@ -6,7 +6,8 @@
 //!   group, three combo boxes, two check boxes and a signature field. The household size has
 //!   an `AFRange_Validate(1, 20)` action. Unfilled.
 //! - **form-aks1-flat:** the same page with no fields: the boxes are only drawn ("Fill
-//!   anything", `a5-4`).
+//!   anything", `a5-4`), the identity number as a comb of 11 cells and the phone and e-mail as
+//!   lines.
 //! - **xfa-visa:** a dynamic XFA-only form ("Vize başvuru formu.pdf", `a11-7c`): the XDP in
 //!   `/AcroForm /XFA`, `/NeedsRendering`, and a page that only says the form needs an XFA
 //!   viewer.
@@ -327,11 +328,27 @@ fn aks1(sources: &Sources, fields: bool) -> Result<Generated, String> {
                     _ => {
                         draw_label(&mut doc, &mut page, &styles, label, *required, x, y - 8.25)?;
                         let box_height = if *kind == Kind::Signature { 36.0 } else { 17.0 };
-                        page.content
-                            .stroke_rgb(BOX)
-                            .line_width(0.75)
-                            .stroke_rect(x, y - 13.0 - box_height, width, box_height)
-                            .stroke_rgb((0, 0, 0));
+                        let bottom = y - 13.0 - box_height;
+                        page.content.stroke_rgb(BOX).line_width(0.75);
+                        match *field_name {
+                            // The flat twin draws what Fill anything detects besides boxes
+                            // (a5-4): the identity number as a comb of 11 cells, and two fields
+                            // as lines to write on.
+                            "tc_kimlik_no" if !fields => {
+                                let cell = width / 11.0;
+                                for at in 0..11 {
+                                    let left = x + cell * f64::from(at);
+                                    page.content.stroke_rect(left, bottom, cell, box_height);
+                                }
+                            }
+                            "telefon" | "eposta" if !fields => {
+                                page.content.line((x, bottom), (x + width, bottom));
+                            }
+                            _ => {
+                                page.content.stroke_rect(x, bottom, width, box_height);
+                            }
+                        }
+                        page.content.stroke_rgb((0, 0, 0));
                         if matches!(kind, Kind::Choice(_)) {
                             // The drop-down arrow.
                             let (ax, ay) = (x + width - 10.0, y - 13.0 - box_height / 2.0);

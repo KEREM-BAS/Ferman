@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/bridge/frb.dart' as bridge;
@@ -330,6 +331,8 @@ class FrbEngineService implements EngineService {
           wholeWords: options.wholeWords,
           ignoreAccents: options.ignoreAccents,
           bookmarks: options.bookmarks,
+          comments: options.comments,
+          fields: options.fields,
         ),
       )
       .handleError(
@@ -351,6 +354,8 @@ class FrbEngineService implements EngineService {
                 snippetStart: _units(found.snippet, found.snippetStart),
                 snippetEnd: _units(found.snippet, found.snippetEnd),
                 bookmark: found.bookmark,
+                comment: found.comment?.toInt(),
+                field: found.field?.toInt(),
               ),
           ]),
           bridge.SearchEventKind.progress => SearchProgress(
@@ -1101,6 +1106,683 @@ class FrbEngineService implements EngineService {
   Future<RevisionInfo> rollbackEdit(int transaction) => _revision(
     () => bridge.rollbackEdit(transaction: BigInt.from(transaction)),
   );
+
+  @override
+  Future<FormInfo> formFields(int document) async {
+    try {
+      final form = await bridge.formFields(document: BigInt.from(document));
+      return FormInfo(
+        fields: [for (final field in form.fields) _field(field)],
+        required: form.required_,
+        requiredLeft: form.requiredLeft,
+        problems: form.problems,
+        hasXfa: form.hasXfa,
+        truncated: form.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) => _fieldCommit(
+    () => bridge.setFieldValue(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      values: values,
+      missing: _missing(missing),
+      name: name,
+    ),
+  );
+
+  static bridge.MissingFont? _missing(MissingFont? missing) =>
+      switch (missing) {
+        null => null,
+        final missing => bridge.MissingFont.values.byName(missing.name),
+      };
+
+  Future<FieldCommit> _fieldCommit(
+    Future<bridge.FieldCommit> Function() call,
+  ) async {
+    bridge.FieldCommit? commit;
+    final revision = await _revision(() async {
+      final made = await call();
+      commit = made;
+      return made.revision;
+    });
+    final made = commit!;
+    return FieldCommit(
+      revision: revision,
+      problem: switch (made.problem) {
+        null => null,
+        final problem => _problem(problem),
+      },
+      fonts: made.fonts,
+      marked: made.marked,
+      xfaRemoved: made.xfaRemoved,
+      asksFont: made.asksFont,
+    );
+  }
+
+  @override
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) => _fieldCommit(
+    () => bridge.clearForm(
+      document: BigInt.from(document),
+      missing: _missing(missing),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) => _fieldCommit(
+    () => bridge.finishForm(
+      document: BigInt.from(document),
+      missing: _missing(missing),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async {
+    try {
+      final found = await bridge.fillTargets(
+        document: BigInt.from(document),
+        page: BigInt.from(page),
+      );
+      return FillTargets(
+        targets: [
+          for (final target in found.targets)
+            FillTarget(
+              kind: FillTargetKind.values.byName(target.kind.name),
+              rect: Rect.fromLTRB(
+                target.rect.left,
+                target.rect.top,
+                target.rect.right,
+                target.rect.bottom,
+              ),
+              cells: target.cells,
+            ),
+        ],
+        truncated: found.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async {
+    try {
+      return [
+        for (final style in await bridge.handwritingStyles(text: text))
+          HandwritingStyle(family: style.family, covered: style.covered),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addSignature(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      signature: bridge.NewSignature(
+        rect: _bridgeRect(signature.rect),
+        ink: switch (signature.ink) {
+          TypedInk(:final text, :final family) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.typed,
+            text: text,
+            family: family,
+            strokes: const [],
+            width: 0,
+            image: Uint8List(0),
+          ),
+          DrawnInk(:final strokes, :final width) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.drawn,
+            text: '',
+            family: '',
+            strokes: _bridgePoints(strokes),
+            width: width,
+            image: Uint8List(0),
+          ),
+          ImageInk(:final bytes) => bridge.SignatureInk(
+            kind: bridge.SignatureInkKind.image,
+            text: '',
+            family: '',
+            strokes: const [],
+            width: 0,
+            image: bytes,
+          ),
+        },
+        color: _bridgeColor(signature.color),
+        tilt: signature.tilt,
+        initials: signature.initials,
+        field: signature.field,
+        author: signature.author,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async {
+    try {
+      return [
+        for (final file in await bridge.savedSignatures(dir: directory))
+          SavedSignatureFile(name: file.name, bytes: file.bytes),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async {
+    try {
+      await bridge.writeSavedSignature(
+        dir: directory,
+        name: name,
+        bytes: bytes,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async {
+    try {
+      await bridge.deleteSavedSignature(dir: directory, name: name);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static FieldProblem _problem(bridge.FieldProblem problem) => FieldProblem(
+    kind: FieldProblemKind.values.byName(problem.kind.name),
+    maxLen: problem.maxLen,
+    pattern: problem.pattern,
+    min: problem.min,
+    max: problem.max,
+  );
+
+  static FieldInfo _field(bridge.FieldInfo field) => FieldInfo(
+    handle: field.handle.toInt(),
+    name: field.name,
+    label: field.label,
+    kind: FieldKind.values.byName(field.kind.name),
+    readOnly: field.readOnly,
+    required: field.required_,
+    multiline: field.multiline,
+    password: field.password,
+    comb: field.comb,
+    multiSelect: field.multiSelect,
+    editable: field.editable,
+    values: field.values,
+    options: [
+      for (final option in field.options)
+        FieldOption(export: option.export_, display: option.display),
+    ],
+    maxLen: field.maxLen,
+    widgets: [
+      for (final widget in field.widgets)
+        FieldWidget(
+          page: widget.page.toInt(),
+          rect: Rect.fromLTRB(
+            widget.rect.left,
+            widget.rect.top,
+            widget.rect.right,
+            widget.rect.bottom,
+          ),
+          onState: widget.onState,
+        ),
+    ],
+    format: FieldFormatKind.values.byName(field.format.name),
+    datePattern: field.datePattern,
+    decimals: field.decimals,
+    min: field.min,
+    max: field.max,
+    problem: switch (field.problem) {
+      null => null,
+      final problem => _problem(problem),
+    },
+    signed: field.signed,
+    signature: field.signature?.toInt(),
+    filled: field.filled,
+  );
+
+  @override
+  Future<AnnotationList> annotations(int document) async {
+    try {
+      final list = await bridge.annotations(document: BigInt.from(document));
+      return AnnotationList(
+        annotations: [for (final item in list.annotations) _annotation(item)],
+        people: list.people,
+        truncated: list.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addAnnotation(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      annotation: bridge.NewAnnotation(
+        kind: bridge.AnnotationKind.values.byName(annotation.kind.name),
+        rect: _bridgeRect(annotation.rect),
+        points: _bridgePoints(annotation.points),
+        color: _bridgeColor(annotation.color),
+        stroke: annotation.stroke,
+        opacity: annotation.opacity,
+        contents: annotation.contents,
+        author: annotation.author,
+        fontSize: annotation.fontSize,
+        arrow: annotation.arrow,
+        label: annotation.label,
+        meta: annotation.meta,
+        tilt: annotation.tilt,
+        icon: annotation.icon,
+        comb: annotation.comb,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.updateAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      change: bridge.AnnotationChange(
+        contents: change.contents,
+        rect: switch (change.rect) {
+          null => null,
+          final rect => _bridgeRect(rect),
+        },
+        points: switch (change.points) {
+          null => null,
+          final points => _bridgePoints(points),
+        },
+        color: switch (change.color) {
+          null => null,
+          final color => _bridgeColor(color),
+        },
+        stroke: change.stroke,
+        opacity: change.opacity,
+        fontSize: change.fontSize,
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) => _revision(
+    () => bridge.deleteAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<int> showComments(int document, {required bool visible}) async {
+    try {
+      final key = await bridge.showComments(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startFlattenAnnotationsJob(
+      document: BigInt.from(document),
+      handles: Uint64List.fromList([for (final handle in handles) handle]),
+      copy: copy,
+      staging: staging,
+      name: name,
+    ),
+  );
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) => _jobUpdates(
+    bridge.startCommentSummaryJob(
+      document: BigInt.from(document),
+      format: bridge.SummaryFormat.values.byName(format.name),
+      options: bridge.SummaryOptions(
+        open: options.open,
+        resolved: options.resolved,
+        replies: options.replies,
+        emptyPages: options.emptyPages,
+        sort: bridge.SummarySort.values.byName(options.sort.name),
+        pageLabel: options.pageLabel,
+        columns: options.columns,
+        kinds: [
+          for (final MapEntry(:key, :value) in options.kinds.entries)
+            bridge.SummaryKindName(
+              kind: bridge.AnnotationKind.values.byName(key.name),
+              name: value,
+            ),
+        ],
+        openLabel: options.openLabel,
+        resolvedLabel: options.resolvedLabel,
+        noComments: options.noComments,
+        datePattern: options.datePattern,
+        paperWidth: options.paperWidth,
+        paperHeight: options.paperHeight,
+      ),
+      output: output,
+      staging: staging,
+    ),
+  );
+
+  @override
+  Future<LinkList> links(int document) async {
+    try {
+      final list = await bridge.links(document: BigInt.from(document));
+      return LinkList(
+        links: [for (final link in list.links) _link(link)],
+        truncated: list.truncated,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async {
+    try {
+      final link = await bridge.linkAt(
+        document: BigInt.from(document),
+        page: BigInt.from(page),
+        x: point.dx,
+        y: point.dy,
+      );
+      return link == null ? null : _link(link);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.addLink(
+      document: BigInt.from(document),
+      page: BigInt.from(page),
+      link: bridge.NewLink(
+        rect: _bridgeRect(link.rect),
+        quads: _bridgePoints(link.quads),
+        destination: _bridgeDestination(link.destination),
+        look: bridge.LinkLook.values.byName(link.look.name),
+        color: _bridgeColor(link.color),
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) => _annotationCommit(
+    () => bridge.updateLink(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      change: bridge.LinkChange(
+        rect: switch (change.rect) {
+          null => null,
+          final rect => _bridgeRect(rect),
+        },
+        destination: switch (change.destination) {
+          null => null,
+          final destination => _bridgeDestination(destination),
+        },
+        look: switch (change.look) {
+          null => null,
+          final look => bridge.LinkLook.values.byName(look.name),
+        },
+        color: switch (change.color) {
+          null => null,
+          final color => _bridgeColor(color),
+        },
+      ),
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> deleteLink(int document, int handle, String name) =>
+      _revision(
+        () => bridge.deleteLink(
+          document: BigInt.from(document),
+          handle: BigInt.from(handle),
+          name: name,
+        ),
+      );
+
+  static bridge.LinkDestination _bridgeDestination(
+    LinkDestination destination,
+  ) => bridge.LinkDestination(
+    address: destination.address,
+    mail: destination.mail,
+    page: switch (destination.page) {
+      null => null,
+      final page => BigInt.from(page),
+    },
+  );
+
+  static LinkInfo _link(bridge.LinkInfo link) => LinkInfo(
+    handle: link.handle.toSigned(64).toInt(),
+    page: link.page.toSigned(64).toInt(),
+    rect: _rect(link.rect),
+    quads: [
+      for (final part in link.quads)
+        [for (final point in part.points) Offset(point.x, point.y)],
+    ],
+    kind: LinkKind.values.byName(link.kind.name),
+    target: link.target,
+    targetPage: link.targetPage?.toSigned(64).toInt(),
+    wantedPage: link.wantedPage?.toSigned(64).toInt(),
+    look: LinkLook.values.byName(link.look.name),
+    color: switch (link.color) {
+      null => null,
+      final color => AnnotationColor(color.red, color.green, color.blue),
+    },
+  );
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) => _annotationCommit(
+    () => bridge.replyToAnnotation(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      author: author,
+      text: text,
+      name: name,
+    ),
+  );
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) => _revision(
+    () => bridge.setAnnotationResolved(
+      document: BigInt.from(document),
+      handle: BigInt.from(handle),
+      author: author,
+      resolved: resolved,
+      name: name,
+    ),
+  );
+
+  static Future<AnnotationCommit> _annotationCommit(
+    Future<bridge.AnnotationCommit> Function() call,
+  ) async {
+    bridge.AnnotationCommit? commit;
+    final revision = await _revision(() async {
+      final made = await call();
+      commit = made;
+      return made.revision;
+    });
+    return AnnotationCommit(handle: commit!.handle.toInt(), revision: revision);
+  }
+
+  static bridge.PageRect _bridgeRect(Rect rect) => bridge.PageRect(
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+  );
+
+  static List<bridge.AnnotationPoints> _bridgePoints(
+    List<List<Offset>> points,
+  ) => [
+    for (final part in points)
+      bridge.AnnotationPoints(
+        points: [
+          for (final point in part) bridge.PagePoint(x: point.dx, y: point.dy),
+        ],
+      ),
+  ];
+
+  static bridge.AnnotationColor _bridgeColor(AnnotationColor color) =>
+      bridge.AnnotationColor(
+        red: color.red,
+        green: color.green,
+        blue: color.blue,
+      );
+
+  static AnnotationInfo _annotation(bridge.AnnotationInfo item) =>
+      AnnotationInfo(
+        handle: item.handle.toInt(),
+        page: item.page.toInt(),
+        kind: AnnotationKind.values.byName(item.kind.name),
+        subtype: item.subtype,
+        rect: _rect(item.rect),
+        points: [
+          for (final part in item.points)
+            [for (final point in part.points) Offset(point.x, point.y)],
+        ],
+        arrow: item.arrow,
+        color: switch (item.color) {
+          null => null,
+          final color => AnnotationColor(color.red, color.green, color.blue),
+        },
+        opacity: item.opacity,
+        stroke: item.stroke,
+        fontSize: item.fontSize,
+        author: item.author,
+        contents: item.contents,
+        quote: item.quote,
+        rich: item.rich,
+        created: _instant(item.created),
+        modified: _instant(item.modified),
+        icon: item.icon,
+        repliesTo: item.repliesTo?.toInt(),
+        thread: item.thread.toInt(),
+        state: item.state,
+        resolved: item.resolved,
+        resolvedBy: item.resolvedBy,
+        resolvedAt: _instant(item.resolvedAt),
+        mentions: item.mentions,
+      );
+
+  /// A date with a zone as local time, one with none as written.
+  static DateTime? _instant(bridge.PdfDate? date) {
+    if (date == null) return null;
+    final offset = date.offsetMinutes;
+    if (offset == null) {
+      return DateTime(
+        date.year,
+        date.month,
+        date.day,
+        date.hour,
+        date.minute,
+        date.second,
+      );
+    }
+    return DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+      date.hour,
+      date.minute - offset,
+      date.second,
+    ).toLocal();
+  }
 
   @override
   Future<RevisionInfo> rotatePages(

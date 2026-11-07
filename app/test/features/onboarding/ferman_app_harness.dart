@@ -13,6 +13,7 @@ import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_file_picker.dart';
@@ -48,6 +49,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   String? home,
   DefaultPdfApp defaultApp = const NoDefaultPdfApp(),
   DesktopWindow? window,
+  List<Override> overrides = const [],
 }) async {
   tester.view
     ..physicalSize = size
@@ -74,6 +76,7 @@ Future<MemorySettingsStore> pumpFermanApp(
         recentFilesStoreProvider.overrideWithValue(
           MemoryRecentFilesStore(recentFiles),
         ),
+        ...overrides,
       ],
       child: const FermanApp(),
     ),

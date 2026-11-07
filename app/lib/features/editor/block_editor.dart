@@ -1,14 +1,21 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:ferman/design/components/components.dart';
+import 'package:ferman/design/components/annotations/annotation_color.dart'
+    as design;
+import 'package:ferman/design/components/components.dart' hide AnnotationColor;
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_model.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/format_bar.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -283,6 +290,48 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
     _selectionChanged();
   }
 
+  /// a3-1c's Highlight and Comment: the typing commits, and what was selected
+  /// is marked on the block it left. A comment's card waits in Comment mode.
+  // shortcut: the selection reaches the committed block by its offsets, so text
+  // reflowed by the typing can mark a little off; carry runs when the engine
+  // can name them (B137).
+  void _mark({required bool composing}) {
+    final selection = _barSelection ?? _controller.selection;
+    final edit = widget.edit;
+    final frame = edit.block.frame;
+    final color = markColorOf(
+      design.AnnotationColor.yellow.resolve(context.ferman),
+    );
+    final document = ref.read(openDocumentProvider)?.id;
+    if (document == null || selection.isCollapsed) {
+      _barDone();
+      return;
+    }
+    // The engine counts in code points, the field in UTF-16.
+    final text = _controller.text;
+    final start = text.substring(0, selection.start).runes.length;
+    final end = text.substring(0, selection.end).runes.length;
+    unawaited(() async {
+      final editor = ref.read(documentEditorProvider.notifier);
+      final commands = ref.read(commentCommandsProvider.notifier);
+      final engine = ref.read(engineServiceProvider);
+      final shell = ref.read(shellModeProvider.notifier);
+      await editor.finish();
+      final page = await engine.textBlocks(document, edit.page);
+      final block = blockOver(page.blocks, frame);
+      if (block == null) return;
+      await commands.markBlockText(
+        edit.page,
+        block.id,
+        start,
+        end,
+        color,
+        composing: composing,
+      );
+      if (composing) shell.select(FermanMode.comment);
+    }());
+  }
+
   /// The bar is done with the focus: the field takes it, and its selection,
   /// back.
   void _barDone() {
@@ -305,7 +354,19 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
     }
   }
 
-  /// The selection's format keys, and Esc, while the bar is open (G141).
+  /// Add link on the selection (a3-1c), by the bar's button or ⇧⌘K.
+  void _addLink() {
+    final selection = _barSelection;
+    if (selection == null) return;
+    unawaited(
+      ref
+          .read(linkToolProvider.notifier)
+          .addFromEditor(_controller.text, selection),
+    );
+  }
+
+  /// The selection's format keys and Add link, and Esc, while the bar is open
+  /// (G141, G144).
   Map<ShortcutActivator, VoidCallback> _barKeys(BlockStyleInfo? info) {
     if (!_selected) return const {};
     final mac = ref.watch(shortcutPlatformProvider) == ShortcutPlatform.mac;
@@ -316,6 +377,12 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
 
     return {
       const SingleActivator(LogicalKeyboardKey.escape): _closeBar,
+      SingleActivator(
+        LogicalKeyboardKey.keyK,
+        meta: mac,
+        control: !mac,
+        shift: true,
+      ): _addLink,
       if (info != null) ...{
         SingleActivator(
           LogicalKeyboardKey.keyB,
@@ -350,7 +417,12 @@ class _BlockEditorState extends ConsumerState<BlockEditor>
           // A click on the bar is no click outside the block's field.
           child: TextFieldTapRegion(
             onTapOutside: _tappedOutsideBar,
-            child: FormatBar(info: info, onDone: _barDone),
+            child: FormatBar(
+              info: info,
+              onDone: _barDone,
+              onMark: _mark,
+              onAddLink: _addLink,
+            ),
           ),
         ),
       ),

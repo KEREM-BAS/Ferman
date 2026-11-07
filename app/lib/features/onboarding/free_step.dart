@@ -25,11 +25,9 @@ enum WelcomeFeature {
   /// Text recognition (OCR): P3.
   ocr(IconName.scanText, features: {Feature.ocr}),
 
-  /// Fill and sign forms: M4.
-  fillSign(
-    IconName.signature,
-    features: {Feature.formFilling, Feature.simpleSignatures},
-  ),
+  /// Fill and sign forms: included since form filling and simple
+  /// signatures shipped in M4 (W3).
+  fillSign(IconName.signature),
 
   /// e-imza and digital signatures: P3.
   signatures(

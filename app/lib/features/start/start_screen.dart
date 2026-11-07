@@ -134,13 +134,34 @@ class FmStart extends ConsumerWidget {
         Feature.scanToPdf.disabledReason(context),
       ),
     ];
-    final tools = [
-      (Feature.compress, IconName.minimize2, l10n.startToolCompress),
-      (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
-      (Feature.simpleSignatures, IconName.signature, l10n.startToolSign),
-      (Feature.ocr, IconName.scanText, l10n.startToolOcr),
-      (Feature.passwordProtection, IconName.shield, l10n.startToolProtect),
-      (Feature.compare, IconName.gitCompare, l10n.startToolCompare),
+    // Sign opens a file in Fill & Sign, where the Sign menu is.
+    final sign = onOpen == null
+        ? null
+        : () => unawaited(
+            ref
+                .read(documentOpenerProvider.notifier)
+                .pick(filterLabel: l10n.openPdfFilter)
+                .then((_) {
+                  if (ref.read(shellDocumentsProvider).active?.document !=
+                      null) {
+                    ref
+                        .read(shellModeProvider.notifier)
+                        .select(FermanMode.sign);
+                  }
+                }),
+          );
+    final tools = <(Feature?, IconName, String, VoidCallback?)>[
+      (Feature.compress, IconName.minimize2, l10n.startToolCompress, null),
+      (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert, null),
+      (null, IconName.signature, l10n.startToolSign, sign),
+      (Feature.ocr, IconName.scanText, l10n.startToolOcr, null),
+      (
+        Feature.passwordProtection,
+        IconName.shield,
+        l10n.startToolProtect,
+        null,
+      ),
+      (Feature.compare, IconName.gitCompare, l10n.startToolCompare, null),
     ];
 
     final page = Column(
@@ -185,11 +206,14 @@ class FmStart extends ConsumerWidget {
                 ),
               ),
             ),
-            for (final (feature, icon, label) in tools)
+            for (final (feature, icon, label, onPressed) in tools)
               Button(
                 size: ButtonSize.sm,
                 icon: icon,
-                disabledReason: feature.disabledReason(context),
+                disabledReason:
+                    feature?.disabledReason(context) ??
+                    (onPressed == null ? openReason : null),
+                onPressed: onPressed,
                 child: Text(label),
               ),
           ],
@@ -451,7 +475,7 @@ class _PhoneHome extends ConsumerWidget {
     final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
     final tools = [
       (Feature.scanToPdf, IconName.scan, l10n.phoneTabScan),
-      (Feature.simpleSignatures, IconName.signature, l10n.startToolSign),
+      (Feature.phoneSign, IconName.signature, l10n.startToolSign),
       (Feature.phoneEditing, IconName.filePenLine, l10n.shellModeEdit),
       (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
       (Feature.compress, IconName.minimize2, l10n.startToolCompress),

@@ -12,12 +12,14 @@
 //!   its cross-reference table two bytes early.
 //! - **kira-tr-restricted:** kira-tr with an owner password only (AES-128): it opens without a
 //!   password, but changes, copying, comments and form filling are not allowed (`a2-10a`).
+//! - **kira-tr-comments-only:** kira-tr-restricted, but comments are allowed: what flattening, which
+//!   changes the content, is refused on while a comment is not.
 //! - **kira-tr-signed:** kira-tr with the landlord's signature field signed as PAdES baseline,
 //!   with a signature timestamp ([`crate::pades`]).
 
 use super::files::{Cell, jpeg, xlsx};
 use super::{Doc, generated, info, open_first, opens};
-use crate::crypt::{Method, PRINT_ONLY, Security};
+use crate::crypt::{COMMENTS_ONLY, Method, PRINT_ONLY, Security};
 use crate::pades;
 use crate::pdf::{self, Content, Pdf, name, num, rect, text};
 use crate::sources::{FontFile, Sources};
@@ -46,6 +48,13 @@ pub const KIRA_TR_RESTRICTED: Generator = Generator {
     expect: Expect::Opens { password: None },
 };
 
+/// The contract with an owner password that allows comments.
+pub const KIRA_TR_COMMENTS_ONLY: Generator = Generator {
+    name: "kira-tr-comments-only",
+    build: |sources| build(sources, Variant::CommentsOnly),
+    expect: Expect::Opens { password: None },
+};
+
 /// The contract signed by the landlord.
 pub const KIRA_TR_SIGNED: Generator = Generator {
     name: "kira-tr-signed",
@@ -61,6 +70,7 @@ enum Variant {
     Full,
     Damaged,
     Restricted,
+    CommentsOnly,
     Signed,
 }
 
@@ -738,6 +748,7 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         Variant::Full => "kira-tr",
         Variant::Damaged => "kira-tr-damaged",
         Variant::Restricted => "kira-tr-restricted",
+        Variant::CommentsOnly => "kira-tr-comments-only",
         Variant::Signed => "kira-tr-signed",
     };
     let title = if variant == Variant::Damaged {
@@ -749,19 +760,23 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         method: Method::Aes128,
         user: String::new(),
         owner: OWNER_PASSWORD.to_owned(),
-        permissions: PRINT_ONLY,
+        permissions: if variant == Variant::CommentsOnly {
+            COMMENTS_ONLY
+        } else {
+            PRINT_ONLY
+        },
         seed: name.to_owned(),
     };
     let bytes = doc.close(
         catalog,
         &info(title, "Mert Kaya", "Kelime işlemci", CREATED),
         name,
-        (variant == Variant::Restricted).then_some(&security),
+        matches!(variant, Variant::Restricted | Variant::CommentsOnly).then_some(&security),
     )?;
     let bytes = match variant {
         Variant::Damaged => shift_xref(&bytes, 2)?,
         Variant::Signed => pades::sign(bytes)?,
-        Variant::Full | Variant::Restricted => bytes,
+        Variant::Full | Variant::Restricted | Variant::CommentsOnly => bytes,
     };
     Ok(generated(bytes, expected))
 }

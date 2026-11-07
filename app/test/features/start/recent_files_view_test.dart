@@ -321,6 +321,8 @@ final class _FakeFileAccess implements FileAccess {
   @override
   Future<bool> show(String path) async => true;
   @override
+  Future<bool> openUrl(String url) async => true;
+  @override
   Future<String?> staging(String path) async => null;
 
   @override

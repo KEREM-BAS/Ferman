@@ -35,6 +35,15 @@ final class RecordingFileAccess implements FileAccess {
     return true;
   }
 
+  @override
+  Future<bool> openUrl(String url) async {
+    opened.add(url);
+    return true;
+  }
+
+  /// The addresses [openUrl] was asked for, oldest first.
+  final List<String> opened = [];
+
   /// The staging directory [staging] names, as the macOS sandbox does.
   String? stagingDirectory;
 

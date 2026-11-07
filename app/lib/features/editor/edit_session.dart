@@ -333,6 +333,12 @@ class DocumentEditor extends _$DocumentEditor {
 
   Future<void> _queue = Future.value();
 
+  /// Typing outside the text editor that is no step yet, such as a form
+  /// field's or Fill anything's: each starts its step and completes when it
+  /// is taken. [finish] and saving take them first, so closing, quitting and
+  /// saving never leave them behind.
+  final Set<Future<void> Function()> _drafts = {};
+
   /// Whether the open transaction marks the block's language.
   bool _languageSet = false;
   int? _document;
@@ -723,10 +729,28 @@ class DocumentEditor extends _$DocumentEditor {
     return _run(() => _commit(idle: true));
   }
 
-  /// Commits the typing so far and closes the editor.
-  Future<void> finish() {
+  /// Commits the typing so far, a draft's included, and closes the editor.
+  Future<void> finish() async {
     _idle?.cancel();
-    return _run(_close);
+    await _takeDrafts();
+    await _run(_close);
+  }
+
+  /// Holds [commit], a draft's: [finish] and saving call it first.
+  void holdDraft(Future<void> Function() commit) => _drafts.add(commit);
+
+  /// Lets go of [commit] once its draft is gone.
+  void dropDraft(Future<void> Function() commit) => _drafts.remove(commit);
+
+  /// Takes every draft's step. Each says its own failure.
+  Future<void> _takeDrafts() async {
+    for (final commit in [..._drafts]) {
+      try {
+        await commit();
+      } on Object {
+        // Its own commit shows what went wrong.
+      }
+    }
   }
 
   Future<void> _commit({bool idle = false}) async {
@@ -1283,6 +1307,7 @@ class DocumentEditor extends _$DocumentEditor {
     bool copy = false,
   }) async {
     _idle?.cancel();
+    await _takeDrafts();
     EngineException? failed;
     await _run(() async {
       await _close();

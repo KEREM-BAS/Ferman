@@ -6,6 +6,7 @@ import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/casing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -35,8 +36,9 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// around the card (G22; not drawn).
 ///
 /// The quotation marks are the locale's, so [quote] comes with them (the
-/// board's “…”). Mentions in replies are not highlighted: [NoteReply] has
-/// no mention field yet.
+/// board's “…”). [NoteReply.mentions] show in the accent colour. Typing `@` in
+/// the reply field lists [people] who match, under the field; ↑ and ↓ move, and
+/// Enter or a click puts the name in (a4-2).
 ///
 /// **Keyboard.** The card is a button: Enter and Space call [onPressed]
 /// (expand and select the annotation). ArrowUp and ArrowDown move to the
@@ -71,9 +73,12 @@ class CommentCard extends StatefulWidget {
     this.onResolve,
     this.onReply,
     this.onReopen,
+    this.reopenDisabledReason,
     this.iconColor,
     this.repliesLabel,
     this.replyPlaceholder,
+    this.people = const [],
+    this.peopleLabel,
   });
 
   /// The chip's `width` and `height: 20px`.
@@ -148,6 +153,9 @@ class CommentCard extends StatefulWidget {
   /// Called when Reopen is pressed; null disables it.
   final VoidCallback? onReopen;
 
+  /// Why [onReopen] is null, when it is.
+  final String? reopenDisabledReason;
+
   /// The collapsed replies count, such as "2 replies"; null shows none.
   /// Not in the spec.
   final String? repliesLabel;
@@ -167,6 +175,22 @@ class CommentCard extends StatefulWidget {
   /// The reply field's placeholder and name; null shows none. Not in the
   /// spec.
   final String? replyPlaceholder;
+
+  /// The names `@` suggests: people who already commented in this file.
+  final List<String> people;
+
+  /// The heading of the list of [people], the localized "People in this
+  /// document".
+  final String? peopleLabel;
+
+  /// The width of the list of [people] (`width: 220px`).
+  static const double peopleWidth = 220;
+
+  /// A row of the list of [people] (`height: 30px`).
+  static const double personHeight = 30;
+
+  /// The initials chip of a row (`width` and `height: 20px`).
+  static const double personChip = 20;
 
   /// Whether the comment is resolved.
   bool get resolved => resolvedBy != null;
@@ -190,6 +214,76 @@ class CommentCard extends StatefulWidget {
   }
 }
 
+/// A reply's text, its mentions marked.
+TextSpan _mentioned(NoteReply reply, Color accent, FontWeight weight) {
+  if (reply.mentions.isEmpty) return TextSpan(text: reply.text);
+  final names = [...reply.mentions]
+    ..sort((a, b) => b.length.compareTo(a.length));
+  final pattern = RegExp(
+    names.map((name) => '@${RegExp.escape(name)}').join('|'),
+  );
+  final parts = <InlineSpan>[];
+  var at = 0;
+  for (final match in pattern.allMatches(reply.text)) {
+    parts
+      ..add(TextSpan(text: reply.text.substring(at, match.start)))
+      ..add(
+        TextSpan(
+          text: match[0],
+          style: TextStyle(color: accent, fontWeight: weight),
+        ),
+      );
+    at = match.end;
+  }
+  parts.add(TextSpan(text: reply.text.substring(at)));
+  return TextSpan(children: parts);
+}
+
+/// The reply field's text, the `@word` at the caret in the accent colour.
+class _MentionController extends TextEditingController {
+  Color? accent;
+
+  /// What follows the `@` of the word the caret is in, or null.
+  String? get mention {
+    final caret = selection.isCollapsed ? selection.start : -1;
+    if (caret < 0 || caret > text.length) return null;
+    final before = text.substring(0, caret);
+    final at = before.lastIndexOf('@');
+    if (at < 0 || (at > 0 && before[at - 1].trim().isNotEmpty)) return null;
+    return before.substring(at + 1);
+  }
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    required bool withComposing,
+    TextStyle? style,
+  }) {
+    final word = mention;
+    final color = accent;
+    if (word == null || color == null) {
+      return super.buildTextSpan(
+        context: context,
+        withComposing: withComposing,
+        style: style,
+      );
+    }
+    final end = selection.start;
+    final start = end - word.length - 1;
+    return TextSpan(
+      style: style,
+      children: [
+        TextSpan(text: text.substring(0, start)),
+        TextSpan(
+          text: text.substring(start, end),
+          style: TextStyle(color: color),
+        ),
+        TextSpan(text: text.substring(end)),
+      ],
+    );
+  }
+}
+
 /// The focus node of a card, so the arrow keys find the other cards.
 class _CommentCardNode extends FocusNode {
   new() : super(debugLabel: 'CommentCard');
@@ -197,14 +291,30 @@ class _CommentCardNode extends FocusNode {
 
 class _CommentCardState extends State<CommentCard> {
   final _CommentCardNode _node = _CommentCardNode();
-  final TextEditingController _reply = TextEditingController();
+  final _MentionController _reply = _MentionController();
   final FocusNode _replyNode = FocusNode(debugLabel: 'CommentCard reply');
+  int _person = 0;
 
   @override
   void initState() {
     super.initState();
     _reply.addListener(_onReplyText);
   }
+
+  @override
+  void didUpdateWidget(CommentCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final composing = widget.composing && widget.expanded;
+    if (composing && !(oldWidget.composing && oldWidget.expanded)) {
+      _focusReply();
+    }
+  }
+
+  /// After this frame, once the field is in the focus tree; `autofocus` alone
+  /// gives way to a focus the window already has.
+  void _focusReply() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) _replyNode.requestFocus();
+  });
 
   @override
   void dispose() {
@@ -221,6 +331,149 @@ class _CommentCardState extends State<CommentCard> {
   void _onReplyText() {
     final has = _reply.text.trim().isNotEmpty;
     if (has != _hasReply) setState(() => _hasReply = has);
+    // The list of people follows the text and the caret.
+    setState(() => _person = 0);
+  }
+
+  /// The people the `@word` before the caret could name.
+  List<String> get _matches {
+    final query = _reply.mention;
+    if (query == null) return const [];
+    final casing = LocaleCasing.of(context);
+    final folded = casing.lower(query);
+    return [
+      for (final person in widget.people)
+        if (casing.lower(person).startsWith(folded)) person,
+    ];
+  }
+
+  void _pick(String person) {
+    final selection = _reply.selection;
+    final start = selection.start - (_reply.mention?.length ?? 0);
+    final text = _reply.text.replaceRange(start, selection.start, '$person ');
+    _reply.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: start + person.length + 1),
+    );
+    _replyNode.requestFocus();
+  }
+
+  /// ↑, ↓ and Enter while the list of people shows.
+  KeyEventResult _onReplyKey(FocusNode node, KeyEvent event) {
+    final matches = _matches;
+    if (matches.isEmpty ||
+        (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+      return KeyEventResult.ignored;
+    }
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowDown:
+        setState(() => _person = (_person + 1) % matches.length);
+      case LogicalKeyboardKey.arrowUp:
+        setState(() => _person = (_person - 1) % matches.length);
+      case LogicalKeyboardKey.enter:
+        _pick(matches[_person.clamp(0, matches.length - 1)]);
+      default:
+        return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  Widget _people(FermanTheme theme, List<String> matches) {
+    final colors = theme.colors;
+    final type = theme.typography;
+    return Container(
+      width: CommentCard.peopleWidth,
+      padding: EdgeInsetsDirectional.all(theme.space.space1),
+      decoration: BoxDecoration(
+        color: colors.surfaceRaised,
+        borderRadius: BorderRadius.all(Radius.circular(theme.radius.radiusMd)),
+        boxShadow: theme.elevation.shadowPopover,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.peopleLabel case final label?)
+            Padding(
+              padding: EdgeInsetsDirectional.symmetric(
+                vertical: theme.space.space1,
+                horizontal: theme.space.space2,
+              ),
+              child: Text(
+                label,
+                style: type.label.copyWith(color: colors.textTertiary),
+              ),
+            ),
+          for (final (i, person) in matches.indexed)
+            FermanInteractive(
+              onPressed: () => _pick(person),
+              semanticLabel: person,
+              selected: i == _person,
+              builder: (context, states, _) => Container(
+                height: CommentCard.personHeight,
+                padding: EdgeInsetsDirectional.symmetric(
+                  horizontal: theme.space.space2,
+                ),
+                decoration: BoxDecoration(
+                  color: i == _person ? colors.surfaceSelectedStrong : null,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(theme.radius.radiusSm),
+                  ),
+                ),
+                child: Row(
+                  spacing: theme.space.space2,
+                  children: [
+                    Container(
+                      width: CommentCard.personChip,
+                      height: CommentCard.personChip,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: colors.surfaceSunken,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(theme.radius.radiusSm),
+                        ),
+                      ),
+                      child: Text(
+                        _initials(person),
+                        style: type.caption.copyWith(
+                          fontWeight: theme.typeScale.weightSemibold,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        person,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: type.body.copyWith(
+                          color: i == _person
+                              ? colors.textPrimary
+                              : colors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// The first letters of the last two words of [name].
+  static String _initials(String name) {
+    final words = name
+        .split(' ')
+        .where((word) => word.isNotEmpty && !word.endsWith('.'))
+        .toList();
+    return words.reversed
+        .take(2)
+        .toList()
+        .reversed
+        .map((word) => String.fromCharCode(word.runes.first))
+        .join();
   }
 
   void _send([String? _]) {
@@ -425,7 +678,10 @@ class _CommentCardState extends State<CommentCard> {
                         ),
                       ],
                     ),
-                    Text(reply.text, style: type.body),
+                    Text.rich(
+                      _mentioned(reply, colors.textAccent, scale.weightMedium),
+                      style: type.body,
+                    ),
                   ],
                 ),
             ],
@@ -442,26 +698,38 @@ class _CommentCardState extends State<CommentCard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: theme.space.space1_5,
             children: [
-              TextField(
-                size: FieldSize.sm,
-                controller: _reply,
-                focusNode: _replyNode,
-                autofocus: true,
-                placeholder: widget.replyPlaceholder,
-                semanticLabel: widget.replyPlaceholder,
-                onSubmitted: _send,
+              Focus(
+                canRequestFocus: false,
+                skipTraversal: true,
+                includeSemantics: false,
+                onKeyEvent: _onReplyKey,
+                child: TextField(
+                  size: FieldSize.sm,
+                  controller: _reply..accent = colors.textAccent,
+                  focusNode: _replyNode,
+                  autofocus: true,
+                  placeholder: widget.replyPlaceholder,
+                  semanticLabel: widget.replyPlaceholder,
+                  onSubmitted: _send,
+                ),
               ),
+              if (_matches case final matches when matches.isNotEmpty)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: _people(theme, matches),
+                ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 spacing: theme.space.space1_5,
                 children: [
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.sm,
-                    icon: IconName.check,
-                    onPressed: widget.onResolve,
-                    child: Text(widget.resolveLabel),
-                  ),
+                  if (widget.resolvedBy == null)
+                    Button(
+                      variant: ButtonVariant.ghost,
+                      size: ButtonSize.sm,
+                      icon: IconName.check,
+                      onPressed: widget.onResolve,
+                      child: Text(widget.resolveLabel),
+                    ),
                   Button(
                     variant: ButtonVariant.primary,
                     size: ButtonSize.sm,
@@ -493,6 +761,8 @@ class _CommentCardState extends State<CommentCard> {
                 size: ButtonSize.sm,
                 icon: IconName.rotateCcw,
                 onPressed: widget.onReopen,
+                disabled: widget.onReopen == null,
+                disabledReason: widget.reopenDisabledReason,
                 child: Text(widget.reopenLabel),
               ),
             ],
