@@ -9771,6 +9771,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No licences match'**
   String get licencesNoMatch;
+
+  /// Heading of the page-badge legend the Pages tab's info button opens (f5, FmSidebar).
+  ///
+  /// In en, this message translates to:
+  /// **'Page badges'**
+  String get sidebarLegendTitle;
+
+  /// Legend row name (f5): the accent dot of a page changed since the document was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get sidebarLegendEdited;
+
+  /// Legend row explanation after sidebarLegendEdited (f5), lowercase as it follows a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'changed since you opened it'**
+  String get sidebarLegendEditedBody;
+
+  /// Legend row name (f5): the comment badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get sidebarLegendComments;
+
+  /// Legend row explanation after sidebarLegendComments (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'notes or markup on the page'**
+  String get sidebarLegendCommentsBody;
+
+  /// Legend row name (f5): the form-field badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields'**
+  String get sidebarLegendFields;
+
+  /// Legend row explanation after sidebarLegendFields (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'fields you can fill in'**
+  String get sidebarLegendFieldsBody;
+
+  /// Legend row name (f5): the signature badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get sidebarLegendSignature;
+
+  /// Legend row explanation after sidebarLegendSignature (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signed or has a signature field'**
+  String get sidebarLegendSignatureBody;
+
+  /// Legend row name (f5): the amber warning badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get sidebarLegendWarnings;
+
+  /// Legend row explanation after sidebarLegendWarnings (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'missing glyphs, overflow, broken links'**
+  String get sidebarLegendWarningsBody;
+
+  /// Note under the legend's rows (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.'**
+  String get sidebarLegendFootnote;
+
+  /// Tooltip and spoken name of a thumbnail's edited dot (f5); it follows the page name after a comma.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get sidebarBadgeEdited;
+
+  /// Tooltip and spoken name of a thumbnail's comment badge (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 comment} other{{n} comments}}'**
+  String sidebarBadgeComments(int count, String n);
+
+  /// Tooltip and spoken name of a thumbnail's form-field badge (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 form field} other{{n} form fields}}'**
+  String sidebarBadgeFields(int count, String n);
+
+  /// Tooltip and spoken name of a thumbnail's signature badge on a signed page (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signed'**
+  String get sidebarBadgeSigned;
+
+  /// Tooltip and spoken name of a thumbnail's signature badge on a page with an empty signature field (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signature field'**
+  String get sidebarBadgeSignatureField;
+
+  /// Title of a bookmark Add bookmark (⌘B) adds, renamed in place at once (a2-3a).
+  ///
+  /// In en, this message translates to:
+  /// **'New bookmark'**
+  String get outlineNewBookmark;
+
+  /// Accessible name of the field that renames a bookmark in place (a2-3a, FmSidebar).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark name'**
+  String get outlineBookmarkName;
+
+  /// The history step of an outline change: rename, add, nest, reorder or delete (a2-3a).
+  ///
+  /// In en, this message translates to:
+  /// **'Change bookmarks'**
+  String get outlineStep;
+
+  /// Outline › More menu item: renames the selected bookmark in place (F2).
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get outlineRename;
+
+  /// Outline › More menu item: moves the selected bookmark one level in.
+  ///
+  /// In en, this message translates to:
+  /// **'Nest under the one above'**
+  String get outlineNest;
+
+  /// Outline › More menu item: moves the selected bookmark one level out.
+  ///
+  /// In en, this message translates to:
+  /// **'Move out a level'**
+  String get outlineUnnest;
+
+  /// Outline › More menu item: swaps the selected bookmark with the one above at its level.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get outlineMoveUp;
+
+  /// Outline › More menu item: swaps the selected bookmark with the one below at its level.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get outlineMoveDown;
+
+  /// Outline › More menu item: deletes the selected bookmark and the ones nested in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete bookmark'**
+  String get outlineDelete;
+
+  /// The history step of a metadata change in Document properties (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Change document properties'**
+  String get propertiesStep;
+
+  /// Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged in the order shown. You can reorder before saving.'**
+  String get dropOverlayCombineDescription;
 }
 
 class _AppLocalizationsDelegate

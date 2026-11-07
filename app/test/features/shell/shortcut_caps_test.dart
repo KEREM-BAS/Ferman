@@ -101,6 +101,9 @@ final Map<String, ShellCommand> _choiceCommands = {
 /// The View row's and the status bar's viewing controls: disabled without
 /// a reason while no document shows.
 final Set<String> _waitForDocument = {
+  // The sidebar's buttons that change the document (a2-3a, a2-3b).
+  _l10n.shellAddBookmark,
+  _l10n.shellAttachFile,
   // Comment's tools.
   for (final tool in AnnotationTool.values)
     if (tool != AnnotationTool.measure) _l10n.annotationToolLabel(tool),

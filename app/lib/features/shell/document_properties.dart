@@ -2,6 +2,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
+import 'package:ferman/features/shell/document_parts.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/format.dart';
@@ -540,8 +542,10 @@ enum PropertiesTab {
   advanced,
 }
 
-/// The document properties dialog (a2-7, ⌘D): Summary with the metadata and
-/// the fonts, Security with the encryption and each permission (a2-10b,
+/// The document properties dialog (a2-7, ⌘D): Summary with the metadata,
+/// whose title, author, subject and keywords are edited in place (a click or
+/// Enter; Enter or leaving the field keeps it, one step each, Esc cancels),
+/// and the fonts, Security with the encryption and each permission (a2-10b,
 /// G27), and Advanced with the language and the scripts row (G100).
 /// [onUnlock] closes it for the owner-password dialog of a restricted
 /// document; [onClose] closes it.
@@ -598,6 +602,99 @@ class DocumentPropertiesDialog extends ConsumerStatefulWidget {
 class _DocumentPropertiesDialogState
     extends ConsumerState<DocumentPropertiesDialog> {
   PropertiesTab _tab = PropertiesTab.summary;
+
+  /// The metadata entry being edited: 0 title, 1 author, 2 subject,
+  /// 3 keywords; null for none.
+  int? _editing;
+
+  /// Keeps [text] as metadata entry [entry] of the document, one step.
+  void _keep(DocumentFacts facts, int entry, String? text) {
+    setState(() => _editing = null);
+    final info = facts.document.info;
+    final values = [
+      info.title ?? '',
+      info.author ?? '',
+      info.subject ?? '',
+      info.keywords ?? '',
+    ];
+    final value = text?.trim();
+    if (value == null || value == values[entry]) return;
+    values[entry] = value;
+    final id = facts.document.id;
+    final engine = ref.read(engineServiceProvider);
+    final edit = InfoEdit(
+      title: values[0],
+      author: values[1],
+      subject: values[2],
+      keywords: values[3],
+    );
+    commitPageChange(
+      ref,
+      id,
+      () => engine.setInfo(id, edit, facts.l10n.propertiesStep),
+    );
+  }
+
+  /// Metadata entry [entry] labelled [label], edited in place unless
+  /// [refusal] says why not.
+  Widget _metadata(
+    BuildContext context,
+    DocumentFacts facts,
+    int entry,
+    String label,
+    String? value, {
+    required String? refusal,
+  }) {
+    const width = DocumentPropertiesDialog.summaryLabelWidth;
+    if (refusal != null) {
+      return _pair(context, width, (label, facts.orNone(value)));
+    }
+    final theme = context.ferman;
+    final body = _body(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: DocumentPropertiesDialog.columnGap,
+      children: [
+        SizedBox(
+          width: width,
+          child: Text(
+            label,
+            style: body.copyWith(color: theme.colors.textSecondary),
+          ),
+        ),
+        Expanded(
+          child: _editing == entry
+              ? InlineNameField(
+                  initial: value ?? '',
+                  label: label,
+                  onDone: (text) => _keep(facts, entry, text),
+                )
+              : FermanInteractive(
+                  semanticLabel: label,
+                  onPressed: () => setState(() => _editing = entry),
+                  builder: (context, states, _) => FocusRing(
+                    visible: states.contains(WidgetState.focused),
+                    borderRadius: BorderRadius.circular(theme.radius.radiusSm),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: states.contains(WidgetState.hovered)
+                            ? theme.colors.surfaceHover
+                            : null,
+                        borderRadius: BorderRadius.circular(
+                          theme.radius.radiusSm,
+                        ),
+                      ),
+                      child: Text(
+                        bidiIsolate(facts.orNone(value)),
+                        style: body,
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -764,6 +861,13 @@ class _DocumentPropertiesDialogState
     final info = facts.document.info;
     final casing = LocaleCasing.of(context);
     const label = DocumentPropertiesDialog.summaryLabelWidth;
+    final refusal = ref.watch(modifyRefusalProvider)?.call(l10n);
+    final metadata = [
+      (l10n.propertiesTitle, info.title),
+      (l10n.propertiesAuthor, info.author),
+      (l10n.propertiesSubject, info.subject),
+      (l10n.propertiesKeywords, info.keywords),
+    ];
     // a2-7's grid, read row by row: the metadata on the start side, the
     // file's facts on the end side.
     final rows = [
@@ -825,12 +929,23 @@ class _DocumentPropertiesDialogState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.space.space2,
         children: [
-          for (final (start, end) in rows)
+          for (final (row, (start, end)) in rows.indexed)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: DocumentPropertiesDialog.columnGap,
               children: [
-                Expanded(child: _pair(context, label, start)),
+                Expanded(
+                  child: row < metadata.length
+                      ? _metadata(
+                          context,
+                          facts,
+                          row,
+                          metadata[row].$1,
+                          metadata[row].$2,
+                          refusal: refusal,
+                        )
+                      : _pair(context, label, start),
+                ),
                 Expanded(child: _pair(context, label, end)),
               ],
             ),

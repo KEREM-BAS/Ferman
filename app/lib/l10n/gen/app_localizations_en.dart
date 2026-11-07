@@ -6120,4 +6120,107 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get licencesNoMatch => 'No licences match';
+
+  @override
+  String get sidebarLegendTitle => 'Page badges';
+
+  @override
+  String get sidebarLegendEdited => 'Edited';
+
+  @override
+  String get sidebarLegendEditedBody => 'changed since you opened it';
+
+  @override
+  String get sidebarLegendComments => 'Comments';
+
+  @override
+  String get sidebarLegendCommentsBody => 'notes or markup on the page';
+
+  @override
+  String get sidebarLegendFields => 'Form fields';
+
+  @override
+  String get sidebarLegendFieldsBody => 'fields you can fill in';
+
+  @override
+  String get sidebarLegendSignature => 'Signature';
+
+  @override
+  String get sidebarLegendSignatureBody => 'signed or has a signature field';
+
+  @override
+  String get sidebarLegendWarnings => 'Warnings';
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      'missing glyphs, overflow, broken links';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.';
+
+  @override
+  String get sidebarBadgeEdited => 'edited';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n form fields',
+      one: '1 form field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'signed';
+
+  @override
+  String get sidebarBadgeSignatureField => 'signature field';
+
+  @override
+  String get outlineNewBookmark => 'New bookmark';
+
+  @override
+  String get outlineBookmarkName => 'Bookmark name';
+
+  @override
+  String get outlineStep => 'Change bookmarks';
+
+  @override
+  String get outlineRename => 'Rename';
+
+  @override
+  String get outlineNest => 'Nest under the one above';
+
+  @override
+  String get outlineUnnest => 'Move out a level';
+
+  @override
+  String get outlineMoveUp => 'Move up';
+
+  @override
+  String get outlineMoveDown => 'Move down';
+
+  @override
+  String get outlineDelete => 'Delete bookmark';
+
+  @override
+  String get propertiesStep => 'Change document properties';
+
+  @override
+  String get dropOverlayCombineDescription =>
+      'Merged in the order shown. You can reorder before saving.';
 }

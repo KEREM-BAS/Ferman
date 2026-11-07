@@ -6299,4 +6299,110 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get licencesNoMatch => 'لا توجد تراخيص مطابقة';
+
+  @override
+  String get sidebarLegendTitle => 'شارات الصفحات';
+
+  @override
+  String get sidebarLegendEdited => 'معدّلة';
+
+  @override
+  String get sidebarLegendEditedBody => 'تغيّرت منذ أن فتحتها';
+
+  @override
+  String get sidebarLegendComments => 'التعليقات';
+
+  @override
+  String get sidebarLegendCommentsBody =>
+      'ملاحظات أو تعليقات توضيحية على الصفحة';
+
+  @override
+  String get sidebarLegendFields => 'حقول النموذج';
+
+  @override
+  String get sidebarLegendFieldsBody => 'حقول يمكنك تعبئتها';
+
+  @override
+  String get sidebarLegendSignature => 'التوقيع';
+
+  @override
+  String get sidebarLegendSignatureBody => 'موقّعة أو فيها حقل توقيع';
+
+  @override
+  String get sidebarLegendWarnings => 'التحذيرات';
+
+  @override
+  String get sidebarLegendWarningsBody => 'حروف ناقصة، فيض النص، روابط معطّلة';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'تسمع قارئات الشاشة الشارات ضمن اسم الصفحة، مثل «الصفحة 1، معدّلة، تعليقان، تحذير واحد».';
+
+  @override
+  String get sidebarBadgeEdited => 'معدّلة';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n تعليق',
+      few: '$n تعليقات',
+      two: 'تعليقان',
+      one: 'تعليق واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n حقل نموذج',
+      few: '$n حقول نموذج',
+      two: 'حقلا نموذج',
+      one: 'حقل نموذج واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'موقّعة';
+
+  @override
+  String get sidebarBadgeSignatureField => 'حقل توقيع';
+
+  @override
+  String get outlineNewBookmark => 'إشارة مرجعية جديدة';
+
+  @override
+  String get outlineBookmarkName => 'اسم الإشارة المرجعية';
+
+  @override
+  String get outlineStep => 'تغيير الإشارات المرجعية';
+
+  @override
+  String get outlineRename => 'إعادة التسمية';
+
+  @override
+  String get outlineNest => 'ضمّ تحت الإشارة السابقة';
+
+  @override
+  String get outlineUnnest => 'نقل مستوى إلى الخارج';
+
+  @override
+  String get outlineMoveUp => 'نقل لأعلى';
+
+  @override
+  String get outlineMoveDown => 'نقل لأسفل';
+
+  @override
+  String get outlineDelete => 'حذف الإشارة المرجعية';
+
+  @override
+  String get propertiesStep => 'تغيير خصائص المستند';
+
+  @override
+  String get dropOverlayCombineDescription => 'بالترتيب المعروض.';
 }

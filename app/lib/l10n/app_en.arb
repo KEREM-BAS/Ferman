@@ -8275,5 +8275,133 @@
   "licencesNoMatch": "No licences match",
   "@licencesNoMatch": {
     "description": "Settings › Licences: title of the empty state when the search finds nothing."
+  },
+  "sidebarLegendTitle": "Page badges",
+  "@sidebarLegendTitle": {
+    "description": "Heading of the page-badge legend the Pages tab's info button opens (f5, FmSidebar)."
+  },
+  "sidebarLegendEdited": "Edited",
+  "@sidebarLegendEdited": {
+    "description": "Legend row name (f5): the accent dot of a page changed since the document was opened."
+  },
+  "sidebarLegendEditedBody": "changed since you opened it",
+  "@sidebarLegendEditedBody": {
+    "description": "Legend row explanation after sidebarLegendEdited (f5), lowercase as it follows a dot."
+  },
+  "sidebarLegendComments": "Comments",
+  "@sidebarLegendComments": {
+    "description": "Legend row name (f5): the comment badge."
+  },
+  "sidebarLegendCommentsBody": "notes or markup on the page",
+  "@sidebarLegendCommentsBody": {
+    "description": "Legend row explanation after sidebarLegendComments (f5)."
+  },
+  "sidebarLegendFields": "Form fields",
+  "@sidebarLegendFields": {
+    "description": "Legend row name (f5): the form-field badge."
+  },
+  "sidebarLegendFieldsBody": "fields you can fill in",
+  "@sidebarLegendFieldsBody": {
+    "description": "Legend row explanation after sidebarLegendFields (f5)."
+  },
+  "sidebarLegendSignature": "Signature",
+  "@sidebarLegendSignature": {
+    "description": "Legend row name (f5): the signature badge."
+  },
+  "sidebarLegendSignatureBody": "signed or has a signature field",
+  "@sidebarLegendSignatureBody": {
+    "description": "Legend row explanation after sidebarLegendSignature (f5)."
+  },
+  "sidebarLegendWarnings": "Warnings",
+  "@sidebarLegendWarnings": {
+    "description": "Legend row name (f5): the amber warning badge."
+  },
+  "sidebarLegendWarningsBody": "missing glyphs, overflow, broken links",
+  "@sidebarLegendWarningsBody": {
+    "description": "Legend row explanation after sidebarLegendWarnings (f5)."
+  },
+  "sidebarLegendFootnote": "Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.",
+  "@sidebarLegendFootnote": {
+    "description": "Note under the legend's rows (f5)."
+  },
+  "sidebarBadgeEdited": "edited",
+  "@sidebarBadgeEdited": {
+    "description": "Tooltip and spoken name of a thumbnail's edited dot (f5); it follows the page name after a comma."
+  },
+  "sidebarBadgeComments": "{count, plural, =1{1 comment} other{{n} comments}}",
+  "@sidebarBadgeComments": {
+    "description": "Tooltip and spoken name of a thumbnail's comment badge (f5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarBadgeFields": "{count, plural, =1{1 form field} other{{n} form fields}}",
+  "@sidebarBadgeFields": {
+    "description": "Tooltip and spoken name of a thumbnail's form-field badge (f5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarBadgeSigned": "signed",
+  "@sidebarBadgeSigned": {
+    "description": "Tooltip and spoken name of a thumbnail's signature badge on a signed page (f5)."
+  },
+  "sidebarBadgeSignatureField": "signature field",
+  "@sidebarBadgeSignatureField": {
+    "description": "Tooltip and spoken name of a thumbnail's signature badge on a page with an empty signature field (f5)."
+  },
+  "outlineNewBookmark": "New bookmark",
+  "@outlineNewBookmark": {
+    "description": "Title of a bookmark Add bookmark (⌘B) adds, renamed in place at once (a2-3a)."
+  },
+  "outlineBookmarkName": "Bookmark name",
+  "@outlineBookmarkName": {
+    "description": "Accessible name of the field that renames a bookmark in place (a2-3a, FmSidebar)."
+  },
+  "outlineStep": "Change bookmarks",
+  "@outlineStep": {
+    "description": "The history step of an outline change: rename, add, nest, reorder or delete (a2-3a)."
+  },
+  "outlineRename": "Rename",
+  "@outlineRename": {
+    "description": "Outline › More menu item: renames the selected bookmark in place (F2)."
+  },
+  "outlineNest": "Nest under the one above",
+  "@outlineNest": {
+    "description": "Outline › More menu item: moves the selected bookmark one level in."
+  },
+  "outlineUnnest": "Move out a level",
+  "@outlineUnnest": {
+    "description": "Outline › More menu item: moves the selected bookmark one level out."
+  },
+  "outlineMoveUp": "Move up",
+  "@outlineMoveUp": {
+    "description": "Outline › More menu item: swaps the selected bookmark with the one above at its level."
+  },
+  "outlineMoveDown": "Move down",
+  "@outlineMoveDown": {
+    "description": "Outline › More menu item: swaps the selected bookmark with the one below at its level."
+  },
+  "outlineDelete": "Delete bookmark",
+  "@outlineDelete": {
+    "description": "Outline › More menu item: deletes the selected bookmark and the ones nested in it."
+  },
+  "propertiesStep": "Change document properties",
+  "@propertiesStep": {
+    "description": "The history step of a metadata change in Document properties (a2-7)."
+  },
+  "dropOverlayCombineDescription": "Merged in the order shown. You can reorder before saving.",
+  "@dropOverlayCombineDescription": {
+    "description": "Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered."
   }
 }

@@ -139,7 +139,8 @@ void main() {
     );
     expect(inSidebar(find.text('3')), findsWidgets);
 
-    await tester.tap(inSidebar(find.bySemanticsLabel('Page 3')));
+    // f5: the signed page's badge, spoken after its name.
+    await tester.tap(inSidebar(find.bySemanticsLabel('Page 3, signed')));
     await settle(tester);
     expect(currentPage(tester), 2);
     expect(

@@ -6084,4 +6084,105 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get licencesNoMatch => 'Eşleşen lisans yok';
+
+  @override
+  String get sidebarLegendTitle => 'Sayfa rozetleri';
+
+  @override
+  String get sidebarLegendEdited => 'Düzenlendi';
+
+  @override
+  String get sidebarLegendEditedBody => 'açtığınızdan beri değişti';
+
+  @override
+  String get sidebarLegendComments => 'Yorumlar';
+
+  @override
+  String get sidebarLegendCommentsBody => 'sayfada not veya işaretleme';
+
+  @override
+  String get sidebarLegendFields => 'Form alanları';
+
+  @override
+  String get sidebarLegendFieldsBody => 'doldurabileceğiniz alanlar';
+
+  @override
+  String get sidebarLegendSignature => 'İmza';
+
+  @override
+  String get sidebarLegendSignatureBody => 'imzalı veya imza alanı var';
+
+  @override
+  String get sidebarLegendWarnings => 'Uyarılar';
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      'eksik glifler, taşma, bozuk bağlantılar';
+
+  @override
+  String get sidebarLegendFootnote =>
+      'Ekran okuyucular rozetleri sayfa adında duyar, ör. “Sayfa 1, düzenlendi, 2 yorum, 1 uyarı”.';
+
+  @override
+  String get sidebarBadgeEdited => 'düzenlendi';
+
+  @override
+  String sidebarBadgeComments(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n yorum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sidebarBadgeFields(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n form alanı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sidebarBadgeSigned => 'imzalı';
+
+  @override
+  String get sidebarBadgeSignatureField => 'imza alanı';
+
+  @override
+  String get outlineNewBookmark => 'Yeni yer işareti';
+
+  @override
+  String get outlineBookmarkName => 'Yer işareti adı';
+
+  @override
+  String get outlineStep => 'Yer işaretlerini değiştir';
+
+  @override
+  String get outlineRename => 'Yeniden adlandır';
+
+  @override
+  String get outlineNest => 'Üsttekinin altına yerleştir';
+
+  @override
+  String get outlineUnnest => 'Bir düzey dışarı taşı';
+
+  @override
+  String get outlineMoveUp => 'Yukarı taşı';
+
+  @override
+  String get outlineMoveDown => 'Aşağı taşı';
+
+  @override
+  String get outlineDelete => 'Yer işaretini sil';
+
+  @override
+  String get propertiesStep => 'Belge özelliklerini değiştir';
+
+  @override
+  String get dropOverlayCombineDescription =>
+      'Gösterilen sırayla birleştirilir.';
 }

@@ -5212,6 +5212,97 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get licencesNoMatch => isolate(super.licencesNoMatch);
+
+  @override
+  String get sidebarLegendTitle => isolate(super.sidebarLegendTitle);
+
+  @override
+  String get sidebarLegendEdited => isolate(super.sidebarLegendEdited);
+
+  @override
+  String get sidebarLegendEditedBody => isolate(super.sidebarLegendEditedBody);
+
+  @override
+  String get sidebarLegendComments => isolate(super.sidebarLegendComments);
+
+  @override
+  String get sidebarLegendCommentsBody =>
+      isolate(super.sidebarLegendCommentsBody);
+
+  @override
+  String get sidebarLegendFields => isolate(super.sidebarLegendFields);
+
+  @override
+  String get sidebarLegendFieldsBody => isolate(super.sidebarLegendFieldsBody);
+
+  @override
+  String get sidebarLegendSignature => isolate(super.sidebarLegendSignature);
+
+  @override
+  String get sidebarLegendSignatureBody =>
+      isolate(super.sidebarLegendSignatureBody);
+
+  @override
+  String get sidebarLegendWarnings => isolate(super.sidebarLegendWarnings);
+
+  @override
+  String get sidebarLegendWarningsBody =>
+      isolate(super.sidebarLegendWarningsBody);
+
+  @override
+  String get sidebarLegendFootnote => isolate(super.sidebarLegendFootnote);
+
+  @override
+  String get sidebarBadgeEdited => isolate(super.sidebarBadgeEdited);
+
+  @override
+  String sidebarBadgeComments(int count, String n) =>
+      isolate(super.sidebarBadgeComments(count, n));
+
+  @override
+  String sidebarBadgeFields(int count, String n) =>
+      isolate(super.sidebarBadgeFields(count, n));
+
+  @override
+  String get sidebarBadgeSigned => isolate(super.sidebarBadgeSigned);
+
+  @override
+  String get sidebarBadgeSignatureField =>
+      isolate(super.sidebarBadgeSignatureField);
+
+  @override
+  String get outlineNewBookmark => isolate(super.outlineNewBookmark);
+
+  @override
+  String get outlineBookmarkName => isolate(super.outlineBookmarkName);
+
+  @override
+  String get outlineStep => isolate(super.outlineStep);
+
+  @override
+  String get outlineRename => isolate(super.outlineRename);
+
+  @override
+  String get outlineNest => isolate(super.outlineNest);
+
+  @override
+  String get outlineUnnest => isolate(super.outlineUnnest);
+
+  @override
+  String get outlineMoveUp => isolate(super.outlineMoveUp);
+
+  @override
+  String get outlineMoveDown => isolate(super.outlineMoveDown);
+
+  @override
+  String get outlineDelete => isolate(super.outlineDelete);
+
+  @override
+  String get propertiesStep => isolate(super.propertiesStep);
+
+  @override
+  String get dropOverlayCombineDescription =>
+      isolate(super.dropOverlayCombineDescription);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

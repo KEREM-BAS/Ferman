@@ -17,6 +17,7 @@ import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_saver.dart';
+import 'package:ferman/features/shell/document_parts.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_palette.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -154,6 +155,7 @@ class ShellCommandScope extends ConsumerWidget {
             .read(pageFieldRequestProvider.notifier)
             .request,
         ShellCommand.find: ref.read(findProvider.notifier).open,
+        ShellCommand.addBookmark: () => addBookmark(ref),
         ShellCommand.editText: () => links.show(on: false),
         ShellCommand.link: links.toggle,
         ShellCommand.addLink: links.addSelection,

@@ -815,11 +815,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('3'), findsOneWidget);
+      // f5's legend opens without a document too.
       expect(
         tester
             .widget<IconButton>(iconButton('What the page badges mean'))
-            .disabledReason,
-        futureVersion,
+            .onPressed,
+        isNotNull,
       );
       final pages = tester.element(
         find.byKey(FmSidebar.keyOf(SidebarTab.pages), skipOffstage: false),

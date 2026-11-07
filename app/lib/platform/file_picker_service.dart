@@ -32,6 +32,10 @@ abstract interface class FilePickerService {
   /// folder for the session (G143).
   Future<String?> chooseFolder({String? initial});
 
+  /// Shows the system open panel for one file of any type (a2-3b's Attach a
+  /// file); the chosen path, null when cancelled.
+  Future<String?> openAnyFile();
+
   /// Shows the open panel for one file of [extension] and reads it: null when
   /// cancelled, no bytes when it is larger than [largest].
   Future<Uint8List?> openStamp({
@@ -68,6 +72,9 @@ final class NativeFilePickerService implements FilePickerService {
     final file = await openFile(acceptedTypeGroups: [_pdf(filterLabel)]);
     return file?.path;
   }
+
+  @override
+  Future<String?> openAnyFile() async => (await openFile())?.path;
 
   @override
   Future<String?> saveFile({required String suggestedName}) async {

@@ -168,7 +168,15 @@ void main() {
     expect(editor(tester).history.steps.single.hiddenLines, 0);
     expect(editor(tester).hidden, isEmpty);
     expect(find.text('+1 line hidden'), findsNothing);
-    expect(find.byType(ThumbnailBadges), findsNothing);
+    // The page keeps f5's edited dot, not the warning.
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ThumbnailBadges &&
+            widget.badges.contains(ThumbnailBadge.warnings),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('undo after Keep and warn drops the choices it asked for', (

@@ -58,10 +58,6 @@ enum Feature {
   /// (a13-15).
   aboutAndLicence('B169'),
 
-  /// Combining dropped files: "Combine into one PDF" while files are dragged
-  /// over the window (a1-6).
-  combineDropped('B191'),
-
   /// Create PDF from the clipboard: its source in the Create PDF dialog.
   createFromClipboard('B176'),
 
@@ -93,15 +89,6 @@ enum Feature {
   /// Dark reading mode: the View row's switch and the option under
   /// Settings › General › PDF pages in dark theme.
   darkReadingMode('B040'),
-
-  /// The sidebar's tab contents: the Pages tab's badge legend.
-  sidebarContents('B065'),
-
-  /// Editing bookmarks: the Outline tab's Add bookmark and More.
-  editingBookmarks('B066'),
-
-  /// Attaching files: the Attachments tab's Attach a file.
-  attachingFiles('B067'),
 
   /// Showing and hiding layers in a repaired document, or one opened with
   /// its password: the Layers tab's eye buttons there.
