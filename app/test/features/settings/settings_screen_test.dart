@@ -105,7 +105,7 @@ void main() {
       }
       expect(
         SettingsPane.values.where((pane) => !pane.available),
-        hasLength(7),
+        hasLength(6),
       );
     });
 

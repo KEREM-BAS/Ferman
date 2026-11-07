@@ -69,7 +69,7 @@ void main() {
         for (final pane in SettingsPane.values)
           if (!pane.available) pane.path,
       ];
-      expect(disabled, hasLength(7));
+      expect(disabled, hasLength(6));
       for (final element in find.byType(PhoneSettingsRow).evaluate()) {
         final row = element.widget as PhoneSettingsRow;
         expect(row.onPressed == null, row.disabledReason == _future);

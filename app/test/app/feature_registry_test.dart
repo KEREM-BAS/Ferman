@@ -69,6 +69,7 @@ void main() {
         SettingsPane.language,
         SettingsPane.editing,
         SettingsPane.privacy,
+        SettingsPane.shortcuts,
       ],
     );
   });

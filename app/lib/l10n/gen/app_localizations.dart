@@ -9189,6 +9189,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore'**
   String get versionRestore;
+
+  /// The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Command palette'**
+  String get commandPalette;
+
+  /// The command that shows the cheat sheet (a11-1j, a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Show keyboard shortcuts'**
+  String get commandShowShortcuts;
+
+  /// The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Save a copy'**
+  String get commandSaveCopy;
+
+  /// The command that shows the document's properties (a2-7) in the palette and the shortcut lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Document properties'**
+  String get commandDocumentProperties;
+
+  /// The command that moves to the next open document (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Next document'**
+  String get commandNextDocument;
+
+  /// The commands that show the first nine open documents (a1-10). {number} is 1 to 9 formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Show document {number}'**
+  String commandShowDocument(String number);
+
+  /// The Go to page command (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Go to page'**
+  String get commandGoToPage;
+
+  /// The Reading mode command (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Reading mode'**
+  String get commandReadingMode;
+
+  /// Organize: the command that inserts pages from a file (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert from file'**
+  String get commandInsertFromFile;
+
+  /// Organize: the command that deletes the selected pages (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete pages'**
+  String get commandDeletePages;
+
+  /// Organize: the command that selects every page (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Select all pages'**
+  String get commandSelectAllPages;
+
+  /// Organize: the command that moves the selected pages up (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Move pages up'**
+  String get commandMovePagesUp;
+
+  /// Organize: the command that moves the selected pages down.
+  ///
+  /// In en, this message translates to:
+  /// **'Move pages down'**
+  String get commandMovePagesDown;
+
+  /// The window's system menu, as a shortcut (Alt+Space on Windows).
+  ///
+  /// In en, this message translates to:
+  /// **'Window menu'**
+  String get commandWindowMenu;
+
+  /// The command that closes the window, as a shortcut (Alt+F4).
+  ///
+  /// In en, this message translates to:
+  /// **'Close window'**
+  String get commandCloseWindow;
+
+  /// The command that quits the app, as a shortcut (⌘Q, Ctrl+Q).
+  ///
+  /// In en, this message translates to:
+  /// **'Quit Ferman'**
+  String get commandQuit;
+
+  /// Command palette: the search field's placeholder and name (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Search commands, pages and text'**
+  String get palettePlaceholder;
+
+  /// Command palette: no match while a document is open (a11-2 note). {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands match “{query}”. Press Enter to search the document instead.'**
+  String paletteEmpty(String query);
+
+  /// Command palette: no match on the start screen, where there is no document to search. {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands match “{query}”.'**
+  String paletteEmptyNoDocument(String query);
+
+  /// Command palette: the group of commands (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Commands'**
+  String get paletteCommands;
+
+  /// Command palette: the group of recent files (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent files'**
+  String get paletteRecentFiles;
+
+  /// Command palette footer: after ↑ ↓, moving between commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get paletteMove;
+
+  /// Command palette footer: after ↵, running the command.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get paletteRun;
+
+  /// Cheat sheet: the search field's placeholder and name (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Search shortcuts'**
+  String get shortcutsSheetSearch;
+
+  /// Cheat sheet: the note under the groups (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Change shortcuts in Settings › Keyboard shortcuts.'**
+  String get shortcutsSheetNote;
+
+  /// Cheat sheet and Settings › Keyboard shortcuts: the mark on a shortcut the user changed (a11-3 note).
+  ///
+  /// In en, this message translates to:
+  /// **'Changed'**
+  String get shortcutsChanged;
+
+  /// Cheat sheet and Settings › Keyboard shortcuts: no match. {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No shortcuts match “{query}”.'**
+  String shortcutsNoMatch(String query);
+
+  /// Cheat sheet: the group of general commands (a11-3 GENERAL), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get shortcutsGroupGeneral;
+
+  /// Cheat sheet: the group of navigation commands (a11-3 NAVIGATE), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get shortcutsGroupNavigate;
+
+  /// Cheat sheet: the group of window commands (a11-3 WINDOW), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get shortcutsGroupWindow;
+
+  /// Settings › Keyboard shortcuts: the search field's placeholder and name (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Search commands or press keys'**
+  String get shortcutsPaneSearch;
+
+  /// Settings › Keyboard shortcuts: the preset menu's name (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get shortcutsPreset;
+
+  /// Settings › Keyboard shortcuts: the preset with Ferman's own keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman (default)'**
+  String get shortcutsPresetFerman;
+
+  /// Settings › Keyboard shortcuts: the preset with Acrobat's keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Like Acrobat'**
+  String get shortcutsPresetAcrobat;
+
+  /// Settings › Keyboard shortcuts: the preset with macOS Preview's keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Like Preview'**
+  String get shortcutsPresetPreview;
+
+  /// Settings › Keyboard shortcuts: a row waiting for keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Press new shortcut…'**
+  String get shortcutsRecording;
+
+  /// Settings › Keyboard shortcuts: the keys pressed belong to another command (a11-1j). {keys} and {current} are key caps such as ⌥⌘S; {command} is the other command's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} is already “{command}”. Press Enter to reassign it, Esc to keep {current}.'**
+  String shortcutsTaken(String keys, String command, String current);
+
+  /// Settings › Keyboard shortcuts: as shortcutsTaken, for a command that has no shortcut now.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} is already “{command}”. Press Enter to reassign it, Esc to keep no shortcut.'**
+  String shortcutsTakenNone(String keys, String command);
+
+  /// Settings › Keyboard shortcuts: the keys pressed cannot be given to a command (M4 decision 33). {keys} are key caps.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} belongs to the system. Press other keys, or Esc to cancel.'**
+  String shortcutsReserved(String keys);
+
+  /// Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33).
+  ///
+  /// In en, this message translates to:
+  /// **'No shortcut'**
+  String get shortcutsNone;
+
+  /// Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the shortcut of {command}'**
+  String shortcutsChange(String command);
+
+  /// Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the default shortcut'**
+  String get shortcutsReset;
 }
 
 class _AppLocalizationsDelegate

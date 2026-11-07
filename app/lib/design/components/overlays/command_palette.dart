@@ -96,7 +96,8 @@ class CommandItem {
 /// **Keyboard.** Focus stays in the search field, which shows no ring.
 /// ArrowDown and ArrowUp move the active command (stopping at the ends;
 /// nothing with no match), Enter runs it ([onSelected]; nothing for a
-/// command disabled with a reason), Escape calls [onClose]. Moving the
+/// command disabled with a reason; with no match, [onSearch] with the
+/// query), Escape calls [onClose]. Moving the
 /// pointer over a row makes it active; a click runs it. The list scrolls
 /// only to bring the active row into view, 6 px clear of the edge, as the
 /// bundle does. A command disabled with a reason shows the reason as a
@@ -127,6 +128,7 @@ class CommandPalette extends StatefulWidget {
     this.query,
     this.onQueryChanged,
     this.onSelected,
+    this.onSearch,
     this.onClose,
     this.placeholder = '',
     this.emptyText,
@@ -177,6 +179,11 @@ class CommandPalette extends StatefulWidget {
 
   /// Called with the command the user runs.
   final ValueChanged<CommandItem>? onSelected;
+
+  /// Called with the query on Enter while no command matches, to search the
+  /// document instead (the bundle's empty text); null does nothing. Not a
+  /// design-system prop.
+  final ValueChanged<String>? onSearch;
 
   /// Called on Escape and on a pointer down on the scrim.
   final VoidCallback? onClose;
@@ -455,7 +462,11 @@ class _CommandPaletteState extends State<CommandPalette> {
       }
     } else if (key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter) {
-      if (_active < flat.length) _run(flat[_active]);
+      if (_active < flat.length) {
+        _run(flat[_active]);
+      } else if (flat.isEmpty && _query.trim().isNotEmpty) {
+        widget.onSearch?.call(_query);
+      }
     } else if (key == LogicalKeyboardKey.escape) {
       widget.onClose?.call();
     } else {

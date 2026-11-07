@@ -13,6 +13,7 @@ import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/privacy_pane.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
+import 'package:ferman/features/settings/shortcuts_pane.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -156,7 +157,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     final theme = context.ferman;
     final colors = theme.colors;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final saveFailed = ref.watch(settingsSaveFailedProvider);
     final phone = WindowMetrics.isPhone(context);
     // A pane route stays on the pane chosen in the side list while it was
@@ -174,7 +175,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     Widget framed(Widget child) => CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): close,
-        for (final binding in ShellCommand.closeDocument.bindingsFor(platform))
+        for (final binding in keys.of(ShellCommand.closeDocument))
           binding.activator: close,
       },
       child: FocusTraversalGroup(
@@ -360,6 +361,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     SettingsPane.language => const LanguageRegionPane(),
     SettingsPane.editing => const EditingPane(),
     SettingsPane.privacy => const PrivacyPane(),
+    SettingsPane.shortcuts => const ShortcutsPane(),
     _ => const GeneralPane(),
   };
 }

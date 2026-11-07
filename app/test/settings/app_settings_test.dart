@@ -28,6 +28,7 @@ void main() {
         'reflow': true,
         'markEdited': true,
         'myStamps': <String>[],
+        'shortcuts': <String, List<String>>{},
       });
     });
 
@@ -62,6 +63,7 @@ void main() {
         'reflow': true,
         'markEdited': true,
         'myStamps': <String>[],
+        'shortcuts': <String, List<String>>{},
       });
     });
 

@@ -134,7 +134,8 @@ class GalleryEnvironment extends InheritedWidget {
   );
 
   /// The key caps of [command], as tooltips and menus show them.
-  List<String>? caps(ShellCommand command) => command.caps(shortcuts);
+  List<String>? caps(ShellCommand command) =>
+      ShortcutBindings(shortcuts).caps(command);
 
   @override
   bool updateShouldNotify(GalleryEnvironment oldWidget) =>

@@ -85,14 +85,14 @@ class FmStart extends ConsumerWidget {
     if (WindowMetrics.isPhone(context)) return const _PhoneHome();
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final problem = ref.watch(engineProblemProvider);
     final openReason = openFilesDisabledReason(context, ref);
     final onOpen = openFiles(context, ref);
     final failed = ref.watch(documentOpenerProvider);
     final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
     // ⌘O and ⌘N have keys on every system.
-    final open = ShellCommand.open.caps(platform)!;
+    final open = keys.caps(ShellCommand.open)!;
     final actions = [
       (
         onOpen,
@@ -111,7 +111,7 @@ class FmStart extends ConsumerWidget {
         IconName.filePlus2,
         l10n.startCreatePdf,
         l10n.startCreatePdfDescription,
-        ShellCommand.createPdf.caps(platform),
+        keys.caps(ShellCommand.createPdf),
         openReason,
       ),
       (

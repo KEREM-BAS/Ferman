@@ -7823,5 +7823,222 @@
   "versionRestore": "Restore",
   "@versionRestore": {
     "description": "Version history: the restore question's button."
+  },
+  "commandPalette": "Command palette",
+  "@commandPalette": {
+    "description": "The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2)."
+  },
+  "commandShowShortcuts": "Show keyboard shortcuts",
+  "@commandShowShortcuts": {
+    "description": "The command that shows the cheat sheet (a11-1j, a11-3)."
+  },
+  "commandSaveCopy": "Save a copy",
+  "@commandSaveCopy": {
+    "description": "The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3)."
+  },
+  "commandDocumentProperties": "Document properties",
+  "@commandDocumentProperties": {
+    "description": "The command that shows the document's properties (a2-7) in the palette and the shortcut lists."
+  },
+  "commandNextDocument": "Next document",
+  "@commandNextDocument": {
+    "description": "The command that moves to the next open document (a11-3)."
+  },
+  "commandShowDocument": "Show document {number}",
+  "@commandShowDocument": {
+    "description": "The commands that show the first nine open documents (a1-10). {number} is 1 to 9 formatted for the region.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "commandGoToPage": "Go to page",
+  "@commandGoToPage": {
+    "description": "The Go to page command (a11-3)."
+  },
+  "commandReadingMode": "Reading mode",
+  "@commandReadingMode": {
+    "description": "The Reading mode command (a11-3)."
+  },
+  "commandInsertFromFile": "Insert from file",
+  "@commandInsertFromFile": {
+    "description": "Organize: the command that inserts pages from a file (a14-1d)."
+  },
+  "commandDeletePages": "Delete pages",
+  "@commandDeletePages": {
+    "description": "Organize: the command that deletes the selected pages (a11-3)."
+  },
+  "commandSelectAllPages": "Select all pages",
+  "@commandSelectAllPages": {
+    "description": "Organize: the command that selects every page (a14-1d)."
+  },
+  "commandMovePagesUp": "Move pages up",
+  "@commandMovePagesUp": {
+    "description": "Organize: the command that moves the selected pages up (a14-1d)."
+  },
+  "commandMovePagesDown": "Move pages down",
+  "@commandMovePagesDown": {
+    "description": "Organize: the command that moves the selected pages down."
+  },
+  "commandWindowMenu": "Window menu",
+  "@commandWindowMenu": {
+    "description": "The window's system menu, as a shortcut (Alt+Space on Windows)."
+  },
+  "commandCloseWindow": "Close window",
+  "@commandCloseWindow": {
+    "description": "The command that closes the window, as a shortcut (Alt+F4)."
+  },
+  "commandQuit": "Quit Ferman",
+  "@commandQuit": {
+    "description": "The command that quits the app, as a shortcut (⌘Q, Ctrl+Q)."
+  },
+  "palettePlaceholder": "Search commands, pages and text",
+  "@palettePlaceholder": {
+    "description": "Command palette: the search field's placeholder and name (a11-2)."
+  },
+  "paletteEmpty": "No commands match “{query}”. Press Enter to search the document instead.",
+  "@paletteEmpty": {
+    "description": "Command palette: no match while a document is open (a11-2 note). {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "paletteEmptyNoDocument": "No commands match “{query}”.",
+  "@paletteEmptyNoDocument": {
+    "description": "Command palette: no match on the start screen, where there is no document to search. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "paletteCommands": "Commands",
+  "@paletteCommands": {
+    "description": "Command palette: the group of commands (a11-2)."
+  },
+  "paletteRecentFiles": "Recent files",
+  "@paletteRecentFiles": {
+    "description": "Command palette: the group of recent files (a11-2)."
+  },
+  "paletteMove": "Move",
+  "@paletteMove": {
+    "description": "Command palette footer: after ↑ ↓, moving between commands."
+  },
+  "paletteRun": "Run",
+  "@paletteRun": {
+    "description": "Command palette footer: after ↵, running the command."
+  },
+  "shortcutsSheetSearch": "Search shortcuts",
+  "@shortcutsSheetSearch": {
+    "description": "Cheat sheet: the search field's placeholder and name (a11-3)."
+  },
+  "shortcutsSheetNote": "Change shortcuts in Settings › Keyboard shortcuts.",
+  "@shortcutsSheetNote": {
+    "description": "Cheat sheet: the note under the groups (a11-3)."
+  },
+  "shortcutsChanged": "Changed",
+  "@shortcutsChanged": {
+    "description": "Cheat sheet and Settings › Keyboard shortcuts: the mark on a shortcut the user changed (a11-3 note)."
+  },
+  "shortcutsNoMatch": "No shortcuts match “{query}”.",
+  "@shortcutsNoMatch": {
+    "description": "Cheat sheet and Settings › Keyboard shortcuts: no match. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsGroupGeneral": "General",
+  "@shortcutsGroupGeneral": {
+    "description": "Cheat sheet: the group of general commands (a11-3 GENERAL), shown in capitals."
+  },
+  "shortcutsGroupNavigate": "Navigate",
+  "@shortcutsGroupNavigate": {
+    "description": "Cheat sheet: the group of navigation commands (a11-3 NAVIGATE), shown in capitals."
+  },
+  "shortcutsGroupWindow": "Window",
+  "@shortcutsGroupWindow": {
+    "description": "Cheat sheet: the group of window commands (a11-3 WINDOW), shown in capitals."
+  },
+  "shortcutsPaneSearch": "Search commands or press keys",
+  "@shortcutsPaneSearch": {
+    "description": "Settings › Keyboard shortcuts: the search field's placeholder and name (a11-1j)."
+  },
+  "shortcutsPreset": "Preset",
+  "@shortcutsPreset": {
+    "description": "Settings › Keyboard shortcuts: the preset menu's name (a11-1j)."
+  },
+  "shortcutsPresetFerman": "Ferman (default)",
+  "@shortcutsPresetFerman": {
+    "description": "Settings › Keyboard shortcuts: the preset with Ferman's own keys (a11-1j)."
+  },
+  "shortcutsPresetAcrobat": "Like Acrobat",
+  "@shortcutsPresetAcrobat": {
+    "description": "Settings › Keyboard shortcuts: the preset with Acrobat's keys (a11-1j)."
+  },
+  "shortcutsPresetPreview": "Like Preview",
+  "@shortcutsPresetPreview": {
+    "description": "Settings › Keyboard shortcuts: the preset with macOS Preview's keys (a11-1j)."
+  },
+  "shortcutsRecording": "Press new shortcut…",
+  "@shortcutsRecording": {
+    "description": "Settings › Keyboard shortcuts: a row waiting for keys (a11-1j)."
+  },
+  "shortcutsTaken": "{keys} is already “{command}”. Press Enter to reassign it, Esc to keep {current}.",
+  "@shortcutsTaken": {
+    "description": "Settings › Keyboard shortcuts: the keys pressed belong to another command (a11-1j). {keys} and {current} are key caps such as ⌥⌘S; {command} is the other command's name.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      },
+      "command": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsTakenNone": "{keys} is already “{command}”. Press Enter to reassign it, Esc to keep no shortcut.",
+  "@shortcutsTakenNone": {
+    "description": "Settings › Keyboard shortcuts: as shortcutsTaken, for a command that has no shortcut now.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      },
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsReserved": "{keys} belongs to the system. Press other keys, or Esc to cancel.",
+  "@shortcutsReserved": {
+    "description": "Settings › Keyboard shortcuts: the keys pressed cannot be given to a command (M4 decision 33). {keys} are key caps.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsNone": "No shortcut",
+  "@shortcutsNone": {
+    "description": "Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33)."
+  },
+  "shortcutsChange": "Change the shortcut of {command}",
+  "@shortcutsChange": {
+    "description": "Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name.",
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsReset": "Restore the default shortcut",
+  "@shortcutsReset": {
+    "description": "Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back."
   }
 }

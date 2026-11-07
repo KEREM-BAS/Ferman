@@ -279,7 +279,7 @@ class _SignMenuState extends ConsumerState<SignMenu> {
       return _first;
     }
 
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final saved = ref.watch(savedSignaturesProvider).value ?? const [];
     final chosen = ref.watch(signaturePlacementProvider);
     final (signatures, initials) = _groups(saved);
@@ -385,7 +385,7 @@ class _SignMenuState extends ConsumerState<SignMenu> {
                       SignMenu.signatureHeight,
                       end: index == 0
                           ? Kbd(
-                              firstSignatureKey.caps(platform),
+                              firstSignatureKey.caps(keys.platform),
                               tone: KbdTone.plain,
                             )
                           : captionOf(signature),

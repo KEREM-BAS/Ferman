@@ -722,7 +722,9 @@ void main() {
       final search = tester.widget<Button>(
         find.ancestor(of: find.text('Search'), matching: find.byType(Button)),
       );
-      expect(search.disabledReason, futureVersion);
+      // The command palette (a11-2).
+      expect(search.disabledReason, isNull);
+      expect(search.onPressed, isNotNull);
       expect(search.variant, ButtonVariant.ghost);
     });
 

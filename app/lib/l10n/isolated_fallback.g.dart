@@ -4905,6 +4905,140 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get versionRestore => isolate(super.versionRestore);
+
+  @override
+  String get commandPalette => isolate(super.commandPalette);
+
+  @override
+  String get commandShowShortcuts => isolate(super.commandShowShortcuts);
+
+  @override
+  String get commandSaveCopy => isolate(super.commandSaveCopy);
+
+  @override
+  String get commandDocumentProperties =>
+      isolate(super.commandDocumentProperties);
+
+  @override
+  String get commandNextDocument => isolate(super.commandNextDocument);
+
+  @override
+  String commandShowDocument(String number) =>
+      isolate(super.commandShowDocument(number));
+
+  @override
+  String get commandGoToPage => isolate(super.commandGoToPage);
+
+  @override
+  String get commandReadingMode => isolate(super.commandReadingMode);
+
+  @override
+  String get commandInsertFromFile => isolate(super.commandInsertFromFile);
+
+  @override
+  String get commandDeletePages => isolate(super.commandDeletePages);
+
+  @override
+  String get commandSelectAllPages => isolate(super.commandSelectAllPages);
+
+  @override
+  String get commandMovePagesUp => isolate(super.commandMovePagesUp);
+
+  @override
+  String get commandMovePagesDown => isolate(super.commandMovePagesDown);
+
+  @override
+  String get commandWindowMenu => isolate(super.commandWindowMenu);
+
+  @override
+  String get commandCloseWindow => isolate(super.commandCloseWindow);
+
+  @override
+  String get commandQuit => isolate(super.commandQuit);
+
+  @override
+  String get palettePlaceholder => isolate(super.palettePlaceholder);
+
+  @override
+  String paletteEmpty(String query) => isolate(super.paletteEmpty(query));
+
+  @override
+  String paletteEmptyNoDocument(String query) =>
+      isolate(super.paletteEmptyNoDocument(query));
+
+  @override
+  String get paletteCommands => isolate(super.paletteCommands);
+
+  @override
+  String get paletteRecentFiles => isolate(super.paletteRecentFiles);
+
+  @override
+  String get paletteMove => isolate(super.paletteMove);
+
+  @override
+  String get paletteRun => isolate(super.paletteRun);
+
+  @override
+  String get shortcutsSheetSearch => isolate(super.shortcutsSheetSearch);
+
+  @override
+  String get shortcutsSheetNote => isolate(super.shortcutsSheetNote);
+
+  @override
+  String get shortcutsChanged => isolate(super.shortcutsChanged);
+
+  @override
+  String shortcutsNoMatch(String query) =>
+      isolate(super.shortcutsNoMatch(query));
+
+  @override
+  String get shortcutsGroupGeneral => isolate(super.shortcutsGroupGeneral);
+
+  @override
+  String get shortcutsGroupNavigate => isolate(super.shortcutsGroupNavigate);
+
+  @override
+  String get shortcutsGroupWindow => isolate(super.shortcutsGroupWindow);
+
+  @override
+  String get shortcutsPaneSearch => isolate(super.shortcutsPaneSearch);
+
+  @override
+  String get shortcutsPreset => isolate(super.shortcutsPreset);
+
+  @override
+  String get shortcutsPresetFerman => isolate(super.shortcutsPresetFerman);
+
+  @override
+  String get shortcutsPresetAcrobat => isolate(super.shortcutsPresetAcrobat);
+
+  @override
+  String get shortcutsPresetPreview => isolate(super.shortcutsPresetPreview);
+
+  @override
+  String get shortcutsRecording => isolate(super.shortcutsRecording);
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) =>
+      isolate(super.shortcutsTaken(keys, command, current));
+
+  @override
+  String shortcutsTakenNone(String keys, String command) =>
+      isolate(super.shortcutsTakenNone(keys, command));
+
+  @override
+  String shortcutsReserved(String keys) =>
+      isolate(super.shortcutsReserved(keys));
+
+  @override
+  String get shortcutsNone => isolate(super.shortcutsNone);
+
+  @override
+  String shortcutsChange(String command) =>
+      isolate(super.shortcutsChange(command));
+
+  @override
+  String get shortcutsReset => isolate(super.shortcutsReset);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -5762,4 +5762,147 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get versionRestore => 'Geri yükle';
+
+  @override
+  String get commandPalette => 'Komut paleti';
+
+  @override
+  String get commandShowShortcuts => 'Klavye kısayollarını göster';
+
+  @override
+  String get commandSaveCopy => 'Kopya kaydet';
+
+  @override
+  String get commandDocumentProperties => 'Belge özellikleri';
+
+  @override
+  String get commandNextDocument => 'Sonraki belge';
+
+  @override
+  String commandShowDocument(String number) {
+    return '$number. belgeyi göster';
+  }
+
+  @override
+  String get commandGoToPage => 'Sayfaya git';
+
+  @override
+  String get commandReadingMode => 'Okuma modu';
+
+  @override
+  String get commandInsertFromFile => 'Dosyadan ekle';
+
+  @override
+  String get commandDeletePages => 'Sayfaları sil';
+
+  @override
+  String get commandSelectAllPages => 'Tüm sayfaları seç';
+
+  @override
+  String get commandMovePagesUp => 'Sayfaları yukarı taşı';
+
+  @override
+  String get commandMovePagesDown => 'Sayfaları aşağı taşı';
+
+  @override
+  String get commandWindowMenu => 'Pencere menüsü';
+
+  @override
+  String get commandCloseWindow => 'Pencereyi kapat';
+
+  @override
+  String get commandQuit => 'Ferman’dan çık';
+
+  @override
+  String get palettePlaceholder => 'Komut, sayfa ve metin ara';
+
+  @override
+  String paletteEmpty(String query) {
+    return '“$query” ile eşleşen komut yok. Belgede aramak için Enter’a basın.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return '“$query” ile eşleşen komut yok.';
+  }
+
+  @override
+  String get paletteCommands => 'Komutlar';
+
+  @override
+  String get paletteRecentFiles => 'Son dosyalar';
+
+  @override
+  String get paletteMove => 'Gezin';
+
+  @override
+  String get paletteRun => 'Çalıştır';
+
+  @override
+  String get shortcutsSheetSearch => 'Kısayollarda ara';
+
+  @override
+  String get shortcutsSheetNote =>
+      'Kısayolları Ayarlar › Klavye kısayolları’ndan değiştirin.';
+
+  @override
+  String get shortcutsChanged => 'Değiştirildi';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return '“$query” ile eşleşen kısayol yok.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'Genel';
+
+  @override
+  String get shortcutsGroupNavigate => 'Gezinme';
+
+  @override
+  String get shortcutsGroupWindow => 'Pencere';
+
+  @override
+  String get shortcutsPaneSearch => 'Komut arayın veya tuşlara basın';
+
+  @override
+  String get shortcutsPreset => 'Hazır ayar';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (varsayılan)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'Acrobat gibi';
+
+  @override
+  String get shortcutsPresetPreview => 'Önizleme gibi';
+
+  @override
+  String get shortcutsRecording => 'Yeni kısayola basın…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys zaten “$command” için kullanılıyor. Yeniden atamak için Enter’a, $current kısayolunu korumak için Esc’ye basın.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys zaten “$command” için kullanılıyor. Yeniden atamak için Enter’a, kısayolsuz bırakmak için Esc’ye basın.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys sisteme ait. Başka tuşlara basın veya iptal etmek için Esc’ye basın.';
+  }
+
+  @override
+  String get shortcutsNone => 'Kısayol yok';
+
+  @override
+  String shortcutsChange(String command) {
+    return '$command kısayolunu değiştir';
+  }
+
+  @override
+  String get shortcutsReset => 'Varsayılan kısayolu geri yükle';
 }

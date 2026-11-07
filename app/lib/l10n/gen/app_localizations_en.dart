@@ -5796,4 +5796,147 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get versionRestore => 'Restore';
+
+  @override
+  String get commandPalette => 'Command palette';
+
+  @override
+  String get commandShowShortcuts => 'Show keyboard shortcuts';
+
+  @override
+  String get commandSaveCopy => 'Save a copy';
+
+  @override
+  String get commandDocumentProperties => 'Document properties';
+
+  @override
+  String get commandNextDocument => 'Next document';
+
+  @override
+  String commandShowDocument(String number) {
+    return 'Show document $number';
+  }
+
+  @override
+  String get commandGoToPage => 'Go to page';
+
+  @override
+  String get commandReadingMode => 'Reading mode';
+
+  @override
+  String get commandInsertFromFile => 'Insert from file';
+
+  @override
+  String get commandDeletePages => 'Delete pages';
+
+  @override
+  String get commandSelectAllPages => 'Select all pages';
+
+  @override
+  String get commandMovePagesUp => 'Move pages up';
+
+  @override
+  String get commandMovePagesDown => 'Move pages down';
+
+  @override
+  String get commandWindowMenu => 'Window menu';
+
+  @override
+  String get commandCloseWindow => 'Close window';
+
+  @override
+  String get commandQuit => 'Quit Ferman';
+
+  @override
+  String get palettePlaceholder => 'Search commands, pages and text';
+
+  @override
+  String paletteEmpty(String query) {
+    return 'No commands match “$query”. Press Enter to search the document instead.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return 'No commands match “$query”.';
+  }
+
+  @override
+  String get paletteCommands => 'Commands';
+
+  @override
+  String get paletteRecentFiles => 'Recent files';
+
+  @override
+  String get paletteMove => 'Move';
+
+  @override
+  String get paletteRun => 'Run';
+
+  @override
+  String get shortcutsSheetSearch => 'Search shortcuts';
+
+  @override
+  String get shortcutsSheetNote =>
+      'Change shortcuts in Settings › Keyboard shortcuts.';
+
+  @override
+  String get shortcutsChanged => 'Changed';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return 'No shortcuts match “$query”.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'General';
+
+  @override
+  String get shortcutsGroupNavigate => 'Navigate';
+
+  @override
+  String get shortcutsGroupWindow => 'Window';
+
+  @override
+  String get shortcutsPaneSearch => 'Search commands or press keys';
+
+  @override
+  String get shortcutsPreset => 'Preset';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (default)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'Like Acrobat';
+
+  @override
+  String get shortcutsPresetPreview => 'Like Preview';
+
+  @override
+  String get shortcutsRecording => 'Press new shortcut…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys is already “$command”. Press Enter to reassign it, Esc to keep $current.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys is already “$command”. Press Enter to reassign it, Esc to keep no shortcut.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys belongs to the system. Press other keys, or Esc to cancel.';
+  }
+
+  @override
+  String get shortcutsNone => 'No shortcut';
+
+  @override
+  String shortcutsChange(String command) {
+    return 'Change the shortcut of $command';
+  }
+
+  @override
+  String get shortcutsReset => 'Restore the default shortcut';
 }

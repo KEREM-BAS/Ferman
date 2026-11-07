@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1425 messages in `app_en.arb`; translated: Turkish 1425, Arabic 1425.
+1467 messages in `app_en.arb`; translated: Turkish 1467, Arabic 1467.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1481,5 +1481,47 @@ The table below is generated from the ARB files by `tools/l10n`
 | `fillInkBlue` | Blue (#1A3170) | Mavi (#1A3170) | أزرق (#1A3170) | Fill anything's ink: blue. |
 | `findNotSearchedComments` | Comments weren’t searched. | Yorumlar aranmadı. | لم يُبحث في التعليقات. | a2-4d: after findNoneBody, with Form fields ticked and Comments not. |
 | `sidebarSearchFormField` | Form field: {text} | Form alanı: {text} | حقل نموذج: {text} | Search results: a match in a form field's value (B128). |
+| `commandPalette` | Command palette | Komut paleti | لوحة الأوامر | The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2). |
+| `commandShowShortcuts` | Show keyboard shortcuts | Klavye kısayollarını göster | عرض اختصارات لوحة المفاتيح | The command that shows the cheat sheet (a11-1j, a11-3). |
+| `commandSaveCopy` | Save a copy | Kopya kaydet | حفظ نسخة | The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3). |
+| `commandDocumentProperties` | Document properties | Belge özellikleri | خصائص المستند | The command that shows the document's properties (a2-7) in the palette and the shortcut lists. |
+| `commandNextDocument` | Next document | Sonraki belge | المستند التالي | The command that moves to the next open document (a11-3). |
+| `commandShowDocument` | Show document {number} | {number}. belgeyi göster | عرض المستند {number} | The commands that show the first nine open documents (a1-10). {number} is 1 to 9 formatted for the region. |
+| `commandGoToPage` | Go to page | Sayfaya git | الانتقال إلى صفحة | The Go to page command (a11-3). |
+| `commandReadingMode` | Reading mode | Okuma modu | وضع القراءة | The Reading mode command (a11-3). |
+| `commandInsertFromFile` | Insert from file | Dosyadan ekle | إدراج من ملف | Organize: the command that inserts pages from a file (a14-1d). |
+| `commandDeletePages` | Delete pages | Sayfaları sil | حذف الصفحات | Organize: the command that deletes the selected pages (a11-3). |
+| `commandSelectAllPages` | Select all pages | Tüm sayfaları seç | تحديد كل الصفحات | Organize: the command that selects every page (a14-1d). |
+| `commandMovePagesUp` | Move pages up | Sayfaları yukarı taşı | نقل الصفحات لأعلى | Organize: the command that moves the selected pages up (a14-1d). |
+| `commandMovePagesDown` | Move pages down | Sayfaları aşağı taşı | نقل الصفحات لأسفل | Organize: the command that moves the selected pages down. |
+| `commandWindowMenu` | Window menu | Pencere menüsü | قائمة النافذة | The window's system menu, as a shortcut (Alt+Space on Windows). |
+| `commandCloseWindow` | Close window | Pencereyi kapat | إغلاق النافذة | The command that closes the window, as a shortcut (Alt+F4). |
+| `commandQuit` | Quit Ferman | Ferman’dan çık | إنهاء Ferman | The command that quits the app, as a shortcut (⌘Q, Ctrl+Q). |
+| `palettePlaceholder` | Search commands, pages and text | Komut, sayfa ve metin ara | ابحث في الأوامر والصفحات والنص | Command palette: the search field's placeholder and name (a11-2). |
+| `paletteEmpty` | No commands match “{query}”. Press Enter to search the document instead. | “{query}” ile eşleşen komut yok. Belgede aramak için Enter’a basın. | لا توجد أوامر تطابق “{query}”. اضغط Enter للبحث في المستند بدلًا من ذلك. | Command palette: no match while a document is open (a11-2 note). {query} is what the user typed. |
+| `paletteEmptyNoDocument` | No commands match “{query}”. | “{query}” ile eşleşen komut yok. | لا توجد أوامر تطابق “{query}”. | Command palette: no match on the start screen, where there is no document to search. {query} is what the user typed. |
+| `paletteCommands` | Commands | Komutlar | الأوامر | Command palette: the group of commands (a11-2). |
+| `paletteRecentFiles` | Recent files | Son dosyalar | الملفات الأخيرة | Command palette: the group of recent files (a11-2). |
+| `paletteMove` | Move | Gezin | تنقّل | Command palette footer: after ↑ ↓, moving between commands. |
+| `paletteRun` | Run | Çalıştır | تشغيل | Command palette footer: after ↵, running the command. |
+| `shortcutsSheetSearch` | Search shortcuts | Kısayollarda ara | البحث في الاختصارات | Cheat sheet: the search field's placeholder and name (a11-3). |
+| `shortcutsSheetNote` | Change shortcuts in Settings › Keyboard shortcuts. | Kısayolları Ayarlar › Klavye kısayolları’ndan değiştirin. | غيّر الاختصارات من الإعدادات › اختصارات لوحة المفاتيح. | Cheat sheet: the note under the groups (a11-3). |
+| `shortcutsChanged` | Changed | Değiştirildi | مُغيَّر | Cheat sheet and Settings › Keyboard shortcuts: the mark on a shortcut the user changed (a11-3 note). |
+| `shortcutsNoMatch` | No shortcuts match “{query}”. | “{query}” ile eşleşen kısayol yok. | لا توجد اختصارات تطابق “{query}”. | Cheat sheet and Settings › Keyboard shortcuts: no match. {query} is what the user typed. |
+| `shortcutsGroupGeneral` | General | Genel | عام | Cheat sheet: the group of general commands (a11-3 GENERAL), shown in capitals. |
+| `shortcutsGroupNavigate` | Navigate | Gezinme | التنقل | Cheat sheet: the group of navigation commands (a11-3 NAVIGATE), shown in capitals. |
+| `shortcutsGroupWindow` | Window | Pencere | النافذة | Cheat sheet: the group of window commands (a11-3 WINDOW), shown in capitals. |
+| `shortcutsPaneSearch` | Search commands or press keys | Komut arayın veya tuşlara basın | ابحث عن أمر أو اضغط المفاتيح | Settings › Keyboard shortcuts: the search field's placeholder and name (a11-1j). |
+| `shortcutsPreset` | Preset | Hazır ayar | الإعداد المسبق | Settings › Keyboard shortcuts: the preset menu's name (a11-1j). |
+| `shortcutsPresetFerman` | Ferman (default) | Ferman (varsayılan) | Ferman (افتراضي) | Settings › Keyboard shortcuts: the preset with Ferman's own keys (a11-1j). |
+| `shortcutsPresetAcrobat` | Like Acrobat | Acrobat gibi | مثل Acrobat | Settings › Keyboard shortcuts: the preset with Acrobat's keys (a11-1j). |
+| `shortcutsPresetPreview` | Like Preview | Önizleme gibi | مثل المعاينة | Settings › Keyboard shortcuts: the preset with macOS Preview's keys (a11-1j). |
+| `shortcutsRecording` | Press new shortcut… | Yeni kısayola basın… | اضغط الاختصار الجديد… | Settings › Keyboard shortcuts: a row waiting for keys (a11-1j). |
+| `shortcutsTaken` | {keys} is already “{command}”. Press Enter to reassign it, Esc to keep {current}. | {keys} zaten “{command}” için kullanılıyor. Yeniden atamak için Enter’a, {current} kısayolunu korumak için Esc’ye basın. | {keys} مستخدم بالفعل لـ“{command}”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء على {current}. | Settings › Keyboard shortcuts: the keys pressed belong to another command (a11-1j). {keys} and {current} are key caps such as ⌥⌘S; {command} is the other command's name. |
+| `shortcutsTakenNone` | {keys} is already “{command}”. Press Enter to reassign it, Esc to keep no shortcut. | {keys} zaten “{command}” için kullanılıyor. Yeniden atamak için Enter’a, kısayolsuz bırakmak için Esc’ye basın. | {keys} مستخدم بالفعل لـ“{command}”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء دون اختصار. | Settings › Keyboard shortcuts: as shortcutsTaken, for a command that has no shortcut now. |
+| `shortcutsReserved` | {keys} belongs to the system. Press other keys, or Esc to cancel. | {keys} sisteme ait. Başka tuşlara basın veya iptal etmek için Esc’ye basın. | {keys} محجوز للنظام. اضغط مفاتيح أخرى، أو Esc للإلغاء. | Settings › Keyboard shortcuts: the keys pressed cannot be given to a command (M4 decision 33). {keys} are key caps. |
+| `shortcutsNone` | No shortcut | Kısayol yok | بلا اختصار | Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33). |
+| `shortcutsChange` | Change the shortcut of {command} | {command} kısayolunu değiştir | تغيير اختصار {command} | Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name. |
+| `shortcutsReset` | Restore the default shortcut | Varsayılan kısayolu geri yükle | استعادة الاختصار الافتراضي | Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

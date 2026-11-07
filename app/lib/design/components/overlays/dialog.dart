@@ -158,6 +158,8 @@ class Dialog extends StatefulWidget {
     this.footerStart,
     this.onClose,
     this.closeLabel = '',
+    this.width,
+    this.headTrailing,
   }) : assert(
          onClose == null || closeLabel != '',
          'A closable dialog needs the localized closeLabel.',
@@ -292,6 +294,14 @@ class Dialog extends StatefulWidget {
   /// The localized name of the close button and of the scrim as a dismiss
   /// target ("Close"); required with [onClose].
   final String closeLabel;
+
+  /// A width other than [size]'s, for a board that draws its own (a11-3's
+  /// 1100 px cheat sheet); null takes [size]'s. Not a design-system prop.
+  final double? width;
+
+  /// A widget in the head between the title and the close button (a11-3's
+  /// search field); null shows none. Not a design-system prop.
+  final Widget? headTrailing;
 
   /// The width of a dialog of [size] in [theme].
   static double widthOf(FermanTheme theme, DialogSize size) => switch (size) {
@@ -787,6 +797,7 @@ class _DialogState extends State<Dialog> {
               ),
             ),
           ),
+          ?widget.headTrailing,
           if (onClose != null)
             IconButton(
               icon: IconName.x,
@@ -862,8 +873,8 @@ class _DialogState extends State<Dialog> {
         ? _buildSheet(context)
         : ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: Dialog.widthOf(theme, widget.size),
-              minWidth: Dialog.widthOf(theme, widget.size),
+              maxWidth: widget.width ?? Dialog.widthOf(theme, widget.size),
+              minWidth: widget.width ?? Dialog.widthOf(theme, widget.size),
               maxHeight: maxHeight < 0 ? 0 : maxHeight,
             ),
             child: DecoratedBox(

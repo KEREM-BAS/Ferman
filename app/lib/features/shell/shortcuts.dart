@@ -89,6 +89,27 @@ final class KeyBinding {
     shift: shift,
   );
 
+  /// The binding written as [identity], or null when [identity] is not one
+  /// (settings from a newer or damaged file).
+  static KeyBinding? parse(String identity) {
+    final at = identity.indexOf('+');
+    if (at < 0) return null;
+    final modifiers = identity.substring(0, at);
+    final keyId = int.tryParse(identity.substring(at + 1));
+    if (keyId == null) return null;
+    final key = LogicalKeyboardKey.findKeyByKeyId(keyId);
+    if (key == null) return null;
+    final binding = KeyBinding(
+      key,
+      control: modifiers.contains('C'),
+      alt: modifiers.contains('A'),
+      shift: modifiers.contains('S'),
+      meta: modifiers.contains('M'),
+    );
+    // Anything else in the modifiers, or out of order, is not ours.
+    return binding.identity == identity ? binding : null;
+  }
+
   /// The same combination written the same way: two bindings with equal
   /// identities collide.
   String get identity =>
@@ -156,9 +177,11 @@ typedef _Key = LogicalKeyboardKey;
 /// (a14-1d) show, with its keys on each system.
 ///
 /// Each command lists its bindings for [mac], [windows] and [linux]; the
-/// first is the one tooltips and menus show ([caps]), any others are
-/// aliases (numpad keys, Delete beside Backspace). [modes] limits a command
-/// to some modes (null: every mode) and [scope] to the canvas.
+/// first is the one tooltips and menus show ([ShortcutBindings.caps]), any
+/// others are aliases (numpad keys, Delete beside Backspace). [modes]
+/// limits a command to some modes (null: every mode) and [scope] to the
+/// canvas. The user's changes lie over the table in [ShortcutBindings],
+/// which every caller reads.
 ///
 /// Decisions (G44, G81):
 ///
@@ -172,10 +195,11 @@ typedef _Key = LogicalKeyboardKey;
 /// - **Delete pages** (G81): ⌫ on macOS (FmWindow), Del on Windows and
 ///   Linux (a14-1d), each with the other key as an alias.
 ///
-/// [conflicts] lists every collision; a test keeps it empty on every
-/// system. The text-format keys of the edit box (⌘B, ⌘I, ⌘U, FmEditPanel)
-/// and dialog accelerators (⌘D "Don't save") belong to those components,
-/// not to this table (G82).
+/// [ShortcutBindings.conflicts] lists every collision; a test keeps it
+/// empty on every system, and rebinding never makes one. The text-format
+/// keys of the edit box (⌘B, ⌘I, ⌘U, FmEditPanel) and dialog accelerators
+/// (⌘D "Don't save") belong to those components, not to this table
+/// (G82).
 enum ShellCommand {
   /// Opens the command palette (FmWindow `k.palette`, the Search button).
   commandPalette(
@@ -763,27 +787,69 @@ enum ShellCommand {
   /// own.
   List<KeyBinding> get linux => linuxOverride ?? windows;
 
-  /// The bindings on [platform]; the first is the one shown.
-  List<KeyBinding> bindingsFor(ShortcutPlatform platform) => switch (platform) {
+  /// The table's bindings on [platform], before the user's changes
+  /// ([ShortcutBindings]); the first is the one shown.
+  List<KeyBinding> defaultsFor(ShortcutPlatform platform) => switch (platform) {
     ShortcutPlatform.mac => mac,
     ShortcutPlatform.windows => windows,
     ShortcutPlatform.linux => linux,
   };
 
-  /// The key caps tooltips and menus show for this command on [platform],
-  /// or null when it has no key there.
-  List<String>? caps(ShortcutPlatform platform) {
-    final bindings = bindingsFor(platform);
-    return bindings.isEmpty ? null : bindings.first.caps(platform);
-  }
-
   /// Whether the command's keys work in [mode].
   bool appliesIn(FermanMode mode) => modes?.contains(mode) ?? true;
 
+  /// Whether the command and [other] work in a mode together, where their
+  /// keys would collide.
+  bool meets(ShellCommand other) =>
+      FermanMode.values.any((mode) => appliesIn(mode) && other.appliesIn(mode));
+
+  /// The group the cheat sheet (a11-3) lists the command under.
+  ShortcutGroup get group => switch (this) {
+    commandPalette ||
+    settings ||
+    keyboardShortcuts ||
+    open ||
+    createPdf ||
+    save ||
+    saveAs ||
+    saveCopy ||
+    printDocument ||
+    documentProperties ||
+    undo ||
+    redo => ShortcutGroup.general,
+    closeDocument ||
+    showAllDocuments ||
+    nextDocument ||
+    document1 ||
+    document2 ||
+    document3 ||
+    document4 ||
+    document5 ||
+    document6 ||
+    document7 ||
+    document8 ||
+    document9 ||
+    toggleSidebar ||
+    togglePanel ||
+    minimizeWindow ||
+    windowMenu ||
+    closeWindow ||
+    quit => ShortcutGroup.window,
+    _ => switch (modes?.length == 1 ? modes?.first : null) {
+      FermanMode.edit => ShortcutGroup.edit,
+      FermanMode.comment => ShortcutGroup.comment,
+      FermanMode.sign => ShortcutGroup.sign,
+      FermanMode.organize => ShortcutGroup.organize,
+      FermanMode.protect => ShortcutGroup.protect,
+      _ => ShortcutGroup.navigate,
+    },
+  };
+
   /// The commands of the window itself: minimize, the window menu, close
-  /// and quit. The
-  /// window frame binds them on every screen (`WindowCommandScope`), so
-  /// they are left out of [shortcutsFor].
+  /// and quit. The window frame binds them on every screen
+  /// (`WindowCommandScope`), so they are left out of
+  /// [ShortcutBindings.shortcutsFor]; their keys are the system's and are
+  /// never rebound ([ShortcutBindings.reserved]).
   static const Set<ShellCommand> windowCommands = {
     minimizeWindow,
     windowMenu,
@@ -791,43 +857,9 @@ enum ShellCommand {
     quit,
   };
 
-  /// The [Shortcuts] map of every command of [scope] that works in [mode],
-  /// on [platform], except the [windowCommands].
-  static Map<ShortcutActivator, Intent> shortcutsFor(
-    ShortcutPlatform platform,
-    FermanMode mode, {
-    ShortcutScope scope = ShortcutScope.window,
-  }) => {
-    for (final command in values)
-      if (command.scope == scope &&
-          command.appliesIn(mode) &&
-          !windowCommands.contains(command))
-        for (final binding in command.bindingsFor(platform))
-          binding.activator: ShellCommandIntent(
-            command,
-            plain: binding.isPlain,
-          ),
-  };
-
-  /// Every collision of the table on [platform]: two commands bound to the
-  /// same keys in a mode where both work. Canvas keys collide with window
-  /// keys too, since the canvas is inside the window. Empty when the table
-  /// is sound.
-  static List<String> conflicts(ShortcutPlatform platform) =>
-      conflictsIn(platform, [
-        for (final command in values)
-          (
-            name: command.name,
-            bindings: command.bindingsFor(platform),
-            modes: command.modes,
-          ),
-      ]);
-
-  /// The collisions among [entries] on [platform], as [conflicts] finds
-  /// them in the table: two entries bound to the same keys in a mode where
-  /// both work (null modes: every mode). The scope is not looked at, so a
-  /// canvas key collides with a window key.
-  @visibleForTesting
+  /// The collisions among [entries] on [platform]: two entries bound to the
+  /// same keys in a mode where both work (null modes: every mode). The
+  /// scope is not looked at, so a canvas key collides with a window key.
   static List<String> conflictsIn(
     ShortcutPlatform platform,
     Iterable<ShortcutEntry> entries,
@@ -856,6 +888,223 @@ enum ShellCommand {
     }
     return problems;
   }
+}
+
+/// The groups of the cheat sheet (a11-3 `sheet`), in its order.
+enum ShortcutGroup {
+  /// GENERAL.
+  general,
+
+  /// NAVIGATE: the View tools, zoom and page turns too.
+  navigate,
+
+  /// EDIT.
+  edit,
+
+  /// COMMENT.
+  comment,
+
+  /// FILL & SIGN.
+  sign,
+
+  /// ORGANIZE.
+  organize,
+
+  /// PROTECT.
+  protect,
+
+  /// WINDOW: documents, the sidebar and panel, and the window's own keys.
+  window,
+}
+
+/// The keys of every command on one system: the table's
+/// ([ShellCommand.defaultsFor]) with the user's [changes] over it (a11-1j,
+/// M4 decision 33). Every tooltip, menu, the cheat sheet, the palette and
+/// the bindings themselves read it (`shortcutBindingsProvider`), so a
+/// changed key shows everywhere it works.
+@immutable
+final class ShortcutBindings {
+  /// The table on [platform] with [changes].
+  const new(this.platform, {this.changes = const {}});
+
+  /// The changes stored in the settings ([toSettings]) on [platform].
+  ///
+  /// The settings are untrusted: unknown commands, unreadable keys, the
+  /// window's own commands and reserved keys are left out, and changes that
+  /// would collide leave the whole table as it ships.
+  factory fromSettings(
+    ShortcutPlatform platform,
+    Map<String, List<String>> stored,
+  ) {
+    final prefix = '${platform.name}.';
+    final names = ShellCommand.values.asNameMap();
+    final changes = <ShellCommand, List<KeyBinding>>{};
+    for (final MapEntry(:key, :value) in stored.entries) {
+      if (!key.startsWith(prefix)) continue;
+      final command = names[key.substring(prefix.length)];
+      if (command == null || ShellCommand.windowCommands.contains(command)) {
+        continue;
+      }
+      final bindings = [
+        for (final identity in value) KeyBinding.parse(identity),
+      ];
+      if (bindings.contains(null)) continue;
+      final keys = bindings.nonNulls.toList();
+      final table = ShortcutBindings(platform);
+      if (keys.any((binding) => table.reserved(command, binding))) continue;
+      changes[command] = keys;
+    }
+    final bindings = ShortcutBindings(platform, changes: changes);
+    return bindings.conflicts().isEmpty ? bindings : ShortcutBindings(platform);
+  }
+
+  /// The system whose conventions apply.
+  final ShortcutPlatform platform;
+
+  /// The commands the user gave other keys, with those keys; an empty list
+  /// leaves the command with none.
+  final Map<ShellCommand, List<KeyBinding>> changes;
+
+  /// The keys of [command]; the first is the one shown.
+  List<KeyBinding> of(ShellCommand command) =>
+      changes[command] ?? command.defaultsFor(platform);
+
+  /// The key caps tooltips and menus show for [command], or null when it
+  /// has no key (or there is no command).
+  List<String>? caps(ShellCommand? command) {
+    if (command == null) return null;
+    final bindings = of(command);
+    return bindings.isEmpty ? null : bindings.first.caps(platform);
+  }
+
+  /// Whether the user changed the keys of [command] (the cheat sheet's
+  /// mark).
+  bool changed(ShellCommand command) => changes.containsKey(command);
+
+  /// The [Shortcuts] map of every command of [scope] that works in [mode],
+  /// except the [ShellCommand.windowCommands].
+  Map<ShortcutActivator, Intent> shortcutsFor(
+    FermanMode mode, {
+    ShortcutScope scope = ShortcutScope.window,
+  }) => {
+    for (final command in ShellCommand.values)
+      if (command.scope == scope &&
+          command.appliesIn(mode) &&
+          !ShellCommand.windowCommands.contains(command))
+        for (final binding in of(command))
+          binding.activator: ShellCommandIntent(
+            command,
+            plain: binding.isPlain,
+          ),
+  };
+
+  /// Every collision: two commands bound to the same keys in a mode where
+  /// both work. Empty when the bindings are sound.
+  List<String> conflicts() => ShellCommand.conflictsIn(platform, [
+    for (final command in ShellCommand.values)
+      (name: command.name, bindings: of(command), modes: command.modes),
+  ]);
+
+  /// The command other than [command] that has [binding] in a mode where
+  /// both work, or null when the key is free for it.
+  ShellCommand? holder(ShellCommand command, KeyBinding binding) {
+    for (final other in ShellCommand.values) {
+      if (other != command &&
+          other.meets(command) &&
+          of(other).contains(binding)) {
+        return other;
+      }
+    }
+    return null;
+  }
+
+  /// Whether [binding] belongs to the system or to focus and cannot go to
+  /// [command]: the window's own keys (⌘Q, Alt+F4…), Esc, Enter, Tab and
+  /// ⇧Tab, and the system's app switching and hiding. A command may always
+  /// take back a key of its own from the table.
+  bool reserved(ShellCommand command, KeyBinding binding) {
+    if (command.defaultsFor(platform).contains(binding)) return false;
+    final mac = platform == ShortcutPlatform.mac;
+    return [
+      for (final window in ShellCommand.windowCommands)
+        ...window.defaultsFor(platform),
+      const KeyBinding(_Key.escape),
+      const KeyBinding(_Key.enter),
+      const KeyBinding(_Key.tab),
+      const KeyBinding(_Key.tab, shift: true),
+      if (mac) ...[
+        const KeyBinding(_Key.keyH, meta: true),
+        const KeyBinding(_Key.keyH, meta: true, alt: true),
+        const KeyBinding(_Key.tab, meta: true),
+        const KeyBinding(_Key.space, meta: true),
+      ] else
+        const KeyBinding(_Key.tab, alt: true),
+    ].contains(binding);
+  }
+
+  /// [command] bound to [binding] alone. A command that had the key in a
+  /// shared mode loses it, which can leave it with none (M4 decision 33).
+  ShortcutBindings rebind(ShellCommand command, KeyBinding binding) {
+    final next = {...changes};
+    for (final other in ShellCommand.values) {
+      if (other != command && other.meets(command)) {
+        final keys = of(other);
+        if (keys.contains(binding)) {
+          next[other] = [
+            for (final key in keys)
+              if (key != binding) key,
+          ];
+        }
+      }
+    }
+    next[command] = [binding];
+    return ShortcutBindings(platform, changes: _normalized(next));
+  }
+
+  /// [command] back to the table's keys. A command that has one of them now
+  /// loses it, as [rebind] does.
+  ShortcutBindings reset(ShellCommand command) {
+    var next = ShortcutBindings(
+      platform,
+      changes: {...changes}..remove(command),
+    );
+    for (final binding in command.defaultsFor(platform)) {
+      final holder = next.holder(command, binding);
+      if (holder != null) {
+        next = ShortcutBindings(
+          platform,
+          changes: _normalized({
+            ...next.changes,
+            holder: [
+              for (final key in next.of(holder))
+                if (key != binding) key,
+            ],
+          }),
+        );
+      }
+    }
+    return next;
+  }
+
+  /// The changes without those that match the table again.
+  Map<ShellCommand, List<KeyBinding>> _normalized(
+    Map<ShellCommand, List<KeyBinding>> changes,
+  ) => {
+    for (final MapEntry(key: command, value: keys) in changes.entries)
+      if (!listEquals(keys, command.defaultsFor(platform))) command: keys,
+  };
+
+  /// [stored] with this system's changes replaced by [changes], as
+  /// `AppSettings.shortcuts` keeps them: `<system>.<command>` to the keys'
+  /// identities, so each system keeps its own.
+  Map<String, List<String>> toSettings(Map<String, List<String>> stored) => {
+    for (final MapEntry(:key, :value) in stored.entries)
+      if (!key.startsWith('${platform.name}.')) key: value,
+    for (final MapEntry(key: command, value: keys) in changes.entries)
+      '${platform.name}.${command.name}': [
+        for (final key in keys) key.identity,
+      ],
+  };
 }
 
 /// A command as [ShellCommand.conflictsIn] checks it: its name, its

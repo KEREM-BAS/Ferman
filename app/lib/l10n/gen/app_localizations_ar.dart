@@ -5977,4 +5977,147 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get versionRestore => 'استعادة';
+
+  @override
+  String get commandPalette => 'لوحة الأوامر';
+
+  @override
+  String get commandShowShortcuts => 'عرض اختصارات لوحة المفاتيح';
+
+  @override
+  String get commandSaveCopy => 'حفظ نسخة';
+
+  @override
+  String get commandDocumentProperties => 'خصائص المستند';
+
+  @override
+  String get commandNextDocument => 'المستند التالي';
+
+  @override
+  String commandShowDocument(String number) {
+    return 'عرض المستند $number';
+  }
+
+  @override
+  String get commandGoToPage => 'الانتقال إلى صفحة';
+
+  @override
+  String get commandReadingMode => 'وضع القراءة';
+
+  @override
+  String get commandInsertFromFile => 'إدراج من ملف';
+
+  @override
+  String get commandDeletePages => 'حذف الصفحات';
+
+  @override
+  String get commandSelectAllPages => 'تحديد كل الصفحات';
+
+  @override
+  String get commandMovePagesUp => 'نقل الصفحات لأعلى';
+
+  @override
+  String get commandMovePagesDown => 'نقل الصفحات لأسفل';
+
+  @override
+  String get commandWindowMenu => 'قائمة النافذة';
+
+  @override
+  String get commandCloseWindow => 'إغلاق النافذة';
+
+  @override
+  String get commandQuit => 'إنهاء Ferman';
+
+  @override
+  String get palettePlaceholder => 'ابحث في الأوامر والصفحات والنص';
+
+  @override
+  String paletteEmpty(String query) {
+    return 'لا توجد أوامر تطابق “$query”. اضغط Enter للبحث في المستند بدلًا من ذلك.';
+  }
+
+  @override
+  String paletteEmptyNoDocument(String query) {
+    return 'لا توجد أوامر تطابق “$query”.';
+  }
+
+  @override
+  String get paletteCommands => 'الأوامر';
+
+  @override
+  String get paletteRecentFiles => 'الملفات الأخيرة';
+
+  @override
+  String get paletteMove => 'تنقّل';
+
+  @override
+  String get paletteRun => 'تشغيل';
+
+  @override
+  String get shortcutsSheetSearch => 'البحث في الاختصارات';
+
+  @override
+  String get shortcutsSheetNote =>
+      'غيّر الاختصارات من الإعدادات › اختصارات لوحة المفاتيح.';
+
+  @override
+  String get shortcutsChanged => 'مُغيَّر';
+
+  @override
+  String shortcutsNoMatch(String query) {
+    return 'لا توجد اختصارات تطابق “$query”.';
+  }
+
+  @override
+  String get shortcutsGroupGeneral => 'عام';
+
+  @override
+  String get shortcutsGroupNavigate => 'التنقل';
+
+  @override
+  String get shortcutsGroupWindow => 'النافذة';
+
+  @override
+  String get shortcutsPaneSearch => 'ابحث عن أمر أو اضغط المفاتيح';
+
+  @override
+  String get shortcutsPreset => 'الإعداد المسبق';
+
+  @override
+  String get shortcutsPresetFerman => 'Ferman (افتراضي)';
+
+  @override
+  String get shortcutsPresetAcrobat => 'مثل Acrobat';
+
+  @override
+  String get shortcutsPresetPreview => 'مثل المعاينة';
+
+  @override
+  String get shortcutsRecording => 'اضغط الاختصار الجديد…';
+
+  @override
+  String shortcutsTaken(String keys, String command, String current) {
+    return '$keys مستخدم بالفعل لـ“$command”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء على $current.';
+  }
+
+  @override
+  String shortcutsTakenNone(String keys, String command) {
+    return '$keys مستخدم بالفعل لـ“$command”. اضغط Enter لإعادة تعيينه، أو Esc للإبقاء دون اختصار.';
+  }
+
+  @override
+  String shortcutsReserved(String keys) {
+    return '$keys محجوز للنظام. اضغط مفاتيح أخرى، أو Esc للإلغاء.';
+  }
+
+  @override
+  String get shortcutsNone => 'بلا اختصار';
+
+  @override
+  String shortcutsChange(String command) {
+    return 'تغيير اختصار $command';
+  }
+
+  @override
+  String get shortcutsReset => 'استعادة الاختصار الافتراضي';
 }

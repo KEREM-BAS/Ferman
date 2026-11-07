@@ -246,9 +246,6 @@ enum Feature {
   /// Settings › AI assistant and Settings › Privacy › Your AI provider.
   aiAssistant('B032'),
 
-  /// The command palette: the title bar's Search.
-  commandPalette('B030'),
-
   // Settings and first run.
 
   /// Searching Settings.
@@ -257,8 +254,8 @@ enum Feature {
   /// Settings › Fonts.
   settingsFonts('B075'),
 
-  /// Keyboard shortcuts: Settings › Keyboard shortcuts.
-  keyboardShortcuts('B076'),
+  /// Settings › Keyboard shortcuts › Preset: Like Acrobat and Like Preview.
+  shortcutPresets('B217'),
 
   /// Settings › Advanced.
   settingsAdvanced('B077'),

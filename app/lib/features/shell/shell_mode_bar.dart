@@ -29,7 +29,7 @@ class ShellModeBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final mode = ref.watch(shellModeProvider);
     // What the shell shows: a panel that stepped aside in a narrow window
     // reads as off, and its toggle brings it back (G21).
@@ -62,7 +62,7 @@ class ShellModeBar extends ConsumerWidget {
             label: l10n.shellToggleSidebar,
             size: IconButtonSize.sm,
             active: shown.sidebar,
-            shortcut: ShellCommand.toggleSidebar.caps(platform),
+            shortcut: keys.caps(ShellCommand.toggleSidebar),
             // Too narrow for the sidebar beside the document: disabled with
             // the reason (G21, G22).
             disabledReason: shown.sidebarAvailable
@@ -105,7 +105,7 @@ class ShellModeBar extends ConsumerWidget {
             label: l10n.shellTogglePanel,
             size: IconButtonSize.sm,
             active: shown.panel,
-            shortcut: ShellCommand.togglePanel.caps(platform),
+            shortcut: keys.caps(ShellCommand.togglePanel),
             disabledReason: shown.panelAvailable
                 ? null
                 : l10n.shellWindowTooNarrow,

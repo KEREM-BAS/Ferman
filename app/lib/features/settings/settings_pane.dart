@@ -42,8 +42,8 @@ enum SettingsPane {
   /// Updates (a11-1i): M5.
   updates('updates', IconName.refreshCw, feature: Feature.updateCheck),
 
-  /// Keyboard shortcuts (a11-1j): M4.
-  shortcuts('shortcuts', IconName.keyboard, feature: Feature.keyboardShortcuts),
+  /// Keyboard shortcuts (a11-1j).
+  shortcuts('shortcuts', IconName.keyboard),
 
   /// Advanced (a11-1k): M4.
   advanced('advanced', IconName.wrench, feature: Feature.settingsAdvanced);

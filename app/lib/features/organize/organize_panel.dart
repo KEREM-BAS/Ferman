@@ -26,7 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
   final l10n = AppLocalizations.of(context);
   final direction = Directionality.of(context);
-  final platform = ref.read(shortcutPlatformProvider);
+  final keys = ref.read(shortcutBindingsProvider);
   final format = RegionFormat.forRegion(ref.read(regionProvider).region);
   final count = ref.read(selectedPagesProvider).length;
   final shown = format.integer(count);
@@ -51,7 +51,7 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               id: 'left',
               label: l10n.shellToolRotateLeft,
               icon: IconName.rotateCcw,
-              shortcut: ShellCommand.rotateLeft.caps(platform),
+              shortcut: keys.caps(ShellCommand.rotateLeft),
               disabled: refusal != null,
               disabledReason: refusal,
             ),
@@ -59,7 +59,7 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               id: 'right',
               label: l10n.shellToolRotateRight,
               icon: IconName.rotateCw,
-              shortcut: ShellCommand.rotateRight.caps(platform),
+              shortcut: keys.caps(ShellCommand.rotateRight),
               disabled: refusal != null,
               disabledReason: refusal,
             ),
@@ -67,7 +67,7 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               id: 'duplicate',
               label: l10n.shellToolDuplicate,
               icon: IconName.copy,
-              shortcut: ShellCommand.duplicatePages.caps(platform),
+              shortcut: keys.caps(ShellCommand.duplicatePages),
               disabled: refusal != null,
               disabledReason: refusal,
             ),
@@ -75,7 +75,7 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               id: 'extract',
               label: l10n.organizeMenuExtract,
               icon: IconName.fileOutput,
-              shortcut: ShellCommand.extractPages.caps(platform),
+              shortcut: keys.caps(ShellCommand.extractPages),
             ),
             const MenuItem.divider(),
             MenuItem(
@@ -104,7 +104,7 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               id: 'delete',
               label: l10n.organizeMenuDelete(count, shown),
               icon: IconName.trash2,
-              shortcut: ShellCommand.deletePages.caps(platform),
+              shortcut: keys.caps(ShellCommand.deletePages),
               disabled: deleteRefusal != null,
               disabledReason: deleteRefusal,
             ),

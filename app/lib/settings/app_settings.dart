@@ -35,6 +35,7 @@ final class AppSettings {
     this.markEdited = true,
     this.commenterName,
     this.myStamps = const [],
+    this.shortcuts = const {},
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -93,6 +94,17 @@ final class AppSettings {
         ],
         _ => const [],
       },
+      shortcuts: switch (json[_shortcuts]) {
+        final Map<String, Object?> stored => {
+          for (final MapEntry(:key, :value) in stored.entries)
+            if (value is List<Object?>)
+              key: [
+                for (final identity in value)
+                  if (identity is String) identity,
+              ],
+        },
+        _ => const {},
+      },
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -108,6 +120,7 @@ final class AppSettings {
   static const int currentVersion = 1;
 
   static const String _myStamps = 'myStamps';
+  static const String _shortcuts = 'shortcuts';
   static const String _version = 'version';
   static const String _theme = 'theme';
   static const String _language = 'language';
@@ -148,6 +161,7 @@ final class AppSettings {
     _markEdited,
     _commenterName,
     _myStamps,
+    _shortcuts,
   };
 
   /// Settings → General → Theme.
@@ -220,6 +234,12 @@ final class AppSettings {
   /// `myStampsProvider`.
   final List<String> myStamps;
 
+  /// Settings › Keyboard shortcuts (a11-1j): the keys the user changed, as
+  /// `ShortcutBindings.toSettings` writes them (`<system>.<command>` to the
+  /// keys' identities). Read only through `ShortcutBindings.fromSettings`,
+  /// which validates them.
+  final Map<String, List<String>> shortcuts;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -251,6 +271,7 @@ final class AppSettings {
     _markEdited: markEdited,
     _commenterName: ?commenterName,
     _myStamps: myStamps,
+    _shortcuts: shortcuts,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -275,6 +296,7 @@ final class AppSettings {
     bool? markEdited,
     String? commenterName,
     List<String>? myStamps,
+    Map<String, List<String>>? shortcuts,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -297,6 +319,7 @@ final class AppSettings {
     markEdited: markEdited ?? this.markEdited,
     commenterName: commenterName ?? this.commenterName,
     myStamps: myStamps ?? this.myStamps,
+    shortcuts: shortcuts ?? this.shortcuts,
     unknown: unknown,
     version: version,
   );
@@ -323,6 +346,7 @@ final class AppSettings {
       other.markEdited == markEdited &&
       other.commenterName == commenterName &&
       listEquals(other.myStamps, myStamps) &&
+      _sameShortcuts(other.shortcuts, shortcuts) &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -346,13 +370,24 @@ final class AppSettings {
     reflow,
     markEdited,
     // Object.hash takes at most twenty values.
-    Object.hash(commenterName, Object.hashAll(myStamps)),
+    Object.hash(
+      commenterName,
+      Object.hashAll(myStamps),
+      Object.hashAllUnordered(shortcuts.keys),
+    ),
     version,
     Object.hashAllUnordered(unknown.keys),
   );
 
   @override
   String toString() => 'AppSettings(${toJson()})';
+
+  static bool _sameShortcuts(
+    Map<String, List<String>> a,
+    Map<String, List<String>> b,
+  ) =>
+      a.length == b.length &&
+      a.entries.every((entry) => listEquals(b[entry.key], entry.value));
 }
 
 /// How PDF pages look in the dark theme (a11-1, B078).

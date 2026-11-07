@@ -46,7 +46,7 @@ class FmSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final tab = ref.watch(shellSidebarTabProvider);
     final document = ref.watch(viewerProvider.select((v) => v?.document));
     final pages =
@@ -84,7 +84,7 @@ class FmSidebar extends ConsumerWidget {
           Feature.editingBookmarks,
           IconName.plus,
           l10n.shellAddBookmark,
-          shortcut: ShellCommand.addBookmark.caps(platform),
+          shortcut: keys.caps(ShellCommand.addBookmark),
         ),
         button(Feature.editingBookmarks, IconName.ellipsis, l10n.shellMore),
       ],

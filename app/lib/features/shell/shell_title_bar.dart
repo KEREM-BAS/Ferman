@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
+import 'package:ferman/features/shell/shell_palette.dart';
 import 'package:ferman/features/shell/shell_region.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -72,7 +73,7 @@ class ShellTitleBarContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final given = this.documents;
     // The type argument keeps `??` from asking the provider for a nullable
     // list.
@@ -128,7 +129,7 @@ class ShellTitleBarContent extends ConsumerWidget {
               key: ValueKey(i),
               active: !homeActive && i == documents.activeIndex,
               l10n: l10n,
-              closeShortcut: ShellCommand.closeDocument.caps(platform),
+              closeShortcut: keys.caps(ShellCommand.closeDocument),
               onClose: switch (documents.documents[i].path) {
                 final path? when given == null => () => unawaited(
                   ref.read(documentCloserProvider.notifier).close(path),
@@ -156,7 +157,7 @@ class ShellTitleBarContent extends ConsumerWidget {
           icon: IconName.plus,
           label: l10n.shellOpenFile,
           size: IconButtonSize.sm,
-          shortcut: ShellCommand.open.caps(platform),
+          shortcut: keys.caps(ShellCommand.open),
           onPressed: openFiles(context, ref),
           disabledReason: openFilesDisabledReason(context, ref),
         ),
@@ -180,14 +181,21 @@ class ShellTitleBarContent extends ConsumerWidget {
             variant: ButtonVariant.ghost,
             size: ButtonSize.sm,
             icon: IconName.search,
-            disabledReason: Feature.commandPalette.disabledReason(context),
+            onPressed: () => ref
+                .read(organizeDialogProvider.notifier)
+                .show(
+                  ShellPalette(
+                    home: homeActive,
+                    onOpenSettings: onOpenSettings,
+                  ),
+                ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               spacing: theme.space.space2,
               children: [
                 Text(l10n.shellSearch),
-                if (ShellCommand.commandPalette.caps(platform) case final keys?)
-                  Kbd(keys, tone: KbdTone.plain),
+                if (keys.caps(ShellCommand.commandPalette) case final caps?)
+                  Kbd(caps, tone: KbdTone.plain),
               ],
             ),
           ),
@@ -195,7 +203,7 @@ class ShellTitleBarContent extends ConsumerWidget {
             icon: IconName.settings,
             label: l10n.shellSettings,
             size: IconButtonSize.sm,
-            shortcut: ShellCommand.settings.caps(platform),
+            shortcut: keys.caps(ShellCommand.settings),
             onPressed: onOpenSettings,
           ),
         ],
@@ -357,7 +365,7 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final count = format.integer(widget.count);
     final onShow = widget.onShow;
     ref.listen(showAllDocumentsRequestProvider, (_, _) {
@@ -406,7 +414,7 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
                   : document.name,
               icon: document.unsaved ? IconName.filePenLine : document.icon,
               shortcut: i < documentJumps.length
-                  ? documentJumps[i].caps(platform)
+                  ? keys.caps(documentJumps[i])
                   : null,
               disabled: onShow == null,
             ),
@@ -416,7 +424,7 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
               id: _showAllId,
               label: l10n.shellShowAllDocuments,
               icon: IconName.layoutGrid,
-              shortcut: ShellCommand.showAllDocuments.caps(platform),
+              shortcut: keys.caps(ShellCommand.showAllDocuments),
               disabled: onShow == null,
             ),
           MenuItem(
