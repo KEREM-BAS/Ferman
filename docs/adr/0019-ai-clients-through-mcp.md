@@ -87,6 +87,14 @@ goes back to the owner:
   licence passes [ADR 0016](0016-dependency-licence-policy.md), otherwise a small JSON-RPC layer of our
   own. A trial resolve passed the licences with 82 packages and no HTTP client (M4 plan, decision 37);
   the newest release was a day old, so an older one is pinned and `cargo deny` runs when W7 starts.
+  **Built in W7:** rmcp 3.8.0 and tokio passed `cargo deny`, so rmcp it is, behind the feature `mcp`
+  of ferman-api. The engine's side needs no runtime and is always built (`facade::clients`): a
+  client connects by the name its `initialize` handshake gives, read only until granted edit; its
+  edit transactions are owned by it, one open per document as for the user, so it waits while
+  another is open and has its own rolled back when it disconnects; each step it commits names it
+  in the history (`HistoryStep::client`) and in the engine's own log, and reaches the app through a
+  change stream. The recovery journal holds objects only and restores unsaved changes as one step
+  without names, so it does not record the client.
 - **What the user sees.** A notice in the window while a client is connected, the client's name on
   each of its edits in the review list, and a way to stop it from the window as well as from
   Settings.

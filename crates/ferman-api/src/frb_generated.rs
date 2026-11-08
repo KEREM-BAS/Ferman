@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2046181084;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1972829966;
 
 // Section: executor
 
@@ -3357,6 +3357,32 @@ fn wire__crate__frb__versions_impl(
         },
     )
 }
+fn wire__crate__frb__watch_client_changes_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    sink: impl CstDecode<
+        StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>,
+    >,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "watch_client_changes",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_sink = sink.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::watch_client_changes(api_sink).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__white_margins_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -4061,6 +4087,16 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseDecode
+    for StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <String>::sse_decode(deserializer);
+        return StreamSink::deserialize(inner);
+    }
+}
+
 impl SseDecode for StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4428,6 +4464,20 @@ impl SseDecode for crate::frb::Caret {
         return crate::frb::Caret {
             index: var_index,
             rect: var_rect,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::ClientChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_document = <u64>::sse_decode(deserializer);
+        let mut var_client = <String>::sse_decode(deserializer);
+        let mut var_revision = <crate::frb::RevisionInfo>::sse_decode(deserializer);
+        return crate::frb::ClientChange {
+            document: var_document,
+            client: var_client,
+            revision: var_revision,
         };
     }
 }
@@ -5213,6 +5263,7 @@ impl SseDecode for crate::frb::HistoryStep {
         let mut var_before = <String>::sse_decode(deserializer);
         let mut var_after = <String>::sse_decode(deserializer);
         let mut var_reverts = <Vec<u32>>::sse_decode(deserializer);
+        let mut var_client = <Option<String>>::sse_decode(deserializer);
         return crate::frb::HistoryStep {
             name: var_name,
             time: var_time,
@@ -5222,6 +5273,7 @@ impl SseDecode for crate::frb::HistoryStep {
             before: var_before,
             after: var_after,
             reverts: var_reverts,
+            client: var_client,
         };
     }
 }
@@ -7988,6 +8040,23 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::Caret> for crate::frb::Caret 
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::ClientChange {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.document.into_into_dart().into_dart(),
+            self.client.into_into_dart().into_dart(),
+            self.revision.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::ClientChange {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::ClientChange> for crate::frb::ClientChange {
+    fn into_into_dart(self) -> crate::frb::ClientChange {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::CombineFileInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -8849,6 +8918,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::HistoryStep {
             self.before.into_into_dart().into_dart(),
             self.after.into_into_dart().into_dart(),
             self.reverts.into_into_dart().into_dart(),
+            self.client.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -10383,6 +10453,15 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode
+    for StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        unimplemented!("")
+    }
+}
+
 impl SseEncode for StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -10651,6 +10730,15 @@ impl SseEncode for crate::frb::Caret {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u32>::sse_encode(self.index, serializer);
         <crate::frb::PageRect>::sse_encode(self.rect, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::ClientChange {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.document, serializer);
+        <String>::sse_encode(self.client, serializer);
+        <crate::frb::RevisionInfo>::sse_encode(self.revision, serializer);
     }
 }
 
@@ -11280,6 +11368,7 @@ impl SseEncode for crate::frb::HistoryStep {
         <String>::sse_encode(self.before, serializer);
         <String>::sse_encode(self.after, serializer);
         <Vec<u32>>::sse_encode(self.reverts, serializer);
+        <Option<String>>::sse_encode(self.client, serializer);
     }
 }
 
@@ -13284,6 +13373,20 @@ mod io {
             unimplemented!()
         }
     }
+    impl
+        CstDecode<
+            StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>,
+        > for *mut wire_cst_list_prim_u_8_strict
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            let raw: String = self.cst_decode();
+            StreamSink::deserialize(raw)
+        }
+    }
     impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
         for *mut wire_cst_list_prim_u_8_strict
     {
@@ -13820,6 +13923,16 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::ClientChange> for wire_cst_client_change {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ClientChange {
+            crate::frb::ClientChange {
+                document: self.document.cst_decode(),
+                client: self.client.cst_decode(),
+                revision: self.revision.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::CombineFileInfo> for wire_cst_combine_file_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::CombineFileInfo {
@@ -14183,6 +14296,7 @@ mod io {
                 before: self.before.cst_decode(),
                 after: self.after.cst_decode(),
                 reverts: self.reverts.cst_decode(),
+                client: self.client.cst_decode(),
             }
         }
     }
@@ -15587,6 +15701,20 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_client_change {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                document: Default::default(),
+                client: core::ptr::null_mut(),
+                revision: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_client_change {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_combine_file_info {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -16061,6 +16189,7 @@ mod io {
                 before: core::ptr::null_mut(),
                 after: core::ptr::null_mut(),
                 reverts: core::ptr::null_mut(),
+                client: core::ptr::null_mut(),
             }
         }
     }
@@ -18004,6 +18133,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__watch_client_changes(
+        port_: i64,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__watch_client_changes_impl(port_, sink)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__white_margins(
         port_: i64,
         document: u64,
@@ -19137,6 +19274,13 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_client_change {
+        document: u64,
+        client: *mut wire_cst_list_prim_u_8_strict,
+        revision: wire_cst_revision_info,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_combine_file_info {
         status: i32,
         image: bool,
@@ -19413,6 +19557,7 @@ mod io {
         before: *mut wire_cst_list_prim_u_8_strict,
         after: *mut wire_cst_list_prim_u_8_strict,
         reverts: *mut wire_cst_list_prim_u_32_strict,
+        client: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -20252,6 +20397,19 @@ mod web {
             unimplemented!()
         }
     }
+    impl
+        CstDecode<
+            StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>,
+        > for String
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            StreamSink::deserialize(self)
+        }
+    }
     impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
         for String
     {
@@ -20629,6 +20787,27 @@ mod web {
             crate::frb::Caret {
                 index: self_.get(0).cst_decode(),
                 rect: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::ClientChange>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ClientChange {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::ClientChange {
+                document: self_.get(0).cst_decode(),
+                client: self_.get(1).cst_decode(),
+                revision: self_.get(2).cst_decode(),
             }
         }
     }
@@ -21297,8 +21476,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                8,
-                "Expected 8 elements, got {}",
+                9,
+                "Expected 9 elements, got {}",
                 self_.length()
             );
             crate::frb::HistoryStep {
@@ -21310,6 +21489,7 @@ mod web {
                 before: self_.get(5).cst_decode(),
                 after: self_.get(6).cst_decode(),
                 reverts: self_.get(7).cst_decode(),
+                client: self_.get(8).cst_decode(),
             }
         }
     }
@@ -23133,6 +23313,19 @@ mod web {
             unimplemented!()
         }
     }
+    impl
+        CstDecode<
+            StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>,
+        > for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::ClientChange, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            StreamSink::deserialize(self.as_string().expect("should be a string"))
+        }
+    }
     impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -24706,6 +24899,14 @@ mod web {
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__versions_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__watch_client_changes(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        sink: String,
+    ) {
+        wire__crate__frb__watch_client_changes_impl(port_, sink)
     }
 
     #[wasm_bindgen]

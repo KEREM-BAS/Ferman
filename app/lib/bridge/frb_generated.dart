@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -2046181084;
+  int get rustContentHash => -1972829966;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -643,6 +643,8 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<List<VersionInfo>> crateFrbVersions({required BigInt document});
+
+  Stream<ClientChange> crateFrbWatchClientChanges();
 
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
@@ -4173,6 +4175,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "versions", argNames: ["document"]);
 
   @override
+  Stream<ClientChange> crateFrbWatchClientChanges() {
+    final sink = RustStreamSink<ClientChange>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_StreamSink_client_change_Dco(sink);
+            return wire.wire__crate__frb__watch_client_changes(port_, arg0);
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbWatchClientChangesConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbWatchClientChangesConstMeta => const TaskConstMeta(
+    debugName: "watch_client_changes",
+    argNames: ["sink"],
+  );
+
+  @override
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
     required Uint64List pages,
@@ -4265,6 +4295,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<ClientChange> dco_decode_StreamSink_client_change_Dco(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
   }
 
   @protected
@@ -4807,6 +4845,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ClientChange dco_decode_client_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClientChange(
+      document: dco_decode_u_64(arr[0]),
+      client: dco_decode_String(arr[1]),
+      revision: dco_decode_revision_info(arr[2]),
+    );
+  }
+
+  @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -5341,8 +5392,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   HistoryStep dco_decode_history_step(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return HistoryStep(
       name: dco_decode_String(arr[0]),
       time: dco_decode_i_64(arr[1]),
@@ -5352,6 +5403,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       before: dco_decode_String(arr[5]),
       after: dco_decode_String(arr[6]),
       reverts: dco_decode_list_prim_u_32_strict(arr[7]),
+      client: dco_decode_opt_String(arr[8]),
     );
   }
 
@@ -6901,6 +6953,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RustStreamSink<ClientChange> sse_decode_StreamSink_client_change_Dco(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   ) {
@@ -7515,6 +7575,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ClientChange sse_decode_client_change(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_document = sse_decode_u_64(deserializer);
+    var var_client = sse_decode_String(deserializer);
+    var var_revision = sse_decode_revision_info(deserializer);
+    return ClientChange(
+      document: var_document,
+      client: var_client,
+      revision: var_revision,
+    );
+  }
+
+  @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_status = sse_decode_input_status(deserializer);
@@ -8116,6 +8189,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_before = sse_decode_String(deserializer);
     var var_after = sse_decode_String(deserializer);
     var var_reverts = sse_decode_list_prim_u_32_strict(deserializer);
+    var var_client = sse_decode_opt_String(deserializer);
     return HistoryStep(
       name: var_name,
       time: var_time,
@@ -8125,6 +8199,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       before: var_before,
       after: var_after,
       reverts: var_reverts,
+      client: var_client,
     );
   }
 
@@ -10632,6 +10707,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_StreamSink_job_event_Dco(
     RustStreamSink<JobEvent> self,
     SseSerializer serializer,
@@ -11277,6 +11369,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_client_change(ClientChange self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.document, serializer);
+    sse_encode_String(self.client, serializer);
+    sse_encode_revision_info(self.revision, serializer);
+  }
+
+  @protected
   void sse_encode_combine_file_info(
     CombineFileInfo self,
     SseSerializer serializer,
@@ -11720,6 +11820,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_String(self.before, serializer);
     sse_encode_String(self.after, serializer);
     sse_encode_list_prim_u_32_strict(self.reverts, serializer);
+    sse_encode_opt_String(self.client, serializer);
   }
 
   @protected

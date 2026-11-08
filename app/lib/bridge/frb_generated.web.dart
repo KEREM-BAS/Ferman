@@ -27,6 +27,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<ClientChange> dco_decode_StreamSink_client_change_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw);
 
   @protected
@@ -228,6 +233,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret dco_decode_caret(dynamic raw);
+
+  @protected
+  ClientChange dco_decode_client_change(dynamic raw);
 
   @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw);
@@ -889,6 +897,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<ClientChange> sse_decode_StreamSink_client_change_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   );
@@ -1136,6 +1149,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret sse_decode_caret(SseDeserializer deserializer);
+
+  @protected
+  ClientChange sse_decode_client_change(SseDeserializer deserializer);
 
   @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer);
@@ -1882,6 +1898,21 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  String cst_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
+  }
+
+  @protected
   String cst_encode_StreamSink_job_event_Dco(RustStreamSink<JobEvent> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_String(
@@ -2380,6 +2411,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_client_change(ClientChange raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.document),
+      cst_encode_String(raw.client),
+      cst_encode_revision_info(raw.revision),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_combine_file_info(CombineFileInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -2739,6 +2780,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.before),
       cst_encode_String(raw.after),
       cst_encode_list_prim_u_32_strict(raw.reverts),
+      cst_encode_opt_String(raw.client),
     ].jsify()!;
   }
 
@@ -4076,6 +4118,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_job_event_Dco(
     RustStreamSink<JobEvent> self,
     SseSerializer serializer,
@@ -4413,6 +4461,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_caret(Caret self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_change(ClientChange self, SseSerializer serializer);
 
   @protected
   void sse_encode_combine_file_info(
@@ -6348,6 +6399,11 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__versions(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__versions(port_, document);
 
+  void wire__crate__frb__watch_client_changes(
+    NativePortType port_,
+    String sink,
+  ) => wasmModule.wire__crate__frb__watch_client_changes(port_, sink);
+
   void wire__crate__frb__white_margins(
     NativePortType port_,
     JSAny document,
@@ -7095,6 +7151,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__versions(
     NativePortType port_,
     JSAny document,
+  );
+
+  external void wire__crate__frb__watch_client_changes(
+    NativePortType port_,
+    String sink,
   );
 
   external void wire__crate__frb__white_margins(

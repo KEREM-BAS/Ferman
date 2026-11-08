@@ -44,6 +44,12 @@ flutter_rust_bridge = "=2.13.0"
 pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
 # Replies from the render thread: a oneshot future that async API functions await without blocking.
 futures-channel = "0.3.34"
+# The local MCP server of ferman-api's `mcp` feature (ADR 0019, M4 plan decision 37): the official
+# Rust SDK, pinned exactly to a release older than the newest (3.9.0 was a day old when W7 started).
+# Default features off: `server` and `macros` only, no HTTP transport, client or auth.
+rmcp = { version = "=3.8.0", default-features = false, features = ["server", "macros"] }
+# The runtime under rmcp, in ferman-api's `mcp` feature only (ADR 0009's exception, ADR 0019).
+tokio = { version = "1.53.3", default-features = false, features = ["rt", "net", "io-util", "sync"] }
 # Stream filters in ferman-core: Flate through the pure-Rust miniz_oxide backend, and LZW.
 flate2 = "1.1.10"
 weezl = "0.2.1"

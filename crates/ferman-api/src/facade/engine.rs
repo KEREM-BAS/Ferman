@@ -70,6 +70,8 @@ pub struct Engine {
     pub(super) jobs: Arc<super::jobs::JobManager>,
     /// Version history's folder and switch, which the actors share (`versions`).
     pub(super) versions: Arc<super::versions::VersionConfig>,
+    /// The connected AI clients and the app's stream of their changes (`clients`).
+    pub(super) clients: Mutex<super::clients::Clients>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -109,6 +111,7 @@ impl Engine {
             recovery: Arc::default(),
             jobs: Arc::new(super::jobs::JobManager::start()),
             versions: Arc::default(),
+            clients: Mutex::default(),
         }
     }
 

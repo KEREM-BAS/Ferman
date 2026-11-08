@@ -25,6 +25,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<ClientChange> dco_decode_StreamSink_client_change_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw);
 
   @protected
@@ -226,6 +231,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret dco_decode_caret(dynamic raw);
+
+  @protected
+  ClientChange dco_decode_client_change(dynamic raw);
 
   @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw);
@@ -887,6 +895,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<ClientChange> sse_decode_StreamSink_client_change_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   );
@@ -1134,6 +1147,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret sse_decode_caret(SseDeserializer deserializer);
+
+  @protected
+  ClientChange sse_decode_client_change(SseDeserializer deserializer);
 
   @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer);
@@ -1879,6 +1895,20 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict>
+  cst_encode_StreamSink_client_change_Dco(RustStreamSink<ClientChange> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -3618,6 +3648,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_client_change(
+    ClientChange apiObj,
+    wire_cst_client_change wireObj,
+  ) {
+    wireObj.document = cst_encode_u_64(apiObj.document);
+    wireObj.client = cst_encode_String(apiObj.client);
+    cst_api_fill_to_wire_revision_info(apiObj.revision, wireObj.revision);
+  }
+
+  @protected
   void cst_api_fill_to_wire_combine_file_info(
     CombineFileInfo apiObj,
     wire_cst_combine_file_info wireObj,
@@ -3986,6 +4026,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.before = cst_encode_String(apiObj.before);
     wireObj.after = cst_encode_String(apiObj.after);
     wireObj.reverts = cst_encode_list_prim_u_32_strict(apiObj.reverts);
+    wireObj.client = cst_encode_opt_String(apiObj.client);
   }
 
   @protected
@@ -4846,6 +4887,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_job_event_Dco(
     RustStreamSink<JobEvent> self,
     SseSerializer serializer,
@@ -5183,6 +5230,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_caret(Caret self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_change(ClientChange self, SseSerializer serializer);
 
   @protected
   void sse_encode_combine_file_info(
@@ -9126,6 +9176,28 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__versions = _wire__crate__frb__versionsPtr
       .asFunction<void Function(int, int)>();
 
+  void wire__crate__frb__watch_client_changes(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
+  ) {
+    return _wire__crate__frb__watch_client_changes(port_, sink);
+  }
+
+  late final _wire__crate__frb__watch_client_changesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__watch_client_changes');
+  late final _wire__crate__frb__watch_client_changes =
+      _wire__crate__frb__watch_client_changesPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
   void wire__crate__frb__white_margins(
     int port_,
     int document,
@@ -11693,6 +11765,8 @@ final class wire_cst_history_step extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> after;
 
   external ffi.Pointer<wire_cst_list_prim_u_32_strict> reverts;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> client;
 }
 
 final class wire_cst_list_history_step extends ffi.Struct {
@@ -11974,6 +12048,15 @@ final class wire_cst_caret extends ffi.Struct {
   external int index;
 
   external wire_cst_page_rect rect;
+}
+
+final class wire_cst_client_change extends ffi.Struct {
+  @ffi.Uint64()
+  external int document;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> client;
+
+  external wire_cst_revision_info revision;
 }
 
 final class wire_cst_combine_preview extends ffi.Struct {

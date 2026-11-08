@@ -1714,7 +1714,7 @@ Generated in W0 by `tools/corpus`, with README rows and hashes: a file with anno
 | 34 | Settings import | A trust boundary: validated, with `lastDocuments` left out of export | G50 |
 | 35 | A pane with no case | `_paneBody` becomes exhaustive, so a shipped pane cannot silently show General | — |
 | 36 | The signing dry run | A self-made test certificate in CI on macOS and Windows, on a build artefact; no accounts, nothing shipped | ROADMAP §8 |
-| 37 | `rmcp` | Licence passes on a trial resolve (82 packages, no HTTP client). The newest release is a day old, so an older one is pinned; `cargo deny` runs when W7 starts, and a small JSON-RPC layer is the fallback | ADR 0019 |
+| 37 | `rmcp` | Licence passes on a trial resolve (82 packages, no HTTP client). The newest release is a day old, so an older one is pinned; `cargo deny` runs when W7 starts, and a small JSON-RPC layer is the fallback. **Settled in W7:** rmcp `=3.8.0` (`server` and `macros`, rmcp-macros held at 3.8.0) with tokio 1.53.3 passed `cargo deny check` and its dev-licence run, so no JSON-RPC layer of our own | ADR 0019 |
 
 New gaps to record in W0, each with the option above or the board's data as sample: a6-3's "9 pages" against its 8; a6-5's ranges past page 64; a6-3's images with no page size (A4 or Letter by region, image scaled to fit); a4-3b's export with no control (Export in the stamp's menu); a4-3's "document's date format" (the region's format); "Undo works until the file is saved" against undo after a save; a11-1d's sample TR chip on Plex Sans Arabic (real coverage wins); Turkish case folding in the palette (the document's own text is folded too).
 

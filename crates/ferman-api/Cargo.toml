@@ -19,6 +19,9 @@ default = []
 # The Dart bridge surface (the `frb` module). On in the app build; off for ferman-cli and the
 # integration tests, which call the facade directly (ADR 0003).
 frb = ["dep:flutter_rust_bridge"]
+# The local MCP server for AI clients (ADR 0019): `facade::mcp`, with rmcp and tokio. On in the
+# desktop app; off for ferman-cli and the web build.
+mcp = ["dep:rmcp", "dep:tokio"]
 
 [dependencies]
 ferman-core.workspace = true
@@ -31,10 +34,14 @@ thiserror.workspace = true
 tracing.workspace = true
 serde.workspace = true
 flutter_rust_bridge = { workspace = true, optional = true }
+rmcp = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
 
 [dev-dependencies]
 criterion.workspace = true
 serde_json.workspace = true
+# The MCP test's runtime joins the server and a stand-in client (feature `mcp`).
+tokio = { workspace = true, features = ["macros"] }
 
 [[bench]]
 name = "edit_and_save"

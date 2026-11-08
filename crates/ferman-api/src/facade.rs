@@ -8,7 +8,9 @@
 //! and selections ([`Engine::text_blocks`]), and edits them in transactions with undo, redo and
 //! saving ([`Engine::begin_edit`], one actor per document); since M4 it runs background jobs
 //! ([`Engine::start_job`]) reads and writes annotations ([`Engine::annotations`]), form fields
-//! ([`Engine::form_fields`]) and simple signatures ([`Engine::add_signature`]). The [`Engine`] owns the long-lived
+//! ([`Engine::form_fields`]) and simple signatures ([`Engine::add_signature`]), and lets AI clients
+//! work in the open documents (ADR 0019: [`Engine::connect_client`], and with the `mcp` feature the
+//! MCP server of [`mcp`]). The [`Engine`] owns the long-lived
 //! parts (the render thread that loads PDFium); the free functions use the process's
 //! [global](Engine::global) engine.
 //! Every entry point runs inside [`guard`] or [`guard_async`], which turn a panic into an
@@ -18,6 +20,7 @@
 mod annotations;
 mod assemble;
 mod blocking;
+mod clients;
 mod compress;
 mod debug;
 mod document;
@@ -30,6 +33,8 @@ mod guard;
 mod info;
 mod jobs;
 mod links;
+#[cfg(feature = "mcp")]
+pub mod mcp;
 mod recovery;
 mod search;
 mod signatures;
@@ -43,6 +48,7 @@ pub use assemble::{
     SplitPreview,
 };
 pub use blocking::block_on;
+pub use clients::{ChangeSink, ClientChange, ClientId, ClientInfo, OpenDocumentInfo};
 pub use compress::{CompressAnalysis, LOW_PRINT_DPI, PRINT_DPI, PrintPage, PrintSink};
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{DocumentStructure, OpenedDocument, PageInfo, ReadOnly, Security};

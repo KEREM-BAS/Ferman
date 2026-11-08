@@ -1128,6 +1128,19 @@ pub struct HistoryStep {
     pub after: String,
     /// The steps this one reverted, by index; empty for an edit.
     pub reverts: Vec<u32>,
+    /// The name of the AI client that made it; `None` for the user and a restored step.
+    pub client: Option<String>,
+}
+
+/// A step an AI client committed (ADR 0019), so the app redraws and its undo list follows.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ClientChange {
+    /// The document it changed.
+    pub document: u64,
+    /// The client's name, as the step names it.
+    pub client: String,
+    /// Where the history stands, with the pages to redraw.
+    pub revision: RevisionInfo,
 }
 
 /// What a revert did.
@@ -3880,6 +3893,31 @@ pub async fn remove_attachment(
         .map_err(api_error_dto)
 }
 
+/// Streams every step an AI client commits, in any document, in place of the stream before.
+///
+/// See [`facade::Engine::watch_client_changes`].
+///
+/// # Errors
+///
+/// `Internal` only when the engine cannot start.
+pub async fn watch_client_changes(sink: StreamSink<ClientChange>) -> Result<(), ApiError> {
+    engine()?.watch_client_changes(Box::new(BridgeChanges(sink)));
+    Ok(())
+}
+
+/// Hands the clients' changes to their Dart stream; a stream nobody reads drops them.
+struct BridgeChanges(StreamSink<ClientChange>);
+
+impl facade::ChangeSink for BridgeChanges {
+    fn deliver(&mut self, change: facade::ClientChange) {
+        let _ = self.0.add(ClientChange {
+            document: change.document.get(),
+            client: change.client,
+            revision: revision_dto(change.revision),
+        });
+    }
+}
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -3992,6 +4030,7 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                     before: step.before,
                     after: step.after,
                     reverts: step.reverts,
+                    client: step.client,
                 })
                 .collect(),
             current: history.current,
