@@ -165,6 +165,20 @@ abstract final class _PrintLayout {
 
 class _PrintDialogState extends ConsumerState<PrintDialog> {
   final TextEditingController _pages = TextEditingController();
+
+  /// The first focus: not the disabled Printer above it, whose tooltip
+  /// would open (the Dialog focuses its first control unless one has it).
+  final FocusNode _pagesNode = FocusNode(debugLabel: 'Pages');
+
+  @override
+  void initState() {
+    super.initState();
+    // Before the Dialog's own first-focus pass, which runs after this frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _pagesNode.requestFocus();
+    });
+  }
+
   bool _fit = true;
   bool _comments = true;
 
@@ -174,6 +188,7 @@ class _PrintDialogState extends ConsumerState<PrintDialog> {
   @override
   void dispose() {
     _pages.dispose();
+    _pagesNode.dispose();
     super.dispose();
   }
 
@@ -293,6 +308,7 @@ class _PrintDialogState extends ConsumerState<PrintDialog> {
                       child: TextField(
                         size: FieldSize.sm,
                         label: l10n.printPages,
+                        focusNode: _pagesNode,
                         placeholder: l10n.printPagesAll,
                         controller: _pages,
                         error: chosen == null

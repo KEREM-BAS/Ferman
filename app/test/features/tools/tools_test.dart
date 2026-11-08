@@ -14,6 +14,7 @@ import 'package:ferman/l10n/gen/app_localizations_en.dart';
 import 'package:ferman/l10n/region.dart';
 import 'package:ferman/platform/print_service.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show EditableText;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -183,6 +184,19 @@ void main() {
       await tester.tap(tool('Print'));
       await settle(tester);
       expect(container.read(organizeDialogProvider), isA<PrintDialog>());
+      // The first focus is Pages, not the disabled Printer and its tooltip.
+      expect(
+        tester
+            .widget<EditableText>(
+              find.descendant(
+                of: find.widgetWithText(TextField, 'Pages'),
+                matching: find.byType(EditableText),
+              ),
+            )
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
       // The system dialog sets these (question 3).
       for (final label in ['Printer', 'Both sides']) {
         final select = tester.widget<Select<String>>(
