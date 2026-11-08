@@ -47,6 +47,7 @@ const Set<String> _sameInArabic = {
   'organizeSizeA4', // the international name of a paper and its size
   'organizeSizeLetter', // the international name of a paper and its size
   'appName', // the product name, never translated
+  'aiClientsStepBy', // two placeholders around a middle dot
   'startPhoneToolOcr', // OCR, as the FmMHome board writes it in Arabic
   'startPhoneSourceGoogleDrive', // a product's name
   'startPhoneSourceOneDrive', // a product's name

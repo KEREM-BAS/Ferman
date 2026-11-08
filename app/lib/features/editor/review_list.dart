@@ -59,6 +59,7 @@ final class ReviewRow {
     this.to = '',
     this.hiddenLines = 0,
     this.name = '',
+    this.client,
   });
 
   /// The history step it belongs to, from 0.
@@ -85,6 +86,9 @@ final class ReviewRow {
 
   /// The step's name, which a restored step shows in place of its page.
   final String name;
+
+  /// The AI client that made the step (ADR 0019); null for the person's own.
+  final String? client;
 }
 
 /// The words of [before] and [after] that differ, as "18.500 TL" and
@@ -166,6 +170,7 @@ List<ReviewRow> reviewRows(EditHistory history, OpenedDocument? document) => [
           from: from,
           to: to,
           name: step.name,
+          client: step.client,
         ),
         for (final substitution in step.substitutions)
           if (fonts.add(substitution.toFont))
@@ -177,6 +182,7 @@ List<ReviewRow> reviewRows(EditHistory history, OpenedDocument? document) => [
               from: substitution.fromFont,
               to: substitution.toFont,
               name: step.name,
+              client: step.client,
             ),
         if (step.hiddenLines > 0)
           ReviewRow(
@@ -186,21 +192,28 @@ List<ReviewRow> reviewRows(EditHistory history, OpenedDocument? document) => [
             page: page,
             hiddenLines: step.hiddenLines,
             name: step.name,
+            client: step.client,
           ),
       ];
     }(),
 ];
 
-/// Where the row is, as a3-12's first line says it.
+/// Where the row is, as a3-12's first line says it, and the AI client that
+/// made it (G94).
 String _where(AppLocalizations l10n, RegionFormat format, ReviewRow row) {
   final page = row.page;
-  if (page == null) return row.name;
-  final number = format.integer(page + 1);
-  return switch (row.kind) {
-    ReviewRowKind.text => l10n.reviewWhereText(number),
-    ReviewRowKind.font => l10n.reviewWhereFont(number),
-    ReviewRowKind.warning => l10n.reviewWhereWarning(number),
-  };
+  final number = page == null ? '' : format.integer(page + 1);
+  final where = page == null
+      ? row.name
+      : switch (row.kind) {
+          ReviewRowKind.text => l10n.reviewWhereText(number),
+          ReviewRowKind.font => l10n.reviewWhereFont(number),
+          ReviewRowKind.warning => l10n.reviewWhereWarning(number),
+        };
+  final client = row.client;
+  return client == null
+      ? where
+      : l10n.aiClientsStepBy(where, bidiIsolate(client));
 }
 
 String _keptWarning(

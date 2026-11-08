@@ -1204,6 +1204,17 @@ class DocumentEditor extends _$DocumentEditor {
     return failed;
   }
 
+  /// A step an AI client committed to [document] (ADR 0019): its pages, its
+  /// tab and its history show it, and the document is unsaved. The client
+  /// waited for the person's own transaction, so none is open here.
+  Future<void> clientChanged(int document, RevisionInfo info) => _run(() async {
+    // The redo branch went with it.
+    if (document == _document) {
+      _targets = _targets.take(state.history.current).toList();
+    }
+    await _refresh(document, info);
+  });
+
   /// Opens the editor on the block step [step] changed, its typing becoming
   /// the history step [name]: Go to selects it on the page (a3-12). A block
   /// no longer there leaves the page showing.

@@ -830,6 +830,33 @@ abstract interface class EngineService {
   /// `tr`: their indices, first to last (ICU4X's collator, ADR 0021). Digits
   /// compare by their value and equal texts keep their order.
   Future<List<int>> collationOrder(String locale, List<String> texts);
+
+  /// Starts the host AI clients connect to (ADR 0019) in the app data
+  /// directory, and returns the folder `ferman-mcp` takes. Throws an
+  /// [EngineException] when it cannot listen there, and on the web.
+  Future<String> startMcpHost();
+
+  /// Stops the host: every client disconnects and its open transactions
+  /// roll back.
+  Future<void> stopMcpHost();
+
+  /// The connected AI clients, oldest first.
+  Future<List<McpClient>> mcpClients();
+
+  /// Lets [client] change documents, or makes it read only again. Throws an
+  /// [EngineException] with [EngineErrorKind.notFound] once it disconnected.
+  Future<void> grantClientEdit(int client, {required bool mayEdit});
+
+  /// Every request a client makes of the user, from now on; it replaces the
+  /// stream before. Without a listener the engine declines them.
+  Stream<ClientRequest> clientRequests();
+
+  /// The user's answer to [request]; nothing happens for one that is gone.
+  Future<void> answerClientRequest(int request, {required bool allow});
+
+  /// Every step a client commits, in any document, from now on; it replaces
+  /// the stream before.
+  Stream<ClientChange> clientChanges();
 }
 
 /// Why the engine could not be used.
@@ -1499,4 +1526,26 @@ class UnavailableEngineService implements EngineService {
   @override
   Future<List<int>> collationOrder(String locale, List<String> texts) async =>
       throw error;
+
+  @override
+  Future<String> startMcpHost() async => throw error;
+
+  @override
+  Future<void> stopMcpHost() async {}
+
+  @override
+  Future<List<McpClient>> mcpClients() async => const [];
+
+  @override
+  Future<void> grantClientEdit(int client, {required bool mayEdit}) async =>
+      throw error;
+
+  @override
+  Stream<ClientRequest> clientRequests() => const Stream.empty();
+
+  @override
+  Future<void> answerClientRequest(int request, {required bool allow}) async {}
+
+  @override
+  Stream<ClientChange> clientChanges() => const Stream.empty();
 }

@@ -428,6 +428,97 @@ class FakeEngineService implements EngineService {
     return order;
   }
 
+  /// The folder the MCP host listens in while it runs; null while stopped.
+  String? mcpFolder;
+
+  /// Whether [startMcpHost] fails, as when the folder cannot be made.
+  bool mcpStartFails = false;
+
+  /// The connected AI clients [mcpClients] reports.
+  List<McpClient> connectedClients = [];
+
+  /// The requests the clients make, which a test adds to.
+  final StreamController<ClientRequest> clientRequestEvents =
+      StreamController.broadcast();
+
+  /// The answers to the clients' requests: request and whether allowed.
+  final List<(int, bool)> clientAnswers = [];
+
+  final StreamController<ClientChange> _clientChanges =
+      StreamController.broadcast();
+
+  @override
+  Future<String> startMcpHost() async {
+    if (mcpStartFails) {
+      throw const EngineException(
+        kind: EngineErrorKind.io,
+        messageKey: 'errorInternal',
+      );
+    }
+    return mcpFolder = '/data/mcp';
+  }
+
+  @override
+  Future<void> stopMcpHost() async {
+    mcpFolder = null;
+    connectedClients = [];
+  }
+
+  @override
+  Future<List<McpClient>> mcpClients() async => connectedClients;
+
+  @override
+  Future<void> grantClientEdit(int client, {required bool mayEdit}) async {
+    final index = connectedClients.indexWhere((each) => each.id == client);
+    if (index < 0) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      );
+    }
+    final old = connectedClients[index];
+    connectedClients = [...connectedClients]
+      ..[index] = McpClient(id: old.id, name: old.name, mayEdit: mayEdit);
+  }
+
+  @override
+  Stream<ClientRequest> clientRequests() => clientRequestEvents.stream;
+
+  @override
+  Future<void> answerClientRequest(int request, {required bool allow}) async =>
+      clientAnswers.add((request, allow));
+
+  @override
+  Stream<ClientChange> clientChanges() => _clientChanges.stream;
+
+  /// Commits a step named [name] to [document] as the AI client [client]
+  /// does, with no change to its pages, and reports it on [clientChanges].
+  void commitAsClient(int document, String client, String name) {
+    final history = _history(document);
+    final blocks = _blocks(document, 0);
+    final current = history.current + 1;
+    _histories[document] = (
+      steps: [
+        ...history.steps.take(history.current),
+        _FakeStep(
+          HistoryStep(name: name, time: now(), client: client),
+          0,
+          blocks,
+          blocks,
+          block: -1,
+        ),
+      ],
+      current: current,
+    );
+    _clientChanges.add(
+      ClientChange(
+        document: document,
+        client: client,
+        revision: RevisionInfo(current: current),
+      ),
+    );
+  }
+
   /// Reports [searchResults] for [query] page by page, then the progress
   /// over every page and [SearchDone].
   @override

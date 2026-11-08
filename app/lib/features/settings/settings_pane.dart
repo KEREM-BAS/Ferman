@@ -6,7 +6,8 @@ import 'package:ferman/l10n/gen/app_localizations.dart';
 /// (`FmSettings.dc.html` `NAV`), then Licences (question 7 of the M4 plan).
 ///
 /// M1 builds General, Language and region and a Privacy skeleton, M3 Editing,
-/// M4 Fonts, Signatures and certificates, Advanced and Licences; the other
+/// M4 Fonts, Signatures and certificates, Advanced, AI clients (G94) and
+/// Licences; the other
 /// panes name their [feature] in the feature registry and are listed and
 /// disabled with "Available in a future version" while it is there (G10).
 enum SettingsPane {
@@ -31,6 +32,10 @@ enum SettingsPane {
 
   /// AI assistant (a11-1g): P4.
   ai('ai', IconName.sparkles, feature: Feature.aiAssistant),
+
+  /// AI clients: outside AI apps working in Ferman through MCP (ADR 0019).
+  /// No board draws it (G94); it sits after Ferman's own assistant.
+  aiClients('ai-clients', IconName.plug),
 
   /// Privacy (a11-1h).
   privacy('privacy', IconName.eyeOff),
@@ -73,6 +78,7 @@ enum SettingsPane {
     signatures => l10n.settingsPaneSignatures,
     ocr => l10n.settingsPaneOcr,
     ai => l10n.settingsPaneAi,
+    aiClients => l10n.settingsPaneAiClients,
     privacy => l10n.settingsPanePrivacy,
     updates => l10n.settingsPaneUpdates,
     shortcuts => l10n.settingsPaneShortcuts,
@@ -135,6 +141,7 @@ enum SettingsPane {
         l10n.settingsNetTimestamps,
         l10n.settingsNetDownloads,
         l10n.settingsNetAiProvider,
+        l10n.settingsNetAiClients,
         l10n.settingsNetworkActivity,
       ],
       advanced => [
@@ -146,6 +153,12 @@ enum SettingsPane {
         l10n.settingsImport,
         l10n.settingsShowLogs,
         l10n.settingsResetButton,
+      ],
+      aiClients => [
+        l10n.aiClientsServer,
+        l10n.aiClientsConnected,
+        l10n.aiClientsSetUpHeading,
+        l10n.aiClientsCopy,
       ],
       licences => [l10n.licencesIntro],
       ocr || ai || updates || shortcuts => const <String>[],

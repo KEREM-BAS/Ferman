@@ -3,6 +3,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/ai_clients/ai_clients.dart';
 import 'package:ferman/features/editor/block_editor.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_marks.dart';
@@ -533,6 +534,45 @@ void main() {
     await tester.pump();
     expect(find.byType(EditHistoryPanel), findsNothing);
     expect(find.byType(FmDocPanel), findsOneWidget);
+  });
+
+  testWidgets("an AI client's step names it in the history, marks the "
+      "document unsaved and undoes as the person's own (G94)", (tester) async {
+    await pumpEditor(tester);
+    final container = containerOf(tester)..read(aiClientsProvider);
+    await container
+        .read(settingsProvider.notifier)
+        .change((settings) => settings.copyWith(aiClients: true));
+    await pumps(tester);
+    expect(engine.mcpFolder, isNotNull);
+
+    engine.commitAsClient(document.id, 'Claude', 'Edited text · page 1');
+    await pumps(tester);
+    expect(editor(tester).history.current, 1);
+    expect(editor(tester).history.steps.single.client, 'Claude');
+    expect(tab(tester).saveState, SaveState.unsaved);
+
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is IconButton && widget.label == 'Edit history',
+      ),
+    );
+    await tester.pump();
+    expect(
+      find.descendant(
+        of: find.byType(EditHistoryPanel),
+        matching: find.textContaining('· \u2068Claude\u2069'),
+      ),
+      findsOneWidget,
+    );
+
+    await control(tester, LogicalKeyboardKey.keyZ);
+    expect(editor(tester).history.current, 0);
+    // Stopped, so its poll ends with the test.
+    await container
+        .read(settingsProvider.notifier)
+        .change((settings) => settings.copyWith(aiClients: false));
+    await pumps(tester);
   });
 
   testWidgets('leaving Edit mode commits the typing', (tester) async {

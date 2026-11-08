@@ -6405,4 +6405,159 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dropOverlayCombineDescription => 'بالترتيب المعروض.';
+
+  @override
+  String get settingsPaneAiClients => 'عملاء الذكاء الاصطناعي';
+
+  @override
+  String get aiClientsServer => 'السماح لعملاء الذكاء الاصطناعي بالاتصال';
+
+  @override
+  String get aiClientsServerDescription =>
+      'يمكن لتطبيقات الذكاء الاصطناعي على هذا الحاسوب، مثل Claude Desktop، قراءة المستندات المفتوحة في Ferman، وتغييرها حيث تسمح بذلك. لا شيء يستمع على الشبكة.';
+
+  @override
+  String get aiClientsStartFailed =>
+      'لا يمكن لعملاء الذكاء الاصطناعي الاتصال: تعذّر على Ferman فتح اتصاله على هذا الحاسوب.';
+
+  @override
+  String get aiClientsConnected => 'العملاء المتصلون';
+
+  @override
+  String get aiClientsNone => 'لا يوجد عميل متصل.';
+
+  @override
+  String get aiClientsMayEdit => 'يمكنه تغيير المستندات';
+
+  @override
+  String aiClientsMayEditFor(String client) {
+    return 'يمكن لـ $client تغيير المستندات';
+  }
+
+  @override
+  String get aiClientsSetUpHeading => 'إعداد عميل';
+
+  @override
+  String get aiClientsOffNote => 'شغّل المفتاح أعلاه لإعداد عميل.';
+
+  @override
+  String get aiClientsSetUp => 'إعداد';
+
+  @override
+  String get aiClientsCopyInstead => 'انسخ الإعدادات أدناه إلى إعداداته.';
+
+  @override
+  String get aiClientsOther => 'العملاء المحليون الآخرون';
+
+  @override
+  String get aiClientsOtherNote => 'أضف هذا إلى إعدادات MCP الخاصة بالعميل.';
+
+  @override
+  String get aiClientsCopy => 'نسخ الإعدادات';
+
+  @override
+  String get aiClientsCopied => 'تم نسخ الإعدادات';
+
+  @override
+  String get aiClientsChatGpt =>
+      'لا يمكن لـ ChatGPT الاتصال بعد: فهو يصل إلى الخوادم من سحابة OpenAI فقط، ولا يفتح Ferman أي منفذ على الإنترنت.';
+
+  @override
+  String aiClientsSetUpDone(String client) {
+    return 'تم إعداد $client';
+  }
+
+  @override
+  String aiClientsSetUpRestart(String client) {
+    return 'أعد تشغيل $client لربطه بـ Ferman.';
+  }
+
+  @override
+  String aiClientsSetUpFailed(String client) {
+    return 'تعذّر إعداد $client';
+  }
+
+  @override
+  String get aiClientsSetUpFailedBody =>
+      'انسخ الإعدادات وأضفها إلى إعدادات العميل.';
+
+  @override
+  String aiClientsNotice(String names) {
+    return 'عملاء الذكاء الاصطناعي المتصلون: $names';
+  }
+
+  @override
+  String get aiClientsSeparator => '، ';
+
+  @override
+  String get aiClientsStop => 'إيقاف';
+
+  @override
+  String aiClientsStepBy(String detail, String client) {
+    return '$detail · $client';
+  }
+
+  @override
+  String get settingsNetAiClients => 'عملاء الذكاء الاصطناعي على هذا الحاسوب';
+
+  @override
+  String get settingsNetAiClientsDescription =>
+      'ما يقرؤه العميل المتصل يرسله إلى مزوّده الخاص باسم حسابك.';
+
+  @override
+  String clientRequestEditSigned(String client) {
+    return 'يريد $client تغيير مستند موقّع';
+  }
+
+  @override
+  String clientRequestEditSignedBody(String name) {
+    return '$name موقّع. تغييره يُبطل توقيعاته.';
+  }
+
+  @override
+  String clientRequestSave(String client, String name) {
+    return 'يريد $client حفظ $name';
+  }
+
+  @override
+  String get clientRequestSaveBody =>
+      'يحفظه Ferman فوق ملفه، كما يفعل أمر الحفظ.';
+
+  @override
+  String clientRequestWriteFile(String client) {
+    return 'يريد $client كتابة ملف';
+  }
+
+  @override
+  String clientRequestReadFile(String client) {
+    return 'يريد $client قراءة ملف';
+  }
+
+  @override
+  String clientRequestSign(String client, String name) {
+    return 'يريد $client توقيع $name باسمك';
+  }
+
+  @override
+  String get clientRequestSignBody =>
+      'يضع توقيعًا بسيطًا، وليس توقيعًا بشهادة.';
+
+  @override
+  String clientRequestRestore(String client, String name) {
+    return 'يريد $client استعادة إصدار من $name';
+  }
+
+  @override
+  String get clientRequestRestoreBody =>
+      'يحلّ الإصدار محل الملف. ويُحفظ عملك غير المحفوظ كإصدار أولًا.';
+
+  @override
+  String get clientRequestAllow => 'السماح';
+
+  @override
+  String get clientRequestDeny => 'عدم السماح';
+
+  @override
+  String get aiClientsClaudeNote =>
+      'يضيف «إعداد» Ferman إلى إعداداته. أعد تشغيله بعد ذلك.';
 }

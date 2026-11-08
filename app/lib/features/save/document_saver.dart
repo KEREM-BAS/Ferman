@@ -428,8 +428,8 @@ class DocumentSaver extends _$DocumentSaver {
   /// "Reload" (a11-7b): closes the active document, dropping its edits,
   /// and opens its file again. A file that is gone cannot come back, so the
   /// document and its edits stay, and the toast of a missing file says why.
-  Future<void> reload() async {
-    final tab = _active;
+  Future<void> reload({ShellDocument? tab}) async {
+    tab ??= _active;
     final id = tab?.document?.id;
     final path = tab?.path;
     if (id == null || path == null) return;
@@ -501,15 +501,16 @@ class DocumentSaver extends _$DocumentSaver {
     );
   }
 
-  /// Makes [version] the active document's file again (a9-8, decision 27):
-  /// the engine keeps unsaved work as a version first and checks for an
-  /// external change; the file then opens again, as Reload does.
-  Future<void> restoreVersion(int version) async {
-    final tab = _active;
-    final id = tab?.document?.id;
-    if (tab == null || id == null) return;
+  /// Makes [version] the file of [tab], by default the active document's,
+  /// again (a9-8, decision 27): the engine keeps unsaved work as a version
+  /// first and checks for an external change; the file then opens again, as
+  /// Reload does. Whether it was restored.
+  Future<bool> restoreVersion(int version, {ShellDocument? tab}) async {
+    final shown = tab ?? _active;
+    final id = shown?.document?.id;
+    if (shown == null || id == null) return false;
     final restored = await _guard(
-      tab,
+      shown,
       () => _editor.write(
         id,
         () => _editor.through(
@@ -518,9 +519,10 @@ class DocumentSaver extends _$DocumentSaver {
           (staging) => _engine.restoreVersion(id, version, staging: staging),
         ),
       ),
-      saveAs: () async => _openSheet(tab),
+      saveAs: () async => _openSheet(shown),
     );
-    if (restored) await reload();
+    if (restored) await reload(tab: shown);
+    return restored;
   }
 
   /// "Save repaired copy…" (a1-9, B103): the system save panel, then the

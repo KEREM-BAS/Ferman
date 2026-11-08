@@ -8403,5 +8403,242 @@
   "dropOverlayCombineDescription": "Merged in the order shown. You can reorder before saving.",
   "@dropOverlayCombineDescription": {
     "description": "Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered."
+  },
+  "settingsPaneAiClients": "AI clients",
+  "@settingsPaneAiClients": {
+    "description": "A settings pane for AI apps that connect to Ferman through MCP (G94, no board): its row in the pane list and its heading."
+  },
+  "aiClientsServer": "Let AI clients connect",
+  "@aiClientsServer": {
+    "description": "Settings › AI clients: the switch that starts the local MCP server (ADR 0019, G94). Off by default."
+  },
+  "aiClientsServerDescription": "AI apps on this computer, such as Claude Desktop, can read the documents open in Ferman, and change them where you allow it. Nothing listens on the network.",
+  "@aiClientsServerDescription": {
+    "description": "Settings › AI clients: under the switch (G94)."
+  },
+  "aiClientsStartFailed": "AI clients can't connect: Ferman couldn't open its connection on this computer.",
+  "@aiClientsStartFailed": {
+    "description": "Settings › AI clients: a warning when the local MCP server could not start (G94)."
+  },
+  "aiClientsConnected": "Connected clients",
+  "@aiClientsConnected": {
+    "description": "Settings › AI clients: the heading over the connected clients (G94)."
+  },
+  "aiClientsNone": "No client is connected.",
+  "@aiClientsNone": {
+    "description": "Settings › AI clients: no client is connected (G94)."
+  },
+  "aiClientsMayEdit": "Can change documents",
+  "@aiClientsMayEdit": {
+    "description": "Settings › AI clients: a connected client's switch; off, it only reads (G94)."
+  },
+  "aiClientsMayEditFor": "{client} can change documents",
+  "@aiClientsMayEditFor": {
+    "description": "Settings › AI clients: what a screen reader says for a client's switch. {client} is the name the client gave, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "aiClientsSetUpHeading": "Set up a client",
+  "@aiClientsSetUpHeading": {
+    "description": "Settings › AI clients: the heading over the clients Ferman can set up (G94)."
+  },
+  "aiClientsOffNote": "Turn on the switch above to set up a client.",
+  "@aiClientsOffNote": {
+    "description": "Settings › AI clients: shown while the server is off (G94)."
+  },
+  "aiClientsSetUp": "Set up",
+  "@aiClientsSetUp": {
+    "description": "Settings › AI clients: the one-click button that writes Ferman into Claude Desktop's settings (G94)."
+  },
+  "aiClientsCopyInstead": "Copy the configuration below into its settings.",
+  "@aiClientsCopyInstead": {
+    "description": "Settings › AI clients: under Claude Desktop where Ferman cannot write its settings (the macOS sandbox, Linux) (G94)."
+  },
+  "aiClientsOther": "Other local clients",
+  "@aiClientsOther": {
+    "description": "Settings › AI clients: the row for any other client that starts a local MCP server (G94)."
+  },
+  "aiClientsOtherNote": "Add this to the client's MCP settings.",
+  "@aiClientsOtherNote": {
+    "description": "Settings › AI clients: under Other local clients (G94)."
+  },
+  "aiClientsCopy": "Copy configuration",
+  "@aiClientsCopy": {
+    "description": "Settings › AI clients: copies the client configuration (G94)."
+  },
+  "aiClientsCopied": "Configuration copied",
+  "@aiClientsCopied": {
+    "description": "Toast after Copy configuration (G94)."
+  },
+  "aiClientsChatGpt": "ChatGPT can't connect yet: it reaches servers only from OpenAI's cloud, and Ferman opens no port to the internet.",
+  "@aiClientsChatGpt": {
+    "description": "Settings › AI clients: why ChatGPT is not offered (ADR 0019 e)."
+  },
+  "aiClientsSetUpDone": "{client} is set up",
+  "@aiClientsSetUpDone": {
+    "description": "Toast after one-click setup. {client} is the client's name (Claude Desktop).",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "aiClientsSetUpRestart": "Restart {client} to connect it to Ferman.",
+  "@aiClientsSetUpRestart": {
+    "description": "Toast message after one-click setup. {client} is the client's name.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "aiClientsSetUpFailed": "Couldn't set up {client}",
+  "@aiClientsSetUpFailed": {
+    "description": "Toast when one-click setup could not write the client's settings. {client} is the client's name.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "aiClientsSetUpFailedBody": "Copy the configuration and add it to the client's settings.",
+  "@aiClientsSetUpFailedBody": {
+    "description": "Toast message when one-click setup failed."
+  },
+  "aiClientsNotice": "AI clients connected: {names}",
+  "@aiClientsNotice": {
+    "description": "The window notice while AI clients are connected, and its line in Settings › Privacy (ADR 0019, G94). {names} are the clients' names, each isolated, separated by aiClientsSeparator.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "aiClientsSeparator": ", ",
+  "@aiClientsSeparator": {
+    "description": "What separates the clients' names in aiClientsNotice."
+  },
+  "aiClientsStop": "Stop",
+  "@aiClientsStop": {
+    "description": "The window notice's button that stops the MCP server and disconnects every client (G94)."
+  },
+  "aiClientsStepBy": "{detail} · {client}",
+  "@aiClientsStepBy": {
+    "description": "The history panel and the review list: a step an AI client made. {detail} is the time or the place, {client} the client's name, isolated.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      },
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNetAiClients": "AI clients on this computer",
+  "@settingsNetAiClients": {
+    "description": "A network use in Settings › Privacy: the local MCP server (G94). Nothing reaches the network, but what a client reads it sends to its provider."
+  },
+  "settingsNetAiClientsDescription": "What a connected client reads, it sends to its own provider under your account.",
+  "@settingsNetAiClientsDescription": {
+    "description": "Description of AI clients in Settings › Privacy (G94)."
+  },
+  "clientRequestEditSigned": "{client} wants to change a signed document",
+  "@clientRequestEditSigned": {
+    "description": "A client's request (ADR 0019 d): the title. {client} is its name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestEditSignedBody": "{name} is signed. Changing it makes its signatures invalid.",
+  "@clientRequestEditSignedBody": {
+    "description": "A client's request to change a signed document: the description. {name} is the file name, isolated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestSave": "{client} wants to save {name}",
+  "@clientRequestSave": {
+    "description": "A client's request: the title. {client} is its name, {name} the file name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestSaveBody": "Ferman saves it over its file, as Save does.",
+  "@clientRequestSaveBody": {
+    "description": "A client's request to save: the description."
+  },
+  "clientRequestWriteFile": "{client} wants to write a file",
+  "@clientRequestWriteFile": {
+    "description": "A client's request: the title; the description is the file's path. {client} is its name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestReadFile": "{client} wants to read a file",
+  "@clientRequestReadFile": {
+    "description": "A client's request: the title; the description is the file's path. {client} is its name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestSign": "{client} wants to sign {name} in your name",
+  "@clientRequestSign": {
+    "description": "A client's request: the title. {client} is its name, {name} the file name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestSignBody": "It places a simple signature, not a certificate signature.",
+  "@clientRequestSignBody": {
+    "description": "A client's request to sign: the description."
+  },
+  "clientRequestRestore": "{client} wants to restore a version of {name}",
+  "@clientRequestRestore": {
+    "description": "A client's request: the title. {client} is its name, {name} the file name, isolated.",
+    "placeholders": {
+      "client": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestRestoreBody": "The version replaces the file. Your unsaved work is kept as a version first.",
+  "@clientRequestRestoreBody": {
+    "description": "A client's request to restore a version: the description."
+  },
+  "clientRequestAllow": "Allow",
+  "@clientRequestAllow": {
+    "description": "A client's request: the button that allows it."
+  },
+  "clientRequestDeny": "Don't allow",
+  "@clientRequestDeny": {
+    "description": "A client's request: the button that declines it (also Esc and the close button)."
+  },
+  "aiClientsClaudeNote": "Set up writes Ferman into its settings. Restart it afterwards.",
+  "@aiClientsClaudeNote": {
+    "description": "Settings › AI clients: under Claude Desktop where one-click setup can write its settings (G94)."
   }
 }

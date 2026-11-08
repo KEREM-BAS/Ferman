@@ -5303,6 +5303,142 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String get dropOverlayCombineDescription =>
       isolate(super.dropOverlayCombineDescription);
+
+  @override
+  String get settingsPaneAiClients => isolate(super.settingsPaneAiClients);
+
+  @override
+  String get aiClientsServer => isolate(super.aiClientsServer);
+
+  @override
+  String get aiClientsServerDescription =>
+      isolate(super.aiClientsServerDescription);
+
+  @override
+  String get aiClientsStartFailed => isolate(super.aiClientsStartFailed);
+
+  @override
+  String get aiClientsConnected => isolate(super.aiClientsConnected);
+
+  @override
+  String get aiClientsNone => isolate(super.aiClientsNone);
+
+  @override
+  String get aiClientsMayEdit => isolate(super.aiClientsMayEdit);
+
+  @override
+  String aiClientsMayEditFor(String client) =>
+      isolate(super.aiClientsMayEditFor(client));
+
+  @override
+  String get aiClientsSetUpHeading => isolate(super.aiClientsSetUpHeading);
+
+  @override
+  String get aiClientsOffNote => isolate(super.aiClientsOffNote);
+
+  @override
+  String get aiClientsSetUp => isolate(super.aiClientsSetUp);
+
+  @override
+  String get aiClientsCopyInstead => isolate(super.aiClientsCopyInstead);
+
+  @override
+  String get aiClientsOther => isolate(super.aiClientsOther);
+
+  @override
+  String get aiClientsOtherNote => isolate(super.aiClientsOtherNote);
+
+  @override
+  String get aiClientsCopy => isolate(super.aiClientsCopy);
+
+  @override
+  String get aiClientsCopied => isolate(super.aiClientsCopied);
+
+  @override
+  String get aiClientsChatGpt => isolate(super.aiClientsChatGpt);
+
+  @override
+  String aiClientsSetUpDone(String client) =>
+      isolate(super.aiClientsSetUpDone(client));
+
+  @override
+  String aiClientsSetUpRestart(String client) =>
+      isolate(super.aiClientsSetUpRestart(client));
+
+  @override
+  String aiClientsSetUpFailed(String client) =>
+      isolate(super.aiClientsSetUpFailed(client));
+
+  @override
+  String get aiClientsSetUpFailedBody =>
+      isolate(super.aiClientsSetUpFailedBody);
+
+  @override
+  String aiClientsNotice(String names) => isolate(super.aiClientsNotice(names));
+
+  @override
+  String get aiClientsSeparator => isolate(super.aiClientsSeparator);
+
+  @override
+  String get aiClientsStop => isolate(super.aiClientsStop);
+
+  @override
+  String aiClientsStepBy(String detail, String client) =>
+      isolate(super.aiClientsStepBy(detail, client));
+
+  @override
+  String get settingsNetAiClients => isolate(super.settingsNetAiClients);
+
+  @override
+  String get settingsNetAiClientsDescription =>
+      isolate(super.settingsNetAiClientsDescription);
+
+  @override
+  String clientRequestEditSigned(String client) =>
+      isolate(super.clientRequestEditSigned(client));
+
+  @override
+  String clientRequestEditSignedBody(String name) =>
+      isolate(super.clientRequestEditSignedBody(name));
+
+  @override
+  String clientRequestSave(String client, String name) =>
+      isolate(super.clientRequestSave(client, name));
+
+  @override
+  String get clientRequestSaveBody => isolate(super.clientRequestSaveBody);
+
+  @override
+  String clientRequestWriteFile(String client) =>
+      isolate(super.clientRequestWriteFile(client));
+
+  @override
+  String clientRequestReadFile(String client) =>
+      isolate(super.clientRequestReadFile(client));
+
+  @override
+  String clientRequestSign(String client, String name) =>
+      isolate(super.clientRequestSign(client, name));
+
+  @override
+  String get clientRequestSignBody => isolate(super.clientRequestSignBody);
+
+  @override
+  String clientRequestRestore(String client, String name) =>
+      isolate(super.clientRequestRestore(client, name));
+
+  @override
+  String get clientRequestRestoreBody =>
+      isolate(super.clientRequestRestoreBody);
+
+  @override
+  String get clientRequestAllow => isolate(super.clientRequestAllow);
+
+  @override
+  String get clientRequestDeny => isolate(super.clientRequestDeny);
+
+  @override
+  String get aiClientsClaudeNote => isolate(super.aiClientsClaudeNote);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate
