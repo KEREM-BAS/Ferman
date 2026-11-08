@@ -48,7 +48,10 @@ pub use assemble::{
     SplitPreview,
 };
 pub use blocking::block_on;
-pub use clients::{ChangeSink, ClientChange, ClientId, ClientInfo, OpenDocumentInfo};
+pub use clients::{
+    Acting, ChangeSink, ClientChange, ClientId, ClientInfo, ClientRequest, ClientRequestKind,
+    OpenDocumentInfo, RequestSink,
+};
 pub use compress::{CompressAnalysis, LOW_PRINT_DPI, PRINT_DPI, PrintPage, PrintSink};
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{DocumentStructure, OpenedDocument, PageInfo, ReadOnly, Security};

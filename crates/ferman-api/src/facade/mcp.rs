@@ -3,22 +3,30 @@
 //! feature alone, the shown need ADR 0009 asks for (M4 plan decision 37: rmcp 3.8.0, pinned
 //! below the newest release, passed `cargo deny` when W7 started).
 //!
-//! [`serve`] runs one client's connection over a byte stream that the app's host accepted on its
-//! local socket or named pipe (never a network address): the client says its name in the MCP
-//! `initialize` handshake and is connected to the engine under it, read only
-//! ([`Engine::connect_client`]); when the connection ends, however it ends, the client is
-//! disconnected and its open transactions are rolled back ([`Engine::disconnect_client`]).
+//! The app starts the host ([`Engine::start_mcp_host`], off by default): a Unix domain socket in
+//! a folder only the user can open on macOS and Linux, a named pipe that refuses remote callers
+//! on Windows, never a network address. `ferman-mcp`, the byte pump an AI client starts, connects
+//! to it and proves itself with the host's token, a file in the same folder.
 //!
-//! The tools come with the next commit of W7; until then the server answers the handshake and
-//! offers none.
+//! [`serve`] runs one client's connection: the client says its name in the MCP `initialize`
+//! handshake and is connected to the engine under it, read only ([`Engine::connect_client`]);
+//! when the connection ends, however it ends, the client is disconnected and its open
+//! transactions are rolled back ([`Engine::disconnect_client`]). Its tools (`tools`) read the open
+//! documents under read permission and change them only once the user grants edit.
+
+mod host;
+mod tools;
 
 use std::sync::{Arc, Mutex, PoisonError};
 
+use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::model::{
     Implementation, InitializeRequestParams, InitializeResult, ServerCapabilities, ServerConfig,
 };
 use rmcp::service::RequestContext;
-use rmcp::{ErrorData, RoleServer, ServerHandler, ServiceExt as _};
+use rmcp::{ErrorData, RoleServer, ServerHandler, ServiceExt as _, tool_handler};
+
+pub(super) use host::Host;
 
 use super::clients::ClientId;
 use super::engine::Engine;
@@ -29,15 +37,25 @@ use super::version::APP_VERSION;
 const UNNAMED: &str = "MCP client";
 
 /// The server one connection talks to: the engine and, from the handshake, its client.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct Server {
     engine: &'static Engine,
     client: Arc<Mutex<Option<ClientId>>>,
+    tools: ToolRouter<Self>,
 }
 
+impl std::fmt::Debug for Server {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Server")
+            .field("client", &self.client)
+            .finish_non_exhaustive()
+    }
+}
+
+#[tool_handler(router = self.tools)]
 impl ServerHandler for Server {
     fn get_info(&self) -> ServerConfig {
-        let mut config = ServerConfig::new(ServerCapabilities::default());
+        let mut config = ServerConfig::new(ServerCapabilities::builder().enable_tools().build());
         config.server_info = Implementation::new("Ferman", APP_VERSION);
         config
     }
@@ -92,6 +110,7 @@ where
     let server = Server {
         engine,
         client: Arc::default(),
+        tools: Server::tool_router(),
     };
     let _connection = Connection(server.clone());
     let running = server
@@ -141,6 +160,7 @@ mod tests {
                     .unwrap();
                 let reply = lines.next_line().await.unwrap().unwrap();
                 assert!(reply.contains(r#""name":"Ferman""#), "{reply}");
+                assert!(reply.contains(r#""tools""#), "{reply}");
                 write
                     .write_all(b"{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}\n")
                     .await

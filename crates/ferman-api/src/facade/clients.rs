@@ -12,17 +12,28 @@
 //! user's undo undoes it like any other step. A client's first commit on a signed document asks
 //! the user even after the user's own confirmation ([`Engine::confirm_client_signed`]).
 //!
+//! Every other change a client makes is the facade's own call run for it ([`Engine::as_client`]):
+//! the actor's jobs carry the client, so its step names it and a signed document asks for its own
+//! confirmation. What the UI would confirm with the user reaches the app as a request
+//! ([`Engine::watch_client_requests`]) that the user answers ([`Engine::answer_client_request`]).
+//!
 //! This part needs no async runtime and is always built; the MCP protocol on top of it is
 //! `facade::mcp`, behind the `mcp` feature.
 
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
-use std::sync::PoisonError;
+use std::future::Future;
+use std::path::PathBuf;
+use std::pin::Pin;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, PoisonError};
+use std::task::{Context, Poll};
 
 use ferman_render::DocumentId;
 use ferman_text::BlockId;
 
+use super::document::{DocumentStructure, page_info};
 use super::edit::{EditPreview, Job, RevisionInfo, TransactionId};
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
@@ -90,11 +101,91 @@ pub trait ChangeSink: Send {
     fn deliver(&mut self, change: ClientChange);
 }
 
+/// What a client asks the user to allow, as the UI would ask for the user's own action.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ClientRequestKind {
+    /// Its first change to a signed document, which invalidates the signatures (a3-16a).
+    EditSigned,
+    /// Saving the document over its file. The app saves in its own flow (staging and the
+    /// platform's swap) when the user allows, then answers.
+    Save,
+    /// Writing a new file at this path (compress, extract, split, combine).
+    WriteFile(PathBuf),
+    /// Reading the file at this path into the document (attach, combine).
+    ReadFile(PathBuf),
+    /// Placing a simple signature in the user's name.
+    Sign,
+    /// Restoring this version ([`VersionInfo::id`](super::VersionInfo::id)) over the document's
+    /// file. The app restores it in its own flow when the user allows, then answers.
+    RestoreVersion(u64),
+}
+
+/// A client's request the user answers in the app.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ClientRequest {
+    /// Its handle, for [`Engine::answer_client_request`].
+    pub id: u64,
+    /// The client that asks.
+    pub client: ClientId,
+    /// Its name.
+    pub client_name: String,
+    /// The document it is about, if any.
+    pub document: Option<DocumentId>,
+    /// What it asks.
+    pub kind: ClientRequestKind,
+}
+
+/// Receives the clients' requests, on the thread of the client's call, under the engine's lock
+/// of its clients: it hands them on and never calls the engine itself.
+pub trait RequestSink: Send {
+    /// Delivers one request.
+    fn deliver(&mut self, request: ClientRequest);
+}
+
+/// The request ids handed out.
+static NEXT_REQUEST: AtomicU64 = AtomicU64::new(1);
+
+thread_local! {
+    /// The client whose call the current poll of an [`Acting`] future runs.
+    static ACTING: RefCell<Option<(ClientId, String)>> = const { RefCell::new(None) };
+}
+
+/// The client whose call runs on this thread now, and its name; `None` for the user's.
+pub(super) fn acting() -> Option<(ClientId, String)> {
+    ACTING.with_borrow(Clone::clone)
+}
+
+/// A facade call run for a client ([`Engine::as_client`]): while it is polled, [`acting`] names
+/// the client, so each actor job it sends carries it.
+pub struct Acting<F> {
+    client: (ClientId, String),
+    call: Pin<Box<F>>,
+}
+
+impl<F: Future> Future for Acting<F> {
+    type Output = F::Output;
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<F::Output> {
+        /// Puts back what was acting, also when the call panics.
+        struct Restore(Option<(ClientId, String)>);
+        impl Drop for Restore {
+            fn drop(&mut self) {
+                ACTING.set(self.0.take());
+            }
+        }
+        let _restore = Restore(ACTING.replace(Some(self.client.clone())));
+        self.call.as_mut().poll(cx)
+    }
+}
+
 /// The connected clients and the app's change stream.
 #[derive(Default)]
 pub(super) struct Clients {
     connected: HashMap<ClientId, Connected>,
     sink: Option<Box<dyn ChangeSink>>,
+    requests: Option<Box<dyn RequestSink>>,
+    /// The requests waiting for the user, with their client.
+    pending: HashMap<u64, (ClientId, futures_channel::oneshot::Sender<bool>)>,
 }
 
 impl fmt::Debug for Clients {
@@ -102,6 +193,7 @@ impl fmt::Debug for Clients {
         f.debug_struct("Clients")
             .field("connected", &self.connected.len())
             .field("watched", &self.sink.is_some())
+            .field("pending", &self.pending.len())
             .finish()
     }
 }
@@ -144,7 +236,12 @@ impl Engine {
     /// Disconnects a client: its open transactions are rolled back, after any call of theirs
     /// already sent to their document. Nothing happens for a client that is gone.
     pub fn disconnect_client(&self, client: ClientId) {
-        let Some(connected) = self.clients().connected.remove(&client) else {
+        let Some(connected) = ({
+            let mut clients = self.clients();
+            // Its requests are declined: their senders drop.
+            clients.pending.retain(|_, (asker, _)| *asker != client);
+            clients.connected.remove(&client)
+        }) else {
             return;
         };
         for transaction in connected.transactions {
@@ -204,6 +301,136 @@ impl Engine {
         self.clients().sink = Some(sink);
     }
 
+    /// Makes `sink` receive every request a client makes of the user, in place of the one
+    /// before. Without one, every request is declined.
+    pub fn watch_client_requests(&self, sink: Box<dyn RequestSink>) {
+        self.clients().requests = Some(sink);
+    }
+
+    /// The user's answer to `request`. Nothing happens for a request that is gone (answered, or
+    /// its client disconnected).
+    pub fn answer_client_request(&self, request: u64, allow: bool) {
+        if let Some((_, answer)) = self.clients().pending.remove(&request) {
+            let _ = answer.send(allow);
+        }
+    }
+
+    /// Asks the user to allow `kind` for `client`, and waits for the answer.
+    ///
+    /// # Errors
+    ///
+    /// `PermissionDenied` when the user declines, when the app shows no requests, or when the
+    /// client disconnects meanwhile.
+    pub async fn ask_user(
+        &self,
+        client: ClientId,
+        document: Option<DocumentId>,
+        kind: ClientRequestKind,
+    ) -> Result<(), ApiError> {
+        let declined = || {
+            ApiError::new(ErrorKind::PermissionDenied, MessageKey::INTERNAL)
+                .with_details("the user did not allow it")
+        };
+        let answer = {
+            let mut clients = self.clients();
+            let client_name = clients
+                .connected
+                .get(&client)
+                .ok_or_else(no_client)?
+                .name
+                .clone();
+            let Some(requests) = clients.requests.as_mut() else {
+                return Err(declined());
+            };
+            let id = NEXT_REQUEST.fetch_add(1, Ordering::Relaxed);
+            requests.deliver(ClientRequest {
+                id,
+                client,
+                client_name,
+                document,
+                kind,
+            });
+            // Under the same lock, so no answer comes before it waits.
+            let (answer, waiting) = futures_channel::oneshot::channel();
+            clients.pending.insert(id, (client, answer));
+            waiting
+        };
+        match answer.await {
+            Ok(true) => Ok(()),
+            Ok(false) | Err(_) => Err(declined()),
+        }
+    }
+
+    /// The client's name, when the user let it edit.
+    fn editor(&self, client: ClientId) -> Result<String, ApiError> {
+        let clients = self.clients();
+        let connected = clients.connected.get(&client).ok_or_else(no_client)?;
+        if !connected.may_edit {
+            return Err(
+                ApiError::new(ErrorKind::PermissionDenied, MessageKey::INTERNAL)
+                    .with_details("the client may only read"),
+            );
+        }
+        Ok(connected.name.clone())
+    }
+
+    /// `call`, a facade call, run for `client`: its step names the client and a signed document
+    /// asks for the client's own confirmation. Report its change with
+    /// [`report_client_change`](Self::report_client_change).
+    ///
+    /// # Errors
+    ///
+    /// `PermissionDenied` for a client the user has not let edit, `NotFound` for one that is not
+    /// connected.
+    pub fn as_client<F: Future>(&self, client: ClientId, call: F) -> Result<Acting<F>, ApiError> {
+        Ok(Acting {
+            client: (client, self.editor(client)?),
+            call: Box::pin(call),
+        })
+    }
+
+    /// Hands a step `client` committed to the app's change stream.
+    pub fn report_client_change(
+        &self,
+        client: ClientId,
+        document: DocumentId,
+        revision: &RevisionInfo,
+    ) {
+        let mut clients = self.clients();
+        let name = clients
+            .connected
+            .get(&client)
+            .map(|connected| connected.name.clone())
+            .unwrap_or_default();
+        if let Some(sink) = &mut clients.sink {
+            sink.deliver(ClientChange {
+                document,
+                client: name,
+                revision: revision.clone(),
+            });
+        }
+    }
+
+    /// `document`'s pages, outline, attachments and information as they stand now.
+    ///
+    /// # Errors
+    ///
+    /// `NotFound` for a document that is not open.
+    pub fn document_now(&self, document: DocumentId) -> Result<DocumentStructure, ApiError> {
+        let models = self.models()?;
+        let model = models
+            .get(&document)
+            .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+        let store = Arc::clone(&model.revised().store);
+        let doc = &model.document;
+        Ok(DocumentStructure {
+            pages: store.pages(doc).iter().map(page_info).collect(),
+            outline: store.outline(doc).to_vec(),
+            attachments: store.attachments(doc).to_vec(),
+            info: store.info(doc).clone(),
+        })
+    }
+
     /// The documents open in Ferman, oldest first, as they stand now.
     ///
     /// # Errors
@@ -214,7 +441,7 @@ impl Engine {
             .models()?
             .iter()
             .map(|(id, model)| {
-                let store = std::sync::Arc::clone(&model.revised().store);
+                let store = Arc::clone(&model.revised().store);
                 // shortcut: the name is the opened file's, not the one Save as moved it to; read
                 // the actor's path once a client shows the difference.
                 let name = model
@@ -272,17 +499,7 @@ impl Engine {
         block: BlockId,
     ) -> Result<TransactionId, ApiError> {
         guard_async(async move {
-            let name = {
-                let clients = self.clients();
-                let connected = clients.connected.get(&client).ok_or_else(no_client)?;
-                if !connected.may_edit {
-                    return Err(
-                        ApiError::new(ErrorKind::PermissionDenied, MessageKey::INTERNAL)
-                            .with_details("the client may only read"),
-                    );
-                }
-                connected.name.clone()
-            };
+            let name = self.editor(client)?;
             let transaction = loop {
                 let owner = (client, name.clone());
                 let begun = self
@@ -378,19 +595,7 @@ impl Engine {
         let result = self.commit(transaction, name).await;
         self.forget_ended(client);
         let revision = result?;
-        let mut clients = self.clients();
-        let name = clients
-            .connected
-            .get(&client)
-            .map(|connected| connected.name.clone())
-            .unwrap_or_default();
-        if let Some(sink) = &mut clients.sink {
-            sink.deliver(ClientChange {
-                document,
-                client: name,
-                revision: revision.clone(),
-            });
-        }
+        self.report_client_change(client, document, &revision);
         Ok(revision)
     }
 

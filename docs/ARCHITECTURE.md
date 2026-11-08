@@ -113,6 +113,7 @@ Toolchain targets: Rust stable 1.99, pinned with `rust-toolchain.toml` (1.99.0);
 
 ```text
 level 4   ferman-cli ──────► ferman-api (facade only, default-features = false)
+          ferman-mcp ──────► no Ferman crate                (+ tokio: the byte pump, ADR 0019)
 level 3   ferman-api ──────► ferman-ops, ferman-render, ferman-text, ferman-fonts, ferman-core
                              (+ flutter_rust_bridge 2.13.0 behind the `frb` feature)
 level 2   ferman-ops ──────► ferman-text, ferman-fonts, ferman-core

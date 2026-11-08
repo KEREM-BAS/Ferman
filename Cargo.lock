@@ -824,6 +824,7 @@ dependencies = [
  "ferman-text",
  "flutter_rust_bridge",
  "futures-channel",
+ "getrandom",
  "rmcp",
  "serde",
  "serde_json",
@@ -874,6 +875,13 @@ dependencies = [
  "skrifa",
  "subsetter",
  "thiserror",
+]
+
+[[package]]
+name = "ferman-mcp"
+version = "0.1.0"
+dependencies = [
+ "tokio",
 ]
 
 [[package]]

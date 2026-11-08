@@ -3905,6 +3905,177 @@ pub async fn watch_client_changes(sink: StreamSink<ClientChange>) -> Result<(), 
     Ok(())
 }
 
+/// A connected AI client (ADR 0019).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct McpClient {
+    /// Its handle.
+    pub id: u64,
+    /// The name it gave when it connected.
+    pub name: String,
+    /// Whether the user let it change documents; read only otherwise.
+    pub may_edit: bool,
+}
+
+/// What a client asks the user to allow.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ClientRequestKind {
+    /// Its first change to a signed document, which invalidates the signatures (a3-16a).
+    EditSigned,
+    /// Saving the document over its file: the app saves in its own flow, then answers.
+    Save,
+    /// Writing a new file at [`ClientRequest::path`].
+    WriteFile,
+    /// Reading the file at [`ClientRequest::path`] into the document.
+    ReadFile,
+    /// Placing a simple signature in the user's name.
+    Sign,
+    /// Restoring [`ClientRequest::version`] over the document's file: the app restores it in
+    /// its own flow, then answers.
+    RestoreVersion,
+}
+
+/// A client's request the user answers with [`answer_client_request`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ClientRequest {
+    /// Its handle.
+    pub id: u64,
+    /// The client that asks.
+    pub client: u64,
+    /// Its name.
+    pub client_name: String,
+    /// The document it is about, if any.
+    pub document: Option<u64>,
+    /// What it asks.
+    pub kind: ClientRequestKind,
+    /// The file, for [`ClientRequestKind::WriteFile`] and [`ClientRequestKind::ReadFile`].
+    pub path: Option<String>,
+    /// The version, for [`ClientRequestKind::RestoreVersion`].
+    pub version: Option<u64>,
+}
+
+/// Starts the host AI clients connect to, in `app_data`'s `mcp` folder, and returns the folder
+/// `ferman-mcp` takes. Off until the user turns it on.
+///
+/// See [`facade::Engine::start_mcp_host`].
+///
+/// # Errors
+///
+/// `Io` or `FileLocked` as the facade says, and `Unsupported` in a build without the `mcp`
+/// feature (the web).
+pub async fn start_mcp_host(app_data: String) -> Result<String, ApiError> {
+    #[cfg(feature = "mcp")]
+    {
+        let folder = engine()?
+            .start_mcp_host(PathBuf::from(app_data))
+            .map_err(api_error_dto)?;
+        Ok(folder.to_string_lossy().into_owned())
+    }
+    #[cfg(not(feature = "mcp"))]
+    {
+        let _ = app_data;
+        Err(api_error_dto(facade::ApiError::new(
+            facade::ErrorKind::Unsupported,
+            facade::MessageKey::INTERNAL,
+        )))
+    }
+}
+
+/// Stops the host: every client disconnects and its open transactions roll back.
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn stop_mcp_host() -> Result<(), ApiError> {
+    #[cfg(feature = "mcp")]
+    engine()?.stop_mcp_host();
+    Ok(())
+}
+
+/// The connected AI clients, oldest first.
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn mcp_clients() -> Result<Vec<McpClient>, ApiError> {
+    Ok(engine()?
+        .connected_clients()
+        .into_iter()
+        .map(|client| McpClient {
+            id: client.id.get(),
+            name: client.name,
+            may_edit: client.may_edit,
+        })
+        .collect())
+}
+
+/// Lets `client` change documents, or makes it read only again.
+///
+/// See [`facade::Engine::grant_edit`].
+///
+/// # Errors
+///
+/// `NotFound` for a client that is not connected.
+pub async fn grant_client_edit(client: u64, may_edit: bool) -> Result<(), ApiError> {
+    engine()?
+        .grant_edit(facade::ClientId::from_raw(client), may_edit)
+        .map_err(api_error_dto)
+}
+
+/// Streams every request a client makes of the user, in place of the stream before.
+///
+/// # Errors
+///
+/// `Internal` only when the engine cannot start.
+pub async fn watch_client_requests(sink: StreamSink<ClientRequest>) -> Result<(), ApiError> {
+    engine()?.watch_client_requests(Box::new(BridgeRequests(sink)));
+    Ok(())
+}
+
+/// The user's answer to a client's request; nothing happens for one that is gone.
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn answer_client_request(request: u64, allow: bool) -> Result<(), ApiError> {
+    engine()?.answer_client_request(request, allow);
+    Ok(())
+}
+
+/// Hands the clients' requests to their Dart stream.
+struct BridgeRequests(StreamSink<ClientRequest>);
+
+impl facade::RequestSink for BridgeRequests {
+    fn deliver(&mut self, request: facade::ClientRequest) {
+        let (kind, path, version) = match request.kind {
+            facade::ClientRequestKind::EditSigned => (ClientRequestKind::EditSigned, None, None),
+            facade::ClientRequestKind::Save => (ClientRequestKind::Save, None, None),
+            facade::ClientRequestKind::WriteFile(path) => (
+                ClientRequestKind::WriteFile,
+                Some(path.to_string_lossy().into_owned()),
+                None,
+            ),
+            facade::ClientRequestKind::ReadFile(path) => (
+                ClientRequestKind::ReadFile,
+                Some(path.to_string_lossy().into_owned()),
+                None,
+            ),
+            facade::ClientRequestKind::Sign => (ClientRequestKind::Sign, None, None),
+            facade::ClientRequestKind::RestoreVersion(version) => {
+                (ClientRequestKind::RestoreVersion, None, Some(version))
+            }
+        };
+        let _ = self.0.add(ClientRequest {
+            id: request.id,
+            client: request.client.get(),
+            client_name: request.client_name,
+            document: request.document.map(|document| document.get()),
+            kind,
+            path,
+            version,
+        });
+    }
+}
+
 /// Hands the clients' changes to their Dart stream; a stream nobody reads drops them.
 struct BridgeChanges(StreamSink<ClientChange>);
 

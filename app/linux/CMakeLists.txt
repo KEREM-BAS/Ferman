@@ -131,6 +131,21 @@ endif()
 install(FILES "${PDFIUM_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
+# ferman-mcp, the byte pump an AI client starts (ADR 0019), goes next to the
+# executable. It holds no PDF code. cargo builds it in release from the
+# repository root, where rust-toolchain.toml names the toolchain; signing
+# waits for M5.
+get_filename_component(FERMAN_REPO "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+set(FERMAN_MCP_TARGET_DIR "${PROJECT_BINARY_DIR}/ferman-mcp")
+add_custom_target(ferman_mcp ALL
+  COMMAND cargo build --release --locked -p ferman-mcp
+    --target-dir "${FERMAN_MCP_TARGET_DIR}"
+  WORKING_DIRECTORY "${FERMAN_REPO}"
+  COMMENT "Building ferman-mcp"
+  VERBATIM)
+install(PROGRAMS "${FERMAN_MCP_TARGET_DIR}/release/ferman-mcp"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}" COMPONENT Runtime)
+
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/linux/")
 install(DIRECTORY "${NATIVE_ASSETS_DIR}"

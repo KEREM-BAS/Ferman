@@ -95,6 +95,25 @@ goes back to the owner:
   in the history (`HistoryStep::client`) and in the engine's own log, and reaches the app through a
   change stream. The recovery journal holds objects only and restores unsaved changes as one step
   without names, so it does not record the client.
+  The host (`facade::mcp`, started and stopped by the app, off by default) listens in the `mcp`
+  folder of the app data directory: a Unix domain socket in a 0700 folder, itself 0600, on macOS
+  and Linux, and on Windows a named pipe with a random part in its name that refuses remote
+  callers, its name in the folder's `pipe` file. The token is a 0600 file in the same folder,
+  new each time the host starts; a connection whose first line is not the token is closed.
+  `ferman-mcp <folder>` (crate `ferman-mcp`, tokio only) sends the token, then pumps bytes until
+  the app closes, and says that Ferman is not running (status 1) when it cannot connect; the
+  Linux and Windows CMake builds and a Runner build phase on macOS (universal, signed ad hoc until
+  M5) put it beside the executable. The tools read the open documents (pages, bookmarks,
+  attachments, information, text blocks, search, comments, form fields, links, history,
+  versions) under read permission, and with edit permission run the M3 text edit and each M4
+  operation through the facade's own calls, run for the client so its step names it and a signed
+  document asks for its own confirmation (organize pages, comments and replies, flatten, links,
+  form fill and clear, bookmarks, metadata, attachments, compress, extract, split, combine, a
+  simple signature). What the UI would confirm becomes a request the app answers: the client's
+  first change to a signed document, writing or reading a file at a path the client names,
+  placing a signature, and saving or restoring a version, which the app then does in its own
+  flow. The macOS sandbox is kept and the socket lives in the container; whether a client outside
+  the sandbox reaches it is an owner check on a real Mac.
 - **What the user sees.** A notice in the window while a client is connected, the client's name on
   each of its edits in the review list, and a way to stop it from the window as well as from
   Settings.

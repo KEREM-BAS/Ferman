@@ -30,6 +30,11 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  RustStreamSink<ClientRequest> dco_decode_StreamSink_client_request_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw);
 
   @protected
@@ -234,6 +239,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ClientChange dco_decode_client_change(dynamic raw);
+
+  @protected
+  ClientRequest dco_decode_client_request(dynamic raw);
+
+  @protected
+  ClientRequestKind dco_decode_client_request_kind(dynamic raw);
 
   @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw);
@@ -515,6 +526,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LinkInfo> dco_decode_list_link_info(dynamic raw);
 
   @protected
+  List<McpClient> dco_decode_list_mcp_client(dynamic raw);
+
+  @protected
   List<MissingChar> dco_decode_list_missing_char(dynamic raw);
 
   @protected
@@ -582,6 +596,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
+
+  @protected
+  McpClient dco_decode_mcp_client(dynamic raw);
 
   @protected
   MissingChar dco_decode_missing_char(dynamic raw);
@@ -900,6 +917,11 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  RustStreamSink<ClientRequest> sse_decode_StreamSink_client_request_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   );
@@ -1150,6 +1172,14 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ClientChange sse_decode_client_change(SseDeserializer deserializer);
+
+  @protected
+  ClientRequest sse_decode_client_request(SseDeserializer deserializer);
+
+  @protected
+  ClientRequestKind sse_decode_client_request_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer);
@@ -1459,6 +1489,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LinkInfo> sse_decode_list_link_info(SseDeserializer deserializer);
 
   @protected
+  List<McpClient> sse_decode_list_mcp_client(SseDeserializer deserializer);
+
+  @protected
   List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer);
 
   @protected
@@ -1538,6 +1571,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
+
+  @protected
+  McpClient sse_decode_mcp_client(SseDeserializer deserializer);
 
   @protected
   MissingChar sse_decode_missing_char(SseDeserializer deserializer);
@@ -1905,6 +1941,20 @@ abstract class FermanBridgeApiImplPlatform
       raw.setupAndSerialize(
         codec: DcoCodec(
           decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict>
+  cst_encode_StreamSink_client_request_Dco(RustStreamSink<ClientRequest> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_request,
           decodeErrorData: dco_decode_AnyhowException,
         ),
       ),
@@ -2685,6 +2735,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_link_info(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_link_info(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_mcp_client> cst_encode_list_mcp_client(
+    List<McpClient> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_mcp_client(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_mcp_client(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -3658,6 +3720,20 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_client_request(
+    ClientRequest apiObj,
+    wire_cst_client_request wireObj,
+  ) {
+    wireObj.id = cst_encode_u_64(apiObj.id);
+    wireObj.client = cst_encode_u_64(apiObj.client);
+    wireObj.client_name = cst_encode_String(apiObj.clientName);
+    wireObj.document = cst_encode_opt_box_autoadd_u_64(apiObj.document);
+    wireObj.kind = cst_encode_client_request_kind(apiObj.kind);
+    wireObj.path = cst_encode_opt_String(apiObj.path);
+    wireObj.version = cst_encode_opt_box_autoadd_u_64(apiObj.version);
+  }
+
+  @protected
   void cst_api_fill_to_wire_combine_file_info(
     CombineFileInfo apiObj,
     wire_cst_combine_file_info wireObj,
@@ -4153,6 +4229,16 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     wireObj.links = cst_encode_list_link_info(apiObj.links);
     wireObj.truncated = cst_encode_bool(apiObj.truncated);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_mcp_client(
+    McpClient apiObj,
+    wire_cst_mcp_client wireObj,
+  ) {
+    wireObj.id = cst_encode_u_64(apiObj.id);
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.may_edit = cst_encode_bool(apiObj.mayEdit);
   }
 
   @protected
@@ -4737,6 +4823,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_build_profile(BuildProfile raw);
 
   @protected
+  int cst_encode_client_request_kind(ClientRequestKind raw);
+
+  @protected
   int cst_encode_compress_preset(CompressPreset raw);
 
   @protected
@@ -4889,6 +4978,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_StreamSink_client_change_Dco(
     RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_client_request_Dco(
+    RustStreamSink<ClientRequest> self,
     SseSerializer serializer,
   );
 
@@ -5233,6 +5328,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_client_change(ClientChange self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_request(ClientRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_request_kind(
+    ClientRequestKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_combine_file_info(
@@ -5628,6 +5732,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_link_info(List<LinkInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_mcp_client(
+    List<McpClient> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_missing_char(
     List<MissingChar> self,
     SseSerializer serializer,
@@ -5752,6 +5862,9 @@ abstract class FermanBridgeApiImplPlatform
     List<WantedItem> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_mcp_client(McpClient self, SseSerializer serializer);
 
   @protected
   void sse_encode_missing_char(MissingChar self, SseSerializer serializer);
@@ -6340,6 +6453,22 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__annotations = _wire__crate__frb__annotationsPtr
       .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__answer_client_request(
+    int port_,
+    int request,
+    bool allow,
+  ) {
+    return _wire__crate__frb__answer_client_request(port_, request, allow);
+  }
+
+  late final _wire__crate__frb__answer_client_requestPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool)>
+      >('frbgen_ferman_wire__crate__frb__answer_client_request');
+  late final _wire__crate__frb__answer_client_request =
+      _wire__crate__frb__answer_client_requestPtr
+          .asFunction<void Function(int, int, bool)>();
 
   WireSyncRust2DartDco wire__crate__frb__api_version() {
     return _wire__crate__frb__api_version();
@@ -7036,6 +7165,22 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__form_fields = _wire__crate__frb__form_fieldsPtr
       .asFunction<void Function(int, int)>();
 
+  void wire__crate__frb__grant_client_edit(
+    int port_,
+    int client,
+    bool may_edit,
+  ) {
+    return _wire__crate__frb__grant_client_edit(port_, client, may_edit);
+  }
+
+  late final _wire__crate__frb__grant_client_editPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool)>
+      >('frbgen_ferman_wire__crate__frb__grant_client_edit');
+  late final _wire__crate__frb__grant_client_edit =
+      _wire__crate__frb__grant_client_editPtr
+          .asFunction<void Function(int, int, bool)>();
+
   void wire__crate__frb__handwriting_styles(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
@@ -7196,6 +7341,17 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__list_recoverable =
       _wire__crate__frb__list_recoverablePtr.asFunction<void Function(int)>();
+
+  void wire__crate__frb__mcp_clients(int port_) {
+    return _wire__crate__frb__mcp_clients(port_);
+  }
+
+  late final _wire__crate__frb__mcp_clientsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+        'frbgen_ferman_wire__crate__frb__mcp_clients',
+      );
+  late final _wire__crate__frb__mcp_clients = _wire__crate__frb__mcp_clientsPtr
+      .asFunction<void Function(int)>();
 
   void wire__crate__frb__move_block(
     int port_,
@@ -8864,6 +9020,28 @@ class FermanBridgeWire implements BaseWire {
             )
           >();
 
+  void wire__crate__frb__start_mcp_host(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> app_data,
+  ) {
+    return _wire__crate__frb__start_mcp_host(port_, app_data);
+  }
+
+  late final _wire__crate__frb__start_mcp_hostPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__start_mcp_host');
+  late final _wire__crate__frb__start_mcp_host =
+      _wire__crate__frb__start_mcp_hostPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
   void wire__crate__frb__start_optimize_and_clean_job(
     int port_,
     int document,
@@ -9040,6 +9218,17 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
+  void wire__crate__frb__stop_mcp_host(int port_) {
+    return _wire__crate__frb__stop_mcp_host(port_);
+  }
+
+  late final _wire__crate__frb__stop_mcp_hostPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+        'frbgen_ferman_wire__crate__frb__stop_mcp_host',
+      );
+  late final _wire__crate__frb__stop_mcp_host =
+      _wire__crate__frb__stop_mcp_hostPtr.asFunction<void Function(int)>();
+
   void wire__crate__frb__text_blocks(int port_, int document, int page) {
     return _wire__crate__frb__text_blocks(port_, document, page);
   }
@@ -9194,6 +9383,28 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_wire__crate__frb__watch_client_changes');
   late final _wire__crate__frb__watch_client_changes =
       _wire__crate__frb__watch_client_changesPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
+  void wire__crate__frb__watch_client_requests(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
+  ) {
+    return _wire__crate__frb__watch_client_requests(port_, sink);
+  }
+
+  late final _wire__crate__frb__watch_client_requestsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__watch_client_requests');
+  late final _wire__crate__frb__watch_client_requests =
+      _wire__crate__frb__watch_client_requestsPtr
           .asFunction<
             void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
@@ -10173,6 +10384,19 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_link_info');
   late final _cst_new_list_link_info = _cst_new_list_link_infoPtr
       .asFunction<ffi.Pointer<wire_cst_list_link_info> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_mcp_client> cst_new_list_mcp_client(int len) {
+    return _cst_new_list_mcp_client(len);
+  }
+
+  late final _cst_new_list_mcp_clientPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_mcp_client> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_mcp_client');
+  late final _cst_new_list_mcp_client = _cst_new_list_mcp_clientPtr
+      .asFunction<ffi.Pointer<wire_cst_list_mcp_client> Function(int)>();
 
   ffi.Pointer<wire_cst_list_missing_char> cst_new_list_missing_char(int len) {
     return _cst_new_list_missing_char(len);
@@ -11829,6 +12053,23 @@ final class wire_cst_list_link_info extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_mcp_client extends ffi.Struct {
+  @ffi.Uint64()
+  external int id;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
+
+  @ffi.Bool()
+  external bool may_edit;
+}
+
+final class wire_cst_list_mcp_client extends ffi.Struct {
+  external ffi.Pointer<wire_cst_mcp_client> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_list_opt_box_autoadd_page_margins extends ffi.Struct {
   external ffi.Pointer<ffi.Pointer<wire_cst_page_margins>> ptr;
 
@@ -12057,6 +12298,25 @@ final class wire_cst_client_change extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> client;
 
   external wire_cst_revision_info revision;
+}
+
+final class wire_cst_client_request extends ffi.Struct {
+  @ffi.Uint64()
+  external int id;
+
+  @ffi.Uint64()
+  external int client;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> client_name;
+
+  external ffi.Pointer<ffi.Uint64> document;
+
+  @ffi.Int32()
+  external int kind;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> path;
+
+  external ffi.Pointer<ffi.Uint64> version;
 }
 
 final class wire_cst_combine_preview extends ffi.Struct {

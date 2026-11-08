@@ -138,6 +138,8 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Clippy (ferman-api with the bridge feature)
         run: cargo clippy -p ferman-api --features frb --all-targets --locked -- -D warnings
+      - name: Clippy (ferman-api as the app builds it, with the MCP host)
+        run: cargo clippy -p ferman-api --features frb,mcp --all-targets --locked -- -D warnings
       - name: Cache the corpus fonts
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -156,6 +158,8 @@ jobs:
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
         run: cargo test -p ferman-api --features frb --locked
+      - name: Test (ferman-api with the MCP host)
+        run: cargo test -p ferman-api --features mcp --locked --lib --test mcp
       - name: Cache the PDFium archive
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -182,6 +186,8 @@ jobs:
           export FERMAN_SAVED_DIR="$RUNNER_TEMP/saved"
           mkdir -p "$FERMAN_SAVED_DIR"
           cargo test --workspace --locked -- --ignored
+          # The stand-in MCP client over the real socket or pipe (ADR 0019).
+          cargo test -p ferman-api --features mcp --locked --test mcp -- --ignored
           cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
           grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
       # An independent checker over every saved test file (M3 plan decision 3; CI only, never shipped).
@@ -579,6 +585,7 @@ jobs:
             fail "app/$plist has no CFBundleExecutable"
           fi
           bins+=("$app/Contents/Frameworks/rust_lib_ferman.framework/rust_lib_ferman")
+          bins+=("$app/Contents/MacOS/ferman-mcp")
           bins+=("$app/Contents/Frameworks/libpdfium.dylib")
           # The minimum macOS of each slice: LC_BUILD_VERSION minos, or
           # LC_VERSION_MIN_MACOSX version in older binaries.
@@ -694,3 +701,5 @@ jobs:
           # cargokit builds the frb feature only for the modes listed in
           # crates/ferman-api/cargokit.yaml.
           nm -D "$lib/libferman_api.so" | grep -q frb_get_rust_content_hash
+          # ferman-mcp beside the executable (ADR 0019).
+          test -x build/linux/x64/release/bundle/ferman-mcp

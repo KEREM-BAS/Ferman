@@ -28,6 +28,8 @@ final class CrateGraphCheck implements Check {
       'ferman-ops',
     },
     'ferman-cli': {'ferman-api'},
+    // The byte pump AI clients start: no Ferman crate, no PDF code (ADR 0019).
+    'ferman-mcp': {},
   };
 
   /// Third-party crates that only one Ferman crate may depend on.

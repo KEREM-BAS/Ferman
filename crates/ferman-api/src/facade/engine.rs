@@ -72,6 +72,9 @@ pub struct Engine {
     pub(super) versions: Arc<super::versions::VersionConfig>,
     /// The connected AI clients and the app's stream of their changes (`clients`).
     pub(super) clients: Mutex<super::clients::Clients>,
+    /// The host AI clients connect to, while the app's switch is on (`mcp`).
+    #[cfg(feature = "mcp")]
+    pub(super) mcp_host: Mutex<Option<super::mcp::Host>>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -112,6 +115,8 @@ impl Engine {
             jobs: Arc::new(super::jobs::JobManager::start()),
             versions: Arc::default(),
             clients: Mutex::default(),
+            #[cfg(feature = "mcp")]
+            mcp_host: Mutex::default(),
         }
     }
 

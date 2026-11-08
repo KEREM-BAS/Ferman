@@ -511,6 +511,9 @@ pub(super) struct Session {
     /// The clients the user let change this signed document: each client's first commit asks
     /// even after the user's own confirmation (ADR 0019, d).
     clients_confirmed: Vec<ClientId>,
+    /// The client whose call the actor runs now, and its name; `None` for the user's
+    /// ([`Engine::ask`] sets it from [`clients::acting`](super::clients::acting)).
+    pub(super) acting: Option<(ClientId, String)>,
 }
 
 /// The open transaction.
@@ -601,6 +604,7 @@ impl Session {
             signed_since_save: false,
             waiters: Vec::new(),
             clients_confirmed: Vec::new(),
+            acting: None,
         }
     }
 
@@ -609,9 +613,10 @@ impl Session {
         self.model.document.structure().signed()
     }
 
-    /// Fails while a signed document waits for its confirmation.
+    /// Fails while a signed document waits for its confirmation: the user's, or for a client's
+    /// call the client's own.
     fn confirmed(&self) -> Result<(), ApiError> {
-        self.confirmed_for(None)
+        self.confirmed_for(self.acting.as_ref().map(|(client, _)| *client))
     }
 
     /// Fails while a signed document waits for the confirmation of `client`'s change, or the
@@ -1347,8 +1352,11 @@ impl Session {
             after,
             reverts: Vec::new(),
             keeps_signatures,
-            client: None,
+            client: self.acting.as_ref().map(|(_, client)| client.clone()),
         });
+        if let Some((_, client)) = &self.acting {
+            tracing::info!(client, step = current, "a client committed a step");
+        }
         self.frames.resize(current, None);
         self.frames.push(None);
         self.committed = Arc::new(working);
@@ -3332,9 +3340,12 @@ impl Engine {
         job: impl FnOnce(&mut Session) -> Result<T, ApiError> + Send + 'static,
     ) -> Result<T, ApiError> {
         let (reply, receiver) = futures_channel::oneshot::channel();
+        let acting = super::clients::acting();
         let job: Job = Box::new(move |session| {
+            session.acting = acting;
             // A panic is the last resort: the session keeps what the job changed before it.
             let result = guard(AssertUnwindSafe(|| job(session)));
+            session.acting = None;
             let _ = reply.send(result);
         });
         self.actor(document)?
