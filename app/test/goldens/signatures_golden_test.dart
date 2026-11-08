@@ -79,6 +79,8 @@ Future<void> main() async {
           ],
           // A Dialog and a popover hide while tickers are muted.
           muteTickers: false,
+          // The menu lays itself out every frame (an OverlayPortal).
+          layoutPortals: screen == 'sign_menu' ? 1 : 0,
           open: (tester) async {
             final context = tester.element(find.byType(FermanApp));
             final container = ProviderScope.containerOf(context);
