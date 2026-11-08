@@ -302,9 +302,7 @@ impl JobFolder {
                     std::process::id(),
                     self.job.0
                 ));
-                create_private_dir(&dir)?;
-                let lock = File::create(dir.join(LOCK_FILE))?;
-                lock.try_lock().map_err(io::Error::from)?;
+                let lock = lock_new_folder(&dir)?;
                 self.open = Some((dir.clone(), lock));
                 dir
             }
@@ -327,6 +325,35 @@ impl JobFolder {
 impl Drop for JobFolder {
     fn drop(&mut self) {
         self.remove();
+    }
+}
+
+/// Makes `dir` and holds its lock. Another process's sweep can find the lock file free in the
+/// moment between its creation and the lock and delete the folder, so the folder is made again
+/// until it still holds the locked file.
+fn lock_new_folder(dir: &Path) -> io::Result<File> {
+    let mut tries = 0u8;
+    loop {
+        match create_private_dir(dir) {
+            Err(err) if err.kind() != io::ErrorKind::AlreadyExists => return Err(err),
+            _ => {}
+        }
+        let path = dir.join(LOCK_FILE);
+        let result = File::create(&path).and_then(|lock| {
+            lock.try_lock().map_err(io::Error::from)?;
+            Ok(lock)
+        });
+        match result {
+            // Once locked, no sweep deletes it; the check catches one that did just before.
+            Ok(lock) if path.exists() => return Ok(lock),
+            Ok(_) | Err(_) if tries < 3 => {
+                tries = tries.saturating_add(1);
+                // The sweep that holds it finishes deleting first.
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            Ok(_) => return Err(io::Error::from(io::ErrorKind::NotFound)),
+            Err(err) => return Err(err),
+        }
     }
 }
 
@@ -354,13 +381,21 @@ fn sweep(temp: &Path) {
         }
         let dir = entry.path();
         // A folder without its lock file never held anything, and another user's cannot be read.
-        let free = OpenOptions::new()
-            .write(true)
-            .open(dir.join(LOCK_FILE))
-            .is_ok_and(|lock| lock.try_lock().is_ok());
-        if free && let Err(err) = fs::remove_dir_all(&dir) {
+        let Ok(lock) = OpenOptions::new().write(true).open(dir.join(LOCK_FILE)) else {
+            continue;
+        };
+        if lock.try_lock().is_err() {
+            continue;
+        }
+        // Held while deleting, so a job that is making this folder waits and makes it again;
+        // Windows cannot delete an open file, so it lets go first.
+        #[cfg(windows)]
+        drop(lock);
+        if let Err(err) = fs::remove_dir_all(&dir) {
             tracing::warn!(error = %err, "a crashed job's temp folder could not be deleted");
         }
+        #[cfg(not(windows))]
+        drop(lock);
     }
 }
 
