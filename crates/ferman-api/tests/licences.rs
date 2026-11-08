@@ -56,7 +56,11 @@ fn tree(target: &str) -> BTreeSet<String> {
         ])
         .output()
         .unwrap();
-    assert!(output.status.success(), "cargo tree failed");
+    assert!(
+        output.status.success(),
+        "cargo tree failed for {target}: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
     String::from_utf8(output.stdout)
         .unwrap()
         .lines()

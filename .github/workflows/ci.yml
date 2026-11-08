@@ -150,6 +150,10 @@ jobs:
         # generators embed that Ferman does not bundle, checked by SHA-256.
         shell: bash
         run: bash tools/corpus/fetch-fonts.sh
+      - name: Fetch every target's crates
+        # The licences test resolves the other systems' graphs offline; a build fetches only the
+        # host's crates, so a cold cache would miss them.
+        run: cargo fetch --locked
       - name: Test
         # The save crash test kills a save at 1,000 points here (100 by default; on Windows it
         # does not run).
