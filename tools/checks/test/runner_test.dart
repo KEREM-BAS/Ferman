@@ -36,7 +36,7 @@ void main() {
     );
     expect(
       result.output,
-      endsWith('18 checks: 3 passed, 0 failed, 15 skipped\n'),
+      endsWith('19 checks: 3 passed, 0 failed, 16 skipped\n'),
     );
   });
 
