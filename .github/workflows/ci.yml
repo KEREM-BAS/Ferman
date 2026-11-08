@@ -451,6 +451,13 @@ jobs:
         working-directory: .
         run: git config --system core.longpaths true
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
       - name: Linux desktop build dependencies
         if: runner.os == 'Linux'
         run: |
@@ -686,6 +693,13 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
       - name: Linux desktop build dependencies
         run: |
           sudo apt-get update -q
@@ -758,6 +772,13 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
       - name: Linux desktop build dependencies
         run: |
           sudo apt-get update -q
