@@ -2113,11 +2113,11 @@ rows say "keys only".
   screen without PDFium (G101). The first twelve have their images from CI's Linux run (`a18e5c4`),
   the newer six from the Linux run on `64f2115`. `a1-7`'s card has none: its indeterminate bar never
   stops, which the golden helper refuses.
-- [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
+- [x] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
   Strace was closed by question 9 of the M4 plan: M4's automated run through every screen, in a Linux
   network namespace, is this check, and this box closes with it (M4 W8): built as
-  `tools/no-network/run.sh` and CI's `no-network` job; the box is ticked when that job has passed,
-  citing the run.
+  `tools/no-network/run.sh` and CI's `no-network` job, which passed on 2026-11-08 on pull request
+  #21 (run [42468233852](https://github.com/KEREM-BAS/Ferman/actions/runs/42468233852/job/128692706957)).
 - [ ] Standard gates S1 to S9.
 
 ### Design gaps to settle in M2
@@ -2714,11 +2714,13 @@ The [M4 plan](PROGRESS.md#m4-plan)'s waves follow these steps with one change: t
   visible but disabled, with no network access, until phase 3 builds revocation lookups, off until
   first use, as the owner decided in [Q06](QUESTIONS.md#q06) ([G51](DESIGN_GAPS.md#g51)). No row is
   added for local-network discovery ([G52](DESIGN_GAPS.md#g52), [G56](DESIGN_GAPS.md#g56)).
-- [ ] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
+- [x] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
   through every screen, in a Linux network namespace with a dummy default route, logged with tcpdump;
   the MCP loopback is checked apart). Built in W8 (`tools/no-network`, CI's `no-network` job); the
   MCP host takes a Unix socket or named pipe and `crates/ferman-api/tests/mcp.rs` checks that nothing
-  listens on TCP. Ticked when the job has passed in CI, citing the run.
+  listens on TCP. Passed in CI on 2026-11-08 (run [42468233852](https://github.com/KEREM-BAS/Ferman/actions/runs/42468233852/job/128692706957), pull request #21), after
+  the job had caught cargokit reinstalling the pinned toolchain from `static.rust-lang.org` on every
+  build (fixed in `6a0a13b`).
 - [ ] The licences screen lists every Rust crate (from cargo-about), every Dart package, the PDFium
   `licenses/` folder and the packager's MIT notice, every font and the icon notices; a test checks
   the count against `cargo metadata` and `pubspec.lock`.
@@ -2748,9 +2750,9 @@ M4 plan found: [G142](DESIGN_GAPS.md#g142) to [G157](DESIGN_GAPS.md#g157).
 E1 to E8, plus:
 
 - [ ] The version-history location ADR is decided.
-- [ ] A code-signing dry run with a test certificate has passed on macOS and Windows, so M5 starts
+- [x] A code-signing dry run with a test certificate has passed on macOS and Windows, so M5 starts
   with a working signing path. Built in W8 (`tools/signing`, run by CI's Flutter job on the release
-  builds); ticked when both steps have passed in CI.
+  builds). Both steps passed in CI on 2026-11-08 (run [42468233852](https://github.com/KEREM-BAS/Ferman/actions/runs/42468233852), pull request #21).
 - [ ] Phase 1 feature review: every entry point drawn on an M1 to M4 board either works or is
   disabled with a BACKLOG entry naming its phase.
 
