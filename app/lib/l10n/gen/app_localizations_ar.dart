@@ -1301,7 +1301,7 @@ class AppLocalizationsAr extends AppLocalizations {
       two: 'الصفحتين كلتيهما',
       one: 'الصفحة الوحيدة',
     );
-    return 'بحث Ferman في $_temp0، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج.';
+    return 'بحث Ferman في $_temp0، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة.';
   }
 
   @override
@@ -1313,8 +1313,14 @@ class AppLocalizationsAr extends AppLocalizations {
       two: 'الصفحتين كلتيهما',
       one: 'الصفحة الوحيدة',
     );
-    return 'بحث Ferman في $_temp0. لم يُبحث في التعليقات وحقول النماذج.';
+    return 'بحث Ferman في $_temp0.';
   }
+
+  @override
+  String get findNotSearchedFields => 'لم يُبحث في حقول النماذج.';
+
+  @override
+  String get findNotSearchedBoth => 'لم يُبحث في التعليقات وحقول النماذج.';
 
   @override
   String get sidebarSearchField => 'البحث في المستند';
@@ -4290,5 +4296,1305 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String jobCreateFailedTitle(String name) {
     return 'تعذر إنشاء $name';
+  }
+
+  @override
+  String get commentsTitle => 'التعليقات';
+
+  @override
+  String get commentsFilter => 'تصفية وفرز';
+
+  @override
+  String get commentsMore => 'المزيد: تصدير الملخص، التسطيح، إخفاء الكل';
+
+  @override
+  String get commentsStatus => 'الحالة';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'مفتوحة $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'محلولة $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'الكل $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'المؤلف';
+
+  @override
+  String get commentsFilterType => 'النوع';
+
+  @override
+  String get commentsFilterSort => 'الفرز';
+
+  @override
+  String get commentsAllPeople => 'جميع الأشخاص';
+
+  @override
+  String get commentsTypeNotes => 'الملاحظات';
+
+  @override
+  String get commentsTypeMarkup => 'ترميز النص';
+
+  @override
+  String get commentsTypeDrawings => 'الرسومات';
+
+  @override
+  String get commentsTypeStamps => 'الأختام';
+
+  @override
+  String get commentsTypeOther => 'جميع الأنواع';
+
+  @override
+  String get commentsSortNewest => 'الأحدث';
+
+  @override
+  String get commentsSortAuthor => 'المؤلف';
+
+  @override
+  String get commentsSortOther => 'ترتيب الصفحات';
+
+  @override
+  String get commentsCertifiedNote =>
+      'تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها.';
+
+  @override
+  String get commentsTruncated =>
+      'يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman.';
+
+  @override
+  String get commentsEmptyTitle => 'لا توجد تعليقات';
+
+  @override
+  String get commentsEmptyBody =>
+      'اختر أداة من الأعلى، ثم أضف علامات على الصفحة.';
+
+  @override
+  String get commentsNoMatchTitle => 'لا توجد تعليقات مطابقة';
+
+  @override
+  String get commentsNoMatchBody => 'غيّر الحالة أو عوامل التصفية لرؤية غيرها.';
+
+  @override
+  String get commentsFootnote =>
+      'تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات.';
+
+  @override
+  String get commentsExportSummary => 'تصدير الملخص…';
+
+  @override
+  String get commentsFlatten => 'تسطيح…';
+
+  @override
+  String get commentsHideAll => 'إخفاء الكل';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown تعليق مخفي',
+      many: '$shown تعليقًا مخفيًا',
+      few: '$shown تعليقات مخفية',
+      two: 'تعليقان مخفيان',
+      one: 'تعليق واحد مخفي',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'تمييز';
+
+  @override
+  String get commentKindUnderline => 'تسطير';
+
+  @override
+  String get commentKindStrikeOut => 'يتوسطه خط';
+
+  @override
+  String get commentKindSquiggly => 'تسطير متموج';
+
+  @override
+  String get commentKindNote => 'ملاحظة';
+
+  @override
+  String get commentKindFreeText => 'نص';
+
+  @override
+  String get commentKindCallout => 'وسيلة شرح';
+
+  @override
+  String get commentKindInk => 'رسم';
+
+  @override
+  String get commentKindSquare => 'مستطيل';
+
+  @override
+  String get commentKindCircle => 'شكل بيضاوي';
+
+  @override
+  String get commentKindLine => 'خط';
+
+  @override
+  String get commentKindPolygon => 'مضلع';
+
+  @override
+  String get commentKindStamp => 'ختم';
+
+  @override
+  String get commentKindOther => 'تعليق';
+
+  @override
+  String commentStyleBar(String kind) {
+    return 'نمط $kind';
+  }
+
+  @override
+  String get commentStrokeWidth => 'سُمك الخط';
+
+  @override
+  String get commentOpacity => 'العتامة';
+
+  @override
+  String get commentOpen => 'فتح التعليق';
+
+  @override
+  String get commentDelete => 'حذف';
+
+  @override
+  String get commentMenu => 'تعليق';
+
+  @override
+  String get commentEditText => 'تحرير النص';
+
+  @override
+  String get commentMore => 'المزيد';
+
+  @override
+  String get commentCloseNote => 'إغلاق الملاحظة';
+
+  @override
+  String commentNoteFrom(String author) {
+    return 'ملاحظة من $author';
+  }
+
+  @override
+  String get commentReply => 'رد';
+
+  @override
+  String get commentResolve => 'حل';
+
+  @override
+  String get commentReopen => 'إعادة فتح';
+
+  @override
+  String get commentPeople => 'الأشخاص في هذا المستند';
+
+  @override
+  String commentQuote(String text) {
+    return '«$text»';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown رد',
+      many: '$shown ردًا',
+      few: '$shown ردود',
+      two: 'ردّان',
+      one: 'رد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return 'حلّها $name · $time';
+  }
+
+  @override
+  String get commentYesterday => 'أمس';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: '، محلولة',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '، $shown رد',
+      many: '، $shown ردًا',
+      few: '، $shown ردود',
+      two: '، ردّان',
+      one: '، رد واحد',
+      zero: '',
+    );
+    return '$author، $kind في الصفحة $page$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'إضافة تعليق';
+
+  @override
+  String get commentStepChange => 'تغيير التعليق';
+
+  @override
+  String get commentStepDelete => 'حذف التعليق';
+
+  @override
+  String get commentStepReply => 'الرد على التعليق';
+
+  @override
+  String get commentStepResolve => 'حل التعليق';
+
+  @override
+  String get commentStepReopen => 'إعادة فتح التعليق';
+
+  @override
+  String get commentDeletedToast => 'تم حذف التعليق';
+
+  @override
+  String get commentDeletedNote => 'مع ردوده.';
+
+  @override
+  String get commentNameTitle => 'اسمك في التعليقات';
+
+  @override
+  String get commentNameBody =>
+      'يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا.';
+
+  @override
+  String get commentNameSave => 'متابعة';
+
+  @override
+  String get settingsCommenterName => 'اسمك للتعليقات';
+
+  @override
+  String get commentTextField => 'نص التعليق';
+
+  @override
+  String get commentSummaryFile => 'التعليقات.pdf';
+
+  @override
+  String get commentColumnPage => 'الصفحة';
+
+  @override
+  String get commentColumnType => 'النوع';
+
+  @override
+  String get commentColumnAuthor => 'المؤلف';
+
+  @override
+  String get commentColumnDate => 'التاريخ';
+
+  @override
+  String get commentColumnText => 'النص';
+
+  @override
+  String get commentColumnReplies => 'الردود';
+
+  @override
+  String get commentColumnStatus => 'الحالة';
+
+  @override
+  String get commentStatusOpen => 'مفتوح';
+
+  @override
+  String get commentStatusResolved => 'محلول';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return 'جارٍ كتابة $name';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return 'تمت كتابة $name';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return 'تعذرت كتابة $name';
+  }
+
+  @override
+  String get commentSummaryCsvFile => 'التعليقات.csv';
+
+  @override
+  String get summaryTitle => 'تصدير ملخص التعليقات';
+
+  @override
+  String get summaryFormat => 'التنسيق';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'التخطيط';
+
+  @override
+  String get summaryPageAndComments => 'الصفحة والتعليقات';
+
+  @override
+  String get summaryPageAndCommentsHint => 'علامات مرقمة بجانب كل صفحة';
+
+  @override
+  String get summaryCommentsOnly => 'التعليقات فقط';
+
+  @override
+  String get summaryCommentsOnlyHint => 'قائمة مجمّعة حسب الصفحة';
+
+  @override
+  String get summaryPageThenList => 'الصفحة ثم القائمة';
+
+  @override
+  String get summaryPageThenListHint => 'الصفحة كاملة تليها تعليقاتها';
+
+  @override
+  String summaryOpen(String count) {
+    return 'التعليقات المفتوحة ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'الردود';
+
+  @override
+  String summaryResolved(String count) {
+    return 'التعليقات المحلولة ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'الصفحات التي بلا تعليقات';
+
+  @override
+  String get summarySortBy => 'الترتيب حسب';
+
+  @override
+  String get summarySortPage => 'ترتيب الصفحات';
+
+  @override
+  String get summaryPaper => 'الورق';
+
+  @override
+  String get summaryPreview => 'معاينة';
+
+  @override
+  String get summaryExport => 'تصدير الملخص…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هل تريد تسطيح $formatted تعليق في الصفحات؟',
+      many: 'هل تريد تسطيح $formatted تعليقًا في الصفحات؟',
+      few: 'هل تريد تسطيح $formatted تعليقات في الصفحات؟',
+      two: 'هل تريد تسطيح تعليقين في الصفحات؟',
+      one: 'هل تريد تسطيح تعليق واحد في الصفحات؟',
+      zero: 'هل تريد تسطيح التعليقات في الصفحات؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل التعليقات الـ$formatted',
+      many: 'كل التعليقات الـ$formatted',
+      few: 'كل التعليقات الـ$formatted',
+      two: 'التعليقان كلاهما',
+      one: 'التعليق الوحيد',
+      zero: 'كل التعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'التعليقات المحلولة الـ$formatted فقط',
+      many: 'التعليقات المحلولة الـ$formatted فقط',
+      few: 'التعليقات المحلولة الـ$formatted فقط',
+      two: 'التعليقان المحلولان فقط',
+      one: 'التعليق المحلول فقط',
+      zero: 'لا توجد تعليقات محلولة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'الاحتفاظ بنسخة مع التعليقات';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'تُحفظ باسم «$name» بجانب الأصل.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — مع التعليقات';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — مع التعليقات $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تسطيح $formatted تعليق',
+      many: 'تسطيح $formatted تعليقًا',
+      few: 'تسطيح $formatted تعليقات',
+      two: 'تسطيح تعليقين',
+      one: 'تسطيح تعليق واحد',
+      zero: 'تسطيح التعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'تسطيح التعليقات';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return 'جارٍ تسطيح التعليقات في $name';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return 'سُطّحت التعليقات في $name';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return 'تعذر تسطيح التعليقات في $name';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء.';
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'تعليق: $text';
+  }
+
+  @override
+  String get stampsTitle => 'الأختام';
+
+  @override
+  String get stampsSearch => 'البحث في الأختام';
+
+  @override
+  String get stampsNoMatch => 'لا توجد أختام تطابق بحثك';
+
+  @override
+  String get stampGroupStandard => 'قياسية';
+
+  @override
+  String get stampGroupNamed => 'بالاسم والتاريخ';
+
+  @override
+  String get stampGroupMine => 'أختامي';
+
+  @override
+  String get stampCreate => 'إنشاء ختم…';
+
+  @override
+  String get stampImport => 'استيراد…';
+
+  @override
+  String get stampExport => 'تصدير…';
+
+  @override
+  String get stampDelete => 'حذف';
+
+  @override
+  String get stampFileFilter => 'أختام Ferman';
+
+  @override
+  String get stampImportFailed => 'يتعذر استيراد هذا الختم';
+
+  @override
+  String get stampImportFailedBody => 'الملف ليس ختم Ferman أو أنه تالف.';
+
+  @override
+  String get stampExportFailed => 'تعذر تصدير الختم';
+
+  @override
+  String get stampsFull => 'قائمة «أختامي» ممتلئة. احذف أحدها أولاً.';
+
+  @override
+  String get createStampTitle => 'إنشاء ختم';
+
+  @override
+  String get createStampText => 'النص';
+
+  @override
+  String get createStampSecondLine => 'السطر الثاني';
+
+  @override
+  String get createStampMyName => 'اسمي';
+
+  @override
+  String get createStampDate => 'التاريخ';
+
+  @override
+  String get createStampTime => 'الوقت';
+
+  @override
+  String get createStampName => 'الاسم على الختم';
+
+  @override
+  String get createStampColour => 'اللون';
+
+  @override
+  String get stampToneSeal => 'أحمر الختم';
+
+  @override
+  String get stampToneInk => 'حبر';
+
+  @override
+  String get stampToneGreen => 'أخضر';
+
+  @override
+  String get stampToneGrey => 'رمادي';
+
+  @override
+  String get createStampCaps => 'لغة الأحرف الكبيرة';
+
+  @override
+  String get createStampLanguageTurkish => 'التركية (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'الإنجليزية';
+
+  @override
+  String get createStampLanguageGerman => 'الألمانية';
+
+  @override
+  String get createStampPreview => 'معاينة';
+
+  @override
+  String get createStampSavedNote => 'يُحفظ في «أختامي» على هذا الجهاز.';
+
+  @override
+  String get createStampSave => 'حفظ الختم';
+
+  @override
+  String get shapeRectangle => 'مستطيل';
+
+  @override
+  String get shapeEllipse => 'شكل بيضاوي';
+
+  @override
+  String get shapeArrow => 'سهم';
+
+  @override
+  String get shapeLine => 'خط';
+
+  @override
+  String get shapePolygon => 'مضلع';
+
+  @override
+  String get shapesKeepTool => 'إبقاء الأداة محددة';
+
+  @override
+  String get stepAddShape => 'إضافة شكل';
+
+  @override
+  String get stepAddStamp => 'إضافة ختم';
+
+  @override
+  String get placeStampHint =>
+      'انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة.';
+
+  @override
+  String get placeShapeHint =>
+      'اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة.';
+
+  @override
+  String get placePolygonHint =>
+      'انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى.';
+
+  @override
+  String get linksTitle => 'الروابط';
+
+  @override
+  String get linksNote => 'يسأل Ferman قبل فتح رابط ويب من ملف PDF.';
+
+  @override
+  String get linksEmpty => 'لا توجد روابط في هذا المستند.';
+
+  @override
+  String get linksTruncated =>
+      'يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها.';
+
+  @override
+  String get linksSelectTextFirst => 'حدّد أولًا النص المراد ربطه';
+
+  @override
+  String get linksKindWeb => 'ويب';
+
+  @override
+  String get linksKindMail => 'بريد إلكتروني';
+
+  @override
+  String get linksKindPage => 'صفحة';
+
+  @override
+  String get linksKindScript => 'برنامج نصي، لا يُشغَّل';
+
+  @override
+  String get linksKindLaunch => 'برنامج، لا يُشغَّل';
+
+  @override
+  String get linksKindFile => 'ملف، لا يُفتح';
+
+  @override
+  String get linksKindAddress => 'عنوان، لا يُفتح';
+
+  @override
+  String get linksKindAction => 'إجراء غير معروف، يُحتفظ به';
+
+  @override
+  String get linksKindNothing => 'لا يفعل شيئًا';
+
+  @override
+  String linksPage(String page) {
+    return 'الصفحة $page';
+  }
+
+  @override
+  String get linksPageMissing => 'صفحة مفقودة';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · الصفحة $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · الصفحة $page · قيد التحرير';
+  }
+
+  @override
+  String get linkAddTitle => 'إضافة رابط';
+
+  @override
+  String get linkEditTitle => 'تحرير الرابط';
+
+  @override
+  String get linkTo => 'الربط إلى';
+
+  @override
+  String get linkTypeFile => 'ملف';
+
+  @override
+  String get linkFieldWeb => 'عنوان الويب';
+
+  @override
+  String get linkFieldMail => 'عنوان البريد الإلكتروني';
+
+  @override
+  String get linkFieldPage => 'رقم الصفحة';
+
+  @override
+  String get linkAppearance => 'المظهر';
+
+  @override
+  String get linkLookNone => 'غير مرئي (يحتفظ النص بمظهره)';
+
+  @override
+  String get linkLookUnderline => 'تسطير';
+
+  @override
+  String get linkLookBox => 'إطار رفيع';
+
+  @override
+  String get linkRemove => 'إزالة الرابط';
+
+  @override
+  String get linkSave => 'حفظ الرابط';
+
+  @override
+  String get linkStepAdd => 'إضافة رابط';
+
+  @override
+  String get linkStepEdit => 'تحرير الرابط';
+
+  @override
+  String get linkStepRemove => 'إزالة الرابط';
+
+  @override
+  String get linkErrorWeb => 'اكتب عنوان ويب يبدأ بـ http:// أو https://.';
+
+  @override
+  String get linkErrorMail => 'اكتب عنوان بريد إلكتروني مثل name@example.com.';
+
+  @override
+  String get linkFailedTitle => 'تعذّر تغيير الرابط';
+
+  @override
+  String get linkOpenWebTitle => 'هل تريد فتح عنوان الويب هذا؟';
+
+  @override
+  String get linkOpenMailTitle => 'هل تريد مراسلة هذا العنوان؟';
+
+  @override
+  String get linkOpenDescription =>
+      'هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته.';
+
+  @override
+  String get linkOpenAction => 'فتح الرابط';
+
+  @override
+  String get linkOpenFailed => 'تعذّر فتح الرابط';
+
+  @override
+  String get linkBrokenTitle => 'هذا الرابط لا يؤدي إلى أي مكان';
+
+  @override
+  String get linkRefusedTitle => 'لم يتبع Ferman هذا الرابط';
+
+  @override
+  String get linkRefusedScript =>
+      'كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return 'كان سيشغّل $target، ولا يشغّل Ferman البرامج للمستندات أبدًا.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'يشير إلى ملف آخر، $target، ولا يفتح Ferman الملفات من الروابط.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'لا يفتح Ferman هذا النوع من العناوين: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'معطّل: يحتوي هذا المستند على $pages صفحة',
+      few: 'معطّل: يحتوي هذا المستند على $pages صفحات',
+      two: 'معطّل: يحتوي هذا المستند على صفحتين ($pages)',
+      one: 'معطّل: يحتوي هذا المستند على صفحة واحدة ($pages)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اكتب صفحة من 1 إلى $pages.',
+      one: 'يحتوي هذا المستند على صفحة واحدة ($pages).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signPadMethod => 'طريقة التوقيع';
+
+  @override
+  String get signPadDraw => 'رسم';
+
+  @override
+  String get signPadType => 'كتابة';
+
+  @override
+  String get signPadImage => 'صورة';
+
+  @override
+  String get signPadArea =>
+      'منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع.';
+
+  @override
+  String get signPadTypeName => 'اكتب اسمك';
+
+  @override
+  String get signPadNamePlaceholder => 'اسمك';
+
+  @override
+  String get signPadDrawHint => 'وقّع فوق الخط';
+
+  @override
+  String get signPadTypeHint => 'اكتب اسمك فوق الخط';
+
+  @override
+  String get signPadImageHint =>
+      'اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية.';
+
+  @override
+  String get signPadChooseImage => 'اختيار صورة…';
+
+  @override
+  String get signPadInk => 'لون الحبر';
+
+  @override
+  String get signPadBlack => 'أسود';
+
+  @override
+  String get signPadBlue => 'أزرق';
+
+  @override
+  String get signPadClear => 'مسح';
+
+  @override
+  String get signPadSave => 'الحفظ على هذا الجهاز';
+
+  @override
+  String get signDialogTitle => 'إضافة توقيع';
+
+  @override
+  String get signDialogTitleInitials => 'إضافة الأحرف الأولى';
+
+  @override
+  String get signCreate => 'إنشاء';
+
+  @override
+  String get signKindSignature => 'توقيع';
+
+  @override
+  String get signKindInitials => 'الأحرف الأولى';
+
+  @override
+  String get signHandwriting => 'نمط خط اليد';
+
+  @override
+  String get signNoStyle =>
+      'لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك.';
+
+  @override
+  String get signSavedNote => 'يُحفظ على هذا الجهاز فقط.';
+
+  @override
+  String get signMenuLabel => 'التواقيع المحفوظة';
+
+  @override
+  String get signMenuSignatures => 'التواقيع';
+
+  @override
+  String get signMenuAdd => 'إضافة توقيع…';
+
+  @override
+  String get signMenuCreate => 'إنشاء توقيع…';
+
+  @override
+  String get signMenuManage => 'إدارة التواقيع المحفوظة…';
+
+  @override
+  String get signDrawn => 'مرسوم';
+
+  @override
+  String get signDelete => 'حذف';
+
+  @override
+  String get signSaveFailed =>
+      'تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع.';
+
+  @override
+  String get signImageTooLarge =>
+      'هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت.';
+
+  @override
+  String get signImageFilter => 'الصور';
+
+  @override
+  String get stepAddSignature => 'إضافة توقيع';
+
+  @override
+  String get stepAddInitials => 'إضافة الأحرف الأولى';
+
+  @override
+  String get placeSignatureHint =>
+      'انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter.';
+
+  @override
+  String get formPanelTitle => 'النموذج';
+
+  @override
+  String get formMore => 'المزيد: مسح النموذج وتصدير البيانات';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$filled من $total من الحقول المطلوبة';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted حقل',
+      many: '$formatted حقلًا',
+      few: '$formatted حقول',
+      two: 'حقلان',
+      one: 'حقل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقي $formatted حقل مطلوب',
+      many: 'بقي $formatted حقلًا مطلوبًا',
+      few: 'بقيت $formatted حقول مطلوبة',
+      two: 'بقي حقلان مطلوبان',
+      one: 'بقي حقل مطلوب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'تمت تعبئة كل الحقول المطلوبة';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'الحقل $current من $total';
+  }
+
+  @override
+  String get formHighlight => 'تمييز الحقول';
+
+  @override
+  String get formShowOrder => 'إظهار ترتيب التنقل';
+
+  @override
+  String get formHideOrder => 'إخفاء ترتيب التنقل';
+
+  @override
+  String get formSignedTitle => 'نموذج موقَّع';
+
+  @override
+  String get formSignedKeeps => 'تسمح شهادته بالتعبئة، لذا تبقى صالحة.';
+
+  @override
+  String get formSignedBreaks => 'تعبئته ستُبطل توقيعه.';
+
+  @override
+  String get formFontNoticeTitle => 'أُضيفت محارف بخط IBM Plex';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'لا يحوي خط هذا النموذج بعض المحارف التي كتبتها، لذا أضاف Ferman الخط $fonts إلى المستند لأجلها.';
+  }
+
+  @override
+  String get formDismiss => 'إغلاق';
+
+  @override
+  String get formRequired => 'مطلوب';
+
+  @override
+  String get formMarkedField => 'يتعذّر عرض بعض المحارف بخط هذا الحقل';
+
+  @override
+  String get formClear => 'مسح النموذج…';
+
+  @override
+  String get formFinish => 'إنهاء';
+
+  @override
+  String get formExportData => 'تصدير البيانات…';
+
+  @override
+  String get formBannerTitle => 'ملف PDF هذا نموذج قابل للتعبئة.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted حقل، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      many:
+          '$formatted حقلًا، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      few:
+          '$formatted حقول، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      two: 'حقلان، المطلوب منهما $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      one: 'حقل واحد، المطلوب منه $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'إخفاء';
+
+  @override
+  String get fillBannerTitle => 'لا يحوي ملف PDF هذا حقول نماذج.';
+
+  @override
+  String get fillBannerBody =>
+      'انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول.';
+
+  @override
+  String get fillFindFields => 'العثور على الحقول';
+
+  @override
+  String get formPreviousField => 'الحقل السابق';
+
+  @override
+  String get formNextField => 'الحقل التالي';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'الحقل $current من $total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted حقل',
+      many: '$formatted حقلًا',
+      few: '$formatted حقول',
+      two: 'حقلان',
+      one: 'حقل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'كل المطلوب مُعبّأ';
+
+  @override
+  String get formSignHere => 'وقّع هنا';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'استخدم $formatted محرف على الأكثر.',
+      many: 'استخدم $formatted محرفًا على الأكثر.',
+      few: 'استخدم $formatted محارف على الأكثر.',
+      two: 'استخدم محرفين على الأكثر.',
+      one: 'استخدم محرفًا واحدًا على الأكثر.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'أدخل التاريخ بالصيغة $pattern.';
+  }
+
+  @override
+  String get formErrorNumber => 'أدخل رقمًا.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return 'أدخل رقمًا من $min إلى $max.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'أدخل رقمًا لا يقل عن $min.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'أدخل رقمًا لا يزيد على $max.';
+  }
+
+  @override
+  String get formErrorRequired => 'مطلوب للإرسال.';
+
+  @override
+  String get formErrorSign => 'وقّع قبل الإنهاء.';
+
+  @override
+  String get formErrorChoose => 'اختر أحد الخيارات.';
+
+  @override
+  String get formChooseDate => 'اختر تاريخًا';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'الصيغة $pattern · من النموذج';
+  }
+
+  @override
+  String get formPreviousMonth => 'الشهر السابق';
+
+  @override
+  String get formNextMonth => 'الشهر التالي';
+
+  @override
+  String get formToday => 'اليوم';
+
+  @override
+  String formStepFill(String name) {
+    return 'تعبئة «$name»';
+  }
+
+  @override
+  String get formStepClear => 'مسح النموذج';
+
+  @override
+  String get formStepFinish => 'إنهاء النموذج';
+
+  @override
+  String get fillStepText => 'إضافة نص';
+
+  @override
+  String get fillStepMark => 'إضافة علامة';
+
+  @override
+  String get formXfaRemovedTitle => 'أُزيلت بيانات XFA من النموذج';
+
+  @override
+  String get formXfaRemovedBody =>
+      'كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف.';
+
+  @override
+  String get formFinishTitle => 'إنهاء النموذج';
+
+  @override
+  String get formFinishBody =>
+      'تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه.';
+
+  @override
+  String get formFinishFlatten => 'تسطيح الحقول';
+
+  @override
+  String get formFinishFlattenBody =>
+      'تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك.';
+
+  @override
+  String get formFinishKeep => 'إبقاء الحقول قابلة للتحرير';
+
+  @override
+  String get formFinishKeepBody => 'يمكن لأي شخص يفتح الملف تغيير القيم.';
+
+  @override
+  String get formFinishSave => 'حفظ';
+
+  @override
+  String get formFinishSaveAs => 'حفظ باسم…';
+
+  @override
+  String get formClearTitle => 'هل تريد مسح النموذج؟';
+
+  @override
+  String get formClearBody =>
+      'تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك.';
+
+  @override
+  String get formClearConfirm => 'مسح النموذج';
+
+  @override
+  String get formFontAskTitle => 'محارف غير موجودة في خط هذا الحقل';
+
+  @override
+  String get formFontAskBody =>
+      'يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها.';
+
+  @override
+  String get formFontAskPlex => 'استخدام IBM Plex';
+
+  @override
+  String get formFontAskKeep => 'إبقاء خط الحقل';
+
+  @override
+  String get fillPanelTitle => 'تعبئة أي شيء';
+
+  @override
+  String get fillToolText => 'نص';
+
+  @override
+  String get fillToolCheck => 'علامة صح';
+
+  @override
+  String get fillToolCross => 'علامة خطأ';
+
+  @override
+  String get fillToolDot => 'نقطة';
+
+  @override
+  String get fillToolToday => 'تاريخ اليوم';
+
+  @override
+  String get fillToolSignature => 'توقيع';
+
+  @override
+  String get fillOptions => 'الخيارات';
+
+  @override
+  String get fillSnap => 'المحاذاة إلى الأسطر والمربعات';
+
+  @override
+  String get fillComb => 'محرف واحد في كل مربع';
+
+  @override
+  String get fillInk => 'الحبر';
+
+  @override
+  String get fillInkBlack => 'أسود';
+
+  @override
+  String get fillInkBlue => 'أزرق (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'لم يُبحث في التعليقات.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'حقل نموذج: $text';
   }
 }

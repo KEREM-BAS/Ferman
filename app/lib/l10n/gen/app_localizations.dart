@@ -2473,14 +2473,26 @@ abstract class AppLocalizations {
   /// No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.
   ///
   /// In en, this message translates to:
-  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.'**
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i.'**
   String findNoneBody(int count, String pages);
 
   /// No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.
   ///
   /// In en, this message translates to:
-  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.'**
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}.'**
   String findNoneBodyExact(int count, String pages);
+
+  /// a2-4d: after findNoneBody, with Comments ticked in Look in.
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields weren’t searched.'**
+  String get findNotSearchedFields;
+
+  /// a2-4d: after findNoneBody, with Comments not ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments and form fields weren’t searched.'**
+  String get findNotSearchedBoth;
 
   /// Sidebar › Search results: the field's accessible name (a2-3e).
   ///
@@ -5067,7 +5079,7 @@ abstract class AppLocalizations {
   /// **'Format selection'**
   String get editBarLabel;
 
-  /// a3-1c: button, disabled until links work.
+  /// a3-1c: button; a3-6: the panel's + button.
   ///
   /// In en, this message translates to:
   /// **'Add link'**
@@ -6590,6 +6602,2065 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t create {name}'**
   String jobCreateFailedTitle(String name);
+
+  /// FmComments's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// FmComments: the filter button.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter and sort'**
+  String get commentsFilter;
+
+  /// FmComments: the More button.
+  ///
+  /// In en, this message translates to:
+  /// **'More: export summary, flatten, hide all'**
+  String get commentsMore;
+
+  /// FmComments: the status control's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get commentsStatus;
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {count}'**
+  String commentsStatusOpen(String count);
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved {count}'**
+  String commentsStatusResolved(String count);
+
+  /// FmComments: status.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String commentsStatusAll(String count);
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentsFilterAuthor;
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get commentsFilterType;
+
+  /// FmComments: filter's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get commentsFilterSort;
+
+  /// FmComments: author filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All people'**
+  String get commentsAllPeople;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get commentsTypeNotes;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Text markup'**
+  String get commentsTypeMarkup;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawings'**
+  String get commentsTypeDrawings;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps'**
+  String get commentsTypeStamps;
+
+  /// FmComments: type filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get commentsTypeOther;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get commentsSortNewest;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentsSortAuthor;
+
+  /// FmComments: sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Page order'**
+  String get commentsSortOther;
+
+  /// FmComments: G35's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'This document is certified to allow comments: they keep its certification valid.'**
+  String get commentsCertifiedNote;
+
+  /// FmComments: a reader's limit cut the list.
+  ///
+  /// In en, this message translates to:
+  /// **'This file has more comments than Ferman lists.'**
+  String get commentsTruncated;
+
+  /// FmComments: empty (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'No comments'**
+  String get commentsEmptyTitle;
+
+  /// FmComments: empty (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a tool above, then mark up the page.'**
+  String get commentsEmptyBody;
+
+  /// FmComments: no match (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'No comments match'**
+  String get commentsNoMatchTitle;
+
+  /// FmComments: no match (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Change the status or filters to see others.'**
+  String get commentsNoMatchBody;
+
+  /// FmComments's footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.'**
+  String get commentsFootnote;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Export summary…'**
+  String get commentsExportSummary;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten…'**
+  String get commentsFlatten;
+
+  /// FmComments: More.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide all'**
+  String get commentsHideAll;
+
+  /// a4-5's notice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{shown} comment hidden} other{{shown} comments hidden}}'**
+  String commentsHidden(int count, String shown);
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight'**
+  String get commentKindHighlight;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get commentKindUnderline;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Strikethrough'**
+  String get commentKindStrikeOut;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Squiggly underline'**
+  String get commentKindSquiggly;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get commentKindNote;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get commentKindFreeText;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Callout'**
+  String get commentKindCallout;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing'**
+  String get commentKindInk;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get commentKindSquare;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Ellipse'**
+  String get commentKindCircle;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get commentKindLine;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get commentKindPolygon;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp'**
+  String get commentKindStamp;
+
+  /// A kind of annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentKindOther;
+
+  /// a4-1's floating bar's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} style'**
+  String commentStyleBar(String kind);
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Stroke width'**
+  String get commentStrokeWidth;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get commentOpacity;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Open comment'**
+  String get commentOpen;
+
+  /// a4-1's style bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commentDelete;
+
+  /// G46's context menu's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentMenu;
+
+  /// G46's context menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit text'**
+  String get commentEditText;
+
+  /// a4-1d: the note's More.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get commentMore;
+
+  /// a4-1d: the note's Close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close note'**
+  String get commentCloseNote;
+
+  /// a4-1d: the note's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Note from {author}'**
+  String commentNoteFrom(String author);
+
+  /// a4-2's Reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get commentReply;
+
+  /// a4-2's Resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get commentResolve;
+
+  /// a4-2's Reopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get commentReopen;
+
+  /// a4-2's mention list.
+  ///
+  /// In en, this message translates to:
+  /// **'People in this document'**
+  String get commentPeople;
+
+  /// The annotated text on a card.
+  ///
+  /// In en, this message translates to:
+  /// **'“{text}”'**
+  String commentQuote(String text);
+
+  /// FmComments: collapsed replies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{shown} reply} other{{shown} replies}}'**
+  String commentReplies(int count, String shown);
+
+  /// FmComments: a resolved card.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved by {name} · {time}'**
+  String commentResolvedBy(String name, String time);
+
+  /// FmComments: a comment's time.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get commentYesterday;
+
+  /// a4-2: how a card is announced.
+  ///
+  /// In en, this message translates to:
+  /// **'{author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}}'**
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  );
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Add comment'**
+  String get commentStepAdd;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Change comment'**
+  String get commentStepChange;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get commentStepDelete;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to comment'**
+  String get commentStepReply;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve comment'**
+  String get commentStepResolve;
+
+  /// History step.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen comment'**
+  String get commentStepReopen;
+
+  /// G46: the delete's toast.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get commentDeletedToast;
+
+  /// G46: the delete's toast.
+  ///
+  /// In en, this message translates to:
+  /// **'With its replies.'**
+  String get commentDeletedNote;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name on comments'**
+  String get commentNameTitle;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.'**
+  String get commentNameBody;
+
+  /// G46: the first comment asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commentNameSave;
+
+  /// Settings › General (G46).
+  ///
+  /// In en, this message translates to:
+  /// **'Your name for comments'**
+  String get settingsCommenterName;
+
+  /// G46: the on-page editor's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment text'**
+  String get commentTextField;
+
+  /// The summary's suggested file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments.pdf'**
+  String get commentSummaryFile;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get commentColumnPage;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get commentColumnType;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get commentColumnAuthor;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get commentColumnDate;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get commentColumnText;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get commentColumnReplies;
+
+  /// Summary CSV column.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get commentColumnStatus;
+
+  /// Summary: an open comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commentStatusOpen;
+
+  /// Summary: a resolved comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get commentStatusResolved;
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing {name}'**
+  String jobSummaryRunningTitle(String name);
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrote {name}'**
+  String jobSummaryDoneTitle(String name);
+
+  /// Task drawer: the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t write {name}'**
+  String jobSummaryFailedTitle(String name);
+
+  /// The summary’s suggested file name as a CSV (a4-4).
+  ///
+  /// In en, this message translates to:
+  /// **'Comments.csv'**
+  String get commentSummaryCsvFile;
+
+  /// a4-4: the dialog’s title.
+  ///
+  /// In en, this message translates to:
+  /// **'Export comment summary'**
+  String get summaryTitle;
+
+  /// a4-4: the format control’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get summaryFormat;
+
+  /// a4-4: a format.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get summaryCsv;
+
+  /// a4-4: the layout cards’ group name, for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get summaryLayout;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Page and comments'**
+  String get summaryPageAndComments;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbered markers beside each page'**
+  String get summaryPageAndCommentsHint;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments only'**
+  String get summaryCommentsOnly;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'A list, grouped by page'**
+  String get summaryCommentsOnlyHint;
+
+  /// a4-4: a layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Page, then list'**
+  String get summaryPageThenList;
+
+  /// a4-4: the layout’s line.
+  ///
+  /// In en, this message translates to:
+  /// **'Full page followed by its comments'**
+  String get summaryPageThenListHint;
+
+  /// a4-4: what the summary holds; {count} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Open comments ({count})'**
+  String summaryOpen(String count);
+
+  /// a4-4: what the summary holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get summaryReplies;
+
+  /// a4-4: what the summary holds; {count} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved comments ({count})'**
+  String summaryResolved(String count);
+
+  /// a4-4: what the summary holds.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages without comments'**
+  String get summaryEmptyPages;
+
+  /// a4-4: the order’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get summarySortBy;
+
+  /// a4-4: an order; the others are the Date and Author columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Page order'**
+  String get summarySortPage;
+
+  /// a4-4: the paper’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper'**
+  String get summaryPaper;
+
+  /// a4-4: the preview’s label.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get summaryPreview;
+
+  /// a4-4: the action; the save panel follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Export summary…'**
+  String get summaryExport;
+
+  /// Task drawer: a summary that failed on a page whose content Ferman cannot copy yet (B202).
+  ///
+  /// In en, this message translates to:
+  /// **'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.'**
+  String get jobSummaryPageUnsupported;
+
+  /// a4-5b: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Flatten 1 comment into the pages?} other{Flatten {formatted} comments into the pages?}}'**
+  String flattenTitle(int count, String formatted);
+
+  /// a4-5b: the consequence; the last sentence is about appearance, not a signature’s validity (G146).
+  ///
+  /// In en, this message translates to:
+  /// **'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.'**
+  String get flattenBody;
+
+  /// a4-5b: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 comment} other{All {formatted} comments}}'**
+  String flattenAll(int count, String formatted);
+
+  /// a4-5b: a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No resolved comments} =1{Only the 1 resolved comment} other{Only the {formatted} resolved comments}}'**
+  String flattenResolved(int count, String formatted);
+
+  /// a4-5b: the copy written first (G146).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a copy with comments'**
+  String get flattenKeepCopy;
+
+  /// a4-5b: the copy’s name.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as “{name}” next to the original.'**
+  String flattenKeepCopyHint(String name);
+
+  /// a4-5b: the copy’s file name without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} — with comments'**
+  String flattenCopyName(String stem);
+
+  /// a4-5b: the same, when that name is taken; {number} is 2 or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} — with comments {number}'**
+  String flattenCopyNameNumbered(String stem, int number);
+
+  /// a4-5b: the action.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Flatten 1 comment} other{Flatten {formatted} comments}}'**
+  String flattenAction(int count, String formatted);
+
+  /// History: the flatten step (a4-5b).
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten comments'**
+  String get commentStepFlatten;
+
+  /// Task drawer: flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Flattening comments in {name}'**
+  String jobFlatteningTitle(String name);
+
+  /// Task drawer: flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Flattened comments in {name}'**
+  String jobFlattenedTitle(String name);
+
+  /// Task drawer: flatten; nothing in the document changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t flatten comments in {name}'**
+  String jobFlattenFailedTitle(String name);
+
+  /// Task drawer: a flatten that failed on a page whose content Ferman cannot change yet (B202).
+  ///
+  /// In en, this message translates to:
+  /// **'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.'**
+  String get jobFlattenPageUnsupported;
+
+  /// Search results: a match in a comment (B128).
+  ///
+  /// In en, this message translates to:
+  /// **'Comment: {text}'**
+  String sidebarSearchComment(String text);
+
+  /// Name of the stamp library popover for screen readers (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps'**
+  String get stampsTitle;
+
+  /// Search field of the stamp library (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Search stamps'**
+  String get stampsSearch;
+
+  /// Stamp library: a search with no result. No board draws it.
+  ///
+  /// In en, this message translates to:
+  /// **'No stamps match your search'**
+  String get stampsNoMatch;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get stampGroupStandard;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'With name and date'**
+  String get stampGroupNamed;
+
+  /// Stamp library: a group heading, shown in capitals (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'My stamps'**
+  String get stampGroupMine;
+
+  /// Stamp library: opens the Create stamp dialog (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Create stamp…'**
+  String get stampCreate;
+
+  /// Stamp library: asks for a stamp file (a4-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Import…'**
+  String get stampImport;
+
+  /// Menu of a stamp in My stamps: writes it to a file (G153).
+  ///
+  /// In en, this message translates to:
+  /// **'Export…'**
+  String get stampExport;
+
+  /// Menu of a stamp in My stamps: removes it (G153).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get stampDelete;
+
+  /// File type in the open panel for a stamp file.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman stamps'**
+  String get stampFileFilter;
+
+  /// Toast title: the chosen file is no stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'This stamp can’t be imported'**
+  String get stampImportFailed;
+
+  /// Toast message: the chosen file is no stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t a Ferman stamp, or it is damaged.'**
+  String get stampImportFailedBody;
+
+  /// Toast title: the stamp's file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'The stamp couldn’t be exported'**
+  String get stampExportFailed;
+
+  /// Toast title: the limit of saved stamps is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'My stamps is full. Delete one first.'**
+  String get stampsFull;
+
+  /// Title of the Create stamp dialog (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Create stamp'**
+  String get createStampTitle;
+
+  /// Create stamp: the field for the stamp's text (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get createStampText;
+
+  /// Create stamp: heading of the second line's choices (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Second line'**
+  String get createStampSecondLine;
+
+  /// Create stamp: the second line has the name (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'My name'**
+  String get createStampMyName;
+
+  /// Create stamp: the second line has the date (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get createStampDate;
+
+  /// Create stamp: the second line has the time (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get createStampTime;
+
+  /// Create stamp: accessible name of the name field (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Name on the stamp'**
+  String get createStampName;
+
+  /// Create stamp: heading of the ink choice (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get createStampColour;
+
+  /// Create stamp: the seal-red ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Seal'**
+  String get stampToneSeal;
+
+  /// Create stamp: the blue ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Ink'**
+  String get stampToneInk;
+
+  /// Create stamp: the green ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get stampToneGreen;
+
+  /// Create stamp: the grey ink (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get stampToneGrey;
+
+  /// Create stamp: the language whose rules make the capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Language for capitals'**
+  String get createStampCaps;
+
+  /// Create stamp: a language for capitals, with a sample (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Turkish (İNCELENDİ)'**
+  String get createStampLanguageTurkish;
+
+  /// Create stamp: a language for capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get createStampLanguageEnglish;
+
+  /// Create stamp: a language for capitals (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get createStampLanguageGerman;
+
+  /// Create stamp: heading of the preview (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get createStampPreview;
+
+  /// Create stamp: the note under the preview (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My stamps on this device.'**
+  String get createStampSavedNote;
+
+  /// Create stamp: the primary button (a4-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Save stamp'**
+  String get createStampSave;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get shapeRectangle;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Ellipse'**
+  String get shapeEllipse;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Arrow'**
+  String get shapeArrow;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get shapeLine;
+
+  /// Shapes menu (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get shapePolygon;
+
+  /// Shapes menu: a placed shape leaves the tool on (a4-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tool selected'**
+  String get shapesKeepTool;
+
+  /// Name of the history step that adds a shape.
+  ///
+  /// In en, this message translates to:
+  /// **'Add shape'**
+  String get stepAddShape;
+
+  /// Name of the history step that adds a stamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stamp'**
+  String get stepAddStamp;
+
+  /// Screen readers: the page while a stamp is being placed.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the page to place the stamp, or press Enter to place it mid-page.'**
+  String get placeStampHint;
+
+  /// Screen readers: the page while a shape is being drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag on the page to draw the shape, or press Enter to place it mid-page.'**
+  String get placeShapeHint;
+
+  /// Screen readers: the page while a polygon is being drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Click each corner of the polygon, then press Enter or click the first corner.'**
+  String get placePolygonHint;
+
+  /// a3-6: the Links panel's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get linksTitle;
+
+  /// a3-6: the panel's note. The board also says 'or a file'; file links are refused (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman asks before opening a web link from a PDF.'**
+  String get linksNote;
+
+  /// a3-6: the panel with no links; not drawn.
+  ///
+  /// In en, this message translates to:
+  /// **'No links in this document.'**
+  String get linksEmpty;
+
+  /// a3-6: a limit cut the list short.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has too many links to list them all.'**
+  String get linksTruncated;
+
+  /// a3-6: why Add link is disabled with nothing selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the text to link first'**
+  String get linksSelectTextFirst;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'Web'**
+  String get linksKindWeb;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'E-mail'**
+  String get linksKindMail;
+
+  /// a3-6: a kind of link, and a segment of Edit link.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get linksKindPage;
+
+  /// a3-6: a link that would run a script (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Script, not run'**
+  String get linksKindScript;
+
+  /// a3-6: a link that would start a program (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Program, not started'**
+  String get linksKindLaunch;
+
+  /// a3-6: a link to another file (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'File, not opened'**
+  String get linksKindFile;
+
+  /// a3-6: an address of a scheme Ferman does not open (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Address, not opened'**
+  String get linksKindAddress;
+
+  /// a3-6: an action Ferman does not know; it stays in the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown action, kept'**
+  String get linksKindAction;
+
+  /// a3-6: a link with no action.
+  ///
+  /// In en, this message translates to:
+  /// **'Does nothing'**
+  String get linksKindNothing;
+
+  /// a3-6: where a link to a page goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String linksPage(String page);
+
+  /// a3-6: a broken link that names no page.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing page'**
+  String get linksPageMissing;
+
+  /// a3-6: a row's second line.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · page {page}'**
+  String linksMeta(String kind, String page);
+
+  /// a3-6: the second line of the row being edited.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · page {page} · editing'**
+  String linksMetaEditing(String kind, String page);
+
+  /// a3-6: the popover's title for a new link.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get linkAddTitle;
+
+  /// a3-6: the popover's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit link'**
+  String get linkEditTitle;
+
+  /// a3-6: the name of the type control.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to'**
+  String get linkTo;
+
+  /// a3-6: a segment of Edit link, disabled (B200).
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get linkTypeFile;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Web address'**
+  String get linkFieldWeb;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'E-mail address'**
+  String get linkFieldMail;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Page number'**
+  String get linkFieldPage;
+
+  /// a3-6: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get linkAppearance;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Invisible (text keeps its look)'**
+  String get linkLookNone;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get linkLookUnderline;
+
+  /// a3-6: an appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Thin box'**
+  String get linkLookBox;
+
+  /// a3-6: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get linkRemove;
+
+  /// a3-6: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save link'**
+  String get linkSave;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get linkStepAdd;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit link'**
+  String get linkStepEdit;
+
+  /// The history step's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get linkStepRemove;
+
+  /// a3-6: the Web field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a web address that starts with http:// or https://.'**
+  String get linkErrorWeb;
+
+  /// a3-6: the E-mail field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'Type an e-mail address, like name@example.com.'**
+  String get linkErrorMail;
+
+  /// A toast's title when the engine refuses a link change.
+  ///
+  /// In en, this message translates to:
+  /// **'The link wasn\'t changed'**
+  String get linkFailedTitle;
+
+  /// G145: the prompt before a web link.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this web address?'**
+  String get linkOpenWebTitle;
+
+  /// G145: the prompt before an e-mail link.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to this address?'**
+  String get linkOpenMailTitle;
+
+  /// G145: the prompt's description.
+  ///
+  /// In en, this message translates to:
+  /// **'This link comes from the document. It opens in your own apps, so check that you trust where it goes.'**
+  String get linkOpenDescription;
+
+  /// G145: the prompt's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open link'**
+  String get linkOpenAction;
+
+  /// A toast when the system opens nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'The link couldn\'t be opened'**
+  String get linkOpenFailed;
+
+  /// A toast when a broken link is clicked.
+  ///
+  /// In en, this message translates to:
+  /// **'This link leads nowhere'**
+  String get linkBrokenTitle;
+
+  /// A toast when a link is not offered (G145).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman didn\'t follow this link'**
+  String get linkRefusedTitle;
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It would run a script, and Ferman doesn\'t run a document\'s scripts.'**
+  String get linkRefusedScript;
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It would start {target}, and Ferman never starts programs for a document.'**
+  String linkRefusedLaunch(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It points to another file, {target}, and Ferman doesn\'t open files from links.'**
+  String linkRefusedFile(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman doesn\'t open this kind of address: {target}'**
+  String linkRefusedAddress(String target);
+
+  /// G145.
+  ///
+  /// In en, this message translates to:
+  /// **'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.'**
+  String get linkRefusedAction;
+
+  /// a3-6: a link to a page the document does not have.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Broken: this document has {pages} page} other{Broken: this document has {pages} pages}}'**
+  String linksBrokenMeta(int count, String pages);
+
+  /// a3-6: the Page field's error.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{This document has {pages} page.} other{Type a page from 1 to {pages}.}}'**
+  String linkErrorPage(int count, String pages);
+
+  /// a5-3: screen-reader name of the Draw, Type and Image choice in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature method'**
+  String get signPadMethod;
+
+  /// a5-3b: signature pad mode, drawing with a mouse, trackpad, pen or finger. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get signPadDraw;
+
+  /// a5-3: signature pad mode, the name typed in a handwriting style. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get signPadType;
+
+  /// a5-3c: signature pad mode, a photo or scan of a signature on paper; also the caption of such a saved signature in the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get signPadImage;
+
+  /// a5-3b: screen-reader name of the drawing area.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature drawing area. Draw with a mouse, trackpad, pen or finger.'**
+  String get signPadArea;
+
+  /// a5-3: screen-reader name of the name field in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name'**
+  String get signPadTypeName;
+
+  /// a5-3: placeholder of the name field in the signature pad.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get signPadNamePlaceholder;
+
+  /// a5-3b: hint in the empty drawing area.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign above the line'**
+  String get signPadDrawHint;
+
+  /// a5-3: hint under the empty name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name above the line'**
+  String get signPadTypeHint;
+
+  /// a5-3c: text in the empty image box. Ferman is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo or scan of your signature. Ferman removes the background.'**
+  String get signPadImageHint;
+
+  /// a5-3c: button that opens the system panel to choose an image.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image…'**
+  String get signPadChooseImage;
+
+  /// a5-3: screen-reader name of the ink colour choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Ink color'**
+  String get signPadInk;
+
+  /// a5-3: ink colour name, read by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get signPadBlack;
+
+  /// a5-3: ink colour name, read by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get signPadBlue;
+
+  /// a5-3b: button that removes every stroke or the typed name. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get signPadClear;
+
+  /// a5-3: checkbox; a saved signature appears in the Sign menu next time.
+  ///
+  /// In en, this message translates to:
+  /// **'Save on this device'**
+  String get signPadSave;
+
+  /// a5-3: title and main button of the dialog that creates a signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature'**
+  String get signDialogTitle;
+
+  /// a5-3: title and main button of the same dialog while it creates initials.
+  ///
+  /// In en, this message translates to:
+  /// **'Add initials'**
+  String get signDialogTitleInitials;
+
+  /// a5-3: screen-reader name of the Signature or Initials choice at the top of the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get signCreate;
+
+  /// a5-3: choice at the top of the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get signKindSignature;
+
+  /// a5-3: choice at the top of the dialog; also the heading of the initials in the Sign menu, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Initials'**
+  String get signKindInitials;
+
+  /// a5-3: screen-reader name of the three handwriting style tiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Handwriting style'**
+  String get signHandwriting;
+
+  /// a5-3: line shown instead of the style tiles when none of the three fonts has every letter of the typed name, as for an Arabic or Chinese name (design gap G149).
+  ///
+  /// In en, this message translates to:
+  /// **'No handwriting style can write every letter of this name. Draw it or use an image instead.'**
+  String get signNoStyle;
+
+  /// a5-3: note at the start of the dialog's footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved only on this device.'**
+  String get signSavedNote;
+
+  /// a5-3d: screen-reader name of the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signatures'**
+  String get signMenuLabel;
+
+  /// a5-3d: heading of the saved signatures in the Sign menu, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Signatures'**
+  String get signMenuSignatures;
+
+  /// a5-3d: Sign menu item that opens the dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature…'**
+  String get signMenuAdd;
+
+  /// Sign menu item that opens the dialog while nothing is saved yet (design gap G47).
+  ///
+  /// In en, this message translates to:
+  /// **'Create signature…'**
+  String get signMenuCreate;
+
+  /// a5-3d: Sign menu item that opens Settings › Signatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage saved signatures…'**
+  String get signMenuManage;
+
+  /// a5-3d: caption of a drawn signature in the Sign menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawn'**
+  String get signDrawn;
+
+  /// Menu item of a saved signature in the Sign menu: deletes it from this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get signDelete;
+
+  /// Toast when a new signature cannot be written to the app's data folder.
+  ///
+  /// In en, this message translates to:
+  /// **'The signature couldn’t be saved on this device. It’s still ready to place.'**
+  String get signSaveFailed;
+
+  /// Toast when the chosen signature image is too large.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too large. Choose one under 6 MB.'**
+  String get signImageTooLarge;
+
+  /// Filter name in the system open panel for a signature image.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get signImageFilter;
+
+  /// Name of the history step that places a signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature'**
+  String get stepAddSignature;
+
+  /// Name of the history step that places initials.
+  ///
+  /// In en, this message translates to:
+  /// **'Add initials'**
+  String get stepAddInitials;
+
+  /// Screen-reader hint of the page while a signature is being placed (a5-3d).
+  ///
+  /// In en, this message translates to:
+  /// **'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.'**
+  String get placeSignatureHint;
+
+  /// FmFormPanel's heading (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get formPanelTitle;
+
+  /// FmFormPanel: the More button.
+  ///
+  /// In en, this message translates to:
+  /// **'More: clear form, export data'**
+  String get formMore;
+
+  /// FmFormPanel: the required count over its bar (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{filled} of {total} required fields'**
+  String formRequiredProgress(String filled, String total);
+
+  /// FmFormPanel's summary: how many fields.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{formatted} fields}}'**
+  String formSummaryFields(int count, String formatted);
+
+  /// FmFormPanel and the field navigation: required fields still empty.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 required left} other{{formatted} required left}}'**
+  String formRequiredLeft(int count, String formatted);
+
+  /// FmFormPanel's summary once every required field is filled.
+  ///
+  /// In en, this message translates to:
+  /// **'All required fields are filled'**
+  String get formAllRequiredFilled;
+
+  /// FmFormPanel's summary: the field the person is in.
+  ///
+  /// In en, this message translates to:
+  /// **'field {current} of {total}'**
+  String formFieldOf(String current, String total);
+
+  /// FmFormPanel: the switch that tints the fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight fields'**
+  String get formHighlight;
+
+  /// FmFormPanel and the form bar: shows the fields' order numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Show tab order'**
+  String get formShowOrder;
+
+  /// The form bar's button while the order shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tab order'**
+  String get formHideOrder;
+
+  /// FmFormPanel: the signed-form notice's title (G47).
+  ///
+  /// In en, this message translates to:
+  /// **'Signed form'**
+  String get formSignedTitle;
+
+  /// FmFormPanel: the signed-form notice when filling keeps the certification (G35).
+  ///
+  /// In en, this message translates to:
+  /// **'Its certification allows filling in, so it stays valid.'**
+  String get formSignedKeeps;
+
+  /// FmFormPanel: the signed-form notice when filling breaks a signature (G35).
+  ///
+  /// In en, this message translates to:
+  /// **'Filling it in will invalidate its signature.'**
+  String get formSignedBreaks;
+
+  /// FmFormPanel: said once when a value takes bundled Plex (M4 decision 18).
+  ///
+  /// In en, this message translates to:
+  /// **'Characters added in IBM Plex'**
+  String get formFontNoticeTitle;
+
+  /// FmFormPanel: the font notice's text.
+  ///
+  /// In en, this message translates to:
+  /// **'This form’s font has no glyphs for some characters you typed, so Ferman added {fonts} to the document for them.'**
+  String formFontNoticeBody(String fonts);
+
+  /// FmFormPanel: closes the font notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get formDismiss;
+
+  /// FmFormPanel: a required field not filled yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get formRequired;
+
+  /// FmFormPanel: a field whose missing characters were kept out (Keep).
+  ///
+  /// In en, this message translates to:
+  /// **'Some characters can’t be shown in this field’s font'**
+  String get formMarkedField;
+
+  /// FmFormPanel's footer and More menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form…'**
+  String get formClear;
+
+  /// FmFormPanel's primary button.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get formFinish;
+
+  /// FmFormPanel's More menu: not built yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data…'**
+  String get formExportData;
+
+  /// The bar over a form in Fill & Sign (a5-1).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is a fillable form.'**
+  String get formBannerTitle;
+
+  /// The form bar's text.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field, {required} required. Tab moves to the next field.} other{{formatted} fields, {required} required. Tab moves to the next field.}}'**
+  String formBannerBody(int count, String formatted, String required);
+
+  /// The form bar: hides it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get formBannerHide;
+
+  /// The bar over a page without fields (a5-4).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no form fields.'**
+  String get fillBannerTitle;
+
+  /// The no-fields bar's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Click a line or box to type, or let Ferman find the fields.'**
+  String get fillBannerBody;
+
+  /// The no-fields bar's button (Prepare form, P4).
+  ///
+  /// In en, this message translates to:
+  /// **'Find fields'**
+  String get fillFindFields;
+
+  /// The field navigation's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous field'**
+  String get formPreviousField;
+
+  /// The field navigation's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next field'**
+  String get formNextField;
+
+  /// The field navigation: the field the person is in.
+  ///
+  /// In en, this message translates to:
+  /// **'Field {current} of {total}'**
+  String formNavField(String current, String total);
+
+  /// The field navigation before any field is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{formatted} fields}}'**
+  String formNavFields(int count, String formatted);
+
+  /// The field navigation's badge once every required field is filled (a5-3d).
+  ///
+  /// In en, this message translates to:
+  /// **'All required filled'**
+  String get formNavAllFilled;
+
+  /// An empty signature field on the page (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Sign here'**
+  String get formSignHere;
+
+  /// A field's error: too long.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use at most 1 character.} other{Use at most {formatted} characters.}}'**
+  String formErrorTooLong(int count, String formatted);
+
+  /// A field's error: not a date in its format.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a date as {pattern}.'**
+  String formErrorDate(String pattern);
+
+  /// A field's error: not a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number.'**
+  String get formErrorNumber;
+
+  /// A field's error: out of its range (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from {min} to {max}.'**
+  String formErrorRange(String min, String max);
+
+  /// A field's error: under its least value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number of at least {min}.'**
+  String formErrorMin(String min);
+
+  /// A field's error: over its greatest value.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number of at most {max}.'**
+  String formErrorMax(String max);
+
+  /// A required field left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Required to submit.'**
+  String get formErrorRequired;
+
+  /// A required signature field left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Sign before finishing.'**
+  String get formErrorSign;
+
+  /// A required choice left empty, after Finish (a5-2b).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an option.'**
+  String get formErrorChoose;
+
+  /// The date picker's name (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get formChooseDate;
+
+  /// The date picker's note (a5-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Format {pattern} · from the form'**
+  String formDateFormat(String pattern);
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get formPreviousMonth;
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get formNextMonth;
+
+  /// The date picker's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get formToday;
+
+  /// The history step of a field's value.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill “{name}”'**
+  String formStepFill(String name);
+
+  /// The history step of Clear form.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form'**
+  String get formStepClear;
+
+  /// The history step of Finish's flatten.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish form'**
+  String get formStepFinish;
+
+  /// The history step of Fill anything's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Add text'**
+  String get fillStepText;
+
+  /// The history step of Fill anything's check, cross or dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add mark'**
+  String get fillStepMark;
+
+  /// Toast: a value removed the form's XFA (M4 question 12).
+  ///
+  /// In en, this message translates to:
+  /// **'The form’s XFA data was removed'**
+  String get formXfaRemovedTitle;
+
+  /// Toast: the XFA notice's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.'**
+  String get formXfaRemovedBody;
+
+  /// G47's Finish dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the form'**
+  String get formFinishTitle;
+
+  /// G47's Finish dialog: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'All required fields are filled. Choose how to keep the form, then save it.'**
+  String get formFinishBody;
+
+  /// G47's Finish dialog: the first choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Flatten the fields'**
+  String get formFinishFlatten;
+
+  /// G47's Finish dialog: what flattening does.
+  ///
+  /// In en, this message translates to:
+  /// **'They become part of the page and can no longer be changed.'**
+  String get formFinishFlattenBody;
+
+  /// G47's Finish dialog: the second choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the fields editable'**
+  String get formFinishKeep;
+
+  /// G47's Finish dialog: what keeping does.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone who opens the file can still change the values.'**
+  String get formFinishKeepBody;
+
+  /// G47's Finish dialog: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get formFinishSave;
+
+  /// G47's Finish dialog: saves to another file.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as…'**
+  String get formFinishSaveAs;
+
+  /// G47's Clear form confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the form?'**
+  String get formClearTitle;
+
+  /// G47's Clear form confirmation: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Every value in this form is removed. Signatures stay. You can undo this.'**
+  String get formClearBody;
+
+  /// G47's Clear form confirmation: the button.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear form'**
+  String get formClearConfirm;
+
+  /// Ask each time (a11-1c, M4 decision 18).
+  ///
+  /// In en, this message translates to:
+  /// **'Characters missing from this field’s font'**
+  String get formFontAskTitle;
+
+  /// Ask each time: its text.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.'**
+  String get formFontAskBody;
+
+  /// Ask each time: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Use IBM Plex'**
+  String get formFontAskPlex;
+
+  /// Ask each time: keeps the font, marks the field.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the field’s font'**
+  String get formFontAskKeep;
+
+  /// Fill anything's panel (a5-4).
+  ///
+  /// In en, this message translates to:
+  /// **'Fill anything'**
+  String get fillPanelTitle;
+
+  /// Fill anything: Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get fillToolText;
+
+  /// Fill anything: Check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get fillToolCheck;
+
+  /// Fill anything: Cross.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross'**
+  String get fillToolCross;
+
+  /// Fill anything: Dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Dot'**
+  String get fillToolDot;
+
+  /// Fill anything: Today's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s date'**
+  String get fillToolToday;
+
+  /// Fill anything: Signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get fillToolSignature;
+
+  /// Fill anything: the options' section.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get fillOptions;
+
+  /// Fill anything's option.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap to lines and boxes'**
+  String get fillSnap;
+
+  /// Fill anything's option.
+  ///
+  /// In en, this message translates to:
+  /// **'One character per comb box'**
+  String get fillComb;
+
+  /// Fill anything's ink.
+  ///
+  /// In en, this message translates to:
+  /// **'Ink'**
+  String get fillInk;
+
+  /// Fill anything's ink: black.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get fillInkBlack;
+
+  /// Fill anything's ink: blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue (#1A3170)'**
+  String get fillInkBlue;
+
+  /// a2-4d: after findNoneBody, with Form fields ticked and Comments not.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments weren’t searched.'**
+  String get findNotSearchedComments;
+
+  /// Search results: a match in a form field's value (B128).
+  ///
+  /// In en, this message translates to:
+  /// **'Form field: {text}'**
+  String sidebarSearchFormField(String text);
 }
 
 class _AppLocalizationsDelegate

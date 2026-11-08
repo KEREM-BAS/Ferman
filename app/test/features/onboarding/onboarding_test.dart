@@ -651,7 +651,8 @@ void main() {
       expect(find.textContaining('Apache-2.0'), findsOneWidget);
       expect(find.textContaining('GPL'), findsNothing);
       expect(find.text('Skip'), findsNothing);
-      // G12: only editing and the interface languages have shipped.
+      // G12: only editing, filling and signing, and the interface languages
+      // have shipped.
       expect(find.text('3 interface languages'), findsOneWidget);
       expect(
         find.bySemanticsLabel('3 interface languages. Included'),
@@ -659,8 +660,12 @@ void main() {
       );
       expect(find.bySemanticsLabel('Edit text. Included'), findsOneWidget);
       expect(
+        find.bySemanticsLabel('Fill and sign forms. Included'),
+        findsOneWidget,
+      );
+      expect(
         find.bySemanticsLabel(RegExp(r'\. Available in a future version$')),
-        findsNWidgets(WelcomeFeature.values.length - 2),
+        findsNWidgets(WelcomeFeature.values.length - 3),
       );
       expect(
         find.bySemanticsLabel(RegExp(r'Redaction\. Included')),
@@ -678,7 +683,7 @@ void main() {
             (widget) => widget is Icon && widget.name == IconName.check,
           ),
         ),
-        findsNWidgets(2),
+        findsNWidgets(3),
       );
       expect(_stepLabel('Step 3 of 3'), findsOneWidget);
       // The licence links are links for screen readers (the board's <a>).

@@ -209,6 +209,26 @@ pub fn save_new_pdf(
     write(&request, &mut std::thread::sleep)
 }
 
+/// [`save_new_pdf`] for a file that is no PDF, without the PDF checks (a4-4's CSV).
+///
+/// # Errors
+///
+/// As [`save_pdf`].
+pub fn save_new_file(
+    target: &Path,
+    staging: Option<&Path>,
+    bytes: &[u8],
+) -> Result<Option<PathBuf>, CoreError> {
+    let request = Request {
+        target,
+        bytes,
+        staging,
+        pdf: false,
+        new: true,
+    };
+    write(&request, &mut std::thread::sleep)
+}
+
 /// The checks of a document's save before anything is written.
 fn checked(
     target: &Path,

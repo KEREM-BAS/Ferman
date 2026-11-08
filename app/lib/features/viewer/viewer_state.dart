@@ -501,6 +501,42 @@ class Viewer extends _$Viewer {
     state = _showing(view, page.clamp(0, view.pageSizes.length - 1));
   }
 
+  /// Scrolls the least that shows [box], in points of [page], with [margin]
+  /// around it on both axes; a box larger than the window shows its top
+  /// left corner. Its page's row comes first in a paged layout.
+  void reveal(int page, Rect box, {double margin = 24}) {
+    var view = state;
+    if (view == null || page < 0 || page >= view.pageSizes.length) return;
+    if (view.placement.rects.elementAtOrNull(page) == null ||
+        (view.layout.paged && view.placement.rowOf(page) != view.row)) {
+      view = _showing(view, page);
+    }
+    final rect = view.placement.rects.elementAtOrNull(page);
+    if (rect == null) return;
+    final wanted = Rect.fromLTRB(
+      rect.left + box.left * view.scale,
+      rect.top + box.top * view.scale,
+      rect.left + box.right * view.scale,
+      rect.top + box.bottom * view.scale,
+    ).inflate(margin);
+    final seen = view.visible;
+    double shift(double low, double high, double from, double to) {
+      if (low < from || high - low > to - from) return low - from;
+      return high > to ? high - to : 0;
+    }
+
+    state = _clamped(
+      view.copyWith(
+        offset:
+            view.offset +
+            Offset(
+              shift(wanted.left, wanted.right, seen.left, seen.right),
+              shift(wanted.top, wanted.bottom, seen.top, seen.bottom),
+            ),
+      ),
+    );
+  }
+
   /// Moves to the next row of pages.
   void nextPage() => _turn(1);
 

@@ -1061,7 +1061,12 @@ impl RevisionStore {
     }
 
     /// Copies of page `id`'s inherited `/Resources` and of their entry `key`, both direct.
-    fn page_resources(&self, doc: &Document, id: ObjectId, key: &[u8]) -> (Dictionary, Dictionary) {
+    pub(crate) fn page_resources(
+        &self,
+        doc: &Document,
+        id: ObjectId,
+        key: &[u8],
+    ) -> (Dictionary, Dictionary) {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return (Dictionary::new(), Dictionary::new());
@@ -1228,7 +1233,7 @@ fn simple_copy(scope: &Scope<'_>, font: &mut Dictionary, copy: &SimpleFontCopy) 
 }
 
 /// Queues the objects of `font` and returns its Type0 dictionary's id.
-fn embedded_font(
+pub(crate) fn embedded_font(
     font: &EmbeddedFont,
     queued: &mut Vec<(ObjectId, Object)>,
     next: &mut u32,

@@ -21,17 +21,26 @@
 //! - `pages`: rotate, delete, move, duplicate, insert blank, page size, crop and page labels.
 //! - `combine`: combine, extract, insert from a file and replace.
 //! - `split`: split planning.
-//! - `annotations`: annotation types with appearance streams, replies and flattening.
-//! - `forms`: AcroForm filling, appearance generation and validation without running scripts.
-//! - `signatures`: simple typed, drawn and image signatures.
+//! - [`annotations`]: annotation types with appearance streams, replies and flattening.
+//! - [`links`]: link annotations, and which targets may be offered.
+//! - [`summary`]: the comment summary as PDF and CSV.
+//! - [`forms`]: AcroForm filling, appearance generation and validation without running scripts.
+//! - [`fill`]: Fill anything's lines, boxes and combs on a page without fields.
+//! - [`signatures`]: simple typed, drawn and image signatures.
 //! - `compress`: presets, image recompression and unused-object removal, as a job.
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
 
+pub mod annotations;
 pub mod combine;
+pub mod fill;
+pub mod forms;
 pub mod images;
+pub mod links;
 pub mod pages;
+pub mod signatures;
 pub mod split;
+pub mod summary;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -54,6 +63,14 @@ pub enum OpsError {
     /// Image bytes that no decoder Ferman has can read, or a JPEG a PDF cannot carry as it is.
     #[error("the image cannot be read")]
     UnreadableImage,
+    /// Text that no font Ferman can embed here has; the annotation is not written, so nothing
+    /// is substituted silently (ADR 0006).
+    #[error("no font has the text")]
+    NoFontForText,
+    /// A field's value has characters its font cannot draw, and the settings say to ask first
+    /// (decision 18). Nothing is written.
+    #[error("a font must be chosen for the field")]
+    FontChoiceNeeded,
     /// An internal invariant did not hold. This is a bug in Ferman, reported as an error instead of
     /// a panic (ADR 0010).
     #[error("internal error in ferman-ops: {context}")]

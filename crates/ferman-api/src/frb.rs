@@ -385,6 +385,10 @@ pub struct PdfDate {
     pub hour: u8,
     /// The minute, 0 to 59.
     pub minute: u8,
+    /// The second, 0 to 59.
+    pub second: u8,
+    /// The offset from UTC in minutes, when the string gives one.
+    pub offset_minutes: Option<i16>,
 }
 
 /// An embedded file of an [`OpenedDocument`] (a2-3b).
@@ -544,6 +548,10 @@ pub struct SearchOptions {
     pub ignore_accents: bool,
     /// Search the bookmarks' titles too (Look in › Bookmarks).
     pub bookmarks: bool,
+    /// Search the annotations' text too (Look in › Comments).
+    pub comments: bool,
+    /// Search the form fields' values too (Look in › Form fields).
+    pub fields: bool,
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -619,6 +627,10 @@ pub struct SearchMatch {
     pub snippet_end: u32,
     /// Whether it is in a bookmark's title (the snippet), with no rectangles.
     pub bookmark: bool,
+    /// The annotation whose text it is in (the snippet), with its box as the rectangle.
+    pub comment: Option<u64>,
+    /// The form field whose value it is in (the snippet), with its first widget as the rectangle.
+    pub field: Option<u64>,
 }
 
 /// What a search event says.
@@ -1512,7 +1524,11 @@ pub async fn search(
     options: SearchOptions,
     sink: StreamSink<SearchEvent>,
 ) -> Result<(), ApiError> {
-    let bookmarks = options.bookmarks;
+    let places = facade::SearchPlaces {
+        bookmarks: options.bookmarks,
+        comments: options.comments,
+        fields: options.fields,
+    };
     let options = facade::SearchOptions {
         match_case: options.match_case,
         whole_words: options.whole_words,
@@ -1524,7 +1540,7 @@ pub async fn search(
             facade::DocumentId::from_raw(document),
             query,
             options,
-            bookmarks,
+            places,
             Box::new(BridgeSearch(sink)),
         )
         .map(drop)
@@ -2252,6 +2268,922 @@ pub async fn commit_edit(transaction: u64, name: String) -> Result<RevisionInfo,
 pub async fn rollback_edit(transaction: u64) -> Result<RevisionInfo, ApiError> {
     engine()?
         .rollback(facade::TransactionId::from_raw(transaction))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// What an annotation is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AnnotationKind {
+    /// A highlight.
+    Highlight,
+    /// An underline.
+    Underline,
+    /// A strike-through.
+    StrikeOut,
+    /// A squiggly underline, read and rendered, never created.
+    Squiggly,
+    /// A note on the page, or a reply.
+    Note,
+    /// A text box.
+    FreeText,
+    /// A text box with a leader.
+    Callout,
+    /// Freehand.
+    Ink,
+    /// A rectangle.
+    Square,
+    /// An ellipse.
+    Circle,
+    /// A line, with or without an arrow.
+    Line,
+    /// A polygon.
+    Polygon,
+    /// A stamp.
+    Stamp,
+    /// Any other type: listed, its text editable, its drawing left alone.
+    Other,
+}
+
+/// A colour, each part from 0 to 1.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AnnotationColor {
+    /// Red.
+    pub red: f32,
+    /// Green.
+    pub green: f32,
+    /// Blue.
+    pub blue: f32,
+}
+
+/// One run of an annotation's points: a quad's corners, a stroke, a line's ends, vertices or a
+/// leader. A struct because the Dco codec of FRB 2.13 cannot write a list of lists of structs.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationPoints {
+    /// The points.
+    pub points: Vec<PagePoint>,
+}
+
+/// One annotation, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationInfo {
+    /// Its identity for the other calls.
+    pub handle: u64,
+    /// Its page's handle.
+    pub page: u64,
+    /// What it is.
+    pub kind: AnnotationKind,
+    /// The type's name in the file, which names an `Other`.
+    pub subtype: String,
+    /// Its box.
+    pub rect: PageRect,
+    /// Quads (four corners each), strokes, a line's two ends, vertices or a leader.
+    pub points: Vec<AnnotationPoints>,
+    /// A line or callout ends in an arrow.
+    pub arrow: bool,
+    /// Its colour.
+    pub color: Option<AnnotationColor>,
+    /// Its opacity, from 0 to 1.
+    pub opacity: f32,
+    /// Its stroke, in points.
+    pub stroke: f32,
+    /// A text box's font size.
+    pub font_size: Option<f32>,
+    /// Its author.
+    pub author: Option<String>,
+    /// Its text.
+    pub contents: Option<String>,
+    /// The page text under its marks or box, for the panel's quote.
+    pub quote: Option<String>,
+    /// Rich text goes with it; replacing the text removes it.
+    pub rich: bool,
+    /// When it was made.
+    pub created: Option<PdfDate>,
+    /// When it last changed.
+    pub modified: Option<PdfDate>,
+    /// A note's icon or a stamp's name.
+    pub icon: Option<String>,
+    /// The annotation it replies to.
+    pub replies_to: Option<u64>,
+    /// The top of its thread, its own handle when it is no reply.
+    pub thread: u64,
+    /// The state it sets, for a state reply, which the panel does not list.
+    pub state: Option<String>,
+    /// On top of a thread: whether it is resolved.
+    pub resolved: bool,
+    /// Who resolved it.
+    pub resolved_by: Option<String>,
+    /// When.
+    pub resolved_at: Option<PdfDate>,
+    /// The people of the file its text mentions.
+    pub mentions: Vec<String>,
+}
+
+/// A document's annotations.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationList {
+    /// In page order.
+    pub annotations: Vec<AnnotationInfo>,
+    /// The names in the file, for mentions.
+    pub people: Vec<String>,
+    /// Whether a limit cut the list or a text short.
+    pub truncated: bool,
+}
+
+/// A new annotation, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewAnnotation {
+    /// What it is; never `Squiggly` or `Other`.
+    pub kind: AnnotationKind,
+    /// A note's, text box's, shape's or stamp's box; a callout's text box.
+    pub rect: PageRect,
+    /// Text markup: each quad's corners, top left, top right, bottom left, bottom right. Ink: each
+    /// stroke. Line: its two ends. Polygon: its vertices. Callout: its leader from the far end.
+    pub points: Vec<AnnotationPoints>,
+    /// Its colour.
+    pub color: AnnotationColor,
+    /// Its stroke, in points.
+    pub stroke: f32,
+    /// Its opacity, from 0 to 1.
+    pub opacity: f32,
+    /// Its text.
+    pub contents: String,
+    /// Its author.
+    pub author: String,
+    /// A text box's, callout's or stamp label's size.
+    pub font_size: f32,
+    /// A line ends in an arrow.
+    pub arrow: bool,
+    /// A stamp's label, already cased for its language.
+    pub label: String,
+    /// The line under a stamp's label.
+    pub meta: Option<String>,
+    /// A stamp's turn in degrees; negative turns anticlockwise.
+    pub tilt: f32,
+    /// A note's icon or a stamp's name.
+    pub icon: Option<String>,
+    /// A text box on a comb of this many cells, one character each (Fill anything).
+    pub comb: Option<u32>,
+}
+
+/// What a change sets; `None` leaves it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationChange {
+    /// New text.
+    pub contents: Option<String>,
+    /// A new box: its geometry follows.
+    pub rect: Option<PageRect>,
+    /// New geometry, as `NewAnnotation.points`.
+    pub points: Option<Vec<AnnotationPoints>>,
+    /// Its colour.
+    pub color: Option<AnnotationColor>,
+    /// Its stroke, in points.
+    pub stroke: Option<f32>,
+    /// Its opacity.
+    pub opacity: Option<f32>,
+    /// A text box's or callout's font size.
+    pub font_size: Option<f32>,
+}
+
+/// What a commit that names an annotation returns.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AnnotationCommit {
+    /// The annotation's handle.
+    pub handle: u64,
+    /// Where the history stands.
+    pub revision: RevisionInfo,
+}
+
+fn annotation_kind_dto(kind: facade::AnnotationKind) -> AnnotationKind {
+    match kind {
+        facade::AnnotationKind::Highlight => AnnotationKind::Highlight,
+        facade::AnnotationKind::Underline => AnnotationKind::Underline,
+        facade::AnnotationKind::StrikeOut => AnnotationKind::StrikeOut,
+        facade::AnnotationKind::Squiggly => AnnotationKind::Squiggly,
+        facade::AnnotationKind::Note => AnnotationKind::Note,
+        facade::AnnotationKind::FreeText => AnnotationKind::FreeText,
+        facade::AnnotationKind::Callout => AnnotationKind::Callout,
+        facade::AnnotationKind::Ink => AnnotationKind::Ink,
+        facade::AnnotationKind::Square => AnnotationKind::Square,
+        facade::AnnotationKind::Circle => AnnotationKind::Circle,
+        facade::AnnotationKind::Line => AnnotationKind::Line,
+        facade::AnnotationKind::Polygon => AnnotationKind::Polygon,
+        facade::AnnotationKind::Stamp => AnnotationKind::Stamp,
+        facade::AnnotationKind::Other => AnnotationKind::Other,
+    }
+}
+
+fn annotation_kind_of(kind: AnnotationKind) -> facade::AnnotationKind {
+    match kind {
+        AnnotationKind::Highlight => facade::AnnotationKind::Highlight,
+        AnnotationKind::Underline => facade::AnnotationKind::Underline,
+        AnnotationKind::StrikeOut => facade::AnnotationKind::StrikeOut,
+        AnnotationKind::Squiggly => facade::AnnotationKind::Squiggly,
+        AnnotationKind::Note => facade::AnnotationKind::Note,
+        AnnotationKind::FreeText => facade::AnnotationKind::FreeText,
+        AnnotationKind::Callout => facade::AnnotationKind::Callout,
+        AnnotationKind::Ink => facade::AnnotationKind::Ink,
+        AnnotationKind::Square => facade::AnnotationKind::Square,
+        AnnotationKind::Circle => facade::AnnotationKind::Circle,
+        AnnotationKind::Line => facade::AnnotationKind::Line,
+        AnnotationKind::Polygon => facade::AnnotationKind::Polygon,
+        AnnotationKind::Stamp => facade::AnnotationKind::Stamp,
+        AnnotationKind::Other => facade::AnnotationKind::Other,
+    }
+}
+
+fn annotation_color_dto([red, green, blue]: [f32; 3]) -> AnnotationColor {
+    AnnotationColor { red, green, blue }
+}
+
+fn annotation_color_of(color: AnnotationColor) -> [f32; 3] {
+    [color.red, color.green, color.blue]
+}
+
+fn annotation_rect_of(rect: PageRect) -> [f32; 4] {
+    [rect.left, rect.top, rect.right, rect.bottom]
+}
+
+fn annotation_points_of(points: Vec<AnnotationPoints>) -> Vec<Vec<[f32; 2]>> {
+    points
+        .into_iter()
+        .map(|part| {
+            part.points
+                .into_iter()
+                .map(|point| [point.x, point.y])
+                .collect()
+        })
+        .collect()
+}
+
+fn annotation_dto(annotation: facade::AnnotationInfo) -> AnnotationInfo {
+    AnnotationInfo {
+        handle: annotation.handle,
+        page: annotation.page,
+        kind: annotation_kind_dto(annotation.kind),
+        subtype: annotation.subtype,
+        rect: rect_dto(annotation.rect),
+        points: annotation
+            .points
+            .into_iter()
+            .map(|part| AnnotationPoints {
+                points: part.into_iter().map(point_dto).collect(),
+            })
+            .collect(),
+        arrow: annotation.arrow,
+        color: annotation.color.map(annotation_color_dto),
+        opacity: annotation.opacity,
+        stroke: annotation.stroke,
+        font_size: annotation.font_size,
+        author: annotation.author,
+        contents: annotation.contents,
+        quote: annotation.quote,
+        rich: annotation.rich,
+        created: annotation.created.map(pdf_date_dto),
+        modified: annotation.modified.map(pdf_date_dto),
+        icon: annotation.icon,
+        replies_to: annotation.replies_to,
+        thread: annotation.thread,
+        state: annotation.state,
+        resolved: annotation.resolved,
+        resolved_by: annotation.resolved_by,
+        resolved_at: annotation.resolved_at.map(pdf_date_dto),
+        mentions: annotation.mentions,
+    }
+}
+
+fn annotation_commit_dto(commit: facade::AnnotationCommit) -> AnnotationCommit {
+    AnnotationCommit {
+        handle: commit.handle,
+        revision: revision_dto(commit.revision),
+    }
+}
+
+/// Shows or hides every markup annotation of `document` in every view (a4-5): render-only, never
+/// saved. Returns every page's new render key.
+///
+/// See [`facade::Engine::show_comments`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+pub async fn show_comments(document: u64, visible: bool) -> Result<u64, ApiError> {
+    engine()?
+        .show_comments(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Flattens annotations `handles` with their replies as a background job: with `copy` it first
+/// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
+///
+/// See [`facade::Engine::flatten_annotations_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `copy` exists, and `NotFound`.
+pub async fn start_flatten_annotations_job(
+    document: u64,
+    handles: Vec<u64>,
+    copy: Option<String>,
+    staging: Option<String>,
+    name: String,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .flatten_annotations_job(
+            facade::DocumentId::from_raw(document),
+            handles,
+            copy.map(PathBuf::from),
+            staging.map(PathBuf::from),
+            name,
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// What a comment summary is written as.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SummaryFormat {
+    /// CSV, one comment per row.
+    Csv,
+    /// A PDF: numbered markers on each page, with its comments beside it.
+    PageAndComments,
+    /// A PDF: a list, grouped by page.
+    CommentsOnly,
+    /// A PDF: the full page followed by its comments.
+    PageThenList,
+}
+
+/// The order of a summary's comments.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SummarySort {
+    /// Page order.
+    Page,
+    /// Oldest first.
+    Date,
+    /// By author, then page order.
+    Author,
+}
+
+/// A kind's name in the app's language.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SummaryKindName {
+    /// The kind.
+    pub kind: AnnotationKind,
+    /// Its name.
+    pub name: String,
+}
+
+/// What a comment summary holds, and its words in the app's language.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SummaryOptions {
+    /// Open comments.
+    pub open: bool,
+    /// Resolved comments.
+    pub resolved: bool,
+    /// Replies under each.
+    pub replies: bool,
+    /// Pages without comments.
+    pub empty_pages: bool,
+    /// The order.
+    pub sort: SummarySort,
+    /// A page's heading, with `{n}` for its number.
+    pub page_label: String,
+    /// The CSV's header row: page, type, author, date, text, replies, status.
+    pub columns: Vec<String>,
+    /// Each kind's name.
+    pub kinds: Vec<SummaryKindName>,
+    /// The status of an open comment.
+    pub open_label: String,
+    /// The status of a resolved one.
+    pub resolved_label: String,
+    /// What a page, or a summary, with no comment says.
+    pub no_comments: String,
+    /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+    pub date_pattern: String,
+    /// A PDF's paper width, in points.
+    pub paper_width: f32,
+    /// A PDF's paper height, in points.
+    pub paper_height: f32,
+}
+
+/// Writes the comments of `document` to the new file `output` as a background job (a4-4).
+///
+/// See [`facade::Engine::comment_summary_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `output` exists, and `NotFound`.
+pub async fn start_comment_summary_job(
+    document: u64,
+    format: SummaryFormat,
+    options: SummaryOptions,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    let pdf =
+        |layout| facade::SummaryFormat::Pdf(layout, options.paper_width, options.paper_height);
+    let format = match format {
+        SummaryFormat::Csv => facade::SummaryFormat::Csv,
+        SummaryFormat::PageAndComments => pdf(facade::SummaryLayout::PageAndComments),
+        SummaryFormat::CommentsOnly => pdf(facade::SummaryLayout::CommentsOnly),
+        SummaryFormat::PageThenList => pdf(facade::SummaryLayout::PageThenList),
+    };
+    let options = facade::SummaryOptions {
+        open: options.open,
+        resolved: options.resolved,
+        replies: options.replies,
+        empty_pages: options.empty_pages,
+        sort: match options.sort {
+            SummarySort::Page => facade::SummarySort::Page,
+            SummarySort::Date => facade::SummarySort::Date,
+            SummarySort::Author => facade::SummarySort::Author,
+        },
+        labels: facade::SummaryLabels {
+            page: options.page_label,
+            columns: options.columns,
+            kinds: options
+                .kinds
+                .into_iter()
+                .map(|kind| (annotation_kind_of(kind.kind), kind.name))
+                .collect(),
+            open: options.open_label,
+            resolved: options.resolved_label,
+            no_comments: options.no_comments,
+            date_pattern: options.date_pattern,
+        },
+    };
+    engine()?
+        .comment_summary_job(
+            facade::DocumentId::from_raw(document),
+            format,
+            options,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// A link's border.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkLook {
+    /// No line.
+    Invisible,
+    /// A line under it.
+    Underline,
+    /// A thin box.
+    Box,
+}
+
+/// Where a link goes, and whether it may be offered. Only `Web` and `Mail` can be opened, after the
+/// app's prompt with the full target showing; `Page` just goes; the others open nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkKind {
+    /// An `http` or `https` address.
+    Web,
+    /// A `mailto:` address.
+    Mail,
+    /// A page of this document.
+    Page,
+    /// A destination that leads nowhere.
+    Broken,
+    /// Refused: `/JavaScript` or a `javascript:` address.
+    Script,
+    /// Refused: `/Launch`.
+    Launch,
+    /// Refused: another file, `/GoToR`, `/GoToE` or a `file:` address.
+    File,
+    /// Refused: an address of another scheme, or one that does not read cleanly.
+    Address,
+    /// Refused: an action Ferman does not know, kept in the file as it came.
+    Action,
+    /// It does nothing.
+    Nothing,
+}
+
+/// One link, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkInfo {
+    /// Its identity for the other calls.
+    pub handle: u64,
+    /// Its page's handle.
+    pub page: u64,
+    /// Its box.
+    pub rect: PageRect,
+    /// Its text's lines, four corners each.
+    pub quads: Vec<AnnotationPoints>,
+    /// Where it goes.
+    pub kind: LinkKind,
+    /// The address, or what a refused link names: to show, and to open only for `Web` and `Mail`.
+    pub target: String,
+    /// The handle of the page, for `Page`.
+    pub target_page: Option<u64>,
+    /// The page a `Broken` link names, from 1, when it says.
+    pub wanted_page: Option<u64>,
+    /// Its border.
+    pub look: LinkLook,
+    /// `/C`.
+    pub color: Option<AnnotationColor>,
+}
+
+/// A document's links.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkList {
+    /// In page order.
+    pub links: Vec<LinkInfo>,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// Where a new link goes: `page`'s handle when it has one, else `address`, web or mail by `mail`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkDestination {
+    /// An `http` or `https` address, or an e-mail address.
+    pub address: String,
+    /// Whether `address` is an e-mail address.
+    pub mail: bool,
+    /// A page by its handle.
+    pub page: Option<u64>,
+}
+
+/// A new link, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewLink {
+    /// Its box.
+    pub rect: PageRect,
+    /// Its text's lines: top left, top right, bottom left and bottom right as the reader sees them.
+    pub quads: Vec<AnnotationPoints>,
+    /// Where it goes.
+    pub destination: LinkDestination,
+    /// Its border.
+    pub look: LinkLook,
+    /// `/C`.
+    pub color: AnnotationColor,
+}
+
+/// What a link change sets; `None` leaves it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkChange {
+    /// A new box.
+    pub rect: Option<PageRect>,
+    /// A new target, which replaces what the link did.
+    pub destination: Option<LinkDestination>,
+    /// A new border.
+    pub look: Option<LinkLook>,
+    /// `/C`.
+    pub color: Option<AnnotationColor>,
+}
+
+fn link_look_of(look: LinkLook) -> facade::LinkLook {
+    match look {
+        LinkLook::Invisible => facade::LinkLook::Invisible,
+        LinkLook::Underline => facade::LinkLook::Underline,
+        LinkLook::Box => facade::LinkLook::Box,
+    }
+}
+
+fn link_destination_of(destination: LinkDestination) -> facade::NewLinkDestination {
+    match destination {
+        LinkDestination {
+            page: Some(page), ..
+        } => facade::NewLinkDestination::Page(page),
+        LinkDestination {
+            address,
+            mail: true,
+            ..
+        } => facade::NewLinkDestination::Mail(address),
+        LinkDestination { address, .. } => facade::NewLinkDestination::Web(address),
+    }
+}
+
+fn link_dto(link: facade::LinkInfo) -> LinkInfo {
+    let [left, top, right, bottom] = link.rect;
+    let (kind, target, target_page, wanted_page) = match link.target {
+        facade::LinkTarget::Web(url) => (LinkKind::Web, url, None, None),
+        facade::LinkTarget::Mail(url) => (LinkKind::Mail, url, None, None),
+        facade::LinkTarget::Page(page) => (LinkKind::Page, String::new(), Some(page), None),
+        facade::LinkTarget::Broken { wanted } => (LinkKind::Broken, String::new(), None, wanted),
+        facade::LinkTarget::Refused(reason, text) => (
+            match reason {
+                facade::RefusedLink::Script => LinkKind::Script,
+                facade::RefusedLink::Launch => LinkKind::Launch,
+                facade::RefusedLink::File => LinkKind::File,
+                facade::RefusedLink::Address => LinkKind::Address,
+                facade::RefusedLink::Action => LinkKind::Action,
+                facade::RefusedLink::Nothing => LinkKind::Nothing,
+            },
+            text,
+            None,
+            None,
+        ),
+    };
+    LinkInfo {
+        handle: link.handle,
+        page: link.page,
+        rect: PageRect {
+            left,
+            top,
+            right,
+            bottom,
+        },
+        quads: link
+            .quads
+            .into_iter()
+            .map(|quad| AnnotationPoints {
+                points: quad.into_iter().map(|[x, y]| PagePoint { x, y }).collect(),
+            })
+            .collect(),
+        kind,
+        target,
+        target_page,
+        wanted_page,
+        look: match link.look {
+            facade::LinkLook::Invisible => LinkLook::Invisible,
+            facade::LinkLook::Underline => LinkLook::Underline,
+            facade::LinkLook::Box => LinkLook::Box,
+        },
+        color: link
+            .color
+            .map(|[red, green, blue]| AnnotationColor { red, green, blue }),
+    }
+}
+
+/// The links of `document` as its committed revisions leave them.
+///
+/// See [`facade::Engine::links`].
+///
+/// # Errors
+///
+/// `NotFound`.
+pub async fn links(document: u64) -> Result<LinkList, ApiError> {
+    engine()?
+        .links(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| LinkList {
+            links: list.links.into_iter().map(link_dto).collect(),
+            truncated: list.truncated,
+        })
+        .map_err(api_error_dto)
+}
+
+/// The topmost link of the page `page` at a point in displayed points. It follows nothing.
+///
+/// See [`facade::Engine::link_at`].
+///
+/// # Errors
+///
+/// `InvalidInput` and `NotFound`.
+pub async fn link_at(
+    document: u64,
+    page: u64,
+    x: f32,
+    y: f32,
+) -> Result<Option<LinkInfo>, ApiError> {
+    engine()?
+        .link_at(facade::DocumentId::from_raw(document), page, x, y)
+        .await
+        .map(|link| link.map(link_dto))
+        .map_err(api_error_dto)
+}
+
+/// Creates `link` on the page `page` as one history step. Only a web address, an e-mail address or
+/// a page of this document can be its target.
+///
+/// See [`facade::Engine::add_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn add_link(
+    document: u64,
+    page: u64,
+    link: NewLink,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let new = facade::NewLink {
+        rect: annotation_rect_of(link.rect),
+        quads: annotation_points_of(link.quads),
+        target: link_destination_of(link.destination),
+        look: link_look_of(link.look),
+        color: annotation_color_of(link.color),
+    };
+    engine()?
+        .add_link(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Applies `change` to link `handle` as one history step.
+///
+/// See [`facade::Engine::update_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn update_link(
+    document: u64,
+    handle: u64,
+    change: LinkChange,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    engine()?
+        .update_link(
+            facade::DocumentId::from_raw(document),
+            handle,
+            change.rect.map(annotation_rect_of),
+            change.destination.map(link_destination_of),
+            change.look.map(link_look_of),
+            change.color.map(annotation_color_of),
+            name,
+        )
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes link `handle` as one history step.
+///
+/// See [`facade::Engine::delete_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn delete_link(
+    document: u64,
+    handle: u64,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_link(facade::DocumentId::from_raw(document), handle, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The annotations of `document` as its committed revisions leave them. Links, form widgets and
+/// popups are not listed.
+///
+/// See [`facade::Engine::annotations`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn annotations(document: u64) -> Result<AnnotationList, ApiError> {
+    engine()?
+        .annotations(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| AnnotationList {
+            annotations: list.annotations.into_iter().map(annotation_dto).collect(),
+            people: list.people,
+            truncated: list.truncated,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Creates `annotation` on the page `page` as one history step.
+///
+/// See [`facade::Engine::add_annotation`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` for text no font here has,
+/// and `NotFound`; so do the other annotation calls.
+pub async fn add_annotation(
+    document: u64,
+    page: u64,
+    annotation: NewAnnotation,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let new = facade::NewAnnotation {
+        kind: annotation_kind_of(annotation.kind),
+        rect: annotation_rect_of(annotation.rect),
+        points: annotation_points_of(annotation.points),
+        color: annotation_color_of(annotation.color),
+        stroke: annotation.stroke,
+        opacity: annotation.opacity,
+        contents: annotation.contents,
+        author: annotation.author,
+        font_size: annotation.font_size,
+        arrow: annotation.arrow,
+        label: annotation.label,
+        meta: annotation.meta,
+        tilt: annotation.tilt,
+        icon: annotation.icon,
+        comb: annotation.comb,
+    };
+    engine()?
+        .add_annotation(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Applies `change` to annotation `handle` as one history step.
+///
+/// See [`facade::Engine::update_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn update_annotation(
+    document: u64,
+    handle: u64,
+    change: AnnotationChange,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let change = facade::AnnotationChange {
+        contents: change.contents,
+        rect: change.rect.map(annotation_rect_of),
+        points: change.points.map(annotation_points_of),
+        color: change.color.map(annotation_color_of),
+        stroke: change.stroke,
+        opacity: change.opacity,
+        font_size: change.font_size,
+    };
+    engine()?
+        .update_annotation(facade::DocumentId::from_raw(document), handle, change, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Deletes annotation `handle`, with its popup and replies, as one history step.
+///
+/// See [`facade::Engine::delete_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn delete_annotation(
+    document: u64,
+    handle: u64,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .delete_annotation(facade::DocumentId::from_raw(document), handle, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Replies to annotation `handle` as `author`, as one history step. Mentions are text: nothing is
+/// sent to anyone.
+///
+/// See [`facade::Engine::reply_to_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn reply_to_annotation(
+    document: u64,
+    handle: u64,
+    author: String,
+    text: String,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    engine()?
+        .reply_to_annotation(
+            facade::DocumentId::from_raw(document),
+            handle,
+            author,
+            text,
+            name,
+        )
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Resolves or reopens the thread of annotation `handle` as `author`, as one history step; a thread
+/// already so adds none.
+///
+/// See [`facade::Engine::set_annotation_resolved`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+pub async fn set_annotation_resolved(
+    document: u64,
+    handle: u64,
+    author: String,
+    resolved: bool,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .set_annotation_resolved(
+            facade::DocumentId::from_raw(document),
+            handle,
+            author,
+            resolved,
+            name,
+        )
         .await
         .map(revision_dto)
         .map_err(api_error_dto)
@@ -3004,6 +3936,639 @@ pub enum DocumentOp {
     Print,
 }
 
+/// What a form field is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldKind {
+    /// A text field.
+    Text,
+    /// A check box.
+    Check,
+    /// A radio group.
+    Radio,
+    /// A push button: nothing to fill.
+    Push,
+    /// A combo box.
+    Combo,
+    /// A list box.
+    List,
+    /// A signature field.
+    Signature,
+    /// An unknown type.
+    Other,
+}
+
+/// What a field's scripts declare (decision 17): read, never run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldFormatKind {
+    /// No format.
+    None,
+    /// A date in `date_pattern`.
+    Date,
+    /// A number with `decimals`.
+    Number,
+    /// A percentage with `decimals`.
+    Percent,
+}
+
+/// Why a value does not meet what its field declares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldProblemKind {
+    /// Past `max_len`.
+    TooLong,
+    /// Not a date in the pattern.
+    NotADate,
+    /// Not a number.
+    NotANumber,
+    /// Outside `min` and `max`.
+    OutOfRange,
+}
+
+/// A value's problem with its parameters.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldProblem {
+    /// What it is.
+    pub kind: FieldProblemKind,
+    /// `/MaxLen`, for `TooLong`.
+    pub max_len: Option<u32>,
+    /// The pattern, for `NotADate`.
+    pub pattern: Option<String>,
+    /// The least value, for `OutOfRange`.
+    pub min: Option<f64>,
+    /// The greatest value, for `OutOfRange`.
+    pub max: Option<f64>,
+}
+
+/// One choice of a combo or list box.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FieldOption {
+    /// What the value holds.
+    pub export: String,
+    /// What the field shows.
+    pub display: String,
+}
+
+/// One place of a field on a page, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldWidget {
+    /// Its page's handle.
+    pub page: u64,
+    /// Its box.
+    pub rect: PageRect,
+    /// The value that turns a check box or radio button on.
+    pub on_state: Option<String>,
+}
+
+/// One form field, in tab order.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldInfo {
+    /// Its identity. It stays through edits, undo and saves.
+    pub handle: u64,
+    /// Its full name.
+    pub name: String,
+    /// The name a reader shows.
+    pub label: Option<String>,
+    /// What it is.
+    pub kind: FieldKind,
+    /// It cannot be changed.
+    pub read_only: bool,
+    /// It counts in the required count.
+    pub required: bool,
+    /// A text field of many lines.
+    pub multiline: bool,
+    /// A text field that hides what is typed.
+    pub password: bool,
+    /// A comb of `max_len` cells.
+    pub comb: bool,
+    /// A list box that takes several values.
+    pub multi_select: bool,
+    /// A combo box that takes any text.
+    pub editable: bool,
+    /// Its value: text, export values, or the on-state of a button.
+    pub values: Vec<String>,
+    /// A choice's options.
+    pub options: Vec<FieldOption>,
+    /// `/MaxLen`.
+    pub max_len: Option<u32>,
+    /// Its places, in tab order.
+    pub widgets: Vec<FieldWidget>,
+    /// The format it declares.
+    pub format: FieldFormatKind,
+    /// The date pattern it declares.
+    pub date_pattern: Option<String>,
+    /// The decimals it declares.
+    pub decimals: Option<i32>,
+    /// The least value it declares.
+    pub min: Option<f64>,
+    /// The greatest value it declares.
+    pub max: Option<f64>,
+    /// How its value fails what it declares.
+    pub problem: Option<FieldProblem>,
+    /// A signature field holds a digital signature.
+    pub signed: bool,
+    /// The stamp of the simple signature on it.
+    pub signature: Option<u64>,
+    /// It counts as filled.
+    pub filled: bool,
+}
+
+/// A document's form.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FormInfo {
+    /// In tab order.
+    pub fields: Vec<FieldInfo>,
+    /// Required fields.
+    pub required: u32,
+    /// Required fields not yet filled.
+    pub required_left: u32,
+    /// Fields whose value fails what they declare.
+    pub problems: u32,
+    /// `/XFA` is there, and the first change removes it with a notice.
+    pub has_xfa: bool,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// What setting a value returns.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldCommit {
+    /// Where the history stands.
+    pub revision: RevisionInfo,
+    /// How the new value fails what the field declares.
+    pub problem: Option<FieldProblem>,
+    /// The families it was drawn in because its font could not: say so once.
+    pub fonts: Vec<String>,
+    /// What its font cannot draw was left out: mark the field.
+    pub marked: bool,
+    /// `/XFA` left the form: say so.
+    pub xfa_removed: bool,
+    /// Ask each time: its font cannot draw the value and nothing was written. Call again with a
+    /// choice.
+    pub asks_font: bool,
+}
+
+/// What to do when a value has characters its field's font cannot draw.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MissingFont {
+    /// Bundled Plex, said once.
+    Bundled,
+    /// Ask first, writing nothing.
+    Ask,
+    /// Keep the field's font and mark the field.
+    Keep,
+}
+
+fn field_problem_dto(problem: facade::FieldProblem) -> FieldProblem {
+    let empty = |kind| FieldProblem {
+        kind,
+        max_len: None,
+        pattern: None,
+        min: None,
+        max: None,
+    };
+    match problem {
+        facade::FieldProblem::TooLong { max } => FieldProblem {
+            max_len: Some(max),
+            ..empty(FieldProblemKind::TooLong)
+        },
+        facade::FieldProblem::NotADate { pattern } => FieldProblem {
+            pattern: Some(pattern),
+            ..empty(FieldProblemKind::NotADate)
+        },
+        facade::FieldProblem::NotANumber => empty(FieldProblemKind::NotANumber),
+        facade::FieldProblem::OutOfRange { min, max } => FieldProblem {
+            min,
+            max,
+            ..empty(FieldProblemKind::OutOfRange)
+        },
+    }
+}
+
+fn field_info_dto(field: facade::FieldInfo) -> FieldInfo {
+    let (format, date_pattern, decimals) = match field.format {
+        None => (FieldFormatKind::None, None, None),
+        Some(facade::FieldFormat::Date(pattern)) => (FieldFormatKind::Date, Some(pattern), None),
+        Some(facade::FieldFormat::Number(decimals)) => {
+            (FieldFormatKind::Number, None, Some(decimals))
+        }
+        Some(facade::FieldFormat::Percent(decimals)) => {
+            (FieldFormatKind::Percent, None, Some(decimals))
+        }
+    };
+    FieldInfo {
+        handle: field.handle,
+        name: field.name,
+        label: field.label,
+        kind: match field.kind {
+            facade::FieldKind::Text => FieldKind::Text,
+            facade::FieldKind::Check => FieldKind::Check,
+            facade::FieldKind::Radio => FieldKind::Radio,
+            facade::FieldKind::Push => FieldKind::Push,
+            facade::FieldKind::Combo => FieldKind::Combo,
+            facade::FieldKind::List => FieldKind::List,
+            facade::FieldKind::Signature => FieldKind::Signature,
+            facade::FieldKind::Other => FieldKind::Other,
+        },
+        read_only: field.read_only,
+        required: field.required,
+        multiline: field.multiline,
+        password: field.password,
+        comb: field.comb,
+        multi_select: field.multi_select,
+        editable: field.editable,
+        values: field.values,
+        options: field
+            .options
+            .into_iter()
+            .map(|(export, display)| FieldOption { export, display })
+            .collect(),
+        max_len: field.max_len,
+        widgets: field
+            .widgets
+            .into_iter()
+            .map(|widget| {
+                let [left, top, right, bottom] = widget.rect;
+                FieldWidget {
+                    page: widget.page,
+                    rect: PageRect {
+                        left,
+                        top,
+                        right,
+                        bottom,
+                    },
+                    on_state: widget.on_state,
+                }
+            })
+            .collect(),
+        format,
+        date_pattern,
+        decimals,
+        min: field.min,
+        max: field.max,
+        problem: field.problem.map(field_problem_dto),
+        signed: field.signed,
+        signature: field.signature,
+        filled: field.filled,
+    }
+}
+
+/// The form as the committed revisions leave it, in tab order. Reading generates nothing.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn form_fields(document: u64) -> Result<FormInfo, ApiError> {
+    let form = engine()?
+        .form_fields(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)?;
+    Ok(FormInfo {
+        fields: form.fields.into_iter().map(field_info_dto).collect(),
+        required: form.required,
+        required_left: form.required_left,
+        problems: form.problems,
+        has_xfa: form.has_xfa,
+        truncated: form.truncated,
+    })
+}
+
+/// Sets field `handle` to `values` as one history step: text, export values or a button's
+/// on-state, none to empty it. Call it on blur, Tab or the end of a drag, never per keystroke.
+/// `missing` answers Ask each time; `None` follows the font settings.
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` and `NotFound`, as for an
+/// annotation.
+pub async fn set_field_value(
+    document: u64,
+    handle: u64,
+    values: Vec<String>,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
+    let commit = engine()?
+        .set_field_value(
+            facade::DocumentId::from_raw(document),
+            handle,
+            values,
+            missing_font(missing),
+            name,
+        )
+        .await
+        .map_err(api_error_dto)?;
+    Ok(field_commit_dto(commit))
+}
+
+fn missing_font(missing: Option<MissingFont>) -> Option<facade::MissingFont> {
+    missing.map(|missing| match missing {
+        MissingFont::Bundled => facade::MissingFont::Bundled,
+        MissingFont::Ask => facade::MissingFont::Ask,
+        MissingFont::Keep => facade::MissingFont::Keep,
+    })
+}
+
+fn field_commit_dto(commit: facade::FieldCommit) -> FieldCommit {
+    FieldCommit {
+        revision: revision_dto(commit.revision),
+        problem: commit.problem.map(field_problem_dto),
+        fonts: commit.fonts,
+        marked: commit.marked,
+        xfa_removed: commit.xfa_removed,
+        asks_font: commit.asks_font,
+    }
+}
+
+/// Empties every field that holds a value and can change, as one history step. Signatures stay.
+/// A list box's options are drawn by `missing` as a value is.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+pub async fn clear_form(
+    document: u64,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
+    engine()?
+        .clear_form(
+            facade::DocumentId::from_raw(document),
+            missing_font(missing),
+            name,
+        )
+        .await
+        .map(field_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// Finish: every field becomes page content as it looks, as one history step; a digitally signed
+/// field stays. An appearance it draws follows `missing` as a value does and says which fonts it
+/// took. It asks what editing asks.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+pub async fn finish_form(
+    document: u64,
+    missing: Option<MissingFont>,
+    name: String,
+) -> Result<FieldCommit, ApiError> {
+    engine()?
+        .finish_form(
+            facade::DocumentId::from_raw(document),
+            missing_font(missing),
+            name,
+        )
+        .await
+        .map(field_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// What a place to fill is (a5-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FillTargetKind {
+    /// A line: text goes on its baseline.
+    Line,
+    /// A box to write in.
+    Box,
+    /// A small square: a click checks it.
+    Check,
+    /// A row of equal cells, one character each.
+    Comb,
+}
+
+/// One place to fill, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FillTarget {
+    /// What it is.
+    pub kind: FillTargetKind,
+    /// Its box: a line's stroke, a comb's cells together.
+    pub rect: PageRect,
+    /// A comb's cells; 1 for the others.
+    pub cells: u32,
+}
+
+/// The places to fill on a page.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FillTargets {
+    /// From the top down, then left to right.
+    pub targets: Vec<FillTarget>,
+    /// Whether a limit cut the list short.
+    pub truncated: bool,
+}
+
+/// The lines, boxes, check boxes and combs drawn on the page `page` (Fill anything). Nothing is
+/// written.
+///
+/// See [`facade::Engine::fill_targets`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a page the document does not have, `NotFound`.
+pub async fn fill_targets(document: u64, page: u64) -> Result<FillTargets, ApiError> {
+    let found = engine()?
+        .fill_targets(facade::DocumentId::from_raw(document), page)
+        .await
+        .map_err(api_error_dto)?;
+    Ok(FillTargets {
+        targets: found
+            .targets
+            .into_iter()
+            .map(|target| FillTarget {
+                kind: match target.kind {
+                    facade::TargetKind::Line => FillTargetKind::Line,
+                    facade::TargetKind::Box => FillTargetKind::Box,
+                    facade::TargetKind::Check => FillTargetKind::Check,
+                    facade::TargetKind::Comb => FillTargetKind::Comb,
+                },
+                rect: rect_dto(target.rect),
+                cells: target.cells,
+            })
+            .collect(),
+        truncated: found.truncated,
+    })
+}
+
+/// A typed-signature style and whether it can write a name.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HandwritingStyle {
+    /// Its family: Caveat, Dancing Script or Homemade Apple.
+    pub family: String,
+    /// It has every letter of the name; one that has not is not offered (decision 23).
+    pub covered: bool,
+}
+
+/// Which typed-signature styles can write every letter of `text`, in a5-3's order.
+///
+/// See [`facade::Engine::handwriting_styles`].
+///
+/// # Errors
+///
+/// Only an internal one.
+pub async fn handwriting_styles(text: String) -> Result<Vec<HandwritingStyle>, ApiError> {
+    engine()?
+        .handwriting_styles(text)
+        .await
+        .map(|styles| {
+            styles
+                .into_iter()
+                .map(|(family, covered)| HandwritingStyle { family, covered })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// What a signature is drawn from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SignatureInkKind {
+    /// A typed name in a handwriting style.
+    Typed,
+    /// Strokes from the pad.
+    Drawn,
+    /// A photo or scan.
+    Image,
+}
+
+/// A signature's ink: the fields of its kind are read, the others ignored.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SignatureInk {
+    /// What it is drawn from.
+    pub kind: SignatureInkKind,
+    /// Typed: the name.
+    pub text: String,
+    /// Typed: the style's family.
+    pub family: String,
+    /// Drawn: each stroke, in the pad's units with y down.
+    pub strokes: Vec<AnnotationPoints>,
+    /// Drawn: the pen's width, in the pad's units.
+    pub width: f32,
+    /// Image: the file's bytes.
+    pub image: Vec<u8>,
+}
+
+/// A signature to place, in displayed points.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewSignature {
+    /// Its box before its tilt; the ink is fitted into it.
+    pub rect: PageRect,
+    /// What it is drawn from.
+    pub ink: SignatureInk,
+    /// A typed or drawn signature's colour.
+    pub color: AnnotationColor,
+    /// Its turn in degrees; negative turns anticlockwise.
+    pub tilt: f32,
+    /// Initials rather than a signature.
+    pub initials: bool,
+    /// The full name of the signature field it signs.
+    pub field: Option<String>,
+    /// Its author.
+    pub author: String,
+}
+
+/// Places `signature` on the page `page` as one history step: a stamp annotation, never a
+/// digital signature.
+///
+/// See [`facade::Engine::add_signature`].
+///
+/// # Errors
+///
+/// As [`add_annotation`]; `ResourceLimit` for an image past the limits.
+pub async fn add_signature(
+    document: u64,
+    page: u64,
+    signature: NewSignature,
+    name: String,
+) -> Result<AnnotationCommit, ApiError> {
+    let ink = signature.ink;
+    let new = facade::NewSignature {
+        rect: annotation_rect_of(signature.rect),
+        ink: match ink.kind {
+            SignatureInkKind::Typed => facade::Ink::Typed {
+                text: ink.text,
+                family: ink.family,
+            },
+            SignatureInkKind::Drawn => facade::Ink::Drawn {
+                strokes: annotation_points_of(ink.strokes),
+                width: ink.width,
+            },
+            SignatureInkKind::Image => facade::Ink::Image(ink.image),
+        },
+        color: annotation_color_of(signature.color),
+        tilt: signature.tilt,
+        initials: signature.initials,
+        field: signature.field,
+        author: signature.author,
+    };
+    engine()?
+        .add_signature(facade::DocumentId::from_raw(document), page, new, name)
+        .await
+        .map(annotation_commit_dto)
+        .map_err(api_error_dto)
+}
+
+/// A saved signature file: the app owns its format.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SavedSignature {
+    /// Its file name.
+    pub name: String,
+    /// What the app wrote.
+    pub bytes: Vec<u8>,
+}
+
+/// The saved signatures and initials in `dir`, a folder of the app data directory, by name.
+///
+/// See [`facade::Engine::saved_signatures`].
+///
+/// # Errors
+///
+/// The errors of reading the folder.
+pub async fn saved_signatures(dir: String) -> Result<Vec<SavedSignature>, ApiError> {
+    engine()?
+        .saved_signatures(PathBuf::from(dir))
+        .await
+        .map(|saved| {
+            saved
+                .into_iter()
+                .map(|file| SavedSignature {
+                    name: file.name,
+                    bytes: file.bytes,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Writes `bytes` as the saved signature `name` in `dir` through the safe write.
+///
+/// See [`facade::Engine::write_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses or bytes too many; the errors of the write.
+pub async fn write_saved_signature(
+    dir: String,
+    name: String,
+    bytes: Vec<u8>,
+) -> Result<(), ApiError> {
+    engine()?
+        .write_saved_signature(PathBuf::from(dir), name, bytes)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Deletes the saved signature `name` in `dir`.
+///
+/// See [`facade::Engine::delete_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses; the errors of the delete.
+pub async fn delete_saved_signature(dir: String, name: String) -> Result<(), ApiError> {
+    engine()?
+        .delete_saved_signature(PathBuf::from(dir), name)
+        .await
+        .map_err(api_error_dto)
+}
+
 /// What an operation may do to a document as it stands (G35).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpGate {
@@ -3232,6 +4797,8 @@ impl facade::SearchSink for BridgeSearch {
                         snippet_start: found.snippet_range.start,
                         snippet_end: found.snippet_range.end,
                         bookmark: found.bookmark,
+                        comment: found.comment,
+                        field: found.field,
                     })
                     .collect(),
                 ..empty
@@ -3829,6 +5396,8 @@ fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {
         day: date.day,
         hour: date.hour,
         minute: date.minute,
+        second: date.second,
+        offset_minutes: date.offset_minutes,
     }
 }
 

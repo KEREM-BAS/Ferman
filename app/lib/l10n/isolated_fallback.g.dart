@@ -1325,6 +1325,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.findNoneBodyExact(count, pages));
 
   @override
+  String get findNotSearchedFields => isolate(super.findNotSearchedFields);
+
+  @override
+  String get findNotSearchedBoth => isolate(super.findNotSearchedBoth);
+
+  @override
   String get sidebarSearchField => isolate(super.sidebarSearchField);
 
   @override
@@ -3535,6 +3541,1086 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String jobCreateFailedTitle(String name) =>
       isolate(super.jobCreateFailedTitle(name));
+
+  @override
+  String get commentsTitle => isolate(super.commentsTitle);
+
+  @override
+  String get commentsFilter => isolate(super.commentsFilter);
+
+  @override
+  String get commentsMore => isolate(super.commentsMore);
+
+  @override
+  String get commentsStatus => isolate(super.commentsStatus);
+
+  @override
+  String commentsStatusOpen(String count) =>
+      isolate(super.commentsStatusOpen(count));
+
+  @override
+  String commentsStatusResolved(String count) =>
+      isolate(super.commentsStatusResolved(count));
+
+  @override
+  String commentsStatusAll(String count) =>
+      isolate(super.commentsStatusAll(count));
+
+  @override
+  String get commentsFilterAuthor => isolate(super.commentsFilterAuthor);
+
+  @override
+  String get commentsFilterType => isolate(super.commentsFilterType);
+
+  @override
+  String get commentsFilterSort => isolate(super.commentsFilterSort);
+
+  @override
+  String get commentsAllPeople => isolate(super.commentsAllPeople);
+
+  @override
+  String get commentsTypeNotes => isolate(super.commentsTypeNotes);
+
+  @override
+  String get commentsTypeMarkup => isolate(super.commentsTypeMarkup);
+
+  @override
+  String get commentsTypeDrawings => isolate(super.commentsTypeDrawings);
+
+  @override
+  String get commentsTypeStamps => isolate(super.commentsTypeStamps);
+
+  @override
+  String get commentsTypeOther => isolate(super.commentsTypeOther);
+
+  @override
+  String get commentsSortNewest => isolate(super.commentsSortNewest);
+
+  @override
+  String get commentsSortAuthor => isolate(super.commentsSortAuthor);
+
+  @override
+  String get commentsSortOther => isolate(super.commentsSortOther);
+
+  @override
+  String get commentsCertifiedNote => isolate(super.commentsCertifiedNote);
+
+  @override
+  String get commentsTruncated => isolate(super.commentsTruncated);
+
+  @override
+  String get commentsEmptyTitle => isolate(super.commentsEmptyTitle);
+
+  @override
+  String get commentsEmptyBody => isolate(super.commentsEmptyBody);
+
+  @override
+  String get commentsNoMatchTitle => isolate(super.commentsNoMatchTitle);
+
+  @override
+  String get commentsNoMatchBody => isolate(super.commentsNoMatchBody);
+
+  @override
+  String get commentsFootnote => isolate(super.commentsFootnote);
+
+  @override
+  String get commentsExportSummary => isolate(super.commentsExportSummary);
+
+  @override
+  String get commentsFlatten => isolate(super.commentsFlatten);
+
+  @override
+  String get commentsHideAll => isolate(super.commentsHideAll);
+
+  @override
+  String commentsHidden(int count, String shown) =>
+      isolate(super.commentsHidden(count, shown));
+
+  @override
+  String get commentKindHighlight => isolate(super.commentKindHighlight);
+
+  @override
+  String get commentKindUnderline => isolate(super.commentKindUnderline);
+
+  @override
+  String get commentKindStrikeOut => isolate(super.commentKindStrikeOut);
+
+  @override
+  String get commentKindSquiggly => isolate(super.commentKindSquiggly);
+
+  @override
+  String get commentKindNote => isolate(super.commentKindNote);
+
+  @override
+  String get commentKindFreeText => isolate(super.commentKindFreeText);
+
+  @override
+  String get commentKindCallout => isolate(super.commentKindCallout);
+
+  @override
+  String get commentKindInk => isolate(super.commentKindInk);
+
+  @override
+  String get commentKindSquare => isolate(super.commentKindSquare);
+
+  @override
+  String get commentKindCircle => isolate(super.commentKindCircle);
+
+  @override
+  String get commentKindLine => isolate(super.commentKindLine);
+
+  @override
+  String get commentKindPolygon => isolate(super.commentKindPolygon);
+
+  @override
+  String get commentKindStamp => isolate(super.commentKindStamp);
+
+  @override
+  String get commentKindOther => isolate(super.commentKindOther);
+
+  @override
+  String commentStyleBar(String kind) => isolate(super.commentStyleBar(kind));
+
+  @override
+  String get commentStrokeWidth => isolate(super.commentStrokeWidth);
+
+  @override
+  String get commentOpacity => isolate(super.commentOpacity);
+
+  @override
+  String get commentOpen => isolate(super.commentOpen);
+
+  @override
+  String get commentDelete => isolate(super.commentDelete);
+
+  @override
+  String get commentMenu => isolate(super.commentMenu);
+
+  @override
+  String get commentEditText => isolate(super.commentEditText);
+
+  @override
+  String get commentMore => isolate(super.commentMore);
+
+  @override
+  String get commentCloseNote => isolate(super.commentCloseNote);
+
+  @override
+  String commentNoteFrom(String author) =>
+      isolate(super.commentNoteFrom(author));
+
+  @override
+  String get commentReply => isolate(super.commentReply);
+
+  @override
+  String get commentResolve => isolate(super.commentResolve);
+
+  @override
+  String get commentReopen => isolate(super.commentReopen);
+
+  @override
+  String get commentPeople => isolate(super.commentPeople);
+
+  @override
+  String commentQuote(String text) => isolate(super.commentQuote(text));
+
+  @override
+  String commentReplies(int count, String shown) =>
+      isolate(super.commentReplies(count, shown));
+
+  @override
+  String commentResolvedBy(String name, String time) =>
+      isolate(super.commentResolvedBy(name, time));
+
+  @override
+  String get commentYesterday => isolate(super.commentYesterday);
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) => isolate(
+    super.commentCardLabel(author, kind, page, resolved, count, shown),
+  );
+
+  @override
+  String get commentStepAdd => isolate(super.commentStepAdd);
+
+  @override
+  String get commentStepChange => isolate(super.commentStepChange);
+
+  @override
+  String get commentStepDelete => isolate(super.commentStepDelete);
+
+  @override
+  String get commentStepReply => isolate(super.commentStepReply);
+
+  @override
+  String get commentStepResolve => isolate(super.commentStepResolve);
+
+  @override
+  String get commentStepReopen => isolate(super.commentStepReopen);
+
+  @override
+  String get commentDeletedToast => isolate(super.commentDeletedToast);
+
+  @override
+  String get commentDeletedNote => isolate(super.commentDeletedNote);
+
+  @override
+  String get commentNameTitle => isolate(super.commentNameTitle);
+
+  @override
+  String get commentNameBody => isolate(super.commentNameBody);
+
+  @override
+  String get commentNameSave => isolate(super.commentNameSave);
+
+  @override
+  String get settingsCommenterName => isolate(super.settingsCommenterName);
+
+  @override
+  String get commentTextField => isolate(super.commentTextField);
+
+  @override
+  String get commentSummaryFile => isolate(super.commentSummaryFile);
+
+  @override
+  String get commentColumnPage => isolate(super.commentColumnPage);
+
+  @override
+  String get commentColumnType => isolate(super.commentColumnType);
+
+  @override
+  String get commentColumnAuthor => isolate(super.commentColumnAuthor);
+
+  @override
+  String get commentColumnDate => isolate(super.commentColumnDate);
+
+  @override
+  String get commentColumnText => isolate(super.commentColumnText);
+
+  @override
+  String get commentColumnReplies => isolate(super.commentColumnReplies);
+
+  @override
+  String get commentColumnStatus => isolate(super.commentColumnStatus);
+
+  @override
+  String get commentStatusOpen => isolate(super.commentStatusOpen);
+
+  @override
+  String get commentStatusResolved => isolate(super.commentStatusResolved);
+
+  @override
+  String jobSummaryRunningTitle(String name) =>
+      isolate(super.jobSummaryRunningTitle(name));
+
+  @override
+  String jobSummaryDoneTitle(String name) =>
+      isolate(super.jobSummaryDoneTitle(name));
+
+  @override
+  String jobSummaryFailedTitle(String name) =>
+      isolate(super.jobSummaryFailedTitle(name));
+
+  @override
+  String get commentSummaryCsvFile => isolate(super.commentSummaryCsvFile);
+
+  @override
+  String get summaryTitle => isolate(super.summaryTitle);
+
+  @override
+  String get summaryFormat => isolate(super.summaryFormat);
+
+  @override
+  String get summaryCsv => isolate(super.summaryCsv);
+
+  @override
+  String get summaryLayout => isolate(super.summaryLayout);
+
+  @override
+  String get summaryPageAndComments => isolate(super.summaryPageAndComments);
+
+  @override
+  String get summaryPageAndCommentsHint =>
+      isolate(super.summaryPageAndCommentsHint);
+
+  @override
+  String get summaryCommentsOnly => isolate(super.summaryCommentsOnly);
+
+  @override
+  String get summaryCommentsOnlyHint => isolate(super.summaryCommentsOnlyHint);
+
+  @override
+  String get summaryPageThenList => isolate(super.summaryPageThenList);
+
+  @override
+  String get summaryPageThenListHint => isolate(super.summaryPageThenListHint);
+
+  @override
+  String summaryOpen(String count) => isolate(super.summaryOpen(count));
+
+  @override
+  String get summaryReplies => isolate(super.summaryReplies);
+
+  @override
+  String summaryResolved(String count) => isolate(super.summaryResolved(count));
+
+  @override
+  String get summaryEmptyPages => isolate(super.summaryEmptyPages);
+
+  @override
+  String get summarySortBy => isolate(super.summarySortBy);
+
+  @override
+  String get summarySortPage => isolate(super.summarySortPage);
+
+  @override
+  String get summaryPaper => isolate(super.summaryPaper);
+
+  @override
+  String get summaryPreview => isolate(super.summaryPreview);
+
+  @override
+  String get summaryExport => isolate(super.summaryExport);
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      isolate(super.jobSummaryPageUnsupported);
+
+  @override
+  String flattenTitle(int count, String formatted) =>
+      isolate(super.flattenTitle(count, formatted));
+
+  @override
+  String get flattenBody => isolate(super.flattenBody);
+
+  @override
+  String flattenAll(int count, String formatted) =>
+      isolate(super.flattenAll(count, formatted));
+
+  @override
+  String flattenResolved(int count, String formatted) =>
+      isolate(super.flattenResolved(count, formatted));
+
+  @override
+  String get flattenKeepCopy => isolate(super.flattenKeepCopy);
+
+  @override
+  String flattenKeepCopyHint(String name) =>
+      isolate(super.flattenKeepCopyHint(name));
+
+  @override
+  String flattenCopyName(String stem) => isolate(super.flattenCopyName(stem));
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) =>
+      isolate(super.flattenCopyNameNumbered(stem, number));
+
+  @override
+  String flattenAction(int count, String formatted) =>
+      isolate(super.flattenAction(count, formatted));
+
+  @override
+  String get commentStepFlatten => isolate(super.commentStepFlatten);
+
+  @override
+  String jobFlatteningTitle(String name) =>
+      isolate(super.jobFlatteningTitle(name));
+
+  @override
+  String jobFlattenedTitle(String name) =>
+      isolate(super.jobFlattenedTitle(name));
+
+  @override
+  String jobFlattenFailedTitle(String name) =>
+      isolate(super.jobFlattenFailedTitle(name));
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      isolate(super.jobFlattenPageUnsupported);
+
+  @override
+  String sidebarSearchComment(String text) =>
+      isolate(super.sidebarSearchComment(text));
+
+  @override
+  String get stampsTitle => isolate(super.stampsTitle);
+
+  @override
+  String get stampsSearch => isolate(super.stampsSearch);
+
+  @override
+  String get stampsNoMatch => isolate(super.stampsNoMatch);
+
+  @override
+  String get stampGroupStandard => isolate(super.stampGroupStandard);
+
+  @override
+  String get stampGroupNamed => isolate(super.stampGroupNamed);
+
+  @override
+  String get stampGroupMine => isolate(super.stampGroupMine);
+
+  @override
+  String get stampCreate => isolate(super.stampCreate);
+
+  @override
+  String get stampImport => isolate(super.stampImport);
+
+  @override
+  String get stampExport => isolate(super.stampExport);
+
+  @override
+  String get stampDelete => isolate(super.stampDelete);
+
+  @override
+  String get stampFileFilter => isolate(super.stampFileFilter);
+
+  @override
+  String get stampImportFailed => isolate(super.stampImportFailed);
+
+  @override
+  String get stampImportFailedBody => isolate(super.stampImportFailedBody);
+
+  @override
+  String get stampExportFailed => isolate(super.stampExportFailed);
+
+  @override
+  String get stampsFull => isolate(super.stampsFull);
+
+  @override
+  String get createStampTitle => isolate(super.createStampTitle);
+
+  @override
+  String get createStampText => isolate(super.createStampText);
+
+  @override
+  String get createStampSecondLine => isolate(super.createStampSecondLine);
+
+  @override
+  String get createStampMyName => isolate(super.createStampMyName);
+
+  @override
+  String get createStampDate => isolate(super.createStampDate);
+
+  @override
+  String get createStampTime => isolate(super.createStampTime);
+
+  @override
+  String get createStampName => isolate(super.createStampName);
+
+  @override
+  String get createStampColour => isolate(super.createStampColour);
+
+  @override
+  String get stampToneSeal => isolate(super.stampToneSeal);
+
+  @override
+  String get stampToneInk => isolate(super.stampToneInk);
+
+  @override
+  String get stampToneGreen => isolate(super.stampToneGreen);
+
+  @override
+  String get stampToneGrey => isolate(super.stampToneGrey);
+
+  @override
+  String get createStampCaps => isolate(super.createStampCaps);
+
+  @override
+  String get createStampLanguageTurkish =>
+      isolate(super.createStampLanguageTurkish);
+
+  @override
+  String get createStampLanguageEnglish =>
+      isolate(super.createStampLanguageEnglish);
+
+  @override
+  String get createStampLanguageGerman =>
+      isolate(super.createStampLanguageGerman);
+
+  @override
+  String get createStampPreview => isolate(super.createStampPreview);
+
+  @override
+  String get createStampSavedNote => isolate(super.createStampSavedNote);
+
+  @override
+  String get createStampSave => isolate(super.createStampSave);
+
+  @override
+  String get shapeRectangle => isolate(super.shapeRectangle);
+
+  @override
+  String get shapeEllipse => isolate(super.shapeEllipse);
+
+  @override
+  String get shapeArrow => isolate(super.shapeArrow);
+
+  @override
+  String get shapeLine => isolate(super.shapeLine);
+
+  @override
+  String get shapePolygon => isolate(super.shapePolygon);
+
+  @override
+  String get shapesKeepTool => isolate(super.shapesKeepTool);
+
+  @override
+  String get stepAddShape => isolate(super.stepAddShape);
+
+  @override
+  String get stepAddStamp => isolate(super.stepAddStamp);
+
+  @override
+  String get placeStampHint => isolate(super.placeStampHint);
+
+  @override
+  String get placeShapeHint => isolate(super.placeShapeHint);
+
+  @override
+  String get placePolygonHint => isolate(super.placePolygonHint);
+
+  @override
+  String get linksTitle => isolate(super.linksTitle);
+
+  @override
+  String get linksNote => isolate(super.linksNote);
+
+  @override
+  String get linksEmpty => isolate(super.linksEmpty);
+
+  @override
+  String get linksTruncated => isolate(super.linksTruncated);
+
+  @override
+  String get linksSelectTextFirst => isolate(super.linksSelectTextFirst);
+
+  @override
+  String get linksKindWeb => isolate(super.linksKindWeb);
+
+  @override
+  String get linksKindMail => isolate(super.linksKindMail);
+
+  @override
+  String get linksKindPage => isolate(super.linksKindPage);
+
+  @override
+  String get linksKindScript => isolate(super.linksKindScript);
+
+  @override
+  String get linksKindLaunch => isolate(super.linksKindLaunch);
+
+  @override
+  String get linksKindFile => isolate(super.linksKindFile);
+
+  @override
+  String get linksKindAddress => isolate(super.linksKindAddress);
+
+  @override
+  String get linksKindAction => isolate(super.linksKindAction);
+
+  @override
+  String get linksKindNothing => isolate(super.linksKindNothing);
+
+  @override
+  String linksPage(String page) => isolate(super.linksPage(page));
+
+  @override
+  String get linksPageMissing => isolate(super.linksPageMissing);
+
+  @override
+  String linksMeta(String kind, String page) =>
+      isolate(super.linksMeta(kind, page));
+
+  @override
+  String linksMetaEditing(String kind, String page) =>
+      isolate(super.linksMetaEditing(kind, page));
+
+  @override
+  String get linkAddTitle => isolate(super.linkAddTitle);
+
+  @override
+  String get linkEditTitle => isolate(super.linkEditTitle);
+
+  @override
+  String get linkTo => isolate(super.linkTo);
+
+  @override
+  String get linkTypeFile => isolate(super.linkTypeFile);
+
+  @override
+  String get linkFieldWeb => isolate(super.linkFieldWeb);
+
+  @override
+  String get linkFieldMail => isolate(super.linkFieldMail);
+
+  @override
+  String get linkFieldPage => isolate(super.linkFieldPage);
+
+  @override
+  String get linkAppearance => isolate(super.linkAppearance);
+
+  @override
+  String get linkLookNone => isolate(super.linkLookNone);
+
+  @override
+  String get linkLookUnderline => isolate(super.linkLookUnderline);
+
+  @override
+  String get linkLookBox => isolate(super.linkLookBox);
+
+  @override
+  String get linkRemove => isolate(super.linkRemove);
+
+  @override
+  String get linkSave => isolate(super.linkSave);
+
+  @override
+  String get linkStepAdd => isolate(super.linkStepAdd);
+
+  @override
+  String get linkStepEdit => isolate(super.linkStepEdit);
+
+  @override
+  String get linkStepRemove => isolate(super.linkStepRemove);
+
+  @override
+  String get linkErrorWeb => isolate(super.linkErrorWeb);
+
+  @override
+  String get linkErrorMail => isolate(super.linkErrorMail);
+
+  @override
+  String get linkFailedTitle => isolate(super.linkFailedTitle);
+
+  @override
+  String get linkOpenWebTitle => isolate(super.linkOpenWebTitle);
+
+  @override
+  String get linkOpenMailTitle => isolate(super.linkOpenMailTitle);
+
+  @override
+  String get linkOpenDescription => isolate(super.linkOpenDescription);
+
+  @override
+  String get linkOpenAction => isolate(super.linkOpenAction);
+
+  @override
+  String get linkOpenFailed => isolate(super.linkOpenFailed);
+
+  @override
+  String get linkBrokenTitle => isolate(super.linkBrokenTitle);
+
+  @override
+  String get linkRefusedTitle => isolate(super.linkRefusedTitle);
+
+  @override
+  String get linkRefusedScript => isolate(super.linkRefusedScript);
+
+  @override
+  String linkRefusedLaunch(String target) =>
+      isolate(super.linkRefusedLaunch(target));
+
+  @override
+  String linkRefusedFile(String target) =>
+      isolate(super.linkRefusedFile(target));
+
+  @override
+  String linkRefusedAddress(String target) =>
+      isolate(super.linkRefusedAddress(target));
+
+  @override
+  String get linkRefusedAction => isolate(super.linkRefusedAction);
+
+  @override
+  String linksBrokenMeta(int count, String pages) =>
+      isolate(super.linksBrokenMeta(count, pages));
+
+  @override
+  String linkErrorPage(int count, String pages) =>
+      isolate(super.linkErrorPage(count, pages));
+
+  @override
+  String get signPadMethod => isolate(super.signPadMethod);
+
+  @override
+  String get signPadDraw => isolate(super.signPadDraw);
+
+  @override
+  String get signPadType => isolate(super.signPadType);
+
+  @override
+  String get signPadImage => isolate(super.signPadImage);
+
+  @override
+  String get signPadArea => isolate(super.signPadArea);
+
+  @override
+  String get signPadTypeName => isolate(super.signPadTypeName);
+
+  @override
+  String get signPadNamePlaceholder => isolate(super.signPadNamePlaceholder);
+
+  @override
+  String get signPadDrawHint => isolate(super.signPadDrawHint);
+
+  @override
+  String get signPadTypeHint => isolate(super.signPadTypeHint);
+
+  @override
+  String get signPadImageHint => isolate(super.signPadImageHint);
+
+  @override
+  String get signPadChooseImage => isolate(super.signPadChooseImage);
+
+  @override
+  String get signPadInk => isolate(super.signPadInk);
+
+  @override
+  String get signPadBlack => isolate(super.signPadBlack);
+
+  @override
+  String get signPadBlue => isolate(super.signPadBlue);
+
+  @override
+  String get signPadClear => isolate(super.signPadClear);
+
+  @override
+  String get signPadSave => isolate(super.signPadSave);
+
+  @override
+  String get signDialogTitle => isolate(super.signDialogTitle);
+
+  @override
+  String get signDialogTitleInitials => isolate(super.signDialogTitleInitials);
+
+  @override
+  String get signCreate => isolate(super.signCreate);
+
+  @override
+  String get signKindSignature => isolate(super.signKindSignature);
+
+  @override
+  String get signKindInitials => isolate(super.signKindInitials);
+
+  @override
+  String get signHandwriting => isolate(super.signHandwriting);
+
+  @override
+  String get signNoStyle => isolate(super.signNoStyle);
+
+  @override
+  String get signSavedNote => isolate(super.signSavedNote);
+
+  @override
+  String get signMenuLabel => isolate(super.signMenuLabel);
+
+  @override
+  String get signMenuSignatures => isolate(super.signMenuSignatures);
+
+  @override
+  String get signMenuAdd => isolate(super.signMenuAdd);
+
+  @override
+  String get signMenuCreate => isolate(super.signMenuCreate);
+
+  @override
+  String get signMenuManage => isolate(super.signMenuManage);
+
+  @override
+  String get signDrawn => isolate(super.signDrawn);
+
+  @override
+  String get signDelete => isolate(super.signDelete);
+
+  @override
+  String get signSaveFailed => isolate(super.signSaveFailed);
+
+  @override
+  String get signImageTooLarge => isolate(super.signImageTooLarge);
+
+  @override
+  String get signImageFilter => isolate(super.signImageFilter);
+
+  @override
+  String get stepAddSignature => isolate(super.stepAddSignature);
+
+  @override
+  String get stepAddInitials => isolate(super.stepAddInitials);
+
+  @override
+  String get placeSignatureHint => isolate(super.placeSignatureHint);
+
+  @override
+  String get formPanelTitle => isolate(super.formPanelTitle);
+
+  @override
+  String get formMore => isolate(super.formMore);
+
+  @override
+  String formRequiredProgress(String filled, String total) =>
+      isolate(super.formRequiredProgress(filled, total));
+
+  @override
+  String formSummaryFields(int count, String formatted) =>
+      isolate(super.formSummaryFields(count, formatted));
+
+  @override
+  String formRequiredLeft(int count, String formatted) =>
+      isolate(super.formRequiredLeft(count, formatted));
+
+  @override
+  String get formAllRequiredFilled => isolate(super.formAllRequiredFilled);
+
+  @override
+  String formFieldOf(String current, String total) =>
+      isolate(super.formFieldOf(current, total));
+
+  @override
+  String get formHighlight => isolate(super.formHighlight);
+
+  @override
+  String get formShowOrder => isolate(super.formShowOrder);
+
+  @override
+  String get formHideOrder => isolate(super.formHideOrder);
+
+  @override
+  String get formSignedTitle => isolate(super.formSignedTitle);
+
+  @override
+  String get formSignedKeeps => isolate(super.formSignedKeeps);
+
+  @override
+  String get formSignedBreaks => isolate(super.formSignedBreaks);
+
+  @override
+  String get formFontNoticeTitle => isolate(super.formFontNoticeTitle);
+
+  @override
+  String formFontNoticeBody(String fonts) =>
+      isolate(super.formFontNoticeBody(fonts));
+
+  @override
+  String get formDismiss => isolate(super.formDismiss);
+
+  @override
+  String get formRequired => isolate(super.formRequired);
+
+  @override
+  String get formMarkedField => isolate(super.formMarkedField);
+
+  @override
+  String get formClear => isolate(super.formClear);
+
+  @override
+  String get formFinish => isolate(super.formFinish);
+
+  @override
+  String get formExportData => isolate(super.formExportData);
+
+  @override
+  String get formBannerTitle => isolate(super.formBannerTitle);
+
+  @override
+  String formBannerBody(int count, String formatted, String required) =>
+      isolate(super.formBannerBody(count, formatted, required));
+
+  @override
+  String get formBannerHide => isolate(super.formBannerHide);
+
+  @override
+  String get fillBannerTitle => isolate(super.fillBannerTitle);
+
+  @override
+  String get fillBannerBody => isolate(super.fillBannerBody);
+
+  @override
+  String get fillFindFields => isolate(super.fillFindFields);
+
+  @override
+  String get formPreviousField => isolate(super.formPreviousField);
+
+  @override
+  String get formNextField => isolate(super.formNextField);
+
+  @override
+  String formNavField(String current, String total) =>
+      isolate(super.formNavField(current, total));
+
+  @override
+  String formNavFields(int count, String formatted) =>
+      isolate(super.formNavFields(count, formatted));
+
+  @override
+  String get formNavAllFilled => isolate(super.formNavAllFilled);
+
+  @override
+  String get formSignHere => isolate(super.formSignHere);
+
+  @override
+  String formErrorTooLong(int count, String formatted) =>
+      isolate(super.formErrorTooLong(count, formatted));
+
+  @override
+  String formErrorDate(String pattern) => isolate(super.formErrorDate(pattern));
+
+  @override
+  String get formErrorNumber => isolate(super.formErrorNumber);
+
+  @override
+  String formErrorRange(String min, String max) =>
+      isolate(super.formErrorRange(min, max));
+
+  @override
+  String formErrorMin(String min) => isolate(super.formErrorMin(min));
+
+  @override
+  String formErrorMax(String max) => isolate(super.formErrorMax(max));
+
+  @override
+  String get formErrorRequired => isolate(super.formErrorRequired);
+
+  @override
+  String get formErrorSign => isolate(super.formErrorSign);
+
+  @override
+  String get formErrorChoose => isolate(super.formErrorChoose);
+
+  @override
+  String get formChooseDate => isolate(super.formChooseDate);
+
+  @override
+  String formDateFormat(String pattern) =>
+      isolate(super.formDateFormat(pattern));
+
+  @override
+  String get formPreviousMonth => isolate(super.formPreviousMonth);
+
+  @override
+  String get formNextMonth => isolate(super.formNextMonth);
+
+  @override
+  String get formToday => isolate(super.formToday);
+
+  @override
+  String formStepFill(String name) => isolate(super.formStepFill(name));
+
+  @override
+  String get formStepClear => isolate(super.formStepClear);
+
+  @override
+  String get formStepFinish => isolate(super.formStepFinish);
+
+  @override
+  String get fillStepText => isolate(super.fillStepText);
+
+  @override
+  String get fillStepMark => isolate(super.fillStepMark);
+
+  @override
+  String get formXfaRemovedTitle => isolate(super.formXfaRemovedTitle);
+
+  @override
+  String get formXfaRemovedBody => isolate(super.formXfaRemovedBody);
+
+  @override
+  String get formFinishTitle => isolate(super.formFinishTitle);
+
+  @override
+  String get formFinishBody => isolate(super.formFinishBody);
+
+  @override
+  String get formFinishFlatten => isolate(super.formFinishFlatten);
+
+  @override
+  String get formFinishFlattenBody => isolate(super.formFinishFlattenBody);
+
+  @override
+  String get formFinishKeep => isolate(super.formFinishKeep);
+
+  @override
+  String get formFinishKeepBody => isolate(super.formFinishKeepBody);
+
+  @override
+  String get formFinishSave => isolate(super.formFinishSave);
+
+  @override
+  String get formFinishSaveAs => isolate(super.formFinishSaveAs);
+
+  @override
+  String get formClearTitle => isolate(super.formClearTitle);
+
+  @override
+  String get formClearBody => isolate(super.formClearBody);
+
+  @override
+  String get formClearConfirm => isolate(super.formClearConfirm);
+
+  @override
+  String get formFontAskTitle => isolate(super.formFontAskTitle);
+
+  @override
+  String get formFontAskBody => isolate(super.formFontAskBody);
+
+  @override
+  String get formFontAskPlex => isolate(super.formFontAskPlex);
+
+  @override
+  String get formFontAskKeep => isolate(super.formFontAskKeep);
+
+  @override
+  String get fillPanelTitle => isolate(super.fillPanelTitle);
+
+  @override
+  String get fillToolText => isolate(super.fillToolText);
+
+  @override
+  String get fillToolCheck => isolate(super.fillToolCheck);
+
+  @override
+  String get fillToolCross => isolate(super.fillToolCross);
+
+  @override
+  String get fillToolDot => isolate(super.fillToolDot);
+
+  @override
+  String get fillToolToday => isolate(super.fillToolToday);
+
+  @override
+  String get fillToolSignature => isolate(super.fillToolSignature);
+
+  @override
+  String get fillOptions => isolate(super.fillOptions);
+
+  @override
+  String get fillSnap => isolate(super.fillSnap);
+
+  @override
+  String get fillComb => isolate(super.fillComb);
+
+  @override
+  String get fillInk => isolate(super.fillInk);
+
+  @override
+  String get fillInkBlack => isolate(super.fillInkBlack);
+
+  @override
+  String get fillInkBlue => isolate(super.fillInkBlue);
+
+  @override
+  String get findNotSearchedComments => isolate(super.findNotSearchedComments);
+
+  @override
+  String sidebarSearchFormField(String text) =>
+      isolate(super.sidebarSearchFormField(text));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

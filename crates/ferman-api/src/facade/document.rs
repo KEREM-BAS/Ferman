@@ -165,6 +165,8 @@ pub(super) struct Revised {
     /// The layers [`Engine::show_layers`] last showed, which every reload keeps; `None` until it
     /// is first called.
     pub(super) layers: Option<Vec<bool>>,
+    /// Whether [`Engine::show_comments`] last hid the comments, which every reload keeps.
+    pub(super) comments_hidden: bool,
 }
 
 impl Model {
@@ -193,6 +195,7 @@ impl Model {
                 blocks: HashMap::new(),
                 texts,
                 layers: None,
+                comments_hidden: false,
             }),
             path,
             rendered: Mutex::new(Rendered {
@@ -483,6 +486,45 @@ impl Engine {
         .await
     }
 
+    /// Shows or hides every markup annotation of `document` in every view (a4-5, decision 12):
+    /// PDFium loads it again with a render-only appendix (ADR 0009), combined with the layers.
+    /// Widgets, links and signatures stay, nothing is written, and saving does not carry it.
+    /// Returns every page's new render key.
+    ///
+    /// # Errors
+    ///
+    /// `NotFound` for a document that is not open, `Unsupported` for a repaired one, which the
+    /// writer refuses as it does for layers (B111), `Internal` when the reload fails.
+    pub async fn show_comments(
+        &self,
+        document: DocumentId,
+        visible: bool,
+    ) -> Result<u64, ApiError> {
+        guard_async(async move {
+            if self
+                .models()?
+                .get(&document)
+                .is_some_and(|model| model.document.repair().is_some())
+            {
+                return Err(
+                    ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                        .with_details("a repaired document"),
+                );
+            }
+            // As show_layers: a commit that reached the render thread first has it build again.
+            loop {
+                self.render()?;
+                let reload = self
+                    .ask(document, move |session| session.hide_comments(!visible))
+                    .await?;
+                if let Some((key, _)) = self.send_reload(document, reload, true).await {
+                    return Ok(key?);
+                }
+            }
+        })
+        .await
+    }
+
     /// Lifts the restrictions of `document` for this session when `password` is its owner
     /// password (a2-10a); the password is wiped when the check ends. Returns the document's
     /// security from then on, `None` for one that is not encrypted. The key check runs on a thread
@@ -736,9 +778,11 @@ async fn parse(
                 // The first page's text, for the Scanned badge and the first search; a page
                 // that cannot be read says nothing.
                 let first = (model.page_count() > 0)
-                    .then(|| ferman_text::extract::page_layout(&model, 0).ok())
+                    .then(|| {
+                        ferman_text::text_page(&model, 0, &ferman_text::EditContext::default()).ok()
+                    })
                     .flatten()
-                    .map(Arc::new);
+                    .map(|page| Arc::new(super::search::in_reading_order(&page)));
                 Ok((source, model, first))
             });
             // The caller may have stopped waiting; then nobody needs the result.

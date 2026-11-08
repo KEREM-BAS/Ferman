@@ -219,17 +219,15 @@ void main() {
   ) async {
     await pumpEditor(tester);
     await select(tester);
-    for (final icon in [
-      IconName.link,
-      IconName.highlighter,
-      IconName.messageSquare,
-      IconName.replace,
-    ]) {
+    expect(button(tester, IconName.link).onPressed, isNotNull);
+    for (final icon in [IconName.replace]) {
       expect(
         button(tester, icon).disabledReason,
         'Available in a future version',
       );
     }
+    expect(button(tester, IconName.highlighter).onPressed, isNotNull);
+    expect(button(tester, IconName.messageSquare).onPressed, isNotNull);
     expect(button(tester, IconName.underline).onPressed, isNull);
     expect(button(tester, IconName.italic).onPressed, isNull);
     expect(button(tester, IconName.bold).onPressed, isNotNull);

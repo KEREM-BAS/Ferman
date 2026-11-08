@@ -5,10 +5,11 @@ use ferman_core::assemble::{ImportOptions, PageImport, add_bookmark, new_documen
 use ferman_core::limits::Limits;
 use ferman_core::pages::PageSlot;
 use ferman_core::revision::RevisionStore;
-use ferman_core::write::ObjectRef;
+use ferman_core::write::{ObjectRef, Value};
 use ferman_core::{CoreError, Document, WriteError};
 
 use crate::OpsError;
+use crate::annotations::{FaceCodes, Faces, embed_faces};
 use crate::images::{Image, Paper, image_page};
 use crate::pages::checked_side;
 
@@ -178,6 +179,77 @@ impl Assembly {
         let (width, height) = (checked_side(width)?, checked_side(height)?);
         let page = self.revisions.blank_page(&self.document, width, height)?;
         self.add_page(page, bookmark)
+    }
+
+    /// Copies `pages` of `source` without placing them, for [`place`](Self::place) or
+    /// [`page_form`](Self::page_form).
+    ///
+    /// # Errors
+    ///
+    /// As [`copy_pages`].
+    pub(crate) fn copy<E: From<OpsError>>(
+        &mut self,
+        source: &Document,
+        source_revisions: &RevisionStore,
+        pages: &[usize],
+        step: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<Vec<ObjectRef>, E> {
+        copy_pages(
+            &self.document,
+            &mut self.revisions,
+            source,
+            source_revisions,
+            pages,
+            ImportOptions {
+                keep_forms: false,
+                document_parts: false,
+            },
+            None,
+            &[],
+            step,
+        )
+    }
+
+    /// Puts a page [`copy`](Self::copy) made next.
+    pub(crate) fn place(&mut self, page: ObjectRef) {
+        self.order.push(PageSlot::New(page));
+    }
+
+    /// A form of what a copied page draws, clipped to `bbox`.
+    pub(crate) fn page_form(
+        &mut self,
+        page: ObjectRef,
+        bbox: [f32; 4],
+    ) -> Result<ObjectRef, OpsError> {
+        Ok(self.revisions.page_as_form(&self.document, page, bbox)?)
+    }
+
+    /// Embeds faces for the pages [`add_drawn`](Self::add_drawn) adds.
+    pub(crate) fn embed(&mut self, faces: &Faces<'_>, prefix: &str) -> Result<FaceCodes, OpsError> {
+        embed_faces(&self.document, &mut self.revisions, faces, prefix)
+    }
+
+    /// Adds a page of `size` that draws `content` with `resources`.
+    pub(crate) fn add_drawn(
+        &mut self,
+        (width, height): (f32, f32),
+        content: Vec<u8>,
+        resources: Value,
+    ) -> Result<(), OpsError> {
+        let (width, height) = (checked_side(width)?, checked_side(height)?);
+        let page = self.revisions.blank_page(&self.document, width, height)?;
+        let stream = self.revisions.add_object(
+            &self.document,
+            Value::Stream {
+                dict: Vec::new(),
+                data: content,
+            },
+        )?;
+        self.revisions
+            .set_entry(&self.document, page, b"Contents", Value::Reference(stream))?;
+        self.revisions
+            .set_entry(&self.document, page, b"Resources", resources)?;
+        self.add_page(page, None)
     }
 
     fn add_page(&mut self, page: ObjectRef, bookmark: Option<&str>) -> Result<(), OpsError> {

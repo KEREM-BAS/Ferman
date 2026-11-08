@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/links.dart';
 import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/forms/form_panel.dart';
+import 'package:ferman/features/forms/form_state.dart';
 import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/organize/crop_panel.dart';
 import 'package:ferman/features/organize/crop_session.dart';
@@ -21,12 +25,16 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/signatures/saved_signatures.dart';
+import 'package:ferman/features/signatures/sign_tools.dart';
+import 'package:ferman/features/stamps/comment_tool_menus.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/l10n/region.dart';
+import 'package:ferman/platform/account_name.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -505,7 +513,7 @@ class _ViewTools extends ConsumerWidget {
 /// Find & replace, Page marks | undo, redo, Edit history … Mark edited
 /// text, Review edits with its count.
 ///
-/// Edit text, the only tool built, is on. Undo and redo work while the
+/// Edit text is on unless the Link tool is (a3-6). Undo and redo work while the
 /// history has a step for them (`documentEditorProvider`), and say
 /// "Nothing to undo" or "Nothing to redo" otherwise (G126); Edit history
 /// shows or hides a3-10's panel in the right panel's place.
@@ -523,6 +531,8 @@ class _EditTools extends ConsumerWidget {
     final editor = ref.watch(documentEditorProvider);
     final historyOpen = ref.watch(editHistoryOpenProvider);
     final reviewOpen = ref.watch(reviewListProvider.select((s) => s.open));
+    final linkOn = ref.watch(linkToolProvider.select((tool) => tool.on));
+    final links = ref.read(linkToolProvider.notifier);
     void toggleReview() => reviewOpen
         ? ref.read(reviewListProvider.notifier).show(open: false)
         : showReviewList(ref);
@@ -538,16 +548,16 @@ class _EditTools extends ConsumerWidget {
       semanticLabel: l10n.shellEditTools,
       overflowLabel: l10n.moreTools,
       children: [
-        // The only tool so far, always on: T has nothing to switch to. The
-        // author's permissions can forbid it (a2-10a, G27).
+        // On unless the Link tool is. The author's permissions can forbid it
+        // (a2-10a, G27).
         ToolButton(
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
-          active: true,
+          active: !linkOn,
           shortcut: ShellCommand.editText.caps(platform),
           disabled: forbidden,
           disabledReason: forbidden ? l10n.shellEditForbidden : null,
-          onPressed: forbidden ? null : () {},
+          onPressed: forbidden ? null : () => links.show(on: false),
         ),
         _future(
           context,
@@ -565,13 +575,12 @@ class _EditTools extends ConsumerWidget {
           active: false,
           shortcut: ShellCommand.addImage.caps(platform),
         ),
-        _future(
-          context,
-          feature: Feature.links,
+        ToolButton(
           icon: IconName.link,
           label: l10n.shellToolLink,
-          active: false,
+          active: linkOn,
           shortcut: ShellCommand.link.caps(platform),
+          onPressed: links.toggle,
         ),
         const ToolbarSeparator(),
         _future(
@@ -677,7 +686,18 @@ class _CommentTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final comments = Feature.comments.disabledReason(context);
+    final tools = ref.watch(commentToolProvider);
+    final notifier = ref.read(commentToolProvider.notifier);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
+    final shown = ref.watch(commentsShownProvider).visible;
+    final switchable = ref.watch(
+      openDocumentProvider.select((d) => d?.layersSwitchable ?? false),
+    );
+    final menus = ref.read(commentToolMenusProvider.notifier);
+    final yourName =
+        ref.watch(settingsProvider.select((s) => s.commenterName)) ??
+        accountName();
     return Row(
       children: [
         Expanded(
@@ -687,16 +707,32 @@ class _CommentTools extends ConsumerWidget {
             colorsSemanticLabel: l10n.shellColor,
             colorLabelOf: l10n.annotationColorLabel,
             showLabels: true,
-            // Measure is a measure tool of its own (B051), the others are
-            // comments (B050).
+            tool: tools.tool,
+            color: tools.color,
+            onToolChanged: live
+                ? (tool) {
+                    notifier.pick(tool);
+                    if (tool.hasMenu) menus.show(tool);
+                  }
+                : null,
+            onColorChanged: live ? notifier.color : null,
             disabledReasons: {
-              for (final tool in AnnotationTool.values)
-                tool: tool == AnnotationTool.measure
-                    ? Feature.measure.disabledReason(context)
-                    : comments,
+              AnnotationTool.measure: Feature.measure.disabledReason(context),
+              if (refusal != null)
+                for (final tool in AnnotationTool.values)
+                  if (tool != AnnotationTool.select &&
+                      tool != AnnotationTool.measure)
+                    tool: refusal,
             },
-            colorsDisabledReason: comments,
+            colorsDisabledReason: refusal,
             overflowLabel: l10n.moreTools,
+            onToolMenuRequested: menus.show,
+            toolMenus: commentToolMenusOf(
+              context,
+              ref,
+              onTool: notifier.pick,
+              yourName: yourName,
+            ),
           ),
         ),
         Padding(
@@ -705,10 +741,19 @@ class _CommentTools extends ConsumerWidget {
             end: theme.space.space2_5,
           ),
           child: Switch(
-            value: true,
+            value: shown,
             label: l10n.shellShowComments,
-            disabled: true,
-            disabledReason: comments,
+            disabled: !live || !switchable,
+            disabledReason: live && !switchable
+                ? Feature.layerVisibility.disabledReason(context)
+                : null,
+            onChanged: live && switchable
+                ? (visible) => unawaited(
+                    ref
+                        .read(commentsShownProvider.notifier)
+                        .show(visible: visible),
+                  )
+                : null,
           ),
         ),
       ],
@@ -717,61 +762,74 @@ class _CommentTools extends ConsumerWidget {
 }
 
 /// Fill & Sign (FmWindow lines 88–104): Fill fields, Add text, Checkmark,
-/// Date | Sign, Initials, Digital signature, e-imza | Prepare form. The
-/// field navigation after the spacer shows only on a form, so not in M1.
+/// Date | Sign, Initials, Digital signature, e-imza | Prepare form … the
+/// field navigation on a form (a5-1). Add text, Checkmark and Date are Fill
+/// anything's Text, Check and Today's date (a5-4).
 class _SignTools extends ConsumerWidget {
   const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final live = ref.watch(viewerProvider.select((view) => view != null));
+    final form = ref.watch(documentFormProvider).value;
+    final tool = ref.watch(fillToolsStateProvider).effective(form);
+    final refusal = ref.watch(fillRefusalProvider)?.call(l10n);
+    final pick = ref.read(fillToolsStateProvider.notifier).pick;
+    ToolButton fill(FillTool which, IconName icon, String label) {
+      final usable =
+          live &&
+          (which == FillTool.fields
+              ? (form?.fields.isNotEmpty ?? false)
+              : refusal == null);
+      return ToolButton(
+        icon: icon,
+        label: label,
+        active: tool == which,
+        disabled: !usable,
+        disabledReason: live && which != FillTool.fields ? refusal : null,
+        onPressed: usable ? () => pick(which) : null,
+      );
+    }
+
+    // A signature is a stamp annotation, behind the Comment gate (G148).
+    final signRefusal = ref.watch(commentRefusalProvider)?.call(l10n);
+    final signs = live && signRefusal == null;
+    final saved = ref.watch(savedSignaturesProvider).value ?? const [];
     return Toolbar(
       semanticLabel: l10n.shellFillSignTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.textCursorInput,
-          label: l10n.shellToolFillFields,
-          active: true,
+        fill(
+          FillTool.fields,
+          IconName.textCursorInput,
+          l10n.shellToolFillFields,
         ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.type,
-          label: l10n.shellToolAddText,
-          active: false,
-        ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.squareCheck,
-          label: l10n.shellToolCheckmark,
-          active: false,
-        ),
-        _future(
-          context,
-          feature: Feature.formFilling,
-          icon: IconName.calendar,
-          label: l10n.shellToolDate,
-          active: false,
-        ),
+        fill(FillTool.text, IconName.type, l10n.shellToolAddText),
+        fill(FillTool.check, IconName.squareCheck, l10n.shellToolCheckmark),
+        // FmWindow draws Date without its keys (⇧D, Fill anything's).
+        fill(FillTool.date, IconName.calendar, l10n.shellToolDate),
         const ToolbarSeparator(),
-        _future(
-          context,
-          feature: Feature.simpleSignatures,
-          icon: IconName.signature,
-          label: l10n.shellToolSign,
-          active: false,
-          hasMenu: true,
+        ToolbarItem(
+          menuItem: MenuItem(
+            id: l10n.shellToolSign,
+            label: l10n.shellToolSign,
+            icon: IconName.signature,
+            disabled: !signs,
+            submenu: signMenuItems(context, l10n, saved),
+          ),
+          onMenuSelected: (item) => signMenuChosen(ref, item),
+          child: SignTool(live: signs, disabledReason: signRefusal),
         ),
-        _future(
-          context,
-          feature: Feature.simpleSignatures,
+        ToolButton(
           icon: IconName.penLine,
           label: l10n.shellToolInitials,
-          active: false,
+          active: ref.watch(
+            signaturePlacementProvider.select((s) => s?.initials ?? false),
+          ),
+          disabled: !signs,
+          disabledReason: signRefusal,
+          onPressed: signs ? () => startInitials(ref) : null,
         ),
         _future(
           context,
@@ -796,6 +854,11 @@ class _SignTools extends ConsumerWidget {
           active: false,
         ),
         const ToolbarSpacer(),
+        // Hidden before anything else when the row runs out of room.
+        const ToolbarItem(
+          overflow: ToolbarOverflow.hide,
+          child: FieldNavigation(),
+        ),
       ],
     );
   }

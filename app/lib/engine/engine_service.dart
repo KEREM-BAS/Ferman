@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_models.dart';
@@ -327,6 +328,189 @@ abstract interface class EngineService {
 
   /// The fonts the text panel's font field offers for [block], best first.
   Future<List<FontCandidate>> blockFonts(int document, int page, int block);
+
+  /// The annotations of [document] as its committed revisions leave them, in
+  /// page order. Links, form widgets and popups are not listed.
+  Future<AnnotationList> annotations(int document);
+
+  /// Creates [annotation] on [page], by [PageInfo.handle], as the one step
+  /// [name] of the history. Throws an [EngineException] with
+  /// [EngineErrorKind.notEditable] when the document's permissions forbid
+  /// comments (ask [opGate] with [DocumentOp.comment]),
+  /// [EngineErrorKind.confirmationRequired] for a signed document before
+  /// [confirmEditSigned], [EngineErrorKind.invalidInput] for a value out of
+  /// range or while a transaction is open, and [EngineErrorKind.unsupported]
+  /// for text no font here has. So do the other annotation calls.
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  );
+
+  /// Applies [change] to annotation [handle] as one step. Only what changes is
+  /// written; a stamp takes a new box and text, an unknown type text only.
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  );
+
+  /// Deletes annotation [handle], with its popup and replies, as one step.
+  Future<RevisionInfo> deleteAnnotation(int document, int handle, String name);
+
+  /// Shows or hides every markup annotation of [document] in every view (a4-5):
+  /// render-only, never saved. Widgets, links and signatures stay. Returns
+  /// every page's new render key.
+  Future<int> showComments(int document, {required bool visible});
+
+  /// Flattens annotations [handles] with their replies as a job (a4-5b): with
+  /// [copy] it first writes the document as it stands to that new file, and if
+  /// that fails nothing changes. Its change waits for [applyJobChange], which
+  /// asks for a signed document's confirmation.
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  });
+
+  /// Writes the comments of [document] to the new file [output] as a job
+  /// (a4-4).
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  });
+
+  /// The links of [document] as its committed revisions leave them (a3-6).
+  Future<LinkList> links(int document);
+
+  /// The topmost link of the page [page] at [point], in displayed points. It
+  /// follows nothing.
+  Future<LinkInfo?> linkAt(int document, int page, Offset point);
+
+  /// Creates [link] on the page [page] as one step. Only a web address, an
+  /// e-mail address or a page of this document can be its target.
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  );
+
+  /// Applies [change] to link [handle] as one step; an action Ferman does not
+  /// know stays unless the change replaces it.
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  );
+
+  /// Deletes link [handle] as one step.
+  Future<RevisionInfo> deleteLink(int document, int handle, String name);
+
+  /// Replies to annotation [handle] as [author], as one step. Mentions are
+  /// text: nothing is sent to anyone.
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  });
+
+  /// Resolves or reopens the thread of annotation [handle] as [author], as one
+  /// step; a thread already so adds none.
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  });
+
+  /// The form of [document] as its committed revisions leave it, in tab order
+  /// (a5-1). Reading generates nothing, so opening changes nothing.
+  Future<FormInfo> formFields(int document);
+
+  /// Sets field [handle] to [values] as the one step [name]: text, export
+  /// values or a button's on-state, none to empty it. Call it on blur, on Tab
+  /// or at the end of a drag, never per keystroke (M4 decision 16).
+  /// [missing] answers Ask each time; null follows the font settings. Throws
+  /// an [EngineException] as [addAnnotation] does, with
+  /// [EngineErrorKind.invalidInput] for a read-only field or a value it cannot
+  /// hold; ask [opGate] with [DocumentOp.fill] and the field's name first.
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  });
+
+  /// Empties every field that holds a value and can change, as one step.
+  /// Signatures stay. A list box's options are drawn by the font policy as
+  /// a value is, [missing] answering Ask each time.
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  });
+
+  /// Finish (G47): every field becomes page content as it looks, as one step;
+  /// a digitally signed field stays. A field it draws an appearance for
+  /// follows the font policy as [setFieldValue] does, [missing] answering Ask
+  /// each time, and the commit says which fonts it took. It asks what editing
+  /// asks.
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  });
+
+  /// The lines, boxes, check boxes and combs drawn on [page] of [document],
+  /// by [PageInfo.handle], for Fill anything (a5-4). Nothing is written; what
+  /// is placed on them is a text box ([NewAnnotation.comb] for a comb) or a
+  /// mark through [addAnnotation].
+  Future<FillTargets> fillTargets(int document, int page);
+
+  /// Whether each typed-signature style can write every letter of [text], in
+  /// a5-3's order (M4 decision 23): a style that cannot is not offered.
+  Future<List<HandwritingStyle>> handwritingStyles(String text);
+
+  /// Places [signature] on [page] as the one step [name]: a stamp annotation
+  /// whose [AnnotationInfo.icon] is [signatureStampName] or
+  /// [initialsStampName], naming [NewSignature.field] when it signs one, never
+  /// a digital signature. Throws as [addAnnotation] does, and
+  /// [EngineErrorKind.unsupported] for a letter its style cannot draw or an
+  /// image with no ink.
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  );
+
+  /// The saved signatures and initials in [directory], a folder of the app
+  /// data directory apart from `settings.json` (M4 decision 22), by name.
+  Future<List<SavedSignatureFile>> savedSignatures(String directory);
+
+  /// Writes [bytes] as the saved signature [name] in [directory] through the
+  /// safe write. [name] takes letters, digits, `-`, `_` and `.`, not first.
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  );
+
+  /// Deletes the saved signature [name] in [directory].
+  Future<void> deleteSavedSignature(String directory, String name);
 
   /// Turns [pages] of [document], by [PageInfo.handle], by [quarterTurns]
   /// quarter turns, clockwise when positive, as the one step [name] of its
@@ -815,6 +999,158 @@ class UnavailableEngineService implements EngineService {
     int page,
     int block,
   ) async => throw error;
+
+  @override
+  Future<FormInfo> formFields(int document) async => throw error;
+
+  @override
+  Future<FillTargets> fillTargets(int document, int page) async => throw error;
+
+  @override
+  Future<List<HandwritingStyle>> handwritingStyles(String text) async =>
+      throw error;
+
+  @override
+  Future<AnnotationCommit> addSignature(
+    int document,
+    int page,
+    NewSignature signature,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<List<SavedSignatureFile>> savedSignatures(String directory) async =>
+      throw error;
+
+  @override
+  Future<void> writeSavedSignature(
+    String directory,
+    String name,
+    Uint8List bytes,
+  ) async => throw error;
+
+  @override
+  Future<void> deleteSavedSignature(String directory, String name) async =>
+      throw error;
+
+  @override
+  Future<FieldCommit> setFieldValue(
+    int document,
+    int handle,
+    List<String> values, {
+    required String name,
+    MissingFont? missing,
+  }) async => throw error;
+
+  @override
+  Future<FieldCommit> clearForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => throw error;
+
+  @override
+  Future<FieldCommit> finishForm(
+    int document,
+    String name, {
+    MissingFont? missing,
+  }) async => throw error;
+
+  @override
+  Future<AnnotationList> annotations(int document) async => throw error;
+
+  @override
+  Future<AnnotationCommit> addAnnotation(
+    int document,
+    int page,
+    NewAnnotation annotation,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> updateAnnotation(
+    int document,
+    int handle,
+    AnnotationChange change,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deleteAnnotation(
+    int document,
+    int handle,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<int> showComments(int document, {required bool visible}) async =>
+      throw error;
+
+  @override
+  Stream<JobUpdate> flattenAnnotationsJob(
+    int document,
+    List<int> handles, {
+    required String name,
+    String? copy,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> commentSummaryJob(
+    int document,
+    SummaryFormat format,
+    SummaryOptions options, {
+    required String output,
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<LinkList> links(int document) async => throw error;
+
+  @override
+  Future<LinkInfo?> linkAt(int document, int page, Offset point) async =>
+      throw error;
+
+  @override
+  Future<AnnotationCommit> addLink(
+    int document,
+    int page,
+    NewLink link,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> updateLink(
+    int document,
+    int handle,
+    LinkChange change,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<RevisionInfo> deleteLink(
+    int document,
+    int handle,
+    String name,
+  ) async => throw error;
+
+  @override
+  Future<AnnotationCommit> replyToAnnotation(
+    int document,
+    int handle, {
+    required String author,
+    required String text,
+    required String name,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> setAnnotationResolved(
+    int document,
+    int handle, {
+    required String author,
+    required bool resolved,
+    required String name,
+  }) async => throw error;
 
   @override
   Future<RevisionInfo> rotatePages(

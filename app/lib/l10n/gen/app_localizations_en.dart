@@ -1303,7 +1303,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: 'all $pages pages',
       one: 'the only page',
     );
-    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.';
+    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i.';
   }
 
   @override
@@ -1314,8 +1314,15 @@ class AppLocalizationsEn extends AppLocalizations {
       other: 'all $pages pages',
       one: 'the only page',
     );
-    return 'Ferman searched $_temp0. Comments and form fields weren’t searched.';
+    return 'Ferman searched $_temp0.';
   }
+
+  @override
+  String get findNotSearchedFields => 'Form fields weren’t searched.';
+
+  @override
+  String get findNotSearchedBoth =>
+      'Comments and form fields weren’t searched.';
 
   @override
   String get sidebarSearchField => 'Search in document';
@@ -4145,5 +4152,1267 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String jobCreateFailedTitle(String name) {
     return 'Couldn’t create $name';
+  }
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String get commentsFilter => 'Filter and sort';
+
+  @override
+  String get commentsMore => 'More: export summary, flatten, hide all';
+
+  @override
+  String get commentsStatus => 'Status';
+
+  @override
+  String commentsStatusOpen(String count) {
+    return 'Open $count';
+  }
+
+  @override
+  String commentsStatusResolved(String count) {
+    return 'Resolved $count';
+  }
+
+  @override
+  String commentsStatusAll(String count) {
+    return 'All $count';
+  }
+
+  @override
+  String get commentsFilterAuthor => 'Author';
+
+  @override
+  String get commentsFilterType => 'Type';
+
+  @override
+  String get commentsFilterSort => 'Sort';
+
+  @override
+  String get commentsAllPeople => 'All people';
+
+  @override
+  String get commentsTypeNotes => 'Notes';
+
+  @override
+  String get commentsTypeMarkup => 'Text markup';
+
+  @override
+  String get commentsTypeDrawings => 'Drawings';
+
+  @override
+  String get commentsTypeStamps => 'Stamps';
+
+  @override
+  String get commentsTypeOther => 'All types';
+
+  @override
+  String get commentsSortNewest => 'Newest';
+
+  @override
+  String get commentsSortAuthor => 'Author';
+
+  @override
+  String get commentsSortOther => 'Page order';
+
+  @override
+  String get commentsCertifiedNote =>
+      'This document is certified to allow comments: they keep its certification valid.';
+
+  @override
+  String get commentsTruncated =>
+      'This file has more comments than Ferman lists.';
+
+  @override
+  String get commentsEmptyTitle => 'No comments';
+
+  @override
+  String get commentsEmptyBody => 'Pick a tool above, then mark up the page.';
+
+  @override
+  String get commentsNoMatchTitle => 'No comments match';
+
+  @override
+  String get commentsNoMatchBody =>
+      'Change the status or filters to see others.';
+
+  @override
+  String get commentsFootnote =>
+      'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.';
+
+  @override
+  String get commentsExportSummary => 'Export summary…';
+
+  @override
+  String get commentsFlatten => 'Flatten…';
+
+  @override
+  String get commentsHideAll => 'Hide all';
+
+  @override
+  String commentsHidden(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown comments hidden',
+      one: '$shown comment hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentKindHighlight => 'Highlight';
+
+  @override
+  String get commentKindUnderline => 'Underline';
+
+  @override
+  String get commentKindStrikeOut => 'Strikethrough';
+
+  @override
+  String get commentKindSquiggly => 'Squiggly underline';
+
+  @override
+  String get commentKindNote => 'Note';
+
+  @override
+  String get commentKindFreeText => 'Text';
+
+  @override
+  String get commentKindCallout => 'Callout';
+
+  @override
+  String get commentKindInk => 'Drawing';
+
+  @override
+  String get commentKindSquare => 'Rectangle';
+
+  @override
+  String get commentKindCircle => 'Ellipse';
+
+  @override
+  String get commentKindLine => 'Line';
+
+  @override
+  String get commentKindPolygon => 'Polygon';
+
+  @override
+  String get commentKindStamp => 'Stamp';
+
+  @override
+  String get commentKindOther => 'Comment';
+
+  @override
+  String commentStyleBar(String kind) {
+    return '$kind style';
+  }
+
+  @override
+  String get commentStrokeWidth => 'Stroke width';
+
+  @override
+  String get commentOpacity => 'Opacity';
+
+  @override
+  String get commentOpen => 'Open comment';
+
+  @override
+  String get commentDelete => 'Delete';
+
+  @override
+  String get commentMenu => 'Comment';
+
+  @override
+  String get commentEditText => 'Edit text';
+
+  @override
+  String get commentMore => 'More';
+
+  @override
+  String get commentCloseNote => 'Close note';
+
+  @override
+  String commentNoteFrom(String author) {
+    return 'Note from $author';
+  }
+
+  @override
+  String get commentReply => 'Reply';
+
+  @override
+  String get commentResolve => 'Resolve';
+
+  @override
+  String get commentReopen => 'Reopen';
+
+  @override
+  String get commentPeople => 'People in this document';
+
+  @override
+  String commentQuote(String text) {
+    return '“$text”';
+  }
+
+  @override
+  String commentReplies(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown replies',
+      one: '$shown reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commentResolvedBy(String name, String time) {
+    return 'Resolved by $name · $time';
+  }
+
+  @override
+  String get commentYesterday => 'Yesterday';
+
+  @override
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      resolved,
+      locale: localeName,
+      other: ', resolved',
+      zero: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: ', $shown replies',
+      one: ', $shown reply',
+      zero: '',
+    );
+    return '$author, $kind on page $page$_temp0$_temp1';
+  }
+
+  @override
+  String get commentStepAdd => 'Add comment';
+
+  @override
+  String get commentStepChange => 'Change comment';
+
+  @override
+  String get commentStepDelete => 'Delete comment';
+
+  @override
+  String get commentStepReply => 'Reply to comment';
+
+  @override
+  String get commentStepResolve => 'Resolve comment';
+
+  @override
+  String get commentStepReopen => 'Reopen comment';
+
+  @override
+  String get commentDeletedToast => 'Comment deleted';
+
+  @override
+  String get commentDeletedNote => 'With its replies.';
+
+  @override
+  String get commentNameTitle => 'Your name on comments';
+
+  @override
+  String get commentNameBody =>
+      'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.';
+
+  @override
+  String get commentNameSave => 'Continue';
+
+  @override
+  String get settingsCommenterName => 'Your name for comments';
+
+  @override
+  String get commentTextField => 'Comment text';
+
+  @override
+  String get commentSummaryFile => 'Comments.pdf';
+
+  @override
+  String get commentColumnPage => 'Page';
+
+  @override
+  String get commentColumnType => 'Type';
+
+  @override
+  String get commentColumnAuthor => 'Author';
+
+  @override
+  String get commentColumnDate => 'Date';
+
+  @override
+  String get commentColumnText => 'Text';
+
+  @override
+  String get commentColumnReplies => 'Replies';
+
+  @override
+  String get commentColumnStatus => 'Status';
+
+  @override
+  String get commentStatusOpen => 'Open';
+
+  @override
+  String get commentStatusResolved => 'Resolved';
+
+  @override
+  String jobSummaryRunningTitle(String name) {
+    return 'Writing $name';
+  }
+
+  @override
+  String jobSummaryDoneTitle(String name) {
+    return 'Wrote $name';
+  }
+
+  @override
+  String jobSummaryFailedTitle(String name) {
+    return 'Couldn’t write $name';
+  }
+
+  @override
+  String get commentSummaryCsvFile => 'Comments.csv';
+
+  @override
+  String get summaryTitle => 'Export comment summary';
+
+  @override
+  String get summaryFormat => 'Format';
+
+  @override
+  String get summaryCsv => 'CSV';
+
+  @override
+  String get summaryLayout => 'Layout';
+
+  @override
+  String get summaryPageAndComments => 'Page and comments';
+
+  @override
+  String get summaryPageAndCommentsHint => 'Numbered markers beside each page';
+
+  @override
+  String get summaryCommentsOnly => 'Comments only';
+
+  @override
+  String get summaryCommentsOnlyHint => 'A list, grouped by page';
+
+  @override
+  String get summaryPageThenList => 'Page, then list';
+
+  @override
+  String get summaryPageThenListHint => 'Full page followed by its comments';
+
+  @override
+  String summaryOpen(String count) {
+    return 'Open comments ($count)';
+  }
+
+  @override
+  String get summaryReplies => 'Replies';
+
+  @override
+  String summaryResolved(String count) {
+    return 'Resolved comments ($count)';
+  }
+
+  @override
+  String get summaryEmptyPages => 'Pages without comments';
+
+  @override
+  String get summarySortBy => 'Sort by';
+
+  @override
+  String get summarySortPage => 'Page order';
+
+  @override
+  String get summaryPaper => 'Paper';
+
+  @override
+  String get summaryPreview => 'Preview';
+
+  @override
+  String get summaryExport => 'Export summary…';
+
+  @override
+  String get jobSummaryPageUnsupported =>
+      'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.';
+
+  @override
+  String flattenTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Flatten $formatted comments into the pages?',
+      one: 'Flatten 1 comment into the pages?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenBody =>
+      'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.';
+
+  @override
+  String flattenAll(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $formatted comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flattenResolved(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Only the $formatted resolved comments',
+      one: 'Only the 1 resolved comment',
+      zero: 'No resolved comments',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get flattenKeepCopy => 'Keep a copy with comments';
+
+  @override
+  String flattenKeepCopyHint(String name) {
+    return 'Saved as “$name” next to the original.';
+  }
+
+  @override
+  String flattenCopyName(String stem) {
+    return '$stem — with comments';
+  }
+
+  @override
+  String flattenCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem — with comments $numberString';
+  }
+
+  @override
+  String flattenAction(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Flatten $formatted comments',
+      one: 'Flatten 1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentStepFlatten => 'Flatten comments';
+
+  @override
+  String jobFlatteningTitle(String name) {
+    return 'Flattening comments in $name';
+  }
+
+  @override
+  String jobFlattenedTitle(String name) {
+    return 'Flattened comments in $name';
+  }
+
+  @override
+  String jobFlattenFailedTitle(String name) {
+    return 'Couldn’t flatten comments in $name';
+  }
+
+  @override
+  String get jobFlattenPageUnsupported =>
+      'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.';
+
+  @override
+  String sidebarSearchComment(String text) {
+    return 'Comment: $text';
+  }
+
+  @override
+  String get stampsTitle => 'Stamps';
+
+  @override
+  String get stampsSearch => 'Search stamps';
+
+  @override
+  String get stampsNoMatch => 'No stamps match your search';
+
+  @override
+  String get stampGroupStandard => 'Standard';
+
+  @override
+  String get stampGroupNamed => 'With name and date';
+
+  @override
+  String get stampGroupMine => 'My stamps';
+
+  @override
+  String get stampCreate => 'Create stamp…';
+
+  @override
+  String get stampImport => 'Import…';
+
+  @override
+  String get stampExport => 'Export…';
+
+  @override
+  String get stampDelete => 'Delete';
+
+  @override
+  String get stampFileFilter => 'Ferman stamps';
+
+  @override
+  String get stampImportFailed => 'This stamp can’t be imported';
+
+  @override
+  String get stampImportFailedBody =>
+      'The file isn’t a Ferman stamp, or it is damaged.';
+
+  @override
+  String get stampExportFailed => 'The stamp couldn’t be exported';
+
+  @override
+  String get stampsFull => 'My stamps is full. Delete one first.';
+
+  @override
+  String get createStampTitle => 'Create stamp';
+
+  @override
+  String get createStampText => 'Text';
+
+  @override
+  String get createStampSecondLine => 'Second line';
+
+  @override
+  String get createStampMyName => 'My name';
+
+  @override
+  String get createStampDate => 'Date';
+
+  @override
+  String get createStampTime => 'Time';
+
+  @override
+  String get createStampName => 'Name on the stamp';
+
+  @override
+  String get createStampColour => 'Colour';
+
+  @override
+  String get stampToneSeal => 'Seal';
+
+  @override
+  String get stampToneInk => 'Ink';
+
+  @override
+  String get stampToneGreen => 'Green';
+
+  @override
+  String get stampToneGrey => 'Grey';
+
+  @override
+  String get createStampCaps => 'Language for capitals';
+
+  @override
+  String get createStampLanguageTurkish => 'Turkish (İNCELENDİ)';
+
+  @override
+  String get createStampLanguageEnglish => 'English';
+
+  @override
+  String get createStampLanguageGerman => 'German';
+
+  @override
+  String get createStampPreview => 'Preview';
+
+  @override
+  String get createStampSavedNote => 'Saved to My stamps on this device.';
+
+  @override
+  String get createStampSave => 'Save stamp';
+
+  @override
+  String get shapeRectangle => 'Rectangle';
+
+  @override
+  String get shapeEllipse => 'Ellipse';
+
+  @override
+  String get shapeArrow => 'Arrow';
+
+  @override
+  String get shapeLine => 'Line';
+
+  @override
+  String get shapePolygon => 'Polygon';
+
+  @override
+  String get shapesKeepTool => 'Keep tool selected';
+
+  @override
+  String get stepAddShape => 'Add shape';
+
+  @override
+  String get stepAddStamp => 'Add stamp';
+
+  @override
+  String get placeStampHint =>
+      'Click the page to place the stamp, or press Enter to place it mid-page.';
+
+  @override
+  String get placeShapeHint =>
+      'Drag on the page to draw the shape, or press Enter to place it mid-page.';
+
+  @override
+  String get placePolygonHint =>
+      'Click each corner of the polygon, then press Enter or click the first corner.';
+
+  @override
+  String get linksTitle => 'Links';
+
+  @override
+  String get linksNote => 'Ferman asks before opening a web link from a PDF.';
+
+  @override
+  String get linksEmpty => 'No links in this document.';
+
+  @override
+  String get linksTruncated =>
+      'This document has too many links to list them all.';
+
+  @override
+  String get linksSelectTextFirst => 'Select the text to link first';
+
+  @override
+  String get linksKindWeb => 'Web';
+
+  @override
+  String get linksKindMail => 'E-mail';
+
+  @override
+  String get linksKindPage => 'Page';
+
+  @override
+  String get linksKindScript => 'Script, not run';
+
+  @override
+  String get linksKindLaunch => 'Program, not started';
+
+  @override
+  String get linksKindFile => 'File, not opened';
+
+  @override
+  String get linksKindAddress => 'Address, not opened';
+
+  @override
+  String get linksKindAction => 'Unknown action, kept';
+
+  @override
+  String get linksKindNothing => 'Does nothing';
+
+  @override
+  String linksPage(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get linksPageMissing => 'Missing page';
+
+  @override
+  String linksMeta(String kind, String page) {
+    return '$kind · page $page';
+  }
+
+  @override
+  String linksMetaEditing(String kind, String page) {
+    return '$kind · page $page · editing';
+  }
+
+  @override
+  String get linkAddTitle => 'Add link';
+
+  @override
+  String get linkEditTitle => 'Edit link';
+
+  @override
+  String get linkTo => 'Link to';
+
+  @override
+  String get linkTypeFile => 'File';
+
+  @override
+  String get linkFieldWeb => 'Web address';
+
+  @override
+  String get linkFieldMail => 'E-mail address';
+
+  @override
+  String get linkFieldPage => 'Page number';
+
+  @override
+  String get linkAppearance => 'Appearance';
+
+  @override
+  String get linkLookNone => 'Invisible (text keeps its look)';
+
+  @override
+  String get linkLookUnderline => 'Underline';
+
+  @override
+  String get linkLookBox => 'Thin box';
+
+  @override
+  String get linkRemove => 'Remove link';
+
+  @override
+  String get linkSave => 'Save link';
+
+  @override
+  String get linkStepAdd => 'Add link';
+
+  @override
+  String get linkStepEdit => 'Edit link';
+
+  @override
+  String get linkStepRemove => 'Remove link';
+
+  @override
+  String get linkErrorWeb =>
+      'Type a web address that starts with http:// or https://.';
+
+  @override
+  String get linkErrorMail => 'Type an e-mail address, like name@example.com.';
+
+  @override
+  String get linkFailedTitle => 'The link wasn\'t changed';
+
+  @override
+  String get linkOpenWebTitle => 'Open this web address?';
+
+  @override
+  String get linkOpenMailTitle => 'Write to this address?';
+
+  @override
+  String get linkOpenDescription =>
+      'This link comes from the document. It opens in your own apps, so check that you trust where it goes.';
+
+  @override
+  String get linkOpenAction => 'Open link';
+
+  @override
+  String get linkOpenFailed => 'The link couldn\'t be opened';
+
+  @override
+  String get linkBrokenTitle => 'This link leads nowhere';
+
+  @override
+  String get linkRefusedTitle => 'Ferman didn\'t follow this link';
+
+  @override
+  String get linkRefusedScript =>
+      'It would run a script, and Ferman doesn\'t run a document\'s scripts.';
+
+  @override
+  String linkRefusedLaunch(String target) {
+    return 'It would start $target, and Ferman never starts programs for a document.';
+  }
+
+  @override
+  String linkRefusedFile(String target) {
+    return 'It points to another file, $target, and Ferman doesn\'t open files from links.';
+  }
+
+  @override
+  String linkRefusedAddress(String target) {
+    return 'Ferman doesn\'t open this kind of address: $target';
+  }
+
+  @override
+  String get linkRefusedAction =>
+      'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.';
+
+  @override
+  String linksBrokenMeta(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Broken: this document has $pages pages',
+      one: 'Broken: this document has $pages page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkErrorPage(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Type a page from 1 to $pages.',
+      one: 'This document has $pages page.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signPadMethod => 'Signature method';
+
+  @override
+  String get signPadDraw => 'Draw';
+
+  @override
+  String get signPadType => 'Type';
+
+  @override
+  String get signPadImage => 'Image';
+
+  @override
+  String get signPadArea =>
+      'Signature drawing area. Draw with a mouse, trackpad, pen or finger.';
+
+  @override
+  String get signPadTypeName => 'Type your name';
+
+  @override
+  String get signPadNamePlaceholder => 'Your name';
+
+  @override
+  String get signPadDrawHint => 'Sign above the line';
+
+  @override
+  String get signPadTypeHint => 'Type your name above the line';
+
+  @override
+  String get signPadImageHint =>
+      'Choose a photo or scan of your signature. Ferman removes the background.';
+
+  @override
+  String get signPadChooseImage => 'Choose image…';
+
+  @override
+  String get signPadInk => 'Ink color';
+
+  @override
+  String get signPadBlack => 'Black';
+
+  @override
+  String get signPadBlue => 'Blue';
+
+  @override
+  String get signPadClear => 'Clear';
+
+  @override
+  String get signPadSave => 'Save on this device';
+
+  @override
+  String get signDialogTitle => 'Add signature';
+
+  @override
+  String get signDialogTitleInitials => 'Add initials';
+
+  @override
+  String get signCreate => 'Create';
+
+  @override
+  String get signKindSignature => 'Signature';
+
+  @override
+  String get signKindInitials => 'Initials';
+
+  @override
+  String get signHandwriting => 'Handwriting style';
+
+  @override
+  String get signNoStyle =>
+      'No handwriting style can write every letter of this name. Draw it or use an image instead.';
+
+  @override
+  String get signSavedNote => 'Saved only on this device.';
+
+  @override
+  String get signMenuLabel => 'Saved signatures';
+
+  @override
+  String get signMenuSignatures => 'Signatures';
+
+  @override
+  String get signMenuAdd => 'Add signature…';
+
+  @override
+  String get signMenuCreate => 'Create signature…';
+
+  @override
+  String get signMenuManage => 'Manage saved signatures…';
+
+  @override
+  String get signDrawn => 'Drawn';
+
+  @override
+  String get signDelete => 'Delete';
+
+  @override
+  String get signSaveFailed =>
+      'The signature couldn’t be saved on this device. It’s still ready to place.';
+
+  @override
+  String get signImageTooLarge =>
+      'This image is too large. Choose one under 6 MB.';
+
+  @override
+  String get signImageFilter => 'Images';
+
+  @override
+  String get stepAddSignature => 'Add signature';
+
+  @override
+  String get stepAddInitials => 'Add initials';
+
+  @override
+  String get placeSignatureHint =>
+      'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.';
+
+  @override
+  String get formPanelTitle => 'Form';
+
+  @override
+  String get formMore => 'More: clear form, export data';
+
+  @override
+  String formRequiredProgress(String filled, String total) {
+    return '$filled of $total required fields';
+  }
+
+  @override
+  String formSummaryFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formRequiredLeft(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted required left',
+      one: '1 required left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formAllRequiredFilled => 'All required fields are filled';
+
+  @override
+  String formFieldOf(String current, String total) {
+    return 'field $current of $total';
+  }
+
+  @override
+  String get formHighlight => 'Highlight fields';
+
+  @override
+  String get formShowOrder => 'Show tab order';
+
+  @override
+  String get formHideOrder => 'Hide tab order';
+
+  @override
+  String get formSignedTitle => 'Signed form';
+
+  @override
+  String get formSignedKeeps =>
+      'Its certification allows filling in, so it stays valid.';
+
+  @override
+  String get formSignedBreaks => 'Filling it in will invalidate its signature.';
+
+  @override
+  String get formFontNoticeTitle => 'Characters added in IBM Plex';
+
+  @override
+  String formFontNoticeBody(String fonts) {
+    return 'This form’s font has no glyphs for some characters you typed, so Ferman added $fonts to the document for them.';
+  }
+
+  @override
+  String get formDismiss => 'Dismiss';
+
+  @override
+  String get formRequired => 'Required';
+
+  @override
+  String get formMarkedField =>
+      'Some characters can’t be shown in this field’s font';
+
+  @override
+  String get formClear => 'Clear form…';
+
+  @override
+  String get formFinish => 'Finish';
+
+  @override
+  String get formExportData => 'Export data…';
+
+  @override
+  String get formBannerTitle => 'This PDF is a fillable form.';
+
+  @override
+  String formBannerBody(int count, String formatted, String required) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$formatted fields, $required required. Tab moves to the next field.',
+      one: '1 field, $required required. Tab moves to the next field.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formBannerHide => 'Hide';
+
+  @override
+  String get fillBannerTitle => 'This PDF has no form fields.';
+
+  @override
+  String get fillBannerBody =>
+      'Click a line or box to type, or let Ferman find the fields.';
+
+  @override
+  String get fillFindFields => 'Find fields';
+
+  @override
+  String get formPreviousField => 'Previous field';
+
+  @override
+  String get formNextField => 'Next field';
+
+  @override
+  String formNavField(String current, String total) {
+    return 'Field $current of $total';
+  }
+
+  @override
+  String formNavFields(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formNavAllFilled => 'All required filled';
+
+  @override
+  String get formSignHere => 'Sign here';
+
+  @override
+  String formErrorTooLong(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use at most $formatted characters.',
+      one: 'Use at most 1 character.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String formErrorDate(String pattern) {
+    return 'Enter a date as $pattern.';
+  }
+
+  @override
+  String get formErrorNumber => 'Enter a number.';
+
+  @override
+  String formErrorRange(String min, String max) {
+    return 'Enter a number from $min to $max.';
+  }
+
+  @override
+  String formErrorMin(String min) {
+    return 'Enter a number of at least $min.';
+  }
+
+  @override
+  String formErrorMax(String max) {
+    return 'Enter a number of at most $max.';
+  }
+
+  @override
+  String get formErrorRequired => 'Required to submit.';
+
+  @override
+  String get formErrorSign => 'Sign before finishing.';
+
+  @override
+  String get formErrorChoose => 'Choose an option.';
+
+  @override
+  String get formChooseDate => 'Choose a date';
+
+  @override
+  String formDateFormat(String pattern) {
+    return 'Format $pattern · from the form';
+  }
+
+  @override
+  String get formPreviousMonth => 'Previous month';
+
+  @override
+  String get formNextMonth => 'Next month';
+
+  @override
+  String get formToday => 'Today';
+
+  @override
+  String formStepFill(String name) {
+    return 'Fill “$name”';
+  }
+
+  @override
+  String get formStepClear => 'Clear form';
+
+  @override
+  String get formStepFinish => 'Finish form';
+
+  @override
+  String get fillStepText => 'Add text';
+
+  @override
+  String get fillStepMark => 'Add mark';
+
+  @override
+  String get formXfaRemovedTitle => 'The form’s XFA data was removed';
+
+  @override
+  String get formXfaRemovedBody =>
+      'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.';
+
+  @override
+  String get formFinishTitle => 'Finish the form';
+
+  @override
+  String get formFinishBody =>
+      'All required fields are filled. Choose how to keep the form, then save it.';
+
+  @override
+  String get formFinishFlatten => 'Flatten the fields';
+
+  @override
+  String get formFinishFlattenBody =>
+      'They become part of the page and can no longer be changed.';
+
+  @override
+  String get formFinishKeep => 'Keep the fields editable';
+
+  @override
+  String get formFinishKeepBody =>
+      'Anyone who opens the file can still change the values.';
+
+  @override
+  String get formFinishSave => 'Save';
+
+  @override
+  String get formFinishSaveAs => 'Save as…';
+
+  @override
+  String get formClearTitle => 'Clear the form?';
+
+  @override
+  String get formClearBody =>
+      'Every value in this form is removed. Signatures stay. You can undo this.';
+
+  @override
+  String get formClearConfirm => 'Clear form';
+
+  @override
+  String get formFontAskTitle => 'Characters missing from this field’s font';
+
+  @override
+  String get formFontAskBody =>
+      'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.';
+
+  @override
+  String get formFontAskPlex => 'Use IBM Plex';
+
+  @override
+  String get formFontAskKeep => 'Keep the field’s font';
+
+  @override
+  String get fillPanelTitle => 'Fill anything';
+
+  @override
+  String get fillToolText => 'Text';
+
+  @override
+  String get fillToolCheck => 'Check';
+
+  @override
+  String get fillToolCross => 'Cross';
+
+  @override
+  String get fillToolDot => 'Dot';
+
+  @override
+  String get fillToolToday => 'Today’s date';
+
+  @override
+  String get fillToolSignature => 'Signature';
+
+  @override
+  String get fillOptions => 'Options';
+
+  @override
+  String get fillSnap => 'Snap to lines and boxes';
+
+  @override
+  String get fillComb => 'One character per comb box';
+
+  @override
+  String get fillInk => 'Ink';
+
+  @override
+  String get fillInkBlack => 'Black';
+
+  @override
+  String get fillInkBlue => 'Blue (#1A3170)';
+
+  @override
+  String get findNotSearchedComments => 'Comments weren’t searched.';
+
+  @override
+  String sidebarSearchFormField(String text) {
+    return 'Form field: $text';
   }
 }

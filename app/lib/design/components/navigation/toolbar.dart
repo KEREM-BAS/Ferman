@@ -169,6 +169,7 @@ class ToolbarItem extends StatelessWidget {
     this.menuItem,
     this.onMenuSelected,
     this.overflow,
+    this.collapsible = false,
   });
 
   /// The item shown in the row.
@@ -181,6 +182,10 @@ class ToolbarItem extends StatelessWidget {
   /// Called with the entry chosen in the overflow menu: [menuItem] itself
   /// or one of its submenu items.
   final ValueChanged<MenuItem>? onMenuSelected;
+
+  /// Whether a [ToolButton] inside [child], with a label, hides it behind its
+  /// icon as a direct child of the row does.
+  final bool collapsible;
 
   /// When the item leaves the row; null: [ToolbarOverflow.auto] before a
   /// [ToolbarSpacer], [ToolbarOverflow.late] after it, and
@@ -806,10 +811,11 @@ class _ToolbarState extends State<Toolbar> {
               : (afterSpacer ? ToolbarOverflow.late : ToolbarOverflow.auto));
       final inner = child is ToolbarItem ? child.child : child;
       final collapsible =
-          inner is ToolButton &&
-          inner.showLabel &&
-          inner.icon != null &&
-          inner.layout == ToolButtonLayout.inline;
+          (child is ToolbarItem && child.collapsible) ||
+          (inner is ToolButton &&
+              inner.showLabel &&
+              inner.icon != null &&
+              inner.layout == ToolButtonLayout.inline);
       kinds.add(_SlotKind.item);
       entries.add(entry);
       slots.add(

@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/comments/comment_state.dart';
+import 'package:ferman/features/comments/comments_panel.dart';
+import 'package:ferman/features/forms/form_panel.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/organize/combine_tab.dart';
@@ -72,7 +77,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     super.initState();
     _focus.onKeyEvent = (_, event) {
       if (_launchFocus) setState(() => _launchFocus = false);
-      if (_scroll(event)) return KeyEventResult.handled;
+      if (_commentKey(event) || _scroll(event)) return KeyEventResult.handled;
       // The shortcuts above still get the key.
       return KeyEventResult.ignored;
     };
@@ -82,6 +87,37 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
   void dispose() {
     _focus.dispose();
     super.dispose();
+  }
+
+  /// a4-1: Delete and Esc on the mark selected on the page, never on keys a
+  /// text field inside the canvas is getting.
+  bool _commentKey(KeyEvent event) {
+    if (event is! KeyDownEvent ||
+        ref.read(shellModeProvider) != FermanMode.comment ||
+        ShellCommandAction.typing) {
+      return false;
+    }
+    final selected = ref.read(commentSelectionProvider)?.handle;
+    if (selected == null ||
+        !ref.read(commentsShownProvider).visible ||
+        !ref
+            .read(documentThreadsProvider)
+            .any((thread) => thread.top.handle == selected)) {
+      return false;
+    }
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.delete || LogicalKeyboardKey.backspace:
+        if (ref.read(commentRefusalProvider) == null) {
+          unawaited(
+            ref.read(commentCommandsProvider.notifier).delete(selected),
+          );
+        }
+      case LogicalKeyboardKey.escape:
+        ref.read(commentSelectionProvider.notifier).clear();
+      default:
+        return false;
+    }
+    return true;
   }
 
   /// The line ↑ and ↓ scroll.
@@ -151,6 +187,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final opening = active != null && active.loading ? active.path : null;
     void cancelOpening() =>
         ref.read(documentOpenerProvider.notifier).close(opening!);
+    final hiddenComments = !ref.watch(commentsShownProvider).visible;
     return Shortcuts(
       shortcuts: ShellCommand.shortcutsFor(
         platform,
@@ -264,6 +301,8 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                           () => _ownerUnlock = view.document.id,
                                         ),
                                       ),
+                                    if (mode == FermanMode.sign)
+                                      const FormBanner(),
                                     Expanded(
                                       child: Stack(
                                         children: [
@@ -297,6 +336,12 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                                       edit:
                                                           mode ==
                                                           FermanMode.edit,
+                                                      comment:
+                                                          mode ==
+                                                          FermanMode.comment,
+                                                      fill:
+                                                          mode ==
+                                                          FermanMode.sign,
                                                     ),
                                                   ),
                                           ),
@@ -310,6 +355,9 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                                 child: CropOverlay(),
                                               ),
                                             ),
+                                          // a4-5, at the canvas's top.
+                                          if (hiddenComments)
+                                            const _HiddenCommentsNotice(),
                                           PositionedDirectional(
                                             top: theme.space.space3,
                                             end: theme.space.space4,
@@ -363,4 +411,18 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
       ),
     );
   }
+}
+
+/// a4-5's notice, at the canvas's top, centred.
+class _HiddenCommentsNotice extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.topCenter,
+    child: Padding(
+      padding: EdgeInsetsDirectional.only(top: context.ferman.space.space3),
+      child: const CommentsHiddenNotice(),
+    ),
+  );
 }

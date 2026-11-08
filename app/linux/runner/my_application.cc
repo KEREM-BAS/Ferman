@@ -17,7 +17,8 @@ struct _MyApplication {
   GPtrArray* kept_paths;
   // Whether Dart called "ready": later files go out at once as "open".
   gboolean open_ready;
-  // The "ferman/files" channel (app/lib/platform/file_access.dart): "show".
+  // The "ferman/files" channel (app/lib/platform/file_access.dart): "openUrl"
+  // and "show".
   FlMethodChannel* files_channel;
 };
 
@@ -106,7 +107,7 @@ static void show_items_cb(GObject* source, GAsyncResult* result,
   respond_shown(method_call, reply != nullptr || open_folder(path));
 }
 
-// Handles a call on the "ferman/files" channel. Linux answers only "show":
+// Handles a call on the "ferman/files" channel. Linux answers "openUrl" and "show":
 // the file selected in the file manager through the freedesktop
 // org.freedesktop.FileManager1 ShowItems call on the session bus (a1-9b), or
 // its folder opened when there is none. Bookmarks are macOS only, so the
@@ -116,6 +117,22 @@ static void files_method_call_cb(FlMethodChannel* channel,
                                  gpointer user_data) {
   MyApplication* self = MY_APPLICATION(user_data);
   FlValue* args = fl_method_call_get_args(method_call);
+  if (g_strcmp0(fl_method_call_get_name(method_call), "openUrl") == 0) {
+    // Only what the engine offers, after the app's prompt (G145); the desktop
+    // opens it.
+    gboolean opened = FALSE;
+    if (fl_value_get_type(args) == FL_VALUE_TYPE_STRING) {
+      const gchar* url = fl_value_get_string(args);
+      g_autofree gchar* scheme = g_uri_parse_scheme(url);
+      if (g_ascii_strcasecmp(scheme != nullptr ? scheme : "", "http") == 0 ||
+          g_ascii_strcasecmp(scheme != nullptr ? scheme : "", "https") == 0 ||
+          g_ascii_strcasecmp(scheme != nullptr ? scheme : "", "mailto") == 0) {
+        opened = g_app_info_launch_default_for_uri(url, nullptr, nullptr);
+      }
+    }
+    respond_shown(method_call, opened);
+    return;
+  }
   if (g_strcmp0(fl_method_call_get_name(method_call), "show") != 0) {
     g_autoptr(FlMethodResponse) response =
         FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());

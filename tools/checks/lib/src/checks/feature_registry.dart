@@ -53,9 +53,6 @@ final class FeatureRegistryCheck implements Check {
     reasonPath: 'defines it',
     'app/lib/design/components/annotations/sticky_note.dart':
         'More is disabled with the reason while the screen passes no onMore',
-    'app/lib/design/components/fill_sign/signature_pad.dart':
-        "Choose image (image signatures, B024) until M4's signature dialog "
-        'gives the pad its state from the registry',
   };
 
   @override

@@ -22,6 +22,7 @@ jobs:
       matrix:
         # The targets of fuzz/fuzz_targets/; the first step fails when they drift.
         target:
+          - annotations
           - assembler
           - cmap
           - content_lexer
@@ -32,6 +33,7 @@ jobs:
           - filter_lzw
           - filter_run_length
           - font_program
+          - form_fields
           - image_layer
           - interpreter
           - line_breaking
@@ -52,7 +54,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: The matrix names every target
         env:
-          LISTED: assembler cmap content_lexer edit_script filter_ascii85 filter_ascii_hex filter_flate filter_lzw filter_run_length font_program image_layer interpreter line_breaking open_document recovery_journal reencode rewrite_block security_handler shaping subsetting syntax_object to_unicode type1 type1_program writer_round_trip xref_repair
+          LISTED: annotations assembler cmap content_lexer edit_script filter_ascii85 filter_ascii_hex filter_flate filter_lzw filter_run_length font_program form_fields image_layer interpreter line_breaking open_document recovery_journal reencode rewrite_block security_handler shaping subsetting syntax_object to_unicode type1 type1_program writer_round_trip xref_repair
         run: |
           actual="$(ls fuzz/fuzz_targets | sed 's/\.rs$//' | LC_ALL=C sort | tr '\n' ' ' | sed 's/ $//')"
           if [ "$actual" != "$LISTED" ]; then

@@ -34,6 +34,10 @@
 //! - [`write`](mod@write): what an operation above ferman-core writes with, without naming
 //!   lopdf: objects as plain [`Value`](write::Value)s, new object numbers, page entries and
 //!   `/Annots` (ADR 0003, question 11 of the M4 plan).
+//! - [`links`]: link annotations and what each does, read and never run (a3-6).
+//! - `flatten` (private): annotations drawn into page content
+//!   ([`RevisionStore::flatten_annotations`](revision::RevisionStore::flatten_annotations)), for
+//!   a4-5b and forms' Finish.
 //! - [`assemble`]: pages of one document copied into another, with their bookmarks, attachments,
 //!   form fields and layers (Insert, Replace, Extract, Split and Combine, M4 plan, W1).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
@@ -48,6 +52,8 @@
 //!   back after a crash ([`list`](recovery::list), [`restore`](recovery::restore)).
 //! - `rewrite` (private): the full rewrite, [`RevisionStore::full_rewrite`](revision::RevisionStore::full_rewrite),
 //!   for Optimize and clean and a repaired document's copy (§7.3).
+//! - [`forms`]: form fields in the revisions, with limits, and the literal `AF*` arguments (M4 plan,
+//!   W3).
 //! - `platform` (private): the few file-system calls the standard library lacks
 //!   (`ReplaceFileW`, `fcopyfile`, free space, link counts), the crate's only unsafe code
 //!   (ADR 0010).
@@ -67,17 +73,21 @@
 // Unsafe code is denied, and allowed only in `platform` (ADR 0010, M3 plan question 1).
 #![deny(unsafe_code)]
 
+pub mod annotations;
 mod appendix;
 pub mod assemble;
 mod content;
 pub mod document;
 pub mod filters;
+mod flatten;
+pub mod forms;
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzzing;
 mod incremental;
 pub mod interpret;
 pub mod limits;
+pub mod links;
 pub mod pages;
 #[allow(unsafe_code)]
 mod platform;
@@ -292,6 +302,14 @@ pub enum WriteError {
     /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
     /// out of range, label ranges out of order.
     PagePlan,
+    /// An annotation the page does not name.
+    NoSuchAnnotation,
+    /// An annotation change that cannot apply: geometry its kind cannot take, a style on a kind
+    /// whose drawing Ferman does not make, a value out of range.
+    AnnotationPlan,
+    /// A page that cannot be flattened: its content changes the graphics state and then closes
+    /// more states than it opened, which a reader ignores and flattening's padding would not.
+    PageStateLeaks,
 }
 
 impl std::fmt::Display for WriteError {
@@ -312,6 +330,9 @@ impl std::fmt::Display for WriteError {
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
             Self::PagePlan => f.write_str("a page operation that cannot apply"),
+            Self::NoSuchAnnotation => f.write_str("no such annotation"),
+            Self::AnnotationPlan => f.write_str("an annotation change that cannot apply"),
+            Self::PageStateLeaks => f.write_str("a page whose content closes too many states"),
         }
     }
 }

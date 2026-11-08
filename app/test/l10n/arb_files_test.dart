@@ -58,6 +58,7 @@ const Set<String> _sameInArabic = {
   'shellConvertHtml', // file formats
   'shellConvertMarkdown',
   'saveAsPdf', // a file format
+  'summaryCsv',
   'regionPaperA4', // the ISO paper size name
   'regionPaperLetter', // the paper size name, as a12-2c writes it
   'propertiesVersionAcrobat', // a version number and the product name

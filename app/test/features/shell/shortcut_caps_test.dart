@@ -100,7 +100,15 @@ final Map<String, ShellCommand> _choiceCommands = {
 
 /// The View row's and the status bar's viewing controls: disabled without
 /// a reason while no document shows.
-const Set<String> _waitForDocument = {
+final Set<String> _waitForDocument = {
+  // Comment's tools.
+  for (final tool in AnnotationTool.values)
+    if (tool != AnnotationTool.measure) _l10n.annotationToolLabel(tool),
+  _l10n.shellShowComments,
+  _l10n.shellColor,
+  // Fill & Sign's signature tools (B024).
+  'Sign',
+  'Initials',
   // Organize's tools that work with a document.
   'Insert',
   'Extract',
@@ -118,6 +126,11 @@ const Set<String> _waitForDocument = {
   'Page layout',
   'Previous page',
   'Next page',
+  // Fill & Sign's tools that work with a document.
+  'Fill fields',
+  'Add text',
+  'Checkmark',
+  'Date',
 };
 
 /// The commands that have a control but whose keys no M1 surface shows
@@ -133,6 +146,8 @@ const Set<ShellCommand> _shownFromM2 = {
 /// The commands no control of the shell shows, with the reason. Their keys
 /// are listed by the command palette (B030) and the cheat sheet (B076).
 const Set<ShellCommand> _keysOnly = {
+  // Shown by the Links panel's + and a3-1c's bar, which this walk never opens.
+  ShellCommand.addLink,
   // The cheat sheet itself (B076).
   ShellCommand.keyboardShortcuts,
   // The start screen's Create PDF card shows ⌘N (B019); FmWindow draws the
@@ -172,6 +187,11 @@ const Set<ShellCommand> _keysOnly = {
   ShellCommand.previousField,
   ShellCommand.todaysDate,
   ShellCommand.addSignature,
+  // Fill anything's tools show their keys in its panel (a5-4), not the row.
+  ShellCommand.fillText,
+  ShellCommand.fillCheck,
+  ShellCommand.fillCross,
+  ShellCommand.fillDot,
   // Organize: the page grid's keys and Insert from file (B056); FmWindow
   // draws Duplicate and Extract without keys.
   ShellCommand.duplicatePages,
@@ -288,7 +308,9 @@ void main() {
           final waits =
               (!inRow ||
                   mode == FermanMode.view ||
-                  mode == FermanMode.organize) &&
+                  mode == FermanMode.organize ||
+                  mode == FermanMode.comment ||
+                  mode == FermanMode.sign) &&
               _waitForDocument.contains(control.label);
           if (!control.enabled && waits) {
             // The viewing controls wait for a shown document, not a version:
@@ -454,7 +476,10 @@ void main() {
         final disabled = [
           for (final entry in entries)
             if (entry.disabled &&
-                ((mode != FermanMode.view && mode != FermanMode.organize) ||
+                ((mode != FermanMode.view &&
+                        mode != FermanMode.organize &&
+                        mode != FermanMode.comment &&
+                        mode != FermanMode.sign) ||
                     !_waitForDocument.contains(entry.label)))
               entry,
         ];

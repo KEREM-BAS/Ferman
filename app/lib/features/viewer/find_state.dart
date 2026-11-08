@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/comments/comment_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -199,7 +200,11 @@ class Find extends _$Find {
 
   void _show() {
     final match = state.currentMatch;
-    if (match != null) ref.read(viewerProvider.notifier).goToPage(match.page);
+    if (match == null) return;
+    ref.read(viewerProvider.notifier).goToPage(match.page);
+    if (match.comment case final handle?) {
+      ref.read(commentSelectionProvider.notifier).select(handle);
+    }
   }
 
   void _stop() {

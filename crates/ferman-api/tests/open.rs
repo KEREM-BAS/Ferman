@@ -15,8 +15,8 @@ use std::time::Duration;
 
 use ferman_api::facade::{
     Agreement, ApiError, Engine, EngineConfig, ErrorKind, Item, MAX_THUMBNAIL_SIZE, OpenedDocument,
-    Password, PdfiumLibrary, Priority, ReadOnly, Rendered, SearchEvent, SearchOptions, SearchSink,
-    ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on,
+    Password, PdfiumLibrary, Priority, ReadOnly, Rendered, SearchEvent, SearchOptions,
+    SearchPlaces, SearchSink, ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -328,7 +328,7 @@ fn a_search_streams_its_matches_and_ends() {
             kira.id,
             "kira".to_owned(),
             SearchOptions::default(),
-            false,
+            SearchPlaces::default(),
             Box::new(Found(events)),
         )
         .unwrap();
@@ -370,7 +370,7 @@ fn a_search_streams_its_matches_and_ends() {
             long.id,
             "e".to_owned(),
             SearchOptions::default(),
-            false,
+            SearchPlaces::default(),
             Box::new(Found(events)),
         )
         .unwrap();
@@ -398,7 +398,7 @@ fn a_search_of_a_scan_ends_textless() {
             scan.id,
             "kira".to_owned(),
             SearchOptions::default(),
-            false,
+            SearchPlaces::default(),
             Box::new(Found(events)),
         )
         .unwrap();
@@ -429,7 +429,10 @@ fn a_search_can_look_in_the_bookmarks() {
                 tez.id,
                 word.clone(),
                 SearchOptions::default(),
-                bookmarks,
+                SearchPlaces {
+                    bookmarks,
+                    ..SearchPlaces::default()
+                },
                 Box::new(Found(events)),
             )
             .unwrap();

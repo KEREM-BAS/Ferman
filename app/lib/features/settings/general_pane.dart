@@ -207,6 +207,7 @@ class GeneralPane extends ConsumerWidget {
               Expanded(child: zoom),
             ],
           ),
+        _CommenterName(name: settings.commenterName),
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: band(
@@ -291,6 +292,61 @@ class GeneralPane extends ConsumerWidget {
 
   /// … and vertical.
   static const double _calloutPaddingY = 12;
+}
+
+/// "Your name for comments" (G46), stored when it loses focus or on Enter.
+class _CommenterName extends ConsumerStatefulWidget {
+  const new({required this.name});
+
+  final String? name;
+
+  @override
+  ConsumerState<_CommenterName> createState() => _CommenterNameState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('name', name));
+  }
+}
+
+class _CommenterNameState extends ConsumerState<_CommenterName> {
+  late final TextEditingController _text = TextEditingController(
+    text: widget.name ?? '',
+  );
+  final FocusNode _focus = FocusNode(debugLabel: 'GeneralPane.commenterName');
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(() {
+      if (!_focus.hasFocus) _store();
+    });
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    _text.dispose();
+    super.dispose();
+  }
+
+  void _store([String? _]) {
+    final name = _text.text.trim();
+    if (name == (widget.name ?? '')) return;
+    unawaited(
+      changeSetting(ref, (settings) => settings.copyWith(commenterName: name)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => TextField(
+    label: AppLocalizations.of(context).settingsCommenterName,
+    size: FieldSize.sm,
+    controller: _text,
+    focusNode: _focus,
+    onSubmitted: _store,
+  );
 }
 
 /// The choices of PDF pages in dark theme (a11-1): drawn; Paper white and

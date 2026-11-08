@@ -62,6 +62,12 @@ abstract interface class FileAccess {
   /// manager; false when it could not.
   Future<bool> show(String path);
 
+  /// Opens [url] with the system's handler, which does the connecting; false
+  /// when it could not. Only the `http`, `https` and `mailto` targets the
+  /// engine offers (`LinkKind.web` and `LinkKind.mail`), after the prompt that
+  /// shows all of it (G145): each runner refuses any other scheme.
+  Future<bool> openUrl(String url);
+
   /// Under the macOS App Sandbox, a directory on the volume of [path] where
   /// a file for it may be written first (the system's item-replacement
   /// directory, ADR 0008); null where the engine writes beside the file.
@@ -95,6 +101,9 @@ final class NoFileAccess implements FileAccess {
   Future<bool> show(String path) async => false;
 
   @override
+  Future<bool> openUrl(String url) async => false;
+
+  @override
   Future<String?> staging(String path) async => null;
 
   @override
@@ -107,9 +116,9 @@ final class NoFileAccess implements FileAccess {
 
 /// The runner's file access over the `ferman/files` channel
 /// (`MainFlutterWindow.swift`; on Windows `file_manager.cpp` and on Linux
-/// `my_application.cc`, which answer only "show"); a runner without a
-/// handler makes no bookmarks, shows nothing and names no staging
-/// directory.
+/// `my_application.cc`, which answer only "show" and "openUrl"); a runner
+/// without a handler makes no bookmarks, shows and opens nothing and names no
+/// staging directory.
 final class PlatformFileAccess implements FileAccess {
   /// Talks to the runner over `ferman/files`, or over the channel given
   /// (tests).
@@ -166,6 +175,17 @@ final class PlatformFileAccess implements FileAccess {
   Future<bool> show(String path) async {
     try {
       return await _channel.invokeMethod<bool>('show', path) ?? false;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> openUrl(String url) async {
+    try {
+      return await _channel.invokeMethod<bool>('openUrl', url) ?? false;
     } on MissingPluginException {
       return false;
     } on PlatformException {

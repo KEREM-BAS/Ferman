@@ -169,7 +169,7 @@ pub(crate) struct PdfFont {
 }
 
 impl PdfFont {
-    fn new(resource: &FontResource) -> Self {
+    pub(crate) fn new(resource: &FontResource) -> Self {
         let mut cmap_known = true;
         let cmap = (resource.kind == FontKind::Type0).then(|| {
             match (&resource.cmap, resource.cmap_name.as_deref()) {

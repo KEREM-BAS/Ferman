@@ -3,7 +3,7 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
-import 'dart:ui' show Offset, Rect;
+import 'dart:ui' show Color, Offset, Rect;
 
 import 'package:flutter/foundation.dart';
 
@@ -253,6 +253,677 @@ class PageInfo {
   /// it; history steps hold it. Set by the engine; a page made without one
   /// answers to its index ([OpenedDocument.pageHandle]).
   final int? handle;
+}
+
+/// What an annotation is.
+enum AnnotationKind {
+  /// A highlight.
+  highlight,
+
+  /// An underline.
+  underline,
+
+  /// A strike-through.
+  strikeOut,
+
+  /// A squiggly underline: read and rendered, never created.
+  squiggly,
+
+  /// A note on the page, or a reply.
+  note,
+
+  /// A text box.
+  freeText,
+
+  /// A text box with a leader.
+  callout,
+
+  /// Freehand.
+  ink,
+
+  /// A rectangle.
+  square,
+
+  /// An ellipse.
+  circle,
+
+  /// A line, with or without an arrow.
+  line,
+
+  /// A polygon.
+  polygon,
+
+  /// A stamp.
+  stamp,
+
+  /// Any other type: listed, its text editable, its drawing left alone.
+  other,
+}
+
+/// A colour of a mark, each part from 0 to 1. Marks do not change with theme.
+@immutable
+class AnnotationColor {
+  /// Creates a colour.
+  const new(this.red, this.green, this.blue);
+
+  /// Red.
+  final double red;
+
+  /// Green.
+  final double green;
+
+  /// Blue.
+  final double blue;
+
+  /// As a [Color], for a swatch.
+  Color get color => Color.from(alpha: 1, red: red, green: green, blue: blue);
+}
+
+/// Whether [handle] names an annotation written directly in the file's page:
+/// the engine's bit for those, whose handle is their place among the page's, so
+/// a change to a neighbour or an undo can give it to another (ferman-core's
+/// `direct_handle`).
+bool isDirectAnnotationHandle(int handle) => handle >= 4503599627370496;
+
+/// One annotation, in displayed points.
+@immutable
+class AnnotationInfo {
+  /// Creates an annotation.
+  const new({
+    required this.handle,
+    required this.page,
+    required this.kind,
+    required this.rect,
+    required this.thread,
+    this.subtype = '',
+    this.points = const [],
+    this.arrow = false,
+    this.color,
+    this.opacity = 1,
+    this.stroke = 1,
+    this.fontSize,
+    this.author,
+    this.contents,
+    this.quote,
+    this.rich = false,
+    this.created,
+    this.modified,
+    this.icon,
+    this.repliesTo,
+    this.state,
+    this.resolved = false,
+    this.resolvedBy,
+    this.resolvedAt,
+    this.mentions = const [],
+  });
+
+  /// Its identity for the other calls. It stays through edits, undo and saves;
+  /// one written directly in the page's array gets a new one with its first
+  /// change, which the change returns.
+  final int handle;
+
+  /// Its page, by [PageInfo.handle].
+  final int page;
+
+  /// What it is.
+  final AnnotationKind kind;
+
+  /// The type's name in the file, which names an [AnnotationKind.other].
+  final String subtype;
+
+  /// Its box.
+  final Rect rect;
+
+  /// Quads (four corners each), strokes, a line's two ends, vertices or a
+  /// leader, as [NewAnnotation.points] orders them.
+  final List<List<Offset>> points;
+
+  /// A line or callout ends in an arrow.
+  final bool arrow;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// A text box's font size.
+  final double? fontSize;
+
+  /// Its author.
+  final String? author;
+
+  /// Its text.
+  final String? contents;
+
+  /// The page text under its marks or box, for the panel's quote (a4-2).
+  final String? quote;
+
+  /// Rich text goes with it; replacing the text removes it.
+  final bool rich;
+
+  /// When it was made: local time when the file gives a zone, else as written.
+  final DateTime? created;
+
+  /// When it last changed, as [created].
+  final DateTime? modified;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// The annotation it replies to.
+  final int? repliesTo;
+
+  /// The top of its thread, its own handle when it is no reply.
+  final int thread;
+
+  /// The state it sets, for a state reply, which the panel does not list.
+  final String? state;
+
+  /// On top of a thread: whether it is resolved.
+  final bool resolved;
+
+  /// Who resolved it.
+  final String? resolvedBy;
+
+  /// When, as [created].
+  final DateTime? resolvedAt;
+
+  /// The people of the file its text mentions.
+  final List<String> mentions;
+}
+
+/// A document's annotations.
+@immutable
+class AnnotationList {
+  /// Creates a list.
+  const new({
+    this.annotations = const [],
+    this.people = const [],
+    this.truncated = false,
+  });
+
+  /// In page order.
+  final List<AnnotationInfo> annotations;
+
+  /// The names in the file, for mentions (a4-2).
+  final List<String> people;
+
+  /// Whether a limit cut the list or a text short.
+  final bool truncated;
+}
+
+/// A new annotation, in displayed points.
+@immutable
+class NewAnnotation {
+  /// Creates a new annotation.
+  const new({
+    required this.kind,
+    required this.color,
+    required this.author,
+    this.rect = Rect.zero,
+    this.points = const [],
+    this.stroke = 1,
+    this.opacity = 1,
+    this.contents = '',
+    this.fontSize = 12,
+    this.arrow = false,
+    this.label = '',
+    this.meta,
+    this.tilt = 0,
+    this.icon,
+    this.comb,
+  });
+
+  /// What it is; never [AnnotationKind.squiggly] or [AnnotationKind.other].
+  final AnnotationKind kind;
+
+  /// A note's, text box's, shape's or stamp's box; a callout's text box.
+  final Rect rect;
+
+  /// Text markup: each quad's corners, top left, top right, bottom left,
+  /// bottom right. Ink: each stroke. Line: its two ends. Polygon: its vertices.
+  /// Callout: its leader from the far end.
+  final List<List<Offset>> points;
+
+  /// Its colour.
+  final AnnotationColor color;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its text.
+  final String contents;
+
+  /// Its author.
+  final String author;
+
+  /// A text box's, callout's or stamp label's size.
+  final double fontSize;
+
+  /// A line ends in an arrow.
+  final bool arrow;
+
+  /// A stamp's label, already cased for its language.
+  final String label;
+
+  /// The line under a stamp's label: name, date and time as placed.
+  final String? meta;
+
+  /// A stamp's turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// A text box on a comb of this many cells, one character each (Fill
+  /// anything, a5-4): from 1 to 256, a text box's only.
+  final int? comb;
+}
+
+/// What a change to an annotation sets; null leaves it.
+@immutable
+class AnnotationChange {
+  /// Creates a change.
+  const new({
+    this.contents,
+    this.rect,
+    this.points,
+    this.color,
+    this.stroke,
+    this.opacity,
+    this.fontSize,
+  });
+
+  /// New text.
+  final String? contents;
+
+  /// A new box: its geometry follows.
+  final Rect? rect;
+
+  /// New geometry, as [NewAnnotation.points].
+  final List<List<Offset>>? points;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its stroke, in points.
+  final double? stroke;
+
+  /// Its opacity.
+  final double? opacity;
+
+  /// A text box's or callout's font size.
+  final double? fontSize;
+}
+
+/// What a commit that names an annotation returns.
+@immutable
+class AnnotationCommit {
+  /// Creates a commit.
+  const new({required this.handle, required this.revision});
+
+  /// The annotation's handle.
+  final int handle;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+}
+
+/// What a form field is.
+enum FieldKind {
+  /// A text field.
+  text,
+
+  /// A check box.
+  check,
+
+  /// A radio group.
+  radio,
+
+  /// A push button: nothing to fill.
+  push,
+
+  /// A combo box.
+  combo,
+
+  /// A list box.
+  list,
+
+  /// A signature field.
+  signature,
+
+  /// An unknown type.
+  other,
+}
+
+/// The format a field's scripts declare (M4 decision 17): read, never run.
+enum FieldFormatKind {
+  /// None.
+  none,
+
+  /// A date in [FieldInfo.datePattern].
+  date,
+
+  /// A number with [FieldInfo.decimals].
+  number,
+
+  /// A percentage with [FieldInfo.decimals].
+  percent,
+}
+
+/// Why a value does not meet what its field declares.
+enum FieldProblemKind {
+  /// Past [FieldProblem.maxLen].
+  tooLong,
+
+  /// Not a date in [FieldProblem.pattern].
+  notADate,
+
+  /// Not a number.
+  notANumber,
+
+  /// Outside [FieldProblem.min] and [FieldProblem.max].
+  outOfRange,
+}
+
+/// A value's problem with its parameters (a5-2).
+@immutable
+class FieldProblem {
+  /// Creates a problem.
+  const new({
+    required this.kind,
+    this.maxLen,
+    this.pattern,
+    this.min,
+    this.max,
+  });
+
+  /// What it is.
+  final FieldProblemKind kind;
+
+  /// The most characters, for [FieldProblemKind.tooLong].
+  final int? maxLen;
+
+  /// The date pattern, for [FieldProblemKind.notADate].
+  final String? pattern;
+
+  /// The least value, for [FieldProblemKind.outOfRange].
+  final double? min;
+
+  /// The greatest value, for [FieldProblemKind.outOfRange].
+  final double? max;
+}
+
+/// One choice of a combo or list box.
+@immutable
+class FieldOption {
+  /// Creates an option.
+  const new({required this.export, required this.display});
+
+  /// What the value holds.
+  final String export;
+
+  /// What the field shows.
+  final String display;
+}
+
+/// One place of a field on a page.
+@immutable
+class FieldWidget {
+  /// Creates a widget.
+  const new({required this.page, required this.rect, this.onState});
+
+  /// Its page, by [PageInfo.handle].
+  final int page;
+
+  /// Its box, in the page's displayed points (y down).
+  final Rect rect;
+
+  /// The value that turns a check box or radio button on.
+  final String? onState;
+}
+
+/// One form field, in tab order (a5-1).
+@immutable
+class FieldInfo {
+  /// Creates a field.
+  const new({
+    required this.handle,
+    required this.name,
+    required this.kind,
+    this.label,
+    this.readOnly = false,
+    this.required = false,
+    this.multiline = false,
+    this.password = false,
+    this.comb = false,
+    this.multiSelect = false,
+    this.editable = false,
+    this.values = const [],
+    this.options = const [],
+    this.maxLen,
+    this.widgets = const [],
+    this.format = FieldFormatKind.none,
+    this.datePattern,
+    this.decimals,
+    this.min,
+    this.max,
+    this.problem,
+    this.signed = false,
+    this.signature,
+    this.filled = false,
+  });
+
+  /// Its identity; it stays through edits, undo and saves.
+  final int handle;
+
+  /// Its full name.
+  final String name;
+
+  /// The name a reader shows (`/TU`).
+  final String? label;
+
+  /// What it is.
+  final FieldKind kind;
+
+  /// It cannot be changed.
+  final bool readOnly;
+
+  /// It counts in the required count.
+  final bool required;
+
+  /// A text field of many lines.
+  final bool multiline;
+
+  /// A text field that hides what is typed.
+  final bool password;
+
+  /// A comb of [maxLen] cells.
+  final bool comb;
+
+  /// A list box that takes several values.
+  final bool multiSelect;
+
+  /// A combo box that takes any text.
+  final bool editable;
+
+  /// Its value: text, export values, or the on-state of a button.
+  final List<String> values;
+
+  /// A choice's options.
+  final List<FieldOption> options;
+
+  /// The most characters.
+  final int? maxLen;
+
+  /// Its places, in tab order.
+  final List<FieldWidget> widgets;
+
+  /// The format it declares.
+  final FieldFormatKind format;
+
+  /// The date pattern it declares.
+  final String? datePattern;
+
+  /// The decimals it declares.
+  final int? decimals;
+
+  /// The least value it declares.
+  final double? min;
+
+  /// The greatest value it declares.
+  final double? max;
+
+  /// How its value fails what it declares.
+  final FieldProblem? problem;
+
+  /// A signature field holds a digital signature.
+  final bool signed;
+
+  /// The stamp of the simple signature on it (M4 decisions 20 and 21).
+  final int? signature;
+
+  /// It counts as filled.
+  final bool filled;
+
+  /// The same field holding [values].
+  FieldInfo withValues(List<String> values) => FieldInfo(
+    handle: handle,
+    name: name,
+    kind: kind,
+    label: label,
+    readOnly: readOnly,
+    required: required,
+    multiline: multiline,
+    password: password,
+    comb: comb,
+    multiSelect: multiSelect,
+    editable: editable,
+    values: values,
+    options: options,
+    maxLen: maxLen,
+    widgets: widgets,
+    format: format,
+    datePattern: datePattern,
+    decimals: decimals,
+    min: min,
+    max: max,
+    signed: signed,
+    signature: signature,
+    filled: values.isNotEmpty || signed || signature != null,
+  );
+
+  /// This field signed by the simple signature [stamp], or none.
+  FieldInfo withSignature(int? stamp) => FieldInfo(
+    handle: handle,
+    name: name,
+    kind: kind,
+    label: label,
+    readOnly: readOnly,
+    required: required,
+    multiline: multiline,
+    password: password,
+    comb: comb,
+    multiSelect: multiSelect,
+    editable: editable,
+    values: values,
+    options: options,
+    maxLen: maxLen,
+    widgets: widgets,
+    format: format,
+    datePattern: datePattern,
+    decimals: decimals,
+    min: min,
+    max: max,
+    problem: problem,
+    signed: signed,
+    signature: stamp,
+    filled: values.isNotEmpty || signed || stamp != null,
+  );
+}
+
+/// A document's form.
+@immutable
+class FormInfo {
+  /// Creates a form.
+  const new({
+    this.fields = const [],
+    this.required = 0,
+    this.requiredLeft = 0,
+    this.problems = 0,
+    this.hasXfa = false,
+    this.truncated = false,
+  });
+
+  /// In tab order.
+  final List<FieldInfo> fields;
+
+  /// Required fields.
+  final int required;
+
+  /// Required fields not yet filled (a5-1's "13 required left").
+  final int requiredLeft;
+
+  /// Fields whose value fails what they declare: Finish waits for none.
+  final int problems;
+
+  /// The form has XFA, which the first change removes with a notice.
+  final bool hasXfa;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// What setting a field's value returns.
+@immutable
+class FieldCommit {
+  /// Creates a commit.
+  const new({
+    required this.revision,
+    this.problem,
+    this.fonts = const [],
+    this.marked = false,
+    this.xfaRemoved = false,
+    this.asksFont = false,
+  });
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  /// How the new value fails what the field declares.
+  final FieldProblem? problem;
+
+  /// The families it was drawn in because its font could not: say so once.
+  final List<String> fonts;
+
+  /// What its font cannot draw was left out: mark the field.
+  final bool marked;
+
+  /// XFA left the form: say so.
+  final bool xfaRemoved;
+
+  /// Ask each time: nothing was written; ask, then call again with a choice.
+  final bool asksFont;
+}
+
+/// What to do when a value has characters its field's font cannot draw
+/// (a11-1c, M4 decision 18).
+enum MissingFont {
+  /// Bundled IBM Plex, said once.
+  bundled,
+
+  /// Ask first, writing nothing.
+  ask,
+
+  /// Keep the field's font and mark the field.
+  keep,
 }
 
 /// What each side of a page gives up, in displayed points.
@@ -1288,6 +1959,8 @@ class SearchOptions {
     this.wholeWords = false,
     this.ignoreAccents = true,
     this.bookmarks = false,
+    this.comments = true,
+    this.fields = false,
   });
 
   /// Match case.
@@ -1302,17 +1975,31 @@ class SearchOptions {
   /// Look in the bookmarks' titles too (a2-4a, B114).
   final bool bookmarks;
 
+  /// Look in the annotations' text too (a2-4a, on by default, B128).
+  final bool comments;
+
+  /// Look in the form fields' values too (a2-4a, B128).
+  final bool fields;
+
   @override
   bool operator ==(Object other) =>
       other is SearchOptions &&
       other.matchCase == matchCase &&
       other.wholeWords == wholeWords &&
       other.ignoreAccents == ignoreAccents &&
-      other.bookmarks == bookmarks;
+      other.bookmarks == bookmarks &&
+      other.comments == comments &&
+      other.fields == fields;
 
   @override
-  int get hashCode =>
-      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks);
+  int get hashCode => Object.hash(
+    matchCase,
+    wholeWords,
+    ignoreAccents,
+    bookmarks,
+    comments,
+    fields,
+  );
 }
 
 /// One match of a search.
@@ -1326,6 +2013,8 @@ class SearchMatch {
     required this.snippetStart,
     required this.snippetEnd,
     this.bookmark = false,
+    this.comment,
+    this.field,
   });
 
   /// Its page, from 0.
@@ -1347,6 +2036,14 @@ class SearchMatch {
   /// Whether it is in a bookmark's title, [snippet], pointing at [page];
   /// it has no [rects].
   final bool bookmark;
+
+  /// The annotation whose text it is in, [snippet] being that text's line and
+  /// [rects] the annotation's box.
+  final int? comment;
+
+  /// The form field whose value it is in, [snippet] being that value's line
+  /// and [rects] the field's first widget.
+  final int? field;
 }
 
 /// What a running search reports.
@@ -2312,4 +3009,421 @@ class RestoredDocument {
   /// Every page's render key with the restored changes; null when the engine
   /// could not reload.
   final int? renderKey;
+}
+
+/// What a comment summary is written as (a4-4).
+enum SummaryFormat {
+  /// CSV, one comment per row.
+  csv,
+
+  /// A PDF: numbered markers on each page, with its comments beside it.
+  pageAndComments,
+
+  /// A PDF: a list, grouped by page.
+  commentsOnly,
+
+  /// A PDF: the full page followed by its comments.
+  pageThenList,
+}
+
+/// The order of a summary's comments.
+enum SummarySort {
+  /// Page order.
+  page,
+
+  /// Oldest first.
+  date,
+
+  /// By author, then page order.
+  author,
+}
+
+/// What a comment summary holds, and its words in the app's language.
+final class SummaryOptions {
+  /// The options.
+  const new({
+    required this.open,
+    required this.resolved,
+    required this.replies,
+    required this.emptyPages,
+    required this.sort,
+    required this.pageLabel,
+    required this.columns,
+    required this.kinds,
+    required this.openLabel,
+    required this.resolvedLabel,
+    required this.noComments,
+    required this.datePattern,
+    required this.paperWidth,
+    required this.paperHeight,
+  });
+
+  /// Open comments.
+  final bool open;
+
+  /// Resolved comments.
+  final bool resolved;
+
+  /// Replies under each.
+  final bool replies;
+
+  /// Pages without comments.
+  final bool emptyPages;
+
+  /// The order.
+  final SummarySort sort;
+
+  /// A page's heading, with `{n}` for its number.
+  final String pageLabel;
+
+  /// The CSV's header row: page, type, author, date, text, replies, status.
+  final List<String> columns;
+
+  /// Each kind's name.
+  final Map<AnnotationKind, String> kinds;
+
+  /// The status of an open comment.
+  final String openLabel;
+
+  /// The status of a resolved one.
+  final String resolvedLabel;
+
+  /// What a page, or a summary, with no comment says.
+  final String noComments;
+
+  /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+  final String datePattern;
+
+  /// A PDF's paper width, in points.
+  final double paperWidth;
+
+  /// A PDF's paper height, in points.
+  final double paperHeight;
+}
+
+/// A link's border (a3-6).
+enum LinkLook {
+  /// No line.
+  invisible,
+
+  /// A line under it.
+  underline,
+
+  /// A thin box.
+  box,
+}
+
+/// Where a link goes, and whether it may be offered. Only [web] and [mail] can
+/// be opened, after the prompt with the full target showing (G145); [page] just
+/// goes; the others open nothing.
+enum LinkKind {
+  /// An `http` or `https` address.
+  web,
+
+  /// A `mailto:` address.
+  mail,
+
+  /// A page of this document.
+  page,
+
+  /// A destination that leads nowhere.
+  broken,
+
+  /// Refused: a script.
+  script,
+
+  /// Refused: a program or file to launch.
+  launch,
+
+  /// Refused: another file.
+  file,
+
+  /// Refused: an address of another scheme, or one that does not read cleanly.
+  address,
+
+  /// Refused: an action Ferman does not know, kept in the file as it came.
+  action,
+
+  /// It does nothing.
+  nothing,
+}
+
+/// One link, in displayed points.
+final class LinkInfo {
+  /// A link.
+  const new({
+    required this.handle,
+    required this.page,
+    required this.rect,
+    required this.kind,
+    this.quads = const [],
+    this.target = '',
+    this.targetPage,
+    this.wantedPage,
+    this.look = LinkLook.invisible,
+    this.color,
+  });
+
+  /// Its identity for the other calls.
+  final int handle;
+
+  /// Its page's handle.
+  final int page;
+
+  /// Its box.
+  final Rect rect;
+
+  /// Its text's lines, four corners each.
+  final List<List<Offset>> quads;
+
+  /// Where it goes.
+  final LinkKind kind;
+
+  /// The address, or what a refused link names: to show, and to open only for
+  /// [LinkKind.web] and [LinkKind.mail]. Untrusted text from the document.
+  final String target;
+
+  /// The handle of the page, for [LinkKind.page].
+  final int? targetPage;
+
+  /// The page a [LinkKind.broken] link names, from 1, when it says.
+  final int? wantedPage;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// Its colour.
+  final AnnotationColor? color;
+}
+
+/// A document's links.
+final class LinkList {
+  /// The list.
+  const new({required this.links, this.truncated = false});
+
+  /// In page order.
+  final List<LinkInfo> links;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// Where a new link goes: [page]'s handle when it has one, else [address], web
+/// or mail by [mail].
+final class LinkDestination {
+  /// An address.
+  const new address(this.address, {this.mail = false}) : page = null;
+
+  /// A page by its handle.
+  const new page(int this.page) : address = '', mail = false;
+
+  /// An `http` or `https` address, or an e-mail address.
+  final String address;
+
+  /// Whether [address] is an e-mail address.
+  final bool mail;
+
+  /// A page by its handle.
+  final int? page;
+}
+
+/// A new link, in displayed points.
+final class NewLink {
+  /// A link.
+  const new({
+    required this.rect,
+    required this.destination,
+    required this.color,
+    this.quads = const [],
+    this.look = LinkLook.invisible,
+  });
+
+  /// Its box.
+  final Rect rect;
+
+  /// Its text's lines: top left, top right, bottom left and bottom right as the
+  /// reader sees them.
+  final List<List<Offset>> quads;
+
+  /// Where it goes.
+  final LinkDestination destination;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// Its colour.
+  final AnnotationColor color;
+}
+
+/// What a link change sets; null leaves it.
+final class LinkChange {
+  /// A change.
+  const new({this.rect, this.destination, this.look, this.color});
+
+  /// A new box.
+  final Rect? rect;
+
+  /// A new target, which replaces what the link did.
+  final LinkDestination? destination;
+
+  /// A new border.
+  final LinkLook? look;
+
+  /// Its colour.
+  final AnnotationColor? color;
+}
+
+/// What a place to fill on a page without fields is (a5-4).
+enum FillTargetKind {
+  /// A line: text goes on its baseline.
+  line,
+
+  /// A box to write in.
+  box,
+
+  /// A small square: a click checks it.
+  check,
+
+  /// A row of equal cells, one character each.
+  comb,
+}
+
+/// One place to fill, in displayed points.
+@immutable
+class FillTarget {
+  /// Creates a target.
+  const new({required this.kind, required this.rect, this.cells = 1});
+
+  /// What it is.
+  final FillTargetKind kind;
+
+  /// Its box: a line's stroke, a comb's cells together.
+  final Rect rect;
+
+  /// A comb's cells; 1 for the others.
+  final int cells;
+}
+
+/// The places to fill on a page.
+@immutable
+class FillTargets {
+  /// Creates the list.
+  const new({this.targets = const [], this.truncated = false});
+
+  /// From the top down, then left to right.
+  final List<FillTarget> targets;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+}
+
+/// A typed-signature style and whether it can write a name (M4 decision
+/// 23, G158).
+@immutable
+class HandwritingStyle {
+  /// Creates a style.
+  const new({required this.family, required this.covered});
+
+  /// Its family: Caveat, Dancing Script or Homemade Apple.
+  final String family;
+
+  /// It has every letter of the name; one that has not is not offered.
+  final bool covered;
+}
+
+/// [AnnotationInfo.icon] of a simple signature's stamp, and of initials'.
+const String signatureStampName = 'FermanSignature';
+
+/// See [signatureStampName].
+const String initialsStampName = 'FermanInitials';
+
+/// What a simple signature is drawn from.
+sealed class SignatureInk {
+  const new();
+}
+
+/// A name typed in a handwriting style.
+final class TypedInk extends SignatureInk {
+  /// Creates typed ink.
+  const new({required this.text, required this.family});
+
+  /// The name.
+  final String text;
+
+  /// The style's family, one of [HandwritingStyle.family].
+  final String family;
+}
+
+/// Strokes from the signature pad, in its units with y down; the engine
+/// crops them to their ink.
+final class DrawnInk extends SignatureInk {
+  /// Creates drawn ink.
+  const new({required this.strokes, required this.width});
+
+  /// Each stroke's points.
+  final List<List<Offset>> strokes;
+
+  /// The pen's width, in the pad's units.
+  final double width;
+}
+
+/// A photo or scan: its paper is made transparent and it is cropped to its
+/// ink, within the image limits.
+final class ImageInk extends SignatureInk {
+  /// Creates image ink.
+  const new(this.bytes);
+
+  /// The PNG, JPEG, TIFF, WebP or GIF file's bytes.
+  final Uint8List bytes;
+}
+
+/// A simple signature or initials to place, in displayed points: a stamp
+/// annotation, never a digital signature (M4 decisions 20 and 21).
+@immutable
+class NewSignature {
+  /// Creates a signature.
+  const new({
+    required this.rect,
+    required this.ink,
+    required this.color,
+    required this.author,
+    this.tilt = 0,
+    this.initials = false,
+    this.field,
+  });
+
+  /// Its box before its tilt; the ink is fitted into it.
+  final Rect rect;
+
+  /// What it is drawn from.
+  final SignatureInk ink;
+
+  /// A typed or drawn signature's colour.
+  final AnnotationColor color;
+
+  /// Its author.
+  final String author;
+
+  /// Its turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// Initials rather than a signature.
+  final bool initials;
+
+  /// The full name of the signature field it signs.
+  final String? field;
+}
+
+/// A saved signature file in the app data directory (M4 decision 22): the
+/// app owns its format.
+@immutable
+class SavedSignatureFile {
+  /// Creates a file.
+  const new({required this.name, required this.bytes});
+
+  /// Its file name.
+  final String name;
+
+  /// What the app wrote.
+  final Uint8List bytes;
 }

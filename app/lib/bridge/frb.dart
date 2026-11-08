@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `annotation_color_dto`, `annotation_color_of`, `annotation_commit_dto`, `annotation_dto`, `annotation_kind_dto`, `annotation_kind_of`, `annotation_points_of`, `annotation_rect_of`, `api_error_dto`, `api_version_dto`, `attachments_dto`, `block_font_dto`, `block_font_from_dto`, `combine_file`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `field_commit_dto`, `field_info_dto`, `field_problem_dto`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `link_destination_of`, `link_dto`, `link_look_of`, `missing_font`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pages_dto`, `paper_size`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeJob`, `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -738,6 +738,261 @@ Future<RevisionInfo> commitEdit({
 Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
 
+/// Shows or hides every markup annotation of `document` in every view (a4-5): render-only, never
+/// saved. Returns every page's new render key.
+///
+/// See [`facade::Engine::show_comments`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+Future<BigInt> showComments({
+  required BigInt document,
+  required bool visible,
+}) => FermanBridge.instance.api.crateFrbShowComments(
+  document: document,
+  visible: visible,
+);
+
+/// Flattens annotations `handles` with their replies as a background job: with `copy` it first
+/// writes the document as it stands to that new file. Its change waits for [`apply_job_change`].
+///
+/// See [`facade::Engine::flatten_annotations_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `copy` exists, and `NotFound`.
+Stream<JobEvent> startFlattenAnnotationsJob({
+  required BigInt document,
+  required Uint64List handles,
+  String? copy,
+  String? staging,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbStartFlattenAnnotationsJob(
+  document: document,
+  handles: handles,
+  copy: copy,
+  staging: staging,
+  name: name,
+);
+
+/// Writes the comments of `document` to the new file `output` as a background job (a4-4).
+///
+/// See [`facade::Engine::comment_summary_job`].
+///
+/// # Errors
+///
+/// `NotEditable`, `InvalidInput` when `output` exists, and `NotFound`.
+Stream<JobEvent> startCommentSummaryJob({
+  required BigInt document,
+  required SummaryFormat format,
+  required SummaryOptions options,
+  required String output,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbStartCommentSummaryJob(
+  document: document,
+  format: format,
+  options: options,
+  output: output,
+  staging: staging,
+);
+
+/// The links of `document` as its committed revisions leave them.
+///
+/// See [`facade::Engine::links`].
+///
+/// # Errors
+///
+/// `NotFound`.
+Future<LinkList> links({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbLinks(document: document);
+
+/// The topmost link of the page `page` at a point in displayed points. It follows nothing.
+///
+/// See [`facade::Engine::link_at`].
+///
+/// # Errors
+///
+/// `InvalidInput` and `NotFound`.
+Future<LinkInfo?> linkAt({
+  required BigInt document,
+  required BigInt page,
+  required double x,
+  required double y,
+}) => FermanBridge.instance.api.crateFrbLinkAt(
+  document: document,
+  page: page,
+  x: x,
+  y: y,
+);
+
+/// Creates `link` on the page `page` as one history step. Only a web address, an e-mail address or
+/// a page of this document can be its target.
+///
+/// See [`facade::Engine::add_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> addLink({
+  required BigInt document,
+  required BigInt page,
+  required NewLink link,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddLink(
+  document: document,
+  page: page,
+  link: link,
+  name: name,
+);
+
+/// Applies `change` to link `handle` as one history step.
+///
+/// See [`facade::Engine::update_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> updateLink({
+  required BigInt document,
+  required BigInt handle,
+  required LinkChange change,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbUpdateLink(
+  document: document,
+  handle: handle,
+  change: change,
+  name: name,
+);
+
+/// Deletes link `handle` as one history step.
+///
+/// See [`facade::Engine::delete_link`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> deleteLink({
+  required BigInt document,
+  required BigInt handle,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteLink(
+  document: document,
+  handle: handle,
+  name: name,
+);
+
+/// The annotations of `document` as its committed revisions leave them. Links, form widgets and
+/// popups are not listed.
+///
+/// See [`facade::Engine::annotations`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<AnnotationList> annotations({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbAnnotations(document: document);
+
+/// Creates `annotation` on the page `page` as one history step.
+///
+/// See [`facade::Engine::add_annotation`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` for text no font here has,
+/// and `NotFound`; so do the other annotation calls.
+Future<AnnotationCommit> addAnnotation({
+  required BigInt document,
+  required BigInt page,
+  required NewAnnotation annotation,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddAnnotation(
+  document: document,
+  page: page,
+  annotation: annotation,
+  name: name,
+);
+
+/// Applies `change` to annotation `handle` as one history step.
+///
+/// See [`facade::Engine::update_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> updateAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required AnnotationChange change,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbUpdateAnnotation(
+  document: document,
+  handle: handle,
+  change: change,
+  name: name,
+);
+
+/// Deletes annotation `handle`, with its popup and replies, as one history step.
+///
+/// See [`facade::Engine::delete_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> deleteAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteAnnotation(
+  document: document,
+  handle: handle,
+  name: name,
+);
+
+/// Replies to annotation `handle` as `author`, as one history step. Mentions are text: nothing is
+/// sent to anyone.
+///
+/// See [`facade::Engine::reply_to_annotation`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<AnnotationCommit> replyToAnnotation({
+  required BigInt document,
+  required BigInt handle,
+  required String author,
+  required String text,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbReplyToAnnotation(
+  document: document,
+  handle: handle,
+  author: author,
+  text: text,
+  name: name,
+);
+
+/// Resolves or reopens the thread of annotation `handle` as `author`, as one history step; a thread
+/// already so adds none.
+///
+/// See [`facade::Engine::set_annotation_resolved`].
+///
+/// # Errors
+///
+/// As [`add_annotation`].
+Future<RevisionInfo> setAnnotationResolved({
+  required BigInt document,
+  required BigInt handle,
+  required String author,
+  required bool resolved,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetAnnotationResolved(
+  document: document,
+  handle: handle,
+  author: author,
+  resolved: resolved,
+  name: name,
+);
+
 /// Turns `pages` by `quarter_turns` quarter turns, clockwise when positive, as one history step.
 ///
 /// See [`facade::Engine::rotate_pages`].
@@ -1084,6 +1339,157 @@ Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
 Future<bool> wouldBreakSignatures({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbWouldBreakSignatures(document: document);
 
+/// The form as the committed revisions leave it, in tab order. Reading generates nothing.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<FormInfo> formFields({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbFormFields(document: document);
+
+/// Sets field `handle` to `values` as one history step: text, export values or a button's
+/// on-state, none to empty it. Call it on blur, Tab or the end of a drag, never per keystroke.
+/// `missing` answers Ask each time; `None` follows the font settings.
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput`, `Unsupported` and `NotFound`, as for an
+/// annotation.
+Future<FieldCommit> setFieldValue({
+  required BigInt document,
+  required BigInt handle,
+  required List<String> values,
+  MissingFont? missing,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbSetFieldValue(
+  document: document,
+  handle: handle,
+  values: values,
+  missing: missing,
+  name: name,
+);
+
+/// Empties every field that holds a value and can change, as one history step. Signatures stay.
+/// A list box's options are drawn by `missing` as a value is.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+Future<FieldCommit> clearForm({
+  required BigInt document,
+  MissingFont? missing,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbClearForm(
+  document: document,
+  missing: missing,
+  name: name,
+);
+
+/// Finish: every field becomes page content as it looks, as one history step; a digitally signed
+/// field stays. An appearance it draws follows `missing` as a value does and says which fonts it
+/// took. It asks what editing asks.
+///
+/// # Errors
+///
+/// As [`set_field_value`].
+Future<FieldCommit> finishForm({
+  required BigInt document,
+  MissingFont? missing,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbFinishForm(
+  document: document,
+  missing: missing,
+  name: name,
+);
+
+/// The lines, boxes, check boxes and combs drawn on the page `page` (Fill anything). Nothing is
+/// written.
+///
+/// See [`facade::Engine::fill_targets`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a page the document does not have, `NotFound`.
+Future<FillTargets> fillTargets({
+  required BigInt document,
+  required BigInt page,
+}) => FermanBridge.instance.api.crateFrbFillTargets(
+  document: document,
+  page: page,
+);
+
+/// Which typed-signature styles can write every letter of `text`, in a5-3's order.
+///
+/// See [`facade::Engine::handwriting_styles`].
+///
+/// # Errors
+///
+/// Only an internal one.
+Future<List<HandwritingStyle>> handwritingStyles({required String text}) =>
+    FermanBridge.instance.api.crateFrbHandwritingStyles(text: text);
+
+/// Places `signature` on the page `page` as one history step: a stamp annotation, never a
+/// digital signature.
+///
+/// See [`facade::Engine::add_signature`].
+///
+/// # Errors
+///
+/// As [`add_annotation`]; `ResourceLimit` for an image past the limits.
+Future<AnnotationCommit> addSignature({
+  required BigInt document,
+  required BigInt page,
+  required NewSignature signature,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbAddSignature(
+  document: document,
+  page: page,
+  signature: signature,
+  name: name,
+);
+
+/// The saved signatures and initials in `dir`, a folder of the app data directory, by name.
+///
+/// See [`facade::Engine::saved_signatures`].
+///
+/// # Errors
+///
+/// The errors of reading the folder.
+Future<List<SavedSignature>> savedSignatures({required String dir}) =>
+    FermanBridge.instance.api.crateFrbSavedSignatures(dir: dir);
+
+/// Writes `bytes` as the saved signature `name` in `dir` through the safe write.
+///
+/// See [`facade::Engine::write_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses or bytes too many; the errors of the write.
+Future<void> writeSavedSignature({
+  required String dir,
+  required String name,
+  required List<int> bytes,
+}) => FermanBridge.instance.api.crateFrbWriteSavedSignature(
+  dir: dir,
+  name: name,
+  bytes: bytes,
+);
+
+/// Deletes the saved signature `name` in `dir`.
+///
+/// See [`facade::Engine::delete_saved_signature`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a name it refuses; the errors of the delete.
+Future<void> deleteSavedSignature({
+  required String dir,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbDeleteSavedSignature(
+  dir: dir,
+  name: name,
+);
+
 /// What `op` may do to the document; `fields` are the form fields a fill fills, empty when not
 /// known yet.
 ///
@@ -1171,6 +1577,375 @@ enum Alignment {
 
   /// Flush on both sides, but for the last line.
   justified,
+}
+
+/// What a change sets; `None` leaves it.
+class AnnotationChange {
+  /// New text.
+  final String? contents;
+
+  /// A new box: its geometry follows.
+  final PageRect? rect;
+
+  /// New geometry, as `NewAnnotation.points`.
+  final List<AnnotationPoints>? points;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its stroke, in points.
+  final double? stroke;
+
+  /// Its opacity.
+  final double? opacity;
+
+  /// A text box's or callout's font size.
+  final double? fontSize;
+
+  const AnnotationChange({
+    this.contents,
+    this.rect,
+    this.points,
+    this.color,
+    this.stroke,
+    this.opacity,
+    this.fontSize,
+  });
+
+  @override
+  int get hashCode =>
+      contents.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      color.hashCode ^
+      stroke.hashCode ^
+      opacity.hashCode ^
+      fontSize.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationChange &&
+          runtimeType == other.runtimeType &&
+          contents == other.contents &&
+          rect == other.rect &&
+          points == other.points &&
+          color == other.color &&
+          stroke == other.stroke &&
+          opacity == other.opacity &&
+          fontSize == other.fontSize;
+}
+
+/// A colour, each part from 0 to 1.
+class AnnotationColor {
+  /// Red.
+  final double red;
+
+  /// Green.
+  final double green;
+
+  /// Blue.
+  final double blue;
+
+  const AnnotationColor({
+    required this.red,
+    required this.green,
+    required this.blue,
+  });
+
+  @override
+  int get hashCode => red.hashCode ^ green.hashCode ^ blue.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationColor &&
+          runtimeType == other.runtimeType &&
+          red == other.red &&
+          green == other.green &&
+          blue == other.blue;
+}
+
+/// What a commit that names an annotation returns.
+class AnnotationCommit {
+  /// The annotation's handle.
+  final BigInt handle;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  const AnnotationCommit({required this.handle, required this.revision});
+
+  @override
+  int get hashCode => handle.hashCode ^ revision.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationCommit &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          revision == other.revision;
+}
+
+/// One annotation, in displayed points.
+class AnnotationInfo {
+  /// Its identity for the other calls.
+  final BigInt handle;
+
+  /// Its page's handle.
+  final BigInt page;
+
+  /// What it is.
+  final AnnotationKind kind;
+
+  /// The type's name in the file, which names an `Other`.
+  final String subtype;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// Quads (four corners each), strokes, a line's two ends, vertices or a leader.
+  final List<AnnotationPoints> points;
+
+  /// A line or callout ends in an arrow.
+  final bool arrow;
+
+  /// Its colour.
+  final AnnotationColor? color;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// A text box's font size.
+  final double? fontSize;
+
+  /// Its author.
+  final String? author;
+
+  /// Its text.
+  final String? contents;
+
+  /// The page text under its marks or box, for the panel's quote.
+  final String? quote;
+
+  /// Rich text goes with it; replacing the text removes it.
+  final bool rich;
+
+  /// When it was made.
+  final PdfDate? created;
+
+  /// When it last changed.
+  final PdfDate? modified;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// The annotation it replies to.
+  final BigInt? repliesTo;
+
+  /// The top of its thread, its own handle when it is no reply.
+  final BigInt thread;
+
+  /// The state it sets, for a state reply, which the panel does not list.
+  final String? state;
+
+  /// On top of a thread: whether it is resolved.
+  final bool resolved;
+
+  /// Who resolved it.
+  final String? resolvedBy;
+
+  /// When.
+  final PdfDate? resolvedAt;
+
+  /// The people of the file its text mentions.
+  final List<String> mentions;
+
+  const AnnotationInfo({
+    required this.handle,
+    required this.page,
+    required this.kind,
+    required this.subtype,
+    required this.rect,
+    required this.points,
+    required this.arrow,
+    this.color,
+    required this.opacity,
+    required this.stroke,
+    this.fontSize,
+    this.author,
+    this.contents,
+    this.quote,
+    required this.rich,
+    this.created,
+    this.modified,
+    this.icon,
+    this.repliesTo,
+    required this.thread,
+    this.state,
+    required this.resolved,
+    this.resolvedBy,
+    this.resolvedAt,
+    required this.mentions,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      page.hashCode ^
+      kind.hashCode ^
+      subtype.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      arrow.hashCode ^
+      color.hashCode ^
+      opacity.hashCode ^
+      stroke.hashCode ^
+      fontSize.hashCode ^
+      author.hashCode ^
+      contents.hashCode ^
+      quote.hashCode ^
+      rich.hashCode ^
+      created.hashCode ^
+      modified.hashCode ^
+      icon.hashCode ^
+      repliesTo.hashCode ^
+      thread.hashCode ^
+      state.hashCode ^
+      resolved.hashCode ^
+      resolvedBy.hashCode ^
+      resolvedAt.hashCode ^
+      mentions.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          page == other.page &&
+          kind == other.kind &&
+          subtype == other.subtype &&
+          rect == other.rect &&
+          points == other.points &&
+          arrow == other.arrow &&
+          color == other.color &&
+          opacity == other.opacity &&
+          stroke == other.stroke &&
+          fontSize == other.fontSize &&
+          author == other.author &&
+          contents == other.contents &&
+          quote == other.quote &&
+          rich == other.rich &&
+          created == other.created &&
+          modified == other.modified &&
+          icon == other.icon &&
+          repliesTo == other.repliesTo &&
+          thread == other.thread &&
+          state == other.state &&
+          resolved == other.resolved &&
+          resolvedBy == other.resolvedBy &&
+          resolvedAt == other.resolvedAt &&
+          mentions == other.mentions;
+}
+
+/// What an annotation is.
+enum AnnotationKind {
+  /// A highlight.
+  highlight,
+
+  /// An underline.
+  underline,
+
+  /// A strike-through.
+  strikeOut,
+
+  /// A squiggly underline, read and rendered, never created.
+  squiggly,
+
+  /// A note on the page, or a reply.
+  note,
+
+  /// A text box.
+  freeText,
+
+  /// A text box with a leader.
+  callout,
+
+  /// Freehand.
+  ink,
+
+  /// A rectangle.
+  square,
+
+  /// An ellipse.
+  circle,
+
+  /// A line, with or without an arrow.
+  line,
+
+  /// A polygon.
+  polygon,
+
+  /// A stamp.
+  stamp,
+
+  /// Any other type: listed, its text editable, its drawing left alone.
+  other,
+}
+
+/// A document's annotations.
+class AnnotationList {
+  /// In page order.
+  final List<AnnotationInfo> annotations;
+
+  /// The names in the file, for mentions.
+  final List<String> people;
+
+  /// Whether a limit cut the list or a text short.
+  final bool truncated;
+
+  const AnnotationList({
+    required this.annotations,
+    required this.people,
+    required this.truncated,
+  });
+
+  @override
+  int get hashCode =>
+      annotations.hashCode ^ people.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationList &&
+          runtimeType == other.runtimeType &&
+          annotations == other.annotations &&
+          people == other.people &&
+          truncated == other.truncated;
+}
+
+/// One run of an annotation's points: a quad's corners, a stroke, a line's ends, vertices or a
+/// leader. A struct because the Dco codec of FRB 2.13 cannot write a list of lists of structs.
+class AnnotationPoints {
+  /// The points.
+  final List<PagePoint> points;
+
+  const AnnotationPoints({required this.points});
+
+  @override
+  int get hashCode => points.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AnnotationPoints &&
+          runtimeType == other.runtimeType &&
+          points == other.points;
 }
 
 /// The error every fallible call returns; Dart receives it as an exception.
@@ -2122,6 +2897,434 @@ enum FailReason {
   internal,
 }
 
+/// What setting a value returns.
+class FieldCommit {
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  /// How the new value fails what the field declares.
+  final FieldProblem? problem;
+
+  /// The families it was drawn in because its font could not: say so once.
+  final List<String> fonts;
+
+  /// What its font cannot draw was left out: mark the field.
+  final bool marked;
+
+  /// `/XFA` left the form: say so.
+  final bool xfaRemoved;
+
+  /// Ask each time: its font cannot draw the value and nothing was written. Call again with a
+  /// choice.
+  final bool asksFont;
+
+  const FieldCommit({
+    required this.revision,
+    this.problem,
+    required this.fonts,
+    required this.marked,
+    required this.xfaRemoved,
+    required this.asksFont,
+  });
+
+  @override
+  int get hashCode =>
+      revision.hashCode ^
+      problem.hashCode ^
+      fonts.hashCode ^
+      marked.hashCode ^
+      xfaRemoved.hashCode ^
+      asksFont.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldCommit &&
+          runtimeType == other.runtimeType &&
+          revision == other.revision &&
+          problem == other.problem &&
+          fonts == other.fonts &&
+          marked == other.marked &&
+          xfaRemoved == other.xfaRemoved &&
+          asksFont == other.asksFont;
+}
+
+/// What a field's scripts declare (decision 17): read, never run.
+enum FieldFormatKind {
+  /// No format.
+  none,
+
+  /// A date in `date_pattern`.
+  date,
+
+  /// A number with `decimals`.
+  number,
+
+  /// A percentage with `decimals`.
+  percent,
+}
+
+/// One form field, in tab order.
+class FieldInfo {
+  /// Its identity. It stays through edits, undo and saves.
+  final BigInt handle;
+
+  /// Its full name.
+  final String name;
+
+  /// The name a reader shows.
+  final String? label;
+
+  /// What it is.
+  final FieldKind kind;
+
+  /// It cannot be changed.
+  final bool readOnly;
+
+  /// It counts in the required count.
+  final bool required_;
+
+  /// A text field of many lines.
+  final bool multiline;
+
+  /// A text field that hides what is typed.
+  final bool password;
+
+  /// A comb of `max_len` cells.
+  final bool comb;
+
+  /// A list box that takes several values.
+  final bool multiSelect;
+
+  /// A combo box that takes any text.
+  final bool editable;
+
+  /// Its value: text, export values, or the on-state of a button.
+  final List<String> values;
+
+  /// A choice's options.
+  final List<FieldOption> options;
+
+  /// `/MaxLen`.
+  final int? maxLen;
+
+  /// Its places, in tab order.
+  final List<FieldWidget> widgets;
+
+  /// The format it declares.
+  final FieldFormatKind format;
+
+  /// The date pattern it declares.
+  final String? datePattern;
+
+  /// The decimals it declares.
+  final int? decimals;
+
+  /// The least value it declares.
+  final double? min;
+
+  /// The greatest value it declares.
+  final double? max;
+
+  /// How its value fails what it declares.
+  final FieldProblem? problem;
+
+  /// A signature field holds a digital signature.
+  final bool signed;
+
+  /// The stamp of the simple signature on it.
+  final BigInt? signature;
+
+  /// It counts as filled.
+  final bool filled;
+
+  const FieldInfo({
+    required this.handle,
+    required this.name,
+    this.label,
+    required this.kind,
+    required this.readOnly,
+    required this.required_,
+    required this.multiline,
+    required this.password,
+    required this.comb,
+    required this.multiSelect,
+    required this.editable,
+    required this.values,
+    required this.options,
+    this.maxLen,
+    required this.widgets,
+    required this.format,
+    this.datePattern,
+    this.decimals,
+    this.min,
+    this.max,
+    this.problem,
+    required this.signed,
+    this.signature,
+    required this.filled,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      name.hashCode ^
+      label.hashCode ^
+      kind.hashCode ^
+      readOnly.hashCode ^
+      required_.hashCode ^
+      multiline.hashCode ^
+      password.hashCode ^
+      comb.hashCode ^
+      multiSelect.hashCode ^
+      editable.hashCode ^
+      values.hashCode ^
+      options.hashCode ^
+      maxLen.hashCode ^
+      widgets.hashCode ^
+      format.hashCode ^
+      datePattern.hashCode ^
+      decimals.hashCode ^
+      min.hashCode ^
+      max.hashCode ^
+      problem.hashCode ^
+      signed.hashCode ^
+      signature.hashCode ^
+      filled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          name == other.name &&
+          label == other.label &&
+          kind == other.kind &&
+          readOnly == other.readOnly &&
+          required_ == other.required_ &&
+          multiline == other.multiline &&
+          password == other.password &&
+          comb == other.comb &&
+          multiSelect == other.multiSelect &&
+          editable == other.editable &&
+          values == other.values &&
+          options == other.options &&
+          maxLen == other.maxLen &&
+          widgets == other.widgets &&
+          format == other.format &&
+          datePattern == other.datePattern &&
+          decimals == other.decimals &&
+          min == other.min &&
+          max == other.max &&
+          problem == other.problem &&
+          signed == other.signed &&
+          signature == other.signature &&
+          filled == other.filled;
+}
+
+/// What a form field is.
+enum FieldKind {
+  /// A text field.
+  text,
+
+  /// A check box.
+  check,
+
+  /// A radio group.
+  radio,
+
+  /// A push button: nothing to fill.
+  push,
+
+  /// A combo box.
+  combo,
+
+  /// A list box.
+  list,
+
+  /// A signature field.
+  signature,
+
+  /// An unknown type.
+  other,
+}
+
+/// One choice of a combo or list box.
+class FieldOption {
+  /// What the value holds.
+  final String export_;
+
+  /// What the field shows.
+  final String display;
+
+  const FieldOption({required this.export_, required this.display});
+
+  @override
+  int get hashCode => export_.hashCode ^ display.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldOption &&
+          runtimeType == other.runtimeType &&
+          export_ == other.export_ &&
+          display == other.display;
+}
+
+/// A value's problem with its parameters.
+class FieldProblem {
+  /// What it is.
+  final FieldProblemKind kind;
+
+  /// `/MaxLen`, for `TooLong`.
+  final int? maxLen;
+
+  /// The pattern, for `NotADate`.
+  final String? pattern;
+
+  /// The least value, for `OutOfRange`.
+  final double? min;
+
+  /// The greatest value, for `OutOfRange`.
+  final double? max;
+
+  const FieldProblem({
+    required this.kind,
+    this.maxLen,
+    this.pattern,
+    this.min,
+    this.max,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      maxLen.hashCode ^
+      pattern.hashCode ^
+      min.hashCode ^
+      max.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldProblem &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          maxLen == other.maxLen &&
+          pattern == other.pattern &&
+          min == other.min &&
+          max == other.max;
+}
+
+/// Why a value does not meet what its field declares.
+enum FieldProblemKind {
+  /// Past `max_len`.
+  tooLong,
+
+  /// Not a date in the pattern.
+  notADate,
+
+  /// Not a number.
+  notANumber,
+
+  /// Outside `min` and `max`.
+  outOfRange,
+}
+
+/// One place of a field on a page, in displayed points.
+class FieldWidget {
+  /// Its page's handle.
+  final BigInt page;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// The value that turns a check box or radio button on.
+  final String? onState;
+
+  const FieldWidget({required this.page, required this.rect, this.onState});
+
+  @override
+  int get hashCode => page.hashCode ^ rect.hashCode ^ onState.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FieldWidget &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          rect == other.rect &&
+          onState == other.onState;
+}
+
+/// One place to fill, in displayed points.
+class FillTarget {
+  /// What it is.
+  final FillTargetKind kind;
+
+  /// Its box: a line's stroke, a comb's cells together.
+  final PageRect rect;
+
+  /// A comb's cells; 1 for the others.
+  final int cells;
+
+  const FillTarget({
+    required this.kind,
+    required this.rect,
+    required this.cells,
+  });
+
+  @override
+  int get hashCode => kind.hashCode ^ rect.hashCode ^ cells.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FillTarget &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          rect == other.rect &&
+          cells == other.cells;
+}
+
+/// What a place to fill is (a5-4).
+enum FillTargetKind {
+  /// A line: text goes on its baseline.
+  line,
+
+  /// A box to write in.
+  box,
+
+  /// A small square: a click checks it.
+  check,
+
+  /// A row of equal cells, one character each.
+  comb,
+}
+
+/// The places to fill on a page.
+class FillTargets {
+  /// From the top down, then left to right.
+  final List<FillTarget> targets;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const FillTargets({required this.targets, required this.truncated});
+
+  @override
+  int get hashCode => targets.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FillTargets &&
+          runtimeType == other.runtimeType &&
+          targets == other.targets &&
+          truncated == other.truncated;
+}
+
 /// A font step 3 offers (a3-3b).
 class FontCandidate {
   /// Its group.
@@ -2412,6 +3615,79 @@ enum FontType {
 
   /// Anything else.
   other,
+}
+
+/// A document's form.
+class FormInfo {
+  /// In tab order.
+  final List<FieldInfo> fields;
+
+  /// Required fields.
+  final int required_;
+
+  /// Required fields not yet filled.
+  final int requiredLeft;
+
+  /// Fields whose value fails what they declare.
+  final int problems;
+
+  /// `/XFA` is there, and the first change removes it with a notice.
+  final bool hasXfa;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const FormInfo({
+    required this.fields,
+    required this.required_,
+    required this.requiredLeft,
+    required this.problems,
+    required this.hasXfa,
+    required this.truncated,
+  });
+
+  @override
+  int get hashCode =>
+      fields.hashCode ^
+      required_.hashCode ^
+      requiredLeft.hashCode ^
+      problems.hashCode ^
+      hasXfa.hashCode ^
+      truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FormInfo &&
+          runtimeType == other.runtimeType &&
+          fields == other.fields &&
+          required_ == other.required_ &&
+          requiredLeft == other.requiredLeft &&
+          problems == other.problems &&
+          hasXfa == other.hasXfa &&
+          truncated == other.truncated;
+}
+
+/// A typed-signature style and whether it can write a name.
+class HandwritingStyle {
+  /// Its family: Caveat, Dancing Script or Homemade Apple.
+  final String family;
+
+  /// It has every letter of the name; one that has not is not offered (decision 23).
+  final bool covered;
+
+  const HandwritingStyle({required this.family, required this.covered});
+
+  @override
+  int get hashCode => family.hashCode ^ covered.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HandwritingStyle &&
+          runtimeType == other.runtimeType &&
+          family == other.family &&
+          covered == other.covered;
 }
 
 /// A document's history (a3-10).
@@ -2770,6 +4046,206 @@ class LineInfo {
           baselineEnd == other.baselineEnd;
 }
 
+/// What a link change sets; `None` leaves it.
+class LinkChange {
+  /// A new box.
+  final PageRect? rect;
+
+  /// A new target, which replaces what the link did.
+  final LinkDestination? destination;
+
+  /// A new border.
+  final LinkLook? look;
+
+  /// `/C`.
+  final AnnotationColor? color;
+
+  const LinkChange({this.rect, this.destination, this.look, this.color});
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^ destination.hashCode ^ look.hashCode ^ color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkChange &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          destination == other.destination &&
+          look == other.look &&
+          color == other.color;
+}
+
+/// Where a new link goes: `page`'s handle when it has one, else `address`, web or mail by `mail`.
+class LinkDestination {
+  /// An `http` or `https` address, or an e-mail address.
+  final String address;
+
+  /// Whether `address` is an e-mail address.
+  final bool mail;
+
+  /// A page by its handle.
+  final BigInt? page;
+
+  const LinkDestination({required this.address, required this.mail, this.page});
+
+  @override
+  int get hashCode => address.hashCode ^ mail.hashCode ^ page.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkDestination &&
+          runtimeType == other.runtimeType &&
+          address == other.address &&
+          mail == other.mail &&
+          page == other.page;
+}
+
+/// One link, in displayed points.
+class LinkInfo {
+  /// Its identity for the other calls.
+  final BigInt handle;
+
+  /// Its page's handle.
+  final BigInt page;
+
+  /// Its box.
+  final PageRect rect;
+
+  /// Its text's lines, four corners each.
+  final List<AnnotationPoints> quads;
+
+  /// Where it goes.
+  final LinkKind kind;
+
+  /// The address, or what a refused link names: to show, and to open only for `Web` and `Mail`.
+  final String target;
+
+  /// The handle of the page, for `Page`.
+  final BigInt? targetPage;
+
+  /// The page a `Broken` link names, from 1, when it says.
+  final BigInt? wantedPage;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// `/C`.
+  final AnnotationColor? color;
+
+  const LinkInfo({
+    required this.handle,
+    required this.page,
+    required this.rect,
+    required this.quads,
+    required this.kind,
+    required this.target,
+    this.targetPage,
+    this.wantedPage,
+    required this.look,
+    this.color,
+  });
+
+  @override
+  int get hashCode =>
+      handle.hashCode ^
+      page.hashCode ^
+      rect.hashCode ^
+      quads.hashCode ^
+      kind.hashCode ^
+      target.hashCode ^
+      targetPage.hashCode ^
+      wantedPage.hashCode ^
+      look.hashCode ^
+      color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkInfo &&
+          runtimeType == other.runtimeType &&
+          handle == other.handle &&
+          page == other.page &&
+          rect == other.rect &&
+          quads == other.quads &&
+          kind == other.kind &&
+          target == other.target &&
+          targetPage == other.targetPage &&
+          wantedPage == other.wantedPage &&
+          look == other.look &&
+          color == other.color;
+}
+
+/// Where a link goes, and whether it may be offered. Only `Web` and `Mail` can be opened, after the
+/// app's prompt with the full target showing; `Page` just goes; the others open nothing.
+enum LinkKind {
+  /// An `http` or `https` address.
+  web,
+
+  /// A `mailto:` address.
+  mail,
+
+  /// A page of this document.
+  page,
+
+  /// A destination that leads nowhere.
+  broken,
+
+  /// Refused: `/JavaScript` or a `javascript:` address.
+  script,
+
+  /// Refused: `/Launch`.
+  launch,
+
+  /// Refused: another file, `/GoToR`, `/GoToE` or a `file:` address.
+  file,
+
+  /// Refused: an address of another scheme, or one that does not read cleanly.
+  address,
+
+  /// Refused: an action Ferman does not know, kept in the file as it came.
+  action,
+
+  /// It does nothing.
+  nothing,
+}
+
+/// A document's links.
+class LinkList {
+  /// In page order.
+  final List<LinkInfo> links;
+
+  /// Whether a limit cut the list short.
+  final bool truncated;
+
+  const LinkList({required this.links, required this.truncated});
+
+  @override
+  int get hashCode => links.hashCode ^ truncated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LinkList &&
+          runtimeType == other.runtimeType &&
+          links == other.links &&
+          truncated == other.truncated;
+}
+
+/// A link's border.
+enum LinkLook {
+  /// No line.
+  invisible,
+
+  /// A line under it.
+  underline,
+
+  /// A thin box.
+  box,
+}
+
 /// A character of the new text that missing-glyph step 3 draws.
 class MissingChar {
   /// The character.
@@ -2790,6 +4266,18 @@ class MissingChar {
           runtimeType == other.runtimeType &&
           text == other.text &&
           at == other.at;
+}
+
+/// What to do when a value has characters its field's font cannot draw.
+enum MissingFont {
+  /// Bundled Plex, said once.
+  bundled,
+
+  /// Ask first, writing nothing.
+  ask,
+
+  /// Keep the field's font and mark the field.
+  keep,
 }
 
 /// Missing-glyph step 3's characters and candidates.
@@ -2871,6 +4359,214 @@ enum MissingReasonKind {
 
   /// The document's own font allows at most preview and print, so its glyphs are not reused.
   restricted,
+}
+
+/// A new annotation, in displayed points.
+class NewAnnotation {
+  /// What it is; never `Squiggly` or `Other`.
+  final AnnotationKind kind;
+
+  /// A note's, text box's, shape's or stamp's box; a callout's text box.
+  final PageRect rect;
+
+  /// Text markup: each quad's corners, top left, top right, bottom left, bottom right. Ink: each
+  /// stroke. Line: its two ends. Polygon: its vertices. Callout: its leader from the far end.
+  final List<AnnotationPoints> points;
+
+  /// Its colour.
+  final AnnotationColor color;
+
+  /// Its stroke, in points.
+  final double stroke;
+
+  /// Its opacity, from 0 to 1.
+  final double opacity;
+
+  /// Its text.
+  final String contents;
+
+  /// Its author.
+  final String author;
+
+  /// A text box's, callout's or stamp label's size.
+  final double fontSize;
+
+  /// A line ends in an arrow.
+  final bool arrow;
+
+  /// A stamp's label, already cased for its language.
+  final String label;
+
+  /// The line under a stamp's label.
+  final String? meta;
+
+  /// A stamp's turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// A note's icon or a stamp's name.
+  final String? icon;
+
+  /// A text box on a comb of this many cells, one character each (Fill anything).
+  final int? comb;
+
+  const NewAnnotation({
+    required this.kind,
+    required this.rect,
+    required this.points,
+    required this.color,
+    required this.stroke,
+    required this.opacity,
+    required this.contents,
+    required this.author,
+    required this.fontSize,
+    required this.arrow,
+    required this.label,
+    this.meta,
+    required this.tilt,
+    this.icon,
+    this.comb,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      rect.hashCode ^
+      points.hashCode ^
+      color.hashCode ^
+      stroke.hashCode ^
+      opacity.hashCode ^
+      contents.hashCode ^
+      author.hashCode ^
+      fontSize.hashCode ^
+      arrow.hashCode ^
+      label.hashCode ^
+      meta.hashCode ^
+      tilt.hashCode ^
+      icon.hashCode ^
+      comb.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewAnnotation &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          rect == other.rect &&
+          points == other.points &&
+          color == other.color &&
+          stroke == other.stroke &&
+          opacity == other.opacity &&
+          contents == other.contents &&
+          author == other.author &&
+          fontSize == other.fontSize &&
+          arrow == other.arrow &&
+          label == other.label &&
+          meta == other.meta &&
+          tilt == other.tilt &&
+          icon == other.icon &&
+          comb == other.comb;
+}
+
+/// A new link, in displayed points.
+class NewLink {
+  /// Its box.
+  final PageRect rect;
+
+  /// Its text's lines: top left, top right, bottom left and bottom right as the reader sees them.
+  final List<AnnotationPoints> quads;
+
+  /// Where it goes.
+  final LinkDestination destination;
+
+  /// Its border.
+  final LinkLook look;
+
+  /// `/C`.
+  final AnnotationColor color;
+
+  const NewLink({
+    required this.rect,
+    required this.quads,
+    required this.destination,
+    required this.look,
+    required this.color,
+  });
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^
+      quads.hashCode ^
+      destination.hashCode ^
+      look.hashCode ^
+      color.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewLink &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          quads == other.quads &&
+          destination == other.destination &&
+          look == other.look &&
+          color == other.color;
+}
+
+/// A signature to place, in displayed points.
+class NewSignature {
+  /// Its box before its tilt; the ink is fitted into it.
+  final PageRect rect;
+
+  /// What it is drawn from.
+  final SignatureInk ink;
+
+  /// A typed or drawn signature's colour.
+  final AnnotationColor color;
+
+  /// Its turn in degrees; negative turns anticlockwise.
+  final double tilt;
+
+  /// Initials rather than a signature.
+  final bool initials;
+
+  /// The full name of the signature field it signs.
+  final String? field;
+
+  /// Its author.
+  final String author;
+
+  const NewSignature({
+    required this.rect,
+    required this.ink,
+    required this.color,
+    required this.tilt,
+    required this.initials,
+    this.field,
+    required this.author,
+  });
+
+  @override
+  int get hashCode =>
+      rect.hashCode ^
+      ink.hashCode ^
+      color.hashCode ^
+      tilt.hashCode ^
+      initials.hashCode ^
+      field.hashCode ^
+      author.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewSignature &&
+          runtimeType == other.runtimeType &&
+          rect == other.rect &&
+          ink == other.ink &&
+          color == other.color &&
+          tilt == other.tilt &&
+          initials == other.initials &&
+          field == other.field &&
+          author == other.author;
 }
 
 /// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
@@ -3398,12 +5094,20 @@ class PdfDate {
   /// The minute, 0 to 59.
   final int minute;
 
+  /// The second, 0 to 59.
+  final int second;
+
+  /// The offset from UTC in minutes, when the string gives one.
+  final int? offsetMinutes;
+
   const PdfDate({
     required this.year,
     required this.month,
     required this.day,
     required this.hour,
     required this.minute,
+    required this.second,
+    this.offsetMinutes,
   });
 
   @override
@@ -3412,7 +5116,9 @@ class PdfDate {
       month.hashCode ^
       day.hashCode ^
       hour.hashCode ^
-      minute.hashCode;
+      minute.hashCode ^
+      second.hashCode ^
+      offsetMinutes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3423,7 +5129,9 @@ class PdfDate {
           month == other.month &&
           day == other.day &&
           hour == other.hour &&
-          minute == other.minute;
+          minute == other.minute &&
+          second == other.second &&
+          offsetMinutes == other.offsetMinutes;
 }
 
 /// Whether PDFium is loaded: the state of a [`PdfiumStatus`].
@@ -3703,6 +5411,28 @@ class RevisionInfo {
           structure == other.structure;
 }
 
+/// A saved signature file: the app owns its format.
+class SavedSignature {
+  /// Its file name.
+  final String name;
+
+  /// What the app wrote.
+  final Uint8List bytes;
+
+  const SavedSignature({required this.name, required this.bytes});
+
+  @override
+  int get hashCode => name.hashCode ^ bytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SavedSignature &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          bytes == other.bytes;
+}
+
 /// An event of a search's stream.
 class SearchEvent {
   /// What happened.
@@ -3795,6 +5525,12 @@ class SearchMatch {
   /// Whether it is in a bookmark's title (the snippet), with no rectangles.
   final bool bookmark;
 
+  /// The annotation whose text it is in (the snippet), with its box as the rectangle.
+  final BigInt? comment;
+
+  /// The form field whose value it is in (the snippet), with its first widget as the rectangle.
+  final BigInt? field;
+
   const SearchMatch({
     required this.page,
     required this.rects,
@@ -3802,6 +5538,8 @@ class SearchMatch {
     required this.snippetStart,
     required this.snippetEnd,
     required this.bookmark,
+    this.comment,
+    this.field,
   });
 
   @override
@@ -3811,7 +5549,9 @@ class SearchMatch {
       snippet.hashCode ^
       snippetStart.hashCode ^
       snippetEnd.hashCode ^
-      bookmark.hashCode;
+      bookmark.hashCode ^
+      comment.hashCode ^
+      field.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3823,7 +5563,9 @@ class SearchMatch {
           snippet == other.snippet &&
           snippetStart == other.snippetStart &&
           snippetEnd == other.snippetEnd &&
-          bookmark == other.bookmark;
+          bookmark == other.bookmark &&
+          comment == other.comment &&
+          field == other.field;
 }
 
 /// How a search matches (a2-4a).
@@ -3840,11 +5582,19 @@ class SearchOptions {
   /// Search the bookmarks' titles too (Look in › Bookmarks).
   final bool bookmarks;
 
+  /// Search the annotations' text too (Look in › Comments).
+  final bool comments;
+
+  /// Search the form fields' values too (Look in › Form fields).
+  final bool fields;
+
   const SearchOptions({
     required this.matchCase,
     required this.wholeWords,
     required this.ignoreAccents,
     required this.bookmarks,
+    required this.comments,
+    required this.fields,
   });
 
   @override
@@ -3852,7 +5602,9 @@ class SearchOptions {
       matchCase.hashCode ^
       wholeWords.hashCode ^
       ignoreAccents.hashCode ^
-      bookmarks.hashCode;
+      bookmarks.hashCode ^
+      comments.hashCode ^
+      fields.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3862,7 +5614,9 @@ class SearchOptions {
           matchCase == other.matchCase &&
           wholeWords == other.wholeWords &&
           ignoreAccents == other.ignoreAccents &&
-          bookmarks == other.bookmarks;
+          bookmarks == other.bookmarks &&
+          comments == other.comments &&
+          fields == other.fields;
 }
 
 /// An encrypted document's security (a2-10a, a2-10b).
@@ -3981,6 +5735,69 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// A signature's ink: the fields of its kind are read, the others ignored.
+class SignatureInk {
+  /// What it is drawn from.
+  final SignatureInkKind kind;
+
+  /// Typed: the name.
+  final String text;
+
+  /// Typed: the style's family.
+  final String family;
+
+  /// Drawn: each stroke, in the pad's units with y down.
+  final List<AnnotationPoints> strokes;
+
+  /// Drawn: the pen's width, in the pad's units.
+  final double width;
+
+  /// Image: the file's bytes.
+  final Uint8List image;
+
+  const SignatureInk({
+    required this.kind,
+    required this.text,
+    required this.family,
+    required this.strokes,
+    required this.width,
+    required this.image,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      text.hashCode ^
+      family.hashCode ^
+      strokes.hashCode ^
+      width.hashCode ^
+      image.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SignatureInk &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          text == other.text &&
+          family == other.family &&
+          strokes == other.strokes &&
+          width == other.width &&
+          image == other.image;
+}
+
+/// What a signature is drawn from.
+enum SignatureInkKind {
+  /// A typed name in a handwriting style.
+  typed,
+
+  /// Strokes from the pad.
+  drawn,
+
+  /// A photo or scan.
+  image,
 }
 
 /// One file of a split's plan.
@@ -4128,6 +5945,154 @@ enum SubstitutionKind {
 
   /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
   marked,
+}
+
+/// What a comment summary is written as.
+enum SummaryFormat {
+  /// CSV, one comment per row.
+  csv,
+
+  /// A PDF: numbered markers on each page, with its comments beside it.
+  pageAndComments,
+
+  /// A PDF: a list, grouped by page.
+  commentsOnly,
+
+  /// A PDF: the full page followed by its comments.
+  pageThenList,
+}
+
+/// A kind's name in the app's language.
+class SummaryKindName {
+  /// The kind.
+  final AnnotationKind kind;
+
+  /// Its name.
+  final String name;
+
+  const SummaryKindName({required this.kind, required this.name});
+
+  @override
+  int get hashCode => kind.hashCode ^ name.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SummaryKindName &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          name == other.name;
+}
+
+/// What a comment summary holds, and its words in the app's language.
+class SummaryOptions {
+  /// Open comments.
+  final bool open;
+
+  /// Resolved comments.
+  final bool resolved;
+
+  /// Replies under each.
+  final bool replies;
+
+  /// Pages without comments.
+  final bool emptyPages;
+
+  /// The order.
+  final SummarySort sort;
+
+  /// A page's heading, with `{n}` for its number.
+  final String pageLabel;
+
+  /// The CSV's header row: page, type, author, date, text, replies, status.
+  final List<String> columns;
+
+  /// Each kind's name.
+  final List<SummaryKindName> kinds;
+
+  /// The status of an open comment.
+  final String openLabel;
+
+  /// The status of a resolved one.
+  final String resolvedLabel;
+
+  /// What a page, or a summary, with no comment says.
+  final String noComments;
+
+  /// Dates by the region: `yyyy`, `MM`, `dd`, `HH` and `mm` are replaced.
+  final String datePattern;
+
+  /// A PDF's paper width, in points.
+  final double paperWidth;
+
+  /// A PDF's paper height, in points.
+  final double paperHeight;
+
+  const SummaryOptions({
+    required this.open,
+    required this.resolved,
+    required this.replies,
+    required this.emptyPages,
+    required this.sort,
+    required this.pageLabel,
+    required this.columns,
+    required this.kinds,
+    required this.openLabel,
+    required this.resolvedLabel,
+    required this.noComments,
+    required this.datePattern,
+    required this.paperWidth,
+    required this.paperHeight,
+  });
+
+  @override
+  int get hashCode =>
+      open.hashCode ^
+      resolved.hashCode ^
+      replies.hashCode ^
+      emptyPages.hashCode ^
+      sort.hashCode ^
+      pageLabel.hashCode ^
+      columns.hashCode ^
+      kinds.hashCode ^
+      openLabel.hashCode ^
+      resolvedLabel.hashCode ^
+      noComments.hashCode ^
+      datePattern.hashCode ^
+      paperWidth.hashCode ^
+      paperHeight.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SummaryOptions &&
+          runtimeType == other.runtimeType &&
+          open == other.open &&
+          resolved == other.resolved &&
+          replies == other.replies &&
+          emptyPages == other.emptyPages &&
+          sort == other.sort &&
+          pageLabel == other.pageLabel &&
+          columns == other.columns &&
+          kinds == other.kinds &&
+          openLabel == other.openLabel &&
+          resolvedLabel == other.resolvedLabel &&
+          noComments == other.noComments &&
+          datePattern == other.datePattern &&
+          paperWidth == other.paperWidth &&
+          paperHeight == other.paperHeight;
+}
+
+/// The order of a summary's comments.
+enum SummarySort {
+  /// Page order.
+  page,
+
+  /// Oldest first.
+  date,
+
+  /// By author, then page order.
+  author,
 }
 
 /// The direction a block's text runs in.

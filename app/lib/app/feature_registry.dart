@@ -125,8 +125,8 @@ enum Feature {
   /// Adding images (Edit › Add image).
   addingImages('B043'),
 
-  /// Links (Edit › Link).
-  links('B044'),
+  /// A link to a file: a3-6's File type.
+  linksToFiles('B200'),
 
   /// Find and replace (Edit › Find & replace).
   findAndReplace('B045'),
@@ -134,9 +134,9 @@ enum Feature {
   /// Regular expressions in search: the find bar's toggle and option.
   searchRegex('B113'),
 
-  /// Searching comments and form fields: the find bar's Look in options
-  /// Comments and Form fields, and a2-4d's action.
-  searchScopes('B128'),
+  /// Searching without the page text: the find bar's Look in › Page text,
+  /// always on.
+  searchWithoutPageText('B205'),
 
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
@@ -148,20 +148,20 @@ enum Feature {
 
   // Comments, forms and signatures.
 
-  /// Comments and annotations: the Comment row's tools but Measure, its
-  /// colours and Show comments.
-  comments('B050'),
-
   /// Measure and calibrate: Comment › Measure and Tools › Measure.
   measure('B051'),
 
-  /// Form filling: Fill & Sign › Fill fields, Add text, Checkmark and Date,
-  /// and the first-run tile "Fill and sign forms".
-  formFilling('B052'),
+  /// The form panel's More › Export data… (and resetting to the form's
+  /// defaults, which has no entry yet).
+  formDataExport('B207'),
 
-  /// Simple signatures: Start › Sign, Fill & Sign › Sign and Initials, and
-  /// Settings › Signatures and certificates.
-  simpleSignatures('B024'),
+  /// Managing saved signatures: Settings › Signatures and certificates, and
+  /// the Sign menu's Manage saved signatures….
+  settingsSignatures('B208'),
+
+  /// Signing on the phone, which has no shell yet: the phone home's quick
+  /// tool Sign.
+  phoneSign('B209'),
 
   /// Certificate signatures: Fill & Sign › Digital signature, Settings ›
   /// Privacy › Timestamps and the first-run tile "e-imza and digital

@@ -12,14 +12,35 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// a2-4d's sentences when [find] found nothing: what was searched and what was
+/// not, as the options say.
+String findNoneText(
+  AppLocalizations l10n,
+  FindState find,
+  RegionFormat format,
+) {
+  final pages = find.options.ignoreAccents
+      ? l10n.findNoneBody
+      : l10n.findNoneBodyExact;
+  final left = switch ((find.options.comments, find.options.fields)) {
+    (true, true) => null,
+    (true, false) => l10n.findNotSearchedFields,
+    (false, true) => l10n.findNotSearchedComments,
+    (false, false) => l10n.findNotSearchedBoth,
+  };
+  final body = pages(find.pages, format.integer(find.pages));
+  return left == null ? body : '$body $left';
+}
+
 /// The find bar over the canvas (a2-4a to a2-4d): the `SearchReplaceBar`,
 /// and under it the search options, a long search's progress (a2-4c) or
 /// what a search that found nothing searched (a2-4d), in that place.
 ///
 /// The options group is drawn open with no opener, so it shows while the
-/// bar is open and no other panel takes its place (G115). Only the page
-/// text is searched in M2: regular expressions and the other places to look
-/// are disabled for a future version (B113, B114).
+/// bar is open and no other panel takes its place (G115). The page text is
+/// always searched; comments, form fields and bookmarks as Look in says.
+/// Regular expressions and leaving the page text out are disabled for a
+/// future version (B113, B205).
 class FindBar extends ConsumerWidget {
   /// The bar of `findProvider`.
   const new({super.key});
@@ -135,11 +156,15 @@ SearchOptions _with(
   bool? wholeWords,
   bool? ignoreAccents,
   bool? bookmarks,
+  bool? comments,
+  bool? fields,
 }) => SearchOptions(
   matchCase: matchCase ?? options.matchCase,
   wholeWords: wholeWords ?? options.wholeWords,
   ignoreAccents: ignoreAccents ?? options.ignoreAccents,
   bookmarks: bookmarks ?? options.bookmarks,
+  comments: comments ?? options.comments,
+  fields: fields ?? options.fields,
 );
 
 /// The raised box the panels under the bar share.
@@ -206,7 +231,6 @@ class _Options extends ConsumerWidget {
         ),
       ),
     );
-    final later = Feature.searchScopes.disabledReason(context);
     Widget check(
       String label, {
       required String reason,
@@ -276,11 +300,24 @@ class _Options extends ConsumerWidget {
           spacing: FindBar.lookInGap,
           runSpacing: theme.space.space2,
           children: [
-            // The page text is always searched; comments and form fields
-            // wait for their models (B114).
-            check(l10n.findPageText, checked: true, reason: later),
-            check(l10n.findComments, reason: later),
-            check(l10n.findFormFields, reason: later),
+            // The page text is always searched (B205).
+            check(
+              l10n.findPageText,
+              checked: true,
+              reason: Feature.searchWithoutPageText.disabledReason(context),
+            ),
+            Checkbox(
+              checked: options.comments,
+              label: l10n.findComments,
+              onChanged: (value) =>
+                  notifier.setOptions(_with(options, comments: value)),
+            ),
+            Checkbox(
+              checked: options.fields,
+              label: l10n.findFormFields,
+              onChanged: (value) =>
+                  notifier.setOptions(_with(options, fields: value)),
+            ),
             Checkbox(
               checked: options.bookmarks,
               label: l10n.findBookmarks,
@@ -374,23 +411,26 @@ class _NoResults extends ConsumerWidget {
           style: theme.typography.bodyStrong,
         ),
         Text(
-          (find.options.ignoreAccents
-              ? l10n.findNoneBody
-              : l10n.findNoneBodyExact)(find.pages, format.integer(find.pages)),
+          findNoneText(l10n, find, format),
           style: theme.typography.caption.copyWith(
             color: theme.colors.textSecondary,
           ),
         ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Button(
-            size: ButtonSize.sm,
-            icon: IconName.search,
-            disabled: true,
-            disabledReason: Feature.searchScopes.disabledReason(context),
-            child: Text(l10n.findNoneAction),
+        // Widens the search to what Look in left out.
+        if (!find.options.comments || !find.options.fields)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Button(
+              size: ButtonSize.sm,
+              icon: IconName.search,
+              onPressed: () => ref
+                  .read(findProvider.notifier)
+                  .setOptions(
+                    _with(find.options, comments: true, fields: true),
+                  ),
+              child: Text(l10n.findNoneAction),
+            ),
           ),
-        ),
       ],
     );
   }
