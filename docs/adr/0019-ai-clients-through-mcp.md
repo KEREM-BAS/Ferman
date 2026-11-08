@@ -117,6 +117,17 @@ goes back to the owner:
 - **What the user sees.** A notice in the window while a client is connected, the client's name on
   each of its edits in the review list, and a way to stop it from the window as well as from
   Settings.
+  **Built in W7 ([G94](../DESIGN_GAPS.md#g94)):** Settings › AI clients ("Let AI clients connect",
+  off by default and stored; an imported settings file never turns it on) starts and stops the
+  host; each connected client is listed read only until "Can change documents" is turned on for
+  that connection; Claude Desktop is set up in one click outside the macOS sandbox and on Windows,
+  otherwise the configuration is copied. Settings › Privacy has the row "AI clients on this
+  computer" with the same switch. The window notice names the connected clients with Stop. The app
+  reads `mcp_clients` every 2 s while the host runs (the engine sends no connect or disconnect
+  event, [B230](../BACKLOG.md#open)), routes `client_changes` through
+  `DocumentEditor.clientChanged` so a client's step reaches the pages, the tab, the history and the
+  review list and undoes as the person's own, and answers a client's Save or RestoreVersion request
+  only after its own save or restore flow has finished.
 
 ## Consequences
 
@@ -156,7 +167,8 @@ goes back to the owner:
     updates), a certification signature's allowed changes (DocMDP `/P`) and field locks (`/Lock`,
     FieldMDP), and the same warning before editing a signed document as the UI.
 - [ADR 0015](0015-privacy-and-network.md) and Settings → Privacy: list connected AI clients with the
-  other network uses.
+  other network uses. Done in W7 (the Privacy row); the network activity log lists the server's
+  local connections when it ships ([B084](../BACKLOG.md#open), M5).
 
 ## Alternatives considered
 

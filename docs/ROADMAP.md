@@ -2115,7 +2115,9 @@ rows say "keys only".
   stops, which the golden helper refuses.
 - [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
   Strace was closed by question 9 of the M4 plan: M4's automated run through every screen, in a Linux
-  network namespace, is this check, and this box closes with it (M4 W8).
+  network namespace, is this check, and this box closes with it (M4 W8): built as
+  `tools/no-network/run.sh` and CI's `no-network` job; the box is ticked when that job has passed,
+  citing the run.
 - [ ] Standard gates S1 to S9.
 
 ### Design gaps to settle in M2
@@ -2519,6 +2521,8 @@ Ticked on tests that ran on the owner's Mac; CI's results on this branch were no
 - The bundled similar fonts: Cormorant Garamond and Crimson Pro never reached `app/assets/fonts`,
   `pubspec.yaml` or the registry, though M3's documents said they had (found while planning M4). They
   come with M4 W0.
+- Editing in the block's own font, with a3-1b's font label and two clicks: B041 (Editing text) went
+  to Done in M4 W8, and this remainder is [B225](BACKLOG.md#open) ([G126](DESIGN_GAPS.md#g126)).
 
 ### Design gaps to settle in M3
 
@@ -2634,7 +2638,7 @@ privacy rows for features that do not exist yet in `a11-1h`.
 | Fonts | handwriting fonts for typed signatures, approved in Q08 group 3 (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
 | Fonts | similar fonts M3 left out (Cormorant Garamond, Crimson Pro) | OFL-1.1 | unmodified upstream files, in W0 |
 | Rust | `rmcp` and tokio with `net`, behind `facade::mcp`'s feature | Apache-2.0, MIT | chosen in the M4 plan and checked by `cargo deny` when W7 starts, with a small JSON-RPC layer as the fallback ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
-| CI | tcpdump | BSD-3-Clause (Homebrew's formula metadata, 2026-11-06; checked again against the package when W8 adds it) | the no-network run, CI only, never shipped |
+| CI | tcpdump | BSD-3-Clause, with libpcap (BSD-3-Clause); checked on 2026-11-08 against Ubuntu's packages when W8 added it, with the details in [DEPENDENCIES.md](DEPENDENCIES.md) | the no-network run, CI only, never shipped |
 
 Printing adds no package: a platform channel, because `printing` downloads a second PDFium at build time and declares `http` (M4 plan, decision 29).
 
@@ -2712,7 +2716,9 @@ The [M4 plan](PROGRESS.md#m4-plan)'s waves follow these steps with one change: t
   added for local-network discovery ([G52](DESIGN_GAPS.md#g52), [G56](DESIGN_GAPS.md#g56)).
 - [ ] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
   through every screen, in a Linux network namespace with a dummy default route, logged with tcpdump;
-  the MCP loopback is checked apart).
+  the MCP loopback is checked apart). Built in W8 (`tools/no-network`, CI's `no-network` job); the
+  MCP host takes a Unix socket or named pipe and `crates/ferman-api/tests/mcp.rs` checks that nothing
+  listens on TCP. Ticked when the job has passed in CI, citing the run.
 - [ ] The licences screen lists every Rust crate (from cargo-about), every Dart package, the PDFium
   `licenses/` folder and the packager's MIT notice, every font and the icon notices; a test checks
   the count against `cargo metadata` and `pubspec.lock`.
@@ -2743,7 +2749,8 @@ E1 to E8, plus:
 
 - [ ] The version-history location ADR is decided.
 - [ ] A code-signing dry run with a test certificate has passed on macOS and Windows, so M5 starts
-  with a working signing path.
+  with a working signing path. Built in W8 (`tools/signing`, run by CI's Flutter job on the release
+  builds); ticked when both steps have passed in CI.
 - [ ] Phase 1 feature review: every entry point drawn on an M1 to M4 board either works or is
   disabled with a BACKLOG entry naming its phase.
 
