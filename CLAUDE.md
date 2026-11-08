@@ -98,7 +98,7 @@ pwsh tools/signing/dry-run-windows.ps1 <Release folder> # CI only: the Windows c
 tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage (offline; CI runs both)
 tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     # pinned PDFium → build/pdfium/<id>/
 (cd tools/design-refs && npm ci && npm test)
-node tools/design-refs [--only @m1,@m2,@m3,@phone] [--twice]  # every board → build/design-refs/<id>.png (and <id>.<tr|ar>.png variants), offline
+node tools/design-refs [--only @m1,@m2,@m3,@m4,@phone] [--twice]  # every board → build/design-refs/<id>.png (and <id>.<tr|ar>.png variants), offline
 node tools/design-refs compare                 # goldens vs references → build/design-compare/report.md (informative)
 bash tools/licenses/generate.sh [--check]       # the Rust crates' notices for Settings › Licences → app/assets/licenses/rust/crates.json (cargo-about 0.9.2: cargo install cargo-about --version 0.9.2 --locked --features cli)
 node tools/app-icons [--check]                 # app icons for macOS, Windows, Linux and the web from design/assets/logo (a headless Chrome renders; --check needs none)

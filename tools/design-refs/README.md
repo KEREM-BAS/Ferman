@@ -165,7 +165,7 @@ Each pair:
 
 Every run checks the map (unknown keys, unknown boards and variants, golden names and languages,
 rectangle sizes, masks inside the frame) and stops with exit code 66 on a problem. The tests check
-that it names every board of the `@m1` set, and only boards of `@m1`, `@m2` and `@m3`, which CI renders, and that
+that it names every board of the `@m1` set, and only boards of `@m1`, `@m2`, `@m3`, `@m4` and `@phone`, which CI renders, and that
 each M1 build board is compared in English, Turkish and Arabic.
 
 | Pair | Golden | Crop and masks | Why |
@@ -262,7 +262,7 @@ npm ci
 npx playwright-core install-deps chromium-headless-shell   # system libraries and fonts (apt)
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-node index.mjs --only @m1,@m2,@m3,@phone --twice               # pull requests; a manual run renders every board twice
+node index.mjs --only @m1,@m2,@m3,@m4,@phone --twice               # pull requests; a manual run renders every board twice
 node index.mjs compare                              # then the report, appended to the step summary
 ```
 

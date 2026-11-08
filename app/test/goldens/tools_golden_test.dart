@@ -105,8 +105,6 @@ Future<void> main() async {
           engine: _engine(),
           // The print dialog is modal.
           muteTickers: screen != 'tools_print',
-          // Its copies tooltip opens with the dialog's first focus.
-          layoutPortals: screen == 'tools_print' ? 1 : 0,
           open: (tester) async {
             final container = ProviderScope.containerOf(
               tester.element(find.byType(FermanApp)),
