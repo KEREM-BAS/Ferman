@@ -273,7 +273,7 @@ fn inspect(file: &CombineSource, keep_forms: bool) -> CombineFileInfo {
 }
 
 /// Runs `work` on a thread of its own, so that a large file never holds an async worker.
-async fn off_the_worker<T: Send + 'static>(
+pub(super) async fn off_the_worker<T: Send + 'static>(
     work: impl FnOnce() -> Result<T, ApiError> + Send + 'static,
 ) -> Result<T, ApiError> {
     let (reply, receiver) = futures_channel::oneshot::channel();
@@ -292,7 +292,7 @@ async fn off_the_worker<T: Send + 'static>(
 
 /// Refuses a new file's place that is taken, so a job never replaces a file; one that appears
 /// later fails the job ([`JobRun::output_pdf`]).
-fn free_output(output: &Path) -> Result<(), ApiError> {
+pub(super) fn free_output(output: &Path) -> Result<(), ApiError> {
     if output.try_exists().unwrap_or(true) {
         return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
             .with_details("the output file exists"));

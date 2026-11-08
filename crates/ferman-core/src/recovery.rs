@@ -999,23 +999,23 @@ fn snapshots(dir: &Path) -> Vec<PathBuf> {
 }
 
 /// A new random name for a session or a document: 32 hex digits.
-fn random_name() -> Result<String, CoreError> {
+pub(crate) fn random_name() -> Result<String, CoreError> {
     let mut bytes = [0u8; 16];
     system_random(&mut bytes)?;
     Ok(hex(&bytes))
 }
 
 /// Whether `name` is one [`random_name`] makes, so it names nothing outside the root.
-fn valid_name(name: &str) -> bool {
+pub(crate) fn valid_name(name: &str) -> bool {
     (1..=64).contains(&name.len()) && name.bytes().all(|b| b.is_ascii_hexdigit())
 }
 
-fn hex(bytes: &[u8]) -> String {
+pub(crate) fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
 /// Creates `dir` and its missing parents, owner-only on Unix.
-fn make_dir(dir: &Path) -> io::Result<()> {
+pub(crate) fn make_dir(dir: &Path) -> io::Result<()> {
     let mut builder = fs::DirBuilder::new();
     builder.recursive(true);
     #[cfg(unix)]
@@ -1024,14 +1024,14 @@ fn make_dir(dir: &Path) -> io::Result<()> {
 }
 
 /// Deletes `dir` and everything in it; one that is gone already is fine.
-fn remove_dir(dir: &Path) -> Result<(), CoreError> {
+pub(crate) fn remove_dir(dir: &Path) -> Result<(), CoreError> {
     match fs::remove_dir_all(dir) {
         Err(err) if err.kind() != ErrorKind::NotFound => Err(io(err)),
         _ => Ok(()),
     }
 }
 
-fn io(err: io::Error) -> CoreError {
+pub(crate) fn io(err: io::Error) -> CoreError {
     io_kind(err.kind())
 }
 
@@ -1040,7 +1040,7 @@ fn io_kind(kind: ErrorKind) -> CoreError {
 }
 
 /// Writes `text` as a JSON string.
-fn json_string(out: &mut String, text: &str) {
+pub(crate) fn json_string(out: &mut String, text: &str) {
     out.push('"');
     for c in text.chars() {
         match c {
@@ -1055,7 +1055,7 @@ fn json_string(out: &mut String, text: &str) {
 
 /// A value of the manifest's flat JSON object.
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum Json {
+pub(crate) enum Json {
     Text(String),
     Number(u64),
     Flag(bool),
@@ -1063,7 +1063,7 @@ enum Json {
 
 /// The fields of a flat JSON object of strings, unsigned integers and booleans; `None` for
 /// anything else.
-fn flat_json(text: &str) -> Option<BTreeMap<String, Json>> {
+pub(crate) fn flat_json(text: &str) -> Option<BTreeMap<String, Json>> {
     let mut chars = text.trim().chars().peekable();
     let mut fields = BTreeMap::new();
     let skip = |chars: &mut std::iter::Peekable<std::str::Chars<'_>>| {

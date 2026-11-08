@@ -263,8 +263,8 @@ void main() {
       expect(find.text('1 page deleted'), findsOne);
       expect(
         find.text(
-          'Page \u20683\u2069. It stays in the file until you run Optimize and '
-          'clean.',
+          'Page \u20683\u2069. It stays in the file until you save with Remove '
+          'edit history or run Optimize and clean.',
         ),
         findsOne,
       );

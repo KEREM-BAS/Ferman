@@ -6,7 +6,7 @@ import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
-/// The Privacy pane of Settings, board a11-1h: a skeleton in M1.
+/// The Privacy pane of Settings, boards a11-1h and a11-1h-m1.
 ///
 /// The no-telemetry statement, then every network use with its own switch
 /// (ADR 0015): the update check (M5), signature checks, timestamps,
@@ -16,9 +16,10 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// "Signature checks" row, which stays visible but disabled until phase 3
 /// builds revocation lookups, off until first use (G51, Q06).
 ///
-/// Nothing connects in M1, so every switch is off and disabled with
-/// "Available in a future version" (the design draws four of them on, as
-/// they will be once their features ship), and so is "Show network
+/// Nothing connects up to M4 (M4 adds no network use: links open through
+/// the operating system, decision 13), so every switch is off and disabled
+/// with "Available in a future version" (the design draws four of them on,
+/// as they will be once their features ship), and so is "Show network
 /// activity…" (M5, with the network gateway).
 class PrivacyPane extends StatelessWidget {
   /// The pane.

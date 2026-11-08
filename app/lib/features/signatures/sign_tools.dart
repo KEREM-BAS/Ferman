@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:ferman/app/feature_registry.dart';
+import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/signatures/add_signature_dialog.dart';
@@ -95,16 +96,26 @@ List<MenuItem> signMenuItems(
       id: _manageId,
       label: l10n.signMenuManage,
       icon: IconName.settings,
-      disabled: true,
-      disabledReason: Feature.settingsSignatures.disabledReason(context),
     ),
   ];
 }
+
+/// Manage saved signatures…: Settings › Signatures and certificates
+/// (a11-1e).
+void manageSignatures(WidgetRef ref) => unawaited(
+  ref
+      .read(routerProvider)
+      .push(Routes.settingsPane(SettingsPane.signatures.path)),
+);
 
 /// Does what the Sign submenu's [item] says.
 void signMenuChosen(WidgetRef ref, MenuItem item) {
   if (item.id == _addId) {
     showAddSignatureDialog(ref, yourName: yourNameOf(ref));
+    return;
+  }
+  if (item.id == _manageId) {
+    manageSignatures(ref);
     return;
   }
   final saved = ref.read(savedSignaturesProvider).value ?? [];
@@ -279,7 +290,7 @@ class _SignMenuState extends ConsumerState<SignMenu> {
       return _first;
     }
 
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final saved = ref.watch(savedSignaturesProvider).value ?? const [];
     final chosen = ref.watch(signaturePlacementProvider);
     final (signatures, initials) = _groups(saved);
@@ -385,7 +396,7 @@ class _SignMenuState extends ConsumerState<SignMenu> {
                       SignMenu.signatureHeight,
                       end: index == 0
                           ? Kbd(
-                              firstSignatureKey.caps(platform),
+                              firstSignatureKey.caps(keys.platform),
                               tone: KbdTone.plain,
                             )
                           : captionOf(signature),
@@ -434,19 +445,17 @@ class _SignMenuState extends ConsumerState<SignMenu> {
                 _Row(
                   height: SignMenu.actionHeight,
                   semanticLabel: l10n.signMenuManage,
-                  disabledReason: Feature.settingsSignatures.disabledReason(
-                    context,
-                  ),
+                  onPressed: () {
+                    widget.onClose();
+                    manageSignatures(ref);
+                  },
                   children: [
                     Icon(
                       IconName.settings,
                       size: theme.density.iconMd,
-                      color: theme.colors.iconDisabled,
+                      color: icon,
                     ),
-                    Text(
-                      l10n.signMenuManage,
-                      style: TextStyle(color: theme.colors.textDisabled),
-                    ),
+                    Text(l10n.signMenuManage),
                   ],
                 ),
               ],
@@ -459,8 +468,7 @@ class _SignMenuState extends ConsumerState<SignMenu> {
 }
 
 /// One row of the Sign menu: `padding: 0 8px`, `--radius-sm`, tinted when
-/// hovered, focused or chosen; with [disabledReason] it does nothing and says
-/// why.
+/// hovered, focused or chosen.
 class _Row extends StatelessWidget {
   const new({
     required this.height,
@@ -470,7 +478,6 @@ class _Row extends StatelessWidget {
     this.onMenu,
     this.selected = false,
     this.focusNode,
-    this.disabledReason,
   });
 
   final double height;
@@ -480,7 +487,6 @@ class _Row extends StatelessWidget {
   final ValueChanged<Offset>? onMenu;
   final bool selected;
   final FocusNode? focusNode;
-  final String? disabledReason;
 
   KeyEventResult _onKey(BuildContext context, KeyEvent event) {
     final onMenu = this.onMenu;
@@ -500,9 +506,8 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
-    final reason = disabledReason;
-    Widget row = FermanInteractive(
-      onPressed: reason == null ? onPressed : null,
+    final row = FermanInteractive(
+      onPressed: onPressed,
       focusNode: focusNode,
       selected: selected,
       semanticLabel: semanticLabel,
@@ -514,9 +519,8 @@ class _Row extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? theme.colors.surfaceSelectedStrong
-              : reason == null &&
-                    (states.contains(WidgetState.hovered) ||
-                        states.contains(WidgetState.focused))
+              : states.contains(WidgetState.hovered) ||
+                    states.contains(WidgetState.focused)
               ? theme.colors.surfaceHover
               : null,
           borderRadius: BorderRadius.circular(theme.radius.radiusSm),
@@ -528,7 +532,6 @@ class _Row extends StatelessWidget {
         child: Row(spacing: SignMenu.rowGap, children: children),
       ),
     );
-    if (reason != null) row = Tooltip(message: reason, child: row);
     return Focus(
       canRequestFocus: false,
       skipTraversal: true,
@@ -543,7 +546,6 @@ class _Row extends StatelessWidget {
     properties
       ..add(DoubleProperty('height', height))
       ..add(StringProperty('semanticLabel', semanticLabel))
-      ..add(FlagProperty('selected', value: selected, ifTrue: 'selected'))
-      ..add(StringProperty('disabledReason', disabledReason));
+      ..add(FlagProperty('selected', value: selected, ifTrue: 'selected'));
   }
 }

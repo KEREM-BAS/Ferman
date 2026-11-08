@@ -17,11 +17,16 @@ import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_saver.dart';
+import 'package:ferman/features/shell/document_parts.dart';
 import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/shell_palette.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/shell/shortcut_sheet.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/signatures/add_signature_dialog.dart';
 import 'package:ferman/features/signatures/sign_tools.dart';
+import 'package:ferman/features/tools/print_dialog.dart';
+import 'package:ferman/features/tools/tools_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -42,8 +47,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// (`viewerProvider`), zoom, the fits, page turns, Go to page, Find and the
 /// View tools; Save with unsaved changes, Save as and Save a copy
 /// (`documentSaverProvider`), and undo and redo while the history has a
-/// step for them (`documentEditorProvider`). On the start
-/// screen ([home]) only Settings, Open and Create PDF work.
+/// step for them (`documentEditorProvider`). The command palette
+/// ([ShellPalette]) and the cheat sheet ([ShortcutSheet]) work everywhere;
+/// on the start screen ([home]) only they, Settings, Open and Create PDF
+/// do. The keys come from `shortcutBindingsProvider`, the user's changes
+/// included.
 /// Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
 /// Alt+F4, Ctrl+Q) are the window frame's, on every screen
@@ -82,8 +90,14 @@ class ShellCommandScope extends ConsumerWidget {
           .read(organizeDialogProvider.notifier)
           .show(const CreatePdfDialog());
     }
+    final dialogs = ref.read(organizeDialogProvider.notifier);
+    void palette() =>
+        dialogs.show(ShellPalette(home: home, onOpenSettings: onOpenSettings));
+    void sheet() => dialogs.show(const ShortcutSheet());
     if (home) {
       return {
+        ShellCommand.commandPalette: palette,
+        ShellCommand.keyboardShortcuts: sheet,
         ShellCommand.settings: ?onOpenSettings,
         ShellCommand.open: ?onOpenFiles,
         ShellCommand.createPdf: ?createPdf,
@@ -107,6 +121,8 @@ class ShellCommandScope extends ConsumerWidget {
             toggleShellSide(ref, ShellSide.sidebar),
       if (panels.panelAvailable)
         ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
+      ShellCommand.commandPalette: palette,
+      ShellCommand.keyboardShortcuts: sheet,
       ShellCommand.settings: ?onOpenSettings,
       ShellCommand.open: ?onOpenFiles,
       ShellCommand.createPdf: ?createPdf,
@@ -123,6 +139,8 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.documentProperties: ref
             .read(documentPropertiesRequestProvider.notifier)
             .request,
+      if (active?.document != null && ref.read(printRefusalProvider) == null)
+        ShellCommand.printDocument: () => showPrintDialog(ref),
       for (var i = 0; i < documentJumps.length && i < count; i++)
         documentJumps[i]: () => documents.activate(i),
       if (ref.read(viewerProvider) != null) ...{
@@ -137,6 +155,7 @@ class ShellCommandScope extends ConsumerWidget {
             .read(pageFieldRequestProvider.notifier)
             .request,
         ShellCommand.find: ref.read(findProvider.notifier).open,
+        ShellCommand.addBookmark: () => addBookmark(ref),
         ShellCommand.editText: () => links.show(on: false),
         ShellCommand.link: links.toggle,
         ShellCommand.addLink: links.addSelection,
@@ -258,7 +277,7 @@ class ShellCommandScope extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final platform = ref.watch(shortcutPlatformProvider);
+    final bindings = ref.watch(shortcutBindingsProvider);
     final mode = ref.watch(shellModeProvider);
     // Rebuild the handlers when the documents or the panels' room change.
     if (!home) {
@@ -266,7 +285,8 @@ class ShellCommandScope extends ConsumerWidget {
         ..watch(shellDocumentsProvider)
         ..watch(shellPanelsProvider)
         ..watch(viewerProvider.select((view) => view != null))
-        ..watch(documentEditorProvider);
+        ..watch(documentEditorProvider)
+        ..watch(printRefusalProvider);
       if (mode == FermanMode.organize) {
         ref
           ..watch(selectedPagesProvider)
@@ -296,10 +316,7 @@ class ShellCommandScope extends ConsumerWidget {
           ),
         ),
       },
-      child: Shortcuts(
-        shortcuts: ShellCommand.shortcutsFor(platform, mode),
-        child: child,
-      ),
+      child: Shortcuts(shortcuts: bindings.shortcutsFor(mode), child: child),
     );
   }
 
@@ -326,6 +343,22 @@ const List<ShellCommand> documentJumps = [
   ShellCommand.document8,
   ShellCommand.document9,
 ];
+
+/// The command registry's other half: the commands no screen handles yet,
+/// each with the feature that holds it back. Every other command has a
+/// handler in [ShellCommandScope.handlersFor] or [WindowCommandScope] (a
+/// test keeps the two halves complete); the palette shows these disabled
+/// with the feature's reason (G10).
+const Map<ShellCommand, Feature> unfinishedCommands = {
+  ShellCommand.readingMode: Feature.darkReadingMode,
+  ShellCommand.present: Feature.presentation,
+  ShellCommand.addText: Feature.addingTextBoxes,
+  ShellCommand.addImage: Feature.addingImages,
+  ShellCommand.findAndReplace: Feature.findAndReplace,
+  ShellCommand.measure: Feature.measure,
+  ShellCommand.redact: Feature.redaction,
+  ShellCommand.findAndRedact: Feature.redaction,
+};
 
 /// Why opening PDFs is disabled, or null when it works: the engine's
 /// problem (G101), or the web build, whose engine is a stub until P5.
@@ -386,7 +419,7 @@ class WindowCommandScope extends ConsumerWidget {
       child: Shortcuts(
         shortcuts: {
           for (final command in ShellCommand.windowCommands)
-            for (final binding in command.bindingsFor(platform))
+            for (final binding in command.defaultsFor(platform))
               binding.activator: _WindowCommandIntent(command),
         },
         child: child,

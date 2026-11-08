@@ -4143,13 +4143,13 @@ abstract class AppLocalizations {
   /// **'“{name}” stays open and unchanged; the copy is saved in {folder}.'**
   String saveAsCopyDescription(String name, String folder);
 
-  /// Save as sheet (a1-11): a checkbox, disabled until saving without comments works.
+  /// Save as sheet (a1-11): a checkbox; without it the file is a copy without comments (B138).
   ///
   /// In en, this message translates to:
   /// **'Include comments and markup'**
   String get saveAsComments;
 
-  /// Save as sheet (a1-11): a checkbox, disabled until version history arrives.
+  /// Save as sheet (a1-11): a checkbox; with it the file is rewritten whole (B138).
   ///
   /// In en, this message translates to:
   /// **'Remove edit history from the file'**
@@ -4587,10 +4587,10 @@ abstract class AppLocalizations {
   /// **'Keep versions'**
   String get settingsKeepVersions;
 
-  /// a11-1c: the option shown, while version history waits (B060).
+  /// a11-1c: the option that keeps a version at each save, for 30 days in the app data directory (ADR 0022; the board says next to the file).
   ///
   /// In en, this message translates to:
-  /// **'30 days, next to the file'**
+  /// **'Kept for 30 days'**
   String get settingsKeepVersions30;
 
   /// a11-1c.
@@ -5475,10 +5475,10 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Page {pages}} other{Pages {pages}}}'**
   String organizeToastPages(int count, String pages);
 
-  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.
+  /// Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the names of Save as's Remove edit history and of Optimize and clean.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}'**
+  /// **'{count, plural, =1{{pages}. It stays in the file until you save with Remove edit history or run Optimize and clean.} other{{pages}. They stay in the file until you save with Remove edit history or run Optimize and clean.}}'**
   String organizeToastDeletedNote(int count, String pages);
 
   /// History step: inserted the file {name}.
@@ -8661,6 +8661,1284 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Form field: {text}'**
   String sidebarSearchFormField(String text);
+
+  /// Task drawer: Compress (a9-1) while it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Compressing {name}'**
+  String jobCompressingTitle(String name);
+
+  /// Task drawer: Compress, done.
+  ///
+  /// In en, this message translates to:
+  /// **'Compressed {name}'**
+  String jobCompressedTitle(String name);
+
+  /// Task drawer: Compress failed; nothing was written.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t compress {name}'**
+  String jobCompressFailedTitle(String name);
+
+  /// Task drawer: Compress done, but the result was not smaller (decision 25).
+  ///
+  /// In en, this message translates to:
+  /// **'It can’t get smaller, so nothing was written. The original stays as it is.'**
+  String get jobCompressNotSmaller;
+
+  /// Task drawer: Compress done; the sizes before and after, such as 24,6 MB → 6,8 MB.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after}'**
+  String jobCompressedSizes(String before, String after);
+
+  /// Tooltip of Print (B121) when the document's permissions forbid printing.
+  ///
+  /// In en, this message translates to:
+  /// **'The author doesn’t allow printing'**
+  String get printForbidden;
+
+  /// Toast after a print was handed to the system.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {name} to the printer'**
+  String printSent(String name);
+
+  /// Toast when a print failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t print {name}'**
+  String printFailed(String name);
+
+  /// Print dialog (a9-6): the title; {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Print “{name}”'**
+  String printTitle(String name);
+
+  /// Print dialog: opens the system print dialog for the whole document.
+  ///
+  /// In en, this message translates to:
+  /// **'Use system dialog…'**
+  String get printSystemDialog;
+
+  /// Print dialog: the primary button, which opens the system print dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get printAction;
+
+  /// Print dialog: the printer menu, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get printPrinter;
+
+  /// Print dialog: the printer menu's only entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen in the system dialog'**
+  String get printPrinterSystem;
+
+  /// Print dialog: the number of copies, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies'**
+  String get printCopies;
+
+  /// Print dialog: the pages field.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get printPages;
+
+  /// Print dialog: the pages field's placeholder; empty prints every page.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get printPagesAll;
+
+  /// Print dialog: the layout choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get printLayout;
+
+  /// Print dialog: one page per sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get printLayoutPages;
+
+  /// Print dialog: booklet layout (P5).
+  ///
+  /// In en, this message translates to:
+  /// **'Booklet'**
+  String get printLayoutBooklet;
+
+  /// Print dialog: poster tiling (P5).
+  ///
+  /// In en, this message translates to:
+  /// **'Poster'**
+  String get printLayoutPoster;
+
+  /// Print dialog: duplex, set in the system dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Both sides'**
+  String get printBothSides;
+
+  /// Print dialog: duplex along the long edge.
+  ///
+  /// In en, this message translates to:
+  /// **'Long edge'**
+  String get printLongEdge;
+
+  /// Print dialog: duplex along the short edge.
+  ///
+  /// In en, this message translates to:
+  /// **'Short edge'**
+  String get printShortEdge;
+
+  /// Print dialog: no duplex.
+  ///
+  /// In en, this message translates to:
+  /// **'One side'**
+  String get printOneSide;
+
+  /// Print dialog: the scale menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale'**
+  String get printScale;
+
+  /// Print dialog: scale to the printable area.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to printable area'**
+  String get printScaleFit;
+
+  /// Print dialog: print at the page's own size.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual size (100%)'**
+  String get printScaleActual;
+
+  /// Print dialog: a custom scale (later).
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get printScaleCustom;
+
+  /// Print dialog: the heading of what prints.
+  ///
+  /// In en, this message translates to:
+  /// **'Include'**
+  String get printInclude;
+
+  /// Print dialog: whether comments and stamps print; {n} is how many.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Comments and stamps ({n})} other{Comments and stamps ({n})}}'**
+  String printComments(int count, String n);
+
+  /// Print dialog: form fields, which always print.
+  ///
+  /// In en, this message translates to:
+  /// **'Form field contents'**
+  String get printFormFields;
+
+  /// Print dialog: hidden layers (later).
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden layers'**
+  String get printHiddenLayers;
+
+  /// Print dialog: the preview's previous sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous sheet'**
+  String get printPreviousSheet;
+
+  /// Print dialog: the preview's next sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Next sheet'**
+  String get printNextSheet;
+
+  /// Print dialog: under the preview; {paper} is the region's paper, A4 or Letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {sheet} of {sheets} · {paper}'**
+  String printSheetOf(String sheet, String sheets, String paper);
+
+  /// Compress: the suggested file name, without .pdf; {name} is the document's.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, compressed'**
+  String compressFileName(String name);
+
+  /// Compress panel (a9-1): the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress'**
+  String get compressTitle;
+
+  /// Compress panel: the presets' group name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get compressPreset;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'High quality'**
+  String get compressHighQuality;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get compressBalanced;
+
+  /// Compress preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get compressSmallest;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 300 ppi, for printing.'**
+  String get compressHighQualityDescription;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 150 ppi, for sharing and reading on screen.'**
+  String get compressBalancedDescription;
+
+  /// Compress preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Images at 96 ppi, for e-mail. Text stays sharp.'**
+  String get compressSmallestDescription;
+
+  /// Compress: the custom preset (later, B182).
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get compressCustom;
+
+  /// Compress: the custom preset's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Set image resolution, quality and what to remove.'**
+  String get compressCustomDescription;
+
+  /// Compress: an estimated size, such as ≈ 6,8 MB.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {size}'**
+  String compressAbout(String size);
+
+  /// Compress: the size now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get compressNow;
+
+  /// Compress: the estimated size after.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get compressAfter;
+
+  /// Compress: under the sizes; the estimate samples images by their bytes (decision 26).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Estimated from {n} sample image. The exact size is shown after saving.} other{Estimated from {n} sample images. The exact size is shown after saving.}}'**
+  String compressEstimateSampled(int count, String n);
+
+  /// Compress: under the sizes when every image was measured.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured on every image. The exact size is shown after saving.'**
+  String get compressEstimateExact;
+
+  /// Compress: the section's title; {preset} is the preset's name.
+  ///
+  /// In en, this message translates to:
+  /// **'What {preset} does'**
+  String compressDoes(String preset);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Recompresses {n} image to {ppi} ppi} other{Recompresses {n} images to {ppi} ppi}}'**
+  String compressDoesImages(int count, String n, String ppi);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Merges {n} duplicate font copy} other{Merges {n} duplicate font copies}}'**
+  String compressDoesFonts(int count, String n);
+
+  /// Compress: what the preset does.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes unused objects and thumbnails'**
+  String get compressDoesUnused;
+
+  /// Compress: images in formats, masks or patterns it does not recompress (decision 26).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Leaves {n} image as it is: Ferman can’t recompress it} other{Leaves {n} images as they are: Ferman can’t recompress them}}'**
+  String compressDoesLeft(int count, String n);
+
+  /// Compress: what the preset never changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps text, links, bookmarks and forms'**
+  String get compressDoesKeeps;
+
+  /// Compress: the warning on a signed document (decision 25).
+  ///
+  /// In en, this message translates to:
+  /// **'This document is signed'**
+  String get compressSignedTitle;
+
+  /// Compress: the warning's text.
+  ///
+  /// In en, this message translates to:
+  /// **'The compressed copy has no signatures. The signed original stays as it is.'**
+  String get compressSignedBody;
+
+  /// Compress: the primary button; the system save panel asks where.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress and save as…'**
+  String get compressAction;
+
+  /// Save as sheet: under Include comments when it is unchecked; {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is saved as a copy without them; {name} stays open with its comments.'**
+  String saveAsCommentsOff(String name);
+
+  /// Save as sheet: under Remove edit history when it is checked (B138).
+  ///
+  /// In en, this message translates to:
+  /// **'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.'**
+  String get saveAsHistoryOn;
+
+  /// Save as sheet: under Remove edit history when it is unchecked (M4 plan question 5).
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted pages and earlier text stay in the file and can be recovered from it.'**
+  String get saveAsHistoryOff;
+
+  /// Version history (a9-8): the panel's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Version history'**
+  String get versionTitle;
+
+  /// Version history: how many versions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} version} other{{n} versions}}'**
+  String versionCount(int count, String n);
+
+  /// Version history: the list's name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get versionList;
+
+  /// Version history: the empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'No versions yet. Each save keeps one.'**
+  String get versionNone;
+
+  /// Version history: the foot (ADR 0022: versions live in the app data directory).
+  ///
+  /// In en, this message translates to:
+  /// **'Kept for 30 days on this device. Change in Settings › Editing.'**
+  String get versionKept;
+
+  /// Version history: the current, unsaved state.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get versionNow;
+
+  /// Version history: Now's time.
+  ///
+  /// In en, this message translates to:
+  /// **'unsaved'**
+  String get versionUnsaved;
+
+  /// Version history: Now's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Changes since the last save} =1{{n} edit since the last save} other{{n} edits since the last save}}'**
+  String versionNowDetail(int count, String n);
+
+  /// Version history: the file as it was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened'**
+  String get versionOpened;
+
+  /// Version history: the opened version's line.
+  ///
+  /// In en, this message translates to:
+  /// **'The file as it was opened'**
+  String get versionOpenedDetail;
+
+  /// Version history: a save.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get versionSaved;
+
+  /// Version history: a save with a new signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed'**
+  String get versionSigned;
+
+  /// Version history: unsaved work kept before a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved work'**
+  String get versionUnsavedWork;
+
+  /// Version history: a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get versionRestored;
+
+  /// Version history: a version's line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} edit} other{{n} edits}}'**
+  String versionEdits(int count, String n);
+
+  /// Version history: a version's line; {names} lists the edits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{n} edit · {names}} other{{n} edits · {names}}}'**
+  String versionEditsNamed(int count, String n, String names);
+
+  /// Version history: the preview's bar; {time} is a time or a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing the version from {time}.'**
+  String versionViewing(String time);
+
+  /// Version history: the preview's bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only. Your current document is unchanged.'**
+  String get versionReadOnly;
+
+  /// Version history: leaves the preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to current'**
+  String get versionBack;
+
+  /// Version history: the preview bar's restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this version…'**
+  String get versionRestoreThis;
+
+  /// Version history: the chosen row's restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore…'**
+  String get versionRestoreShort;
+
+  /// Version history: compare (P3).
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with current'**
+  String get versionCompare;
+
+  /// Version history: the restore question's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the version from {time}?'**
+  String versionRestoreTitle(String time);
+
+  /// Version history: the restore question (decision 27).
+  ///
+  /// In en, this message translates to:
+  /// **'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.'**
+  String get versionRestoreBody;
+
+  /// Version history: the restore question's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get versionRestore;
+
+  /// The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Command palette'**
+  String get commandPalette;
+
+  /// The command that shows the cheat sheet (a11-1j, a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Show keyboard shortcuts'**
+  String get commandShowShortcuts;
+
+  /// The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Save a copy'**
+  String get commandSaveCopy;
+
+  /// The command that shows the document's properties (a2-7) in the palette and the shortcut lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Document properties'**
+  String get commandDocumentProperties;
+
+  /// The command that moves to the next open document (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Next document'**
+  String get commandNextDocument;
+
+  /// The commands that show the first nine open documents (a1-10). {number} is 1 to 9 formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Show document {number}'**
+  String commandShowDocument(String number);
+
+  /// The Go to page command (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Go to page'**
+  String get commandGoToPage;
+
+  /// The Reading mode command (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Reading mode'**
+  String get commandReadingMode;
+
+  /// Organize: the command that inserts pages from a file (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Insert from file'**
+  String get commandInsertFromFile;
+
+  /// Organize: the command that deletes the selected pages (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete pages'**
+  String get commandDeletePages;
+
+  /// Organize: the command that selects every page (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Select all pages'**
+  String get commandSelectAllPages;
+
+  /// Organize: the command that moves the selected pages up (a14-1d).
+  ///
+  /// In en, this message translates to:
+  /// **'Move pages up'**
+  String get commandMovePagesUp;
+
+  /// Organize: the command that moves the selected pages down.
+  ///
+  /// In en, this message translates to:
+  /// **'Move pages down'**
+  String get commandMovePagesDown;
+
+  /// The window's system menu, as a shortcut (Alt+Space on Windows).
+  ///
+  /// In en, this message translates to:
+  /// **'Window menu'**
+  String get commandWindowMenu;
+
+  /// The command that closes the window, as a shortcut (Alt+F4).
+  ///
+  /// In en, this message translates to:
+  /// **'Close window'**
+  String get commandCloseWindow;
+
+  /// The command that quits the app, as a shortcut (⌘Q, Ctrl+Q).
+  ///
+  /// In en, this message translates to:
+  /// **'Quit Ferman'**
+  String get commandQuit;
+
+  /// Command palette: the search field's placeholder and name (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Search commands, pages and text'**
+  String get palettePlaceholder;
+
+  /// Command palette: no match while a document is open (a11-2 note). {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands match “{query}”. Press Enter to search the document instead.'**
+  String paletteEmpty(String query);
+
+  /// Command palette: no match on the start screen, where there is no document to search. {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands match “{query}”.'**
+  String paletteEmptyNoDocument(String query);
+
+  /// Command palette: the group of commands (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Commands'**
+  String get paletteCommands;
+
+  /// Command palette: the group of recent files (a11-2).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent files'**
+  String get paletteRecentFiles;
+
+  /// Command palette footer: after ↑ ↓, moving between commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get paletteMove;
+
+  /// Command palette footer: after ↵, running the command.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get paletteRun;
+
+  /// Cheat sheet: the search field's placeholder and name (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Search shortcuts'**
+  String get shortcutsSheetSearch;
+
+  /// Cheat sheet: the note under the groups (a11-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Change shortcuts in Settings › Keyboard shortcuts.'**
+  String get shortcutsSheetNote;
+
+  /// Cheat sheet and Settings › Keyboard shortcuts: the mark on a shortcut the user changed (a11-3 note).
+  ///
+  /// In en, this message translates to:
+  /// **'Changed'**
+  String get shortcutsChanged;
+
+  /// Cheat sheet and Settings › Keyboard shortcuts: no match. {query} is what the user typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No shortcuts match “{query}”.'**
+  String shortcutsNoMatch(String query);
+
+  /// Cheat sheet: the group of general commands (a11-3 GENERAL), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get shortcutsGroupGeneral;
+
+  /// Cheat sheet: the group of navigation commands (a11-3 NAVIGATE), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get shortcutsGroupNavigate;
+
+  /// Cheat sheet: the group of window commands (a11-3 WINDOW), shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get shortcutsGroupWindow;
+
+  /// Settings › Keyboard shortcuts: the search field's placeholder and name (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Search commands or press keys'**
+  String get shortcutsPaneSearch;
+
+  /// Settings › Keyboard shortcuts: the preset menu's name (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get shortcutsPreset;
+
+  /// Settings › Keyboard shortcuts: the preset with Ferman's own keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman (default)'**
+  String get shortcutsPresetFerman;
+
+  /// Settings › Keyboard shortcuts: the preset with Acrobat's keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Like Acrobat'**
+  String get shortcutsPresetAcrobat;
+
+  /// Settings › Keyboard shortcuts: the preset with macOS Preview's keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Like Preview'**
+  String get shortcutsPresetPreview;
+
+  /// Settings › Keyboard shortcuts: a row waiting for keys (a11-1j).
+  ///
+  /// In en, this message translates to:
+  /// **'Press new shortcut…'**
+  String get shortcutsRecording;
+
+  /// Settings › Keyboard shortcuts: the keys pressed belong to another command (a11-1j). {keys} and {current} are key caps such as ⌥⌘S; {command} is the other command's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} is already “{command}”. Press Enter to reassign it, Esc to keep {current}.'**
+  String shortcutsTaken(String keys, String command, String current);
+
+  /// Settings › Keyboard shortcuts: as shortcutsTaken, for a command that has no shortcut now.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} is already “{command}”. Press Enter to reassign it, Esc to keep no shortcut.'**
+  String shortcutsTakenNone(String keys, String command);
+
+  /// Settings › Keyboard shortcuts: the keys pressed cannot be given to a command (M4 decision 33). {keys} are key caps.
+  ///
+  /// In en, this message translates to:
+  /// **'{keys} belongs to the system. Press other keys, or Esc to cancel.'**
+  String shortcutsReserved(String keys);
+
+  /// Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33).
+  ///
+  /// In en, this message translates to:
+  /// **'No shortcut'**
+  String get shortcutsNone;
+
+  /// Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the shortcut of {command}'**
+  String shortcutsChange(String command);
+
+  /// Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the default shortcut'**
+  String get shortcutsReset;
+
+  /// Settings search (a11-1, G50): title of the empty state when no pane matches.
+  ///
+  /// In en, this message translates to:
+  /// **'No settings match'**
+  String get settingsSearchNoMatch;
+
+  /// Settings search and Settings › Licences: body of the empty state when nothing matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another word.'**
+  String get settingsSearchNoMatchBody;
+
+  /// The last row of the settings pane list and its heading: the third-party notices (M4 plan question 7; a11-5 names its button so).
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get settingsPaneLicences;
+
+  /// Settings › Editing › Keep versions (a11-1c): the option that keeps none.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t keep versions'**
+  String get settingsKeepVersionsOff;
+
+  /// Settings › Fonts (a11-1d): placeholder of the search field; {count} is the number of families, formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {count} installed fonts'**
+  String settingsFontsSearch(String count);
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search fonts'**
+  String get settingsFontsSearchLabel;
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the filter select.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get settingsFontsFilter;
+
+  /// Settings › Fonts (a11-1d): filter option, the fonts that draw every Turkish letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers Turkish'**
+  String get settingsFontsFilterTurkish;
+
+  /// Settings › Fonts (a11-1d): filter option.
+  ///
+  /// In en, this message translates to:
+  /// **'All fonts'**
+  String get settingsFontsFilterAll;
+
+  /// Settings › Fonts (a11-1d): filter option, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Used in open documents'**
+  String get settingsFontsFilterOpen;
+
+  /// Settings › Fonts (a11-1d): where a font comes from, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Included with Ferman'**
+  String get settingsFontsBundled;
+
+  /// Settings › Fonts (a11-1d): where a font comes from, under its name: installed on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get settingsFontsInstalled;
+
+  /// Settings › Fonts (a11-1d): the legend of the coverage chips. The codes stay in Latin letters.
+  ///
+  /// In en, this message translates to:
+  /// **'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.'**
+  String get settingsFontsLegend;
+
+  /// Settings › Fonts (a11-1d): tooltip of a coverage chip; {script} is its code, such as TR.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers {script}'**
+  String settingsFontsCovers(String script);
+
+  /// Settings › Fonts (a11-1d): tooltip of a struck-through coverage chip; {script} is its code.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn’t cover {script}'**
+  String settingsFontsMissing(String script);
+
+  /// Settings › Fonts (a11-1d): title of the empty state when no font matches the search and filter.
+  ///
+  /// In en, this message translates to:
+  /// **'No fonts match'**
+  String get settingsFontsNoMatch;
+
+  /// Settings › Fonts (a11-1d): screen-reader name of the spinner while the fonts are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the fonts on this computer…'**
+  String get settingsFontsLoading;
+
+  /// Settings › Signatures and certificates (a11-1e): label of the saved signatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signatures · on this device only'**
+  String get settingsSavedSignatures;
+
+  /// Settings › Signatures and certificates (a11-1e): shown when nothing is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved signatures yet. Fill & Sign › Sign makes one.'**
+  String get settingsSavedSignaturesNone;
+
+  /// Settings › Signatures and certificates (a11-1e): under a typed saved signature.
+  ///
+  /// In en, this message translates to:
+  /// **'Typed'**
+  String get settingsSignatureTyped;
+
+  /// Settings › Signatures and certificates: tooltip and screen-reader name of a saved signature’s delete button.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete saved signature'**
+  String get settingsDeleteSignature;
+
+  /// Settings › Signatures and certificates (a11-1e): label of the certificates.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get settingsCertificates;
+
+  /// Settings › Signatures and certificates (a11-1e): button, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Add certificate file…'**
+  String get settingsAddCertificate;
+
+  /// Settings › Signatures and certificates (a11-1e): select, disabled in this version. e-imza is the Turkish name of the qualified signature.
+  ///
+  /// In en, this message translates to:
+  /// **'e-imza card driver (PKCS#11)'**
+  String get settingsCardDriver;
+
+  /// Settings › Signatures and certificates (a11-1e): the card driver select’s option.
+  ///
+  /// In en, this message translates to:
+  /// **'Find automatically'**
+  String get settingsCardDriverAuto;
+
+  /// Settings › Signatures and certificates (a11-1e): select, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Timestamp server'**
+  String get settingsTimestampServer;
+
+  /// Settings › Signatures and certificates (a11-1e): the timestamp server select’s option while nothing connects.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get settingsTimestampNone;
+
+  /// Settings › Signatures and certificates (a11-1e): switch, off and disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Check revocation online when opening signed files'**
+  String get settingsCheckRevocation;
+
+  /// Settings › Advanced (a11-1k): switch, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the graphics card to draw pages'**
+  String get settingsGpu;
+
+  /// Settings › Advanced (a11-1k): select of the memory kept for drawn pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Page cache'**
+  String get settingsPageCache;
+
+  /// Settings › Advanced (a11-1k): select.
+  ///
+  /// In en, this message translates to:
+  /// **'Thumbnails'**
+  String get settingsThumbnails;
+
+  /// Settings › Advanced (a11-1k): thumbnails option.
+  ///
+  /// In en, this message translates to:
+  /// **'Make as needed'**
+  String get settingsThumbnailsAuto;
+
+  /// Settings › Advanced (a11-1k): thumbnails option, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Make all when opening'**
+  String get settingsThumbnailsAll;
+
+  /// Settings › Advanced (a11-1k): switch, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the PDF object inspector (for developers)'**
+  String get settingsObjectInspector;
+
+  /// Settings › Advanced (a11-1k): button; opens the system save panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export settings…'**
+  String get settingsExport;
+
+  /// Settings › Advanced (a11-1k): button; opens the system open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Import settings…'**
+  String get settingsImport;
+
+  /// Settings › Advanced (a11-1k): button, disabled in this version.
+  ///
+  /// In en, this message translates to:
+  /// **'Show log files'**
+  String get settingsShowLogs;
+
+  /// Settings › Advanced (a11-1k): the danger box’s text.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset every setting to its default. Saved signatures and certificates stay.'**
+  String get settingsReset;
+
+  /// Settings › Advanced (a11-1k): the danger button; asks first.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset settings…'**
+  String get settingsResetButton;
+
+  /// Settings › Advanced: title of the reset confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Reset every setting?'**
+  String get settingsResetTitle;
+
+  /// Settings › Advanced: body of the reset confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.'**
+  String get settingsResetBody;
+
+  /// Settings › Advanced: the reset confirmation’s danger button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settingsResetConfirm;
+
+  /// Settings › Advanced: title of the import confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your settings?'**
+  String get settingsImportTitle;
+
+  /// Settings › Advanced: body of the import confirmation (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'The settings in the file replace yours. Saved signatures and the documents you have open stay.'**
+  String get settingsImportBody;
+
+  /// Settings › Advanced: the import confirmation’s button.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get settingsImportConfirm;
+
+  /// Settings › Advanced: toast title when the chosen file is not a settings file (G50).
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t import the settings'**
+  String get settingsImportFailed;
+
+  /// Settings › Advanced: toast text when the chosen file is not a settings file.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t a Ferman settings file.'**
+  String get settingsImportFailedBody;
+
+  /// Settings › Advanced: toast after Export settings….
+  ///
+  /// In en, this message translates to:
+  /// **'Settings exported'**
+  String get settingsExported;
+
+  /// Settings › Advanced: toast when the file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t export the settings'**
+  String get settingsExportFailed;
+
+  /// Settings › Advanced: the file name the save panel suggests, without its extension .json.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman settings'**
+  String get settingsExportName;
+
+  /// Settings › Advanced: the open panel’s filter name for Import settings….
+  ///
+  /// In en, this message translates to:
+  /// **'Settings file'**
+  String get settingsSettingsFile;
+
+  /// Settings › Licences: the first line (G13: the licence is Apache-2.0).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.'**
+  String get licencesIntro;
+
+  /// Settings › Licences: placeholder and screen-reader name of the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search licences'**
+  String get licencesSearch;
+
+  /// Settings › Licences: screen-reader name of the spinner while the licences are read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the licences…'**
+  String get licencesLoading;
+
+  /// Settings › Licences: title of the empty state when the search finds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No licences match'**
+  String get licencesNoMatch;
+
+  /// Heading of the page-badge legend the Pages tab's info button opens (f5, FmSidebar).
+  ///
+  /// In en, this message translates to:
+  /// **'Page badges'**
+  String get sidebarLegendTitle;
+
+  /// Legend row name (f5): the accent dot of a page changed since the document was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get sidebarLegendEdited;
+
+  /// Legend row explanation after sidebarLegendEdited (f5), lowercase as it follows a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'changed since you opened it'**
+  String get sidebarLegendEditedBody;
+
+  /// Legend row name (f5): the comment badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get sidebarLegendComments;
+
+  /// Legend row explanation after sidebarLegendComments (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'notes or markup on the page'**
+  String get sidebarLegendCommentsBody;
+
+  /// Legend row name (f5): the form-field badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields'**
+  String get sidebarLegendFields;
+
+  /// Legend row explanation after sidebarLegendFields (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'fields you can fill in'**
+  String get sidebarLegendFieldsBody;
+
+  /// Legend row name (f5): the signature badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get sidebarLegendSignature;
+
+  /// Legend row explanation after sidebarLegendSignature (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signed or has a signature field'**
+  String get sidebarLegendSignatureBody;
+
+  /// Legend row name (f5): the amber warning badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get sidebarLegendWarnings;
+
+  /// Legend row explanation after sidebarLegendWarnings (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'missing glyphs, overflow, broken links'**
+  String get sidebarLegendWarningsBody;
+
+  /// Note under the legend's rows (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.'**
+  String get sidebarLegendFootnote;
+
+  /// Tooltip and spoken name of a thumbnail's edited dot (f5); it follows the page name after a comma.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get sidebarBadgeEdited;
+
+  /// Tooltip and spoken name of a thumbnail's comment badge (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 comment} other{{n} comments}}'**
+  String sidebarBadgeComments(int count, String n);
+
+  /// Tooltip and spoken name of a thumbnail's form-field badge (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 form field} other{{n} form fields}}'**
+  String sidebarBadgeFields(int count, String n);
+
+  /// Tooltip and spoken name of a thumbnail's signature badge on a signed page (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signed'**
+  String get sidebarBadgeSigned;
+
+  /// Tooltip and spoken name of a thumbnail's signature badge on a page with an empty signature field (f5).
+  ///
+  /// In en, this message translates to:
+  /// **'signature field'**
+  String get sidebarBadgeSignatureField;
+
+  /// Title of a bookmark Add bookmark (⌘B) adds, renamed in place at once (a2-3a).
+  ///
+  /// In en, this message translates to:
+  /// **'New bookmark'**
+  String get outlineNewBookmark;
+
+  /// Accessible name of the field that renames a bookmark in place (a2-3a, FmSidebar).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark name'**
+  String get outlineBookmarkName;
+
+  /// The history step of an outline change: rename, add, nest, reorder or delete (a2-3a).
+  ///
+  /// In en, this message translates to:
+  /// **'Change bookmarks'**
+  String get outlineStep;
+
+  /// Outline › More menu item: renames the selected bookmark in place (F2).
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get outlineRename;
+
+  /// Outline › More menu item: moves the selected bookmark one level in.
+  ///
+  /// In en, this message translates to:
+  /// **'Nest under the one above'**
+  String get outlineNest;
+
+  /// Outline › More menu item: moves the selected bookmark one level out.
+  ///
+  /// In en, this message translates to:
+  /// **'Move out a level'**
+  String get outlineUnnest;
+
+  /// Outline › More menu item: swaps the selected bookmark with the one above at its level.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get outlineMoveUp;
+
+  /// Outline › More menu item: swaps the selected bookmark with the one below at its level.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get outlineMoveDown;
+
+  /// Outline › More menu item: deletes the selected bookmark and the ones nested in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete bookmark'**
+  String get outlineDelete;
+
+  /// The history step of a metadata change in Document properties (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Change document properties'**
+  String get propertiesStep;
+
+  /// Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged in the order shown. You can reorder before saving.'**
+  String get dropOverlayCombineDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -264,6 +264,8 @@ pub struct DocumentInfo {
     pub created: Option<PdfDate>,
     /// `/ModDate`.
     pub modified: Option<PdfDate>,
+    /// Whether a2-7 can edit it: the file has an `/Info` object.
+    pub editable: bool,
 }
 
 /// A font's type (a2-7's Type column).
@@ -1085,6 +1087,8 @@ pub struct DocumentStructure {
     pub outline: Vec<OutlineEntry>,
     /// Its embedded files.
     pub attachments: Vec<Attachment>,
+    /// Its information.
+    pub info: DocumentInfo,
 }
 
 /// Where the history stands after a commit, rollback, undo or redo.
@@ -2070,6 +2074,76 @@ pub async fn set_font_settings(settings: FontSettings) -> Result<(), ApiError> {
         .map_err(api_error_dto)
 }
 
+/// A script of Settings › Fonts' coverage chips (a11-1d), in their order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontScript {
+    /// TR: the Turkish letters.
+    Turkish,
+    /// LX: Latin Extended-A.
+    LatinExtended,
+    /// CY: Cyrillic.
+    Cyrillic,
+    /// GR: Greek.
+    Greek,
+    /// AR: Arabic.
+    Arabic,
+    /// HE: Hebrew.
+    Hebrew,
+    /// DV: Devanagari.
+    Devanagari,
+    /// CJK: Chinese, Japanese and Korean.
+    Cjk,
+}
+
+/// A family of Settings › Fonts (a11-1d).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstalledFont {
+    /// The family name.
+    pub family: String,
+    /// Bundled with Ferman or installed on this computer.
+    pub origin: FontOrigin,
+    /// The scripts its regular face covers, read from its file.
+    pub scripts: Vec<FontScript>,
+}
+
+/// The font families bundled in `bundled_dir` and installed on this computer, bundled first and
+/// then by name, scanned off the calling thread (a11-1d).
+///
+/// See [`facade::Engine::installed_fonts`].
+///
+/// # Errors
+///
+/// Only an internal error.
+pub async fn installed_fonts(bundled_dir: Option<String>) -> Result<Vec<InstalledFont>, ApiError> {
+    engine()?
+        .installed_fonts(bundled_dir.map(PathBuf::from))
+        .await
+        .map(|fonts| {
+            fonts
+                .into_iter()
+                .map(|font| InstalledFont {
+                    family: font.family,
+                    origin: origin_dto(font.origin),
+                    scripts: font
+                        .scripts
+                        .into_iter()
+                        .map(|script| match script {
+                            facade::Script::Turkish => FontScript::Turkish,
+                            facade::Script::LatinExtended => FontScript::LatinExtended,
+                            facade::Script::Cyrillic => FontScript::Cyrillic,
+                            facade::Script::Greek => FontScript::Greek,
+                            facade::Script::Arabic => FontScript::Arabic,
+                            facade::Script::Hebrew => FontScript::Hebrew,
+                            facade::Script::Devanagari => FontScript::Devanagari,
+                            facade::Script::Cjk => FontScript::Cjk,
+                        })
+                        .collect(),
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
 /// Draws step 3's characters in the candidate `postscript_name` of `origin` (a3-3b).
 ///
 /// See [`facade::Engine::choose_font`].
@@ -2571,6 +2645,21 @@ fn annotation_commit_dto(commit: facade::AnnotationCommit) -> AnnotationCommit {
 pub async fn show_comments(document: u64, visible: bool) -> Result<u64, ApiError> {
     engine()?
         .show_comments(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Draws the form widgets of `document` in every view, or leaves them to Fill & Sign's overlay
+/// (B203): render-only, never saved. Returns every page's new render key, 0 when nothing changes.
+///
+/// See [`facade::Engine::show_form_widgets`].
+///
+/// # Errors
+///
+/// `NotFound`, `Unsupported` for a repaired document, and `Internal`.
+pub async fn show_form_widgets(document: u64, visible: bool) -> Result<u64, ApiError> {
+    engine()?
+        .show_form_widgets(facade::DocumentId::from_raw(document), visible)
         .await
         .map_err(api_error_dto)
 }
@@ -3657,6 +3746,140 @@ pub async fn set_page_labels(
         .map_err(api_error_dto)
 }
 
+/// One outline item as [`set_outline`] writes it, in reading order: each item followed by its
+/// children.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutlineEdit {
+    /// The item it keeps, by its place in [`OpenedDocument::outline`] as it stands now; `None`
+    /// for a new item.
+    pub item: Option<u32>,
+    /// The page a new item goes to, from 0.
+    pub page: Option<u32>,
+    /// Its title.
+    pub title: String,
+    /// Its nesting, from 0; at most one more than the item before it.
+    pub depth: u32,
+    /// Whether it shows its children.
+    pub open: bool,
+}
+
+/// Makes `items` the outline of `document` (a2-3a) as one history step: renamed, added, nested,
+/// moved and deleted items at once. An item kept keeps its destination, colour and style.
+///
+/// See [`facade::Engine::set_outline`].
+///
+/// # Errors
+///
+/// As [`rotate_pages`], and `InvalidInput` for items that cannot apply.
+pub async fn set_outline(
+    document: u64,
+    items: Vec<OutlineEdit>,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let index =
+        |value: Option<u32>| value.map(|value| usize::try_from(value).unwrap_or(usize::MAX));
+    let items = items
+        .into_iter()
+        .map(|item| facade::OutlineEdit {
+            item: index(item.item),
+            page: index(item.page),
+            title: item.title,
+            depth: item.depth,
+            open: item.open,
+        })
+        .collect();
+    engine()?
+        .set_outline(facade::DocumentId::from_raw(document), items, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The document information a2-7 edits; an empty value removes its entry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InfoEdit {
+    /// The title.
+    pub title: String,
+    /// The author.
+    pub author: String,
+    /// The subject.
+    pub subject: String,
+    /// The keywords.
+    pub keywords: String,
+}
+
+/// Makes `info` the information of `document` (a2-7), in `/Info` and its XMP, as one history
+/// step.
+///
+/// See [`facade::Engine::set_info`].
+///
+/// # Errors
+///
+/// `NotEditable`, `ConfirmationRequired`, `InvalidInput` for a file without an `/Info` object,
+/// and `NotFound`.
+pub async fn set_info(
+    document: u64,
+    info: InfoEdit,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    let info = facade::InfoEdit {
+        title: info.title,
+        author: info.author,
+        subject: info.subject,
+        keywords: info.keywords,
+    };
+    engine()?
+        .set_info(facade::DocumentId::from_raw(document), info, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Attaches the file at `path` to `document` as `file_name` (a2-3b), one history step.
+///
+/// See [`facade::Engine::attach_file`].
+///
+/// # Errors
+///
+/// As [`set_info`], the file errors, and `ResourceLimit` for a file too large for one change.
+pub async fn attach_file(
+    document: u64,
+    path: String,
+    file_name: String,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .attach_file(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            file_name,
+            name,
+        )
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Takes attachment `index` of [`OpenedDocument::attachments`] out of `document`, one history
+/// step; a file attachment annotation is a comment and is not taken out here.
+///
+/// See [`facade::Engine::remove_attachment`].
+///
+/// # Errors
+///
+/// As [`set_info`], and `InvalidInput` for an annotation's attachment or an index past them.
+pub async fn remove_attachment(
+    document: u64,
+    index: u32,
+    name: String,
+) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .remove_attachment(facade::DocumentId::from_raw(document), index, name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// Steps `document` back one step of its history.
 ///
 /// See [`facade::Engine::undo`].
@@ -3837,7 +4060,24 @@ pub async fn save_over_change(
         .map_err(api_error_dto)
 }
 
-/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+/// Save as's options (a1-11).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SaveAsOptions {
+    /// "Include comments and markup"; without it the document keeps its own file.
+    pub include_comments: bool,
+    /// "Remove edit history from the file": the file is rewritten whole.
+    pub remove_history: bool,
+}
+
+fn save_options(options: SaveAsOptions) -> facade::SaveOptions {
+    facade::SaveOptions {
+        include_comments: options.include_comments,
+        remove_history: options.remove_history,
+    }
+}
+
+/// Saves a copy of `document` as the file at `path` with Save as's `options`; later saves still
+/// write to its own file.
 ///
 /// See [`facade::Engine::save_copy`].
 ///
@@ -3847,12 +4087,14 @@ pub async fn save_over_change(
 pub async fn save_copy(
     document: u64,
     path: String,
+    options: SaveAsOptions,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
         .save_copy(
             facade::DocumentId::from_raw(document),
             PathBuf::from(path),
+            save_options(options),
             staging.map(PathBuf::from),
         )
         .await
@@ -3886,20 +4128,344 @@ pub async fn save_repaired_copy(
         .map_err(api_error_dto)
 }
 
-/// Optimize and clean: the document's file rewritten whole.
+/// Optimize and clean as a background job: the document's file rewritten whole. The stream's
+/// first event has the job's handle; its last says how it ended, with the document's file as its
+/// output (staged under the sandbox, for [`finish_save`]).
 ///
-/// See [`facade::Engine::optimize_and_clean`].
+/// See [`facade::Engine::optimize_and_clean_job`].
 ///
 /// # Errors
 ///
-/// As [`save`]; `Unsupported` for a repaired document.
-pub async fn optimize_and_clean(
+/// `NotFound` for a document that is not open; the job fails with `ConfirmationRequired`,
+/// `Unsupported` for a repaired document and the save failures.
+pub async fn start_optimize_and_clean_job(
     document: u64,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .optimize_and_clean_job(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// a9-1's presets.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompressPreset {
+    /// Images at 300 ppi, for printing.
+    HighQuality,
+    /// Images at 150 ppi, for sharing and reading on screen.
+    Balanced,
+    /// Images at 96 ppi, for e-mail.
+    Smallest,
+}
+
+/// A preset's estimated result.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CompressEstimate {
+    /// The preset.
+    pub preset: CompressPreset,
+    /// The estimated size after, in bytes.
+    pub after: u64,
+    /// Whether every image was recompressed for it, so it is exact but for rounding.
+    pub exact: bool,
+    /// How many images it recompressed.
+    pub sampled: u32,
+}
+
+/// What Compress would do to a document (a9-1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CompressAnalysis {
+    /// The size now, in bytes.
+    pub before: u64,
+    /// High quality, Balanced and Smallest, in that order.
+    pub estimates: Vec<CompressEstimate>,
+    /// The images it may recompress.
+    pub images: u32,
+    /// Images in a format or colour it does not decode, left as they are.
+    pub unreadable: u32,
+    /// Masks and images with a colour-key mask, left as they are.
+    pub masks: u32,
+    /// Images drawn only through patterns, left as they are.
+    pub patterns: u32,
+    /// Duplicate font copies merged.
+    pub duplicate_fonts: u32,
+    /// Pages whose thumbnail goes.
+    pub thumbnails: u32,
+    /// Whether the document is signed: the warning comes first, and the copy has no signatures.
+    pub signed: bool,
+}
+
+fn preset(preset: CompressPreset) -> facade::Preset {
+    match preset {
+        CompressPreset::HighQuality => facade::Preset::HighQuality,
+        CompressPreset::Balanced => facade::Preset::Balanced,
+        CompressPreset::Smallest => facade::Preset::Smallest,
+    }
+}
+
+/// What Compress would do to `document` as it stands, with each preset's estimate.
+///
+/// See [`facade::Engine::compress_analysis`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the writer's errors.
+pub async fn compress_analysis(document: u64) -> Result<CompressAnalysis, ApiError> {
+    engine()?
+        .compress_analysis(facade::DocumentId::from_raw(document))
+        .await
+        .map(|analysis| CompressAnalysis {
+            before: analysis.before,
+            estimates: analysis
+                .estimates
+                .into_iter()
+                .map(|(preset, estimate)| CompressEstimate {
+                    preset: match preset {
+                        facade::Preset::HighQuality => CompressPreset::HighQuality,
+                        facade::Preset::Balanced => CompressPreset::Balanced,
+                        facade::Preset::Smallest => CompressPreset::Smallest,
+                    },
+                    after: estimate.after,
+                    exact: estimate.exact,
+                    sampled: estimate.sampled,
+                })
+                .collect(),
+            images: analysis.images,
+            unreadable: analysis.unreadable,
+            masks: analysis.masks,
+            patterns: analysis.patterns,
+            duplicate_fonts: analysis.duplicate_fonts,
+            thumbnails: analysis.thumbnails,
+            signed: analysis.signed,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Compresses `document` with `preset` into the new file `output` as a background job. The last
+/// event's parameters are facts with no message key: `before`, `after`, `written`,
+/// `recompressed` and `unreadable`.
+///
+/// See [`facade::Engine::compress_job`].
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `ConfirmationRequired` for a signed document without
+/// `unsign`, `NotFound`.
+pub async fn start_compress_job(
+    document: u64,
+    preset: CompressPreset,
+    unsign: bool,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .compress_job(
+            facade::DocumentId::from_raw(document),
+            self::preset(preset),
+            unsign,
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// One page of a print, rendered (a9-6).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PrintPage {
+    /// Its index in the document, from 0.
+    pub index: u32,
+    /// Its width as displayed, in points.
+    pub width_points: f32,
+    /// Its height as displayed, in points.
+    pub height_points: f32,
+    /// The resolution it is rendered at.
+    pub dpi: u32,
+    /// Its width in device pixels.
+    pub width: u32,
+    /// Its height in device pixels.
+    pub height: u32,
+    /// 8-bit BGRA, opaque, `width × 4` bytes per row, the top row first.
+    pub pixels: Vec<u8>,
+}
+
+/// Streams `pages` of `document` (by handle; all when empty) rendered one by one for the print
+/// channel, without its markup annotations unless `include_comments`. The stream ends after the
+/// last page; cancelling it ends the print.
+///
+/// See [`facade::Engine::print_pages`].
+///
+/// # Errors
+///
+/// `NotEditable` when the document forbids printing, `InvalidInput`, `NotFound`, and the render
+/// thread's errors.
+pub async fn print_pages(
+    document: u64,
+    pages: Vec<u64>,
+    include_comments: bool,
+    sink: StreamSink<PrintPage>,
+) -> Result<(), ApiError> {
+    engine()?
+        .print_pages(
+            facade::DocumentId::from_raw(document),
+            pages,
+            include_comments,
+            Box::new(BridgePrint(sink)),
+        )
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Hands a print's pages to its Dart stream.
+struct BridgePrint(StreamSink<PrintPage>);
+
+impl facade::PrintSink for BridgePrint {
+    fn deliver(&mut self, page: facade::PrintPage) -> bool {
+        self.0
+            .add(PrintPage {
+                index: page.index,
+                width_points: page.size.width,
+                height_points: page.size.height,
+                dpi: page.dpi,
+                width: page.width,
+                height: page.height,
+                pixels: page.pixels,
+            })
+            .is_ok()
+    }
+}
+
+/// What made a version (a9-8).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VersionKind {
+    /// The file as it was opened, before the first save.
+    Opened,
+    /// A save.
+    Saved,
+    /// A save with a new simple signature.
+    Signed,
+    /// Unsaved work kept before a restore.
+    Unsaved,
+    /// A restore.
+    Restored,
+}
+
+/// A version as a9-8's timeline shows it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VersionInfo {
+    /// Its id.
+    pub id: u64,
+    /// What made it.
+    pub kind: VersionKind,
+    /// When, in milliseconds since the Unix epoch.
+    pub time: u64,
+    /// Its size in bytes.
+    pub size: u64,
+    /// How many edits it holds since the version before.
+    pub edits: u32,
+    /// Their names; empty for an encrypted document.
+    pub names: Vec<String>,
+}
+
+/// Names the versions folder in the app data directory, at launch (ADR 0022).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn start_versions(root: String) -> Result<(), ApiError> {
+    engine()?.start_versions(PathBuf::from(root));
+    Ok(())
+}
+
+/// "Keep versions" (a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn set_versions_enabled(enabled: bool) -> Result<(), ApiError> {
+    engine()?.set_versions_enabled(enabled);
+    Ok(())
+}
+
+/// The versions of `document`'s file, newest first.
+///
+/// See [`facade::Engine::versions`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn versions(document: u64) -> Result<Vec<VersionInfo>, ApiError> {
+    engine()?
+        .versions(facade::DocumentId::from_raw(document))
+        .await
+        .map(|list| {
+            list.into_iter()
+                .map(|version| VersionInfo {
+                    id: version.id,
+                    kind: match version.kind {
+                        facade::VersionKind::Opened => VersionKind::Opened,
+                        facade::VersionKind::Saved => VersionKind::Saved,
+                        facade::VersionKind::Signed => VersionKind::Signed,
+                        facade::VersionKind::Unsaved => VersionKind::Unsaved,
+                        facade::VersionKind::Restored => VersionKind::Restored,
+                    },
+                    time: version.time,
+                    size: version.size,
+                    edits: version.edits,
+                    names: version.names,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Opens version `version` of `document` read-only for the preview; an encrypted document's needs
+/// its `password` again.
+///
+/// See [`facade::Engine::open_version`].
+///
+/// # Errors
+///
+/// `NotFound` for a version it does not have, and what [`open`] returns.
+pub async fn open_version(
+    document: u64,
+    version: u64,
+    password: Option<String>,
+) -> Result<OpenedDocument, ApiError> {
+    engine()?
+        .open_version(
+            facade::DocumentId::from_raw(document),
+            version,
+            password.map(facade::Password::new),
+        )
+        .await
+        .map(opened_document_dto)
+        .map_err(api_error_dto)
+}
+
+/// Makes version `version` the file of `document` again; the app then opens the file again.
+///
+/// See [`facade::Engine::restore_version`].
+///
+/// # Errors
+///
+/// `NotFound`, `FileChangedOnDisk` and the save failures.
+pub async fn restore_version(
+    document: u64,
+    version: u64,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
-        .optimize_and_clean(
+        .restore_version(
             facade::DocumentId::from_raw(document),
+            version,
             staging.map(PathBuf::from),
         )
         .await
@@ -3934,6 +4500,8 @@ pub enum DocumentOp {
     Fill,
     /// Printing, which changes nothing in the file.
     Print,
+    /// Changing the document's information or attachments.
+    Modify,
 }
 
 /// What a form field is.
@@ -4601,6 +5169,7 @@ pub async fn op_gate(
         DocumentOp::Comment => facade::DocumentOp::Comment,
         DocumentOp::Fill => facade::DocumentOp::Fill,
         DocumentOp::Print => facade::DocumentOp::Print,
+        DocumentOp::Modify => facade::DocumentOp::Modify,
     };
     engine()?
         .op_gate(facade::DocumentId::from_raw(document), op, fields)
@@ -4668,7 +5237,8 @@ pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
         .map_err(api_error_dto)
 }
 
-/// Saves `document` as the file at `path`; later saves write there.
+/// Saves `document` as the file at `path` with Save as's `options`; later saves write there,
+/// unless the comments are left out.
 ///
 /// See [`facade::Engine::save_as`].
 ///
@@ -4678,12 +5248,14 @@ pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
 pub async fn save_as(
     document: u64,
     path: String,
+    options: SaveAsOptions,
     staging: Option<String>,
 ) -> Result<Option<String>, ApiError> {
     engine()?
         .save_as(
             facade::DocumentId::from_raw(document),
             PathBuf::from(path),
+            save_options(options),
             staging.map(PathBuf::from),
         )
         .await
@@ -4968,6 +5540,7 @@ fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
             pages: pages_dto(structure.pages),
             outline: outline_dto(structure.outline),
             attachments: attachments_dto(structure.attachments),
+            info: info_dto(structure.info),
         }),
     }
 }
@@ -5282,16 +5855,7 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             .collect(),
         version: document.version,
         file_size: document.file_size,
-        info: DocumentInfo {
-            title: document.info.title,
-            author: document.info.author,
-            subject: document.info.subject,
-            keywords: document.info.keywords,
-            creator: document.info.creator,
-            producer: document.info.producer,
-            created: document.info.created.map(pdf_date_dto),
-            modified: document.info.modified.map(pdf_date_dto),
-        },
+        info: info_dto(document.info),
         language: document.language,
         tagged: document.tagged,
         linearized: document.linearized,
@@ -5376,6 +5940,7 @@ fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
             page,
             open,
             children,
+            ..
         } = item;
         let next = depth.saturating_add(1);
         stack.extend(children.into_iter().rev().map(|child| (next, child)));
@@ -5387,6 +5952,20 @@ fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
         });
     }
     entries
+}
+
+fn info_dto(info: facade::Info) -> DocumentInfo {
+    DocumentInfo {
+        title: info.title,
+        author: info.author,
+        subject: info.subject,
+        keywords: info.keywords,
+        creator: info.creator,
+        producer: info.producer,
+        created: info.created.map(pdf_date_dto),
+        modified: info.modified.map(pdf_date_dto),
+        editable: info.editable,
+    }
 }
 
 fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {

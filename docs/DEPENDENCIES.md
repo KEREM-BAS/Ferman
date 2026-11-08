@@ -184,6 +184,11 @@ with `dbus` (MPL-2.0, approved in Q17) skipped by name, since desktop_drop arriv
 | flutter_test, integration_test, flutter_driver (dev) | Widget and integration tests; flutter_driver runs the integration test in profile mode | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | flutter_driver was already transitive through integration_test; since `be0a04b` it is a direct dev dependency for `app/test_driver/integration_test.dart` (`flutter drive --profile`). The lockfile changed only its dependency type, so the licence count stays at 107. |
 | riverpod_lint | Riverpod lints | 3.1.9 | MIT | ok | M1 | A native analyzer plugin under `plugins:` in `app/analysis_options.yaml`, not a pubspec dependency, so it is not in `pubspec.lock` and the licence check above does not see it; its licence was checked on pub.dev. No verified publisher. Its diagnostics appear only in `dart analyze`, so CI runs `dart analyze --fatal-infos` as well as `flutter analyze`. |
 
+Printing (M4 W4, decision 29) adds no package: the `ferman/print` channel uses the system's own print
+APIs. macOS needs the `com.apple.security.print` entitlement, in both entitlements files; the Windows
+runner links the system libraries `comdlg32` and `gdi32`; Linux uses GTK's print dialog, which the
+runner already links.
+
 `http` is in `app/pubspec.lock` only as a transitive dependency of file_selector's platform
 interface, which never imports it: the pub deny list (`tools/checks` `pub_denylist`, approved by
 the owner on 2026-10-16) fails on it anywhere else, which is why flutter_svg was dropped, and fails
@@ -194,6 +199,7 @@ on any `package:http` import in `app/lib/` (the owner's exception of 2026-10-30)
 | Name | Purpose | Version | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
 | cargo-deny | Licence, ban, advisory and source gate | 0.20.2 | MIT OR Apache-2.0 | ok | M1 | Since 0.18.4, GNU licences are matched strictly; only the allow-list and exceptions apply. The pinned cargo-deny-action bundles the same version. MSRV 1.88. |
+| cargo-about | Generates the Rust crates' notices for Settings › Licences ([G14](DESIGN_GAPS.md#g14), question 7 of the M4 plan) through `tools/licenses/` (`about.toml`, `generate.sh`, `notices.py`) | 0.9.2 (2026-08-18) | MIT OR Apache-2.0 | ok | M4 (W5) | `cargo install cargo-about --version 0.9.2 --locked --features cli`; CI's codegen job runs `bash tools/licenses/generate.sh --check`. PDFium, fonts and icons are added by hand. MSRV 1.88. |
 | cargo-fuzz | Builds and runs the fuzz targets in `fuzz/` ([fuzz/README.md](../fuzz/README.md)) | 0.13.2 | MIT OR Apache-2.0 | ok | M2 | `cargo install --locked cargo-fuzz@0.13.2`; the CI fuzz job caches the binary. Runs on the pinned nightly ([section 6](#6-toolchain)). |
 | libfuzzer-sys | The libFuzzer runtime of the fuzz targets, in `fuzz/` only | 0.4.13 | (MIT OR Apache-2.0) AND NCSA | caution | M2 | The NCSA part (LLVM's vendored libFuzzer) is the exception the owner approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)), for this crate in `fuzz/` only. Pulls arbitrary 1.5.0 (MIT OR Apache-2.0) and cc (MIT OR Apache-2.0), which builds libFuzzer's C++ sources. `cargo deny --manifest-path fuzz/Cargo.toml check` passes in CI. The fuzz workspace's own Cargo.lock pins it. |
 | sha2, tempfile (dev) | `tools/corpus`: the SHA-256 of corpus files; temporary corpora in its tests | 0.11.1; 3.27.0 | MIT OR Apache-2.0 | ok | M2 | The corpus tool's own Cargo.lock pins them; `cargo deny --manifest-path tools/corpus/Cargo.toml check` and its dev-dependency licence run pass in CI. sha2 enters the shipped graph separately with ferman-core's fingerprints. |
@@ -377,7 +383,7 @@ packages, playwright-core and the other design-reference packages) are in
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| cargo-about | Generates the Rust third-party notices | 0.9.2 (2026-08-18) | MIT OR Apache-2.0 | ok | M4 | Feeds the licences screen in M4 ([G14](DESIGN_GAPS.md#g14)); every release from M5 bundles its output. PDFium, fonts and icons are merged in by hand. MSRV 1.88. |
+| (none) | cargo-about, planned here until M4, is in use since M4 W5 ([section 2.3](#23-tools-never-shipped)). | | | | | |
 
 ### 3.13 GitHub Actions
 
@@ -602,9 +608,9 @@ Devanagari text comes from Plex Sans.
 | What | Licence | How it reaches the licences screen | First milestone |
 |---|---|---|---|
 | Ferman itself | Apache-2.0 | Shown as Apache-2.0. The design says GPL-3.0 in a1-2c and a11-5; the app does not copy that ([G13](DESIGN_GAPS.md#g13)). | M1 |
-| Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. | M1 |
+| Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. Those notices include dev dependencies, so Settings › Licences hides the packages that only build and test the app (`devOnlyPackages` in `app/lib/app/licenses.dart`, checked against `dart pub deps`): the list is limited to what ships. | M1 |
 | `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop: `assets/licenses/dbus/SOURCE.txt` since M2, W3. | M2 |
-| Rust crates | per crate | Generated by cargo-about. | M4 |
+| Rust crates | per crate | Generated by cargo-about (`bash tools/licenses/generate.sh`) and shipped as `app/assets/licenses/rust/crates.json`: 190 crates, those a desktop build links on each target (from `cargo tree`), checked against cargo's graph by ferman-api's test `licences`. | M4 (W5) |
 | Glyph names in `crates/ferman-fonts/src/encoding.rs` (the Latin-1 and Latin Extended-A names, as the Adobe Glyph List for New Fonts names them; the base encodings follow ISO 32000-2 Annex D) | BSD-3-Clause (the Adobe Glyph List) | With the Rust crates' notices (M4). Names only: no list file is bundled. | M2 |
 | Predefined CMaps from Adobe's cmap-resources in `crates/ferman-fonts/data/cmap-resources/` (`90ms-RKSJ-H` 11.006, unmodified, its licence header kept), read by `CMap::predefined` for composite fonts that name them | BSD-3-Clause | With the Rust crates' notices (M4); the text is in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md#adobe-cmap-resources). Only the CMaps a test document needs are added, each with its SHA-256 there. | M3 |
 | PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 25 texts: these and the source location of `dbus`, section 3.11), which `bootstrap()` calls. | M1 to M4 |

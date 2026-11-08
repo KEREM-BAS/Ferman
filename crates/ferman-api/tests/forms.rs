@@ -5,10 +5,8 @@
 //! cannot draw takes bundled Plex and says so, Finish leaves the page looking the same with no
 //! widgets left and follows the font policy, and the script form's scripts never run. Hostile field trees are core's unit tests (`ferman_core::forms`).
 //!
-//! PDFium draws no widget in Ferman's render path (it draws widgets only through its form-fill
-//! overlay, which tiles cannot use: B203), so what a reader shows of a form is drawn here through
-//! Finish, which places each widget's appearance as PDFium places an annotation's, and then
-//! undone.
+//! PDFium's render path draws no `/Widget`; the render-only appendix gives each widget to it as
+//! another annotation, so the canvas shows every field as a reader does, from the open on (B203).
 //!
 //! Needs PDFium: `FERMAN_PDFIUM_PATH`, absolute (tools/pdfium/fetch.sh).
 // Test helpers fail loudly.
@@ -92,12 +90,9 @@ fn draw(doc: DocumentId, pages: &[PageInfo], index: usize) -> PageRaster {
     block_on(engine().render_page(doc, page, pages[index].size, DPI)).unwrap()
 }
 
-/// The page as a reader shows its fields: drawn after Finish, which is then undone.
+/// The first page as the canvas shows it, its widgets drawn (B203).
 fn seen(doc: DocumentId, pages: &[PageInfo]) -> PageRaster {
-    block_on(engine().finish_form(doc, None, "Finish".to_owned())).unwrap();
-    let shown = draw(doc, pages, 0);
-    block_on(engine().undo(doc)).unwrap();
-    shown
+    draw(doc, pages, 0)
 }
 
 fn fields(doc: DocumentId) -> Vec<FieldInfo> {
@@ -125,7 +120,18 @@ fn around(field: &FieldInfo) -> [f32; 4] {
 
 /// Asserts `before` and `after` differ, and only inside `rect` (displayed points).
 fn only_inside(before: &PageRaster, after: &PageRaster, rect: [f32; 4], context: &str) {
-    let scale = f64::from(DPI) / 72.0;
+    only_inside_at(DPI, before, after, rect, context);
+}
+
+/// [`only_inside`] for rasters at `dpi`.
+fn only_inside_at(
+    dpi: u32,
+    before: &PageRaster,
+    after: &PageRaster,
+    rect: [f32; 4],
+    context: &str,
+) {
+    let scale = f64::from(dpi) / 72.0;
     let region = device_region(&[rect], scale).unwrap();
     let diff = compare(before, after, Some(region), 2).unwrap();
     assert!(diff.passed(), "{context}: {diff:?} outside {rect:?}");
@@ -136,6 +142,48 @@ fn set(doc: DocumentId, name: &str, values: &[&str]) -> ferman_api::facade::Fiel
     let handle = field(doc, name).handle;
     let values = values.iter().map(|value| (*value).to_owned()).collect();
     block_on(engine().set_field_value(doc, handle, values, None, format!("Fill {name}"))).unwrap()
+}
+
+/// B203: a filled value is on the canvas at two zooms, made of tiles, in every mode (comments
+/// hidden too) and in the saved file reopened, and not under Fill & Sign's overlay.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_filled_form_draws_its_values_on_the_canvas() {
+    let (dir, path) = copy("canvas", FORM);
+    let opened = open(&path);
+    let doc = opened.id;
+    let target = field(doc, "adi");
+    let at = |doc, dpi| block_on(engine().render_page(doc, 0, opened.pages[0].size, dpi)).unwrap();
+    // Fill & Sign's overlay draws the fields: the canvas then draws no value, nor a widget.
+    assert_ne!(block_on(engine().show_form_widgets(doc, false)).unwrap(), 0);
+    assert_eq!(block_on(engine().show_form_widgets(doc, false)).unwrap(), 0);
+    let bare = at(doc, 110);
+    set(doc, "adi", &["Mehmet"]);
+    assert_eq!(compare(&bare, &at(doc, 110), None, 0).unwrap().differing, 0);
+    block_on(engine().undo(doc)).unwrap();
+    block_on(engine().show_form_widgets(doc, true)).unwrap();
+    let empty: Vec<PageRaster> = [72, 220].iter().map(|&dpi| at(doc, dpi)).collect();
+    set(doc, "adi", &["Mehmet"]);
+    for (raster, dpi) in empty.iter().zip([72, 220]) {
+        only_inside_at(dpi, raster, &at(doc, dpi), around(&target), "filled");
+    }
+    block_on(engine().show_comments(doc, false)).unwrap();
+    only_inside_at(
+        220,
+        &empty[1],
+        &at(doc, 220),
+        around(&target),
+        "comments hidden",
+    );
+    block_on(engine().show_comments(doc, true)).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+    let again = open(&path);
+    for (raster, dpi) in empty.iter().zip([72, 220]) {
+        only_inside_at(dpi, raster, &at(again.id, dpi), around(&target), "reopened");
+    }
+    block_on(engine().close(again.id)).unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
 }
 
 #[test]

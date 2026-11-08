@@ -259,9 +259,12 @@ fn run(cli: &Cli) -> Result<ExitCode, Box<dyn Error>> {
             let document = facade::block_on(engine.open(file.clone(), None))?;
             apply_edit(&engine, document.id, edit)?;
             match output {
-                Some(output) => {
-                    facade::block_on(engine.save_as(document.id, output.clone(), None))?
-                }
+                Some(output) => facade::block_on(engine.save_as(
+                    document.id,
+                    output.clone(),
+                    facade::SaveOptions::default(),
+                    None,
+                ))?,
                 None => facade::block_on(engine.save(document.id, None))?,
             };
         }
@@ -276,7 +279,12 @@ fn run(cli: &Cli) -> Result<ExitCode, Box<dyn Error>> {
             if *confirm_signed {
                 facade::block_on(engine.confirm_edit_signed(document.id))?;
             }
-            facade::block_on(engine.save_as(document.id, output.clone(), None))?;
+            facade::block_on(engine.save_as(
+                document.id,
+                output.clone(),
+                facade::SaveOptions::default(),
+                None,
+            ))?;
         }
         Command::VerifyEdit {
             file,
@@ -430,7 +438,12 @@ fn verify_edit(
         .find(|block| block.id == BlockId(edit.block))
         .ok_or("the page has no block with this id")?;
     apply_edit(engine, edited.id, edit)?;
-    facade::block_on(engine.save_as(edited.id, saved.to_path_buf(), None))?;
+    facade::block_on(engine.save_as(
+        edited.id,
+        saved.to_path_buf(),
+        facade::SaveOptions::default(),
+        None,
+    ))?;
     facade::block_on(engine.close(edited.id))?;
 
     // Everything after this reads the saved file from disk.

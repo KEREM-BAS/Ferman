@@ -219,6 +219,16 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       _stale.addAll(_images.keys);
       _request(force: true);
     });
+    // Form widgets drawn or left to Fill & Sign's overlay (B203).
+    _keys.raise(ref.read(formWidgetsShownProvider).renderKey);
+    ref.listenManual(formWidgetsShownProvider.select((s) => s.renderKey), (
+      _,
+      key,
+    ) {
+      _keys.raise(key);
+      _stale.addAll(_images.keys);
+      _request(force: true);
+    });
     // A commit, undo or redo changed the pages: draw them and read their
     // text again.
     ref.listenManual(documentEditorProvider.select((s) => s.renderKey), (

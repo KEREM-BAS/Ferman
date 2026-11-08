@@ -62,7 +62,7 @@ final class DocumentSaverProvider
   }
 }
 
-String _$documentSaverHash() => r'5e7538bcab80ef681969164c2b9fd84b3c88155a';
+String _$documentSaverHash() => r'7431754f0cae5c92863ebbd634ac681e3c4165ff';
 
 /// Saving the open documents, as `documentSaverProvider`: Save (⌘S), Save
 /// as and Save a copy through the a1-11 sheet, Optimize and clean, the

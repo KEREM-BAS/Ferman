@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-162 entries: 139 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1, G166 to G170 with Comment in its W2, G171 and G172 with its W3.
+175 entries: 152 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1, G166 to G170 with Comment in its W2, G171 and G172 with its W3, G173 to G175 with W4, G176 to G181 with W5 and G182 to G185 with W6.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -234,6 +234,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G170](#g170) | missing state | M4 | Comments: Show comments | A comment tool while comments are hidden turns them back on | Decided |
 | [G171](#g171) | missing state | M4 | Fill & Sign: signatures | a5-3's dialog and a5-3d's menu: copy and states no board draws | Decided |
 | [G172](#g172) | missing state | M4 | Comment: summary | a4-4 draws no CSV state, and its width and preview differ | Decided |
+| [G173](#g173) | conflict | M4 | Tools: Compress | Compress: the panel's width and its estimate's line | Decided |
+| [G174](#g174) | conflict | M4 | Tools: Print | Print: Copies, Printer and the sheet count | Decided |
+| [G175](#g175) | missing state | M4 | Tools: Version history | Version history: dates and the foot | Decided |
+| [G176](#g176) | missing state | M4 | Keyboard shortcuts | Keyboard shortcuts: what a11-1j and a11-3 do not draw | Decided |
+| [G177](#g177) | missing state | M4 | Command palette | Command palette: hints, page rows and the rows that are not commands | Decided |
+| [G178](#g178) | conflict | M4 | Settings: Fonts | Settings › Fonts: struck codes and the source line | Decided |
+| [G179](#g179) | missing state | M4 | Settings: Signatures | Settings › Signatures and certificates at M4 | Decided |
+| [G180](#g180) | conflict | M4 | Settings: Advanced | Settings › Advanced: page cache and thumbnails | Decided |
+| [G181](#g181) | conflict | M4 | Settings: Editing | Settings › Editing: Keep versions | Decided |
+| [G182](#g182) | missing state | M4 | Sidebar: Outline | Outline editing: the drop marker, More's items and new bookmarks | Decided |
+| [G183](#g183) | conflict | M4 | Start: drop targets | Combine into one PDF: what a drop does | Decided |
+| [G184](#g184) | missing state | M4 | Sidebar: Pages | Page badges: where the legend opens | Decided |
+| [G185](#g185) | missing state | M4 | Document properties | Document properties: editing in place | Decided |
 
 ## Entries
 
@@ -419,6 +432,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** a11-5 About has a "Licences" button and a one-line credit, and the iOS settings board a13-15 has an "About and licence" row. Neither leads to a drawn view. No board shows the Apache-2.0 text or a list of third-party components: the PDF engine, Flutter, fonts under OFL (including the typed-signature faces), Noto, the OCR engine and its language data, Lucide under ISC. Desktop Settings has no About or Licences entry at all.
 - **Decision:** Build a Licences view from design-system components, opened by the "Licences" button in a11-5 (and by the a13-15 row in the mobile phase). It shows Ferman's licence (Apache-2.0) in full and a searchable list of every bundled component with its licence text: Rust crates, Dart packages (Flutter's `LicenseRegistry`), PDFium (the archive's `licenses/` folder, where PDFium's own BSD-3-Clause and Apache-2.0 text is `licenses/pdfium.txt`, and the packager's MIT `LICENSE`), fonts and icons ([ADR 0016](adr/0016-dependency-licence-policy.md)). The view is asked for in the re-export ([Q11](QUESTIONS.md#q11)). With the M4 plan (owner, 2026-11-06): in M4 the view is reached from the command palette and a new last row in Settings, with no board moved, so M4 keeps its 36 boards. a11-5 stays in M5, and its button joins them then; the a13-15 row follows in the mobile phase (B169).
 - **Status:** Decided. Amended with the M4 plan on 2026-11-06 (question 7).
+- **Built (M4 W5, question 7):** Licences is the twelfth and last row of Settings, at `/settings/licences` (`app/lib/features/settings/licences_pane.dart`). No board draws it; it uses the Fonts pane's list style. a11-5's Licences button opens it in M5 (ROADMAP §9).
 - **Evidence:** 11b App.dc.html lines 67–68 (a11-5). The FmSettings navigation (General to Advanced) has no About pane. 13b line 264 (a13-15).
 
 <a id="g15"></a>
@@ -811,6 +825,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** ⌥⌘S is bound to "Save a copy" (the a1-11 note), "Add signature" (the a11-2 palette and the a11-3 Fill & Sign group) and "Sidebar" (the a11-3 Window group, and the FmWindow sidebar tooltip, ⌥⌘S or Ctrl+Alt+S, on every editor board). The a11-3 cheat sheet lists it twice. a11-1j draws the clash as a reassignment in progress (warning text: ⌥⌘S is already "Show or hide sidebar"), which treats Sidebar as the owner, while a11-2 and a11-3 present Add signature on ⌥⌘S as already assigned. The shortcut data is copied in both 11a Settings and 11b App.
 - **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets ⇧S on every system, active only in Fill & Sign, beside ⇧D for today's date (a11-3). On Windows and Linux the sidebar keeps Ctrl+Alt+S, as FmWindow draws it, so Save a copy has no key there (a1-11 also offers it as a checkbox in Save as). All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). With the M4 plan (owner, 2026-11-06): bare keys on a5-4 and a4-1 are live only with their panel or menu open and never in a text field. In rebinding, direct `.caps` access is removed, so the compiler finds every site; taking a key from another command leaves it with none, shown as such; keys owned by components and the system are refused.
 - **Status:** Resolved on 2026-10-17 by export 519d42a: FmWindow's sidebar tooltip is ⌃⌘S (Ctrl+Alt+S on Windows); the a11-2 palette gives Add signature ⇧S; the a11-3 cheat sheet lists Save a copy ⌥⌘S, Sidebar ⌃⌘S and Add signature ⇧S once each; a11-1j draws recording ⌥⌘S for Add signature with the warning "⌥⌘S is already “Save a copy”. Press Enter to reassign it, Esc to keep ⇧S.", and its note repeats this decision, the Windows and Linux keys and the duplicate test included. Was Decided; on 2026-10-16 the keys were filled in: ⇧S for Add signature, and on Windows and Linux Ctrl+Alt+S stays the sidebar, so Save a copy has no key there.
+- **Built (M4 W5):** the keys are the table's defaults, changed per system in Settings › Keyboard shortcuts; what a11-1j and a11-3 do not draw is [G176](#g176).
 - **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141. Implemented in `app/lib/features/shell/shortcuts.dart` (`saveCopy` lines 222–224, `toggleSidebar` lines 300–305, `addSignature` lines 572–577) and checked in `app/test/features/shell/shortcuts_test.dart` lines 143–163 (M1 phase H5). In 519d42a: `design/FmWindow.dc.html` line 203 (`sidebar`: ⌃⌘S, Ctrl+Alt+S); `design/11b App.dc.html` lines 28 and 36 (the a11-2 and a11-3 notes) and 183–190 (the cheat-sheet groups); `design/FmSettings.dc.html` line 162 (the a11-1j recording row); `design/11a Settings.dc.html` line 41 (the a11-1j note).
 
 <a id="g45"></a>
@@ -878,6 +893,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** a11-2 shows only a populated query ("imza"): no empty-query state, no drawn no-match state (its note says Enter then searches the document text) and no disabled future-feature items; a14-1d only lists the palette shortcut. Toasts are drawn only in isolation (a11-6, light and dark columns without a window, and one toast in the f4 table): there is no placement or stacking inside a window, no right-to-left toast (a12-1ar has none) and none next to the status bar; the a6-1b note mentions an Undo toast that is not drawn. The a11-6b drawer shows running, paused, done and error rows only, with no empty drawer and no cancel confirmation; mobile a13-16c has none either.
 - **Decision:** The palette shows recent commands for an empty query, a no-match row that searches the document text on Enter (the a11-2 note), and unshipped commands disabled with the future-version hint. Toasts stack at the bottom end of the window, above the status bar, at most three at a time, and mirror in right-to-left layouts. The task drawer gets an empty state (EmptyState, [G29](#g29)) and a confirmation before a running task is cancelled. With the M4 plan (owner, 2026-11-06): Quit lists running jobs and asks, and cancelling leaves no partial file. The drawer also opens from the palette, which gives its empty state a way in. Toasts stack above the drawer when it is open, so they never overlap. The cheat sheet has fewer columns below 1100 px and lists every shortcut in the table, with the changed mark its note asks for. Built in M4 W0: a toast past three waits rather than being dropped; non-error toasts get no Dismiss, following a11-6, except "Font substituted", which already had one. The drawer's details the boards leave open: finished rows get a ghost Dismiss, because TaskProgress has no close icon on them; the status bar shows one running job's line, "N tasks running" for several, then the search, then the last finished job, and a job's line toggles the drawer; a cancelled row disappears; the cancel and quit questions use the Dialog component with new copy; a paused row's detail reads "Paused at page N"; a done row's detail is the output's file name until a job gives its own.
 - **Status:** Decided
+- **Built (M4 W5):** the palette's disabled commands with their reason and the no-match search; its hints and extra rows are [G177](#g177).
 - **Evidence:** CommandPalette appears only in a11-2 (11b line 34, `default-query="imza"`). No FmWindow board contains a toast. a11-6b sets `on-cancel={{ noop }}`.
 
 <a id="g50"></a>
@@ -891,6 +907,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** Desktop Settings (a11-1 and a11-1b to a11-1k) exist only in light, on macOS and in English, plus Windows General (a11-1w), Arabic right-to-left Language (a12-2c) and German Windows Language (a12-2d). There is no dark desktop version (only mobile a13-15b is dark), no Turkish version (FmSettings supports en, de and ar) and no Linux version. Not drawn: settings search results and no-match, the network activity log behind "Show network activity…" (a11-1h), and the reset confirmation and import error behind "Reset settings…" and "Import settings…" (a11-1k). AI key entry is partly drawn in a10-2 (a provider picker and a disabled API key field); the entered, checking and failed states, and key entry from Settings › AI assistant (a11-1g), are missing.
 - **Decision:** Dark, Turkish and Linux Settings follow the same rules as [G17](#g17), [G19](#g19) and [G15](#g15). Settings search uses EmptyState when nothing matches ([G29](#g29)). The network activity log is a list of the connections Ferman made, kept on the device. Reset and import get a confirmation and a plain error. The AI key states arrive with the assistant in P4. With the M4 plan (owner, 2026-11-06): settings import is a trust boundary: validated, with `lastDocuments` left out of export.
 - **Status:** Decided
+- **Built (M4 W5):** settings search with EmptyState; Reset settings… and Import settings… ask first, and an unreadable import shows a plain error toast. Reset keeps first run, the open documents and the saved stamps.
 - **Evidence:** FmSettings: lang enum `[en, de, ar]`, platform enum `[mac, win]`, no theme prop; lines 73 and 83 hold buttons with no follow-up board.
 
 <a id="g51"></a>
@@ -2381,3 +2398,172 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** With CSV, Layout, Paper and "Pages without comments" are disabled. The dialog is the design system's lg width, 640 px. The preview is drawn from the comment list and labelled "Preview" without the page count ([B211](BACKLOG.md)).
 - **Status:** Decided.
 - **Evidence:** `app/lib/features/comments/comment_dialogs.dart`.
+
+<a id="g173"></a>
+
+### G173 · Compress: the panel's width and its estimate's line
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Tools: Compress
+- **Artboards:** `a9-1`
+- **Gap or conflict:** a9-1 draws the panel 320 px wide, wider than the shell's right panel. Its estimate line reads "Estimated from 40 sample pages", but decision 26 of the M4 plan estimates from a sample of the images.
+- **Decision:** The panel takes the board's 320 px when the window has room and the shell's panel width otherwise. The line names the sample images, not pages.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/tools/compress_panel.dart`.
+
+<a id="g174"></a>
+
+### G174 · Print: Copies, Printer and the sheet count
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Tools: Print
+- **Artboards:** `a9-6`
+- **Gap or conflict:** a9-6's main button reads "Print 2 copies", its Printer select names a printer, and its sheet count is drawn for two-sided printing. Question 3 of the M4 plan leaves printer, copies and both sides to the system print dialog.
+- **Decision:** The button reads "Print"; Printer shows "Chosen in the system dialog" (disabled with Copies and Both sides, [B214](BACKLOG.md)); the count counts the pages that will print.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/tools/print_dialog.dart`.
+
+<a id="g175"></a>
+
+### G175 · Version history: dates and the foot
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Tools: Version history
+- **Artboards:** `a9-8`, `a11-1c`
+- **Gap or conflict:** a9-8 draws only versions made today, each with a time, and its foot does not say how long versions are kept or where that is changed.
+- **Decision:** A version made before today shows its date instead of a time. The foot reads "Kept for 30 days on this device. Change in Settings › Editing." ([ADR 0022](adr/0022-version-history.md) point 10).
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/tools/version_history.dart`.
+
+<a id="g176"></a>
+
+### G176 · Keyboard shortcuts: what a11-1j and a11-3 do not draw
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Keyboard shortcuts
+- **Artboards:** `a11-1j`, `a11-3`
+- **Gap or conflict:** a11-1j draws no way back to a command's default, no mark for a changed key and no row for a command left without keys; no board says which keys cannot be taken. a11-3 is drawn at one width only.
+- **Decision:** Each changed row has a restore-default button and the Changed mark; a command without keys reads "No shortcut". The system's keys are refused: Esc, Enter, Tab, ⇧Tab, the window keys, ⌘H, ⌥⌘H, ⌘Tab and ⌘Space on macOS, Alt+Tab elsewhere. The cheat sheet drops to two columns below 1100 px and one below 800 px (decision 32), and is built on Dialog with its new `width` and `headTrailing` props.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/settings/shortcuts_pane.dart`, `app/lib/features/shell/shortcut_sheet.dart`, `app/lib/design/components/overlays/dialog.dart`.
+
+<a id="g177"></a>
+
+### G177 · Command palette: hints, page rows and the rows that are not commands
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Command palette
+- **Artboards:** `a11-2`
+- **Gap or conflict:** a11-2 draws commands with a hint but does not say what the hint is, draws no page or outline row, and draws no row for Background tasks, Optimize and clean, Compress or Version history, which have no key.
+- **Decision:** A command's hint is its mode's name. Page rows read "Page N · title" for an outline entry and "Page N" for a typed number or label. Background tasks, Optimize and clean, Compress and Version history are rows of the palette only.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/shell/shell_palette.dart`.
+
+<a id="g178"></a>
+
+### G178 · Settings › Fonts: struck codes and the source line
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Settings: Fonts
+- **Artboards:** `a11-1d`
+- **Gap or conflict:** a11-1d's legend says uncovered codes are struck through, but the board draws none so. Its source line tells "macOS" from "Installed · Library/Fonts".
+- **Decision:** Uncovered codes are struck through and dimmed. The source line reads "Included with Ferman" or "Installed" only.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/settings/fonts_pane.dart`.
+
+<a id="g179"></a>
+
+### G179 · Settings › Signatures and certificates at M4
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Settings: Signatures
+- **Artboards:** `a11-1e`
+- **Gap or conflict:** a11-1e draws no way to delete a saved signature, and draws certificates and the TÜRKSERT timestamp server, which nothing connects to until P3.
+- **Decision:** Each signature card has a delete button. The certificates list is empty until P3, and the timestamp server shows "None".
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/settings/signatures_pane.dart`.
+
+<a id="g180"></a>
+
+### G180 · Settings › Advanced: page cache and thumbnails
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Settings: Advanced
+- **Artboards:** `a11-1k`
+- **Gap or conflict:** a11-1k shows a 1 GB page cache and no default for thumbnails; ferman-render's tile cache is fixed at 256 MB, and the Pages tab makes thumbnails as needed.
+- **Decision:** Page cache shows the engine's 256 MB, with the other sizes disabled ([B218](BACKLOG.md)); Thumbnails shows "Make as needed", with Make all when opening disabled ([B219](BACKLOG.md)).
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/settings/advanced_pane.dart`.
+
+<a id="g181"></a>
+
+### G181 · Settings › Editing: Keep versions
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Settings: Editing
+- **Artboards:** `a11-1c`
+- **Gap or conflict:** a11-1c's Keep versions offers a 7-day choice; ADR 0022 keeps versions 30 days.
+- **Decision:** The select reads "Kept for 30 days" or Off, with no 7-day choice (ADR 0022 point 10).
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/settings/editing_pane.dart`.
+
+<a id="g182"></a>
+
+### G182 · Outline editing: the drop marker, More's items and new bookmarks
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Sidebar: Outline
+- **Artboards:** `a2-3a`
+- **Gap or conflict:** a2-3a draws Add bookmark and More but no drop marker, no item in More, and says only that a new bookmark goes "at the current view".
+- **Decision:** A drag shows an accent line before or after a bookmark, or an accent ring for into. More has Rename, Nest under the one above, Move out a level, Move up, Move down and Delete bookmark. A new bookmark is named "New bookmark", points at the reader's page and goes after the reader's section, renamed in place at once.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/shell/shell_sidebar.dart`, `app/lib/features/shell/document_parts.dart`.
+
+<a id="g183"></a>
+
+### G183 · Combine into one PDF: what a drop does
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Start: drop targets
+- **Artboards:** `a1-6`
+- **Gap or conflict:** a1-6's "Combine into one PDF" target does not say whether a drop writes the combined file at once.
+- **Decision:** A drop puts the files in Combine's tab in the order dropped, where they can be reordered before its job writes them, as the board's "You can reorder before saving" says.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/shell/file_drop.dart`.
+
+<a id="g184"></a>
+
+### G184 · Page badges: where the legend opens
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Sidebar: Pages
+- **Artboards:** `f5`
+- **Gap or conflict:** f5 draws the legend without its anchor.
+- **Decision:** The legend is anchored under the whole heading row, so it starts at the sidebar's start edge as FmSidebar draws it.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/shell/shell_sidebar_tabs.dart`.
+
+<a id="g185"></a>
+
+### G185 · Document properties: editing in place
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Document properties
+- **Artboards:** `a2-7`
+- **Gap or conflict:** a2-7 says the summary is "editable in place" but draws no edit state.
+- **Decision:** A click or Enter edits Title, Author, Subject or Keywords in place; Enter or leaving the field keeps, Esc cancels; each change is one step.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/shell/document_parts.dart`.

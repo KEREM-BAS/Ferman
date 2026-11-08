@@ -23,6 +23,9 @@ import 'package:ferman/features/shell/shell_sidebar.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/features/shell/shell_tool_rows.dart';
+import 'package:ferman/features/tools/compress_panel.dart';
+import 'package:ferman/features/tools/tools_state.dart';
+import 'package:ferman/features/tools/version_history.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,6 +102,14 @@ class FmWindow extends ConsumerWidget {
         active?.document != null;
     // So does Crop and page size (a6-4).
     final crop = ref.watch(cropShowingProvider);
+    // Tools: Compress takes the panel's place (a9-1); Version history the
+    // sidebar's, the canvas's and the panel's (a9-8).
+    final tools =
+        ref.watch(shellModeProvider) == FermanMode.tools &&
+            active?.document != null
+        ? ref.watch(toolsPanelProvider)
+        : null;
+    final versions = tools == ToolsPanel.versions;
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -165,25 +176,46 @@ class FmWindow extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (shown.sidebar && !bare && !combine)
+                        if (versions)
+                          Expanded(
+                            child: ShellRegion.canvas.wrap(
+                              const VersionHistoryView(),
+                            ),
+                          ),
+                        if (shown.sidebar && !bare && !combine && !versions)
                           ShellRegion.sidebar.wrap(
                             resizable(
                               ShellSide.sidebar,
                               FmSidebar(width: widths.sidebar),
                             ),
                           ),
-                        Expanded(
-                          // Keyed, so the canvas keeps its state and focus
-                          // when the sidebar before it hides or shows.
-                          key: _canvasSlot,
-                          child: ShellRegion.canvas.wrap(const ShellCanvas()),
-                        ),
-                        if (shown.panel && !bare && !combine)
+                        if (!versions)
+                          Expanded(
+                            // Keyed, so the canvas keeps its state and focus
+                            // when the sidebar before it hides or shows.
+                            key: _canvasSlot,
+                            child: ShellRegion.canvas.wrap(const ShellCanvas()),
+                          ),
+                        if (shown.panel && !bare && !combine && !versions)
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,
                               crop
                                   ? CropPanel(width: widths.panel)
+                                  : tools == ToolsPanel.compress
+                                  // a9-1 is wider than it, room allowing.
+                                  ? CompressPanel(
+                                      width: math.max(
+                                        widths.panel,
+                                        math.min(
+                                          CompressPanel.boardWidth,
+                                          room -
+                                              (shown.sidebar
+                                                  ? widths.sidebar
+                                                  : 0),
+                                        ),
+                                      ),
+                                    )
                                   : review
                                   // a3-12 is wider than it, room allowing.
                                   ? ReviewListPanel(

@@ -45,6 +45,13 @@ final class FakeFilePickerService implements FilePickerService {
     return picked;
   }
 
+  /// The first of [picked], as the any-file panel answers; logged as `*`.
+  @override
+  Future<String?> openAnyFile() async {
+    requests.add('*');
+    return picked.isEmpty ? null : picked.first;
+  }
+
   /// What the folder panel returns; null, as if cancelled, by default.
   String? folder;
 

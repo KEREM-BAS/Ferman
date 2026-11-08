@@ -3240,11 +3240,11 @@
   },
   "saveAsComments": "Include comments and markup",
   "@saveAsComments": {
-    "description": "Save as sheet (a1-11): a checkbox, disabled until saving without comments works."
+    "description": "Save as sheet (a1-11): a checkbox; without it the file is a copy without comments (B138)."
   },
   "saveAsHistory": "Remove edit history from the file",
   "@saveAsHistory": {
-    "description": "Save as sheet (a1-11): a checkbox, disabled until version history arrives."
+    "description": "Save as sheet (a1-11): a checkbox; with it the file is rewritten whole (B138)."
   },
   "saveAsCancel": "Cancel",
   "@saveAsCancel": {
@@ -3662,9 +3662,9 @@
   "@settingsKeepVersions": {
     "description": "a11-1c."
   },
-  "settingsKeepVersions30": "30 days, next to the file",
+  "settingsKeepVersions30": "Kept for 30 days",
   "@settingsKeepVersions30": {
-    "description": "a11-1c: the option shown, while version history waits (B060)."
+    "description": "a11-1c: the option that keeps a version at each save, for 30 days in the app data directory (ADR 0022; the board says next to the file)."
   },
   "settingsReflow": "Let paragraphs reflow inside their frame while typing",
   "@settingsReflow": {
@@ -4537,9 +4537,9 @@
       }
     }
   },
-  "organizeToastDeletedNote": "{count, plural, =1{{pages}. It stays in the file until you run Optimize and clean.} other{{pages}. They stay in the file until you run Optimize and clean.}}",
+  "organizeToastDeletedNote": "{count, plural, =1{{pages}. It stays in the file until you save with Remove edit history or run Optimize and clean.} other{{pages}. They stay in the file until you save with Remove edit history or run Optimize and clean.}}",
   "@organizeToastDeletedNote": {
-    "description": "Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the name of the Optimize and clean command.",
+    "description": "Toast after deleting pages (M4 plan question 5): {pages} is organizeToastPages. Say that the content remains recoverable from the file. Use the names of Save as's Remove edit history and of Optimize and clean.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -7314,5 +7314,1094 @@
         "type": "String"
       }
     }
+  },
+  "jobCompressingTitle": "Compressing {name}",
+  "@jobCompressingTitle": {
+    "description": "Task drawer: Compress (a9-1) while it runs.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressedTitle": "Compressed {name}",
+  "@jobCompressedTitle": {
+    "description": "Task drawer: Compress, done.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressFailedTitle": "Couldn’t compress {name}",
+  "@jobCompressFailedTitle": {
+    "description": "Task drawer: Compress failed; nothing was written.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompressNotSmaller": "It can’t get smaller, so nothing was written. The original stays as it is.",
+  "@jobCompressNotSmaller": {
+    "description": "Task drawer: Compress done, but the result was not smaller (decision 25)."
+  },
+  "jobCompressedSizes": "{before} → {after}",
+  "@jobCompressedSizes": {
+    "description": "Task drawer: Compress done; the sizes before and after, such as 24,6 MB → 6,8 MB.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "printForbidden": "The author doesn’t allow printing",
+  "@printForbidden": {
+    "description": "Tooltip of Print (B121) when the document's permissions forbid printing."
+  },
+  "printSent": "Sent {name} to the printer",
+  "@printSent": {
+    "description": "Toast after a print was handed to the system.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printFailed": "Couldn’t print {name}",
+  "@printFailed": {
+    "description": "Toast when a print failed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printTitle": "Print “{name}”",
+  "@printTitle": {
+    "description": "Print dialog (a9-6): the title; {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printSystemDialog": "Use system dialog…",
+  "@printSystemDialog": {
+    "description": "Print dialog: opens the system print dialog for the whole document."
+  },
+  "printAction": "Print",
+  "@printAction": {
+    "description": "Print dialog: the primary button, which opens the system print dialog."
+  },
+  "printPrinter": "Printer",
+  "@printPrinter": {
+    "description": "Print dialog: the printer menu, set in the system dialog."
+  },
+  "printPrinterSystem": "Chosen in the system dialog",
+  "@printPrinterSystem": {
+    "description": "Print dialog: the printer menu's only entry."
+  },
+  "printCopies": "Copies",
+  "@printCopies": {
+    "description": "Print dialog: the number of copies, set in the system dialog."
+  },
+  "printPages": "Pages",
+  "@printPages": {
+    "description": "Print dialog: the pages field."
+  },
+  "printPagesAll": "All",
+  "@printPagesAll": {
+    "description": "Print dialog: the pages field's placeholder; empty prints every page."
+  },
+  "printLayout": "Layout",
+  "@printLayout": {
+    "description": "Print dialog: the layout choice."
+  },
+  "printLayoutPages": "Pages",
+  "@printLayoutPages": {
+    "description": "Print dialog: one page per sheet."
+  },
+  "printLayoutBooklet": "Booklet",
+  "@printLayoutBooklet": {
+    "description": "Print dialog: booklet layout (P5)."
+  },
+  "printLayoutPoster": "Poster",
+  "@printLayoutPoster": {
+    "description": "Print dialog: poster tiling (P5)."
+  },
+  "printBothSides": "Both sides",
+  "@printBothSides": {
+    "description": "Print dialog: duplex, set in the system dialog."
+  },
+  "printLongEdge": "Long edge",
+  "@printLongEdge": {
+    "description": "Print dialog: duplex along the long edge."
+  },
+  "printShortEdge": "Short edge",
+  "@printShortEdge": {
+    "description": "Print dialog: duplex along the short edge."
+  },
+  "printOneSide": "One side",
+  "@printOneSide": {
+    "description": "Print dialog: no duplex."
+  },
+  "printScale": "Scale",
+  "@printScale": {
+    "description": "Print dialog: the scale menu."
+  },
+  "printScaleFit": "Fit to printable area",
+  "@printScaleFit": {
+    "description": "Print dialog: scale to the printable area."
+  },
+  "printScaleActual": "Actual size (100%)",
+  "@printScaleActual": {
+    "description": "Print dialog: print at the page's own size."
+  },
+  "printScaleCustom": "Custom…",
+  "@printScaleCustom": {
+    "description": "Print dialog: a custom scale (later)."
+  },
+  "printInclude": "Include",
+  "@printInclude": {
+    "description": "Print dialog: the heading of what prints."
+  },
+  "printComments": "{count, plural, =1{Comments and stamps ({n})} other{Comments and stamps ({n})}}",
+  "@printComments": {
+    "description": "Print dialog: whether comments and stamps print; {n} is how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "printFormFields": "Form field contents",
+  "@printFormFields": {
+    "description": "Print dialog: form fields, which always print."
+  },
+  "printHiddenLayers": "Hidden layers",
+  "@printHiddenLayers": {
+    "description": "Print dialog: hidden layers (later)."
+  },
+  "printPreviousSheet": "Previous sheet",
+  "@printPreviousSheet": {
+    "description": "Print dialog: the preview's previous sheet."
+  },
+  "printNextSheet": "Next sheet",
+  "@printNextSheet": {
+    "description": "Print dialog: the preview's next sheet."
+  },
+  "printSheetOf": "Sheet {sheet} of {sheets} · {paper}",
+  "@printSheetOf": {
+    "description": "Print dialog: under the preview; {paper} is the region's paper, A4 or Letter.",
+    "placeholders": {
+      "sheet": {
+        "type": "String"
+      },
+      "sheets": {
+        "type": "String"
+      },
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "compressFileName": "{name}, compressed",
+  "@compressFileName": {
+    "description": "Compress: the suggested file name, without .pdf; {name} is the document's.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "compressTitle": "Compress",
+  "@compressTitle": {
+    "description": "Compress panel (a9-1): the title."
+  },
+  "compressPreset": "Preset",
+  "@compressPreset": {
+    "description": "Compress panel: the presets' group name for screen readers."
+  },
+  "compressHighQuality": "High quality",
+  "@compressHighQuality": {
+    "description": "Compress preset."
+  },
+  "compressBalanced": "Balanced",
+  "@compressBalanced": {
+    "description": "Compress preset."
+  },
+  "compressSmallest": "Smallest",
+  "@compressSmallest": {
+    "description": "Compress preset."
+  },
+  "compressHighQualityDescription": "Images at 300 ppi, for printing.",
+  "@compressHighQualityDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressBalancedDescription": "Images at 150 ppi, for sharing and reading on screen.",
+  "@compressBalancedDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressSmallestDescription": "Images at 96 ppi, for e-mail. Text stays sharp.",
+  "@compressSmallestDescription": {
+    "description": "Compress preset's line."
+  },
+  "compressCustom": "Custom…",
+  "@compressCustom": {
+    "description": "Compress: the custom preset (later, B182)."
+  },
+  "compressCustomDescription": "Set image resolution, quality and what to remove.",
+  "@compressCustomDescription": {
+    "description": "Compress: the custom preset's line."
+  },
+  "compressAbout": "≈ {size}",
+  "@compressAbout": {
+    "description": "Compress: an estimated size, such as ≈ 6,8 MB.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "compressNow": "Now",
+  "@compressNow": {
+    "description": "Compress: the size now."
+  },
+  "compressAfter": "After",
+  "@compressAfter": {
+    "description": "Compress: the estimated size after."
+  },
+  "compressEstimateSampled": "{count, plural, =1{Estimated from {n} sample image. The exact size is shown after saving.} other{Estimated from {n} sample images. The exact size is shown after saving.}}",
+  "@compressEstimateSampled": {
+    "description": "Compress: under the sizes; the estimate samples images by their bytes (decision 26).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressEstimateExact": "Measured on every image. The exact size is shown after saving.",
+  "@compressEstimateExact": {
+    "description": "Compress: under the sizes when every image was measured."
+  },
+  "compressDoes": "What {preset} does",
+  "@compressDoes": {
+    "description": "Compress: the section's title; {preset} is the preset's name.",
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesImages": "{count, plural, =1{Recompresses {n} image to {ppi} ppi} other{Recompresses {n} images to {ppi} ppi}}",
+  "@compressDoesImages": {
+    "description": "Compress: what the preset does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "ppi": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesFonts": "{count, plural, =1{Merges {n} duplicate font copy} other{Merges {n} duplicate font copies}}",
+  "@compressDoesFonts": {
+    "description": "Compress: what the preset does.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesUnused": "Removes unused objects and thumbnails",
+  "@compressDoesUnused": {
+    "description": "Compress: what the preset does."
+  },
+  "compressDoesLeft": "{count, plural, =1{Leaves {n} image as it is: Ferman can’t recompress it} other{Leaves {n} images as they are: Ferman can’t recompress them}}",
+  "@compressDoesLeft": {
+    "description": "Compress: images in formats, masks or patterns it does not recompress (decision 26).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "compressDoesKeeps": "Keeps text, links, bookmarks and forms",
+  "@compressDoesKeeps": {
+    "description": "Compress: what the preset never changes."
+  },
+  "compressSignedTitle": "This document is signed",
+  "@compressSignedTitle": {
+    "description": "Compress: the warning on a signed document (decision 25)."
+  },
+  "compressSignedBody": "The compressed copy has no signatures. The signed original stays as it is.",
+  "@compressSignedBody": {
+    "description": "Compress: the warning's text."
+  },
+  "compressAction": "Compress and save as…",
+  "@compressAction": {
+    "description": "Compress: the primary button; the system save panel asks where."
+  },
+  "saveAsCommentsOff": "The file is saved as a copy without them; {name} stays open with its comments.",
+  "@saveAsCommentsOff": {
+    "description": "Save as sheet: under Include comments when it is unchecked; {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveAsHistoryOn": "The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.",
+  "@saveAsHistoryOn": {
+    "description": "Save as sheet: under Remove edit history when it is checked (B138)."
+  },
+  "saveAsHistoryOff": "Deleted pages and earlier text stay in the file and can be recovered from it.",
+  "@saveAsHistoryOff": {
+    "description": "Save as sheet: under Remove edit history when it is unchecked (M4 plan question 5)."
+  },
+  "versionTitle": "Version history",
+  "@versionTitle": {
+    "description": "Version history (a9-8): the panel's title."
+  },
+  "versionCount": "{count, plural, =1{{n} version} other{{n} versions}}",
+  "@versionCount": {
+    "description": "Version history: how many versions.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionList": "Versions",
+  "@versionList": {
+    "description": "Version history: the list's name for screen readers."
+  },
+  "versionNone": "No versions yet. Each save keeps one.",
+  "@versionNone": {
+    "description": "Version history: the empty list."
+  },
+  "versionKept": "Kept for 30 days on this device. Change in Settings › Editing.",
+  "@versionKept": {
+    "description": "Version history: the foot (ADR 0022: versions live in the app data directory)."
+  },
+  "versionNow": "Now",
+  "@versionNow": {
+    "description": "Version history: the current, unsaved state."
+  },
+  "versionUnsaved": "unsaved",
+  "@versionUnsaved": {
+    "description": "Version history: Now's time."
+  },
+  "versionNowDetail": "{count, plural, =0{Changes since the last save} =1{{n} edit since the last save} other{{n} edits since the last save}}",
+  "@versionNowDetail": {
+    "description": "Version history: Now's line.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionOpened": "Opened",
+  "@versionOpened": {
+    "description": "Version history: the file as it was opened."
+  },
+  "versionOpenedDetail": "The file as it was opened",
+  "@versionOpenedDetail": {
+    "description": "Version history: the opened version's line."
+  },
+  "versionSaved": "Saved",
+  "@versionSaved": {
+    "description": "Version history: a save."
+  },
+  "versionSigned": "Signed",
+  "@versionSigned": {
+    "description": "Version history: a save with a new signature."
+  },
+  "versionUnsavedWork": "Unsaved work",
+  "@versionUnsavedWork": {
+    "description": "Version history: unsaved work kept before a restore."
+  },
+  "versionRestored": "Restored",
+  "@versionRestored": {
+    "description": "Version history: a restore."
+  },
+  "versionEdits": "{count, plural, =1{{n} edit} other{{n} edits}}",
+  "@versionEdits": {
+    "description": "Version history: a version's line.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "versionEditsNamed": "{count, plural, =1{{n} edit · {names}} other{{n} edits · {names}}}",
+  "@versionEditsNamed": {
+    "description": "Version history: a version's line; {names} lists the edits.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "versionViewing": "Viewing the version from {time}.",
+  "@versionViewing": {
+    "description": "Version history: the preview's bar; {time} is a time or a date.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "versionReadOnly": "Read-only. Your current document is unchanged.",
+  "@versionReadOnly": {
+    "description": "Version history: the preview's bar."
+  },
+  "versionBack": "Back to current",
+  "@versionBack": {
+    "description": "Version history: leaves the preview."
+  },
+  "versionRestoreThis": "Restore this version…",
+  "@versionRestoreThis": {
+    "description": "Version history: the preview bar's restore."
+  },
+  "versionRestoreShort": "Restore…",
+  "@versionRestoreShort": {
+    "description": "Version history: the chosen row's restore."
+  },
+  "versionCompare": "Compare with current",
+  "@versionCompare": {
+    "description": "Version history: compare (P3)."
+  },
+  "versionRestoreTitle": "Restore the version from {time}?",
+  "@versionRestoreTitle": {
+    "description": "Version history: the restore question's title.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "versionRestoreBody": "Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.",
+  "@versionRestoreBody": {
+    "description": "Version history: the restore question (decision 27)."
+  },
+  "versionRestore": "Restore",
+  "@versionRestore": {
+    "description": "Version history: the restore question's button."
+  },
+  "commandPalette": "Command palette",
+  "@commandPalette": {
+    "description": "The command palette as a command (a11-3, a11-1j) and the palette's accessible name (a11-2)."
+  },
+  "commandShowShortcuts": "Show keyboard shortcuts",
+  "@commandShowShortcuts": {
+    "description": "The command that shows the cheat sheet (a11-1j, a11-3)."
+  },
+  "commandSaveCopy": "Save a copy",
+  "@commandSaveCopy": {
+    "description": "The Save a copy command in the palette, the cheat sheet and Settings › Keyboard shortcuts (a11-3)."
+  },
+  "commandDocumentProperties": "Document properties",
+  "@commandDocumentProperties": {
+    "description": "The command that shows the document's properties (a2-7) in the palette and the shortcut lists."
+  },
+  "commandNextDocument": "Next document",
+  "@commandNextDocument": {
+    "description": "The command that moves to the next open document (a11-3)."
+  },
+  "commandShowDocument": "Show document {number}",
+  "@commandShowDocument": {
+    "description": "The commands that show the first nine open documents (a1-10). {number} is 1 to 9 formatted for the region.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "commandGoToPage": "Go to page",
+  "@commandGoToPage": {
+    "description": "The Go to page command (a11-3)."
+  },
+  "commandReadingMode": "Reading mode",
+  "@commandReadingMode": {
+    "description": "The Reading mode command (a11-3)."
+  },
+  "commandInsertFromFile": "Insert from file",
+  "@commandInsertFromFile": {
+    "description": "Organize: the command that inserts pages from a file (a14-1d)."
+  },
+  "commandDeletePages": "Delete pages",
+  "@commandDeletePages": {
+    "description": "Organize: the command that deletes the selected pages (a11-3)."
+  },
+  "commandSelectAllPages": "Select all pages",
+  "@commandSelectAllPages": {
+    "description": "Organize: the command that selects every page (a14-1d)."
+  },
+  "commandMovePagesUp": "Move pages up",
+  "@commandMovePagesUp": {
+    "description": "Organize: the command that moves the selected pages up (a14-1d)."
+  },
+  "commandMovePagesDown": "Move pages down",
+  "@commandMovePagesDown": {
+    "description": "Organize: the command that moves the selected pages down."
+  },
+  "commandWindowMenu": "Window menu",
+  "@commandWindowMenu": {
+    "description": "The window's system menu, as a shortcut (Alt+Space on Windows)."
+  },
+  "commandCloseWindow": "Close window",
+  "@commandCloseWindow": {
+    "description": "The command that closes the window, as a shortcut (Alt+F4)."
+  },
+  "commandQuit": "Quit Ferman",
+  "@commandQuit": {
+    "description": "The command that quits the app, as a shortcut (⌘Q, Ctrl+Q)."
+  },
+  "palettePlaceholder": "Search commands, pages and text",
+  "@palettePlaceholder": {
+    "description": "Command palette: the search field's placeholder and name (a11-2)."
+  },
+  "paletteEmpty": "No commands match “{query}”. Press Enter to search the document instead.",
+  "@paletteEmpty": {
+    "description": "Command palette: no match while a document is open (a11-2 note). {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "paletteEmptyNoDocument": "No commands match “{query}”.",
+  "@paletteEmptyNoDocument": {
+    "description": "Command palette: no match on the start screen, where there is no document to search. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "paletteCommands": "Commands",
+  "@paletteCommands": {
+    "description": "Command palette: the group of commands (a11-2)."
+  },
+  "paletteRecentFiles": "Recent files",
+  "@paletteRecentFiles": {
+    "description": "Command palette: the group of recent files (a11-2)."
+  },
+  "paletteMove": "Move",
+  "@paletteMove": {
+    "description": "Command palette footer: after ↑ ↓, moving between commands."
+  },
+  "paletteRun": "Run",
+  "@paletteRun": {
+    "description": "Command palette footer: after ↵, running the command."
+  },
+  "shortcutsSheetSearch": "Search shortcuts",
+  "@shortcutsSheetSearch": {
+    "description": "Cheat sheet: the search field's placeholder and name (a11-3)."
+  },
+  "shortcutsSheetNote": "Change shortcuts in Settings › Keyboard shortcuts.",
+  "@shortcutsSheetNote": {
+    "description": "Cheat sheet: the note under the groups (a11-3)."
+  },
+  "shortcutsChanged": "Changed",
+  "@shortcutsChanged": {
+    "description": "Cheat sheet and Settings › Keyboard shortcuts: the mark on a shortcut the user changed (a11-3 note)."
+  },
+  "shortcutsNoMatch": "No shortcuts match “{query}”.",
+  "@shortcutsNoMatch": {
+    "description": "Cheat sheet and Settings › Keyboard shortcuts: no match. {query} is what the user typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsGroupGeneral": "General",
+  "@shortcutsGroupGeneral": {
+    "description": "Cheat sheet: the group of general commands (a11-3 GENERAL), shown in capitals."
+  },
+  "shortcutsGroupNavigate": "Navigate",
+  "@shortcutsGroupNavigate": {
+    "description": "Cheat sheet: the group of navigation commands (a11-3 NAVIGATE), shown in capitals."
+  },
+  "shortcutsGroupWindow": "Window",
+  "@shortcutsGroupWindow": {
+    "description": "Cheat sheet: the group of window commands (a11-3 WINDOW), shown in capitals."
+  },
+  "shortcutsPaneSearch": "Search commands or press keys",
+  "@shortcutsPaneSearch": {
+    "description": "Settings › Keyboard shortcuts: the search field's placeholder and name (a11-1j)."
+  },
+  "shortcutsPreset": "Preset",
+  "@shortcutsPreset": {
+    "description": "Settings › Keyboard shortcuts: the preset menu's name (a11-1j)."
+  },
+  "shortcutsPresetFerman": "Ferman (default)",
+  "@shortcutsPresetFerman": {
+    "description": "Settings › Keyboard shortcuts: the preset with Ferman's own keys (a11-1j)."
+  },
+  "shortcutsPresetAcrobat": "Like Acrobat",
+  "@shortcutsPresetAcrobat": {
+    "description": "Settings › Keyboard shortcuts: the preset with Acrobat's keys (a11-1j)."
+  },
+  "shortcutsPresetPreview": "Like Preview",
+  "@shortcutsPresetPreview": {
+    "description": "Settings › Keyboard shortcuts: the preset with macOS Preview's keys (a11-1j)."
+  },
+  "shortcutsRecording": "Press new shortcut…",
+  "@shortcutsRecording": {
+    "description": "Settings › Keyboard shortcuts: a row waiting for keys (a11-1j)."
+  },
+  "shortcutsTaken": "{keys} is already “{command}”. Press Enter to reassign it, Esc to keep {current}.",
+  "@shortcutsTaken": {
+    "description": "Settings › Keyboard shortcuts: the keys pressed belong to another command (a11-1j). {keys} and {current} are key caps such as ⌥⌘S; {command} is the other command's name.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      },
+      "command": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsTakenNone": "{keys} is already “{command}”. Press Enter to reassign it, Esc to keep no shortcut.",
+  "@shortcutsTakenNone": {
+    "description": "Settings › Keyboard shortcuts: as shortcutsTaken, for a command that has no shortcut now.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      },
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsReserved": "{keys} belongs to the system. Press other keys, or Esc to cancel.",
+  "@shortcutsReserved": {
+    "description": "Settings › Keyboard shortcuts: the keys pressed cannot be given to a command (M4 decision 33). {keys} are key caps.",
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsNone": "No shortcut",
+  "@shortcutsNone": {
+    "description": "Settings › Keyboard shortcuts and the cheat sheet: a command left without keys (M4 decision 33)."
+  },
+  "shortcutsChange": "Change the shortcut of {command}",
+  "@shortcutsChange": {
+    "description": "Settings › Keyboard shortcuts: a row's key button, for screen readers. {command} is the command's name.",
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsReset": "Restore the default shortcut",
+  "@shortcutsReset": {
+    "description": "Settings › Keyboard shortcuts: the button on a changed row that gives the command its default keys back."
+  },
+  "settingsSearchNoMatch": "No settings match",
+  "@settingsSearchNoMatch": {
+    "description": "Settings search (a11-1, G50): title of the empty state when no pane matches."
+  },
+  "settingsSearchNoMatchBody": "Try another word.",
+  "@settingsSearchNoMatchBody": {
+    "description": "Settings search and Settings › Licences: body of the empty state when nothing matches."
+  },
+  "settingsPaneLicences": "Licences",
+  "@settingsPaneLicences": {
+    "description": "The last row of the settings pane list and its heading: the third-party notices (M4 plan question 7; a11-5 names its button so)."
+  },
+  "settingsKeepVersionsOff": "Don’t keep versions",
+  "@settingsKeepVersionsOff": {
+    "description": "Settings › Editing › Keep versions (a11-1c): the option that keeps none."
+  },
+  "settingsFontsSearch": "Search {count} installed fonts",
+  "@settingsFontsSearch": {
+    "description": "Settings › Fonts (a11-1d): placeholder of the search field; {count} is the number of families, formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsSearchLabel": "Search fonts",
+  "@settingsFontsSearchLabel": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the search field."
+  },
+  "settingsFontsFilter": "Filter",
+  "@settingsFontsFilter": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the filter select."
+  },
+  "settingsFontsFilterTurkish": "Covers Turkish",
+  "@settingsFontsFilterTurkish": {
+    "description": "Settings › Fonts (a11-1d): filter option, the fonts that draw every Turkish letter."
+  },
+  "settingsFontsFilterAll": "All fonts",
+  "@settingsFontsFilterAll": {
+    "description": "Settings › Fonts (a11-1d): filter option."
+  },
+  "settingsFontsFilterOpen": "Used in open documents",
+  "@settingsFontsFilterOpen": {
+    "description": "Settings › Fonts (a11-1d): filter option, disabled in this version."
+  },
+  "settingsFontsBundled": "Included with Ferman",
+  "@settingsFontsBundled": {
+    "description": "Settings › Fonts (a11-1d): where a font comes from, under its name."
+  },
+  "settingsFontsInstalled": "Installed",
+  "@settingsFontsInstalled": {
+    "description": "Settings › Fonts (a11-1d): where a font comes from, under its name: installed on this computer."
+  },
+  "settingsFontsLegend": "TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.",
+  "@settingsFontsLegend": {
+    "description": "Settings › Fonts (a11-1d): the legend of the coverage chips. The codes stay in Latin letters."
+  },
+  "settingsFontsCovers": "Covers {script}",
+  "@settingsFontsCovers": {
+    "description": "Settings › Fonts (a11-1d): tooltip of a coverage chip; {script} is its code, such as TR.",
+    "placeholders": {
+      "script": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsMissing": "Doesn’t cover {script}",
+  "@settingsFontsMissing": {
+    "description": "Settings › Fonts (a11-1d): tooltip of a struck-through coverage chip; {script} is its code.",
+    "placeholders": {
+      "script": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFontsNoMatch": "No fonts match",
+  "@settingsFontsNoMatch": {
+    "description": "Settings › Fonts (a11-1d): title of the empty state when no font matches the search and filter."
+  },
+  "settingsFontsLoading": "Reading the fonts on this computer…",
+  "@settingsFontsLoading": {
+    "description": "Settings › Fonts (a11-1d): screen-reader name of the spinner while the fonts are read."
+  },
+  "settingsSavedSignatures": "Saved signatures · on this device only",
+  "@settingsSavedSignatures": {
+    "description": "Settings › Signatures and certificates (a11-1e): label of the saved signatures."
+  },
+  "settingsSavedSignaturesNone": "No saved signatures yet. Fill & Sign › Sign makes one.",
+  "@settingsSavedSignaturesNone": {
+    "description": "Settings › Signatures and certificates (a11-1e): shown when nothing is saved."
+  },
+  "settingsSignatureTyped": "Typed",
+  "@settingsSignatureTyped": {
+    "description": "Settings › Signatures and certificates (a11-1e): under a typed saved signature."
+  },
+  "settingsDeleteSignature": "Delete saved signature",
+  "@settingsDeleteSignature": {
+    "description": "Settings › Signatures and certificates: tooltip and screen-reader name of a saved signature’s delete button."
+  },
+  "settingsCertificates": "Certificates",
+  "@settingsCertificates": {
+    "description": "Settings › Signatures and certificates (a11-1e): label of the certificates."
+  },
+  "settingsAddCertificate": "Add certificate file…",
+  "@settingsAddCertificate": {
+    "description": "Settings › Signatures and certificates (a11-1e): button, disabled in this version."
+  },
+  "settingsCardDriver": "e-imza card driver (PKCS#11)",
+  "@settingsCardDriver": {
+    "description": "Settings › Signatures and certificates (a11-1e): select, disabled in this version. e-imza is the Turkish name of the qualified signature."
+  },
+  "settingsCardDriverAuto": "Find automatically",
+  "@settingsCardDriverAuto": {
+    "description": "Settings › Signatures and certificates (a11-1e): the card driver select’s option."
+  },
+  "settingsTimestampServer": "Timestamp server",
+  "@settingsTimestampServer": {
+    "description": "Settings › Signatures and certificates (a11-1e): select, disabled in this version."
+  },
+  "settingsTimestampNone": "None",
+  "@settingsTimestampNone": {
+    "description": "Settings › Signatures and certificates (a11-1e): the timestamp server select’s option while nothing connects."
+  },
+  "settingsCheckRevocation": "Check revocation online when opening signed files",
+  "@settingsCheckRevocation": {
+    "description": "Settings › Signatures and certificates (a11-1e): switch, off and disabled in this version."
+  },
+  "settingsGpu": "Use the graphics card to draw pages",
+  "@settingsGpu": {
+    "description": "Settings › Advanced (a11-1k): switch, disabled in this version."
+  },
+  "settingsPageCache": "Page cache",
+  "@settingsPageCache": {
+    "description": "Settings › Advanced (a11-1k): select of the memory kept for drawn pages."
+  },
+  "settingsThumbnails": "Thumbnails",
+  "@settingsThumbnails": {
+    "description": "Settings › Advanced (a11-1k): select."
+  },
+  "settingsThumbnailsAuto": "Make as needed",
+  "@settingsThumbnailsAuto": {
+    "description": "Settings › Advanced (a11-1k): thumbnails option."
+  },
+  "settingsThumbnailsAll": "Make all when opening",
+  "@settingsThumbnailsAll": {
+    "description": "Settings › Advanced (a11-1k): thumbnails option, disabled in this version."
+  },
+  "settingsObjectInspector": "Show the PDF object inspector (for developers)",
+  "@settingsObjectInspector": {
+    "description": "Settings › Advanced (a11-1k): switch, disabled in this version."
+  },
+  "settingsExport": "Export settings…",
+  "@settingsExport": {
+    "description": "Settings › Advanced (a11-1k): button; opens the system save panel."
+  },
+  "settingsImport": "Import settings…",
+  "@settingsImport": {
+    "description": "Settings › Advanced (a11-1k): button; opens the system open panel."
+  },
+  "settingsShowLogs": "Show log files",
+  "@settingsShowLogs": {
+    "description": "Settings › Advanced (a11-1k): button, disabled in this version."
+  },
+  "settingsReset": "Reset every setting to its default. Saved signatures and certificates stay.",
+  "@settingsReset": {
+    "description": "Settings › Advanced (a11-1k): the danger box’s text."
+  },
+  "settingsResetButton": "Reset settings…",
+  "@settingsResetButton": {
+    "description": "Settings › Advanced (a11-1k): the danger button; asks first."
+  },
+  "settingsResetTitle": "Reset every setting?",
+  "@settingsResetTitle": {
+    "description": "Settings › Advanced: title of the reset confirmation (G50)."
+  },
+  "settingsResetBody": "Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.",
+  "@settingsResetBody": {
+    "description": "Settings › Advanced: body of the reset confirmation (G50)."
+  },
+  "settingsResetConfirm": "Reset",
+  "@settingsResetConfirm": {
+    "description": "Settings › Advanced: the reset confirmation’s danger button."
+  },
+  "settingsImportTitle": "Replace your settings?",
+  "@settingsImportTitle": {
+    "description": "Settings › Advanced: title of the import confirmation (G50)."
+  },
+  "settingsImportBody": "The settings in the file replace yours. Saved signatures and the documents you have open stay.",
+  "@settingsImportBody": {
+    "description": "Settings › Advanced: body of the import confirmation (G50)."
+  },
+  "settingsImportConfirm": "Import",
+  "@settingsImportConfirm": {
+    "description": "Settings › Advanced: the import confirmation’s button."
+  },
+  "settingsImportFailed": "Couldn’t import the settings",
+  "@settingsImportFailed": {
+    "description": "Settings › Advanced: toast title when the chosen file is not a settings file (G50)."
+  },
+  "settingsImportFailedBody": "The file isn’t a Ferman settings file.",
+  "@settingsImportFailedBody": {
+    "description": "Settings › Advanced: toast text when the chosen file is not a settings file."
+  },
+  "settingsExported": "Settings exported",
+  "@settingsExported": {
+    "description": "Settings › Advanced: toast after Export settings…."
+  },
+  "settingsExportFailed": "Couldn’t export the settings",
+  "@settingsExportFailed": {
+    "description": "Settings › Advanced: toast when the file could not be written."
+  },
+  "settingsExportName": "Ferman settings",
+  "@settingsExportName": {
+    "description": "Settings › Advanced: the file name the save panel suggests, without its extension .json."
+  },
+  "settingsSettingsFile": "Settings file",
+  "@settingsSettingsFile": {
+    "description": "Settings › Advanced: the open panel’s filter name for Import settings…."
+  },
+  "licencesIntro": "Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.",
+  "@licencesIntro": {
+    "description": "Settings › Licences: the first line (G13: the licence is Apache-2.0)."
+  },
+  "licencesSearch": "Search licences",
+  "@licencesSearch": {
+    "description": "Settings › Licences: placeholder and screen-reader name of the search field."
+  },
+  "licencesLoading": "Reading the licences…",
+  "@licencesLoading": {
+    "description": "Settings › Licences: screen-reader name of the spinner while the licences are read."
+  },
+  "licencesNoMatch": "No licences match",
+  "@licencesNoMatch": {
+    "description": "Settings › Licences: title of the empty state when the search finds nothing."
+  },
+  "sidebarLegendTitle": "Page badges",
+  "@sidebarLegendTitle": {
+    "description": "Heading of the page-badge legend the Pages tab's info button opens (f5, FmSidebar)."
+  },
+  "sidebarLegendEdited": "Edited",
+  "@sidebarLegendEdited": {
+    "description": "Legend row name (f5): the accent dot of a page changed since the document was opened."
+  },
+  "sidebarLegendEditedBody": "changed since you opened it",
+  "@sidebarLegendEditedBody": {
+    "description": "Legend row explanation after sidebarLegendEdited (f5), lowercase as it follows a dot."
+  },
+  "sidebarLegendComments": "Comments",
+  "@sidebarLegendComments": {
+    "description": "Legend row name (f5): the comment badge."
+  },
+  "sidebarLegendCommentsBody": "notes or markup on the page",
+  "@sidebarLegendCommentsBody": {
+    "description": "Legend row explanation after sidebarLegendComments (f5)."
+  },
+  "sidebarLegendFields": "Form fields",
+  "@sidebarLegendFields": {
+    "description": "Legend row name (f5): the form-field badge."
+  },
+  "sidebarLegendFieldsBody": "fields you can fill in",
+  "@sidebarLegendFieldsBody": {
+    "description": "Legend row explanation after sidebarLegendFields (f5)."
+  },
+  "sidebarLegendSignature": "Signature",
+  "@sidebarLegendSignature": {
+    "description": "Legend row name (f5): the signature badge."
+  },
+  "sidebarLegendSignatureBody": "signed or has a signature field",
+  "@sidebarLegendSignatureBody": {
+    "description": "Legend row explanation after sidebarLegendSignature (f5)."
+  },
+  "sidebarLegendWarnings": "Warnings",
+  "@sidebarLegendWarnings": {
+    "description": "Legend row name (f5): the amber warning badge."
+  },
+  "sidebarLegendWarningsBody": "missing glyphs, overflow, broken links",
+  "@sidebarLegendWarningsBody": {
+    "description": "Legend row explanation after sidebarLegendWarnings (f5)."
+  },
+  "sidebarLegendFootnote": "Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.",
+  "@sidebarLegendFootnote": {
+    "description": "Note under the legend's rows (f5)."
+  },
+  "sidebarBadgeEdited": "edited",
+  "@sidebarBadgeEdited": {
+    "description": "Tooltip and spoken name of a thumbnail's edited dot (f5); it follows the page name after a comma."
+  },
+  "sidebarBadgeComments": "{count, plural, =1{1 comment} other{{n} comments}}",
+  "@sidebarBadgeComments": {
+    "description": "Tooltip and spoken name of a thumbnail's comment badge (f5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarBadgeFields": "{count, plural, =1{1 form field} other{{n} form fields}}",
+  "@sidebarBadgeFields": {
+    "description": "Tooltip and spoken name of a thumbnail's form-field badge (f5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarBadgeSigned": "signed",
+  "@sidebarBadgeSigned": {
+    "description": "Tooltip and spoken name of a thumbnail's signature badge on a signed page (f5)."
+  },
+  "sidebarBadgeSignatureField": "signature field",
+  "@sidebarBadgeSignatureField": {
+    "description": "Tooltip and spoken name of a thumbnail's signature badge on a page with an empty signature field (f5)."
+  },
+  "outlineNewBookmark": "New bookmark",
+  "@outlineNewBookmark": {
+    "description": "Title of a bookmark Add bookmark (⌘B) adds, renamed in place at once (a2-3a)."
+  },
+  "outlineBookmarkName": "Bookmark name",
+  "@outlineBookmarkName": {
+    "description": "Accessible name of the field that renames a bookmark in place (a2-3a, FmSidebar)."
+  },
+  "outlineStep": "Change bookmarks",
+  "@outlineStep": {
+    "description": "The history step of an outline change: rename, add, nest, reorder or delete (a2-3a)."
+  },
+  "outlineRename": "Rename",
+  "@outlineRename": {
+    "description": "Outline › More menu item: renames the selected bookmark in place (F2)."
+  },
+  "outlineNest": "Nest under the one above",
+  "@outlineNest": {
+    "description": "Outline › More menu item: moves the selected bookmark one level in."
+  },
+  "outlineUnnest": "Move out a level",
+  "@outlineUnnest": {
+    "description": "Outline › More menu item: moves the selected bookmark one level out."
+  },
+  "outlineMoveUp": "Move up",
+  "@outlineMoveUp": {
+    "description": "Outline › More menu item: swaps the selected bookmark with the one above at its level."
+  },
+  "outlineMoveDown": "Move down",
+  "@outlineMoveDown": {
+    "description": "Outline › More menu item: swaps the selected bookmark with the one below at its level."
+  },
+  "outlineDelete": "Delete bookmark",
+  "@outlineDelete": {
+    "description": "Outline › More menu item: deletes the selected bookmark and the ones nested in it."
+  },
+  "propertiesStep": "Change document properties",
+  "@propertiesStep": {
+    "description": "The history step of a metadata change in Document properties (a2-7)."
+  },
+  "dropOverlayCombineDescription": "Merged in the order shown. You can reorder before saving.",
+  "@dropOverlayCombineDescription": {
+    "description": "Line under dropOverlayCombine (a1-6, FmStart dropCombineSub): the files go to Combine's tab, where they can be reordered."
   }
 }

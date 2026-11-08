@@ -147,6 +147,16 @@ impl JobSnapshot {
         &self.store
     }
 
+    /// The document's security, with whether its owner password was given.
+    pub(super) fn security(&self) -> Option<super::document::Security> {
+        self.model.security()
+    }
+
+    /// The publish it was taken at, which a change or a write checks against.
+    pub(super) fn generation(&self) -> u64 {
+        self.generation
+    }
+
     /// Whether a change for `op` could go through at all, for a job that writes a file before it.
     /// A signature's confirmation comes at the commit, which keeps the change for another try.
     pub(super) fn may_change(&self, op: DocumentOp) -> Result<(), ApiError> {
@@ -374,6 +384,9 @@ pub struct JobRun {
     message: Option<MessageKey>,
     params: Vec<(String, String)>,
     sent: Option<Instant>,
+    /// A file the job put in place itself, through the document's actor: from then on it is done
+    /// and cannot be cancelled.
+    written: Option<JobOutput>,
 }
 
 impl JobRun {
@@ -383,6 +396,9 @@ impl JobRun {
     ///
     /// [`JobStop::Cancelled`] once the job is cancelled: return it.
     pub fn checkpoint(&mut self) -> Result<(), JobStop> {
+        if self.written.is_some() {
+            return Ok(());
+        }
         let wish = *self.control.wish();
         let cancelled = match wish {
             Wish::Run => false,
@@ -477,6 +493,28 @@ impl JobRun {
         self.output(target, bytes, staging, false)
     }
 
+    /// Reports how far the job is, 0 to 1, without a message, at most ten times a second.
+    pub fn fraction(&mut self, progress: f32) {
+        self.progress = Some(progress);
+        if self.sent.is_none_or(|sent| sent.elapsed() >= PROGRESS_GAP) {
+            self.sent = Some(Instant::now());
+            self.send(false, None);
+        }
+    }
+
+    /// Records the file at `path` the job's last step wrote in place itself (staged at `staged`
+    /// under the sandbox): the job is done from now on, and the file is its output.
+    pub(super) fn done_output(&mut self, path: PathBuf, staged: Option<PathBuf>) {
+        self.written = Some(JobOutput { path, staged });
+    }
+
+    /// Carries `facts` in the last event's parameters, with no message, for the app to word: what
+    /// a job found, such as Compress's sizes.
+    pub fn facts(&mut self, facts: Vec<(String, String)>) {
+        self.message = None;
+        self.params = facts;
+    }
+
     fn send(&mut self, paused: bool, result: Option<JobResult>) {
         self.sink.deliver(JobEvent {
             job: self.job,
@@ -490,7 +528,7 @@ impl JobRun {
 
     /// Puts the waiting files in place. A failure takes back those it created.
     fn publish(&mut self) -> Result<Vec<JobOutput>, ApiError> {
-        let mut outputs = Vec::new();
+        let mut outputs: Vec<JobOutput> = self.written.take().into_iter().collect();
         let mut created = Vec::new();
         for pending in std::mem::take(&mut self.pending) {
             match publish_one(&pending) {
@@ -678,6 +716,7 @@ impl Engine {
             message: None,
             params: Vec::new(),
             sent: None,
+            written: None,
         };
         run.send(false, None);
         let manager = Arc::clone(&self.jobs);

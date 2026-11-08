@@ -268,6 +268,11 @@ pub struct Info {
     pub created: Option<PdfDate>,
     /// `/ModDate`.
     pub modified: Option<PdfDate>,
+    /// Whether the trailer names an `/Info` object, which a2-7 can edit.
+    // shortcut: the writers copy the original trailer, so a file without an /Info object cannot
+    // get one and a2-7 shows its fields read-only (B221); give the store a trailer entry when
+    // such files turn up.
+    pub editable: bool,
 }
 
 /// Everything the structure scan found.
@@ -312,6 +317,8 @@ pub struct RevisedStructure {
     pub outline: Vec<OutlineItem>,
     /// Embedded files and file attachment annotations.
     pub attachments: Vec<Attachment>,
+    /// The document information.
+    pub info: Info,
 }
 
 /// Whether the two parsers agree (ADR 0004, G102): lopdf's model and PDFium.
@@ -378,7 +385,10 @@ impl Structure {
                 let unknown = fields.is_empty() && signed.iter().any(|s| !s.locks.is_empty());
                 allowed && !unknown && !fields.iter().any(locked)
             }
-            DocumentOp::EditText | DocumentOp::Organize | DocumentOp::Print => false,
+            DocumentOp::EditText
+            | DocumentOp::Organize
+            | DocumentOp::Print
+            | DocumentOp::Modify => false,
         };
         if keeps {
             OpGate::KeepsSignatures
@@ -669,6 +679,7 @@ pub(crate) fn revised(
         pages: pages(&scope, &ids),
         outline: navigation::outline(&scope),
         attachments: navigation::attachments(&scope),
+        info: info(&scope),
     }
 }
 
@@ -957,6 +968,7 @@ fn info(scope: &Scope<'_>) -> Info {
         producer: scope.get_text(dict, b"Producer"),
         created: scope.get_date(dict, b"CreationDate"),
         modified: scope.get_date(dict, b"ModDate"),
+        editable: matches!(scope.doc.trailer.get(b"Info"), Ok(Object::Reference(_))),
     }
 }
 

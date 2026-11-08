@@ -69,7 +69,7 @@ void main() {
         for (final pane in SettingsPane.values)
           if (!pane.available) pane.path,
       ];
-      expect(disabled, hasLength(7));
+      expect(disabled, hasLength(3));
       for (final element in find.byType(PhoneSettingsRow).evaluate()) {
         final row = element.widget as PhoneSettingsRow;
         expect(row.onPressed == null, row.disabledReason == _future);
@@ -173,7 +173,7 @@ void main() {
     testWidgets('a disabled row says why under touch', (tester) async {
       await pumpFermanApp(tester, size: goldenPhoneSize);
       await _open(tester);
-      await tester.tap(_row('Fonts'));
+      await tester.tap(_row('Text recognition (OCR)'));
       await tester.pump();
       expect(find.text(_future), findsOneWidget);
       expect(find.byType(PhoneSettingsList), findsOneWidget);

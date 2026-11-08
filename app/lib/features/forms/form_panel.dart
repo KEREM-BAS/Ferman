@@ -516,7 +516,7 @@ class FillAnythingPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final form = ref.watch(documentFormProvider).value;
     final choices = ref.watch(fillToolsStateProvider);
     final tool = choices.effective(form);
@@ -591,7 +591,7 @@ class FillAnythingPanel extends ConsumerWidget {
                 row(
                   icon,
                   _toolLabel(l10n, which),
-                  command.caps(platform) ?? const [],
+                  keys.caps(command) ?? const [],
                   active: which == tool,
                   reason: refusal,
                   onPressed: refusal == null
@@ -601,7 +601,7 @@ class FillAnythingPanel extends ConsumerWidget {
               row(
                 IconName.signature,
                 l10n.fillToolSignature,
-                ShellCommand.addSignature.caps(platform) ?? const [],
+                keys.caps(ShellCommand.addSignature) ?? const [],
                 reason: signRefusal,
                 onPressed: signRefusal == null
                     ? () =>
@@ -731,7 +731,7 @@ class FieldNavigation extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final form = ref.watch(documentFormProvider).value;
     if (form == null || form.fields.isEmpty) return const SizedBox.shrink();
@@ -746,7 +746,7 @@ class FieldNavigation extends ConsumerWidget {
         IconButton(
           icon: IconName.chevronLeft,
           label: l10n.formPreviousField,
-          shortcut: ShellCommand.previousField.caps(platform),
+          shortcut: keys.caps(ShellCommand.previousField),
           size: IconButtonSize.sm,
           onPressed: () => notifier.move(form, -1),
         ),
@@ -768,7 +768,7 @@ class FieldNavigation extends ConsumerWidget {
         IconButton(
           icon: IconName.chevronRight,
           label: l10n.formNextField,
-          shortcut: ShellCommand.nextField.caps(platform),
+          shortcut: keys.caps(ShellCommand.nextField),
           size: IconButtonSize.sm,
           onPressed: () => notifier.move(form, 1),
         ),

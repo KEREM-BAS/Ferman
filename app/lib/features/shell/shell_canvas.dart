@@ -189,11 +189,9 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
         ref.read(documentOpenerProvider.notifier).close(opening!);
     final hiddenComments = !ref.watch(commentsShownProvider).visible;
     return Shortcuts(
-      shortcuts: ShellCommand.shortcutsFor(
-        platform,
-        mode,
-        scope: ShortcutScope.canvas,
-      ),
+      shortcuts: ref
+          .watch(shortcutBindingsProvider)
+          .shortcutsFor(mode, scope: ShortcutScope.canvas),
       // The focus stop itself is named, so focusing it reads "Document
       // pages"; the empty state is a node of its own inside it.
       child: CallbackShortcuts(

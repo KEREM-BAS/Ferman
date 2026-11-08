@@ -459,6 +459,7 @@ void main() {
       ),
     );
     expect(items.map((item) => item.label), contains('Ayşe Yılmaz'));
-    expect(items.last.disabled, isTrue);
+    // Manage saved signatures… opens Settings › Signatures (B208).
+    expect(items.last.disabled, isFalse);
   });
 }

@@ -5,3 +5,8 @@ tags:
   # `flutter test --exclude-tags golden` on macOS and Windows. Regenerate
   # them on Linux with `flutter test --update-goldens --tags golden`.
   golden:
+  # Wall-clock budgets measured in a debug widget test: too noisy for shared
+  # CI runners, so skipped unless asked for with
+  # `flutter test --tags perf --run-skipped` on the machine being measured.
+  perf:
+    skip: "a timing on the machine at hand: flutter test --tags perf --run-skipped"

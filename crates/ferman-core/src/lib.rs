@@ -40,6 +40,8 @@
 //!   a4-5b and forms' Finish.
 //! - [`assemble`]: pages of one document copied into another, with their bookmarks, attachments,
 //!   form fields and layers (Insert, Replace, Extract, Split and Combine, M4 plan, W1).
+//! - [`compress`]: what Compress reads and changes: the images the pages draw and how large,
+//!   byte-identical font programs merged, thumbnails removed (a9-1, M4 plan, W4).
 //! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
 //!   [`save_pdf`](save::save_pdf) writes a document through a temp file beside it, flushed,
 //!   verified, given the original's metadata and swapped in, with every failure of §7.8 a
@@ -52,6 +54,8 @@
 //!   back after a crash ([`list`](recovery::list), [`restore`](recovery::restore)).
 //! - `rewrite` (private): the full rewrite, [`RevisionStore::full_rewrite`](revision::RevisionStore::full_rewrite),
 //!   for Optimize and clean and a repaired document's copy (§7.3).
+//! - [`versions`]: version history in the app data directory (ADR 0022, a9-8): every save, the
+//!   file before the first one, a simple signature and a restore, kept for 30 days.
 //! - [`forms`]: form fields in the revisions, with limits, and the literal `AF*` arguments (M4 plan,
 //!   W3).
 //! - `platform` (private): the few file-system calls the standard library lacks
@@ -76,6 +80,8 @@
 pub mod annotations;
 mod appendix;
 pub mod assemble;
+pub mod attach;
+pub mod compress;
 mod content;
 pub mod document;
 pub mod filters;
@@ -88,6 +94,8 @@ mod incremental;
 pub mod interpret;
 pub mod limits;
 pub mod links;
+pub mod metadata;
+pub mod outline;
 pub mod pages;
 #[allow(unsafe_code)]
 mod platform;
@@ -102,6 +110,7 @@ pub mod source;
 pub mod structure;
 mod syntax;
 mod text_string;
+pub mod versions;
 pub mod write;
 mod xref;
 
@@ -302,6 +311,9 @@ pub enum WriteError {
     /// A page operation that cannot apply: no page left, a page placed twice, a size or a crop
     /// out of range, label ranges out of order.
     PagePlan,
+    /// An outline, information or attachment change that cannot apply: an item kept twice or past
+    /// the outline, a level skipped, a page or an attachment the document does not have.
+    StructurePlan,
     /// An annotation the page does not name.
     NoSuchAnnotation,
     /// An annotation change that cannot apply: geometry its kind cannot take, a style on a kind
@@ -330,6 +342,7 @@ impl std::fmt::Display for WriteError {
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
             Self::PagePlan => f.write_str("a page operation that cannot apply"),
+            Self::StructurePlan => f.write_str("a structure change that cannot apply"),
             Self::NoSuchAnnotation => f.write_str("no such annotation"),
             Self::AnnotationPlan => f.write_str("an annotation change that cannot apply"),
             Self::PageStateLeaks => f.write_str("a page whose content closes too many states"),

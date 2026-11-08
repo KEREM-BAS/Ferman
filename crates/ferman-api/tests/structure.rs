@@ -116,16 +116,18 @@ fn a_commit_keeps_the_key_of_the_pages_it_does_not_reach() {
             ViewEvent::Failed(failed) => panic!("{failed:?}"),
         }
     };
-    assert_eq!((key(0), key(1)), (0, 0));
+    // kira-tr has form fields: the open loaded its widgets (B203) under one key for every page.
+    let start = key(0);
+    assert_eq!(key(1), start);
 
     let turned = block_on(engine().rotate_page(doc, 1, 1, "Rotated".to_owned())).unwrap();
     let new = turned.render_key.unwrap();
     assert_eq!(turned.changed_pages.as_deref(), Some(&[1][..]));
-    assert_eq!((key(0), key(1)), (0, new));
+    assert_eq!((key(0), key(1)), (start, new));
 
     let undone = block_on(engine().undo(doc)).unwrap();
     assert_eq!(undone.changed_pages.as_deref(), Some(&[1][..]));
-    assert_eq!((key(0), key(1)), (0, undone.render_key.unwrap()));
+    assert_eq!((key(0), key(1)), (start, undone.render_key.unwrap()));
     block_on(engine().close(doc)).unwrap();
 }
 

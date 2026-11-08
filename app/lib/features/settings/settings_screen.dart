@@ -6,15 +6,21 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/phone/fm_phone.dart';
+import 'package:ferman/features/settings/advanced_pane.dart';
 import 'package:ferman/features/settings/editing_pane.dart';
+import 'package:ferman/features/settings/fonts_pane.dart';
 import 'package:ferman/features/settings/general_pane.dart';
 import 'package:ferman/features/settings/language_region_pane.dart';
+import 'package:ferman/features/settings/licences_pane.dart';
 import 'package:ferman/features/settings/phone_settings.dart';
 import 'package:ferman/features/settings/privacy_pane.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
+import 'package:ferman/features/settings/shortcuts_pane.dart';
+import 'package:ferman/features/settings/signatures_pane.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
@@ -37,10 +43,16 @@ import 'package:go_router/go_router.dart';
 /// (Ctrl+W on Windows and Linux, the shortcut table's
 /// `ShellCommand.closeDocument`) close it too, back to the screen below.
 ///
-/// Built panes: General, Language and region, Editing, Privacy (a skeleton).
-/// The others are listed and disabled with "Available in a future version"
-/// (G10), as is the settings search ("Search filters every pane"), each
-/// through its feature in the feature registry ([Feature]).
+/// Built panes: General, Language and region, Editing, Fonts, Signatures
+/// and certificates, Privacy, Advanced and the last row, Licences
+/// (question 7 of the M4 plan). The others are listed and disabled with
+/// "Available in a future version" (G10), each through its feature in the
+/// feature registry ([Feature]).
+///
+/// The search field filters the pane list ("Search filters every pane"):
+/// a pane stays while its name or the name of one of its settings
+/// ([SettingsPane.searchTerms]) contains what was typed, in the language's
+/// own lower case; when none does, an EmptyState says so (G50).
 ///
 /// Tab goes through the pane list first (the search, then the panes), then
 /// through the pane, each column as one group in reading order. When a
@@ -115,6 +127,7 @@ class FmSettings extends ConsumerStatefulWidget {
 class _FmSettingsState extends ConsumerState<FmSettings> {
   late SettingsPane _pane = widget.initialPane ?? SettingsPane.general;
   final FocusNode _focus = FocusNode(debugLabel: 'FmSettings');
+  String _query = '';
   bool? _wasPhone;
 
   @override
@@ -156,7 +169,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     final theme = context.ferman;
     final colors = theme.colors;
     final l10n = AppLocalizations.of(context);
-    final platform = ref.watch(shortcutPlatformProvider);
+    final keys = ref.watch(shortcutBindingsProvider);
     final saveFailed = ref.watch(settingsSaveFailedProvider);
     final phone = WindowMetrics.isPhone(context);
     // A pane route stays on the pane chosen in the side list while it was
@@ -174,7 +187,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     Widget framed(Widget child) => CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): close,
-        for (final binding in ShellCommand.closeDocument.bindingsFor(platform))
+        for (final binding in keys.of(ShellCommand.closeDocument))
           binding.activator: close,
       },
       child: FocusTraversalGroup(
@@ -217,6 +230,17 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
         ),
       );
     }
+
+    final casing = LocaleCasing.of(context);
+    final query = casing.lower(_query.trim());
+    final panes = [
+      for (final pane in SettingsPane.values)
+        if (query.isEmpty ||
+            pane
+                .searchTerms(l10n)
+                .any((term) => casing.lower(term).contains(query)))
+          pane,
+    ];
 
     final nav = Container(
       width: FmSettings.navWidth,
@@ -269,17 +293,23 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
                   icon: IconName.search,
                   placeholder: l10n.settingsSearch,
                   semanticLabel: l10n.settingsSearch,
-                  disabled: true,
-                  disabledReason: Feature.settingsSearch.disabledReason(
-                    context,
-                  ),
+                  onChanged: (query) => setState(() => _query = query),
                 ),
               ),
-              for (final pane in SettingsPane.values)
+              for (final pane in panes)
                 _NavRow(
                   pane: pane,
                   selected: pane == _pane,
                   onPressed: () => setState(() => _pane = pane),
+                ),
+              if (panes.isEmpty)
+                Padding(
+                  padding: EdgeInsetsDirectional.only(top: theme.space.space4),
+                  child: EmptyState(
+                    icon: IconName.search,
+                    title: l10n.settingsSearchNoMatch,
+                    body: l10n.settingsSearchNoMatchBody,
+                  ),
                 ),
             ],
           ),
@@ -356,11 +386,22 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     );
   }
 
+  // Exhaustive (decision 35): a pane that ships needs its own case, so it
+  // can never show General by mistake. The panes not built yet cannot be
+  // chosen; they show nothing.
   Widget _paneBody(SettingsPane pane) => switch (pane) {
+    SettingsPane.general => const GeneralPane(),
     SettingsPane.language => const LanguageRegionPane(),
     SettingsPane.editing => const EditingPane(),
+    SettingsPane.fonts => const FontsPane(),
+    SettingsPane.signatures => const SignaturesPane(),
     SettingsPane.privacy => const PrivacyPane(),
-    _ => const GeneralPane(),
+    SettingsPane.shortcuts => const ShortcutsPane(),
+    SettingsPane.advanced => const AdvancedPane(),
+    SettingsPane.licences => const LicencesPane(),
+    SettingsPane.ocr ||
+    SettingsPane.ai ||
+    SettingsPane.updates => const SizedBox.shrink(),
   };
 }
 

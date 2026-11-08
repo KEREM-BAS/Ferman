@@ -259,7 +259,13 @@ fn every_kind_on(test: &str, name: &str, index: usize, exact: bool) {
     block_on(engine().redo(doc)).unwrap();
 
     let saved = dir.join("saved.pdf");
-    block_on(engine().save_copy(doc, saved.clone(), None)).unwrap();
+    block_on(engine().save_copy(
+        doc,
+        saved.clone(),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     assert!(std::fs::read(&saved).unwrap().starts_with(&original));
     let again = open(&saved);
     same(&after, &draw(again.id, &again.pages, index), "reopened");
@@ -445,7 +451,13 @@ fn hide_all_renders_without_them_and_is_never_saved() {
 
     // Saving does not write the appendix: the same file, no revision, whatever is shown.
     let saved = dir.join("saved.pdf");
-    block_on(engine().save_copy(doc, saved.clone(), None)).unwrap();
+    block_on(engine().save_copy(
+        doc,
+        saved.clone(),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     assert_eq!(std::fs::read(&saved).unwrap(), original);
 
     // It holds through a commit, whose new comment hides too.
@@ -781,7 +793,13 @@ fn links_read_as_what_they_are_and_only_web_and_mail_are_offered() {
     ))
     .unwrap();
     let saved = dir.join("saved.pdf");
-    block_on(engine().save_copy(doc, saved.clone(), None)).unwrap();
+    block_on(engine().save_copy(
+        doc,
+        saved.clone(),
+        ferman_api::facade::SaveOptions::default(),
+        None,
+    ))
+    .unwrap();
     let bytes = std::fs::read(&saved).unwrap();
     let text = String::from_utf8_lossy(&bytes);
     assert!(text.matches("Hide").count() >= 2, "/S /Hide written again");

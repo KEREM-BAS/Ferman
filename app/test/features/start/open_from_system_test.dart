@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/organize/combine.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -187,30 +188,15 @@ void main() {
       expect(find.text('Move over a choice, then let go.'), findsOneWidget);
       expect(find.text('Open in tabs'), findsOneWidget);
       expect(find.text('Each file opens on its own.'), findsOneWidget);
-      // Combining waits for M4 (B104): disabled, its line the reason; only
-      // the tabs target has the accent ring.
+      expect(
+        find.text('Merged in the order shown. You can reorder before saving.'),
+        findsOneWidget,
+      );
+      // Away from the targets a drop opens tabs: that target has the ring.
       Finder target(String title) => find
           .ancestor(of: find.text(title), matching: find.byType(Container))
           .first;
       const colors = FermanColorTokens.light;
-      expect(
-        find.descendant(
-          of: target('Combine into one PDF'),
-          matching: find.text('Available in a future version'),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: target('Open in tabs'),
-          matching: find.text('Available in a future version'),
-        ),
-        findsNothing,
-      );
-      expect(
-        tester.widget<Text>(find.text('Combine into one PDF')).style?.color,
-        colors.textDisabled,
-      );
       List<Color> rings(String title) => [
         for (final shadow
             in ((tester.widget<Container>(target(title)).decoration!
@@ -221,10 +207,48 @@ void main() {
       ];
       expect(rings('Open in tabs'), contains(colors.accent));
       expect(rings('Combine into one PDF'), isNot(contains(colors.accent)));
+      expect(find.text('Available in a future version'), findsNothing);
+
+      // Over Combine, Combine takes it.
+      final over = tester.getCenter(target('Combine into one PDF'));
+      await dropEvent(tester, 'updated', <double>[over.dx, over.dy]);
+      expect(rings('Combine into one PDF'), contains(colors.accent));
+      expect(rings('Open in tabs'), isNot(contains(colors.accent)));
 
       await dropEvent(tester, 'exited');
       expect(find.text('Drop to open the files'), findsNothing);
       expect(tabs(tester), isNot(contains('/docs/kira-tr.pdf')));
+    });
+
+    testWidgets("a drop on Combine puts the files in Combine's tab in the "
+        'order dropped (B191)', (tester) async {
+      await pumpFermanApp(
+        tester,
+        engine: FakeEngineService(documents: documents),
+      );
+      await dragIn(tester);
+      final over = tester.getCenter(
+        find
+            .ancestor(
+              of: find.text('Combine into one PDF'),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      await dropEvent(tester, 'updated', <double>[over.dx, over.dy]);
+      await dropEvent(tester, 'performOperation', [
+        '/docs/nda-en.pdf',
+        '/docs/kira-tr.pdf',
+      ]);
+      expect(find.text('Drop to open the files'), findsNothing);
+      expect(tabs(tester), [ShellDocument.combinePath]);
+      expect(
+        [
+          for (final row in containerOf(tester).read(combineFilesProvider).rows)
+            row.path,
+        ],
+        ['/docs/nda-en.pdf', '/docs/kira-tr.pdf'],
+      );
     });
 
     testWidgets('a drop on Start opens each file in a new tab and shows the '

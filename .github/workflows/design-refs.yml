@@ -51,7 +51,7 @@ jobs:
           echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
       - name: Render the M1, M2, M3 and phone boards, twice
         if: github.event_name == 'pull_request'
-        run: node index.mjs --only @m1,@m2,@m3,@phone --twice
+        run: node index.mjs --only @m1,@m2,@m3,@m4,@phone --twice
       - name: Render every board, twice
         if: github.event_name == 'workflow_dispatch'
         run: node index.mjs --twice

@@ -41,6 +41,8 @@ pub const GENERATORS: &[Generator] = &[
     kira::KIRA_TR_DAMAGED,
     kira::KIRA_TR_RESTRICTED,
     kira::KIRA_TR_COMMENTS_ONLY,
+    kira::KIRA_TR_NO_PRINT,
+    kira::KIRA_TR_LOW_PRINT,
     kira::KIRA_TR_SIGNED,
     damaged::TRUNCATED,
     damaged::DISAGREE_PAGES,

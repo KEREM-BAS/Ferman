@@ -105,6 +105,7 @@ class _FormatBarState extends ConsumerState<FormatBar> {
     final info = widget.info;
     final linkRefusal = ref.watch(linkRefusalProvider);
     final platform = ref.watch(shortcutPlatformProvider);
+    final bindings = ref.watch(shortcutBindingsProvider);
     final refusal = ref.watch(commentRefusalProvider)?.call(l10n);
     final mac = platform == ShortcutPlatform.mac;
     List<String> keys(LogicalKeyboardKey key) =>
@@ -179,7 +180,7 @@ class _FormatBarState extends ConsumerState<FormatBar> {
           icon: IconName.link,
           label: l10n.editBarLink,
           size: IconButtonSize.sm,
-          shortcut: ShellCommand.addLink.caps(platform),
+          shortcut: bindings.caps(ShellCommand.addLink),
           disabledReason: linkRefusal?.call(l10n),
           onPressed: linkRefusal == null ? widget.onAddLink : null,
         ),

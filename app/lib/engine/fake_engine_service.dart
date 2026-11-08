@@ -122,6 +122,9 @@ class FakeEngineService implements EngineService {
   /// The settings [setFontSettings] was given last.
   FontSettings fontSettings = const FontSettings();
 
+  /// What [installedFonts] lists.
+  List<InstalledFont> installed = const [];
+
   /// The fonts named by a committed substitution, by step.
   final Set<(SubstitutionKind, String)> _announced = {};
 
@@ -807,6 +810,9 @@ class FakeEngineService implements EngineService {
     fontSettings = settings;
   }
 
+  @override
+  Future<List<InstalledFont>> installedFonts() async => installed;
+
   /// Draws step 3's characters in the candidate [postscriptName] of [origin]
   /// of [missingGlyphs]; one that is not usable is refused.
   @override
@@ -1281,8 +1287,11 @@ class FakeEngineService implements EngineService {
     int document,
     String name,
     List<int> touched,
-    List<PageInfo> Function(List<PageInfo> pages) change,
-  ) {
+    List<PageInfo> Function(List<PageInfo> pages) change, {
+    List<OutlineEntry>? outline,
+    List<Attachment>? attachments,
+    DocumentInfo? info,
+  }) {
     _closed(document, can: true);
     final opened = _openedById(document);
     final pages = _handled(opened);
@@ -1304,8 +1313,9 @@ class FakeEngineService implements EngineService {
     final blocks = _blocks(document, 0);
     final next = DocumentStructure(
       pages: after,
-      outline: opened.outline,
-      attachments: opened.attachments,
+      outline: outline ?? opened.outline,
+      attachments: attachments ?? opened.attachments,
+      info: info ?? opened.info,
     );
     _histories[document] = (
       steps: [
@@ -1320,6 +1330,7 @@ class FakeEngineService implements EngineService {
             pages: pages,
             outline: opened.outline,
             attachments: opened.attachments,
+            info: opened.info,
           ),
           structureAfter: next,
         ),
@@ -1759,6 +1770,116 @@ class FakeEngineService implements EngineService {
         if (annotation.handle != handle && annotation.thread != handle)
           annotation,
     ]);
+  }
+
+  /// The outlines [setOutline] wrote, oldest first.
+  final List<List<OutlineEdit>> outlineEdits = [];
+
+  @override
+  Future<RevisionInfo> setOutline(
+    int document,
+    List<OutlineEdit> items,
+    String name,
+  ) async {
+    outlineEdits.add(items);
+    final before = _openedById(document).outline;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      outline: [
+        for (final item in items)
+          OutlineEntry(
+            title: item.title,
+            page: switch (item.item) {
+              final kept? => before[kept].page,
+              null => item.page,
+            },
+            depth: item.depth,
+            open: item.open,
+          ),
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> setInfo(int document, InfoEdit info, String name) async {
+    final before = _openedById(document).info;
+    String? value(String text) => text.isEmpty ? null : text;
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      info: DocumentInfo(
+        title: value(info.title),
+        author: value(info.author),
+        subject: value(info.subject),
+        keywords: value(info.keywords),
+        creator: before.creator,
+        producer: before.producer,
+        created: before.created,
+        modified: before.modified,
+        editable: before.editable,
+      ),
+    );
+  }
+
+  /// The files [attachFile] attached: document, path and name.
+  final List<(int, String, String)> attachedFiles = [];
+
+  @override
+  Future<RevisionInfo> attachFile(
+    int document,
+    String path,
+    String fileName,
+    String name,
+  ) async {
+    attachedFiles.add((document, path, fileName));
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      attachments: [
+        ..._openedById(document).attachments,
+        Attachment(name: fileName),
+      ],
+    );
+  }
+
+  @override
+  Future<RevisionInfo> removeAttachment(
+    int document,
+    int index,
+    String name,
+  ) async {
+    final attachments = [..._openedById(document).attachments];
+    if (index < 0 || index >= attachments.length) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    attachments.removeAt(index);
+    return _pagesChanged(
+      document,
+      name,
+      const [],
+      (all) => all,
+      attachments: attachments,
+    );
+  }
+
+  /// The requests of every [showFormWidgets], oldest first.
+  final List<bool> formWidgetRequests = [];
+
+  @override
+  Future<int> showFormWidgets(int document, {required bool visible}) async {
+    formWidgetRequests.add(visible);
+    _pageKeys.remove(document);
+    return _renderKeys[document] = ++_lastRenderKey;
   }
 
   /// The requests of every [showComments], oldest first.
@@ -2498,19 +2619,49 @@ class FakeEngineService implements EngineService {
     });
   }
 
-  /// Records the save; [saveFailure] and [failNextSave] fail it.
+  /// The options of every [saveAs] and [saveCopy], oldest first.
+  final List<SaveAsOptions> saveOptions = [];
+
+  /// Records the save; [saveFailure] and [failNextSave] fail it. Without
+  /// comments it records a copy, as the engine keeps the document's file.
   @override
-  Future<String?> saveAs(int document, String path, {String? staging}) async {
-    if (_history(document).current > 0) _confirmed(document);
+  Future<String?> saveAs(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  }) async {
+    if (_history(document).current > 0 ||
+        options.removeHistory ||
+        !options.includeComments) {
+      _confirmed(document);
+    }
     _saving();
-    return _write(document, staging, () => saves.add((document, path)));
+    saveOptions.add(options);
+    return _write(
+      document,
+      staging,
+      () => options.includeComments
+          ? saves.add((document, path))
+          : copies.add((document, path)),
+    );
   }
 
   /// Records the copy; [saveFailure] and [failNextSave] fail it.
   @override
-  Future<String?> saveCopy(int document, String path, {String? staging}) async {
-    if (_history(document).current > 0) _confirmed(document);
+  Future<String?> saveCopy(
+    int document,
+    String path, {
+    SaveAsOptions options = const SaveAsOptions(),
+    String? staging,
+  }) async {
+    if (_history(document).current > 0 ||
+        options.removeHistory ||
+        !options.includeComments) {
+      _confirmed(document);
+    }
     _saving();
+    saveOptions.add(options);
     return _write(document, staging, () => copies.add((document, path)));
   }
 
@@ -2544,6 +2695,140 @@ class FakeEngineService implements EngineService {
       );
     }
     return _write(document, staging, () => optimized.add(document));
+  }
+
+  /// What [compressAnalysis] answers.
+  CompressAnalysis compressAnalysisFound = const CompressAnalysis(
+    before: 1000,
+    estimates: [
+      CompressEstimate(preset: CompressPreset.highQuality, after: 900),
+      CompressEstimate(preset: CompressPreset.balanced, after: 600),
+      CompressEstimate(preset: CompressPreset.smallest, after: 300),
+    ],
+  );
+
+  /// The compress jobs started, as "balanced /out.pdf", oldest first; drive
+  /// them with [reportJob] and [endJob].
+  final List<String> compressJobs = [];
+
+  @override
+  Future<CompressAnalysis> compressAnalysis(int document) async =>
+      compressAnalysisFound;
+
+  /// Starts a job that waits; a [signed] document without [unsign] throws
+  /// [EngineErrorKind.confirmationRequired].
+  @override
+  Stream<JobUpdate> compressJob(
+    int document, {
+    required CompressPreset preset,
+    required String output,
+    bool unsign = false,
+    String? staging,
+  }) {
+    if (signed.contains(document) && !unsign) {
+      return Stream.error(
+        const EngineException(
+          kind: EngineErrorKind.confirmationRequired,
+          messageKey: 'errorInternal',
+        ),
+      );
+    }
+    compressJobs.add('${preset.name} $output');
+    return _waitingJob();
+  }
+
+  /// What "Keep versions" says ([setVersionsEnabled]).
+  bool versionsEnabled = true;
+
+  /// The versions [versions] lists, by document, newest first.
+  final Map<int, List<VersionInfo>> versionLists = {};
+
+  /// The documents [openVersion] opens, by version id.
+  final Map<int, OpenedDocument> versionDocuments = {};
+
+  /// The restores, as (document, version), oldest first.
+  final List<(int, int)> restores = [];
+
+  @override
+  Future<void> setVersionsEnabled({required bool enabled}) async =>
+      versionsEnabled = enabled;
+
+  @override
+  Future<List<VersionInfo>> versions(int document) async =>
+      List.unmodifiable(versionLists[document] ?? const <VersionInfo>[]);
+
+  @override
+  Future<OpenedDocument> openVersion(
+    int document,
+    int version, {
+    String? password,
+  }) async =>
+      versionDocuments[version] ??
+      (throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      ));
+
+  /// Records the restore; [saveFailure], [failNextSave] and [changedOnDisk]
+  /// fail it.
+  @override
+  Future<String?> restoreVersion(
+    int document,
+    int version, {
+    String? staging,
+  }) async {
+    _saving();
+    if (changedOnDisk.contains(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileRead',
+      );
+    }
+    return _write(document, staging, () => restores.add((document, version)));
+  }
+
+  /// The prints asked for, as (document, pages, includeComments).
+  final List<(int, List<int>, bool)> prints = [];
+
+  /// The pages each print streams: one white 1 × 1 page per document page
+  /// asked for, or [printPagesFound] when a test sets it.
+  List<PrintPage>? printPagesFound;
+
+  /// Whether printing is forbidden: [printPages] throws
+  /// [EngineErrorKind.notEditable].
+  bool printForbidden = false;
+
+  @override
+  Stream<PrintPage> printPages(
+    int document, {
+    List<int> pages = const [],
+    bool includeComments = true,
+  }) {
+    if (printForbidden) {
+      return Stream.error(
+        const EngineException(
+          kind: EngineErrorKind.notEditable,
+          messageKey: 'errorInternal',
+        ),
+      );
+    }
+    prints.add((document, pages, includeComments));
+    final count = pages.isEmpty ? 1 : pages.length;
+    return Stream.fromIterable(
+      printPagesFound ??
+          [
+            for (var index = 0; index < count; index++)
+              PrintPage(
+                index: index,
+                widthPoints: 595.28,
+                heightPoints: 841.89,
+                dpi: 300,
+                width: 1,
+                height: 1,
+                pixels: Uint8List.fromList(const [255, 255, 255, 255]),
+              ),
+          ],
+    );
   }
 
   @override

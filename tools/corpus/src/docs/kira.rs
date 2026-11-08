@@ -14,12 +14,14 @@
 //!   password, but changes, copying, comments and form filling are not allowed (`a2-10a`).
 //! - **kira-tr-comments-only:** kira-tr-restricted, but comments are allowed: what flattening, which
 //!   changes the content, is refused on while a comment is not.
+//! - **kira-tr-no-print:** kira-tr-restricted, but printing is not allowed either.
+//! - **kira-tr-low-print:** kira-tr-restricted, but printing only at low quality.
 //! - **kira-tr-signed:** kira-tr with the landlord's signature field signed as PAdES baseline,
 //!   with a signature timestamp ([`crate::pades`]).
 
 use super::files::{Cell, jpeg, xlsx};
 use super::{Doc, generated, info, open_first, opens};
-use crate::crypt::{COMMENTS_ONLY, Method, PRINT_ONLY, Security};
+use crate::crypt::{COMMENTS_ONLY, LOW_PRINT, Method, NOTHING, PRINT_ONLY, Security};
 use crate::pades;
 use crate::pdf::{self, Content, Pdf, name, num, rect, text};
 use crate::sources::{FontFile, Sources};
@@ -55,6 +57,20 @@ pub const KIRA_TR_COMMENTS_ONLY: Generator = Generator {
     expect: Expect::Opens { password: None },
 };
 
+/// The contract with an owner password that forbids printing.
+pub const KIRA_TR_NO_PRINT: Generator = Generator {
+    name: "kira-tr-no-print",
+    build: |sources| build(sources, Variant::NoPrint),
+    expect: Expect::Opens { password: None },
+};
+
+/// The contract with an owner password that allows only low-quality printing.
+pub const KIRA_TR_LOW_PRINT: Generator = Generator {
+    name: "kira-tr-low-print",
+    build: |sources| build(sources, Variant::LowPrint),
+    expect: Expect::Opens { password: None },
+};
+
 /// The contract signed by the landlord.
 pub const KIRA_TR_SIGNED: Generator = Generator {
     name: "kira-tr-signed",
@@ -71,6 +87,8 @@ enum Variant {
     Damaged,
     Restricted,
     CommentsOnly,
+    NoPrint,
+    LowPrint,
     Signed,
 }
 
@@ -749,6 +767,8 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         Variant::Damaged => "kira-tr-damaged",
         Variant::Restricted => "kira-tr-restricted",
         Variant::CommentsOnly => "kira-tr-comments-only",
+        Variant::NoPrint => "kira-tr-no-print",
+        Variant::LowPrint => "kira-tr-low-print",
         Variant::Signed => "kira-tr-signed",
     };
     let title = if variant == Variant::Damaged {
@@ -760,10 +780,11 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         method: Method::Aes128,
         user: String::new(),
         owner: OWNER_PASSWORD.to_owned(),
-        permissions: if variant == Variant::CommentsOnly {
-            COMMENTS_ONLY
-        } else {
-            PRINT_ONLY
+        permissions: match variant {
+            Variant::CommentsOnly => COMMENTS_ONLY,
+            Variant::NoPrint => NOTHING,
+            Variant::LowPrint => LOW_PRINT,
+            _ => PRINT_ONLY,
         },
         seed: name.to_owned(),
     };
@@ -771,12 +792,20 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         catalog,
         &info(title, "Mert Kaya", "Kelime işlemci", CREATED),
         name,
-        matches!(variant, Variant::Restricted | Variant::CommentsOnly).then_some(&security),
+        matches!(
+            variant,
+            Variant::Restricted | Variant::CommentsOnly | Variant::NoPrint | Variant::LowPrint
+        )
+        .then_some(&security),
     )?;
     let bytes = match variant {
         Variant::Damaged => shift_xref(&bytes, 2)?,
         Variant::Signed => pades::sign(bytes)?,
-        Variant::Full | Variant::Restricted | Variant::CommentsOnly => bytes,
+        Variant::Full
+        | Variant::Restricted
+        | Variant::CommentsOnly
+        | Variant::NoPrint
+        | Variant::LowPrint => bytes,
     };
     Ok(generated(bytes, expected))
 }

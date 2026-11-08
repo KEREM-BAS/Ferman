@@ -379,11 +379,13 @@ jobs:
           path: |
             ~/.cargo/bin/flutter_rust_bridge_codegen
             ~/.cargo/bin/cargo-expand
-          key: frb-codegen-2.13.0-cargo-expand-1.0.127-${{ runner.os }}
+            ~/.cargo/bin/cargo-about
+          key: frb-codegen-2.13.0-cargo-expand-1.0.127-cargo-about-0.9.2-${{ runner.os }}
       - name: Install the bridge code generator
         run: |
           command -v flutter_rust_bridge_codegen || cargo install --locked flutter_rust_bridge_codegen@2.13.0
           command -v cargo-expand || cargo install --locked cargo-expand@1.0.127
+          command -v cargo-about || cargo install --locked cargo-about --version 0.9.2 --features cli
       - name: libclang for ffigen (the Dco codec, Q19)
         run: |
           # app/flutter_rust_bridge.yaml points ffigen at /usr/lib/llvm-18.
@@ -414,6 +416,10 @@ jobs:
           cargo fmt -p ferman-api
           git diff --exit-code
           test -z "$(git status --porcelain)"
+      - name: The Rust crates' notices are current (Settings › Licences)
+        run: |
+          cargo fetch --locked
+          bash tools/licenses/generate.sh --check
 
   flutter:
     name: Flutter (${{ matrix.os }})

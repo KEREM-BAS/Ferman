@@ -338,3 +338,73 @@ abstract class _$FormCommands extends $Notifier<void> {
     return element.handleCreate(ref, build);
   }
 }
+
+/// Form widgets on the canvas, as `formWidgetsShownProvider`: drawn in every
+/// mode and tool but Fill & Sign's fields, whose overlay draws each field with
+/// its value, so no value shows twice. Render-only, never saved; the canvas
+/// listens while it shows a document.
+
+@ProviderFor(FormWidgetsShown)
+final formWidgetsShownProvider = FormWidgetsShownProvider._();
+
+/// Form widgets on the canvas, as `formWidgetsShownProvider`: drawn in every
+/// mode and tool but Fill & Sign's fields, whose overlay draws each field with
+/// its value, so no value shows twice. Render-only, never saved; the canvas
+/// listens while it shows a document.
+final class FormWidgetsShownProvider
+    extends $NotifierProvider<FormWidgetsShown, FormWidgetsVisibility> {
+  /// Form widgets on the canvas, as `formWidgetsShownProvider`: drawn in every
+  /// mode and tool but Fill & Sign's fields, whose overlay draws each field with
+  /// its value, so no value shows twice. Render-only, never saved; the canvas
+  /// listens while it shows a document.
+  FormWidgetsShownProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'formWidgetsShownProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$formWidgetsShownHash();
+
+  @$internal
+  @override
+  FormWidgetsShown create() => FormWidgetsShown();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FormWidgetsVisibility value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FormWidgetsVisibility>(value),
+    );
+  }
+}
+
+String _$formWidgetsShownHash() => r'07f6c44b449440f52ed4d3662875d047bc196b53';
+
+/// Form widgets on the canvas, as `formWidgetsShownProvider`: drawn in every
+/// mode and tool but Fill & Sign's fields, whose overlay draws each field with
+/// its value, so no value shows twice. Render-only, never saved; the canvas
+/// listens while it shows a document.
+
+abstract class _$FormWidgetsShown extends $Notifier<FormWidgetsVisibility> {
+  FormWidgetsVisibility build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<FormWidgetsVisibility, FormWidgetsVisibility>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<FormWidgetsVisibility, FormWidgetsVisibility>,
+              FormWidgetsVisibility,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
