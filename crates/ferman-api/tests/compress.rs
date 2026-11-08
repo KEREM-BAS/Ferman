@@ -106,6 +106,10 @@ fn mean_difference(a: &[u8], b: &[u8]) -> f64 {
 fn compress_estimates_within_15_percent_renders_alike_and_leaves_the_original() {
     let dir = folder("compress");
     for name in ["images-compress", "long-500"] {
+        // long-500 is generated, not committed: only the bench job has it.
+        if !pdf(name).exists() {
+            continue;
+        }
         let (path, doc) = open_copy(&dir, name);
         let original = std::fs::read(&path).unwrap();
         let analysis = block_on(engine().compress_analysis(doc.id)).unwrap();
@@ -285,7 +289,8 @@ fn versions_are_written_listed_previewed_restored_and_optimize_runs_as_a_job() {
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn remove_edit_history_leaves_no_earlier_revision_and_comments_can_stay_out() {
     let dir = folder("save-options");
-    let (path, doc) = open_copy(&dir, "long-500");
+    // A committed file: CI's Rust jobs have no long-500.
+    let (path, doc) = open_copy(&dir, "tez-tr");
     let pages: Vec<u64> = doc.pages[..10].iter().map(|page| page.handle).collect();
     block_on(engine().delete_pages(doc.id, pages, "Delete pages".to_owned())).unwrap();
     let clean = dir.join("clean.pdf");
@@ -300,7 +305,7 @@ fn remove_edit_history_leaves_no_earlier_revision_and_comments_can_stay_out() {
     assert!(!bytes.windows(5).any(|window| window == b"/Prev"));
     assert!(bytes.len() < original.len());
     let reopened = block_on(engine().open(clean.clone(), None)).unwrap();
-    assert_eq!(reopened.pages.len(), 490);
+    assert_eq!(reopened.pages.len(), 54);
     block_on(engine().close(reopened.id)).unwrap();
     // The document moved to the clean file, which later saves rewrite.
     block_on(engine().rotate_page(doc.id, 0, 1, "Rotate".to_owned())).unwrap();

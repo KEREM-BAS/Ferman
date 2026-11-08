@@ -44,8 +44,8 @@ std::optional<int64_t> IntOf(const flutter::EncodableMap& map,
   if (value == nullptr) {
     return std::nullopt;
   }
-  if (const auto* small = std::get_if<int32_t>(value)) {
-    return *small;
+  if (const auto* narrow = std::get_if<int32_t>(value)) {
+    return *narrow;
   }
   if (const auto* large = std::get_if<int64_t>(value)) {
     return *large;

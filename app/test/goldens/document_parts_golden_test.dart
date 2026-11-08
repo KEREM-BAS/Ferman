@@ -93,6 +93,8 @@ Future<void> main() async {
             language: language,
             onboardingCompleted: true,
           ),
+          // The legend is a popover (an OverlayPortal).
+          layoutPortals: screen == 'badge_legend' ? 1 : 0,
           engine: _engine(),
           open: (tester) async {
             final container = ProviderScope.containerOf(
