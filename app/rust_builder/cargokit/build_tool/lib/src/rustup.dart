@@ -101,7 +101,9 @@ class Rustup {
 
     // To list all non-custom toolchains, we need to filter out lines that
     // don't start with "stable", "beta", or "nightly".
-    final nonCustom = RegExp(r'^(stable|beta|nightly)');
+    // Ferman patch: or a version (1.99.0), the pinned toolchain, which would
+    // otherwise be installed again, with a download, on every build.
+    final nonCustom = RegExp(r'^(stable|beta|nightly|\d+\.\d+)');
     final lines = res.stdout
         .toString()
         .split('\n')

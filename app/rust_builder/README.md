@@ -9,7 +9,8 @@ library with the app on macOS, Windows and Linux. The Dart bindings live in `app
 see `cargokit/LICENSE`) with two changes, each marked "Ferman patch":
 
 - `cargokit/build_tool/lib/src/builder.dart`: it builds with the toolchain pinned in the
-  repository's `rust-toolchain.toml` instead of always using `stable`.
+  repository's `rust-toolchain.toml` instead of always using `stable`; `rustup.dart` counts that
+  pinned version as installed, so a build does not install it again (with a download) each time.
 - `cargokit/build_tool/lib/src/cargo.dart` (`libraryName`) and the files that use it: it looks for
   the library under cargo's name, with `-` turned into `_` (the package `ferman-api` builds
   `libferman_api`).
