@@ -10,6 +10,7 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/settings/settings_providers.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -93,20 +94,29 @@ class PrivacyPane extends ConsumerWidget {
           disabledReason: feature.disabledReason(context),
         );
     final clientsOn = ref.watch(settingsProvider.select((s) => s.aiClients));
-    final connected = ref.watch(aiClientsProvider).clients;
-    final names = connected
+    final clients = ref.watch(aiClientsProvider);
+    final names = clients.clients
         .map((client) => bidiIsolate(client.name))
         .join(l10n.aiClientsSeparator);
-    final clientsDescription = connected.isEmpty
-        ? l10n.settingsNetAiClientsDescription
-        : '${l10n.settingsNetAiClientsDescription} '
-              '${l10n.aiClientsNotice(names)}';
-    final clientsSwitch = Switch(
-      value: clientsOn,
-      semanticLabel: '${l10n.settingsNetAiClients}. $clientsDescription',
-      onChanged: (value) =>
-          unawaited(changeSetting(ref, (s) => s.copyWith(aiClients: value))),
-    );
+    final clientsDescription = [
+      l10n.settingsNetAiClientsDescription,
+      if (clientsOn && clients.failed) l10n.aiClientsStartFailed,
+      if (clients.clients.isNotEmpty) l10n.aiClientsNotice(names),
+    ].join(' ');
+    // The web build has no host (B231).
+    final clientsSwitch = kIsWeb
+        ? networkSwitch(
+            Feature.aiClientsOnWeb,
+            l10n.settingsNetAiClients,
+            clientsDescription,
+          )
+        : Switch(
+            value: clientsOn,
+            semanticLabel: '${l10n.settingsNetAiClients}. $clientsDescription',
+            onChanged: (value) => unawaited(
+              changeSetting(ref, (s) => s.copyWith(aiClients: value)),
+            ),
+          );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

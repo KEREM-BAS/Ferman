@@ -7,6 +7,7 @@ import 'package:ferman/features/ai_clients/ai_clients.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -123,6 +124,9 @@ class ClientRequestDialog extends ConsumerWidget {
     final client = bidiIsolate(request.clientName);
     final name = bidiIsolate(notifier.tabOf(request)?.name ?? '');
     final path = bidiIsolate(request.path ?? '');
+    final signer = bidiIsolate(request.signer ?? '');
+    final page = RegionFormat.forRegion(ref.watch(regionProvider).region)
+        .integer(request.page ?? 0);
     final (icon, title, description) = switch (request.kind) {
       ClientRequestKind.editSigned => (
         IconName.signature,
@@ -147,7 +151,14 @@ class ClientRequestDialog extends ConsumerWidget {
       ClientRequestKind.sign => (
         IconName.signature,
         l10n.clientRequestSign(client, name),
-        l10n.clientRequestSignBody,
+        switch (request.field) {
+          final field? => l10n.clientRequestSignFieldBody(
+            signer,
+            bidiIsolate(field),
+            page,
+          ),
+          null => l10n.clientRequestSignBody(signer, page),
+        },
       ),
       ClientRequestKind.restoreVersion => (
         IconName.rotateCcw,
@@ -165,14 +176,16 @@ class ClientRequestDialog extends ConsumerWidget {
           : DialogTone.standard,
       onClose: deny,
       closeLabel: l10n.clientRequestDeny,
+      // The request comes unasked, maybe while the person types: focus on
+      // "Don't allow", so a keystroke already under way cannot allow it.
       cancelAction: Button(
+        autofocus: true,
         onPressed: deny,
         child: Text(l10n.clientRequestDeny),
       ),
       actions: [
         Button(
           variant: ButtonVariant.primary,
-          autofocus: true,
           onPressed: () => unawaited(notifier.answer(request, allow: true)),
           child: Text(l10n.clientRequestAllow),
         ),

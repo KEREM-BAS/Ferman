@@ -3927,7 +3927,8 @@ pub enum ClientRequestKind {
     WriteFile,
     /// Reading the file at [`ClientRequest::path`] into the document.
     ReadFile,
-    /// Placing a simple signature in the user's name.
+    /// Placing a simple signature that writes [`ClientRequest::signer`] on
+    /// [`ClientRequest::page`], in [`ClientRequest::field`] if any.
     Sign,
     /// Restoring [`ClientRequest::version`] over the document's file: the app restores it in
     /// its own flow, then answers.
@@ -3951,6 +3952,12 @@ pub struct ClientRequest {
     pub path: Option<String>,
     /// The version, for [`ClientRequestKind::RestoreVersion`].
     pub version: Option<u64>,
+    /// The name written, for [`ClientRequestKind::Sign`].
+    pub signer: Option<String>,
+    /// The page, from 1, for [`ClientRequestKind::Sign`].
+    pub page: Option<u32>,
+    /// The signature field's full name, for [`ClientRequestKind::Sign`], if any.
+    pub field: Option<String>,
 }
 
 /// Starts the host AI clients connect to, in `app_data`'s `mcp` folder, and returns the folder
@@ -4031,6 +4038,16 @@ pub async fn watch_client_requests(sink: StreamSink<ClientRequest>) -> Result<()
     Ok(())
 }
 
+/// Whether a client's request still waits for the user's answer: false once answered, or once
+/// its client disconnected.
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn client_request_pending(request: u64) -> Result<bool, ApiError> {
+    Ok(engine()?.client_request_pending(request))
+}
+
 /// The user's answer to a client's request; nothing happens for one that is gone.
 ///
 /// # Errors
@@ -4046,6 +4063,7 @@ struct BridgeRequests(StreamSink<ClientRequest>);
 
 impl facade::RequestSink for BridgeRequests {
     fn deliver(&mut self, request: facade::ClientRequest) {
+        let mut sign = (None, None, None);
         let (kind, path, version) = match request.kind {
             facade::ClientRequestKind::EditSigned => (ClientRequestKind::EditSigned, None, None),
             facade::ClientRequestKind::Save => (ClientRequestKind::Save, None, None),
@@ -4059,7 +4077,10 @@ impl facade::RequestSink for BridgeRequests {
                 Some(path.to_string_lossy().into_owned()),
                 None,
             ),
-            facade::ClientRequestKind::Sign => (ClientRequestKind::Sign, None, None),
+            facade::ClientRequestKind::Sign { name, page, field } => {
+                sign = (Some(name), Some(page), field);
+                (ClientRequestKind::Sign, None, None)
+            }
             facade::ClientRequestKind::RestoreVersion(version) => {
                 (ClientRequestKind::RestoreVersion, None, Some(version))
             }
@@ -4072,6 +4093,9 @@ impl facade::RequestSink for BridgeRequests {
             kind,
             path,
             version,
+            signer: sign.0,
+            page: sign.1,
+            field: sign.2,
         });
     }
 }

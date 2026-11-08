@@ -197,6 +197,12 @@ fn the_host_is_the_users_alone_lists_its_tools_and_never_listens_on_tcp() {
         let _ = stranger.read_to_end(&mut rest).await;
         assert!(rest.is_empty());
         assert!(engine.connected_clients().is_empty());
+        // A connection that never gives the token is closed after a short wait.
+        let mut silent = raw(&mcp).await;
+        let mut rest = Vec::new();
+        let closed =
+            tokio::time::timeout(Duration::from_secs(10), silent.read_to_end(&mut rest)).await;
+        assert!(closed.is_ok(), "a silent connection was kept open");
 
         let mut client = Client::connect(&mcp, "Stand-in").await;
         let tools = client.request("tools/list", json!({})).await;
@@ -269,6 +275,9 @@ fn open(dir: &Path, name: &str) -> DocumentId {
     block_on(engine().open(path, None)).unwrap().id
 }
 
+/// The tests that answer requests take turns: the engine has one request sink.
+static ANSWERING: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 /// Hands the requests to the user's stand-in.
 struct Requests(mpsc::Sender<ClientRequest>);
 
@@ -299,6 +308,9 @@ async fn block(client: &mut Client, document: u64, needle: &str) -> (u64, String
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn a_stand_in_client_reads_is_refused_edits_once_granted_and_asks_on_a_signed_file() {
+    let _turn = ANSWERING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let app_data = folder("client");
     let plain = open(&app_data, "edit-e15-helvetica");
     let signed = open(&app_data, "kira-tr-signed");
@@ -410,5 +422,89 @@ fn a_stand_in_client_reads_is_refused_edits_once_granted_and_asks_on_a_signed_fi
     assert_eq!(history.steps[0].client.as_deref(), Some("Stand-in"));
     block_on(engine().close_discarding(plain)).unwrap();
     block_on(engine().close_discarding(signed)).unwrap();
+    std::fs::remove_dir_all(&app_data).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn combine_asks_to_read_each_file_and_sign_shows_the_name_page_and_field() {
+    let _turn = ANSWERING
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let app_data = folder("ask");
+    let plain = open(&app_data, "edit-e15-helvetica");
+    let input = app_data.join("edit-e15-helvetica.pdf");
+    // The user declines every request, and the test hears of each.
+    let (requests, incoming) = mpsc::channel::<ClientRequest>();
+    let (heard, asked) = mpsc::channel();
+    std::thread::spawn(move || {
+        for request in incoming {
+            assert!(engine().client_request_pending(request.id));
+            engine().answer_client_request(request.id, false);
+            assert!(!engine().client_request_pending(request.id));
+            let _ = heard.send(request);
+        }
+    });
+    engine().watch_client_requests(Box::new(Requests(requests)));
+    let mcp = engine().start_mcp_host(app_data.clone()).unwrap();
+    runtime().block_on(async {
+        let mut client = Client::connect(&mcp, "Asker").await;
+        let me = engine()
+            .connected_clients()
+            .into_iter()
+            .find(|connected| connected.name == "Asker")
+            .unwrap();
+        engine().grant_edit(me.id, true).unwrap();
+
+        // A relative input is refused before anything is asked.
+        let output = app_data.join("combined.pdf");
+        client
+            .call(
+                "combine_files",
+                json!({ "files": ["relative.pdf"], "output": output }),
+            )
+            .await
+            .unwrap_err();
+        assert!(asked.try_recv().is_err());
+
+        // Reading the input is asked first; declined, nothing is written.
+        client
+            .call(
+                "combine_files",
+                json!({ "files": [input], "output": output }),
+            )
+            .await
+            .unwrap_err();
+        let request = asked.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_eq!(request.kind, ClientRequestKind::ReadFile(input.clone()));
+        assert!(
+            asked.try_recv().is_err(),
+            "no write asked after a declined read"
+        );
+        assert!(!output.exists());
+
+        // The signing request carries what the dialog shows.
+        client
+            .call(
+                "add_signature",
+                json!({
+                    "document": plain.get(), "page": 1, "rect": [72, 72, 200, 110],
+                    "name": "Jane Smith", "field": "Buyer",
+                }),
+            )
+            .await
+            .unwrap_err();
+        let request = asked.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_eq!(
+            request.kind,
+            ClientRequestKind::Sign {
+                name: "Jane Smith".to_owned(),
+                page: 1,
+                field: Some("Buyer".to_owned()),
+            }
+        );
+    });
+    engine().stop_mcp_host();
+    block_on(engine().close_discarding(plain)).unwrap();
     std::fs::remove_dir_all(&app_data).unwrap();
 }

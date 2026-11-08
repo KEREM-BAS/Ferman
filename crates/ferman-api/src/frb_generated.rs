@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1252446418;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1340146958;
 
 // Section: executor
 
@@ -525,6 +525,30 @@ fn wire__crate__frb__clear_form_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::clear_form(api_document, api_missing, api_name).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__client_request_pending_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    request: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "client_request_pending",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_request = request.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::client_request_pending(api_request).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -4660,6 +4684,9 @@ impl SseDecode for crate::frb::ClientRequest {
         let mut var_kind = <crate::frb::ClientRequestKind>::sse_decode(deserializer);
         let mut var_path = <Option<String>>::sse_decode(deserializer);
         let mut var_version = <Option<u64>>::sse_decode(deserializer);
+        let mut var_signer = <Option<String>>::sse_decode(deserializer);
+        let mut var_page = <Option<u32>>::sse_decode(deserializer);
+        let mut var_field = <Option<String>>::sse_decode(deserializer);
         return crate::frb::ClientRequest {
             id: var_id,
             client: var_client,
@@ -4668,6 +4695,9 @@ impl SseDecode for crate::frb::ClientRequest {
             kind: var_kind,
             path: var_path,
             version: var_version,
+            signer: var_signer,
+            page: var_page,
+            field: var_field,
         };
     }
 }
@@ -8299,6 +8329,9 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ClientRequest {
             self.kind.into_into_dart().into_dart(),
             self.path.into_into_dart().into_dart(),
             self.version.into_into_dart().into_dart(),
+            self.signer.into_into_dart().into_dart(),
+            self.page.into_into_dart().into_dart(),
+            self.field.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -11053,6 +11086,9 @@ impl SseEncode for crate::frb::ClientRequest {
         <crate::frb::ClientRequestKind>::sse_encode(self.kind, serializer);
         <Option<String>>::sse_encode(self.path, serializer);
         <Option<u64>>::sse_encode(self.version, serializer);
+        <Option<String>>::sse_encode(self.signer, serializer);
+        <Option<u32>>::sse_encode(self.page, serializer);
+        <Option<String>>::sse_encode(self.field, serializer);
     }
 }
 
@@ -14311,6 +14347,9 @@ mod io {
                 kind: self.kind.cst_decode(),
                 path: self.path.cst_decode(),
                 version: self.version.cst_decode(),
+                signer: self.signer.cst_decode(),
+                page: self.page.cst_decode(),
+                field: self.field.cst_decode(),
             }
         }
     }
@@ -16126,6 +16165,9 @@ mod io {
                 kind: Default::default(),
                 path: core::ptr::null_mut(),
                 version: core::ptr::null_mut(),
+                signer: core::ptr::null_mut(),
+                page: core::ptr::null_mut(),
+                field: core::ptr::null_mut(),
             }
         }
     }
@@ -17659,6 +17701,14 @@ mod io {
         name: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__clear_form_impl(port_, document, missing, name)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__client_request_pending(
+        port_: i64,
+        request: u64,
+    ) {
+        wire__crate__frb__client_request_pending_impl(port_, request)
     }
 
     #[unsafe(no_mangle)]
@@ -19780,6 +19830,9 @@ mod io {
         kind: i32,
         path: *mut wire_cst_list_prim_u_8_strict,
         version: *mut u64,
+        signer: *mut wire_cst_list_prim_u_8_strict,
+        page: *mut u32,
+        field: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -21349,8 +21402,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                7,
-                "Expected 7 elements, got {}",
+                10,
+                "Expected 10 elements, got {}",
                 self_.length()
             );
             crate::frb::ClientRequest {
@@ -21361,6 +21414,9 @@ mod web {
                 kind: self_.get(4).cst_decode(),
                 path: self_.get(5).cst_decode(),
                 version: self_.get(6).cst_decode(),
+                signer: self_.get(7).cst_decode(),
+                page: self_.get(8).cst_decode(),
+                field: self_.get(9).cst_decode(),
             }
         }
     }
@@ -24558,6 +24614,14 @@ mod web {
         name: String,
     ) {
         wire__crate__frb__clear_form_impl(port_, document, missing, name)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__client_request_pending(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        request: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__client_request_pending_impl(port_, request)
     }
 
     #[wasm_bindgen]

@@ -5421,7 +5421,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.clientRequestSign(client, name));
 
   @override
-  String get clientRequestSignBody => isolate(super.clientRequestSignBody);
+  String clientRequestSignBody(String signer, String page) =>
+      isolate(super.clientRequestSignBody(signer, page));
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) =>
+      isolate(super.clientRequestSignFieldBody(signer, field, page));
 
   @override
   String clientRequestRestore(String client, String name) =>

@@ -113,8 +113,16 @@ pub enum ClientRequestKind {
     WriteFile(PathBuf),
     /// Reading the file at this path into the document (attach, combine).
     ReadFile(PathBuf),
-    /// Placing a simple signature in the user's name.
-    Sign,
+    /// Placing a simple signature that writes `name`, on page `page` (from 1), in the signature
+    /// field `field` if any: the user sees all three before allowing it.
+    Sign {
+        /// The name written in a handwriting style, as the client gave it.
+        name: String,
+        /// The page, from 1.
+        page: u32,
+        /// The signature field it fills, by its full name.
+        field: Option<String>,
+    },
     /// Restoring this version ([`VersionInfo::id`](super::VersionInfo::id)) over the document's
     /// file. The app restores it in its own flow when the user allows, then answers.
     RestoreVersion(u64),
@@ -208,6 +216,11 @@ struct Connected {
 
 fn no_client() -> ApiError {
     ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL).with_details("no such client")
+}
+
+fn read_only() -> ApiError {
+    ApiError::new(ErrorKind::PermissionDenied, MessageKey::INTERNAL)
+        .with_details("the client may only read")
 }
 
 fn no_transaction() -> ApiError {
@@ -315,6 +328,13 @@ impl Engine {
         }
     }
 
+    /// Whether `request` still waits for the user's answer: false once answered, or once its
+    /// client disconnected.
+    #[must_use]
+    pub fn client_request_pending(&self, request: u64) -> bool {
+        self.clients().pending.contains_key(&request)
+    }
+
     /// Asks the user to allow `kind` for `client`, and waits for the answer.
     ///
     /// # Errors
@@ -366,10 +386,7 @@ impl Engine {
         let clients = self.clients();
         let connected = clients.connected.get(&client).ok_or_else(no_client)?;
         if !connected.may_edit {
-            return Err(
-                ApiError::new(ErrorKind::PermissionDenied, MessageKey::INTERNAL)
-                    .with_details("the client may only read"),
-            );
+            return Err(read_only());
         }
         Ok(connected.name.clone())
     }
@@ -488,8 +505,9 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// `PermissionDenied` for a client the user has not let edit, `NotFound` for a client that is
-    /// not connected (or disconnected while it waited), `InvalidInput` while its own transaction
+    /// `PermissionDenied` for a client the user has not let edit (also when the user took it away
+    /// while it waited), `NotFound` for a client that is not connected (or disconnected while it
+    /// waited), `InvalidInput` while its own transaction
     /// of the document is open, and the errors of [`begin_edit`](Self::begin_edit).
     pub async fn client_begin_edit(
         &self,
@@ -519,18 +537,19 @@ impl Engine {
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner)
                 .insert(transaction, document);
-            let kept = self
-                .clients()
-                .connected
-                .get_mut(&client)
-                .map(|connected| connected.transactions.push(transaction))
-                .is_some();
-            if !kept {
-                // It disconnected while this began.
+            // It may have disconnected, or lost edit, while it waited.
+            let kept = match self.clients().connected.get_mut(&client) {
+                None => Err(no_client()),
+                Some(connected) if !connected.may_edit => Err(read_only()),
+                Some(connected) => {
+                    connected.transactions.push(transaction);
+                    Ok(transaction)
+                }
+            };
+            if kept.is_err() {
                 self.drop_transaction(transaction);
-                return Err(no_client());
             }
-            Ok(transaction)
+            kept
         })
         .await
     }
@@ -563,8 +582,9 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// `NotFound` for a transaction that is not the client's, and the errors of
-    /// [`apply`](Self::apply).
+    /// `PermissionDenied` once the user took the client's edit away (its transaction stays open
+    /// for its rollback), `NotFound` for a transaction that is not the client's, and the errors
+    /// of [`apply`](Self::apply).
     pub async fn client_apply(
         &self,
         client: ClientId,
@@ -572,6 +592,7 @@ impl Engine {
         text: String,
     ) -> Result<EditPreview, ApiError> {
         self.owned(client, transaction)?;
+        self.editor(client)?;
         self.apply(transaction, text).await
     }
 
@@ -580,7 +601,8 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// `NotFound` for a transaction that is not the client's, `ConfirmationRequired` for its
+    /// `PermissionDenied` once the user took the client's edit away, `NotFound` for a transaction
+    /// that is not the client's, `ConfirmationRequired` for its
     /// first change to a signed document before
     /// [`confirm_client_signed`](Self::confirm_client_signed), and the errors of
     /// [`commit`](Self::commit).
@@ -591,6 +613,7 @@ impl Engine {
         name: String,
     ) -> Result<RevisionInfo, ApiError> {
         self.owned(client, transaction)?;
+        self.editor(client)?;
         let document = self.transaction_document(transaction)?;
         let result = self.commit(transaction, name).await;
         self.forget_ended(client);

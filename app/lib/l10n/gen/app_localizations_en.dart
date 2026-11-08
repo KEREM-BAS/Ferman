@@ -6354,12 +6354,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String clientRequestSign(String client, String name) {
-    return '$client wants to sign $name in your name';
+    return '$client wants to sign $name';
   }
 
   @override
-  String get clientRequestSignBody =>
-      'It places a simple signature, not a certificate signature.';
+  String clientRequestSignBody(String signer, String page) {
+    return 'It writes the name $signer on page $page: a simple signature, not a certificate signature.';
+  }
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) {
+    return 'It writes the name $signer in the field $field on page $page: a simple signature, not a certificate signature.';
+  }
 
   @override
   String clientRequestRestore(String client, String name) {

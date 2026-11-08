@@ -316,8 +316,15 @@ class FrbEngineService implements EngineService {
       document: request.document?.toInt(),
       path: request.path,
       version: request.version?.toInt(),
+      signer: request.signer,
+      page: request.page,
+      field: request.field,
     ),
   );
+
+  @override
+  Future<bool> clientRequestPending(int request) =>
+      bridge.clientRequestPending(request: BigInt.from(request));
 
   @override
   Future<void> answerClientRequest(int request, {required bool allow}) =>

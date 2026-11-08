@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1252446418;
+  int get rustContentHash => -1340146958;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -164,6 +164,8 @@ abstract class FermanBridgeApi extends BaseApi {
     MissingFont? missing,
     required String name,
   });
+
+  Future<bool> crateFrbClientRequestPending({required BigInt request});
 
   Future<void> crateFrbClose({
     required BigInt document,
@@ -1187,6 +1189,31 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "clear_form",
     argNames: ["document", "missing", "name"],
   );
+
+  @override
+  Future<bool> crateFrbClientRequestPending({required BigInt request}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(request);
+          return wire.wire__crate__frb__client_request_pending(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbClientRequestPendingConstMeta,
+        argValues: [request],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbClientRequestPendingConstMeta =>
+      const TaskConstMeta(
+        debugName: "client_request_pending",
+        argNames: ["request"],
+      );
 
   @override
   Future<void> crateFrbClose({
@@ -5041,8 +5068,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ClientRequest dco_decode_client_request(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
     return ClientRequest(
       id: dco_decode_u_64(arr[0]),
       client: dco_decode_u_64(arr[1]),
@@ -5051,6 +5078,9 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       kind: dco_decode_client_request_kind(arr[4]),
       path: dco_decode_opt_String(arr[5]),
       version: dco_decode_opt_box_autoadd_u_64(arr[6]),
+      signer: dco_decode_opt_String(arr[7]),
+      page: dco_decode_opt_box_autoadd_u_32(arr[8]),
+      field: dco_decode_opt_String(arr[9]),
     );
   }
 
@@ -7827,6 +7857,9 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_kind = sse_decode_client_request_kind(deserializer);
     var var_path = sse_decode_opt_String(deserializer);
     var var_version = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_signer = sse_decode_opt_String(deserializer);
+    var var_page = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_field = sse_decode_opt_String(deserializer);
     return ClientRequest(
       id: var_id,
       client: var_client,
@@ -7835,6 +7868,9 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       kind: var_kind,
       path: var_path,
       version: var_version,
+      signer: var_signer,
+      page: var_page,
+      field: var_field,
     );
   }
 
@@ -11690,6 +11726,9 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_client_request_kind(self.kind, serializer);
     sse_encode_opt_String(self.path, serializer);
     sse_encode_opt_box_autoadd_u_64(self.version, serializer);
+    sse_encode_opt_String(self.signer, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.page, serializer);
+    sse_encode_opt_String(self.field, serializer);
   }
 
   @protected

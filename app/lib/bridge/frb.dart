@@ -1330,6 +1330,15 @@ Future<void> grantClientEdit({required BigInt client, required bool mayEdit}) =>
 Stream<ClientRequest> watchClientRequests() =>
     FermanBridge.instance.api.crateFrbWatchClientRequests();
 
+/// Whether a client's request still waits for the user's answer: false once answered, or once
+/// its client disconnected.
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<bool> clientRequestPending({required BigInt request}) =>
+    FermanBridge.instance.api.crateFrbClientRequestPending(request: request);
+
 /// The user's answer to a client's request; nothing happens for one that is gone.
 ///
 /// # Errors
@@ -2647,6 +2656,15 @@ class ClientRequest {
   /// The version, for [`ClientRequestKind::RestoreVersion`].
   final BigInt? version;
 
+  /// The name written, for [`ClientRequestKind::Sign`].
+  final String? signer;
+
+  /// The page, from 1, for [`ClientRequestKind::Sign`].
+  final int? page;
+
+  /// The signature field's full name, for [`ClientRequestKind::Sign`], if any.
+  final String? field;
+
   const ClientRequest({
     required this.id,
     required this.client,
@@ -2655,6 +2673,9 @@ class ClientRequest {
     required this.kind,
     this.path,
     this.version,
+    this.signer,
+    this.page,
+    this.field,
   });
 
   @override
@@ -2665,7 +2686,10 @@ class ClientRequest {
       document.hashCode ^
       kind.hashCode ^
       path.hashCode ^
-      version.hashCode;
+      version.hashCode ^
+      signer.hashCode ^
+      page.hashCode ^
+      field.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2678,7 +2702,10 @@ class ClientRequest {
           document == other.document &&
           kind == other.kind &&
           path == other.path &&
-          version == other.version;
+          version == other.version &&
+          signer == other.signer &&
+          page == other.page &&
+          field == other.field;
 }
 
 /// What a client asks the user to allow.
@@ -2695,7 +2722,8 @@ enum ClientRequestKind {
   /// Reading the file at [`ClientRequest::path`] into the document.
   readFile,
 
-  /// Placing a simple signature in the user's name.
+  /// Placing a simple signature that writes [`ClientRequest::signer`] on
+  /// [`ClientRequest::page`], in [`ClientRequest::field`] if any.
   sign,
 
   /// Restoring [`ClientRequest::version`] over the document's file: the app restores it in

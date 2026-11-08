@@ -39,6 +39,10 @@ enum Feature {
   /// bar's "+", ⌘O or Ctrl+O, Start › Open file… and Open a PDF.
   openFilesOnWeb('B116'),
 
+  /// AI clients in the web build, which has no host: Settings › AI clients
+  /// and Privacy's AI clients switch.
+  aiClientsOnWeb('B231'),
+
   /// The phone's file browser: the navigation bar's Files.
   phoneFiles('B168'),
 

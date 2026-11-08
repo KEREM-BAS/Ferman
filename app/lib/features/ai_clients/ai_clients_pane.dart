@@ -55,25 +55,32 @@ class AiClientsPane extends ConsumerWidget {
     final claudeConfig = ref.watch(claudeDesktopConfigFileProvider);
     final caption = typography.caption.copyWith(color: colors.textSecondary);
 
-    Widget described(String title, String description, Widget end) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: rowGap,
-      children: [
-        Expanded(
-          child: ExcludeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: theme.space.space0_5,
-              children: [
-                Text(title, style: typography.bodyStrong),
-                Text(description, style: caption),
-              ],
-            ),
-          ),
-        ),
-        end,
-      ],
-    );
+    // A switch carries its row's texts in its label; otherwise the texts
+    // stay in the tree, grouped with the button at the end.
+    Widget described(
+      String title,
+      String description,
+      Widget end, {
+      bool endLabelled = false,
+    }) {
+      final texts = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: theme.space.space0_5,
+        children: [
+          Text(title, style: typography.bodyStrong),
+          Text(description, style: caption),
+        ],
+      );
+      final row = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: rowGap,
+        children: [
+          Expanded(child: endLabelled ? ExcludeSemantics(child: texts) : texts),
+          end,
+        ],
+      );
+      return endLabelled ? row : Semantics(container: true, child: row);
+    }
 
     Widget heading(String text) => Semantics(
       header: true,
@@ -120,6 +127,7 @@ class AiClientsPane extends ConsumerWidget {
               changeSetting(ref, (s) => s.copyWith(aiClients: value)),
             ),
           ),
+          endLabelled: true,
         ),
         if (on && clients.failed)
           Banner(

@@ -6317,12 +6317,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String clientRequestSign(String client, String name) {
-    return '$client, $name belgesini sizin adınıza imzalamak istiyor';
+    return '$client, $name belgesini imzalamak istiyor';
   }
 
   @override
-  String get clientRequestSignBody =>
-      'Sertifikalı değil, basit bir imza yerleştirir.';
+  String clientRequestSignBody(String signer, String page) {
+    return '$page. sayfaya $signer adını yazar: sertifikalı değil, basit bir imza.';
+  }
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) {
+    return '$page. sayfadaki $field alanına $signer adını yazar: sertifikalı değil, basit bir imza.';
+  }
 
   @override
   String clientRequestRestore(String client, String name) {

@@ -223,3 +223,49 @@ fn a_clients_first_commit_on_a_signed_document_asks_even_after_the_users() {
     block_on(engine().close(doc)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn taking_edit_away_stops_a_waiting_or_open_client_transaction() {
+    let (dir, path) = copy("client-revoke", "edit-e15-helvetica");
+    let doc = open(&path);
+    let client = engine().connect_client("Stand-in".to_owned());
+    engine().grant_edit(client, true).unwrap();
+    let (id, text) = block(doc, "Monday");
+
+    // The client waits for the user's edit; the user takes its edit away meanwhile.
+    let users = block_on(engine().begin_edit(doc, 0, id)).unwrap();
+    let (begun, waited) = mpsc::channel();
+    let waiting = std::thread::spawn(move || {
+        let _ = begun.send(block_on(engine().client_begin_edit(client, doc, 0, id)));
+    });
+    assert!(waited.recv_timeout(Duration::from_millis(300)).is_err());
+    engine().grant_edit(client, false).unwrap();
+    block_on(engine().rollback(users)).unwrap();
+    let err = waited
+        .recv_timeout(Duration::from_secs(5))
+        .unwrap()
+        .unwrap_err();
+    waiting.join().unwrap();
+    assert_eq!(err.kind, ErrorKind::PermissionDenied);
+    // Its transaction was rolled back: the user can edit again.
+    let users = block_on(engine().begin_edit(doc, 0, id)).unwrap();
+    block_on(engine().rollback(users)).unwrap();
+
+    // An open transaction can no longer apply or commit once edit is taken away.
+    engine().grant_edit(client, true).unwrap();
+    let tx = block_on(engine().client_begin_edit(client, doc, 0, id)).unwrap();
+    engine().grant_edit(client, false).unwrap();
+    let err =
+        block_on(engine().client_apply(client, tx, text.replace("Monday", "Friday"))).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::PermissionDenied);
+    let err = block_on(engine().client_commit(client, tx, "Edited text".to_owned())).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::PermissionDenied);
+    block_on(engine().client_rollback(client, tx)).unwrap();
+    let history = block_on(engine().history(doc)).unwrap();
+    assert_eq!(history.steps.len(), 0);
+
+    engine().disconnect_client(client);
+    block_on(engine().close(doc)).unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
+}

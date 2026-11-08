@@ -851,6 +851,10 @@ abstract interface class EngineService {
   /// stream before. Without a listener the engine declines them.
   Stream<ClientRequest> clientRequests();
 
+  /// Whether [request] still waits for the user's answer: false once
+  /// answered, or once its client disconnected.
+  Future<bool> clientRequestPending(int request);
+
   /// The user's answer to [request]; nothing happens for one that is gone.
   Future<void> answerClientRequest(int request, {required bool allow});
 
@@ -1542,6 +1546,9 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Stream<ClientRequest> clientRequests() => const Stream.empty();
+
+  @override
+  Future<bool> clientRequestPending(int request) async => false;
 
   @override
   Future<void> answerClientRequest(int request, {required bool allow}) async {}

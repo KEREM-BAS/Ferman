@@ -3731,6 +3731,9 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.kind = cst_encode_client_request_kind(apiObj.kind);
     wireObj.path = cst_encode_opt_String(apiObj.path);
     wireObj.version = cst_encode_opt_box_autoadd_u_64(apiObj.version);
+    wireObj.signer = cst_encode_opt_String(apiObj.signer);
+    wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
+    wireObj.field = cst_encode_opt_String(apiObj.field);
   }
 
   @protected
@@ -6718,6 +6721,18 @@ class FermanBridgeWire implements BaseWire {
           ffi.Pointer<wire_cst_list_prim_u_8_strict>,
         )
       >();
+
+  void wire__crate__frb__client_request_pending(int port_, int request) {
+    return _wire__crate__frb__client_request_pending(port_, request);
+  }
+
+  late final _wire__crate__frb__client_request_pendingPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__client_request_pending',
+      );
+  late final _wire__crate__frb__client_request_pending =
+      _wire__crate__frb__client_request_pendingPtr
+          .asFunction<void Function(int, int)>();
 
   void wire__crate__frb__close(int port_, int document, bool discard_recovery) {
     return _wire__crate__frb__close(port_, document, discard_recovery);
@@ -12317,6 +12332,12 @@ final class wire_cst_client_request extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> path;
 
   external ffi.Pointer<ffi.Uint64> version;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> signer;
+
+  external ffi.Pointer<ffi.Uint32> page;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field;
 }
 
 final class wire_cst_combine_preview extends ffi.Struct {

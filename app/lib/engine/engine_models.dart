@@ -3790,6 +3790,9 @@ class ClientRequest {
     this.document,
     this.path,
     this.version,
+    this.signer,
+    this.page,
+    this.field,
   });
 
   /// Its handle.
@@ -3813,6 +3816,15 @@ class ClientRequest {
 
   /// The version, for [ClientRequestKind.restoreVersion].
   final int? version;
+
+  /// The name the signature writes, for [ClientRequestKind.sign].
+  final String? signer;
+
+  /// The page, from 1, for [ClientRequestKind.sign].
+  final int? page;
+
+  /// The signature field's full name, for [ClientRequestKind.sign], if any.
+  final String? field;
 }
 
 /// A step an AI client committed, so the app redraws and its history follows.

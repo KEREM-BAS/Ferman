@@ -5,6 +5,7 @@ import 'package:ferman/features/ai_clients/ai_clients.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/stop_ai_clients.dart';
 import '../helpers/window_golden.dart';
 
 /// AI clients through MCP (G94, no board): Settings › AI clients with two
@@ -45,6 +46,8 @@ Future<void> main() async {
           ],
           // The request is a Dialog, which hides while tickers are muted.
           muteTickers: screen != 'client_request',
+          // The client-list poll would outlive the tree.
+          cleanUp: stopAiClients,
           open: (tester) async {
             await tester.pumpAndSettle();
             if (screen == 'client_request') {

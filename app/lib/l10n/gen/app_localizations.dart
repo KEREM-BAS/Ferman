@@ -10138,17 +10138,23 @@ abstract class AppLocalizations {
   /// **'{client} wants to read a file'**
   String clientRequestReadFile(String client);
 
-  /// A client's request: the title. {client} is its name, {name} the file name, isolated.
+  /// A client's request: the title. {client} is its name, {name} the file name, isolated. The description says which name it writes, and where.
   ///
   /// In en, this message translates to:
-  /// **'{client} wants to sign {name} in your name'**
+  /// **'{client} wants to sign {name}'**
   String clientRequestSign(String client, String name);
 
-  /// A client's request to sign: the description.
+  /// A client's request to sign: the description. {signer} is the name the client chose, isolated; {page} the page number, already formatted for the region.
   ///
   /// In en, this message translates to:
-  /// **'It places a simple signature, not a certificate signature.'**
-  String get clientRequestSignBody;
+  /// **'It writes the name {signer} on page {page}: a simple signature, not a certificate signature.'**
+  String clientRequestSignBody(String signer, String page);
+
+  /// A client's request to sign a signature field: the description. {signer} is the name the client chose and {field} the field's name, both isolated; {page} the page number, already formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'It writes the name {signer} in the field {field} on page {page}: a simple signature, not a certificate signature.'**
+  String clientRequestSignFieldBody(String signer, String field, String page);
 
   /// A client's request: the title. {client} is its name, {name} the file name, isolated.
   ///

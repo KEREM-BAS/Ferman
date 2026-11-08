@@ -142,17 +142,24 @@ class AiClients extends _$AiClients {
     _changes = null;
   }
 
-  /// Reads the connected clients again.
+  /// Reads the connected clients again, and drops the requests the engine
+  /// no longer waits on (their client left), so their dialog closes.
   Future<void> refresh() async {
     if (!state.running) return;
     final clients = await _engine.mcpClients();
-    if (!ref.mounted || !state.running || listEquals(clients, state.clients)) {
-      return;
-    }
+    final gone = <int>{
+      for (final request in state.requests)
+        if (!await _engine.clientRequestPending(request.id)) request.id,
+    };
+    if (!ref.mounted || !state.running) return;
+    if (listEquals(clients, state.clients) && gone.isEmpty) return;
     state = AiClientsState(
       folder: state.folder,
       clients: clients,
-      requests: state.requests,
+      requests: [
+        for (final request in state.requests)
+          if (!gone.contains(request.id)) request,
+      ],
     );
   }
 
@@ -178,6 +185,8 @@ class AiClients extends _$AiClients {
           if (each.id != request.id) each,
       ],
     );
+    // A client that left gets no answer: what it asked never runs.
+    if (!await _engine.clientRequestPending(request.id)) return;
     var done = allow;
     if (allow) {
       final tab = tabOf(request);

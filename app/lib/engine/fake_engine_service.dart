@@ -444,6 +444,10 @@ class FakeEngineService implements EngineService {
   /// The answers to the clients' requests: request and whether allowed.
   final List<(int, bool)> clientAnswers = [];
 
+  /// The requests the engine dropped as their client left, which a test
+  /// adds to.
+  final Set<int> droppedRequests = {};
+
   final StreamController<ClientChange> _clientChanges =
       StreamController.broadcast();
 
@@ -483,6 +487,11 @@ class FakeEngineService implements EngineService {
 
   @override
   Stream<ClientRequest> clientRequests() => clientRequestEvents.stream;
+
+  @override
+  Future<bool> clientRequestPending(int request) async =>
+      !droppedRequests.contains(request) &&
+      clientAnswers.every((answer) => answer.$1 != request);
 
   @override
   Future<void> answerClientRequest(int request, {required bool allow}) async =>

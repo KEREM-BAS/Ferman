@@ -1323,10 +1323,18 @@ impl Server {
     }
 
     #[tool(
-        description = "Combines PDF files into a new file; the user allows the path. Needs edit permission."
+        description = "Combines PDF files into a new file; the user allows reading each file and writing the new one. Needs edit permission."
     )]
     async fn combine_files(&self, Parameters(arg): Parameters<CombineArg>) -> CallToolResult {
         let edit = async {
+            if !arg.files.iter().all(|path| path.is_absolute()) {
+                return Err(invalid("the paths must be absolute"));
+            }
+            // Each file the client names is read into the new one: the user allows each read.
+            for path in &arg.files {
+                self.allowed(None, ClientRequestKind::ReadFile(path.clone()))
+                    .await?;
+            }
             let files = arg
                 .files
                 .into_iter()
@@ -1356,8 +1364,15 @@ impl Server {
         let edit = async {
             let document = DocumentId::from_raw(arg.document);
             let page = self.handle(document, arg.page)?;
-            self.allowed(Some(document), ClientRequestKind::Sign)
-                .await?;
+            self.allowed(
+                Some(document),
+                ClientRequestKind::Sign {
+                    name: arg.name.clone(),
+                    page: arg.page,
+                    field: arg.field.clone(),
+                },
+            )
+            .await?;
             let family = self
                 .engine
                 .handwriting_styles(arg.name.clone())

@@ -2482,6 +2482,9 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_client_request_kind(raw.kind),
       cst_encode_opt_String(raw.path),
       cst_encode_opt_box_autoadd_u_64(raw.version),
+      cst_encode_opt_String(raw.signer),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_opt_String(raw.field),
     ].jsify()!;
   }
 
@@ -5658,6 +5661,11 @@ class FermanBridgeWire implements BaseWire {
     String name,
   ) => wasmModule.wire__crate__frb__clear_form(port_, document, missing, name);
 
+  void wire__crate__frb__client_request_pending(
+    NativePortType port_,
+    JSAny request,
+  ) => wasmModule.wire__crate__frb__client_request_pending(port_, request);
+
   void wire__crate__frb__close(
     NativePortType port_,
     JSAny document,
@@ -6676,6 +6684,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny document,
     int? missing,
     String name,
+  );
+
+  external void wire__crate__frb__client_request_pending(
+    NativePortType port_,
+    JSAny request,
   );
 
   external void wire__crate__frb__close(

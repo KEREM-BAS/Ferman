@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-1678 messages in `app_en.arb`; translated: Turkish 1678, Arabic 1678.
+1679 messages in `app_en.arb`; translated: Turkish 1679, Arabic 1679.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -1727,8 +1727,9 @@ The table below is generated from the ARB files by `tools/l10n`
 | `clientRequestSaveBody` | Ferman saves it over its file, as Save does. | Ferman, Kaydet'in yaptığı gibi dosyasının üzerine kaydeder. | يحفظه Ferman فوق ملفه، كما يفعل أمر الحفظ. | A client's request to save: the description. |
 | `clientRequestWriteFile` | {client} wants to write a file | {client} bir dosya yazmak istiyor | يريد {client} كتابة ملف | A client's request: the title; the description is the file's path. {client} is its name, isolated. |
 | `clientRequestReadFile` | {client} wants to read a file | {client} bir dosyayı okumak istiyor | يريد {client} قراءة ملف | A client's request: the title; the description is the file's path. {client} is its name, isolated. |
-| `clientRequestSign` | {client} wants to sign {name} in your name | {client}, {name} belgesini sizin adınıza imzalamak istiyor | يريد {client} توقيع {name} باسمك | A client's request: the title. {client} is its name, {name} the file name, isolated. |
-| `clientRequestSignBody` | It places a simple signature, not a certificate signature. | Sertifikalı değil, basit bir imza yerleştirir. | يضع توقيعًا بسيطًا، وليس توقيعًا بشهادة. | A client's request to sign: the description. |
+| `clientRequestSign` | {client} wants to sign {name} | {client}, {name} belgesini imzalamak istiyor | يريد {client} توقيع {name} | A client's request: the title. {client} is its name, {name} the file name, isolated. The description says which name it writes, and where. |
+| `clientRequestSignBody` | It writes the name {signer} on page {page}: a simple signature, not a certificate signature. | {page}. sayfaya {signer} adını yazar: sertifikalı değil, basit bir imza. | يكتب الاسم {signer} في الصفحة {page}: توقيع بسيط، وليس توقيعًا بشهادة. | A client's request to sign: the description. {signer} is the name the client chose, isolated; {page} the page number, already formatted for the region. |
+| `clientRequestSignFieldBody` | It writes the name {signer} in the field {field} on page {page}: a simple signature, not a certificate signature. | {page}. sayfadaki {field} alanına {signer} adını yazar: sertifikalı değil, basit bir imza. | يكتب الاسم {signer} في الحقل {field} في الصفحة {page}: توقيع بسيط، وليس توقيعًا بشهادة. | A client's request to sign a signature field: the description. {signer} is the name the client chose and {field} the field's name, both isolated; {page} the page number, already formatted for the region. |
 | `clientRequestRestore` | {client} wants to restore a version of {name} | {client}, {name} belgesinin bir sürümünü geri yüklemek istiyor | يريد {client} استعادة إصدار من {name} | A client's request: the title. {client} is its name, {name} the file name, isolated. |
 | `clientRequestRestoreBody` | The version replaces the file. Your unsaved work is kept as a version first. | Sürüm dosyanın yerine geçer. Kaydedilmemiş çalışmanız önce bir sürüm olarak saklanır. | يحلّ الإصدار محل الملف. ويُحفظ عملك غير المحفوظ كإصدار أولًا. | A client's request to restore a version: the description. |
 | `clientRequestAllow` | Allow | İzin ver | السماح | A client's request: the button that allows it. |

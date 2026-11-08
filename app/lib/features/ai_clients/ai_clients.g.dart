@@ -158,7 +158,7 @@ final class AiClientsProvider
   }
 }
 
-String _$aiClientsHash() => r'67cfc05199525306594226b6cf4431b8533a38ec';
+String _$aiClientsHash() => r'4445781f00accaa28a80b9cd3a625b6e259a7173';
 
 /// AI clients through MCP (ADR 0019, G94), as `aiClientsProvider`: the host
 /// runs while Settings › AI clients' switch (`AppSettings.aiClients`) is on,

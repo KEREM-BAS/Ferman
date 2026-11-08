@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// The panes of Settings: a11-1's 11 in the order of its pane list
 /// (`FmSettings.dc.html` `NAV`), then Licences (question 7 of the M4 plan).
@@ -35,7 +36,11 @@ enum SettingsPane {
 
   /// AI clients: outside AI apps working in Ferman through MCP (ADR 0019).
   /// No board draws it (G94); it sits after Ferman's own assistant.
-  aiClients('ai-clients', IconName.plug),
+  aiClients(
+    'ai-clients',
+    IconName.plug,
+    feature: kIsWeb ? Feature.aiClientsOnWeb : null,
+  ),
 
   /// Privacy (a11-1h).
   privacy('privacy', IconName.eyeOff),

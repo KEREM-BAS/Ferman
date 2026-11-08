@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ferman/app/app.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/ai_clients/ai_client_overlays.dart';
@@ -14,10 +16,12 @@ import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
+import 'package:ferman/settings/settings_store.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/stop_ai_clients.dart';
 import '../onboarding/ferman_app_harness.dart';
 
 const String _pump = '/app/ferman-mcp';
@@ -175,6 +179,31 @@ void main() {
     expect(find.text('No client is connected.'), findsOneWidget);
   });
 
+  testWidgets('stopAiClients ends the poll in a container that outlives the '
+      'tree, as the goldens build it', (tester) async {
+    const settings = AppSettings(onboardingCompleted: true, aiClients: true);
+    final engine = FakeEngineService();
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: ProviderContainer.test(
+          overrides: [
+            engineServiceProvider.overrideWithValue(engine),
+            settingsStoreProvider.overrideWithValue(
+              MemorySettingsStore(settings),
+            ),
+            initialSettingsProvider.overrideWithValue(settings),
+            mcpPumpProvider.overrideWithValue(_pump),
+          ],
+        ),
+        child: const FermanApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(engine.mcpFolder, '/data/mcp');
+    await stopAiClients(tester);
+    expect(engine.mcpFolder, isNull);
+  });
+
   testWidgets('a failed start says so', (tester) async {
     final engine = FakeEngineService()..mcpStartFails = true;
     await pumpFermanApp(
@@ -280,12 +309,129 @@ void main() {
         client: 1,
         clientName: 'Claude',
         kind: ClientRequestKind.sign,
+        signer: 'Jane Smith',
+        page: 2,
+        field: 'Buyer',
       ),
     );
     await tester.pumpAndSettle();
+    // The dialog shows the name it writes, the field and the page.
+    expect(
+      find.text(
+        'It writes the name \u2068Jane Smith\u2069 in the field '
+        '\u2068Buyer\u2069 on page 2: a simple signature, not a certificate '
+        'signature.',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.text("Don't allow").last);
     await tester.pumpAndSettle();
     expect(engine.clientAnswers.last, (9, false));
+  });
+
+  testWidgets('a keystroke under way when a request arrives never allows it', (
+    tester,
+  ) async {
+    final engine = await _pumpApp(tester, on: true);
+    engine.clientRequestEvents.add(
+      const ClientRequest(
+        id: 3,
+        client: 1,
+        clientName: 'Claude',
+        kind: ClientRequestKind.writeFile,
+        path: '/home/out.pdf',
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pumpAndSettle();
+    expect(engine.clientAnswers, [(3, false)]);
+  });
+
+  testWidgets('a request whose client left closes, and Allow on it saves '
+      'nothing', (tester) async {
+    final engine = await _pumpApp(tester, on: true);
+    engine.connectedClients = [const McpClient(id: 1, name: 'Claude')];
+    final container = _container(tester);
+    const request = ClientRequest(
+      id: 4,
+      client: 1,
+      clientName: 'Claude',
+      kind: ClientRequestKind.writeFile,
+      path: '/home/out.pdf',
+    );
+    engine.clientRequestEvents.add(request);
+    await tester.pumpAndSettle();
+    expect(find.byType(ClientRequestDialog), findsOneWidget);
+
+    // The client leaves: the engine drops its request.
+    engine
+      ..connectedClients = []
+      ..droppedRequests.add(4);
+    // Allow before the poll closes the dialog: nothing runs, nothing answers.
+    await container
+        .read(aiClientsProvider.notifier)
+        .answer(request, allow: true);
+    expect(engine.clientAnswers, isEmpty);
+
+    engine.clientRequestEvents.add(
+      const ClientRequest(
+        id: 5,
+        client: 1,
+        clientName: 'Claude',
+        kind: ClientRequestKind.save,
+        document: 1,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ClientRequestDialog), findsOneWidget);
+    engine.droppedRequests.add(5);
+    await _poll(tester);
+    expect(find.byType(ClientRequestDialog), findsNothing);
+    expect(engine.clientAnswers, isEmpty);
+  });
+
+  testWidgets('Settings › AI clients: the set-up rows reach screen readers', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await _pumpApp(tester, on: true);
+    await _openPane(tester, SettingsPane.aiClients);
+    // Without Claude Desktop's file, its row still says to copy.
+    expect(
+      find.bySemanticsLabel(
+        RegExp('Claude Desktop.*Copy the configuration', dotAll: true),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(
+        RegExp("Other local clients.*client's MCP settings", dotAll: true),
+      ),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsLabel('Copy configuration'), findsOneWidget);
+    handle.dispose();
+  });
+
+  testWidgets('Settings › Privacy says when AI clients could not start', (
+    tester,
+  ) async {
+    final engine = FakeEngineService()..mcpStartFails = true;
+    await pumpFermanApp(
+      tester,
+      engine: engine,
+      settings: const AppSettings(onboardingCompleted: true, aiClients: true),
+      overrides: [mcpPumpProvider.overrideWithValue(_pump)],
+    );
+    await tester.pumpAndSettle();
+    await _openPane(tester, SettingsPane.privacy);
+    expect(
+      tester
+          .widget<Switch>(_switch('AI clients on this computer'))
+          .semanticLabel,
+      contains("AI clients can't connect"),
+    );
   });
 
   testWidgets('Settings › Privacy lists AI clients with a working switch', (

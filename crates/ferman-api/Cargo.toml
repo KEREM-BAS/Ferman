@@ -35,7 +35,7 @@ tracing.workspace = true
 serde.workspace = true
 flutter_rust_bridge = { workspace = true, optional = true }
 rmcp = { workspace = true, optional = true }
-tokio = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true, features = ["time"] }
 serde_json = { workspace = true, optional = true }
 # The MCP host's token (`mcp`), the version ferman-core uses.
 getrandom = { version = "0.4.3", optional = true }

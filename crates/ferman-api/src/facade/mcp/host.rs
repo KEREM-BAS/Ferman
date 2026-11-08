@@ -8,7 +8,10 @@
 //! - On macOS and Linux, `socket`: a Unix domain socket, in a folder only the user can open
 //!   (0700), itself 0600.
 //! - On Windows, `pipe`: the name of a named pipe with a random part, which refuses remote
-//!   callers.
+//!   callers. shortcut: the pipe keeps Windows' default security descriptor, which lets other
+//!   local users open it (the token still keeps them from any call, and a connection without it
+//!   closes after `TOKEN_WAIT`); a descriptor granting the user's SID alone needs unsafe Win32
+//!   calls, which wait for the owner's approval (ADR 0010).
 
 use std::fs;
 use std::io::Write as _;
@@ -28,6 +31,9 @@ const FOLDER: &str = "mcp";
 const TOKEN: &str = "token";
 /// The token's length in hex digits.
 const TOKEN_LEN: usize = 64;
+/// How long a connection has to give the token before it is closed, so connections that never
+/// give it cannot hold the host's connections (or, on Windows, its pipe instances) for ever.
+const TOKEN_WAIT: std::time::Duration = std::time::Duration::from_secs(2);
 
 /// A running host. Dropping it stops it: the listener closes, every connection ends (its client
 /// disconnects and its open transactions roll back) and its files go.
@@ -96,7 +102,8 @@ where
     S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
 {
     let mut first = [0_u8; TOKEN_LEN + 1];
-    let proved = stream.read_exact(&mut first).await.is_ok()
+    let read = tokio::time::timeout(TOKEN_WAIT, stream.read_exact(&mut first)).await;
+    let proved = matches!(read, Ok(Ok(_)))
         && first.last() == Some(&b'\n')
         && same(first.get(..TOKEN_LEN).unwrap_or_default(), token.as_bytes());
     if !proved {
@@ -170,17 +177,26 @@ async fn serve_all(engine: &'static Engine, token: Arc<String>, listener: Listen
     let Listener { name, first } = listener;
     let mut server = first;
     loop {
-        if server.connect().await.is_err() {
-            return;
-        }
-        let Ok(next) = ServerOptions::new()
-            .reject_remote_clients(true)
-            .create(&name)
-        else {
-            return;
+        // A caller that left before the connection was made fails it; the host goes on.
+        let connected = server.connect().await.is_ok();
+        // The next instance; while the pipe has none to give (every instance held), the host
+        // waits for connections without the token to close (TOKEN_WAIT) instead of stopping.
+        let next = loop {
+            match ServerOptions::new()
+                .reject_remote_clients(true)
+                .create(&name)
+            {
+                Ok(next) => break next,
+                Err(err) => {
+                    tracing::warn!(kind = %err.kind(), "the MCP pipe has no instance to give");
+                    tokio::time::sleep(TOKEN_WAIT).await;
+                }
+            }
         };
-        let connected = std::mem::replace(&mut server, next);
-        tokio::spawn(accept(engine, Arc::clone(&token), connected));
+        let previous = std::mem::replace(&mut server, next);
+        if connected {
+            tokio::spawn(accept(engine, Arc::clone(&token), previous));
+        }
     }
 }
 

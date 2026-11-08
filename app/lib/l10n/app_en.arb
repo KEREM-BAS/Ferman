@@ -8597,9 +8597,9 @@
       }
     }
   },
-  "clientRequestSign": "{client} wants to sign {name} in your name",
+  "clientRequestSign": "{client} wants to sign {name}",
   "@clientRequestSign": {
-    "description": "A client's request: the title. {client} is its name, {name} the file name, isolated.",
+    "description": "A client's request: the title. {client} is its name, {name} the file name, isolated. The description says which name it writes, and where.",
     "placeholders": {
       "client": {
         "type": "String"
@@ -8609,9 +8609,32 @@
       }
     }
   },
-  "clientRequestSignBody": "It places a simple signature, not a certificate signature.",
+  "clientRequestSignBody": "It writes the name {signer} on page {page}: a simple signature, not a certificate signature.",
   "@clientRequestSignBody": {
-    "description": "A client's request to sign: the description."
+    "description": "A client's request to sign: the description. {signer} is the name the client chose, isolated; {page} the page number, already formatted for the region.",
+    "placeholders": {
+      "signer": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "clientRequestSignFieldBody": "It writes the name {signer} in the field {field} on page {page}: a simple signature, not a certificate signature.",
+  "@clientRequestSignFieldBody": {
+    "description": "A client's request to sign a signature field: the description. {signer} is the name the client chose and {field} the field's name, both isolated; {page} the page number, already formatted for the region.",
+    "placeholders": {
+      "signer": {
+        "type": "String"
+      },
+      "field": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
   },
   "clientRequestRestore": "{client} wants to restore a version of {name}",
   "@clientRequestRestore": {

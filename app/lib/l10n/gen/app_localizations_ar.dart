@@ -6535,12 +6535,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String clientRequestSign(String client, String name) {
-    return 'يريد $client توقيع $name باسمك';
+    return 'يريد $client توقيع $name';
   }
 
   @override
-  String get clientRequestSignBody =>
-      'يضع توقيعًا بسيطًا، وليس توقيعًا بشهادة.';
+  String clientRequestSignBody(String signer, String page) {
+    return 'يكتب الاسم $signer في الصفحة $page: توقيع بسيط، وليس توقيعًا بشهادة.';
+  }
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) {
+    return 'يكتب الاسم $signer في الحقل $field في الصفحة $page: توقيع بسيط، وليس توقيعًا بشهادة.';
+  }
 
   @override
   String clientRequestRestore(String client, String name) {
