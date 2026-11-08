@@ -70,6 +70,7 @@ void main() {
         SettingsPane.editing,
         SettingsPane.fonts,
         SettingsPane.signatures,
+        SettingsPane.aiClients,
         SettingsPane.privacy,
         SettingsPane.shortcuts,
         SettingsPane.advanced,

@@ -295,7 +295,7 @@ pub struct PageInfo {
 }
 
 /// `page` as the API gives it.
-fn page_info(page: &Page) -> PageInfo {
+pub(super) fn page_info(page: &Page) -> PageInfo {
     PageInfo {
         size: PageSize {
             width: page.size.0,

@@ -248,8 +248,10 @@ void main() {
       await pumpFermanApp(tester, size: goldenPhoneSize);
       await _open(tester, SettingsPane.privacy);
       final switches = find.byType(Switch);
-      expect(switches, findsNWidgets(5));
-      for (final element in switches.evaluate()) {
+      expect(switches, findsNWidgets(6));
+      // AI clients' switch works (G94).
+      expect(tester.widget<Switch>(switches.last).disabled, isFalse);
+      for (final element in switches.evaluate().take(5)) {
         final control = element.widget as Switch;
         expect(control.disabled, isTrue);
         expect(control.disabledReason, _future);

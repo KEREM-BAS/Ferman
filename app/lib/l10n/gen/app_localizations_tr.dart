@@ -6185,4 +6185,167 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get dropOverlayCombineDescription =>
       'Gösterilen sırayla birleştirilir.';
+
+  @override
+  String get settingsPaneAiClients => 'Yapay zekâ istemcileri';
+
+  @override
+  String get aiClientsServer => 'Yapay zekâ istemcileri bağlanabilsin';
+
+  @override
+  String get aiClientsServerDescription =>
+      'Bu bilgisayardaki Claude Desktop gibi yapay zekâ uygulamaları Ferman\'da açık belgeleri okuyabilir, izin verdiğiniz yerde değiştirebilir. Ağda hiçbir şey dinlemez.';
+
+  @override
+  String get aiClientsStartFailed =>
+      'Yapay zekâ istemcileri bağlanamıyor: Ferman bu bilgisayarda bağlantısını açamadı.';
+
+  @override
+  String get aiClientsConnected => 'Bağlı istemciler';
+
+  @override
+  String get aiClientsNone => 'Bağlı istemci yok.';
+
+  @override
+  String get aiClientsMayEdit => 'Belgeleri değiştirebilir';
+
+  @override
+  String aiClientsMayEditFor(String client) {
+    return '$client belgeleri değiştirebilir';
+  }
+
+  @override
+  String get aiClientsSetUpHeading => 'İstemci kur';
+
+  @override
+  String get aiClientsOffNote =>
+      'Bir istemci kurmak için yukarıdaki anahtarı açın.';
+
+  @override
+  String get aiClientsSetUp => 'Kur';
+
+  @override
+  String get aiClientsCopyInstead =>
+      'Aşağıdaki yapılandırmayı onun ayarlarına kopyalayın.';
+
+  @override
+  String get aiClientsOther => 'Diğer yerel istemciler';
+
+  @override
+  String get aiClientsOtherNote => 'Bunu istemcinin MCP ayarlarına ekleyin.';
+
+  @override
+  String get aiClientsCopy => 'Yapılandırmayı kopyala';
+
+  @override
+  String get aiClientsCopied => 'Yapılandırma kopyalandı';
+
+  @override
+  String get aiClientsChatGpt =>
+      'ChatGPT henüz bağlanamaz: sunuculara yalnızca OpenAI\'ın bulutundan ulaşır ve Ferman internete port açmaz.';
+
+  @override
+  String aiClientsSetUpDone(String client) {
+    return '$client kuruldu';
+  }
+
+  @override
+  String aiClientsSetUpRestart(String client) {
+    return 'Ferman\'a bağlamak için $client uygulamasını yeniden başlatın.';
+  }
+
+  @override
+  String aiClientsSetUpFailed(String client) {
+    return '$client kurulamadı';
+  }
+
+  @override
+  String get aiClientsSetUpFailedBody =>
+      'Yapılandırmayı kopyalayıp istemcinin ayarlarına ekleyin.';
+
+  @override
+  String aiClientsNotice(String names) {
+    return 'Bağlı yapay zekâ istemcileri: $names';
+  }
+
+  @override
+  String get aiClientsSeparator => ', ';
+
+  @override
+  String get aiClientsStop => 'Durdur';
+
+  @override
+  String aiClientsStepBy(String detail, String client) {
+    return '$detail · $client';
+  }
+
+  @override
+  String get settingsNetAiClients => 'Bu bilgisayardaki yapay zekâ istemcileri';
+
+  @override
+  String get settingsNetAiClientsDescription =>
+      'Bağlı bir istemci okuduğunu kendi sağlayıcısına, sizin hesabınızla gönderir.';
+
+  @override
+  String clientRequestEditSigned(String client) {
+    return '$client imzalı bir belgeyi değiştirmek istiyor';
+  }
+
+  @override
+  String clientRequestEditSignedBody(String name) {
+    return '$name imzalı. Değiştirmek imzalarını geçersiz kılar.';
+  }
+
+  @override
+  String clientRequestSave(String client, String name) {
+    return '$client, $name belgesini kaydetmek istiyor';
+  }
+
+  @override
+  String get clientRequestSaveBody =>
+      'Ferman, Kaydet\'in yaptığı gibi dosyasının üzerine kaydeder.';
+
+  @override
+  String clientRequestWriteFile(String client) {
+    return '$client bir dosya yazmak istiyor';
+  }
+
+  @override
+  String clientRequestReadFile(String client) {
+    return '$client bir dosyayı okumak istiyor';
+  }
+
+  @override
+  String clientRequestSign(String client, String name) {
+    return '$client, $name belgesini imzalamak istiyor';
+  }
+
+  @override
+  String clientRequestSignBody(String signer, String page) {
+    return '$page. sayfaya $signer adını yazar: sertifikalı değil, basit bir imza.';
+  }
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) {
+    return '$page. sayfadaki $field alanına $signer adını yazar: sertifikalı değil, basit bir imza.';
+  }
+
+  @override
+  String clientRequestRestore(String client, String name) {
+    return '$client, $name belgesinin bir sürümünü geri yüklemek istiyor';
+  }
+
+  @override
+  String get clientRequestRestoreBody =>
+      'Sürüm dosyanın yerine geçer. Kaydedilmemiş çalışmanız önce bir sürüm olarak saklanır.';
+
+  @override
+  String get clientRequestAllow => 'İzin ver';
+
+  @override
+  String get clientRequestDeny => 'İzin verme';
+
+  @override
+  String get aiClientsClaudeNote =>
+      'Kur, Ferman\'ı onun ayarlarına ekler. Ardından onu yeniden başlatın.';
 }

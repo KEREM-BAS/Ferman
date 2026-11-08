@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:checks/src/check.dart';
 import 'package:checks/src/checks/action_pins.dart';
 import 'package:checks/src/checks/arb_parity.dart';
+import 'package:checks/src/checks/backlog_targets.dart';
 import 'package:checks/src/checks/bridge_imports.dart';
 import 'package:checks/src/checks/build_untracked.dart';
 import 'package:checks/src/checks/component_spec.dart';
@@ -40,6 +41,9 @@ const List<Check> allChecks = [
   // Every control of an unfinished feature goes through the feature
   // registry, whose values match BACKLOG's open rows (gate S9).
   FeatureRegistryCheck(),
+  // No open BACKLOG row targets a past milestone or only a condition (the
+  // phase 1 feature review, M4).
+  BacklogTargetsCheck(),
   // S6: the Flutter conventions of brief §6 in app/lib (ADR 0011, 0012,
   // 0014), with the reviewed exceptions in s6_allowlist.dart.
   S6MaterialImportsCheck(),

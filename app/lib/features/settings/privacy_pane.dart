@@ -1,10 +1,18 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/ai_clients/ai_clients.dart';
 import 'package:ferman/features/settings/phone_settings.dart';
+import 'package:ferman/features/settings/settings_save_failure.dart';
+import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/settings/settings_providers.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart' hide Icon;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The Privacy pane of Settings, boards a11-1h and a11-1h-m1.
 ///
@@ -21,7 +29,12 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// with "Available in a future version" (the design draws four of them on,
 /// as they will be once their features ship), and so is "Show network
 /// activity…" (M5, with the network gateway).
-class PrivacyPane extends StatelessWidget {
+///
+/// After them, "AI clients on this computer" (G94, ADR 0019): the local MCP
+/// server, which reaches no network itself but lets a client send what it
+/// reads to its own provider. Its switch works and is the one of Settings ›
+/// AI clients, off by default; the connected clients are named under it.
+class PrivacyPane extends ConsumerWidget {
   /// The pane.
   const new({super.key});
 
@@ -38,7 +51,7 @@ class PrivacyPane extends StatelessWidget {
   static const double rowGap = 14;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final colors = theme.colors;
     final typography = theme.typography;
@@ -80,6 +93,30 @@ class PrivacyPane extends StatelessWidget {
           disabled: true,
           disabledReason: feature.disabledReason(context),
         );
+    final clientsOn = ref.watch(settingsProvider.select((s) => s.aiClients));
+    final clients = ref.watch(aiClientsProvider);
+    final names = clients.clients
+        .map((client) => bidiIsolate(client.name))
+        .join(l10n.aiClientsSeparator);
+    final clientsDescription = [
+      l10n.settingsNetAiClientsDescription,
+      if (clientsOn && clients.failed) l10n.aiClientsStartFailed,
+      if (clients.clients.isNotEmpty) l10n.aiClientsNotice(names),
+    ].join(' ');
+    // The web build has no host (B231).
+    final clientsSwitch = kIsWeb
+        ? networkSwitch(
+            Feature.aiClientsOnWeb,
+            l10n.settingsNetAiClients,
+            clientsDescription,
+          )
+        : Switch(
+            value: clientsOn,
+            semanticLabel: '${l10n.settingsNetAiClients}. $clientsDescription',
+            onChanged: (value) => unawaited(
+              changeSetting(ref, (s) => s.copyWith(aiClients: value)),
+            ),
+          );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -112,7 +149,11 @@ class PrivacyPane extends StatelessWidget {
             ],
           ),
         ),
-        for (final (feature, title, description) in uses)
+        for (final (title, description, toggle) in [
+          for (final (feature, title, description) in uses)
+            (title, description, networkSwitch(feature, title, description)),
+          (l10n.settingsNetAiClients, clientsDescription, clientsSwitch),
+        ])
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: rowGap,
@@ -135,11 +176,9 @@ class PrivacyPane extends StatelessWidget {
                 ),
               ),
               if (WindowMetrics.isPhone(context))
-                PhoneHitTarget(
-                  child: networkSwitch(feature, title, description),
-                )
+                PhoneHitTarget(child: toggle)
               else
-                networkSwitch(feature, title, description),
+                toggle,
             ],
           ),
         Align(

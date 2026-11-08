@@ -5,6 +5,7 @@ import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/ai_clients/ai_clients_pane.dart';
 import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/features/settings/advanced_pane.dart';
 import 'package:ferman/features/settings/editing_pane.dart';
@@ -44,7 +45,8 @@ import 'package:go_router/go_router.dart';
 /// `ShellCommand.closeDocument`) close it too, back to the screen below.
 ///
 /// Built panes: General, Language and region, Editing, Fonts, Signatures
-/// and certificates, Privacy, Advanced and the last row, Licences
+/// and certificates, AI clients (G94), Privacy, Advanced and the last row,
+/// Licences
 /// (question 7 of the M4 plan). The others are listed and disabled with
 /// "Available in a future version" (G10), each through its feature in the
 /// feature registry ([Feature]).
@@ -398,6 +400,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     SettingsPane.privacy => const PrivacyPane(),
     SettingsPane.shortcuts => const ShortcutsPane(),
     SettingsPane.advanced => const AdvancedPane(),
+    SettingsPane.aiClients => const AiClientsPane(),
     SettingsPane.licences => const LicencesPane(),
     SettingsPane.ocr ||
     SettingsPane.ai ||

@@ -48,6 +48,7 @@ Map<String, List<Map<String, dynamic>>> documentedGraph() => {
     dep('flutter_rust_bridge', optional: true),
   ],
   'ferman-cli': [dep('ferman-api', defaults: false), dep('insta', kind: 'dev')],
+  'ferman-mcp': [dep('tokio')],
 };
 
 void main() {

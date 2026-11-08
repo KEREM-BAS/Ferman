@@ -6223,4 +6223,166 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dropOverlayCombineDescription =>
       'Merged in the order shown. You can reorder before saving.';
+
+  @override
+  String get settingsPaneAiClients => 'AI clients';
+
+  @override
+  String get aiClientsServer => 'Let AI clients connect';
+
+  @override
+  String get aiClientsServerDescription =>
+      'AI apps on this computer, such as Claude Desktop, can read the documents open in Ferman, and change them where you allow it. Nothing listens on the network.';
+
+  @override
+  String get aiClientsStartFailed =>
+      'AI clients can\'t connect: Ferman couldn\'t open its connection on this computer.';
+
+  @override
+  String get aiClientsConnected => 'Connected clients';
+
+  @override
+  String get aiClientsNone => 'No client is connected.';
+
+  @override
+  String get aiClientsMayEdit => 'Can change documents';
+
+  @override
+  String aiClientsMayEditFor(String client) {
+    return '$client can change documents';
+  }
+
+  @override
+  String get aiClientsSetUpHeading => 'Set up a client';
+
+  @override
+  String get aiClientsOffNote => 'Turn on the switch above to set up a client.';
+
+  @override
+  String get aiClientsSetUp => 'Set up';
+
+  @override
+  String get aiClientsCopyInstead =>
+      'Copy the configuration below into its settings.';
+
+  @override
+  String get aiClientsOther => 'Other local clients';
+
+  @override
+  String get aiClientsOtherNote => 'Add this to the client\'s MCP settings.';
+
+  @override
+  String get aiClientsCopy => 'Copy configuration';
+
+  @override
+  String get aiClientsCopied => 'Configuration copied';
+
+  @override
+  String get aiClientsChatGpt =>
+      'ChatGPT can\'t connect yet: it reaches servers only from OpenAI\'s cloud, and Ferman opens no port to the internet.';
+
+  @override
+  String aiClientsSetUpDone(String client) {
+    return '$client is set up';
+  }
+
+  @override
+  String aiClientsSetUpRestart(String client) {
+    return 'Restart $client to connect it to Ferman.';
+  }
+
+  @override
+  String aiClientsSetUpFailed(String client) {
+    return 'Couldn\'t set up $client';
+  }
+
+  @override
+  String get aiClientsSetUpFailedBody =>
+      'Copy the configuration and add it to the client\'s settings.';
+
+  @override
+  String aiClientsNotice(String names) {
+    return 'AI clients connected: $names';
+  }
+
+  @override
+  String get aiClientsSeparator => ', ';
+
+  @override
+  String get aiClientsStop => 'Stop';
+
+  @override
+  String aiClientsStepBy(String detail, String client) {
+    return '$detail · $client';
+  }
+
+  @override
+  String get settingsNetAiClients => 'AI clients on this computer';
+
+  @override
+  String get settingsNetAiClientsDescription =>
+      'What a connected client reads, it sends to its own provider under your account.';
+
+  @override
+  String clientRequestEditSigned(String client) {
+    return '$client wants to change a signed document';
+  }
+
+  @override
+  String clientRequestEditSignedBody(String name) {
+    return '$name is signed. Changing it makes its signatures invalid.';
+  }
+
+  @override
+  String clientRequestSave(String client, String name) {
+    return '$client wants to save $name';
+  }
+
+  @override
+  String get clientRequestSaveBody =>
+      'Ferman saves it over its file, as Save does.';
+
+  @override
+  String clientRequestWriteFile(String client) {
+    return '$client wants to write a file';
+  }
+
+  @override
+  String clientRequestReadFile(String client) {
+    return '$client wants to read a file';
+  }
+
+  @override
+  String clientRequestSign(String client, String name) {
+    return '$client wants to sign $name';
+  }
+
+  @override
+  String clientRequestSignBody(String signer, String page) {
+    return 'It writes the name $signer on page $page: a simple signature, not a certificate signature.';
+  }
+
+  @override
+  String clientRequestSignFieldBody(String signer, String field, String page) {
+    return 'It writes the name $signer in the field $field on page $page: a simple signature, not a certificate signature.';
+  }
+
+  @override
+  String clientRequestRestore(String client, String name) {
+    return '$client wants to restore a version of $name';
+  }
+
+  @override
+  String get clientRequestRestoreBody =>
+      'The version replaces the file. Your unsaved work is kept as a version first.';
+
+  @override
+  String get clientRequestAllow => 'Allow';
+
+  @override
+  String get clientRequestDeny => 'Don\'t allow';
+
+  @override
+  String get aiClientsClaudeNote =>
+      'Set up writes Ferman into its settings. Restart it afterwards.';
 }

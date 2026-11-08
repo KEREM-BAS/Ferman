@@ -138,6 +138,8 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Clippy (ferman-api with the bridge feature)
         run: cargo clippy -p ferman-api --features frb --all-targets --locked -- -D warnings
+      - name: Clippy (ferman-api as the app builds it, with the MCP host)
+        run: cargo clippy -p ferman-api --features frb,mcp --all-targets --locked -- -D warnings
       - name: Cache the corpus fonts
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -148,6 +150,10 @@ jobs:
         # generators embed that Ferman does not bundle, checked by SHA-256.
         shell: bash
         run: bash tools/corpus/fetch-fonts.sh
+      - name: Fetch every target's crates
+        # The licences test resolves the other systems' graphs offline; a build fetches only the
+        # host's crates, so a cold cache would miss them.
+        run: cargo fetch --locked
       - name: Test
         # The save crash test kills a save at 1,000 points here (100 by default; on Windows it
         # does not run).
@@ -156,6 +162,8 @@ jobs:
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
         run: cargo test -p ferman-api --features frb --locked
+      - name: Test (ferman-api with the MCP host)
+        run: cargo test -p ferman-api --features mcp --locked --lib --test mcp
       - name: Cache the PDFium archive
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -182,6 +190,8 @@ jobs:
           export FERMAN_SAVED_DIR="$RUNNER_TEMP/saved"
           mkdir -p "$FERMAN_SAVED_DIR"
           cargo test --workspace --locked -- --ignored
+          # The stand-in MCP client over the real socket or pipe (ADR 0019).
+          cargo test -p ferman-api --features mcp --locked --test mcp -- --ignored
           cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
           grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
       # An independent checker over every saved test file (M3 plan decision 3; CI only, never shipped).
@@ -445,6 +455,13 @@ jobs:
         working-directory: .
         run: git config --system core.longpaths true
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
       - name: Linux desktop build dependencies
         if: runner.os == 'Linux'
         run: |
@@ -579,6 +596,7 @@ jobs:
             fail "app/$plist has no CFBundleExecutable"
           fi
           bins+=("$app/Contents/Frameworks/rust_lib_ferman.framework/rust_lib_ferman")
+          bins+=("$app/Contents/MacOS/ferman-mcp")
           bins+=("$app/Contents/Frameworks/libpdfium.dylib")
           # The minimum macOS of each slice: LC_BUILD_VERSION minos, or
           # LC_VERSION_MIN_MACOSX version in older binaries.
@@ -652,12 +670,102 @@ jobs:
           esac
           dart pub get --enforce-lockfile
           dart run bin/scan_bundle.dart --root ../.. "../../app/$out"
+      - name: Signing dry run (macOS, a throwaway identity; tools/signing)
+        if: runner.os == 'macOS'
+        run: bash ../tools/signing/dry-run-macos.sh build/macos/Build/Products/Release/Ferman.app
+      - name: Signing dry run (Windows, a throwaway certificate; tools/signing)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ../tools/signing/dry-run-windows.ps1 build/windows/x64/runner/Release
       - name: Integration test (Linux, under Xvfb)
         if: runner.os == 'Linux'
         run: xvfb-run -a flutter test integration_test -d linux
       - name: Integration test (macOS and Windows)
         if: runner.os != 'Linux'
         run: flutter test integration_test -d ${{ matrix.target }}
+
+  no-network:
+    # Question 9 of the M4 plan (ADR 0015): the integration test's walk through every screen runs
+    # in a network namespace with a dummy default route while tcpdump records, and fails on any
+    # packet that is not loopback (tools/no-network/README.md). No strace.
+    name: No network (Linux namespace, tcpdump)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - name: Linux desktop build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev xvfb
+      - name: tcpdump, with the licence of every package it adds (CI only, never shipped)
+        run: |
+          set -euo pipefail
+          before="$(dpkg-query -W -f='${Package}\n' | sort)"
+          sudo apt-get install -y -q --no-install-recommends tcpdump
+          added="$(comm -13 <(printf '%s\n' "$before") <(dpkg-query -W -f='${Package}\n' | sort))"
+          echo "Added: ${added:-nothing}"
+          # Reviewed on 2026-11-08 against Debian's copyright files: tcpdump and libpcap are
+          # BSD-3-Clause (a few tcpdump files keep the 4-clause BSD text), rdma-core's libibverbs
+          # is GPL-2.0 OR BSD-2-Clause, taken as BSD-2-Clause (docs/DEPENDENCIES.md).
+          status=0
+          for pkg in $added; do
+            case "$pkg" in
+              tcpdump | libpcap0.8t64 | libibverbs1) ;;
+              *) echo "::error::apt added $pkg, whose licence is not reviewed: check it (ADR 0016) and list it here"; status=1 ;;
+            esac
+          done
+          for pkg in tcpdump libpcap0.8t64; do
+            copyright="/usr/share/doc/$pkg/copyright"
+            if ! grep -qi '3-clause BSD' "$copyright" || grep -q 'GPL' "$copyright"; then
+              echo "::error::$copyright no longer reads as the BSD licence reviewed"
+              status=1
+            fi
+          done
+          tcpdump --version
+          exit "$status"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle
+        working-directory: .
+        run: bash tools/pdfium/fetch.sh --platform linux-x64
+      - name: Build outside the namespace (crates, the Rust toolchain, cargokit's tool)
+        run: flutter build linux --debug --target integration_test/app_test.dart
+      - name: Walk every screen with no network
+        env:
+          CARGO_NET_OFFLINE: "true"
+          FERMAN_NO_NETWORK_OUT: ${{ github.workspace }}/build/no-network
+        run: >-
+          bash ../tools/no-network/run.sh
+          xvfb-run -a flutter test integration_test -d linux --no-pub
+          --plain-name 'the built app starts with its own title bar'
+      - name: Upload the capture
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: no-network-capture
+          path: build/no-network/
+          if-no-files-found: ignore
+          retention-days: 14
 
   linux-floor:
     name: Linux build on Ubuntu 22.04 (Q03 minimum)
@@ -668,6 +776,13 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        # Before the build: cargokit and the ferman-mcp build would both
+        # install it and race in ~/.rustup.
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
       - name: Linux desktop build dependencies
         run: |
           sudo apt-get update -q
@@ -694,3 +809,5 @@ jobs:
           # cargokit builds the frb feature only for the modes listed in
           # crates/ferman-api/cargokit.yaml.
           nm -D "$lib/libferman_api.so" | grep -q frb_get_rust_content_hash
+          # ferman-mcp beside the executable (ADR 0019).
+          test -x build/linux/x64/release/bundle/ferman-mcp

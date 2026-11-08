@@ -93,6 +93,7 @@ use ferman_text::{
     OverflowPlan, Substitution, SubstitutionKind, TextBlock,
 };
 
+use super::clients::ClientId;
 use super::document::{DocumentStructure, Model, Shown};
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
@@ -346,6 +347,9 @@ pub struct HistoryStep {
     /// Whether the signatures allowed it ([`OpGate::KeepsSignatures`]); false for a text edit, a
     /// revert and a restored step.
     pub keeps_signatures: bool,
+    /// Who made it: the name of the AI client whose transaction it committed (ADR 0019), `None`
+    /// for the user and a restored step.
+    pub client: Option<String>,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -502,11 +506,21 @@ pub(super) struct Session {
     /// Whether a simple signature was committed since the last save: the next save's version is
     /// a signature's (a9-8).
     signed_since_save: bool,
+    /// The clients waiting for the open transaction to end ([`Engine::client_begin_edit`]).
+    waiters: Vec<futures_channel::oneshot::Sender<()>>,
+    /// The clients the user let change this signed document: each client's first commit asks
+    /// even after the user's own confirmation (ADR 0019, d).
+    clients_confirmed: Vec<ClientId>,
+    /// The client whose call the actor runs now, and its name; `None` for the user's
+    /// ([`Engine::ask`] sets it from [`clients::acting`](super::clients::acting)).
+    pub(super) acting: Option<(ClientId, String)>,
 }
 
 /// The open transaction.
 struct Open {
     id: TransactionId,
+    /// The client that owns it and its name; `None` for the user's.
+    client: Option<(ClientId, String)>,
     page: usize,
     /// The block as the committed revision lays it out.
     block: TextBlock,
@@ -565,6 +579,7 @@ impl Session {
                 after: String::new(),
                 reverts: Vec::new(),
                 keeps_signatures: false,
+                client: None,
             })
             .collect();
         Self {
@@ -587,6 +602,9 @@ impl Session {
             versions,
             opened_kept: false,
             signed_since_save: false,
+            waiters: Vec::new(),
+            clients_confirmed: Vec::new(),
+            acting: None,
         }
     }
 
@@ -595,15 +613,33 @@ impl Session {
         self.model.document.structure().signed()
     }
 
-    /// Fails while a signed document waits for its confirmation.
+    /// Fails while a signed document waits for its confirmation: the user's, or for a client's
+    /// call the client's own.
     fn confirmed(&self) -> Result<(), ApiError> {
-        if self.signed() && self.confirmation.is_none() {
+        self.confirmed_for(self.acting.as_ref().map(|(client, _)| *client))
+    }
+
+    /// Fails while a signed document waits for the confirmation of `client`'s change, or the
+    /// user's when `None`.
+    fn confirmed_for(&self, client: Option<ClientId>) -> Result<(), ApiError> {
+        let confirmed = match client {
+            None => self.confirmation.is_some(),
+            Some(client) => self.clients_confirmed.contains(&client),
+        };
+        if self.signed() && !confirmed {
             return Err(ApiError::new(
                 ErrorKind::ConfirmationRequired,
                 MessageKey::INTERNAL,
             ));
         }
         Ok(())
+    }
+
+    /// The user's confirmation of `client`'s changes to this signed document.
+    pub(super) fn confirm_client(&mut self, client: ClientId) {
+        if !self.clients_confirmed.contains(&client) {
+            self.clients_confirmed.push(client);
+        }
     }
 
     /// The document's confirmation, made with the first call.
@@ -692,6 +728,45 @@ impl Session {
     }
 
     pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
+        self.begin_owned(page, block, None)
+    }
+
+    /// Begins `client`'s transaction, or, while another one is open, a receiver that fires when
+    /// it ends (the client waits for the user's edit). A client's own open transaction is an
+    /// error, as the user's is.
+    pub(super) fn begin_for_client(
+        &mut self,
+        page: u32,
+        block: BlockId,
+        client: (ClientId, String),
+    ) -> Result<Result<TransactionId, futures_channel::oneshot::Receiver<()>>, ApiError> {
+        if let Some(open) = &self.open {
+            if open.client.as_ref().is_some_and(|(id, _)| *id == client.0) {
+                return Err(CoreError::Write(WriteError::TransactionOpen).into());
+            }
+            let (wake, waiting) = futures_channel::oneshot::channel();
+            self.waiters.push(wake);
+            return Ok(Err(waiting));
+        }
+        self.begin_owned(page, block, Some(client)).map(Ok)
+    }
+
+    /// Wakes the clients waiting for the open transaction once none is open; the actor calls it
+    /// after every job.
+    pub(super) fn wake_waiters(&mut self) {
+        if self.open.is_none() {
+            for wake in self.waiters.drain(..) {
+                let _ = wake.send(());
+            }
+        }
+    }
+
+    fn begin_owned(
+        &mut self,
+        page: u32,
+        block: BlockId,
+        client: Option<(ClientId, String)>,
+    ) -> Result<TransactionId, ApiError> {
         self.closed()?;
         self.permitted(DocumentOp::EditText)?;
         let index = self.page_index(page)?;
@@ -726,6 +801,7 @@ impl Session {
         let id = TransactionId(NEXT_TRANSACTION.fetch_add(1, Ordering::Relaxed));
         self.open = Some(Open {
             id,
+            client,
             page: index,
             block,
             working: None,
@@ -1109,18 +1185,20 @@ impl Session {
     ) -> Result<(u32, Reload, Vec<FontSubstitution>), ApiError> {
         let open = self.open(transaction)?;
         let changed = open.working.is_some();
+        let client = open.client.as_ref().map(|(id, _)| *id);
         if open.pending.is_some() {
             // Never silent: the provisional font waits for choose_font or keep_as_is.
             return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                 .with_details(PENDING_CHOICE));
         }
         if changed {
-            self.confirmed()?;
+            self.confirmed_for(client)?;
         }
         let Some(open) = self.open.take() else {
             return Ok((self.current(), None, Vec::new()));
         };
         let (working, hidden, substitutions) = (open.working, open.hidden, open.substitutions);
+        let client = open.client.map(|(_, name)| name);
         let pages = self.page_handles(&[open.page]);
         let frame = open.block.bbox;
         let text_before = open.block.text();
@@ -1154,7 +1232,13 @@ impl Session {
             after: text_after,
             reverts: Vec::new(),
             keeps_signatures: false,
+            client,
         });
+        if let Some(client) = self.steps.last().and_then(|step| step.client.as_deref()) {
+            // The engine's own log keeps who made each change; the recovery journal holds objects
+            // only, and a restored document comes back as one step without names.
+            tracing::info!(client, step = before, "a client committed a step");
+        }
         self.frames.resize(before, None);
         self.frames.push(Some(frame));
         self.committed = Arc::new(working);
@@ -1268,7 +1352,11 @@ impl Session {
             after,
             reverts: Vec::new(),
             keeps_signatures,
+            client: self.acting.as_ref().map(|(_, client)| client.clone()),
         });
+        if let Some((_, client)) = &self.acting {
+            tracing::info!(client, step = current, "a client committed a step");
+        }
         self.frames.resize(current, None);
         self.frames.push(None);
         self.committed = Arc::new(working);
@@ -1395,6 +1483,7 @@ impl Session {
             after: String::new(),
             reverts,
             keeps_signatures: false,
+            client: None,
         });
         self.frames.resize(before, None);
         self.frames.push(None);
@@ -3251,9 +3340,12 @@ impl Engine {
         job: impl FnOnce(&mut Session) -> Result<T, ApiError> + Send + 'static,
     ) -> Result<T, ApiError> {
         let (reply, receiver) = futures_channel::oneshot::channel();
+        let acting = super::clients::acting();
         let job: Job = Box::new(move |session| {
+            session.acting = acting;
             // A panic is the last resort: the session keeps what the job changed before it.
             let result = guard(AssertUnwindSafe(|| job(session)));
+            session.acting = None;
             let _ = reply.send(result);
         });
         self.actor(document)?
@@ -3286,7 +3378,10 @@ impl Engine {
                 let mut session = Session::with_engine(model, fonts, recovery, versions);
                 loop {
                     match inbox.recv_timeout(SYNC_INTERVAL) {
-                        Ok(job) => job(&mut session),
+                        Ok(job) => {
+                            job(&mut session);
+                            session.wake_waiters();
+                        }
                         Err(mpsc::RecvTimeoutError::Timeout) => {}
                         Err(mpsc::RecvTimeoutError::Disconnected) => break,
                     }
@@ -3302,7 +3397,10 @@ impl Engine {
         Ok(mailbox)
     }
 
-    fn transaction_document(&self, transaction: TransactionId) -> Result<DocumentId, ApiError> {
+    pub(super) fn transaction_document(
+        &self,
+        transaction: TransactionId,
+    ) -> Result<DocumentId, ApiError> {
         self.transactions
             .lock()
             .unwrap_or_else(PoisonError::into_inner)

@@ -6,9 +6,17 @@ import 'dart:ui' as ui;
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
+import 'package:ferman/app/router.dart';
 import 'package:ferman/app/window_frame.dart';
+import 'package:ferman/design/components/navigation/ferman_mode.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_service_frb.dart';
+import 'package:ferman/features/save/document_closer.dart';
+import 'package:ferman/features/settings/settings_pane.dart';
+import 'package:ferman/features/settings/settings_screen.dart';
+import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/shell_screen.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/main.dart' as app;
 import 'package:ferman/platform/open_requests.dart';
 import 'package:flutter/foundation.dart';
@@ -48,6 +56,11 @@ void main() {
           .invokeMethod<List<Object?>>('ready'),
       isEmpty,
     );
+
+    // Then every screen, in this test since the app starts once per run:
+    // the no-network run (tools/no-network/run.sh) records the packets of
+    // this walk.
+    await _walkEveryScreen(tester, container);
   });
 
   group('engine through the bridge', () {
@@ -517,6 +530,58 @@ void main() {
       );
     });
   });
+}
+
+/// Shows every screen of the app: first run or the start screen, each
+/// Settings pane, and the editor with kira-tr in every mode and with every
+/// sidebar tab. It pumps frames for a while instead of settling, since the
+/// editor's spinners never settle.
+///
+/// shortcut: first run shows only its first step, and dialogs, menus and
+/// the debug gallery are not opened; walk them too when the no-network run
+/// must cover what they load.
+Future<void> _walkEveryScreen(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  Future<void> show() async {
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  // The start screen, or first run until it is done (the redirect).
+  final router = container.read(routerProvider)..go(Routes.start);
+  await show();
+  for (final pane in SettingsPane.values) {
+    router.go(Routes.settingsPane(pane.path));
+    await show();
+    expect(find.byType(FmSettings), findsOneWidget, reason: pane.path);
+  }
+
+  // The temporary directory: the sandboxed macOS app may read only its own
+  // container.
+  final dir = await Directory.systemTemp.createTemp('ferman-walk');
+  final file = File('${dir.path}/kira-tr.pdf')
+    ..writeAsBytesSync(base64Decode(kiraTrPdf));
+  await container.read(documentOpenerProvider.notifier).open([file.path]);
+  router.go(Routes.editor);
+  await show();
+  expect(find.byType(FmWindow), findsOneWidget);
+  for (final mode in FermanMode.values) {
+    container.read(shellModeProvider.notifier).select(mode);
+    await show();
+  }
+  container.read(shellModeProvider.notifier).select(FermanMode.view);
+  for (final tab in SidebarTab.values) {
+    container.read(shellSidebarTabProvider.notifier).select(tab);
+    await show();
+  }
+  // Nothing was edited, so it closes without asking, and the file is free
+  // to delete on Windows.
+  await container.read(documentCloserProvider.notifier).close(file.path);
+  await show();
+  await dir.delete(recursive: true);
 }
 
 /// The transaction on the block of kira-tr's page 1 with the monthly [fee],

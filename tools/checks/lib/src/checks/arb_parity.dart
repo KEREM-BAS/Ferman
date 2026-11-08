@@ -46,6 +46,8 @@ final class ArbParityCheck implements Check {
     'organizeSizeLetter': 'the international name of a paper and its size',
     'languageWithRegion': 'placeholders and parentheses only',
     'appName': 'the product name, never translated',
+    'aiClientsStepBy': 'two placeholders around a middle dot',
+    'aiClientsSeparator': 'Turkish lists with the same comma',
     'startPhoneSourceGoogleDrive': 'a product name, never translated',
     'startPhoneSourceOneDrive': 'a product name, never translated',
     'startPhoneToolOcr': 'the international abbreviation, as the board has it',

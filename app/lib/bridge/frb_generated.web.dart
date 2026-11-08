@@ -27,6 +27,16 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<ClientChange> dco_decode_StreamSink_client_change_Dco(
+    dynamic raw,
+  );
+
+  @protected
+  RustStreamSink<ClientRequest> dco_decode_StreamSink_client_request_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw);
 
   @protected
@@ -228,6 +238,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret dco_decode_caret(dynamic raw);
+
+  @protected
+  ClientChange dco_decode_client_change(dynamic raw);
+
+  @protected
+  ClientRequest dco_decode_client_request(dynamic raw);
+
+  @protected
+  ClientRequestKind dco_decode_client_request_kind(dynamic raw);
 
   @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw);
@@ -509,6 +528,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LinkInfo> dco_decode_list_link_info(dynamic raw);
 
   @protected
+  List<McpClient> dco_decode_list_mcp_client(dynamic raw);
+
+  @protected
   List<MissingChar> dco_decode_list_missing_char(dynamic raw);
 
   @protected
@@ -576,6 +598,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
+
+  @protected
+  McpClient dco_decode_mcp_client(dynamic raw);
 
   @protected
   MissingChar dco_decode_missing_char(dynamic raw);
@@ -889,6 +914,16 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<ClientChange> sse_decode_StreamSink_client_change_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  RustStreamSink<ClientRequest> sse_decode_StreamSink_client_request_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   );
@@ -1136,6 +1171,17 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Caret sse_decode_caret(SseDeserializer deserializer);
+
+  @protected
+  ClientChange sse_decode_client_change(SseDeserializer deserializer);
+
+  @protected
+  ClientRequest sse_decode_client_request(SseDeserializer deserializer);
+
+  @protected
+  ClientRequestKind sse_decode_client_request_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer);
@@ -1445,6 +1491,9 @@ abstract class FermanBridgeApiImplPlatform
   List<LinkInfo> sse_decode_list_link_info(SseDeserializer deserializer);
 
   @protected
+  List<McpClient> sse_decode_list_mcp_client(SseDeserializer deserializer);
+
+  @protected
   List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer);
 
   @protected
@@ -1524,6 +1573,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
+
+  @protected
+  McpClient sse_decode_mcp_client(SseDeserializer deserializer);
 
   @protected
   MissingChar sse_decode_missing_char(SseDeserializer deserializer);
@@ -1879,6 +1931,36 @@ abstract class FermanBridgeApiImplPlatform
   String cst_encode_AnyhowException(AnyhowException raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  String cst_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
+  }
+
+  @protected
+  String cst_encode_StreamSink_client_request_Dco(
+    RustStreamSink<ClientRequest> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_request,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -2380,6 +2462,33 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_client_change(ClientChange raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.document),
+      cst_encode_String(raw.client),
+      cst_encode_revision_info(raw.revision),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_client_request(ClientRequest raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.id),
+      cst_encode_u_64(raw.client),
+      cst_encode_String(raw.clientName),
+      cst_encode_opt_box_autoadd_u_64(raw.document),
+      cst_encode_client_request_kind(raw.kind),
+      cst_encode_opt_String(raw.path),
+      cst_encode_opt_box_autoadd_u_64(raw.version),
+      cst_encode_opt_String(raw.signer),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_opt_String(raw.field),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_combine_file_info(CombineFileInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -2739,6 +2848,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.before),
       cst_encode_String(raw.after),
       cst_encode_list_prim_u_32_strict(raw.reverts),
+      cst_encode_opt_String(raw.client),
     ].jsify()!;
   }
 
@@ -3041,6 +3151,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_mcp_client(List<McpClient> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_mcp_client).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_missing_char(List<MissingChar> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_missing_char).toList().jsify()!;
@@ -3176,6 +3292,16 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_wanted_item(List<WantedItem> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_wanted_item).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_mcp_client(McpClient raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.id),
+      cst_encode_String(raw.name),
+      cst_encode_bool(raw.mayEdit),
+    ].jsify()!;
   }
 
   @protected
@@ -3926,6 +4052,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_build_profile(BuildProfile raw);
 
   @protected
+  int cst_encode_client_request_kind(ClientRequestKind raw);
+
+  @protected
   int cst_encode_compress_preset(CompressPreset raw);
 
   @protected
@@ -4072,6 +4201,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_AnyhowException(
     AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_client_request_Dco(
+    RustStreamSink<ClientRequest> self,
     SseSerializer serializer,
   );
 
@@ -4413,6 +4554,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_caret(Caret self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_change(ClientChange self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_request(ClientRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_client_request_kind(
+    ClientRequestKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_combine_file_info(
@@ -4808,6 +4961,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_link_info(List<LinkInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_mcp_client(
+    List<McpClient> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_missing_char(
     List<MissingChar> self,
     SseSerializer serializer,
@@ -4932,6 +5091,9 @@ abstract class FermanBridgeApiImplPlatform
     List<WantedItem> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_mcp_client(McpClient self, SseSerializer serializer);
 
   @protected
   void sse_encode_missing_char(MissingChar self, SseSerializer serializer);
@@ -5404,6 +5566,13 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__annotations(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__annotations(port_, document);
 
+  void wire__crate__frb__answer_client_request(
+    NativePortType port_,
+    JSAny request,
+    bool allow,
+  ) =>
+      wasmModule.wire__crate__frb__answer_client_request(port_, request, allow);
+
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__frb__api_version() => wasmModule.wire__crate__frb__api_version();
 
@@ -5491,6 +5660,11 @@ class FermanBridgeWire implements BaseWire {
     int? missing,
     String name,
   ) => wasmModule.wire__crate__frb__clear_form(port_, document, missing, name);
+
+  void wire__crate__frb__client_request_pending(
+    NativePortType port_,
+    JSAny request,
+  ) => wasmModule.wire__crate__frb__client_request_pending(port_, request);
 
   void wire__crate__frb__close(
     NativePortType port_,
@@ -5623,6 +5797,12 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__form_fields(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__form_fields(port_, document);
 
+  void wire__crate__frb__grant_client_edit(
+    NativePortType port_,
+    JSAny client,
+    bool may_edit,
+  ) => wasmModule.wire__crate__frb__grant_client_edit(port_, client, may_edit);
+
   void wire__crate__frb__handwriting_styles(
     NativePortType port_,
     String text,
@@ -5670,6 +5850,9 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__list_recoverable(NativePortType port_) =>
       wasmModule.wire__crate__frb__list_recoverable(port_);
+
+  void wire__crate__frb__mcp_clients(NativePortType port_) =>
+      wasmModule.wire__crate__frb__mcp_clients(port_);
 
   void wire__crate__frb__move_block(
     NativePortType port_,
@@ -6248,6 +6431,11 @@ class FermanBridgeWire implements BaseWire {
     sink,
   );
 
+  void wire__crate__frb__start_mcp_host(
+    NativePortType port_,
+    String app_data,
+  ) => wasmModule.wire__crate__frb__start_mcp_host(port_, app_data);
+
   void wire__crate__frb__start_optimize_and_clean_job(
     NativePortType port_,
     JSAny document,
@@ -6302,6 +6490,9 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__start_versions(NativePortType port_, String root) =>
       wasmModule.wire__crate__frb__start_versions(port_, root);
 
+  void wire__crate__frb__stop_mcp_host(NativePortType port_) =>
+      wasmModule.wire__crate__frb__stop_mcp_host(port_);
+
   void wire__crate__frb__text_blocks(
     NativePortType port_,
     JSAny document,
@@ -6347,6 +6538,16 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__versions(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__versions(port_, document);
+
+  void wire__crate__frb__watch_client_changes(
+    NativePortType port_,
+    String sink,
+  ) => wasmModule.wire__crate__frb__watch_client_changes(port_, sink);
+
+  void wire__crate__frb__watch_client_requests(
+    NativePortType port_,
+    String sink,
+  ) => wasmModule.wire__crate__frb__watch_client_requests(port_, sink);
 
   void wire__crate__frb__white_margins(
     NativePortType port_,
@@ -6405,6 +6606,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__annotations(
     NativePortType port_,
     JSAny document,
+  );
+
+  external void wire__crate__frb__answer_client_request(
+    NativePortType port_,
+    JSAny request,
+    bool allow,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
@@ -6477,6 +6684,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny document,
     int? missing,
     String name,
+  );
+
+  external void wire__crate__frb__client_request_pending(
+    NativePortType port_,
+    JSAny request,
   );
 
   external void wire__crate__frb__close(
@@ -6598,6 +6810,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny document,
   );
 
+  external void wire__crate__frb__grant_client_edit(
+    NativePortType port_,
+    JSAny client,
+    bool may_edit,
+  );
+
   external void wire__crate__frb__handwriting_styles(
     NativePortType port_,
     String text,
@@ -6636,6 +6854,8 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__links(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__list_recoverable(NativePortType port_);
+
+  external void wire__crate__frb__mcp_clients(NativePortType port_);
 
   external void wire__crate__frb__move_block(
     NativePortType port_,
@@ -7025,6 +7245,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String sink,
   );
 
+  external void wire__crate__frb__start_mcp_host(
+    NativePortType port_,
+    String app_data,
+  );
+
   external void wire__crate__frb__start_optimize_and_clean_job(
     NativePortType port_,
     JSAny document,
@@ -7062,6 +7287,8 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String root,
   );
 
+  external void wire__crate__frb__stop_mcp_host(NativePortType port_);
+
   external void wire__crate__frb__text_blocks(
     NativePortType port_,
     JSAny document,
@@ -7095,6 +7322,16 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__versions(
     NativePortType port_,
     JSAny document,
+  );
+
+  external void wire__crate__frb__watch_client_changes(
+    NativePortType port_,
+    String sink,
+  );
+
+  external void wire__crate__frb__watch_client_requests(
+    NativePortType port_,
+    String sink,
   );
 
   external void wire__crate__frb__white_margins(

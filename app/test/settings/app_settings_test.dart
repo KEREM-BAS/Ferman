@@ -28,6 +28,7 @@ void main() {
         'reflow': true,
         'markEdited': true,
         'keepVersions': true,
+        'aiClients': false,
         'myStamps': <String>[],
         'shortcuts': <String, List<String>>{},
       });
@@ -64,6 +65,7 @@ void main() {
         'reflow': true,
         'markEdited': true,
         'keepVersions': true,
+        'aiClients': false,
         'myStamps': <String>[],
         'shortcuts': <String, List<String>>{},
       });

@@ -25,14 +25,15 @@ ferman/
 ├── Cargo.toml  Cargo.lock  rust-toolchain.toml  clippy.toml  deny.toml
 │
 │  Built during M1, phase by phase; fuzz/ since M2:
-├── crates/                Rust workspace; all seven crates exist from M1
+├── crates/                Rust workspace; seven crates from M1, ferman-mcp since M4
 │   ├── ferman-core/       document model, parsing/writing (lopdf), content-stream interpreter, incremental save
 │   ├── ferman-render/     page rendering with pdfium-render, tiles, thumbnails, caches
 │   ├── ferman-text/       glyphs → words → lines → paragraphs/columns; hit testing; editing; reflow
 │   ├── ferman-fonts/      font parsing, shaping, subsetting, system fonts, coverage and substitution
 │   ├── ferman-ops/        organize pages, annotations, forms, watermark, redaction, compress…
 │   ├── ferman-api/        the ONLY crate the UI calls (Rust facade + flutter_rust_bridge surface)
-│   └── ferman-cli/        `ferman` CLI on the same facade
+│   ├── ferman-cli/        `ferman` CLI on the same facade
+│   └── ferman-mcp/        the byte pump an AI client starts, joined to the running app's MCP host (ADR 0019)
 ├── fuzz/                  cargo-fuzz workspace on a pinned nightly, one target per parser (M2)
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
 │   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
@@ -59,6 +60,8 @@ FERMAN_RENDER_STRESS_SECONDS=600 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/
 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo bench -p ferman-render --bench first_page   # open long-500 and its first tile (tools/corpus generate makes long-500 first)
 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo bench -p ferman-api --bench edit_and_save   # the engine's edit-to-render (75 ms, kira-tr and long-500) and the save of 20 MB with 10 edits (500 ms); FERMAN_BENCH_GUARD=1 fails above them
 cargo deny check
+cargo clippy -p ferman-api --features frb,mcp --all-targets -- -D warnings && cargo test -p ferman-api --features mcp --lib --test mcp   # the MCP host and tools (ADR 0019); add `--test mcp -- --ignored` with FERMAN_PDFIUM_PATH for the tools on corpus files
+cargo run -p ferman-mcp -- <folder>             # the byte pump an AI client starts: <folder> is the mcp folder of the app data directory while the app's AI clients switch is on; status 1 when Ferman is not running
 cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: info --json, open <file> [--json], blocks <file> --page N [--json], edit <file> --page N --block <id> --text <new> [-o <out>], save <file> -o <out>, verify-edit <file> --page N --block <id> --text <new> [--json] (PDFium as for info; verify-edit exits 1 when the pixel-diff check fails; on a signed file edit, verify-edit and save over itself fail with confirmation_required unless given --confirm-signed)
 cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path tools/corpus/Cargo.toml   # the corpus tool, a workspace of its own (also fmt, deny)
 bash tools/corpus/fetch-fonts.sh   # before the corpus tool's tests, check or generate: the fonts Ferman does not bundle (tools/corpus/fonts.lock)
@@ -79,6 +82,9 @@ bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a 
 (cd app && flutter build web --release)                              # web build with the engine stubbed (kept buildable until phase 5)
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
 (cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2
+tools/no-network/run.sh <command>     # Linux CI only, with sudo: runs the command in a network namespace under tcpdump and fails on any packet outside loopback (the no-network job; MCP's loopback is checked apart)
+bash tools/signing/dry-run-macos.sh <Ferman.app>        # CI only: the macOS code-signing dry run (tools/signing/README.md)
+pwsh tools/signing/dry-run-windows.ps1 <Release folder> # CI only: the Windows code-signing dry run
 (cd app && very_good packages check licenses)                         # Dart licence check (flags: DEPENDENCIES.md §8)
 
 # Tools

@@ -158,7 +158,14 @@ the browser and never uploaded.
   "Available in a future version" (a11-1h-m1, [G89](../DESIGN_GAPS.md#g89)).
 - M4 W8: no strace (question 9 of the [M4 plan](../PROGRESS.md#m4-plan)). An automated run walks
   every screen in a Linux network namespace with a dummy default route, logged with tcpdump in CI
-  only, and the MCP loopback is checked apart.
+  only, and the MCP loopback is checked apart. Built as `tools/no-network/run.sh` and CI's
+  `no-network` job; the MCP host's Unix socket is outside the run, and
+  `crates/ferman-api/tests/mcp.rs` checks that nothing listens on TCP.
+- M4 W7: Settings › Privacy lists "AI clients on this computer" ([ADR
+  0019](0019-ai-clients-through-mcp.md), [G94](../DESIGN_GAPS.md#g94)), off by default, with the
+  connected clients named. It is not a network use of Ferman's own: the server takes a local socket
+  or named pipe only. The network activity log lists its local connections when it ships
+  ([B084](../BACKLOG.md#open), M5).
 - M4: full Privacy pane. "Show network activity…" stays disabled: nothing connects yet, so the log
   has nothing to show.
 - M5: the gateway with the update check ([Q15](../QUESTIONS.md#q15)) and the activity log view

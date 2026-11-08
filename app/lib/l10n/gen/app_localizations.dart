@@ -9939,6 +9939,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Merged in the order shown. You can reorder before saving.'**
   String get dropOverlayCombineDescription;
+
+  /// A settings pane for AI apps that connect to Ferman through MCP (G94, no board): its row in the pane list and its heading.
+  ///
+  /// In en, this message translates to:
+  /// **'AI clients'**
+  String get settingsPaneAiClients;
+
+  /// Settings › AI clients: the switch that starts the local MCP server (ADR 0019, G94). Off by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Let AI clients connect'**
+  String get aiClientsServer;
+
+  /// Settings › AI clients: under the switch (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'AI apps on this computer, such as Claude Desktop, can read the documents open in Ferman, and change them where you allow it. Nothing listens on the network.'**
+  String get aiClientsServerDescription;
+
+  /// Settings › AI clients: a warning when the local MCP server could not start (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'AI clients can\'t connect: Ferman couldn\'t open its connection on this computer.'**
+  String get aiClientsStartFailed;
+
+  /// Settings › AI clients: the heading over the connected clients (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Connected clients'**
+  String get aiClientsConnected;
+
+  /// Settings › AI clients: no client is connected (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'No client is connected.'**
+  String get aiClientsNone;
+
+  /// Settings › AI clients: a connected client's switch; off, it only reads (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Can change documents'**
+  String get aiClientsMayEdit;
+
+  /// Settings › AI clients: what a screen reader says for a client's switch. {client} is the name the client gave, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} can change documents'**
+  String aiClientsMayEditFor(String client);
+
+  /// Settings › AI clients: the heading over the clients Ferman can set up (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a client'**
+  String get aiClientsSetUpHeading;
+
+  /// Settings › AI clients: shown while the server is off (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the switch above to set up a client.'**
+  String get aiClientsOffNote;
+
+  /// Settings › AI clients: the one-click button that writes Ferman into Claude Desktop's settings (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get aiClientsSetUp;
+
+  /// Settings › AI clients: under Claude Desktop where Ferman cannot write its settings (the macOS sandbox, Linux) (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the configuration below into its settings.'**
+  String get aiClientsCopyInstead;
+
+  /// Settings › AI clients: the row for any other client that starts a local MCP server (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Other local clients'**
+  String get aiClientsOther;
+
+  /// Settings › AI clients: under Other local clients (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Add this to the client\'s MCP settings.'**
+  String get aiClientsOtherNote;
+
+  /// Settings › AI clients: copies the client configuration (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy configuration'**
+  String get aiClientsCopy;
+
+  /// Toast after Copy configuration (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration copied'**
+  String get aiClientsCopied;
+
+  /// Settings › AI clients: why ChatGPT is not offered (ADR 0019 e).
+  ///
+  /// In en, this message translates to:
+  /// **'ChatGPT can\'t connect yet: it reaches servers only from OpenAI\'s cloud, and Ferman opens no port to the internet.'**
+  String get aiClientsChatGpt;
+
+  /// Toast after one-click setup. {client} is the client's name (Claude Desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'{client} is set up'**
+  String aiClientsSetUpDone(String client);
+
+  /// Toast message after one-click setup. {client} is the client's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart {client} to connect it to Ferman.'**
+  String aiClientsSetUpRestart(String client);
+
+  /// Toast when one-click setup could not write the client's settings. {client} is the client's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t set up {client}'**
+  String aiClientsSetUpFailed(String client);
+
+  /// Toast message when one-click setup failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the configuration and add it to the client\'s settings.'**
+  String get aiClientsSetUpFailedBody;
+
+  /// The window notice while AI clients are connected, and its line in Settings › Privacy (ADR 0019, G94). {names} are the clients' names, each isolated, separated by aiClientsSeparator.
+  ///
+  /// In en, this message translates to:
+  /// **'AI clients connected: {names}'**
+  String aiClientsNotice(String names);
+
+  /// What separates the clients' names in aiClientsNotice.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get aiClientsSeparator;
+
+  /// The window notice's button that stops the MCP server and disconnects every client (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get aiClientsStop;
+
+  /// The history panel and the review list: a step an AI client made. {detail} is the time or the place, {client} the client's name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{detail} · {client}'**
+  String aiClientsStepBy(String detail, String client);
+
+  /// A network use in Settings › Privacy: the local MCP server (G94). Nothing reaches the network, but what a client reads it sends to its provider.
+  ///
+  /// In en, this message translates to:
+  /// **'AI clients on this computer'**
+  String get settingsNetAiClients;
+
+  /// Description of AI clients in Settings › Privacy (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'What a connected client reads, it sends to its own provider under your account.'**
+  String get settingsNetAiClientsDescription;
+
+  /// A client's request (ADR 0019 d): the title. {client} is its name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to change a signed document'**
+  String clientRequestEditSigned(String client);
+
+  /// A client's request to change a signed document: the description. {name} is the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is signed. Changing it makes its signatures invalid.'**
+  String clientRequestEditSignedBody(String name);
+
+  /// A client's request: the title. {client} is its name, {name} the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to save {name}'**
+  String clientRequestSave(String client, String name);
+
+  /// A client's request to save: the description.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman saves it over its file, as Save does.'**
+  String get clientRequestSaveBody;
+
+  /// A client's request: the title; the description is the file's path. {client} is its name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to write a file'**
+  String clientRequestWriteFile(String client);
+
+  /// A client's request: the title; the description is the file's path. {client} is its name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to read a file'**
+  String clientRequestReadFile(String client);
+
+  /// A client's request: the title. {client} is its name, {name} the file name, isolated. The description says which name it writes, and where.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to sign {name}'**
+  String clientRequestSign(String client, String name);
+
+  /// A client's request to sign: the description. {signer} is the name the client chose, isolated; {page} the page number, already formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'It writes the name {signer} on page {page}: a simple signature, not a certificate signature.'**
+  String clientRequestSignBody(String signer, String page);
+
+  /// A client's request to sign a signature field: the description. {signer} is the name the client chose and {field} the field's name, both isolated; {page} the page number, already formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'It writes the name {signer} in the field {field} on page {page}: a simple signature, not a certificate signature.'**
+  String clientRequestSignFieldBody(String signer, String field, String page);
+
+  /// A client's request: the title. {client} is its name, {name} the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{client} wants to restore a version of {name}'**
+  String clientRequestRestore(String client, String name);
+
+  /// A client's request to restore a version: the description.
+  ///
+  /// In en, this message translates to:
+  /// **'The version replaces the file. Your unsaved work is kept as a version first.'**
+  String get clientRequestRestoreBody;
+
+  /// A client's request: the button that allows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get clientRequestAllow;
+
+  /// A client's request: the button that declines it (also Esc and the close button).
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t allow'**
+  String get clientRequestDeny;
+
+  /// Settings › AI clients: under Claude Desktop where one-click setup can write its settings (G94).
+  ///
+  /// In en, this message translates to:
+  /// **'Set up writes Ferman into its settings. Restart it afterwards.'**
+  String get aiClientsClaudeNote;
 }
 
 class _AppLocalizationsDelegate

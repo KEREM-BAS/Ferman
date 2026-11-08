@@ -34,6 +34,7 @@ final class AppSettings {
     this.reflow = true,
     this.markEdited = true,
     this.keepVersions = true,
+    this.aiClients = false,
     this.commenterName,
     this.myStamps = const [],
     this.shortcuts = const {},
@@ -85,6 +86,7 @@ final class AppSettings {
       reflow: json[_reflow] != false,
       markEdited: json[_markEdited] != false,
       keepVersions: json[_keepVersions] != false,
+      aiClients: json[_aiClients] == true,
       commenterName: switch (json[_commenterName]) {
         final String name => name,
         _ => null,
@@ -143,6 +145,7 @@ final class AppSettings {
   static const String _markEdited = 'markEdited';
   static const String _keepVersions = 'keepVersions';
   static const String _commenterName = 'commenterName';
+  static const String _aiClients = 'aiClients';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -163,6 +166,7 @@ final class AppSettings {
     _reflow,
     _markEdited,
     _keepVersions,
+    _aiClients,
     _commenterName,
     _myStamps,
     _shortcuts,
@@ -234,6 +238,10 @@ final class AppSettings {
   /// a version for 30 days.
   final bool keepVersions;
 
+  /// Settings → AI clients → Let AI clients connect (ADR 0019, G94): the
+  /// MCP host listens while it is on. Off by default.
+  final bool aiClients;
+
   /// The name on comments (G46, "Your name for comments"); null until the
   /// first comment asks. It may be empty.
   final String? commenterName;
@@ -278,6 +286,7 @@ final class AppSettings {
     _reflow: reflow,
     _markEdited: markEdited,
     _keepVersions: keepVersions,
+    _aiClients: aiClients,
     _commenterName: ?commenterName,
     _myStamps: myStamps,
     _shortcuts: shortcuts,
@@ -323,6 +332,8 @@ final class AppSettings {
       reflow: read.reflow,
       markEdited: read.markEdited,
       keepVersions: read.keepVersions,
+      // A file from elsewhere never turns on a listener.
+      aiClients: current.aiClients,
       commenterName: name == null || name.length > largestImportedText
           ? null
           : name,
@@ -360,6 +371,7 @@ final class AppSettings {
     bool? reflow,
     bool? markEdited,
     bool? keepVersions,
+    bool? aiClients,
     String? commenterName,
     List<String>? myStamps,
     Map<String, List<String>>? shortcuts,
@@ -384,6 +396,7 @@ final class AppSettings {
     reflow: reflow ?? this.reflow,
     markEdited: markEdited ?? this.markEdited,
     keepVersions: keepVersions ?? this.keepVersions,
+    aiClients: aiClients ?? this.aiClients,
     commenterName: commenterName ?? this.commenterName,
     myStamps: myStamps ?? this.myStamps,
     shortcuts: shortcuts ?? this.shortcuts,
@@ -412,6 +425,7 @@ final class AppSettings {
       other.reflow == reflow &&
       other.markEdited == markEdited &&
       other.keepVersions == keepVersions &&
+      other.aiClients == aiClients &&
       other.commenterName == commenterName &&
       listEquals(other.myStamps, myStamps) &&
       _sameShortcuts(other.shortcuts, shortcuts) &&
@@ -443,6 +457,7 @@ final class AppSettings {
       Object.hashAll(myStamps),
       Object.hashAllUnordered(shortcuts.keys),
       keepVersions,
+      aiClients,
     ),
     version,
     Object.hashAllUnordered(unknown.keys),

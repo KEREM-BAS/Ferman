@@ -787,6 +787,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   0019](adr/0019-ai-clients-through-mcp.md) as written, together with the other Proposed items of
   M1. Anything that changes when M4 step 11 starts goes back to the owner.
 
+  Amended with the [M4 plan](PROGRESS.md#m4-plan) on 2026-11-06 (its question 1, as proposed) and
+  built in M4 W7: a local socket or named pipe only, off by default, read only until the user grants
+  edit for a connection, Claude Desktop set up in one click outside the macOS sandbox and on Windows,
+  a copyable configuration otherwise; ChatGPT cannot reach a local server yet ([ADR
+  0019](adr/0019-ai-clients-through-mcp.md), [G94](DESIGN_GAPS.md#g94)). The same plan's question 9
+  closed strace (LGPL-2.1-or-later, a CI tool that had waited since M2 and never had an entry here):
+  W8's no-network run uses a Linux network namespace with tcpdump instead (`tools/no-network`).
+
 <a id="q21"></a>
 
 ### Q21 · Memory-mapping large files

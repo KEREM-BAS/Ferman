@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -2046181084;
+  int get rustContentHash => -1340146958;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -102,6 +102,11 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<AnnotationList> crateFrbAnnotations({required BigInt document});
+
+  Future<void> crateFrbAnswerClientRequest({
+    required BigInt request,
+    required bool allow,
+  });
 
   ApiVersion crateFrbApiVersion();
 
@@ -159,6 +164,8 @@ abstract class FermanBridgeApi extends BaseApi {
     MissingFont? missing,
     required String name,
   });
+
+  Future<bool> crateFrbClientRequestPending({required BigInt request});
 
   Future<void> crateFrbClose({
     required BigInt document,
@@ -255,6 +262,11 @@ abstract class FermanBridgeApi extends BaseApi {
 
   Future<FormInfo> crateFrbFormFields({required BigInt document});
 
+  Future<void> crateFrbGrantClientEdit({
+    required BigInt client,
+    required bool mayEdit,
+  });
+
   Future<List<HandwritingStyle>> crateFrbHandwritingStyles({
     required String text,
   });
@@ -284,6 +296,8 @@ abstract class FermanBridgeApi extends BaseApi {
   Future<LinkList> crateFrbLinks({required BigInt document});
 
   Future<List<RecoverableDocument>> crateFrbListRecoverable();
+
+  Future<List<McpClient>> crateFrbMcpClients();
 
   Future<EditPreview> crateFrbMoveBlock({
     required BigInt transaction,
@@ -591,6 +605,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required String name,
   });
 
+  Future<String> crateFrbStartMcpHost({required String appData});
+
   Stream<JobEvent> crateFrbStartOptimizeAndCleanJob({
     required BigInt document,
     String? staging,
@@ -615,6 +631,8 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<void> crateFrbStartVersions({required String root});
+
+  Future<void> crateFrbStopMcpHost();
 
   Future<PageBlocks> crateFrbTextBlocks({
     required BigInt document,
@@ -643,6 +661,10 @@ abstract class FermanBridgeApi extends BaseApi {
   });
 
   Future<List<VersionInfo>> crateFrbVersions({required BigInt document});
+
+  Stream<ClientChange> crateFrbWatchClientChanges();
+
+  Stream<ClientRequest> crateFrbWatchClientRequests();
 
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
@@ -796,6 +818,39 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbAnnotationsConstMeta =>
       const TaskConstMeta(debugName: "annotations", argNames: ["document"]);
+
+  @override
+  Future<void> crateFrbAnswerClientRequest({
+    required BigInt request,
+    required bool allow,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(request);
+          var arg1 = cst_encode_bool(allow);
+          return wire.wire__crate__frb__answer_client_request(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbAnswerClientRequestConstMeta,
+        argValues: [request, allow],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbAnswerClientRequestConstMeta =>
+      const TaskConstMeta(
+        debugName: "answer_client_request",
+        argNames: ["request", "allow"],
+      );
 
   @override
   ApiVersion crateFrbApiVersion() {
@@ -1134,6 +1189,31 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "clear_form",
     argNames: ["document", "missing", "name"],
   );
+
+  @override
+  Future<bool> crateFrbClientRequestPending({required BigInt request}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(request);
+          return wire.wire__crate__frb__client_request_pending(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbClientRequestPendingConstMeta,
+        argValues: [request],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbClientRequestPendingConstMeta =>
+      const TaskConstMeta(
+        debugName: "client_request_pending",
+        argNames: ["request"],
+      );
 
   @override
   Future<void> crateFrbClose({
@@ -1741,6 +1821,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "form_fields", argNames: ["document"]);
 
   @override
+  Future<void> crateFrbGrantClientEdit({
+    required BigInt client,
+    required bool mayEdit,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(client);
+          var arg1 = cst_encode_bool(mayEdit);
+          return wire.wire__crate__frb__grant_client_edit(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbGrantClientEditConstMeta,
+        argValues: [client, mayEdit],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbGrantClientEditConstMeta => const TaskConstMeta(
+    debugName: "grant_client_edit",
+    argNames: ["client", "mayEdit"],
+  );
+
+  @override
   Future<List<HandwritingStyle>> crateFrbHandwritingStyles({
     required String text,
   }) {
@@ -1950,6 +2058,27 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbListRecoverableConstMeta =>
       const TaskConstMeta(debugName: "list_recoverable", argNames: []);
+
+  @override
+  Future<List<McpClient>> crateFrbMcpClients() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__frb__mcp_clients(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_mcp_client,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbMcpClientsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbMcpClientsConstMeta =>
+      const TaskConstMeta(debugName: "mcp_clients", argNames: []);
 
   @override
   Future<EditPreview> crateFrbMoveBlock({
@@ -3811,6 +3940,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       );
 
   @override
+  Future<String> crateFrbStartMcpHost({required String appData}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(appData);
+          return wire.wire__crate__frb__start_mcp_host(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbStartMcpHostConstMeta,
+        argValues: [appData],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbStartMcpHostConstMeta =>
+      const TaskConstMeta(debugName: "start_mcp_host", argNames: ["appData"]);
+
+  @override
   Stream<JobEvent> crateFrbStartOptimizeAndCleanJob({
     required BigInt document,
     String? staging,
@@ -3997,6 +4148,27 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "start_versions", argNames: ["root"]);
 
   @override
+  Future<void> crateFrbStopMcpHost() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__frb__stop_mcp_host(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbStopMcpHostConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbStopMcpHostConstMeta =>
+      const TaskConstMeta(debugName: "stop_mcp_host", argNames: []);
+
+  @override
   Future<PageBlocks> crateFrbTextBlocks({
     required BigInt document,
     required int page,
@@ -4173,6 +4345,63 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "versions", argNames: ["document"]);
 
   @override
+  Stream<ClientChange> crateFrbWatchClientChanges() {
+    final sink = RustStreamSink<ClientChange>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_StreamSink_client_change_Dco(sink);
+            return wire.wire__crate__frb__watch_client_changes(port_, arg0);
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbWatchClientChangesConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbWatchClientChangesConstMeta => const TaskConstMeta(
+    debugName: "watch_client_changes",
+    argNames: ["sink"],
+  );
+
+  @override
+  Stream<ClientRequest> crateFrbWatchClientRequests() {
+    final sink = RustStreamSink<ClientRequest>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_StreamSink_client_request_Dco(sink);
+            return wire.wire__crate__frb__watch_client_requests(port_, arg0);
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbWatchClientRequestsConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbWatchClientRequestsConstMeta =>
+      const TaskConstMeta(
+        debugName: "watch_client_requests",
+        argNames: ["sink"],
+      );
+
+  @override
   Future<List<PageMargins?>> crateFrbWhiteMargins({
     required BigInt document,
     required Uint64List pages,
@@ -4265,6 +4494,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<ClientChange> dco_decode_StreamSink_client_change_Dco(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
+  RustStreamSink<ClientRequest> dco_decode_StreamSink_client_request_Dco(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
   }
 
   @protected
@@ -4807,6 +5052,45 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ClientChange dco_decode_client_change(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClientChange(
+      document: dco_decode_u_64(arr[0]),
+      client: dco_decode_String(arr[1]),
+      revision: dco_decode_revision_info(arr[2]),
+    );
+  }
+
+  @protected
+  ClientRequest dco_decode_client_request(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    return ClientRequest(
+      id: dco_decode_u_64(arr[0]),
+      client: dco_decode_u_64(arr[1]),
+      clientName: dco_decode_String(arr[2]),
+      document: dco_decode_opt_box_autoadd_u_64(arr[3]),
+      kind: dco_decode_client_request_kind(arr[4]),
+      path: dco_decode_opt_String(arr[5]),
+      version: dco_decode_opt_box_autoadd_u_64(arr[6]),
+      signer: dco_decode_opt_String(arr[7]),
+      page: dco_decode_opt_box_autoadd_u_32(arr[8]),
+      field: dco_decode_opt_String(arr[9]),
+    );
+  }
+
+  @protected
+  ClientRequestKind dco_decode_client_request_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ClientRequestKind.values[raw as int];
+  }
+
+  @protected
   CombineFileInfo dco_decode_combine_file_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -5341,8 +5625,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   HistoryStep dco_decode_history_step(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return HistoryStep(
       name: dco_decode_String(arr[0]),
       time: dco_decode_i_64(arr[1]),
@@ -5352,6 +5636,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       before: dco_decode_String(arr[5]),
       after: dco_decode_String(arr[6]),
       reverts: dco_decode_list_prim_u_32_strict(arr[7]),
+      client: dco_decode_opt_String(arr[8]),
     );
   }
 
@@ -5735,6 +6020,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<McpClient> dco_decode_list_mcp_client(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_mcp_client).toList();
+  }
+
+  @protected
   List<MissingChar> dco_decode_list_missing_char(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_missing_char).toList();
@@ -5872,6 +6163,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_wanted_item).toList();
+  }
+
+  @protected
+  McpClient dco_decode_mcp_client(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return McpClient(
+      id: dco_decode_u_64(arr[0]),
+      name: dco_decode_String(arr[1]),
+      mayEdit: dco_decode_bool(arr[2]),
+    );
   }
 
   @protected
@@ -6901,6 +7205,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RustStreamSink<ClientChange> sse_decode_StreamSink_client_change_Dco(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
+  RustStreamSink<ClientRequest> sse_decode_StreamSink_client_request_Dco(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
     SseDeserializer deserializer,
   ) {
@@ -7515,6 +7835,55 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ClientChange sse_decode_client_change(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_document = sse_decode_u_64(deserializer);
+    var var_client = sse_decode_String(deserializer);
+    var var_revision = sse_decode_revision_info(deserializer);
+    return ClientChange(
+      document: var_document,
+      client: var_client,
+      revision: var_revision,
+    );
+  }
+
+  @protected
+  ClientRequest sse_decode_client_request(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_id = sse_decode_u_64(deserializer);
+    var var_client = sse_decode_u_64(deserializer);
+    var var_clientName = sse_decode_String(deserializer);
+    var var_document = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_kind = sse_decode_client_request_kind(deserializer);
+    var var_path = sse_decode_opt_String(deserializer);
+    var var_version = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_signer = sse_decode_opt_String(deserializer);
+    var var_page = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_field = sse_decode_opt_String(deserializer);
+    return ClientRequest(
+      id: var_id,
+      client: var_client,
+      clientName: var_clientName,
+      document: var_document,
+      kind: var_kind,
+      path: var_path,
+      version: var_version,
+      signer: var_signer,
+      page: var_page,
+      field: var_field,
+    );
+  }
+
+  @protected
+  ClientRequestKind sse_decode_client_request_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return ClientRequestKind.values[inner];
+  }
+
+  @protected
   CombineFileInfo sse_decode_combine_file_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_status = sse_decode_input_status(deserializer);
@@ -8116,6 +8485,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_before = sse_decode_String(deserializer);
     var var_after = sse_decode_String(deserializer);
     var var_reverts = sse_decode_list_prim_u_32_strict(deserializer);
+    var var_client = sse_decode_opt_String(deserializer);
     return HistoryStep(
       name: var_name,
       time: var_time,
@@ -8125,6 +8495,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       before: var_before,
       after: var_after,
       reverts: var_reverts,
+      client: var_client,
     );
   }
 
@@ -8712,6 +9083,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<McpClient> sse_decode_list_mcp_client(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <McpClient>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_mcp_client(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -8977,6 +9360,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       ans_.add(sse_decode_wanted_item(deserializer));
     }
     return ans_;
+  }
+
+  @protected
+  McpClient sse_decode_mcp_client(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_id = sse_decode_u_64(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_mayEdit = sse_decode_bool(deserializer);
+    return McpClient(id: var_id, name: var_name, mayEdit: var_mayEdit);
   }
 
   @protected
@@ -10335,6 +10727,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_client_request_kind(ClientRequestKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_compress_preset(CompressPreset raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -10629,6 +11027,40 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_StreamSink_client_change_Dco(
+    RustStreamSink<ClientChange> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_change,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
+  void sse_encode_StreamSink_client_request_Dco(
+    RustStreamSink<ClientRequest> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_client_request,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
   }
 
   @protected
@@ -11277,6 +11709,38 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_client_change(ClientChange self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.document, serializer);
+    sse_encode_String(self.client, serializer);
+    sse_encode_revision_info(self.revision, serializer);
+  }
+
+  @protected
+  void sse_encode_client_request(ClientRequest self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.id, serializer);
+    sse_encode_u_64(self.client, serializer);
+    sse_encode_String(self.clientName, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.document, serializer);
+    sse_encode_client_request_kind(self.kind, serializer);
+    sse_encode_opt_String(self.path, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.version, serializer);
+    sse_encode_opt_String(self.signer, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.page, serializer);
+    sse_encode_opt_String(self.field, serializer);
+  }
+
+  @protected
+  void sse_encode_client_request_kind(
+    ClientRequestKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_combine_file_info(
     CombineFileInfo self,
     SseSerializer serializer,
@@ -11720,6 +12184,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_String(self.before, serializer);
     sse_encode_String(self.after, serializer);
     sse_encode_list_prim_u_32_strict(self.reverts, serializer);
+    sse_encode_opt_String(self.client, serializer);
   }
 
   @protected
@@ -12209,6 +12674,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_mcp_client(
+    List<McpClient> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_mcp_client(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_missing_char(
     List<MissingChar> self,
     SseSerializer serializer,
@@ -12476,6 +12953,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     for (final item in self) {
       sse_encode_wanted_item(item, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_mcp_client(McpClient self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.id, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_bool(self.mayEdit, serializer);
   }
 
   @protected

@@ -87,9 +87,47 @@ goes back to the owner:
   licence passes [ADR 0016](0016-dependency-licence-policy.md), otherwise a small JSON-RPC layer of our
   own. A trial resolve passed the licences with 82 packages and no HTTP client (M4 plan, decision 37);
   the newest release was a day old, so an older one is pinned and `cargo deny` runs when W7 starts.
+  **Built in W7:** rmcp 3.8.0 and tokio passed `cargo deny`, so rmcp it is, behind the feature `mcp`
+  of ferman-api. The engine's side needs no runtime and is always built (`facade::clients`): a
+  client connects by the name its `initialize` handshake gives, read only until granted edit; its
+  edit transactions are owned by it, one open per document as for the user, so it waits while
+  another is open and has its own rolled back when it disconnects; each step it commits names it
+  in the history (`HistoryStep::client`) and in the engine's own log, and reaches the app through a
+  change stream. The recovery journal holds objects only and restores unsaved changes as one step
+  without names, so it does not record the client.
+  The host (`facade::mcp`, started and stopped by the app, off by default) listens in the `mcp`
+  folder of the app data directory: a Unix domain socket in a 0700 folder, itself 0600, on macOS
+  and Linux, and on Windows a named pipe with a random part in its name that refuses remote
+  callers, its name in the folder's `pipe` file. The token is a 0600 file in the same folder,
+  new each time the host starts; a connection whose first line is not the token is closed.
+  `ferman-mcp <folder>` (crate `ferman-mcp`, tokio only) sends the token, then pumps bytes until
+  the app closes, and says that Ferman is not running (status 1) when it cannot connect; the
+  Linux and Windows CMake builds and a Runner build phase on macOS (universal, signed ad hoc until
+  M5) put it beside the executable. The tools read the open documents (pages, bookmarks,
+  attachments, information, text blocks, search, comments, form fields, links, history,
+  versions) under read permission, and with edit permission run the M3 text edit and each M4
+  operation through the facade's own calls, run for the client so its step names it and a signed
+  document asks for its own confirmation (organize pages, comments and replies, flatten, links,
+  form fill and clear, bookmarks, metadata, attachments, compress, extract, split, combine, a
+  simple signature). What the UI would confirm becomes a request the app answers: the client's
+  first change to a signed document, writing or reading a file at a path the client names,
+  placing a signature, and saving or restoring a version, which the app then does in its own
+  flow. The macOS sandbox is kept and the socket lives in the container; whether a client outside
+  the sandbox reaches it is an owner check on a real Mac.
 - **What the user sees.** A notice in the window while a client is connected, the client's name on
   each of its edits in the review list, and a way to stop it from the window as well as from
   Settings.
+  **Built in W7 ([G94](../DESIGN_GAPS.md#g94)):** Settings › AI clients ("Let AI clients connect",
+  off by default and stored; an imported settings file never turns it on) starts and stops the
+  host; each connected client is listed read only until "Can change documents" is turned on for
+  that connection; Claude Desktop is set up in one click outside the macOS sandbox and on Windows,
+  otherwise the configuration is copied. Settings › Privacy has the row "AI clients on this
+  computer" with the same switch. The window notice names the connected clients with Stop. The app
+  reads `mcp_clients` every 2 s while the host runs (the engine sends no connect or disconnect
+  event, [B230](../BACKLOG.md#open)), routes `client_changes` through
+  `DocumentEditor.clientChanged` so a client's step reaches the pages, the tab, the history and the
+  review list and undoes as the person's own, and answers a client's Save or RestoreVersion request
+  only after its own save or restore flow has finished.
 
 ## Consequences
 
@@ -129,7 +167,8 @@ goes back to the owner:
     updates), a certification signature's allowed changes (DocMDP `/P`) and field locks (`/Lock`,
     FieldMDP), and the same warning before editing a signed document as the UI.
 - [ADR 0015](0015-privacy-and-network.md) and Settings → Privacy: list connected AI clients with the
-  other network uses.
+  other network uses. Done in W7 (the Privacy row); the network activity log lists the server's
+  local connections when it ships ([B084](../BACKLOG.md#open), M5).
 
 ## Alternatives considered
 

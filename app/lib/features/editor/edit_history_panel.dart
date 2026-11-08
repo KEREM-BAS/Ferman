@@ -68,7 +68,14 @@ class EditHistoryPanel extends ConsumerWidget {
       for (final (index, step) in history.steps.indexed)
         _Step(
           label: step.name,
-          meta: format.time(step.time),
+          meta: switch (step.client) {
+            null => format.time(step.time),
+            // An AI client's step names it (ADR 0019, G94).
+            final client => l10n.aiClientsStepBy(
+              format.time(step.time),
+              bidiIsolate(client),
+            ),
+          },
           state: index + 1 == history.current
               ? _StepState.current
               : index < history.current

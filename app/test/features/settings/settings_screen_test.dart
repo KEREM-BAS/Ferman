@@ -63,7 +63,7 @@ final Finder _regionSelect = find.byType(Select<String>);
 
 void main() {
   group('Settings (a11-1)', () {
-    testWidgets('lists the 12 panes; only the built ones are enabled', (
+    testWidgets('lists the 13 panes; only the built ones are enabled', (
       tester,
     ) async {
       await pumpFermanApp(tester);
@@ -76,6 +76,7 @@ void main() {
         'Signatures and certificates',
         'Text recognition (OCR)',
         'AI assistant',
+        'AI clients',
         'Privacy',
         'Updates',
         'Keyboard shortcuts',
@@ -94,6 +95,7 @@ void main() {
         'Signatures and certificates',
         'Text recognition (OCR)',
         'AI assistant',
+        'AI clients',
         'Privacy',
         'Updates',
         'Keyboard shortcuts',
@@ -241,8 +243,8 @@ void main() {
           order.add(inNav(FocusManager.instance.primaryFocus!.rect));
         }
         final firstPane = order.indexOf(false);
-        // The search field and the 12 panes come first, all of them …
-        expect(firstPane, 13, reason: '$order');
+        // The search field and the 13 panes come first, all of them …
+        expect(firstPane, 14, reason: '$order');
         // … then the pane's controls, not back and forth.
         expect(order.sublist(firstPane, firstPane + 6), everyElement(isFalse));
       });
@@ -712,9 +714,8 @@ void main() {
   });
 
   group('Privacy (a11-1h)', () {
-    testWidgets('lists the network uses, each off and disabled', (
-      tester,
-    ) async {
+    testWidgets('lists the network uses, each off and disabled but AI '
+        'clients, off', (tester) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester, 'privacy');
       for (final title in [
@@ -723,12 +724,16 @@ void main() {
         'Timestamps',
         'Downloads you start',
         'Your AI provider',
+        'AI clients on this computer',
       ]) {
         expect(find.text(title), findsOneWidget, reason: title);
       }
-      final switches = tester.widgetList<Switch>(find.byType(Switch));
-      expect(switches, hasLength(5));
-      for (final control in switches) {
+      final switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
+      expect(switches, hasLength(6));
+      // AI clients (G94) work and are off by default.
+      expect(switches.last.value, isFalse);
+      expect(switches.last.disabled, isFalse);
+      for (final control in switches.take(5)) {
         expect(control.value, isFalse);
         expect(control.disabled, isTrue);
         expect(control.disabledReason, _future);

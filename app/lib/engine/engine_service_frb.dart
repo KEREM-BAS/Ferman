@@ -47,6 +47,10 @@ class FrbEngineService implements EngineService {
     return service;
   }
 
+  /// The app data directory, where the MCP host listens; null when it
+  /// cannot be named.
+  String? _appData;
+
   /// Starts crash recovery in [recoveryDirectory]. Without it the engine
   /// keeps no recovery files, and everything else still works.
   Future<void> _startRecovery() async {
@@ -59,6 +63,8 @@ class FrbEngineService implements EngineService {
             : null,
       );
       if (root != null) {
+        // The recovery folder's parent is the app data directory.
+        _appData = root.substring(0, root.lastIndexOf(RegExp(r'[/\\]')));
         await startRecovery(root);
         // Version history beside it in the app data directory (ADR 0022).
         await bridge.startVersions(root: versionsDirectory(root));
@@ -250,6 +256,88 @@ class FrbEngineService implements EngineService {
     final order = await bridge.collationOrder(locale: locale, texts: texts);
     return order.toList();
   }
+
+  @override
+  Future<String> startMcpHost() async {
+    final appData = _appData;
+    if (appData == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.io,
+        messageKey: 'errorInternal',
+      );
+    }
+    try {
+      return await bridge.startMcpHost(appData: appData);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> stopMcpHost() => bridge.stopMcpHost();
+
+  @override
+  Future<List<McpClient>> mcpClients() async => [
+    for (final client in await bridge.mcpClients())
+      McpClient(
+        id: client.id.toInt(),
+        name: client.name,
+        mayEdit: client.mayEdit,
+      ),
+  ];
+
+  @override
+  Future<void> grantClientEdit(int client, {required bool mayEdit}) async {
+    try {
+      await bridge.grantClientEdit(
+        client: BigInt.from(client),
+        mayEdit: mayEdit,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Stream<ClientRequest> clientRequests() => bridge.watchClientRequests().map(
+    (request) => ClientRequest(
+      id: request.id.toInt(),
+      client: request.client.toInt(),
+      clientName: request.clientName,
+      kind: switch (request.kind) {
+        bridge.ClientRequestKind.editSigned => ClientRequestKind.editSigned,
+        bridge.ClientRequestKind.save => ClientRequestKind.save,
+        bridge.ClientRequestKind.writeFile => ClientRequestKind.writeFile,
+        bridge.ClientRequestKind.readFile => ClientRequestKind.readFile,
+        bridge.ClientRequestKind.sign => ClientRequestKind.sign,
+        bridge.ClientRequestKind.restoreVersion =>
+          ClientRequestKind.restoreVersion,
+      },
+      document: request.document?.toInt(),
+      path: request.path,
+      version: request.version?.toInt(),
+      signer: request.signer,
+      page: request.page,
+      field: request.field,
+    ),
+  );
+
+  @override
+  Future<bool> clientRequestPending(int request) =>
+      bridge.clientRequestPending(request: BigInt.from(request));
+
+  @override
+  Future<void> answerClientRequest(int request, {required bool allow}) =>
+      bridge.answerClientRequest(request: BigInt.from(request), allow: allow);
+
+  @override
+  Stream<ClientChange> clientChanges() => bridge.watchClientChanges().map(
+    (change) => ClientChange(
+      document: change.document.toInt(),
+      client: change.client,
+      revision: _revisionOf(change.revision),
+    ),
+  );
 
   /// The engine's first event names the view; every later one is an update.
   /// Cancelling [EngineView.updates] cancels the engine's stream, which ends
@@ -2106,30 +2194,31 @@ class FrbEngineService implements EngineService {
     Future<bridge.RevisionInfo> Function() call,
   ) async {
     try {
-      final info = await call();
-      return RevisionInfo(
-        current: info.current,
-        // A render key is a 64-bit value: wrapped, not clamped.
-        renderKey: info.renderKey?.toSigned(64).toInt(),
-        changedPages: info.changedPages?.toList(),
-        substitutions: [
-          for (final substitution in info.substitutions)
-            _substitution(substitution),
-        ],
-        structure: switch (info.structure) {
-          null => null,
-          final structure => DocumentStructure(
-            pages: _pages(structure.pages),
-            outline: _outline(structure.outline),
-            attachments: _attachments(structure.attachments),
-            info: _info(structure.info),
-          ),
-        },
-      );
+      return _revisionOf(await call());
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
   }
+
+  static RevisionInfo _revisionOf(bridge.RevisionInfo info) => RevisionInfo(
+    current: info.current,
+    // A render key is a 64-bit value: wrapped, not clamped.
+    renderKey: info.renderKey?.toSigned(64).toInt(),
+    changedPages: info.changedPages?.toList(),
+    substitutions: [
+      for (final substitution in info.substitutions)
+        _substitution(substitution),
+    ],
+    structure: switch (info.structure) {
+      null => null,
+      final structure => DocumentStructure(
+        pages: _pages(structure.pages),
+        outline: _outline(structure.outline),
+        attachments: _attachments(structure.attachments),
+        info: _info(structure.info),
+      ),
+    },
+  );
 
   @override
   Future<Reverted> revert(
@@ -2187,6 +2276,7 @@ class FrbEngineService implements EngineService {
               before: step.before,
               after: step.after,
               reverts: step.reverts.toList(),
+              client: step.client,
             ),
         ],
         current: history.current,

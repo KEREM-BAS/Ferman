@@ -1,17 +1,18 @@
 # cargokit options for the Flutter app build (app/rust_builder). The app always builds the
-# bridge surface; ferman-cli and the tests build ferman-api without it (ADR 0003).
+# bridge surface and the MCP host for AI clients (ADR 0019); ferman-cli and the tests build
+# ferman-api without them (ADR 0003). The web build stubs the engine, so it has neither.
 # cargokit reads each Flutter build mode separately (profile is not release), so all three
 # are listed; a mode left out builds an engine without the bridge.
 cargo:
   debug:
     extra_flags:
       - --features
-      - frb
+      - frb,mcp
   profile:
     extra_flags:
       - --features
-      - frb
+      - frb,mcp
   release:
     extra_flags:
       - --features
-      - frb
+      - frb,mcp

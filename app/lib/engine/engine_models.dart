@@ -2961,6 +2961,7 @@ class HistoryStep {
     this.before = '',
     this.after = '',
     this.reverts = const [],
+    this.client,
   });
 
   /// Its name as the app gave it at commit.
@@ -2989,6 +2990,10 @@ class HistoryStep {
 
   /// The steps this one reverted, by index; empty for an edit.
   final List<int> reverts;
+
+  /// The AI client that made it (ADR 0019); null for the user's own steps and
+  /// a step restored from the recovery files.
+  final String? client;
 }
 
 /// What a revert did (a3-12b).
@@ -3723,4 +3728,121 @@ class PrintPage {
 
   /// 8-bit BGRA, opaque, the top row first.
   final Uint8List pixels;
+}
+
+/// An AI client connected through MCP (ADR 0019).
+@immutable
+class McpClient {
+  /// Creates the client.
+  const new({required this.id, required this.name, this.mayEdit = false});
+
+  /// Its handle.
+  final int id;
+
+  /// The name it gave when it connected.
+  final String name;
+
+  /// Whether the user let it change documents; read only otherwise.
+  final bool mayEdit;
+
+  @override
+  bool operator ==(Object other) =>
+      other is McpClient &&
+      other.id == id &&
+      other.name == name &&
+      other.mayEdit == mayEdit;
+
+  @override
+  int get hashCode => Object.hash(id, name, mayEdit);
+}
+
+/// What an AI client asks the user to allow.
+enum ClientRequestKind {
+  /// Its first change to a signed document, which breaks the signatures.
+  editSigned,
+
+  /// Saving the document over its file, in the app's own save flow.
+  save,
+
+  /// Writing a new file at [ClientRequest.path].
+  writeFile,
+
+  /// Reading the file at [ClientRequest.path] into the document.
+  readFile,
+
+  /// Placing a simple signature in the user's name.
+  sign,
+
+  /// Restoring [ClientRequest.version] over the document's file, in the
+  /// app's own flow.
+  restoreVersion,
+}
+
+/// A request of an AI client the user answers.
+@immutable
+class ClientRequest {
+  /// Creates the request.
+  const new({
+    required this.id,
+    required this.client,
+    required this.clientName,
+    required this.kind,
+    this.document,
+    this.path,
+    this.version,
+    this.signer,
+    this.page,
+    this.field,
+  });
+
+  /// Its handle.
+  final int id;
+
+  /// The client that asks.
+  final int client;
+
+  /// Its name.
+  final String clientName;
+
+  /// What it asks.
+  final ClientRequestKind kind;
+
+  /// The engine document it is about, if any.
+  final int? document;
+
+  /// The file, for [ClientRequestKind.writeFile] and
+  /// [ClientRequestKind.readFile].
+  final String? path;
+
+  /// The version, for [ClientRequestKind.restoreVersion].
+  final int? version;
+
+  /// The name the signature writes, for [ClientRequestKind.sign].
+  final String? signer;
+
+  /// The page, from 1, for [ClientRequestKind.sign].
+  final int? page;
+
+  /// The signature field's full name, for [ClientRequestKind.sign], if any.
+  final String? field;
+}
+
+/// A step an AI client committed, so the app redraws and its history follows.
+@immutable
+class ClientChange {
+  /// Creates the change.
+  const new({
+    required this.document,
+    required this.client,
+    required this.revision,
+  });
+
+  /// The engine document it changed.
+  final int document;
+
+  /// The client's name, as the step names it.
+  final String client;
+
+  /// Where the history stands, with the pages to redraw.
+  final RevisionInfo revision;
 }

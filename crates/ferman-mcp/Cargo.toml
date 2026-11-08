@@ -1,0 +1,17 @@
+[package]
+name = "ferman-mcp"
+description = "The byte pump an AI client starts: it joins the client's standard input and output to the running Ferman app (ADR 0019)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+# No Ferman crate and no PDF code: it only moves bytes (M4 plan question 1b).
+tokio = { workspace = true, features = ["io-std"] }
+
+[lints]
+workspace = true
