@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -305,8 +304,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellToolPageLabels => 'Page labels';
 
   @override
-  String get shellOrganizeHint =>
-      'Drag pages to reorder. Right-click for more.';
+  String get shellOrganizeHint => 'Drag pages to reorder. Right-click for more.';
 
   @override
   String get shellConvertTools => 'Convert tools';
@@ -529,16 +527,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageSubtitle =>
-      'You can change it any time in Settings › Language and region.';
+  String get onboardingLanguageSubtitle => 'You can change it any time in Settings › Language and region.';
 
   @override
-  String get onboardingLanguageSearchPlaceholder =>
-      'Search languages · Dil ara · Sprache suchen · ابحث عن لغة';
+  String get onboardingLanguageSearchPlaceholder => 'Search languages · Dil ara · Sprache suchen · ابحث عن لغة';
 
   @override
-  String get onboardingLanguageSearchPlaceholderPhone =>
-      'Search · Ara · Suchen · بحث';
+  String get onboardingLanguageSearchPlaceholderPhone => 'Search · Ara · Suchen · بحث';
 
   @override
   String get onboardingLanguageSearchLabel => 'Search languages';
@@ -549,8 +544,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageNoMatchBody =>
-      'Search by the language’s own name, its English name or its code.';
+  String get onboardingLanguageNoMatchBody => 'Search by the language’s own name, its English name or its code.';
 
   @override
   String get onboardingLanguageMissing => 'Missing your language?';
@@ -587,86 +581,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingEditTitle => 'Edit any PDF like a document';
 
   @override
-  String get onboardingEditBody =>
-      'Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.';
+  String get onboardingEditBody => 'Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.';
 
   @override
-  String get onboardingEditGlyphs =>
-      'When a font is missing a character, Ferman tells you which one and what it will use instead.';
+  String get onboardingEditGlyphs => 'When a font is missing a character, Ferman tells you which one and what it will use instead.';
 
   @override
   String get onboardingPrivacyTitle => 'Everything stays on your device';
 
   @override
-  String get onboardingPrivacyBody =>
-      'Ferman opens, edits, signs and recognizes text on this computer. There’s no account to create and nothing to upload.';
+  String get onboardingPrivacyBody => 'Ferman opens, edits, signs and recognizes text on this computer. There’s no account to create and nothing to upload.';
 
   @override
   String get onboardingPrivacyFilesTitle => 'Files stay on this device';
 
   @override
-  String get onboardingPrivacyFilesBody =>
-      'Ferman reads and writes files where they are. Nothing is uploaded.';
+  String get onboardingPrivacyFilesBody => 'Ferman reads and writes files where they are. Nothing is uploaded.';
 
   @override
   String get onboardingPrivacyOfflineTitle => 'Works offline';
 
   @override
-  String get onboardingPrivacyOfflineBody =>
-      'Editing, OCR, signing and conversion need no connection.';
+  String get onboardingPrivacyOfflineBody => 'Editing, OCR, signing and conversion need no connection.';
 
   @override
   String get onboardingPrivacyAccountTitle => 'No account';
 
   @override
-  String get onboardingPrivacyAccountBody =>
-      'There’s nothing to sign up for and nothing to sign in to.';
+  String get onboardingPrivacyAccountBody => 'There’s nothing to sign up for and nothing to sign in to.';
 
   @override
   String get onboardingPrivacyTelemetryTitle => 'No telemetry';
 
   @override
-  String get onboardingPrivacyTelemetryBody =>
-      'Ferman doesn’t collect usage data or crash reports.';
+  String get onboardingPrivacyTelemetryBody => 'Ferman doesn’t collect usage data or crash reports.';
 
   @override
   String get onboardingPrivacyUpdatesTitle => 'One optional check for updates';
 
   @override
-  String get onboardingPrivacyUpdatesBody =>
-      'Once a day, sending only the version number and platform. You can turn it off.';
+  String get onboardingPrivacyUpdatesBody => 'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform. You can turn it off.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'OCR language packs';
 
   @override
-  String get onboardingPrivacyPacksBody =>
-      'Downloaded only when you choose to. Off until you use it.';
+  String get onboardingPrivacyPacksBody => 'Downloaded only when you choose to. Off until you use it.';
 
   @override
   String get onboardingPrivacyAiTitle => 'AI assistant';
 
   @override
-  String get onboardingPrivacyAiBody =>
-      'Runs on this computer, or uses your own API key. Off until you use it.';
+  String get onboardingPrivacyAiBody => 'Runs on this computer, or uses your own API key. Off until you use it.';
 
   @override
   String get onboardingPrivacyTimestampsTitle => 'Signature timestamps';
 
   @override
-  String get onboardingPrivacyTimestampsBody =>
-      'Contacts the timestamp server you chose when you sign. Off until you use it.';
+  String get onboardingPrivacyTimestampsBody => 'Contacts the timestamp server you chose when you sign. Off until you use it.';
 
   @override
-  String get onboardingPrivacySettingsLink =>
-      'See every connection in Settings › Privacy';
+  String get onboardingPrivacySettingsLink => 'See every connection in Settings › Privacy';
 
   @override
   String get onboardingFreeTitle => 'Free forever, nothing locked';
 
   @override
-  String get onboardingFreeBody =>
-      'Every feature is included, with no trial, no subscription and no paid tier. Ferman is open source, so anyone can read, check and improve the code.';
+  String get onboardingFreeBody => 'Every feature is included, with no trial, no subscription and no paid tier. Ferman is open source, so anyone can read, check and improve the code.';
 
   @override
   String get onboardingFreeLicence => 'Licence: Apache-2.0';
@@ -728,8 +709,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startCreatePdf => 'Create PDF';
 
   @override
-  String get startCreatePdfDescription =>
-      'From a blank page, files or the clipboard';
+  String get startCreatePdfDescription => 'From a blank page, files or the clipboard';
 
   @override
   String get startCombineFiles => 'Combine files';
@@ -771,8 +751,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startDropSubtitle => 'or open one from your computer.';
 
   @override
-  String get startDropFootnote =>
-      'Files stay on this device. Ferman never uploads them.';
+  String get startDropFootnote => 'Files stay on this device. Ferman never uploads them.';
 
   @override
   String get startOpenPdf => 'Open a PDF';
@@ -781,12 +760,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startNewBlankPdf => 'New blank PDF';
 
   @override
-  String get startEngineUnavailableTitle =>
-      'Ferman can’t open PDF files right now.';
+  String get startEngineUnavailableTitle => 'Ferman can’t open PDF files right now.';
 
   @override
-  String get startEngineUnavailableMessage =>
-      'A part of Ferman is missing or doesn’t match this version. Installing Ferman again fixes this.';
+  String get startEngineUnavailableMessage => 'A part of Ferman is missing or doesn’t match this version. Installing Ferman again fixes this.';
 
   @override
   String get startCopyTechnicalDetails => 'Copy technical details';
@@ -804,8 +781,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSaveFailedTitle => 'Your settings couldn’t be saved.';
 
   @override
-  String get settingsSaveFailedMessage =>
-      'This change applies until you close Ferman.';
+  String get settingsSaveFailedMessage => 'This change applies until you close Ferman.';
 
   @override
   String get settingsSaveFailedDismiss => 'Dismiss';
@@ -883,15 +859,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPageDimmed => 'Dimmed';
 
   @override
-  String get settingsPageDimmedDescription =>
-      'Slightly darker with a trace of sepia. Colours aren’t inverted.';
+  String get settingsPageDimmedDescription => 'Slightly darker with a trace of sepia. Colours aren’t inverted.';
 
   @override
   String get settingsPageDark => 'Dark reading mode';
 
   @override
-  String get settingsPageDarkDescription =>
-      'Light text on dark pages. Images keep their colours. Never printed.';
+  String get settingsPageDarkDescription => 'Light text on dark pages. Images keep their colours. Never printed.';
 
   @override
   String get settingsPageLayout => 'Page layout for new documents';
@@ -918,26 +892,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsReopen => 'Reopen documents from last time';
 
   @override
-  String get settingsDefaultApp =>
-      'Ferman can be the app that opens when you double-click a PDF.';
+  String get settingsDefaultApp => 'Ferman can be the app that opens when you double-click a PDF.';
 
   @override
-  String get settingsDefaultAppWindows =>
-      'Ferman can be the app that opens when you double-click a PDF. Windows lets you choose it in Settings › Default apps.';
+  String get settingsDefaultAppWindows => 'Ferman can be the app that opens when you double-click a PDF. Windows lets you choose it in Settings › Default apps.';
 
   @override
   String get settingsMakeDefault => 'Make Ferman the default…';
 
   @override
-  String get settingsAppLanguageHint =>
-      'Ferman switches right away. No restart needed.';
+  String get settingsAppLanguageHint => 'Ferman switches right away. No restart needed.';
 
   @override
   String get settingsDocumentLanguages => 'Document languages';
 
   @override
-  String get settingsDocumentLanguagesHint =>
-      'Used for text recognition, spell-check and hyphenation when a document doesn’t say its language.';
+  String get settingsDocumentLanguagesHint => 'Used for text recognition, spell-check and hyphenation when a document doesn’t say its language.';
 
   @override
   String get settingsAddDocumentLanguage => 'Add';
@@ -946,43 +916,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyStatement => 'Ferman collects nothing.';
 
   @override
-  String get settingsPrivacyStatementBody =>
-      'No usage data, no crash reports, no document contents, no account. Files stay on this device. These are the only times Ferman connects to the internet, and each can be turned off:';
+  String get settingsPrivacyStatementBody => 'No usage data, no crash reports, no document contents, no account. Files stay on this device. These are the only times Ferman connects to the internet, and each can be turned off:';
 
   @override
   String get settingsNetUpdates => 'Check for updates';
 
   @override
-  String get settingsNetUpdatesDescription =>
-      'Once a day; sends only the version number and platform.';
+  String get settingsNetUpdatesDescription => 'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform.';
 
   @override
   String get settingsNetSignatureChecks => 'Signature checks';
 
   @override
-  String get settingsNetSignatureChecksDescription =>
-      'Asks the certificate provider whether a certificate was revoked, when you sign or open a signed file.';
+  String get settingsNetSignatureChecksDescription => 'Asks the certificate provider whether a certificate was revoked, when you sign or open a signed file.';
 
   @override
   String get settingsNetTimestamps => 'Timestamps';
 
   @override
-  String get settingsNetTimestampsDescription =>
-      'Contacts the timestamp server you chose when you sign.';
+  String get settingsNetTimestampsDescription => 'Contacts the timestamp server you chose when you sign.';
 
   @override
   String get settingsNetDownloads => 'Downloads you start';
 
   @override
-  String get settingsNetDownloadsDescription =>
-      'OCR language packs and the assistant’s model.';
+  String get settingsNetDownloadsDescription => 'OCR language packs and the assistant’s model.';
 
   @override
   String get settingsNetAiProvider => 'Your AI provider';
 
   @override
-  String get settingsNetAiProviderDescription =>
-      'Only if you add your own API key. Off.';
+  String get settingsNetAiProviderDescription => 'Only if you add your own API key. Off.';
 
   @override
   String get settingsNetworkActivity => 'Show network activity…';
@@ -1038,8 +1002,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get viewerPageFailedReason =>
-      'Something on this page can’t be read. The rest of the document works as usual.';
+  String get viewerPageFailedReason => 'Something on this page can’t be read. The rest of the document works as usual.';
 
   @override
   String get viewerTryAgain => 'Try again';
@@ -1058,57 +1021,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editNotEditableTitle => 'This text can’t be edited';
 
   @override
-  String get editTipImageOnly =>
-      'No text on this page yet · Recognize text to edit';
+  String get editTipImageOnly => 'No text on this page yet · Recognize text to edit';
 
   @override
-  String get editBodyImageOnly =>
-      'This page is an image, such as a scan. Recognize its text to edit it.';
+  String get editBodyImageOnly => 'This page is an image, such as a scan. Recognize its text to edit it.';
 
   @override
-  String get editTipOutlinedText =>
-      'This text is drawn as shapes, so it can’t be edited';
+  String get editTipOutlinedText => 'This text is drawn as shapes, so it can’t be edited';
 
   @override
-  String get editBodyOutlinedText =>
-      'This text is drawn as vector shapes, not letters. Ferman can’t change it without redrawing it.';
+  String get editBodyOutlinedText => 'This text is drawn as vector shapes, not letters. Ferman can’t change it without redrawing it.';
 
   @override
   String get editTipUnknownText => 'Ferman can’t read the letters of this text';
 
   @override
-  String get editBodyUnknownText =>
-      'Its font doesn’t say which letters its shapes stand for, so Ferman can’t change it safely.';
+  String get editBodyUnknownText => 'Its font doesn’t say which letters its shapes stand for, so Ferman can’t change it safely.';
 
   @override
   String get editTipInvisibleText => 'This text is invisible';
 
   @override
-  String get editBodyInvisibleText =>
-      'It’s hidden text, such as recognized text over a scan. Ferman doesn’t edit it.';
+  String get editBodyInvisibleText => 'It’s hidden text, such as recognized text over a scan. Ferman doesn’t edit it.';
 
   @override
-  String get editTipRestricted =>
-      'The author’s permissions don’t allow editing';
+  String get editTipRestricted => 'The author’s permissions don’t allow editing';
 
   @override
-  String get editBodyRestricted =>
-      'Unlock the document with its owner password to edit it.';
+  String get editBodyRestricted => 'Unlock the document with its owner password to edit it.';
 
   @override
   String get editTipReadOnly => 'This document is read-only';
 
   @override
-  String get editBodyReadOnly =>
-      'Ferman opened this document for viewing only, so its text can’t be changed.';
+  String get editBodyReadOnly => 'Ferman opened this document for viewing only, so its text can’t be changed.';
 
   @override
-  String get editTipDamaged =>
-      'This document was repaired, so it can’t be edited';
+  String get editTipDamaged => 'This document was repaired, so it can’t be edited';
 
   @override
-  String get editBodyDamaged =>
-      'Ferman found problems in this file and opened it for viewing only. Save a repaired copy to edit it.';
+  String get editBodyDamaged => 'Ferman found problems in this file and opened it for viewing only. Save a repaired copy to edit it.';
 
   @override
   String get editTipSignature => 'This text is part of a signature';
@@ -1117,8 +1069,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editBodySignature => 'Ferman never edits signatures.';
 
   @override
-  String get editTipAnnotation =>
-      'This text belongs to a comment or form field';
+  String get editTipAnnotation => 'This text belongs to a comment or form field';
 
   @override
   String get editBodyAnnotation => 'Change it in Comment or Fill & Sign mode.';
@@ -1127,16 +1078,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTipTooComplex => 'Ferman can’t change this text safely';
 
   @override
-  String get editBodyLimits =>
-      'This page is too large or complex for Ferman to rewrite safely.';
+  String get editBodyLimits => 'This page is too large or complex for Ferman to rewrite safely.';
 
   @override
-  String get editBodySplit =>
-      'Its drawing instructions are split across two parts of the page, so Ferman can’t rewrite it safely.';
+  String get editBodySplit => 'Its drawing instructions are split across two parts of the page, so Ferman can’t rewrite it safely.';
 
   @override
-  String get editBodySkewed =>
-      'This text is slanted, so Ferman can’t rewrite it safely.';
+  String get editBodySkewed => 'This text is slanted, so Ferman can’t rewrite it safely.';
 
   @override
   String get viewerTextMenu => 'Text';
@@ -1153,40 +1101,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarNoBookmarks => 'No bookmarks';
 
   @override
-  String get sidebarNoBookmarksBody =>
-      'This document has no outline. Add a bookmark to mark a place you want to come back to.';
+  String get sidebarNoBookmarksBody => 'This document has no outline. Add a bookmark to mark a place you want to come back to.';
 
   @override
   String get sidebarNoAttachments => 'No attachments';
 
   @override
-  String get sidebarNoAttachmentsBody =>
-      'Files embedded in this PDF appear here.';
+  String get sidebarNoAttachmentsBody => 'Files embedded in this PDF appear here.';
 
   @override
   String get sidebarNoLayers => 'No layers';
 
   @override
-  String get sidebarNoLayersBody =>
-      'This document has no layers to show or hide.';
+  String get sidebarNoLayersBody => 'This document has no layers to show or hide.';
 
   @override
   String get sidebarNoSignatures => 'No signatures';
 
   @override
-  String get sidebarNoSignaturesBody =>
-      'This document isn’t signed and has no signature fields.';
+  String get sidebarNoSignaturesBody => 'This document isn’t signed and has no signature fields.';
 
   @override
-  String get sidebarAttachmentsNote =>
-      'Attachments open in their own app. Ferman doesn’t run embedded files.';
+  String get sidebarAttachmentsNote => 'Attachments open in their own app. Ferman doesn’t run embedded files.';
 
   @override
   String get sidebarSaveAttachment => 'Save attachment as…';
 
   @override
-  String get sidebarLayersNote =>
-      'Hidden layers still print unless you turn off “Print hidden layers” in Print.';
+  String get sidebarLayersNote => 'Hidden layers still print unless you turn off “Print hidden layers” in Print.';
 
   @override
   String get sidebarHideLayer => 'Hide layer';
@@ -1198,8 +1140,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarLayerLocked => 'Locked';
 
   @override
-  String get sidebarSignatureCheckingLater =>
-      'Signature checking is available in a future version.';
+  String get sidebarSignatureCheckingLater => 'Signature checking is available in a future version.';
 
   @override
   String get sidebarEmptySignatureField => 'Empty signature field';
@@ -1250,8 +1191,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findIgnoreAccents => 'Ignore accents and dotted/dotless i';
 
   @override
-  String get findIgnoreAccentsBody =>
-      '“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.';
+  String get findIgnoreAccentsBody => '“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.';
 
   @override
   String get findLookIn => 'Look in';
@@ -1321,8 +1261,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findNotSearchedFields => 'Form fields weren’t searched.';
 
   @override
-  String get findNotSearchedBoth =>
-      'Comments and form fields weren’t searched.';
+  String get findNotSearchedBoth => 'Comments and form fields weren’t searched.';
 
   @override
   String get sidebarSearchField => 'Search in document';
@@ -1336,16 +1275,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarSearchNoTextTitle => 'No text to search';
 
   @override
-  String get sidebarSearchNoTextBody =>
-      'These pages are scanned images. Recognizing text makes them searchable.';
+  String get sidebarSearchNoTextBody => 'These pages are scanned images. Recognizing text makes them searchable.';
 
   @override
-  String sidebarSearchSummary(
-    int matches,
-    String matchesText,
-    int pages,
-    String pagesText,
-  ) {
+  String sidebarSearchSummary(int matches, String matchesText, int pages, String pagesText) {
     String _temp0 = intl.Intl.pluralLogic(
       matches,
       locale: localeName,
@@ -1434,8 +1367,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startPhoneEmptyTitle => 'No documents yet';
 
   @override
-  String get startPhoneEmptySubtitle =>
-      'Open a PDF from your phone or a cloud drive, or scan a paper document.';
+  String get startPhoneEmptySubtitle => 'Open a PDF from your phone or a cloud drive, or scan a paper document.';
 
   @override
   String get startPhoneOpen => 'Open a file';
@@ -1504,8 +1436,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startColumnOpened => 'Last opened';
 
   @override
-  String get startRecentFooter =>
-      'Recent files are listed only on this device.';
+  String get startRecentFooter => 'Recent files are listed only on this device.';
 
   @override
   String get startClearList => 'Clear list';
@@ -1577,20 +1508,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectSheetClose => 'Close';
 
   @override
-  String get errorInternal =>
-      'Something went wrong inside Ferman. Copy the technical details to report it.';
+  String get errorInternal => 'Something went wrong inside Ferman. Copy the technical details to report it.';
 
   @override
-  String get errorFileNotFound =>
-      'The file isn’t there any more. It may have been moved, renamed or deleted.';
+  String get errorFileNotFound => 'The file isn’t there any more. It may have been moved, renamed or deleted.';
 
   @override
-  String get errorFilePermissionDenied =>
-      'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.';
+  String get errorFilePermissionDenied => 'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.';
 
   @override
-  String get errorFileRead =>
-      'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.';
+  String get errorFileRead => 'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.';
 
   @override
   String errorNotPdf(String name) {
@@ -1601,32 +1528,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordRequired => 'This PDF is password-protected';
 
   @override
-  String get errorWrongPassword =>
-      'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.';
+  String get errorWrongPassword => 'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.';
 
   @override
-  String get errorDamaged =>
-      'The file is damaged and Ferman can’t repair it. Try getting the file again.';
+  String get errorDamaged => 'The file is damaged and Ferman can’t repair it. Try getting the file again.';
 
   @override
-  String get errorDamagedTruncated =>
-      'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.';
+  String get errorDamagedTruncated => 'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.';
 
   @override
-  String get errorDamagedEmpty =>
-      'The file starts like a PDF, but nothing after that is readable. Try getting the file again.';
+  String get errorDamagedEmpty => 'The file starts like a PDF, but nothing after that is readable. Try getting the file again.';
 
   @override
-  String get errorUnsupported =>
-      'It uses something Ferman doesn’t support yet, such as encryption with a certificate.';
+  String get errorUnsupported => 'It uses something Ferman doesn’t support yet, such as encryption with a certificate.';
 
   @override
-  String get errorTooComplex =>
-      'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.';
+  String get errorTooComplex => 'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.';
 
   @override
-  String get errorOutOfMemory =>
-      'This computer ran out of memory while opening it. Your other documents are open and unchanged.';
+  String get errorOutOfMemory => 'This computer ran out of memory while opening it. Your other documents are open and unchanged.';
 
   @override
   String openClosedTitle(String name) {
@@ -1675,12 +1595,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restrictedTitle => 'The author restricted this document.';
 
   @override
-  String get restrictedBody =>
-      'You can read and print it. Editing, comments and form filling are turned off.';
+  String get restrictedBody => 'You can read and print it. Editing, comments and form filling are turned off.';
 
   @override
-  String get restrictedBodyOther =>
-      'You can read it. The author turned some actions off.';
+  String get restrictedBodyOther => 'You can read it. The author turned some actions off.';
 
   @override
   String get restrictedUnlock => 'Unlock with owner password…';
@@ -1772,8 +1690,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get repairTrailerTitle => 'The file’s trailer was missing';
 
   @override
-  String get repairTrailerBody =>
-      'Ferman found where the document starts among its objects.';
+  String get repairTrailerBody => 'Ferman found where the document starts among its objects.';
 
   @override
   String repairStreamsTitle(int count, String countText) {
@@ -1801,15 +1718,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get repairUnreadableBody =>
-      'Pages and features that use them may be incomplete.';
+  String get repairUnreadableBody => 'Pages and features that use them may be incomplete.';
 
   @override
   String get xfaTitle => 'This is an XFA form, which Ferman can’t show.';
 
   @override
-  String get xfaBody =>
-      'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.';
+  String get xfaBody => 'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.';
 
   @override
   String disagreeTitle(String name) {
@@ -1817,8 +1732,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get disagreeBody =>
-      'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.';
+  String get disagreeBody => 'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.';
 
   @override
   String get propertiesFile => 'File';
@@ -1914,8 +1828,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get propertiesPartial => 'Partial';
 
   @override
-  String get propertiesPartialNote =>
-      'Subset: only characters already in the file.';
+  String get propertiesPartialNote => 'Subset: only characters already in the file.';
 
   @override
   String propertiesPartialMissing(String letters) {
@@ -2058,8 +1971,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$countText scripts that run when the file opens. Ferman never runs them.',
+      other: '$countText scripts that run when the file opens. Ferman never runs them.',
       one: 'A script that runs when the file opens. Ferman never runs it.',
     );
     return '$_temp0';
@@ -2077,8 +1989,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultAppTitle => 'Open PDFs with Ferman?';
 
   @override
-  String get defaultAppDescription =>
-      'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.';
+  String get defaultAppDescription => 'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.';
 
   @override
   String get defaultAppNow => 'Opens PDFs now:';
@@ -2106,8 +2017,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get attachmentWriteFailed =>
-      'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
+  String get attachmentWriteFailed => 'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
 
   @override
   String editStepText(String page) {
@@ -2126,8 +2036,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get editHistoryNote =>
-      'Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.';
+  String get editHistoryNote => 'Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.';
 
   @override
   String get editNothingToUndo => 'Nothing to undo';
@@ -2179,8 +2088,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get editOverflowExtendPageEdge =>
-      'Extending the block would run it past the page’s edge.';
+  String get editOverflowExtendPageEdge => 'Extending the block would run it past the page’s edge.';
 
   @override
   String editOverflowTightenShort(int count, String n) {
@@ -2208,8 +2116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTotalsTitle => 'Totals don’t update';
 
   @override
-  String get editTotalsBody =>
-      'A PDF stores numbers as text. The marked cells still show the old amounts.';
+  String get editTotalsBody => 'A PDF stores numbers as text. The marked cells still show the old amounts.';
 
   @override
   String editTotalsReview(int count, String n) {
@@ -2368,8 +2275,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveAsNameInvalid => 'A file name can’t contain / or \\.';
 
   @override
-  String get saveAsNameTaken =>
-      'A file with this name is already there. Choose another name, or use Other location…';
+  String get saveAsNameTaken => 'A file with this name is already there. Choose another name, or use Other location…';
 
   @override
   String get saveAsWhere => 'Where';
@@ -2384,8 +2290,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveAsPdf => 'PDF';
 
   @override
-  String get saveAsPdfDescription =>
-      'Standard PDF. Keeps text editable in Ferman and other editors.';
+  String get saveAsPdfDescription => 'Standard PDF. Keeps text editable in Ferman and other editors.';
 
   @override
   String get saveAsPdfA => 'PDF/A-2b, for archiving';
@@ -2419,40 +2324,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get saveFailedDiskFull =>
-      'The disk is full. Free some space or save somewhere else. Your edits are kept.';
+  String get saveFailedDiskFull => 'The disk is full. Free some space or save somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedPermission =>
-      'You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.';
+  String get saveFailedPermission => 'You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.';
 
   @override
-  String get saveFailedLocked =>
-      'Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.';
+  String get saveFailedLocked => 'Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedRename =>
-      'Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.';
+  String get saveFailedRename => 'Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.';
 
   @override
-  String get saveFailedVolume =>
-      'The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.';
+  String get saveFailedVolume => 'The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedHardLinked =>
-      'This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.';
+  String get saveFailedHardLinked => 'This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedNotOwner =>
-      'This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.';
+  String get saveFailedNotOwner => 'This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedOther =>
-      'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.';
+  String get saveFailedOther => 'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.';
 
   @override
-  String get saveFailedNoRecoveryCopy =>
-      'No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.';
+  String get saveFailedNoRecoveryCopy => 'No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.';
 
   @override
   String get saveTryAgain => 'Try again';
@@ -2464,12 +2360,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveAsEllipsis => 'Save as…';
 
   @override
-  String get saveToastDiskFull =>
-      'The disk is full. Free some space or save somewhere else.';
+  String get saveToastDiskFull => 'The disk is full. Free some space or save somewhere else.';
 
   @override
-  String get saveToastOther =>
-      'Your edits are kept. Try again, or save somewhere else.';
+  String get saveToastOther => 'Your edits are kept. Try again, or save somewhere else.';
 
   @override
   String get saveToastDismiss => 'Dismiss';
@@ -2480,8 +2374,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get fileChangedBody =>
-      'Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.';
+  String get fileChangedBody => 'Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.';
 
   @override
   String get fileChangedCompare => 'Compare';
@@ -2498,19 +2391,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get optimizeSignedBody =>
-      'Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.';
+  String get optimizeSignedBody => 'Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.';
 
   @override
   String get optimizeAction => 'Optimize and clean';
 
   @override
-  String get saveAsNameInvalidWindows =>
-      'A file name can’t contain any of these: / \\ : * ? \" < > |';
+  String get saveAsNameInvalidWindows => 'A file name can’t contain any of these: / \\ : * ? \" < > |';
 
   @override
-  String get saveAsNameOpen =>
-      'This file is open in another tab. Close it there, or choose another name.';
+  String get saveAsNameOpen => 'This file is open in another tab. Close it there, or choose another name.';
 
   @override
   String saveAsCopyDescriptionHere(String name) {
@@ -2523,8 +2413,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get readOnlyFileBody =>
-      'Ferman can’t save changes to this file. To keep your changes, save a copy.';
+  String get readOnlyFileBody => 'Ferman can’t save changes to this file. To keep your changes, save a copy.';
 
   @override
   String get readOnlyFileSaveCopy => 'Save a copy…';
@@ -2567,8 +2456,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get quitReviewBody =>
-      'Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.';
+  String get quitReviewBody => 'Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.';
 
   @override
   String get quitReviewSave => 'Save and quit';
@@ -2588,12 +2476,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get recoveryBody =>
-      'Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.';
+  String get recoveryBody => 'Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.';
 
   @override
-  String get recoveryNote =>
-      'Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.';
+  String get recoveryNote => 'Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.';
 
   @override
   String get recoveryDiscard => 'Discard';
@@ -2613,8 +2499,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoveryChangedBadge => 'Changed on disk';
 
   @override
-  String get recoveryChangedBody =>
-      'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.';
+  String get recoveryChangedBody => 'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.';
 
   @override
   String get recoveryFileSuffix => 'recovered';
@@ -2632,10 +2517,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '“$name” has $formatted signatures. Any change to the document makes those signatures invalid.',
-      one:
-          '“$name” has 1 signature. Any change to the document makes that signature invalid.',
+      other: '“$name” has $formatted signatures. Any change to the document makes those signatures invalid.',
+      one: '“$name” has 1 signature. Any change to the document makes that signature invalid.',
     );
     return '$_temp0';
   }
@@ -2658,8 +2541,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String signedCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem (copy $numberString)';
@@ -2682,8 +2564,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get signedBannerBody =>
-      'You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.';
+  String get signedBannerBody => 'You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.';
 
   @override
   String get signedBannerReview => 'Review edits';
@@ -2700,8 +2581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsEditMarks => 'Mark edited text';
 
   @override
-  String get settingsEditMarksNote =>
-      'Shown only in Ferman while you edit. Never saved into the file or printed.';
+  String get settingsEditMarksNote => 'Shown only in Ferman while you edit. Never saved into the file or printed.';
 
   @override
   String get settingsMissingGlyphs => 'When a font is missing a character';
@@ -2713,8 +2593,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMissingGlyphsAsk => 'Ask each time';
 
   @override
-  String get settingsMissingGlyphsMark =>
-      'Keep the original font and mark the character';
+  String get settingsMissingGlyphsMark => 'Keep the original font and mark the character';
 
   @override
   String get settingsFontForNewText => 'Font for new text';
@@ -2729,8 +2608,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsKeepVersions30 => 'Kept for 30 days';
 
   @override
-  String get settingsReflow =>
-      'Let paragraphs reflow inside their frame while typing';
+  String get settingsReflow => 'Let paragraphs reflow inside their frame while typing';
 
   @override
   String get settingsRecoveryCopies => 'Save a recovery copy every minute';
@@ -2742,15 +2620,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSavingEnd => 'Changes are added to the end of the file';
 
   @override
-  String get settingsSavingEndBody =>
-      'Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.';
+  String get settingsSavingEndBody => 'Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.';
 
   @override
   String get settingsOptimize => 'Optimize and clean';
 
   @override
-  String get settingsOptimizeBody =>
-      'Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.';
+  String get settingsOptimizeBody => 'Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.';
 
   @override
   String get settingsRecoveryFolder => 'Recovery copies';
@@ -2764,8 +2640,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellEditForbidden => 'The author doesn’t allow editing';
 
   @override
-  String get editPanelTipClick =>
-      'Click any text to select its block. Click again to place the caret.';
+  String get editPanelTipClick => 'Click any text to select its block. Click again to place the caret.';
 
   @override
   String editPanelTipKeys(String key) {
@@ -2825,8 +2700,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewEmptyTitle => 'No edits yet';
 
   @override
-  String get reviewEmptyBody =>
-      'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.';
+  String get reviewEmptyBody => 'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.';
 
   @override
   String get reviewNothing => 'No edits yet';
@@ -2895,8 +2769,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$shown later edits build on this change. Reverting “$change” removes them too.',
+      other: '$shown later edits build on this change. Reverting “$change” removes them too.',
     );
     return '$_temp0';
   }
@@ -2990,16 +2863,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editPanelUnderline => 'Underline';
 
   @override
-  String get editPanelNoBold =>
-      'This font has no other weight on this computer that can draw this text.';
+  String get editPanelNoBold => 'This font has no other weight on this computer that can draw this text.';
 
   @override
-  String get editPanelNoItalic =>
-      'This font has no italic on this computer that can draw this text.';
+  String get editPanelNoItalic => 'This font has no italic on this computer that can draw this text.';
 
   @override
-  String get editPanelNoUnderline =>
-      'A PDF font has no underline to switch to, and Ferman does not draw a false one.';
+  String get editPanelNoUnderline => 'A PDF font has no underline to switch to, and Ferman does not draw a false one.';
 
   @override
   String get editPanelAlignment => 'Alignment';
@@ -3044,8 +2914,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editPanelReset => 'Reset text style';
 
   @override
-  String get editPanelHint =>
-      'Text reflows inside the frame. Drag a handle to resize it.';
+  String get editPanelHint => 'Text reflows inside the frame. Drag a handle to resize it.';
 
   @override
   String get editBarLabel => 'Format selection';
@@ -3103,8 +2972,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get jobFailedDiskFull =>
-      'The disk is full. Free some space and try again.';
+  String get jobFailedDiskFull => 'The disk is full. Free some space and try again.';
 
   @override
   String jobCopyingTitle(String name) {
@@ -3134,8 +3002,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksEmptyTitle => 'No background tasks';
 
   @override
-  String get tasksEmptyBody =>
-      'Long work, such as compressing a file, runs here while you keep working.';
+  String get tasksEmptyBody => 'Long work, such as compressing a file, runs here while you keep working.';
 
   @override
   String tasksRunning(int count, String formatted) {
@@ -3166,8 +3033,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get taskCancelBody =>
-      'Its work so far is discarded, and no file is left behind.';
+  String get taskCancelBody => 'Its work so far is discarded, and no file is left behind.';
 
   @override
   String get taskKeepRunning => 'Keep running';
@@ -3187,8 +3053,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tasksQuitBody =>
-      'Quitting cancels them, and they leave no partial files.';
+  String get tasksQuitBody => 'Quitting cancels them, and they leave no partial files.';
 
   @override
   String get tasksQuitKeep => 'Keep working';
@@ -3383,10 +3248,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$pages. They stay in the file until you save with Remove edit history or run Optimize and clean.',
-      one:
-          '$pages. It stays in the file until you save with Remove edit history or run Optimize and clean.',
+      other: '$pages. They stay in the file until you save with Remove edit history or run Optimize and clean.',
+      one: '$pages. It stays in the file until you save with Remove edit history or run Optimize and clean.',
     );
     return '$_temp0';
   }
@@ -3601,8 +3464,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelsTitle => 'Page labels';
 
   @override
-  String get labelsDescription =>
-      'Choose how pages are numbered in Ferman, in other PDF apps and when printing.';
+  String get labelsDescription => 'Choose how pages are numbered in Ferman, in other PDF apps and when printing.';
 
   @override
   String get labelsColumnPages => 'Pages';
@@ -3650,8 +3512,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelsPrint => 'Also print the numbers on the pages';
 
   @override
-  String get labelsPrintNote =>
-      'Adds them as a footer. Pages that already show a number are skipped.';
+  String get labelsPrintNote => 'Adds them as a footer. Pages that already show a number are skipped.';
 
   @override
   String get labelsApply => 'Apply labels';
@@ -3773,8 +3634,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceUnlock => 'Unlock';
 
   @override
-  String get sourceForbidden =>
-      'This file doesn’t allow taking pages from it. Its owner password lifts that.';
+  String get sourceForbidden => 'This file doesn’t allow taking pages from it. Its owner password lifts that.';
 
   @override
   String get sourceUnreadable => 'Ferman can’t read this file.';
@@ -3786,12 +3646,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get replaceThese => 'Pages in this document';
 
   @override
-  String get replaceFewer =>
-      'The file gives fewer pages: the rest of these pages are deleted.';
+  String get replaceFewer => 'The file gives fewer pages: the rest of these pages are deleted.';
 
   @override
-  String get replaceMore =>
-      'The file gives more pages: the extra ones go after the last.';
+  String get replaceMore => 'The file gives more pages: the extra ones go after the last.';
 
   @override
   String replaceAction(int count, String formatted) {
@@ -3903,8 +3761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get combineEmptyTitle => 'No files yet';
 
   @override
-  String get combineEmptyBody =>
-      'Add PDFs or images to combine them into one new file.';
+  String get combineEmptyBody => 'Add PDFs or images to combine them into one new file.';
 
   @override
   String get combineDrag => 'Drag to reorder';
@@ -3934,12 +3791,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get combineNeedsPassword => 'Locked: enter its password to add it.';
 
   @override
-  String get combineWrongPassword =>
-      'That password doesn’t open it. Try again.';
+  String get combineWrongPassword => 'That password doesn’t open it. Try again.';
 
   @override
-  String get combineOwnerPassword =>
-      'This file forbids combining. Enter its owner password to add it.';
+  String get combineOwnerPassword => 'This file forbids combining. Enter its owner password to add it.';
 
   @override
   String get combineUnreadable => 'Ferman can’t read this file.';
@@ -3954,8 +3809,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get combineUnlock => 'Unlock';
 
   @override
-  String get combineNotProtected =>
-      'The new file won’t have this file’s password.';
+  String get combineNotProtected => 'The new file won’t have this file’s password.';
 
   @override
   String get combineNotSigned => 'Its signatures won’t carry over.';
@@ -3973,8 +3827,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get combineKeepForms => 'Keep form fields';
 
   @override
-  String get combineKeepFormsNote =>
-      'Signatures from the original files don’t carry over.';
+  String get combineKeepFormsNote => 'Signatures from the original files don’t carry over.';
 
   @override
   String combineAbout(String size) {
@@ -4048,8 +3901,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splitSize => 'By file size';
 
   @override
-  String get splitSizeBody =>
-      'Files no larger than a size you choose, for e-mail limits.';
+  String get splitSizeBody => 'Files no larger than a size you choose, for e-mail limits.';
 
   @override
   String get splitBlank => 'At blank pages';
@@ -4082,8 +3934,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splitOverLimit => 'One page alone is larger than this size.';
 
   @override
-  String get splitNotProtected =>
-      'The new files won’t have this document’s password.';
+  String get splitNotProtected => 'The new files won’t have this document’s password.';
 
   @override
   String get splitNotSigned => 'The new files won’t carry its signatures.';
@@ -4220,12 +4071,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentsSortOther => 'Page order';
 
   @override
-  String get commentsCertifiedNote =>
-      'This document is certified to allow comments: they keep its certification valid.';
+  String get commentsCertifiedNote => 'This document is certified to allow comments: they keep its certification valid.';
 
   @override
-  String get commentsTruncated =>
-      'This file has more comments than Ferman lists.';
+  String get commentsTruncated => 'This file has more comments than Ferman lists.';
 
   @override
   String get commentsEmptyTitle => 'No comments';
@@ -4237,12 +4086,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentsNoMatchTitle => 'No comments match';
 
   @override
-  String get commentsNoMatchBody =>
-      'Change the status or filters to see others.';
+  String get commentsNoMatchBody => 'Change the status or filters to see others.';
 
   @override
-  String get commentsFootnote =>
-      'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.';
+  String get commentsFootnote => 'Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.';
 
   @override
   String get commentsExportSummary => 'Export summary…';
@@ -4377,14 +4224,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentYesterday => 'Yesterday';
 
   @override
-  String commentCardLabel(
-    String author,
-    String kind,
-    String page,
-    int resolved,
-    int count,
-    String shown,
-  ) {
+  String commentCardLabel(String author, String kind, String page, int resolved, int count, String shown) {
     String _temp0 = intl.Intl.pluralLogic(
       resolved,
       locale: localeName,
@@ -4429,8 +4269,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentNameTitle => 'Your name on comments';
 
   @override
-  String get commentNameBody =>
-      'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.';
+  String get commentNameBody => 'Others who open this PDF see it beside your comments. You can change it in Settings › General, or leave it empty.';
 
   @override
   String get commentNameSave => 'Continue';
@@ -4551,8 +4390,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summaryExport => 'Export summary…';
 
   @override
-  String get jobSummaryPageUnsupported =>
-      'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.';
+  String get jobSummaryPageUnsupported => 'A page is drawn in a way Ferman can’t picture in a summary yet. The Comments only layout or a CSV works.';
 
   @override
   String flattenTitle(int count, String formatted) {
@@ -4566,8 +4404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get flattenBody =>
-      'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.';
+  String get flattenBody => 'They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures look as they did.';
 
   @override
   String flattenAll(int count, String formatted) {
@@ -4607,8 +4444,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String flattenCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem — with comments $numberString';
@@ -4644,8 +4480,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get jobFlattenPageUnsupported =>
-      'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.';
+  String get jobFlattenPageUnsupported => 'A page is drawn in a way Ferman can’t flatten into yet. Nothing changed.';
 
   @override
   String sidebarSearchComment(String text) {
@@ -4689,8 +4524,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stampImportFailed => 'This stamp can’t be imported';
 
   @override
-  String get stampImportFailedBody =>
-      'The file isn’t a Ferman stamp, or it is damaged.';
+  String get stampImportFailedBody => 'The file isn’t a Ferman stamp, or it is damaged.';
 
   @override
   String get stampExportFailed => 'The stamp couldn’t be exported';
@@ -4780,16 +4614,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stepAddStamp => 'Add stamp';
 
   @override
-  String get placeStampHint =>
-      'Click the page to place the stamp, or press Enter to place it mid-page.';
+  String get placeStampHint => 'Click the page to place the stamp, or press Enter to place it mid-page.';
 
   @override
-  String get placeShapeHint =>
-      'Drag on the page to draw the shape, or press Enter to place it mid-page.';
+  String get placeShapeHint => 'Drag on the page to draw the shape, or press Enter to place it mid-page.';
 
   @override
-  String get placePolygonHint =>
-      'Click each corner of the polygon, then press Enter or click the first corner.';
+  String get placePolygonHint => 'Click each corner of the polygon, then press Enter or click the first corner.';
 
   @override
   String get linksTitle => 'Links';
@@ -4801,8 +4632,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linksEmpty => 'No links in this document.';
 
   @override
-  String get linksTruncated =>
-      'This document has too many links to list them all.';
+  String get linksTruncated => 'This document has too many links to list them all.';
 
   @override
   String get linksSelectTextFirst => 'Select the text to link first';
@@ -4901,8 +4731,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkStepRemove => 'Remove link';
 
   @override
-  String get linkErrorWeb =>
-      'Type a web address that starts with http:// or https://.';
+  String get linkErrorWeb => 'Type a web address that starts with http:// or https://.';
 
   @override
   String get linkErrorMail => 'Type an e-mail address, like name@example.com.';
@@ -4917,8 +4746,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkOpenMailTitle => 'Write to this address?';
 
   @override
-  String get linkOpenDescription =>
-      'This link comes from the document. It opens in your own apps, so check that you trust where it goes.';
+  String get linkOpenDescription => 'This link comes from the document. It opens in your own apps, so check that you trust where it goes.';
 
   @override
   String get linkOpenAction => 'Open link';
@@ -4933,8 +4761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkRefusedTitle => 'Ferman didn\'t follow this link';
 
   @override
-  String get linkRefusedScript =>
-      'It would run a script, and Ferman doesn\'t run a document\'s scripts.';
+  String get linkRefusedScript => 'It would run a script, and Ferman doesn\'t run a document\'s scripts.';
 
   @override
   String linkRefusedLaunch(String target) {
@@ -4952,8 +4779,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get linkRefusedAction =>
-      'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.';
+  String get linkRefusedAction => 'It does something Ferman doesn\'t know, so it stays in the file and doesn\'t run.';
 
   @override
   String linksBrokenMeta(int count, String pages) {
@@ -4990,8 +4816,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signPadImage => 'Image';
 
   @override
-  String get signPadArea =>
-      'Signature drawing area. Draw with a mouse, trackpad, pen or finger.';
+  String get signPadArea => 'Signature drawing area. Draw with a mouse, trackpad, pen or finger.';
 
   @override
   String get signPadTypeName => 'Type your name';
@@ -5006,8 +4831,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signPadTypeHint => 'Type your name above the line';
 
   @override
-  String get signPadImageHint =>
-      'Choose a photo or scan of your signature. Ferman removes the background.';
+  String get signPadImageHint => 'Choose a photo or scan of your signature. Ferman removes the background.';
 
   @override
   String get signPadChooseImage => 'Choose image…';
@@ -5046,8 +4870,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signHandwriting => 'Handwriting style';
 
   @override
-  String get signNoStyle =>
-      'No handwriting style can write every letter of this name. Draw it or use an image instead.';
+  String get signNoStyle => 'No handwriting style can write every letter of this name. Draw it or use an image instead.';
 
   @override
   String get signSavedNote => 'Saved only on this device.';
@@ -5074,12 +4897,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signDelete => 'Delete';
 
   @override
-  String get signSaveFailed =>
-      'The signature couldn’t be saved on this device. It’s still ready to place.';
+  String get signSaveFailed => 'The signature couldn’t be saved on this device. It’s still ready to place.';
 
   @override
-  String get signImageTooLarge =>
-      'This image is too large. Choose one under 6 MB.';
+  String get signImageTooLarge => 'This image is too large. Choose one under 6 MB.';
 
   @override
   String get signImageFilter => 'Images';
@@ -5091,8 +4912,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stepAddInitials => 'Add initials';
 
   @override
-  String get placeSignatureHint =>
-      'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.';
+  String get placeSignatureHint => 'Click the page or a signature field to place it, or press Enter to place it mid-page. Drag its corners to resize it and its round handle to turn it, then press Enter.';
 
   @override
   String get formPanelTitle => 'Form';
@@ -5148,8 +4968,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formSignedTitle => 'Signed form';
 
   @override
-  String get formSignedKeeps =>
-      'Its certification allows filling in, so it stays valid.';
+  String get formSignedKeeps => 'Its certification allows filling in, so it stays valid.';
 
   @override
   String get formSignedBreaks => 'Filling it in will invalidate its signature.';
@@ -5169,8 +4988,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formRequired => 'Required';
 
   @override
-  String get formMarkedField =>
-      'Some characters can’t be shown in this field’s font';
+  String get formMarkedField => 'Some characters can’t be shown in this field’s font';
 
   @override
   String get formClear => 'Clear form…';
@@ -5189,8 +5007,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$formatted fields, $required required. Tab moves to the next field.',
+      other: '$formatted fields, $required required. Tab moves to the next field.',
       one: '1 field, $required required. Tab moves to the next field.',
     );
     return '$_temp0';
@@ -5203,8 +5020,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fillBannerTitle => 'This PDF has no form fields.';
 
   @override
-  String get fillBannerBody =>
-      'Click a line or box to type, or let Ferman find the fields.';
+  String get fillBannerBody => 'Click a line or box to type, or let Ferman find the fields.';
 
   @override
   String get fillFindFields => 'Find fields';
@@ -5318,29 +5134,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formXfaRemovedTitle => 'The form’s XFA data was removed';
 
   @override
-  String get formXfaRemovedBody =>
-      'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.';
+  String get formXfaRemovedBody => 'Readers that use XFA would have shown the old values. The original stays in the file’s earlier version.';
 
   @override
   String get formFinishTitle => 'Finish the form';
 
   @override
-  String get formFinishBody =>
-      'All required fields are filled. Choose how to keep the form, then save it.';
+  String get formFinishBody => 'All required fields are filled. Choose how to keep the form, then save it.';
 
   @override
   String get formFinishFlatten => 'Flatten the fields';
 
   @override
-  String get formFinishFlattenBody =>
-      'They become part of the page and can no longer be changed.';
+  String get formFinishFlattenBody => 'They become part of the page and can no longer be changed.';
 
   @override
   String get formFinishKeep => 'Keep the fields editable';
 
   @override
-  String get formFinishKeepBody =>
-      'Anyone who opens the file can still change the values.';
+  String get formFinishKeepBody => 'Anyone who opens the file can still change the values.';
 
   @override
   String get formFinishSave => 'Save';
@@ -5352,8 +5164,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formClearTitle => 'Clear the form?';
 
   @override
-  String get formClearBody =>
-      'Every value in this form is removed. Signatures stay. You can undo this.';
+  String get formClearBody => 'Every value in this form is removed. Signatures stay. You can undo this.';
 
   @override
   String get formClearConfirm => 'Clear form';
@@ -5362,8 +5173,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formFontAskTitle => 'Characters missing from this field’s font';
 
   @override
-  String get formFontAskBody =>
-      'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.';
+  String get formFontAskBody => 'Ferman can draw them in IBM Plex, added to the document, or keep the field’s font and leave them out.';
 
   @override
   String get formFontAskPlex => 'Use IBM Plex';
@@ -5434,8 +5244,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get jobCompressNotSmaller =>
-      'It can’t get smaller, so nothing was written. The original stays as it is.';
+  String get jobCompressNotSmaller => 'It can’t get smaller, so nothing was written. The original stays as it is.';
 
   @override
   String jobCompressedSizes(String before, String after) {
@@ -5569,23 +5378,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compressSmallest => 'Smallest';
 
   @override
-  String get compressHighQualityDescription =>
-      'Images at 300 ppi, for printing.';
+  String get compressHighQualityDescription => 'Images at 300 ppi, for printing.';
 
   @override
-  String get compressBalancedDescription =>
-      'Images at 150 ppi, for sharing and reading on screen.';
+  String get compressBalancedDescription => 'Images at 150 ppi, for sharing and reading on screen.';
 
   @override
-  String get compressSmallestDescription =>
-      'Images at 96 ppi, for e-mail. Text stays sharp.';
+  String get compressSmallestDescription => 'Images at 96 ppi, for e-mail. Text stays sharp.';
 
   @override
   String get compressCustom => 'Custom…';
 
   @override
-  String get compressCustomDescription =>
-      'Set image resolution, quality and what to remove.';
+  String get compressCustomDescription => 'Set image resolution, quality and what to remove.';
 
   @override
   String compressAbout(String size) {
@@ -5603,17 +5408,14 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Estimated from $n sample images. The exact size is shown after saving.',
-      one:
-          'Estimated from $n sample image. The exact size is shown after saving.',
+      other: 'Estimated from $n sample images. The exact size is shown after saving.',
+      one: 'Estimated from $n sample image. The exact size is shown after saving.',
     );
     return '$_temp0';
   }
 
   @override
-  String get compressEstimateExact =>
-      'Measured on every image. The exact size is shown after saving.';
+  String get compressEstimateExact => 'Measured on every image. The exact size is shown after saving.';
 
   @override
   String compressDoes(String preset) {
@@ -5663,8 +5465,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compressSignedTitle => 'This document is signed';
 
   @override
-  String get compressSignedBody =>
-      'The compressed copy has no signatures. The signed original stays as it is.';
+  String get compressSignedBody => 'The compressed copy has no signatures. The signed original stays as it is.';
 
   @override
   String get compressAction => 'Compress and save as…';
@@ -5675,12 +5476,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get saveAsHistoryOn =>
-      'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.';
+  String get saveAsHistoryOn => 'The file is written anew, without earlier revisions or deleted pages. Signatures stop being valid.';
 
   @override
-  String get saveAsHistoryOff =>
-      'Deleted pages and earlier text stay in the file and can be recovered from it.';
+  String get saveAsHistoryOff => 'Deleted pages and earlier text stay in the file and can be recovered from it.';
 
   @override
   String get versionTitle => 'Version history';
@@ -5703,8 +5502,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionNone => 'No versions yet. Each save keeps one.';
 
   @override
-  String get versionKept =>
-      'Kept for 30 days on this device. Change in Settings › Editing.';
+  String get versionKept => 'Kept for 30 days on this device. Change in Settings › Editing.';
 
   @override
   String get versionNow => 'Now';
@@ -5770,8 +5568,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get versionReadOnly =>
-      'Read-only. Your current document is unchanged.';
+  String get versionReadOnly => 'Read-only. Your current document is unchanged.';
 
   @override
   String get versionBack => 'Back to current';
@@ -5791,8 +5588,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get versionRestoreBody =>
-      'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.';
+  String get versionRestoreBody => 'Your current file, with any unsaved edits, is kept as a version first, so nothing is lost.';
 
   @override
   String get versionRestore => 'Restore';
@@ -5876,8 +5672,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shortcutsSheetSearch => 'Search shortcuts';
 
   @override
-  String get shortcutsSheetNote =>
-      'Change shortcuts in Settings › Keyboard shortcuts.';
+  String get shortcutsSheetNote => 'Change shortcuts in Settings › Keyboard shortcuts.';
 
   @override
   String get shortcutsChanged => 'Changed';
@@ -5979,8 +5774,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFontsInstalled => 'Installed';
 
   @override
-  String get settingsFontsLegend =>
-      'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.';
+  String get settingsFontsLegend => 'TR Turkish · LX Latin Extended · CY Cyrillic · GR Greek · AR Arabic · HE Hebrew · DV Devanagari · CJK Chinese, Japanese, Korean. A struck-through code means the font can’t draw that script.';
 
   @override
   String settingsFontsCovers(String script) {
@@ -5999,12 +5793,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFontsLoading => 'Reading the fonts on this computer…';
 
   @override
-  String get settingsSavedSignatures =>
-      'Saved signatures · on this device only';
+  String get settingsSavedSignatures => 'Saved signatures · on this device only';
 
   @override
-  String get settingsSavedSignaturesNone =>
-      'No saved signatures yet. Fill & Sign › Sign makes one.';
+  String get settingsSavedSignaturesNone => 'No saved signatures yet. Fill & Sign › Sign makes one.';
 
   @override
   String get settingsSignatureTyped => 'Typed';
@@ -6031,8 +5823,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTimestampNone => 'None';
 
   @override
-  String get settingsCheckRevocation =>
-      'Check revocation online when opening signed files';
+  String get settingsCheckRevocation => 'Check revocation online when opening signed files';
 
   @override
   String get settingsGpu => 'Use the graphics card to draw pages';
@@ -6050,8 +5841,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThumbnailsAll => 'Make all when opening';
 
   @override
-  String get settingsObjectInspector =>
-      'Show the PDF object inspector (for developers)';
+  String get settingsObjectInspector => 'Show the PDF object inspector (for developers)';
 
   @override
   String get settingsExport => 'Export settings…';
@@ -6063,8 +5853,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShowLogs => 'Show log files';
 
   @override
-  String get settingsReset =>
-      'Reset every setting to its default. Saved signatures and certificates stay.';
+  String get settingsReset => 'Reset every setting to its default. Saved signatures and certificates stay.';
 
   @override
   String get settingsResetButton => 'Reset settings…';
@@ -6073,8 +5862,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsResetTitle => 'Reset every setting?';
 
   @override
-  String get settingsResetBody =>
-      'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.';
+  String get settingsResetBody => 'Theme, language, region and every other choice go back to their defaults. Saved signatures, your stamps and the documents you have open stay.';
 
   @override
   String get settingsResetConfirm => 'Reset';
@@ -6083,8 +5871,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsImportTitle => 'Replace your settings?';
 
   @override
-  String get settingsImportBody =>
-      'The settings in the file replace yours. Saved signatures and the documents you have open stay.';
+  String get settingsImportBody => 'The settings in the file replace yours. Saved signatures and the documents you have open stay.';
 
   @override
   String get settingsImportConfirm => 'Import';
@@ -6093,8 +5880,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsImportFailed => 'Couldn’t import the settings';
 
   @override
-  String get settingsImportFailedBody =>
-      'The file isn’t a Ferman settings file.';
+  String get settingsImportFailedBody => 'The file isn’t a Ferman settings file.';
 
   @override
   String get settingsExported => 'Settings exported';
@@ -6109,8 +5895,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSettingsFile => 'Settings file';
 
   @override
-  String get licencesIntro =>
-      'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.';
+  String get licencesIntro => 'Ferman is free software under the Apache License 2.0. It is built on the work below, and each part keeps its own licence.';
 
   @override
   String get licencesSearch => 'Search licences';
@@ -6152,12 +5937,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarLegendWarnings => 'Warnings';
 
   @override
-  String get sidebarLegendWarningsBody =>
-      'missing glyphs, overflow, broken links';
+  String get sidebarLegendWarningsBody => 'missing glyphs, overflow, broken links';
 
   @override
-  String get sidebarLegendFootnote =>
-      'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.';
+  String get sidebarLegendFootnote => 'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.';
 
   @override
   String get sidebarBadgeEdited => 'edited';
@@ -6221,8 +6004,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get propertiesStep => 'Change document properties';
 
   @override
-  String get dropOverlayCombineDescription =>
-      'Merged in the order shown. You can reorder before saving.';
+  String get dropOverlayCombineDescription => 'Merged in the order shown. You can reorder before saving.';
 
   @override
   String get settingsPaneAiClients => 'AI clients';
@@ -6231,12 +6013,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiClientsServer => 'Let AI clients connect';
 
   @override
-  String get aiClientsServerDescription =>
-      'AI apps on this computer, such as Claude Desktop, can read the documents open in Ferman, and change them where you allow it. Nothing listens on the network.';
+  String get aiClientsServerDescription => 'AI apps on this computer, such as Claude Desktop, can read the documents open in Ferman, and change them where you allow it. Nothing listens on the network.';
 
   @override
-  String get aiClientsStartFailed =>
-      'AI clients can\'t connect: Ferman couldn\'t open its connection on this computer.';
+  String get aiClientsStartFailed => 'AI clients can\'t connect: Ferman couldn\'t open its connection on this computer.';
 
   @override
   String get aiClientsConnected => 'Connected clients';
@@ -6262,8 +6042,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiClientsSetUp => 'Set up';
 
   @override
-  String get aiClientsCopyInstead =>
-      'Copy the configuration below into its settings.';
+  String get aiClientsCopyInstead => 'Copy the configuration below into its settings.';
 
   @override
   String get aiClientsOther => 'Other local clients';
@@ -6278,8 +6057,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiClientsCopied => 'Configuration copied';
 
   @override
-  String get aiClientsChatGpt =>
-      'ChatGPT can\'t connect yet: it reaches servers only from OpenAI\'s cloud, and Ferman opens no port to the internet.';
+  String get aiClientsChatGpt => 'ChatGPT can\'t connect yet: it reaches servers only from OpenAI\'s cloud, and Ferman opens no port to the internet.';
 
   @override
   String aiClientsSetUpDone(String client) {
@@ -6297,8 +6075,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aiClientsSetUpFailedBody =>
-      'Copy the configuration and add it to the client\'s settings.';
+  String get aiClientsSetUpFailedBody => 'Copy the configuration and add it to the client\'s settings.';
 
   @override
   String aiClientsNotice(String names) {
@@ -6320,8 +6097,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNetAiClients => 'AI clients on this computer';
 
   @override
-  String get settingsNetAiClientsDescription =>
-      'What a connected client reads, it sends to its own provider under your account.';
+  String get settingsNetAiClientsDescription => 'What a connected client reads, it sends to its own provider under your account.';
 
   @override
   String clientRequestEditSigned(String client) {
@@ -6339,8 +6115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get clientRequestSaveBody =>
-      'Ferman saves it over its file, as Save does.';
+  String get clientRequestSaveBody => 'Ferman saves it over its file, as Save does.';
 
   @override
   String clientRequestWriteFile(String client) {
@@ -6373,8 +6148,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get clientRequestRestoreBody =>
-      'The version replaces the file. Your unsaved work is kept as a version first.';
+  String get clientRequestRestoreBody => 'The version replaces the file. Your unsaved work is kept as a version first.';
 
   @override
   String get clientRequestAllow => 'Allow';
@@ -6383,6 +6157,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clientRequestDeny => 'Don\'t allow';
 
   @override
-  String get aiClientsClaudeNote =>
-      'Set up writes Ferman into its settings. Restart it afterwards.';
+  String get aiClientsClaudeNote => 'Set up writes Ferman into its settings. Restart it afterwards.';
 }

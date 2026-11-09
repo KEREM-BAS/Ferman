@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -305,8 +304,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellToolPageLabels => 'تسميات الصفحات';
 
   @override
-  String get shellOrganizeHint =>
-      'اسحب الصفحات لإعادة ترتيبها. انقر بزر الماوس الأيمن للمزيد.';
+  String get shellOrganizeHint => 'اسحب الصفحات لإعادة ترتيبها. انقر بزر الماوس الأيمن للمزيد.';
 
   @override
   String get shellConvertTools => 'أدوات التحويل';
@@ -529,16 +527,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageSubtitle =>
-      'يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة.';
+  String get onboardingLanguageSubtitle => 'يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة.';
 
   @override
-  String get onboardingLanguageSearchPlaceholder =>
-      'ابحث عن لغة · Search languages · Dil ara · Sprache suchen';
+  String get onboardingLanguageSearchPlaceholder => 'ابحث عن لغة · Search languages · Dil ara · Sprache suchen';
 
   @override
-  String get onboardingLanguageSearchPlaceholderPhone =>
-      'بحث · Search · Ara · Suchen';
+  String get onboardingLanguageSearchPlaceholderPhone => 'بحث · Search · Ara · Suchen';
 
   @override
   String get onboardingLanguageSearchLabel => 'ابحث عن لغة';
@@ -549,8 +544,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageNoMatchBody =>
-      'ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها.';
+  String get onboardingLanguageNoMatchBody => 'ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها.';
 
   @override
   String get onboardingLanguageMissing => 'لم تجد لغتك؟';
@@ -587,86 +581,73 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingEditTitle => 'حرّر أي ملف PDF كما لو كان مستندًا';
 
   @override
-  String get onboardingEditBody =>
-      'انقر أي نص واكتب. يحافظ Ferman على الخط الأصلي وحجمه وتباعده، ويعيد توزيع الفقرة داخل إطارها.';
+  String get onboardingEditBody => 'انقر أي نص واكتب. يحافظ Ferman على الخط الأصلي وحجمه وتباعده، ويعيد توزيع الفقرة داخل إطارها.';
 
   @override
-  String get onboardingEditGlyphs =>
-      'عندما يفتقد الخط حرفًا ما، يخبرك Ferman بهذا الحرف وبما سيستخدمه بدلًا منه.';
+  String get onboardingEditGlyphs => 'عندما يفتقد الخط حرفًا ما، يخبرك Ferman بهذا الحرف وبما سيستخدمه بدلًا منه.';
 
   @override
   String get onboardingPrivacyTitle => 'يبقى كل شيء على جهازك';
 
   @override
-  String get onboardingPrivacyBody =>
-      'على هذا الجهاز، يفتح Ferman المستندات ويحرّرها ويوقّعها ويتعرّف على نصوصها. لا حاجة إلى إنشاء حساب أو رفع أي شيء.';
+  String get onboardingPrivacyBody => 'على هذا الجهاز، يفتح Ferman المستندات ويحرّرها ويوقّعها ويتعرّف على نصوصها. لا حاجة إلى إنشاء حساب أو رفع أي شيء.';
 
   @override
   String get onboardingPrivacyFilesTitle => 'تبقى الملفات على هذا الجهاز';
 
   @override
-  String get onboardingPrivacyFilesBody =>
-      'يقرأ Ferman الملفات ويحفظها في أماكنها. لا يُرفع أي شيء.';
+  String get onboardingPrivacyFilesBody => 'يقرأ Ferman الملفات ويحفظها في أماكنها. لا يُرفع أي شيء.';
 
   @override
   String get onboardingPrivacyOfflineTitle => 'يعمل دون اتصال';
 
   @override
-  String get onboardingPrivacyOfflineBody =>
-      'لا يحتاج التحرير والتعرّف على النص (OCR) والتوقيع والتحويل إلى اتصال بالإنترنت.';
+  String get onboardingPrivacyOfflineBody => 'لا يحتاج التحرير والتعرّف على النص (OCR) والتوقيع والتحويل إلى اتصال بالإنترنت.';
 
   @override
   String get onboardingPrivacyAccountTitle => 'بلا حساب';
 
   @override
-  String get onboardingPrivacyAccountBody =>
-      'لا حاجة إلى التسجيل ولا إلى تسجيل الدخول.';
+  String get onboardingPrivacyAccountBody => 'لا حاجة إلى التسجيل ولا إلى تسجيل الدخول.';
 
   @override
   String get onboardingPrivacyTelemetryTitle => 'بلا قياس عن بُعد';
 
   @override
-  String get onboardingPrivacyTelemetryBody =>
-      'لا يجمع Ferman بيانات الاستخدام ولا تقارير الأعطال.';
+  String get onboardingPrivacyTelemetryBody => 'لا يجمع Ferman بيانات الاستخدام ولا تقارير الأعطال.';
 
   @override
   String get onboardingPrivacyUpdatesTitle => 'فحص اختياري واحد للتحديثات';
 
   @override
-  String get onboardingPrivacyUpdatesBody =>
-      'مرة واحدة يوميًا، ولا يُرسَل سوى رقم الإصدار ونظام التشغيل. يمكنك إيقافه.';
+  String get onboardingPrivacyUpdatesBody => 'مرة واحدة يوميًا، يسأل Ferman موقع GitHub عن وجود إصدار أحدث، ولا يُرسل سوى رقم إصداره ونظام التشغيل. يمكنك إيقافه.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'حزم لغات OCR';
 
   @override
-  String get onboardingPrivacyPacksBody =>
-      'لا تُنزَّل إلا عندما تختار ذلك. معطّلة حتى تستخدمها.';
+  String get onboardingPrivacyPacksBody => 'لا تُنزَّل إلا عندما تختار ذلك. معطّلة حتى تستخدمها.';
 
   @override
   String get onboardingPrivacyAiTitle => 'المساعد الذكي';
 
   @override
-  String get onboardingPrivacyAiBody =>
-      'يعمل على هذا الجهاز أو يستخدم مفتاح API الخاص بك. معطّل حتى تستخدمه.';
+  String get onboardingPrivacyAiBody => 'يعمل على هذا الجهاز أو يستخدم مفتاح API الخاص بك. معطّل حتى تستخدمه.';
 
   @override
   String get onboardingPrivacyTimestampsTitle => 'الطوابع الزمنية للتوقيعات';
 
   @override
-  String get onboardingPrivacyTimestampsBody =>
-      'يتصل بخادم الطوابع الزمنية الذي اخترته عند التوقيع. معطّل حتى تستخدمه.';
+  String get onboardingPrivacyTimestampsBody => 'يتصل بخادم الطوابع الزمنية الذي اخترته عند التوقيع. معطّل حتى تستخدمه.';
 
   @override
-  String get onboardingPrivacySettingsLink =>
-      'عرض كل الاتصالات في الإعدادات › الخصوصية';
+  String get onboardingPrivacySettingsLink => 'عرض كل الاتصالات في الإعدادات › الخصوصية';
 
   @override
   String get onboardingFreeTitle => 'مجاني إلى الأبد، ولا شيء مقفل';
 
   @override
-  String get onboardingFreeBody =>
-      'كل الميزات مضمّنة، دون فترة تجريبية أو اشتراك أو باقة مدفوعة. Ferman مفتوح المصدر، لذا يمكن لأي شخص قراءة شيفرته وفحصها وتحسينها.';
+  String get onboardingFreeBody => 'كل الميزات مضمّنة، دون فترة تجريبية أو اشتراك أو باقة مدفوعة. Ferman مفتوح المصدر، لذا يمكن لأي شخص قراءة شيفرته وفحصها وتحسينها.';
 
   @override
   String get onboardingFreeLicence => 'الترخيص: Apache-2.0';
@@ -783,12 +764,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startNewBlankPdf => 'ملف PDF فارغ جديد';
 
   @override
-  String get startEngineUnavailableTitle =>
-      'يتعذّر على Ferman فتح ملفات PDF حاليًا.';
+  String get startEngineUnavailableTitle => 'يتعذّر على Ferman فتح ملفات PDF حاليًا.';
 
   @override
-  String get startEngineUnavailableMessage =>
-      'أحد أجزاء Ferman مفقود أو لا يطابق هذا الإصدار. تُصلح إعادة تثبيت Ferman ذلك.';
+  String get startEngineUnavailableMessage => 'أحد أجزاء Ferman مفقود أو لا يطابق هذا الإصدار. تُصلح إعادة تثبيت Ferman ذلك.';
 
   @override
   String get startCopyTechnicalDetails => 'نسخ التفاصيل التقنية';
@@ -884,15 +863,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPageDimmed => 'خافت';
 
   @override
-  String get settingsPageDimmedDescription =>
-      'أغمق قليلًا مع مسحة من لون السيبيا. لا تُعكس الألوان.';
+  String get settingsPageDimmedDescription => 'أغمق قليلًا مع مسحة من لون السيبيا. لا تُعكس الألوان.';
 
   @override
   String get settingsPageDark => 'وضع القراءة الداكن';
 
   @override
-  String get settingsPageDarkDescription =>
-      'نص فاتح على صفحات داكنة. تحتفظ الصور بألوانها. لا يُطبَّق عند الطباعة.';
+  String get settingsPageDarkDescription => 'نص فاتح على صفحات داكنة. تحتفظ الصور بألوانها. لا يُطبَّق عند الطباعة.';
 
   @override
   String get settingsPageLayout => 'تخطيط الصفحة للمستندات الجديدة';
@@ -919,12 +896,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsReopen => 'إعادة فتح مستندات الجلسة الأخيرة';
 
   @override
-  String get settingsDefaultApp =>
-      'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF.';
+  String get settingsDefaultApp => 'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF.';
 
   @override
-  String get settingsDefaultAppWindows =>
-      'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. يتيح لك Windows اختياره من الإعدادات › التطبيقات الافتراضية.';
+  String get settingsDefaultAppWindows => 'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. يتيح لك Windows اختياره من الإعدادات › التطبيقات الافتراضية.';
 
   @override
   String get settingsMakeDefault => 'تعيين Ferman كتطبيق افتراضي…';
@@ -936,8 +911,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsDocumentLanguages => 'لغات المستندات';
 
   @override
-  String get settingsDocumentLanguagesHint =>
-      'تُستخدم للتعرّف على النص والتدقيق الإملائي والوصل بشرطة عندما لا يحدّد المستند لغته.';
+  String get settingsDocumentLanguagesHint => 'تُستخدم للتعرّف على النص والتدقيق الإملائي والوصل بشرطة عندما لا يحدّد المستند لغته.';
 
   @override
   String get settingsAddDocumentLanguage => 'إضافة';
@@ -946,43 +920,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPrivacyStatement => 'لا يجمع Ferman أي شيء.';
 
   @override
-  String get settingsPrivacyStatementBody =>
-      'لا بيانات استخدام، ولا تقارير أعطال، ولا محتوى مستندات، ولا حساب. تبقى الملفات على هذا الجهاز. هذه هي الحالات الوحيدة التي يتصل فيها Ferman بالإنترنت، ويمكن إيقاف كلٍّ منها:';
+  String get settingsPrivacyStatementBody => 'لا بيانات استخدام، ولا تقارير أعطال، ولا محتوى مستندات، ولا حساب. تبقى الملفات على هذا الجهاز. هذه هي الحالات الوحيدة التي يتصل فيها Ferman بالإنترنت، ويمكن إيقاف كلٍّ منها:';
 
   @override
   String get settingsNetUpdates => 'التحقق من وجود تحديثات';
 
   @override
-  String get settingsNetUpdatesDescription =>
-      'مرة واحدة يوميًا؛ يُرسل رقم الإصدار ونظام التشغيل فقط.';
+  String get settingsNetUpdatesDescription => 'مرة واحدة يوميًا، يسأل Ferman موقع GitHub عن وجود إصدار أحدث، ولا يُرسل سوى رقم إصداره ونظام التشغيل.';
 
   @override
   String get settingsNetSignatureChecks => 'التحقق من التوقيعات';
 
   @override
-  String get settingsNetSignatureChecksDescription =>
-      'يسأل مزوّد الشهادة عمّا إذا كانت الشهادة قد أُبطلت، عند التوقيع أو فتح ملف موقّع.';
+  String get settingsNetSignatureChecksDescription => 'يسأل مزوّد الشهادة عمّا إذا كانت الشهادة قد أُبطلت، عند التوقيع أو فتح ملف موقّع.';
 
   @override
   String get settingsNetTimestamps => 'الطوابع الزمنية';
 
   @override
-  String get settingsNetTimestampsDescription =>
-      'يتصل بخادم الطوابع الزمنية الذي اخترته عند التوقيع.';
+  String get settingsNetTimestampsDescription => 'يتصل بخادم الطوابع الزمنية الذي اخترته عند التوقيع.';
 
   @override
   String get settingsNetDownloads => 'التنزيلات التي تبدؤها';
 
   @override
-  String get settingsNetDownloadsDescription =>
-      'حزم لغات OCR ونموذج المساعد الذكي.';
+  String get settingsNetDownloadsDescription => 'حزم لغات OCR ونموذج المساعد الذكي.';
 
   @override
   String get settingsNetAiProvider => 'مزوّد الذكاء الاصطناعي الخاص بك';
 
   @override
-  String get settingsNetAiProviderDescription =>
-      'فقط إذا أضفت مفتاح API الخاص بك. معطّل.';
+  String get settingsNetAiProviderDescription => 'فقط إذا أضفت مفتاح API الخاص بك. معطّل.';
 
   @override
   String get settingsNetworkActivity => 'عرض نشاط الشبكة…';
@@ -1038,8 +1006,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get viewerPageFailedReason =>
-      'تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد.';
+  String get viewerPageFailedReason => 'تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد.';
 
   @override
   String get viewerTryAgain => 'إعادة المحاولة';
@@ -1058,54 +1025,46 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editNotEditableTitle => 'لا يمكن تحرير هذا النص';
 
   @override
-  String get editTipImageOnly =>
-      'لا يوجد نص في هذه الصفحة بعد · تعرّف على النص لتحريره';
+  String get editTipImageOnly => 'لا يوجد نص في هذه الصفحة بعد · تعرّف على النص لتحريره';
 
   @override
-  String get editBodyImageOnly =>
-      'هذه الصفحة صورة، مثل مستند ممسوح ضوئيًا. تعرّف على نصها لتحريرها.';
+  String get editBodyImageOnly => 'هذه الصفحة صورة، مثل مستند ممسوح ضوئيًا. تعرّف على نصها لتحريرها.';
 
   @override
   String get editTipOutlinedText => 'هذا النص مرسوم كأشكال، فلا يمكن تحريره';
 
   @override
-  String get editBodyOutlinedText =>
-      'هذا النص مرسوم كأشكال متجهة لا كحروف. لا يستطيع Ferman تغييره دون إعادة رسمه.';
+  String get editBodyOutlinedText => 'هذا النص مرسوم كأشكال متجهة لا كحروف. لا يستطيع Ferman تغييره دون إعادة رسمه.';
 
   @override
   String get editTipUnknownText => 'لا يستطيع Ferman قراءة حروف هذا النص';
 
   @override
-  String get editBodyUnknownText =>
-      'لا يحدد خطه الحروف التي تمثلها أشكاله، لذا لا يستطيع Ferman تغييره بأمان.';
+  String get editBodyUnknownText => 'لا يحدد خطه الحروف التي تمثلها أشكاله، لذا لا يستطيع Ferman تغييره بأمان.';
 
   @override
   String get editTipInvisibleText => 'هذا النص غير مرئي';
 
   @override
-  String get editBodyInvisibleText =>
-      'إنه نص مخفي، مثل نص متعرَّف عليه فوق مستند ممسوح ضوئيًا. لا يحرره Ferman.';
+  String get editBodyInvisibleText => 'إنه نص مخفي، مثل نص متعرَّف عليه فوق مستند ممسوح ضوئيًا. لا يحرره Ferman.';
 
   @override
   String get editTipRestricted => 'أذونات المؤلف لا تسمح بالتحرير';
 
   @override
-  String get editBodyRestricted =>
-      'افتح قفل المستند بكلمة مرور المالك لتحريره.';
+  String get editBodyRestricted => 'افتح قفل المستند بكلمة مرور المالك لتحريره.';
 
   @override
   String get editTipReadOnly => 'هذا المستند للقراءة فقط';
 
   @override
-  String get editBodyReadOnly =>
-      'فتح Ferman هذا المستند للعرض فقط، لذا لا يمكن تغيير نصه.';
+  String get editBodyReadOnly => 'فتح Ferman هذا المستند للعرض فقط، لذا لا يمكن تغيير نصه.';
 
   @override
   String get editTipDamaged => 'تم إصلاح هذا المستند، لذا لا يمكن تحريره';
 
   @override
-  String get editBodyDamaged =>
-      'وجد Ferman مشكلات في هذا الملف وفتحه للعرض فقط. احفظ نسخة مُصلَحة لتحريره.';
+  String get editBodyDamaged => 'وجد Ferman مشكلات في هذا الملف وفتحه للعرض فقط. احفظ نسخة مُصلَحة لتحريره.';
 
   @override
   String get editTipSignature => 'هذا النص جزء من توقيع';
@@ -1123,16 +1082,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editTipTooComplex => 'لا يستطيع Ferman تغيير هذا النص بأمان';
 
   @override
-  String get editBodyLimits =>
-      'هذه الصفحة كبيرة أو معقدة جدًا ليعيد Ferman كتابتها بأمان.';
+  String get editBodyLimits => 'هذه الصفحة كبيرة أو معقدة جدًا ليعيد Ferman كتابتها بأمان.';
 
   @override
-  String get editBodySplit =>
-      'تعليمات رسمه مقسمة بين جزأين من الصفحة، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
+  String get editBodySplit => 'تعليمات رسمه مقسمة بين جزأين من الصفحة، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
 
   @override
-  String get editBodySkewed =>
-      'هذا النص مائل، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
+  String get editBodySkewed => 'هذا النص مائل، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
 
   @override
   String get viewerTextMenu => 'النص';
@@ -1149,40 +1105,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarNoBookmarks => 'لا توجد إشارات مرجعية';
 
   @override
-  String get sidebarNoBookmarksBody =>
-      'لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.';
+  String get sidebarNoBookmarksBody => 'لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.';
 
   @override
   String get sidebarNoAttachments => 'لا توجد مرفقات';
 
   @override
-  String get sidebarNoAttachmentsBody =>
-      'تظهر هنا الملفات المضمّنة في ملف PDF هذا.';
+  String get sidebarNoAttachmentsBody => 'تظهر هنا الملفات المضمّنة في ملف PDF هذا.';
 
   @override
   String get sidebarNoLayers => 'لا توجد طبقات';
 
   @override
-  String get sidebarNoLayersBody =>
-      'لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.';
+  String get sidebarNoLayersBody => 'لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.';
 
   @override
   String get sidebarNoSignatures => 'لا توجد توقيعات';
 
   @override
-  String get sidebarNoSignaturesBody =>
-      'هذا المستند غير موقّع ولا يحتوي على حقول توقيع.';
+  String get sidebarNoSignaturesBody => 'هذا المستند غير موقّع ولا يحتوي على حقول توقيع.';
 
   @override
-  String get sidebarAttachmentsNote =>
-      'تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة.';
+  String get sidebarAttachmentsNote => 'تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة.';
 
   @override
   String get sidebarSaveAttachment => 'حفظ المرفق باسم…';
 
   @override
-  String get sidebarLayersNote =>
-      'تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة.';
+  String get sidebarLayersNote => 'تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة.';
 
   @override
   String get sidebarHideLayer => 'إخفاء الطبقة';
@@ -1194,8 +1144,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarLayerLocked => 'مقفلة';
 
   @override
-  String get sidebarSignatureCheckingLater =>
-      'التحقق من التوقيعات متاح في إصدار قادم.';
+  String get sidebarSignatureCheckingLater => 'التحقق من التوقيعات متاح في إصدار قادم.';
 
   @override
   String get sidebarEmptySignatureField => 'حقل توقيع فارغ';
@@ -1243,12 +1192,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get findMatch => 'المطابقة';
 
   @override
-  String get findIgnoreAccents =>
-      'تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة';
+  String get findIgnoreAccents => 'تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة';
 
   @override
-  String get findIgnoreAccentsBody =>
-      '«i» تجد İ وı وî؛ و«c» تجد ç؛ و«kira» تجد KİRA. مفعّل افتراضيًا.';
+  String get findIgnoreAccentsBody => '«i» تجد İ وı وî؛ و«c» تجد ç؛ و«kira» تجد KİRA. مفعّل افتراضيًا.';
 
   @override
   String get findLookIn => 'البحث في';
@@ -1334,16 +1281,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarSearchNoTextTitle => 'لا يوجد نص للبحث فيه';
 
   @override
-  String get sidebarSearchNoTextBody =>
-      'هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث.';
+  String get sidebarSearchNoTextBody => 'هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث.';
 
   @override
-  String sidebarSearchSummary(
-    int matches,
-    String matchesText,
-    int pages,
-    String pagesText,
-  ) {
+  String sidebarSearchSummary(int matches, String matchesText, int pages, String pagesText) {
     String _temp0 = intl.Intl.pluralLogic(
       matches,
       locale: localeName,
@@ -1439,8 +1380,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startPhoneEmptyTitle => 'لا توجد مستندات بعد';
 
   @override
-  String get startPhoneEmptySubtitle =>
-      'افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا.';
+  String get startPhoneEmptySubtitle => 'افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا.';
 
   @override
   String get startPhoneOpen => 'فتح ملف';
@@ -1580,20 +1520,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectSheetClose => 'إغلاق';
 
   @override
-  String get errorInternal =>
-      'حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه.';
+  String get errorInternal => 'حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه.';
 
   @override
-  String get errorFileNotFound =>
-      'لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف.';
+  String get errorFileNotFound => 'لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف.';
 
   @override
-  String get errorFilePermissionDenied =>
-      'لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك.';
+  String get errorFilePermissionDenied => 'لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك.';
 
   @override
-  String get errorFileRead =>
-      'تعذّر على Ferman قراءة الملف من القرص. تأكّد من أن القرص ما زال متصلًا، ثم أعد المحاولة.';
+  String get errorFileRead => 'تعذّر على Ferman قراءة الملف من القرص. تأكّد من أن القرص ما زال متصلًا، ثم أعد المحاولة.';
 
   @override
   String errorNotPdf(String name) {
@@ -1604,32 +1540,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorPasswordRequired => 'ملف PDF هذا محمي بكلمة مرور';
 
   @override
-  String get errorWrongPassword =>
-      'لم تنجح كلمة المرور هذه. تحقّق من مفتاح Caps Lock ومن تخطيط لوحة المفاتيح: في لوحة المفاتيح التركية الحرفان ı وi مفتاحان مختلفان.';
+  String get errorWrongPassword => 'لم تنجح كلمة المرور هذه. تحقّق من مفتاح Caps Lock ومن تخطيط لوحة المفاتيح: في لوحة المفاتيح التركية الحرفان ı وi مفتاحان مختلفان.';
 
   @override
-  String get errorDamaged =>
-      'الملف تالف ولا يستطيع Ferman إصلاحه. حاول الحصول على الملف مرة أخرى.';
+  String get errorDamaged => 'الملف تالف ولا يستطيع Ferman إصلاحه. حاول الحصول على الملف مرة أخرى.';
 
   @override
-  String get errorDamagedTruncated =>
-      'ينتهي الملف قبل نهايته والباقي مفقود. ربما انقطع أثناء التنزيل أو النسخ. حاول الحصول على الملف مرة أخرى.';
+  String get errorDamagedTruncated => 'ينتهي الملف قبل نهايته والباقي مفقود. ربما انقطع أثناء التنزيل أو النسخ. حاول الحصول على الملف مرة أخرى.';
 
   @override
-  String get errorDamagedEmpty =>
-      'يبدأ الملف كملف PDF، لكن لا شيء بعد ذلك قابل للقراءة. حاول الحصول على الملف مرة أخرى.';
+  String get errorDamagedEmpty => 'يبدأ الملف كملف PDF، لكن لا شيء بعد ذلك قابل للقراءة. حاول الحصول على الملف مرة أخرى.';
 
   @override
-  String get errorUnsupported =>
-      'يستخدم شيئًا لا يدعمه Ferman بعد، مثل التشفير بشهادة.';
+  String get errorUnsupported => 'يستخدم شيئًا لا يدعمه Ferman بعد، مثل التشفير بشهادة.';
 
   @override
-  String get errorTooComplex =>
-      'هذا الملف معقّد جدًا لفتحه ضمن حدود الأمان في Ferman. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+  String get errorTooComplex => 'هذا الملف معقّد جدًا لفتحه ضمن حدود الأمان في Ferman. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
 
   @override
-  String get errorOutOfMemory =>
-      'نفدت ذاكرة الجهاز أثناء فتحه. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+  String get errorOutOfMemory => 'نفدت ذاكرة الجهاز أثناء فتحه. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
 
   @override
   String openClosedTitle(String name) {
@@ -1678,8 +1607,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get restrictedTitle => 'قيّد المؤلف هذا المستند.';
 
   @override
-  String get restrictedBody =>
-      'يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة.';
+  String get restrictedBody => 'يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة.';
 
   @override
   String get restrictedBodyOther => 'يمكنك قراءته. عطّل المؤلف بعض الإجراءات.';
@@ -1716,8 +1644,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get scriptsBody =>
-      'لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى.';
+  String get scriptsBody => 'لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى.';
 
   @override
   String get scriptsDismiss => 'إغلاق';
@@ -1821,15 +1748,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get repairUnreadableBody =>
-      'قد تكون الصفحات والميزات التي تستخدمها غير مكتملة.';
+  String get repairUnreadableBody => 'قد تكون الصفحات والميزات التي تستخدمها غير مكتملة.';
 
   @override
   String get xfaTitle => 'هذا نموذج XFA، ولا يستطيع Ferman عرضه.';
 
   @override
-  String get xfaBody =>
-      'XFA تنسيق متوقف من Adobe. افتحه في Adobe Acrobat Reader، أو اطلب من المرسل ملف PDF عاديًا.';
+  String get xfaBody => 'XFA تنسيق متوقف من Adobe. افتحه في Adobe Acrobat Reader، أو اطلب من المرسل ملف PDF عاديًا.';
 
   @override
   String disagreeTitle(String name) {
@@ -1837,8 +1762,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get disagreeBody =>
-      'بعض أجزاء هذا الملف لا تتطابق مع بعضها، وقد يعني ذلك أنه تالف. يمكنك قراءته كالمعتاد.';
+  String get disagreeBody => 'بعض أجزاء هذا الملف لا تتطابق مع بعضها، وقد يعني ذلك أنه تالف. يمكنك قراءته كالمعتاد.';
 
   @override
   String get propertiesFile => 'الملف';
@@ -1937,8 +1861,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get propertiesPartial => 'جزئي';
 
   @override
-  String get propertiesPartialNote =>
-      'مجموعة فرعية: الأحرف الموجودة في الملف فقط.';
+  String get propertiesPartialNote => 'مجموعة فرعية: الأحرف الموجودة في الملف فقط.';
 
   @override
   String propertiesPartialMissing(String letters) {
@@ -2081,10 +2004,8 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$countText برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
-      many:
-          '$countText برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      other: '$countText برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      many: '$countText برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
       few: '$countText برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
       two: 'برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.',
       one: 'برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.',
@@ -2104,8 +2025,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get defaultAppTitle => 'هل تريد فتح ملفات PDF باستخدام Ferman؟';
 
   @override
-  String get defaultAppDescription =>
-      'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير.';
+  String get defaultAppDescription => 'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير.';
 
   @override
   String get defaultAppNow => 'يفتح ملفات PDF الآن:';
@@ -2125,8 +2045,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get settingsDefaultAppFerman =>
-      'يفتح Ferman ملفات PDF على جهاز Mac هذا.';
+  String get settingsDefaultAppFerman => 'يفتح Ferman ملفات PDF على جهاز Mac هذا.';
 
   @override
   String attachmentNotSaved(String name) {
@@ -2134,8 +2053,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get attachmentWriteFailed =>
-      'تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا.';
+  String get attachmentWriteFailed => 'تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا.';
 
   @override
   String editStepText(String page) {
@@ -2154,8 +2072,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get editHistoryNote =>
-      'انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات.';
+  String get editHistoryNote => 'انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات.';
 
   @override
   String get editNothingToUndo => 'لا شيء للتراجع عنه';
@@ -2213,8 +2130,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get editOverflowExtendPageEdge =>
-      'توسيع الكتلة سيجعلها تتجاوز حافة الصفحة.';
+  String get editOverflowExtendPageEdge => 'توسيع الكتلة سيجعلها تتجاوز حافة الصفحة.';
 
   @override
   String editOverflowTightenShort(int count, String n) {
@@ -2248,8 +2164,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editTotalsTitle => 'لا تُحدَّث المجاميع';
 
   @override
-  String get editTotalsBody =>
-      'يخزّن ملف PDF الأرقام كنص. لا تزال الخلايا المعلّمة تعرض المبالغ القديمة.';
+  String get editTotalsBody => 'يخزّن ملف PDF الأرقام كنص. لا تزال الخلايا المعلّمة تعرض المبالغ القديمة.';
 
   @override
   String editTotalsReview(int count, String n) {
@@ -2411,8 +2326,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saveAsNameInvalid => 'لا يمكن أن يحتوي اسم الملف على / أو \\.';
 
   @override
-  String get saveAsNameTaken =>
-      'يوجد ملف بهذا الاسم هناك. اختر اسمًا آخر أو استخدم «موقع آخر…».';
+  String get saveAsNameTaken => 'يوجد ملف بهذا الاسم هناك. اختر اسمًا آخر أو استخدم «موقع آخر…».';
 
   @override
   String get saveAsWhere => 'الموقع';
@@ -2427,8 +2341,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saveAsPdf => 'PDF';
 
   @override
-  String get saveAsPdfDescription =>
-      'ملف PDF قياسي. يبقى النص قابلًا للتحرير في Ferman والمحررات الأخرى.';
+  String get saveAsPdfDescription => 'ملف PDF قياسي. يبقى النص قابلًا للتحرير في Ferman والمحررات الأخرى.';
 
   @override
   String get saveAsPdfA => 'PDF/A-2b، للأرشفة';
@@ -2462,40 +2375,31 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get saveFailedDiskFull =>
-      'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedDiskFull => 'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedPermission =>
-      'ليس لديك إذن بتغيير هذا الملف أو مجلده. احفظه في مكان آخر أو اطلب الإذن من مالكه. تعديلاتك محفوظة.';
+  String get saveFailedPermission => 'ليس لديك إذن بتغيير هذا الملف أو مجلده. احفظه في مكان آخر أو اطلب الإذن من مالكه. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedLocked =>
-      'الملف مفتوح ومقفل في تطبيق آخر. أغلقه هناك ثم أعد المحاولة، أو احفظ نسخة في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedLocked => 'الملف مفتوح ومقفل في تطبيق آخر. أغلقه هناك ثم أعد المحاولة، أو احفظ نسخة في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedRename =>
-      'كتب Ferman تغييراتك في ملف مؤقت، لكنه لم يتمكّن من وضعه مكان الملف الأصلي. لم يتغيّر الملف الأصلي، وتعديلاتك محفوظة.';
+  String get saveFailedRename => 'كتب Ferman تغييراتك في ملف مؤقت، لكنه لم يتمكّن من وضعه مكان الملف الأصلي. لم يتغيّر الملف الأصلي، وتعديلاتك محفوظة.';
 
   @override
-  String get saveFailedVolume =>
-      'لم يعد القرص الذي يحوي هذا الملف متصلًا. أعد توصيله ثم أعد المحاولة، أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedVolume => 'لم يعد القرص الذي يحوي هذا الملف متصلًا. أعد توصيله ثم أعد المحاولة، أو احفظ في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedHardLinked =>
-      'لهذا الملف روابط أخرى سيكسرها استبداله. احفظه في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedHardLinked => 'لهذا الملف روابط أخرى سيكسرها استبداله. احفظه في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedNotOwner =>
-      'هذا الملف ملك لشخص آخر، ولم يتمكّن Ferman من الإبقاء على مالكه. احفظه في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedNotOwner => 'هذا الملف ملك لشخص آخر، ولم يتمكّن Ferman من الإبقاء على مالكه. احفظه في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedOther =>
-      'تعذّر على Ferman كتابة الملف. أعد المحاولة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+  String get saveFailedOther => 'تعذّر على Ferman كتابة الملف. أعد المحاولة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
 
   @override
-  String get saveFailedNoRecoveryCopy =>
-      'لا توجد نسخة استرداد: تعذّر على Ferman كتابتها أيضًا، لذا تبقى هذه التعديلات في هذه النافذة فقط حتى تحفظ.';
+  String get saveFailedNoRecoveryCopy => 'لا توجد نسخة استرداد: تعذّر على Ferman كتابتها أيضًا، لذا تبقى هذه التعديلات في هذه النافذة فقط حتى تحفظ.';
 
   @override
   String get saveTryAgain => 'إعادة المحاولة';
@@ -2507,12 +2411,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saveAsEllipsis => 'حفظ باسم…';
 
   @override
-  String get saveToastDiskFull =>
-      'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر.';
+  String get saveToastDiskFull => 'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر.';
 
   @override
-  String get saveToastOther =>
-      'تعديلاتك محفوظة. أعد المحاولة أو احفظ في مكان آخر.';
+  String get saveToastOther => 'تعديلاتك محفوظة. أعد المحاولة أو احفظ في مكان آخر.';
 
   @override
   String get saveToastDismiss => 'تجاهل';
@@ -2523,8 +2425,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get fileChangedBody =>
-      'غيّره تطبيق آخر أو خدمة مزامنة أثناء فتحه. أعد تحميله أو احتفظ بنسختك أو قارن أولًا.';
+  String get fileChangedBody => 'غيّره تطبيق آخر أو خدمة مزامنة أثناء فتحه. أعد تحميله أو احتفظ بنسختك أو قارن أولًا.';
 
   @override
   String get fileChangedCompare => 'مقارنة';
@@ -2541,19 +2442,16 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get optimizeSignedBody =>
-      'يعيد Ferman كتابة الملف كاملًا دون إصداراته السابقة. لن تبقى تواقيعه صالحة.';
+  String get optimizeSignedBody => 'يعيد Ferman كتابة الملف كاملًا دون إصداراته السابقة. لن تبقى تواقيعه صالحة.';
 
   @override
   String get optimizeAction => 'تحسين وتنظيف';
 
   @override
-  String get saveAsNameInvalidWindows =>
-      'لا يمكن أن يحتوي اسم الملف على أيٍّ من هذه: / \\ : * ? \" < > |';
+  String get saveAsNameInvalidWindows => 'لا يمكن أن يحتوي اسم الملف على أيٍّ من هذه: / \\ : * ? \" < > |';
 
   @override
-  String get saveAsNameOpen =>
-      'هذا الملف مفتوح في علامة تبويب أخرى. أغلقه هناك أو اختر اسمًا آخر.';
+  String get saveAsNameOpen => 'هذا الملف مفتوح في علامة تبويب أخرى. أغلقه هناك أو اختر اسمًا آخر.';
 
   @override
   String saveAsCopyDescriptionHere(String name) {
@@ -2566,8 +2464,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get readOnlyFileBody =>
-      'لا يستطيع Ferman حفظ التغييرات في هذا الملف. لتحتفظ بتغييراتك، احفظ نسخة.';
+  String get readOnlyFileBody => 'لا يستطيع Ferman حفظ التغييرات في هذا الملف. لتحتفظ بتغييراتك، احفظ نسخة.';
 
   @override
   String get readOnlyFileSaveCopy => 'حفظ نسخة…';
@@ -2616,8 +2513,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get quitReviewBody =>
-      'يحفظ Ferman المستندات المحدّدة ثم يُنهي عمله. تضيع تغييرات المستندات غير المحدّدة.';
+  String get quitReviewBody => 'يحفظ Ferman المستندات المحدّدة ثم يُنهي عمله. تضيع تغييرات المستندات غير المحدّدة.';
 
   @override
   String get quitReviewSave => 'حفظ وإنهاء';
@@ -2640,12 +2536,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get recoveryBody =>
-      'أُغلق Ferman على نحو غير متوقع. كانت في هذه المستندات تغييرات غير محفوظة، واحتفظ Ferman بنسخة من كلٍّ منها على هذا الجهاز.';
+  String get recoveryBody => 'أُغلق Ferman على نحو غير متوقع. كانت في هذه المستندات تغييرات غير محفوظة، واحتفظ Ferman بنسخة من كلٍّ منها على هذا الجهاز.';
 
   @override
-  String get recoveryNote =>
-      'تُفتح المستندات المستعادة كغير محفوظة؛ ولم تتغيّر الملفات على القرص. لم يُرسَل أي شيء إلى أي مكان.';
+  String get recoveryNote => 'تُفتح المستندات المستعادة كغير محفوظة؛ ولم تتغيّر الملفات على القرص. لم يُرسَل أي شيء إلى أي مكان.';
 
   @override
   String get recoveryDiscard => 'تجاهل النسخ';
@@ -2668,8 +2562,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recoveryChangedBadge => 'تغيّر على القرص';
 
   @override
-  String get recoveryChangedBody =>
-      'تغيّر الملف على القرص بعد نسخة Ferman. تُفتح النسخة المستعادة باسم جديد، فلا يُستبدل أيٌّ منهما.';
+  String get recoveryChangedBody => 'تغيّر الملف على القرص بعد نسخة Ferman. تُفتح النسخة المستعادة باسم جديد، فلا يُستبدل أيٌّ منهما.';
 
   @override
   String get recoveryFileSuffix => 'مستعاد';
@@ -2687,16 +2580,11 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'في «$name» $formatted توقيع. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
-      many:
-          'في «$name» $formatted توقيعًا. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
-      few:
-          'في «$name» $formatted توقيعات. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
-      two:
-          'في «$name» توقيعان. أي تغيير في المستند يجعل هذين التوقيعين غير صالحين.',
-      one:
-          'في «$name» توقيع واحد. أي تغيير في المستند يجعل هذا التوقيع غير صالح.',
+      other: 'في «$name» $formatted توقيع. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      many: 'في «$name» $formatted توقيعًا. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      few: 'في «$name» $formatted توقيعات. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      two: 'في «$name» توقيعان. أي تغيير في المستند يجعل هذين التوقيعين غير صالحين.',
+      one: 'في «$name» توقيع واحد. أي تغيير في المستند يجعل هذا التوقيع غير صالح.',
     );
     return '$_temp0';
   }
@@ -2719,8 +2607,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String signedCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem (نسخة $numberString)';
@@ -2744,8 +2631,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get signedBannerBody =>
-      'غيّرت المستند بعد توقيعه. تبقى التواقيع عند الحفظ، لكنها ستظهر غير صالحة.';
+  String get signedBannerBody => 'غيّرت المستند بعد توقيعه. تبقى التواقيع عند الحفظ، لكنها ستظهر غير صالحة.';
 
   @override
   String get signedBannerReview => 'مراجعة التعديلات';
@@ -2762,22 +2648,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsEditMarks => 'وضع علامة على النص المعدَّل';
 
   @override
-  String get settingsEditMarksNote =>
-      'تظهر في Ferman فقط أثناء التحرير. لا تُحفظ في الملف ولا تُطبع أبدًا.';
+  String get settingsEditMarksNote => 'تظهر في Ferman فقط أثناء التحرير. لا تُحفظ في الملف ولا تُطبع أبدًا.';
 
   @override
   String get settingsMissingGlyphs => 'عندما ينقص خطًّا حرفٌ ما';
 
   @override
-  String get settingsMissingGlyphsSimilar =>
-      'استخدام خط مشابه والإشارة إلى ذلك';
+  String get settingsMissingGlyphsSimilar => 'استخدام خط مشابه والإشارة إلى ذلك';
 
   @override
   String get settingsMissingGlyphsAsk => 'السؤال في كل مرة';
 
   @override
-  String get settingsMissingGlyphsMark =>
-      'الإبقاء على الخط الأصلي ووضع علامة على الحرف';
+  String get settingsMissingGlyphsMark => 'الإبقاء على الخط الأصلي ووضع علامة على الحرف';
 
   @override
   String get settingsFontForNewText => 'خط النص الجديد';
@@ -2792,8 +2675,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsKeepVersions30 => 'تُحفظ لمدة 30 يومًا';
 
   @override
-  String get settingsReflow =>
-      'السماح بإعادة تدفق الفقرات داخل إطارها أثناء الكتابة';
+  String get settingsReflow => 'السماح بإعادة تدفق الفقرات داخل إطارها أثناء الكتابة';
 
   @override
   String get settingsRecoveryCopies => 'حفظ نسخة استرداد كل دقيقة';
@@ -2805,15 +2687,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsSavingEnd => 'تُضاف التغييرات إلى نهاية الملف';
 
   @override
-  String get settingsSavingEndBody =>
-      'يبقى الحفظ سريعًا، وتبقى التواقيع السابقة لتغييراتك سليمة. لا يعيد Ferman كتابة الملف كله إلا عندما تختار «التحسين والتنظيف».';
+  String get settingsSavingEndBody => 'يبقى الحفظ سريعًا، وتبقى التواقيع السابقة لتغييراتك سليمة. لا يعيد Ferman كتابة الملف كله إلا عندما تختار «التحسين والتنظيف».';
 
   @override
   String get settingsOptimize => 'التحسين والتنظيف';
 
   @override
-  String get settingsOptimizeBody =>
-      'يعيد كتابة الملف كله لتصغيره. شغّله من لوحة الأوامر؛ لا يُستخدم من تلقاء نفسه أبدًا، ويحذّرك Ferman أولًا إذا كانت التواقيع ستصبح غير صالحة.';
+  String get settingsOptimizeBody => 'يعيد كتابة الملف كله لتصغيره. شغّله من لوحة الأوامر؛ لا يُستخدم من تلقاء نفسه أبدًا، ويحذّرك Ferman أولًا إذا كانت التواقيع ستصبح غير صالحة.';
 
   @override
   String get settingsRecoveryFolder => 'نسخ الاسترداد';
@@ -2827,8 +2707,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellEditForbidden => 'لا يسمح المؤلف بالتحرير';
 
   @override
-  String get editPanelTipClick =>
-      'انقر على أي نص لتحديد كتلته. انقر مرة أخرى لوضع المؤشر.';
+  String get editPanelTipClick => 'انقر على أي نص لتحديد كتلته. انقر مرة أخرى لوضع المؤشر.';
 
   @override
   String editPanelTipKeys(String key) {
@@ -2888,8 +2767,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reviewEmptyTitle => 'لا توجد تعديلات بعد';
 
   @override
-  String get reviewEmptyBody =>
-      'تظهر هنا التغييرات التي تجريها في هذه الجلسة. تُمسح القائمة عند إغلاق المستند، والجلسات السابقة في سجل الإصدارات.';
+  String get reviewEmptyBody => 'تظهر هنا التغييرات التي تجريها في هذه الجلسة. تُمسح القائمة عند إغلاق المستند، والجلسات السابقة في سجل الإصدارات.';
 
   @override
   String get reviewNothing => 'لا توجد تعديلات بعد';
@@ -2958,14 +2836,10 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'يعتمد $shown تعديل لاحق على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
-      many:
-          'يعتمد $shown تعديلًا لاحقًا على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
-      few:
-          'تعتمد $shown تعديلات لاحقة على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
-      two:
-          'يعتمد تعديلان لاحقان على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      other: 'يعتمد $shown تعديل لاحق على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      many: 'يعتمد $shown تعديلًا لاحقًا على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      few: 'تعتمد $shown تعديلات لاحقة على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      two: 'يعتمد تعديلان لاحقان على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
     );
     return '$_temp0';
   }
@@ -3065,16 +2939,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editPanelUnderline => 'تسطير';
 
   @override
-  String get editPanelNoBold =>
-      'لا يتوفر لهذا الخط على هذا الكمبيوتر وزن آخر يمكنه رسم هذا النص.';
+  String get editPanelNoBold => 'لا يتوفر لهذا الخط على هذا الكمبيوتر وزن آخر يمكنه رسم هذا النص.';
 
   @override
-  String get editPanelNoItalic =>
-      'لا يتوفر لهذا الخط على هذا الكمبيوتر شكل مائل يمكنه رسم هذا النص.';
+  String get editPanelNoItalic => 'لا يتوفر لهذا الخط على هذا الكمبيوتر شكل مائل يمكنه رسم هذا النص.';
 
   @override
-  String get editPanelNoUnderline =>
-      'لا يوجد في خطوط PDF شكل مسطّر للتبديل إليه، ولا يرسم Ferman تسطيرًا زائفًا.';
+  String get editPanelNoUnderline => 'لا يوجد في خطوط PDF شكل مسطّر للتبديل إليه، ولا يرسم Ferman تسطيرًا زائفًا.';
 
   @override
   String get editPanelAlignment => 'المحاذاة';
@@ -3119,8 +2990,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editPanelReset => 'إعادة تعيين نمط النص';
 
   @override
-  String get editPanelHint =>
-      'يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم.';
+  String get editPanelHint => 'يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم.';
 
   @override
   String get editBarLabel => 'تنسيق التحديد';
@@ -3178,8 +3048,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get jobFailedDiskFull =>
-      'القرص ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى.';
+  String get jobFailedDiskFull => 'القرص ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى.';
 
   @override
   String jobCopyingTitle(String name) {
@@ -3209,8 +3078,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tasksEmptyTitle => 'لا توجد مهام في الخلفية';
 
   @override
-  String get tasksEmptyBody =>
-      'تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك.';
+  String get tasksEmptyBody => 'تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك.';
 
   @override
   String tasksRunning(int count, String formatted) {
@@ -3244,8 +3112,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get taskCancelBody =>
-      'يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف.';
+  String get taskCancelBody => 'يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف.';
 
   @override
   String get taskKeepRunning => 'متابعة التنفيذ';
@@ -3268,8 +3135,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get tasksQuitBody =>
-      'يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة.';
+  String get tasksQuitBody => 'يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة.';
 
   @override
   String get tasksQuitKeep => 'مواصلة العمل';
@@ -3401,8 +3267,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get organizeDeleteAllReason =>
-      'يجب أن يحتفظ المستند بصفحة واحدة على الأقل';
+  String get organizeDeleteAllReason => 'يجب أن يحتفظ المستند بصفحة واحدة على الأقل';
 
   @override
   String organizeToastDeleted(int count, String n) {
@@ -3485,10 +3350,8 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
-      one:
-          '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
+      other: '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
+      one: '$pages. تبقى في الملف إلى أن تحفظ مع «إزالة سجل التحرير» أو تشغّل «تحسين وتنظيف».',
     );
     return '$_temp0';
   }
@@ -3719,8 +3582,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get labelsTitle => 'تسميات الصفحات';
 
   @override
-  String get labelsDescription =>
-      'اختر طريقة ترقيم الصفحات في Ferman وفي تطبيقات PDF الأخرى وعند الطباعة.';
+  String get labelsDescription => 'اختر طريقة ترقيم الصفحات في Ferman وفي تطبيقات PDF الأخرى وعند الطباعة.';
 
   @override
   String get labelsColumnPages => 'الصفحات';
@@ -3768,8 +3630,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get labelsPrint => 'طباعة الأرقام على الصفحات أيضًا';
 
   @override
-  String get labelsPrintNote =>
-      'تُضاف في تذييل الصفحة. وتُتخطى الصفحات التي تعرض رقمًا بالفعل.';
+  String get labelsPrintNote => 'تُضاف في تذييل الصفحة. وتُتخطى الصفحات التي تعرض رقمًا بالفعل.';
 
   @override
   String get labelsApply => 'تطبيق التسميات';
@@ -3899,8 +3760,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sourceUnlock => 'فتح القفل';
 
   @override
-  String get sourceForbidden =>
-      'لا يسمح هذا الملف بأخذ صفحات منه. وترفع كلمة مرور المالك هذا القيد.';
+  String get sourceForbidden => 'لا يسمح هذا الملف بأخذ صفحات منه. وترفع كلمة مرور المالك هذا القيد.';
 
   @override
   String get sourceUnreadable => 'يتعذّر على Ferman قراءة هذا الملف.';
@@ -3915,8 +3775,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get replaceFewer => 'يوفّر الملف صفحات أقل: ستُحذف بقية هذه الصفحات.';
 
   @override
-  String get replaceMore =>
-      'يوفّر الملف صفحات أكثر: ستأتي الصفحات الزائدة بعد الأخيرة.';
+  String get replaceMore => 'يوفّر الملف صفحات أكثر: ستأتي الصفحات الزائدة بعد الأخيرة.';
 
   @override
   String replaceAction(int count, String formatted) {
@@ -4038,8 +3897,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get combineEmptyTitle => 'لا توجد ملفات بعد';
 
   @override
-  String get combineEmptyBody =>
-      'أضف ملفات PDF أو صورًا لدمجها في ملف جديد واحد.';
+  String get combineEmptyBody => 'أضف ملفات PDF أو صورًا لدمجها في ملف جديد واحد.';
 
   @override
   String get combineDrag => 'اسحب لإعادة الترتيب';
@@ -4072,8 +3930,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get combineWrongPassword => 'كلمة المرور هذه لا تفتحه. حاول مرة أخرى.';
 
   @override
-  String get combineOwnerPassword =>
-      'يمنع هذا الملف الدمج. أدخل كلمة مرور المالك لإضافته.';
+  String get combineOwnerPassword => 'يمنع هذا الملف الدمج. أدخل كلمة مرور المالك لإضافته.';
 
   @override
   String get combineUnreadable => 'يتعذر على Ferman قراءة هذا الملف.';
@@ -4189,8 +4046,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get splitSize => 'حسب حجم الملف';
 
   @override
-  String get splitSizeBody =>
-      'ملفات لا تتجاوز حجمًا تختاره، لتناسب حدود البريد الإلكتروني.';
+  String get splitSizeBody => 'ملفات لا تتجاوز حجمًا تختاره، لتناسب حدود البريد الإلكتروني.';
 
   @override
   String get splitBlank => 'عند الصفحات الفارغة';
@@ -4223,8 +4079,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get splitOverLimit => 'صفحة واحدة وحدها أكبر من هذا الحجم.';
 
   @override
-  String get splitNotProtected =>
-      'لن تحمل الملفات الجديدة كلمة مرور هذا المستند.';
+  String get splitNotProtected => 'لن تحمل الملفات الجديدة كلمة مرور هذا المستند.';
 
   @override
   String get splitNotSigned => 'لن تحمل الملفات الجديدة تواقيعه.';
@@ -4364,19 +4219,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commentsSortOther => 'ترتيب الصفحات';
 
   @override
-  String get commentsCertifiedNote =>
-      'تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها.';
+  String get commentsCertifiedNote => 'تسمح شهادة هذا المستند بالتعليقات: تبقى الشهادة صالحة معها.';
 
   @override
-  String get commentsTruncated =>
-      'يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman.';
+  String get commentsTruncated => 'يحتوي هذا الملف على تعليقات أكثر مما يعرضه Ferman.';
 
   @override
   String get commentsEmptyTitle => 'لا توجد تعليقات';
 
   @override
-  String get commentsEmptyBody =>
-      'اختر أداة من الأعلى، ثم أضف علامات على الصفحة.';
+  String get commentsEmptyBody => 'اختر أداة من الأعلى، ثم أضف علامات على الصفحة.';
 
   @override
   String get commentsNoMatchTitle => 'لا توجد تعليقات مطابقة';
@@ -4385,8 +4237,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commentsNoMatchBody => 'غيّر الحالة أو عوامل التصفية لرؤية غيرها.';
 
   @override
-  String get commentsFootnote =>
-      'تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات.';
+  String get commentsFootnote => 'تُحفظ التعليقات في ملف PDF. تنتقل الإشارات مع الملف، ولا يرسل Ferman إشعارات.';
 
   @override
   String get commentsExportSummary => 'تصدير الملخص…';
@@ -4527,14 +4378,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commentYesterday => 'أمس';
 
   @override
-  String commentCardLabel(
-    String author,
-    String kind,
-    String page,
-    int resolved,
-    int count,
-    String shown,
-  ) {
+  String commentCardLabel(String author, String kind, String page, int resolved, int count, String shown) {
     String _temp0 = intl.Intl.pluralLogic(
       resolved,
       locale: localeName,
@@ -4582,8 +4426,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commentNameTitle => 'اسمك في التعليقات';
 
   @override
-  String get commentNameBody =>
-      'يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا.';
+  String get commentNameBody => 'يراه الآخرون ممن يفتحون ملف PDF هذا بجانب تعليقاتك. يمكنك تغييره من الإعدادات › عام، أو تركه فارغًا.';
 
   @override
   String get commentNameSave => 'متابعة';
@@ -4704,8 +4547,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get summaryExport => 'تصدير الملخص…';
 
   @override
-  String get jobSummaryPageUnsupported =>
-      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV.';
+  String get jobSummaryPageUnsupported => 'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman تصويرها في ملخص بعد. يعمل تخطيط «التعليقات فقط» أو ملف CSV.';
 
   @override
   String flattenTitle(int count, String formatted) {
@@ -4723,8 +4565,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get flattenBody =>
-      'تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت.';
+  String get flattenBody => 'تصبح جزءًا من الصفحة. لن يتمكن أحد من تعديلها أو الرد عليها أو إخفائها أو إزالتها، في Ferman أو أي تطبيق آخر. تبدو حقول النماذج والتوقيعات كما كانت.';
 
   @override
   String flattenAll(int count, String formatted) {
@@ -4771,8 +4612,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String flattenCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem — مع التعليقات $numberString';
@@ -4812,8 +4652,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get jobFlattenPageUnsupported =>
-      'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء.';
+  String get jobFlattenPageUnsupported => 'رُسمت إحدى الصفحات بطريقة لا يستطيع Ferman التسطيح فيها بعد. لم يتغير شيء.';
 
   @override
   String sidebarSearchComment(String text) {
@@ -4947,16 +4786,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get stepAddStamp => 'إضافة ختم';
 
   @override
-  String get placeStampHint =>
-      'انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة.';
+  String get placeStampHint => 'انقر على الصفحة لوضع الختم، أو اضغط Enter لوضعه في وسط الصفحة.';
 
   @override
-  String get placeShapeHint =>
-      'اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة.';
+  String get placeShapeHint => 'اسحب على الصفحة لرسم الشكل، أو اضغط Enter لوضعه في وسط الصفحة.';
 
   @override
-  String get placePolygonHint =>
-      'انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى.';
+  String get placePolygonHint => 'انقر على كل زاوية من زوايا المضلع، ثم اضغط Enter أو انقر على الزاوية الأولى.';
 
   @override
   String get linksTitle => 'الروابط';
@@ -4968,8 +4804,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linksEmpty => 'لا توجد روابط في هذا المستند.';
 
   @override
-  String get linksTruncated =>
-      'يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها.';
+  String get linksTruncated => 'يحتوي هذا المستند على روابط أكثر من أن تُعرض كلها.';
 
   @override
   String get linksSelectTextFirst => 'حدّد أولًا النص المراد ربطه';
@@ -5083,8 +4918,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linkOpenMailTitle => 'هل تريد مراسلة هذا العنوان؟';
 
   @override
-  String get linkOpenDescription =>
-      'هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته.';
+  String get linkOpenDescription => 'هذا الرابط من المستند، ويُفتح في تطبيقاتك أنت، فتأكد من أنك تثق بوجهته.';
 
   @override
   String get linkOpenAction => 'فتح الرابط';
@@ -5099,8 +4933,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linkRefusedTitle => 'لم يتبع Ferman هذا الرابط';
 
   @override
-  String get linkRefusedScript =>
-      'كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات.';
+  String get linkRefusedScript => 'كان سيشغّل برنامجًا نصيًا، ولا يشغّل Ferman البرامج النصية للمستندات.';
 
   @override
   String linkRefusedLaunch(String target) {
@@ -5118,8 +4951,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get linkRefusedAction =>
-      'يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ.';
+  String get linkRefusedAction => 'يؤدي إجراءً لا يعرفه Ferman، لذا يبقى في الملف ولا يُنفَّذ.';
 
   @override
   String linksBrokenMeta(int count, String pages) {
@@ -5158,8 +4990,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signPadImage => 'صورة';
 
   @override
-  String get signPadArea =>
-      'منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع.';
+  String get signPadArea => 'منطقة رسم التوقيع. ارسم بالفأرة أو لوحة اللمس أو القلم أو الإصبع.';
 
   @override
   String get signPadTypeName => 'اكتب اسمك';
@@ -5174,8 +5005,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signPadTypeHint => 'اكتب اسمك فوق الخط';
 
   @override
-  String get signPadImageHint =>
-      'اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية.';
+  String get signPadImageHint => 'اختر صورة أو مسحًا ضوئيًا لتوقيعك. يزيل Ferman الخلفية.';
 
   @override
   String get signPadChooseImage => 'اختيار صورة…';
@@ -5214,8 +5044,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signHandwriting => 'نمط خط اليد';
 
   @override
-  String get signNoStyle =>
-      'لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك.';
+  String get signNoStyle => 'لا يستطيع أي نمط من أنماط خط اليد كتابة كل حروف هذا الاسم. ارسمه أو استخدم صورة بدلًا من ذلك.';
 
   @override
   String get signSavedNote => 'يُحفظ على هذا الجهاز فقط.';
@@ -5242,12 +5071,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signDelete => 'حذف';
 
   @override
-  String get signSaveFailed =>
-      'تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع.';
+  String get signSaveFailed => 'تعذّر حفظ التوقيع على هذا الجهاز، لكنه ما زال جاهزًا للوضع.';
 
   @override
-  String get signImageTooLarge =>
-      'هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت.';
+  String get signImageTooLarge => 'هذه الصورة كبيرة جدًا. اختر صورة أصغر من 6 ميغابايت.';
 
   @override
   String get signImageFilter => 'الصور';
@@ -5259,8 +5086,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get stepAddInitials => 'إضافة الأحرف الأولى';
 
   @override
-  String get placeSignatureHint =>
-      'انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter.';
+  String get placeSignatureHint => 'انقر على الصفحة أو على حقل توقيع لوضعه، أو اضغط Enter لوضعه في وسط الصفحة. اسحب زواياه لتغيير حجمه ومقبضه الدائري لتدويره، ثم اضغط Enter.';
 
   @override
   String get formPanelTitle => 'النموذج';
@@ -5361,12 +5187,9 @@ class AppLocalizationsAr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$formatted حقل، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
-      many:
-          '$formatted حقلًا، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
-      few:
-          '$formatted حقول، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      other: '$formatted حقل، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      many: '$formatted حقلًا، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
+      few: '$formatted حقول، المطلوب منها $required. ينقلك مفتاح Tab إلى الحقل التالي.',
       two: 'حقلان، المطلوب منهما $required. ينقلك مفتاح Tab إلى الحقل التالي.',
       one: 'حقل واحد، المطلوب منه $required. ينقلك مفتاح Tab إلى الحقل التالي.',
     );
@@ -5380,8 +5203,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fillBannerTitle => 'لا يحوي ملف PDF هذا حقول نماذج.';
 
   @override
-  String get fillBannerBody =>
-      'انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول.';
+  String get fillBannerBody => 'انقر على سطر أو مربع لتكتب، أو دع Ferman يجد الحقول.';
 
   @override
   String get fillFindFields => 'العثور على الحقول';
@@ -5501,22 +5323,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get formXfaRemovedTitle => 'أُزيلت بيانات XFA من النموذج';
 
   @override
-  String get formXfaRemovedBody =>
-      'كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف.';
+  String get formXfaRemovedBody => 'كانت القارئات التي تستخدم XFA ستعرض القيم القديمة. يبقى الأصل في الإصدار السابق من الملف.';
 
   @override
   String get formFinishTitle => 'إنهاء النموذج';
 
   @override
-  String get formFinishBody =>
-      'تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه.';
+  String get formFinishBody => 'تمت تعبئة كل الحقول المطلوبة. اختر كيف يبقى النموذج، ثم احفظه.';
 
   @override
   String get formFinishFlatten => 'تسطيح الحقول';
 
   @override
-  String get formFinishFlattenBody =>
-      'تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك.';
+  String get formFinishFlattenBody => 'تصبح جزءًا من الصفحة ولا يمكن تغييرها بعد ذلك.';
 
   @override
   String get formFinishKeep => 'إبقاء الحقول قابلة للتحرير';
@@ -5534,8 +5353,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get formClearTitle => 'هل تريد مسح النموذج؟';
 
   @override
-  String get formClearBody =>
-      'تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك.';
+  String get formClearBody => 'تُزال كل القيم في هذا النموذج. تبقى التوقيعات. يمكنك التراجع عن ذلك.';
 
   @override
   String get formClearConfirm => 'مسح النموذج';
@@ -5544,8 +5362,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get formFontAskTitle => 'محارف غير موجودة في خط هذا الحقل';
 
   @override
-  String get formFontAskBody =>
-      'يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها.';
+  String get formFontAskBody => 'يمكن لـ Ferman رسمها بخط IBM Plex يُضاف إلى المستند، أو إبقاء خط الحقل وتركها.';
 
   @override
   String get formFontAskPlex => 'استخدام IBM Plex';
@@ -5616,8 +5433,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get jobCompressNotSmaller =>
-      'لا يمكن أن يصغر أكثر، لذا لم يُكتب شيء. يبقى الأصل كما هو.';
+  String get jobCompressNotSmaller => 'لا يمكن أن يصغر أكثر، لذا لم يُكتب شيء. يبقى الأصل كما هو.';
 
   @override
   String jobCompressedSizes(String before, String after) {
@@ -5753,12 +5569,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get compressHighQualityDescription => 'الصور بدقة 300 ppi، للطباعة.';
 
   @override
-  String get compressBalancedDescription =>
-      'الصور بدقة 150 ppi، للمشاركة والقراءة على الشاشة.';
+  String get compressBalancedDescription => 'الصور بدقة 150 ppi، للمشاركة والقراءة على الشاشة.';
 
   @override
-  String get compressSmallestDescription =>
-      'الصور بدقة 96 ppi، للبريد الإلكتروني. يبقى النص حادًا.';
+  String get compressSmallestDescription => 'الصور بدقة 96 ppi، للبريد الإلكتروني. يبقى النص حادًا.';
 
   @override
   String get compressCustom => 'مخصص…';
@@ -5789,8 +5603,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get compressEstimateExact =>
-      'قيس على كل صورة. يظهر الحجم الدقيق بعد الحفظ.';
+  String get compressEstimateExact => 'قيس على كل صورة. يظهر الحجم الدقيق بعد الحفظ.';
 
   @override
   String compressDoes(String preset) {
@@ -5820,8 +5633,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get compressDoesUnused =>
-      'يزيل الكائنات غير المستخدمة والصور المصغّرة';
+  String get compressDoesUnused => 'يزيل الكائنات غير المستخدمة والصور المصغّرة';
 
   @override
   String compressDoesLeft(int count, String n) {
@@ -5835,15 +5647,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get compressDoesKeeps =>
-      'يحتفظ بالنص والروابط والإشارات المرجعية والنماذج';
+  String get compressDoesKeeps => 'يحتفظ بالنص والروابط والإشارات المرجعية والنماذج';
 
   @override
   String get compressSignedTitle => 'هذا المستند موقّع';
 
   @override
-  String get compressSignedBody =>
-      'لا تحتوي النسخة المضغوطة على تواقيع. يبقى الأصل الموقّع كما هو.';
+  String get compressSignedBody => 'لا تحتوي النسخة المضغوطة على تواقيع. يبقى الأصل الموقّع كما هو.';
 
   @override
   String get compressAction => 'ضغط وحفظ باسم…';
@@ -5854,12 +5664,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get saveAsHistoryOn =>
-      'يُكتب الملف من جديد، من دون المراجعات السابقة أو الصفحات المحذوفة. تفقد التواقيع صلاحيتها.';
+  String get saveAsHistoryOn => 'يُكتب الملف من جديد، من دون المراجعات السابقة أو الصفحات المحذوفة. تفقد التواقيع صلاحيتها.';
 
   @override
-  String get saveAsHistoryOff =>
-      'تبقى الصفحات المحذوفة والنص السابق في الملف ويمكن استعادتها منه.';
+  String get saveAsHistoryOff => 'تبقى الصفحات المحذوفة والنص السابق في الملف ويمكن استعادتها منه.';
 
   @override
   String get versionTitle => 'سجل الإصدارات';
@@ -5885,8 +5693,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get versionNone => 'لا إصدارات بعد. يحتفظ كل حفظ بإصدار.';
 
   @override
-  String get versionKept =>
-      'تُحفظ لمدة 30 يومًا على هذا الجهاز. غيّر ذلك من الإعدادات › التحرير.';
+  String get versionKept => 'تُحفظ لمدة 30 يومًا على هذا الجهاز. غيّر ذلك من الإعدادات › التحرير.';
 
   @override
   String get versionNow => 'الآن';
@@ -5972,8 +5779,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get versionRestoreBody =>
-      'يُحفظ ملفك الحالي، مع أي تعديلات غير محفوظة، كإصدار أولًا، فلا يضيع شيء.';
+  String get versionRestoreBody => 'يُحفظ ملفك الحالي، مع أي تعديلات غير محفوظة، كإصدار أولًا، فلا يضيع شيء.';
 
   @override
   String get versionRestore => 'استعادة';
@@ -6057,8 +5863,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shortcutsSheetSearch => 'البحث في الاختصارات';
 
   @override
-  String get shortcutsSheetNote =>
-      'غيّر الاختصارات من الإعدادات › اختصارات لوحة المفاتيح.';
+  String get shortcutsSheetNote => 'غيّر الاختصارات من الإعدادات › اختصارات لوحة المفاتيح.';
 
   @override
   String get shortcutsChanged => 'مُغيَّر';
@@ -6160,8 +5965,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsFontsInstalled => 'مثبّت';
 
   @override
-  String get settingsFontsLegend =>
-      'TR التركية · LX اللاتينية الموسّعة · CY السيريلية · GR اليونانية · AR العربية · HE العبرية · DV الديفاناغارية · CJK الصينية واليابانية والكورية. يعني الرمز المشطوب أن الخط لا يستطيع رسم تلك الكتابة.';
+  String get settingsFontsLegend => 'TR التركية · LX اللاتينية الموسّعة · CY السيريلية · GR اليونانية · AR العربية · HE العبرية · DV الديفاناغارية · CJK الصينية واليابانية والكورية. يعني الرمز المشطوب أن الخط لا يستطيع رسم تلك الكتابة.';
 
   @override
   String settingsFontsCovers(String script) {
@@ -6180,12 +5984,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsFontsLoading => 'جارٍ قراءة الخطوط على هذا الجهاز…';
 
   @override
-  String get settingsSavedSignatures =>
-      'التوقيعات المحفوظة · على هذا الجهاز فقط';
+  String get settingsSavedSignatures => 'التوقيعات المحفوظة · على هذا الجهاز فقط';
 
   @override
-  String get settingsSavedSignaturesNone =>
-      'لا توجد توقيعات محفوظة بعد. يمكنك إنشاء واحد من التعبئة والتوقيع › توقيع.';
+  String get settingsSavedSignaturesNone => 'لا توجد توقيعات محفوظة بعد. يمكنك إنشاء واحد من التعبئة والتوقيع › توقيع.';
 
   @override
   String get settingsSignatureTyped => 'مكتوب';
@@ -6212,8 +6014,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsTimestampNone => 'لا شيء';
 
   @override
-  String get settingsCheckRevocation =>
-      'التحقق من الإبطال عبر الإنترنت عند فتح الملفات الموقّعة';
+  String get settingsCheckRevocation => 'التحقق من الإبطال عبر الإنترنت عند فتح الملفات الموقّعة';
 
   @override
   String get settingsGpu => 'استخدام بطاقة الرسوميات لرسم الصفحات';
@@ -6243,8 +6044,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsShowLogs => 'إظهار ملفات السجل';
 
   @override
-  String get settingsReset =>
-      'أعِد كل إعداد إلى قيمته الافتراضية. تبقى التوقيعات والشهادات المحفوظة.';
+  String get settingsReset => 'أعِد كل إعداد إلى قيمته الافتراضية. تبقى التوقيعات والشهادات المحفوظة.';
 
   @override
   String get settingsResetButton => 'إعادة ضبط الإعدادات…';
@@ -6253,8 +6053,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsResetTitle => 'إعادة ضبط كل الإعدادات؟';
 
   @override
-  String get settingsResetBody =>
-      'تعود السمة واللغة والمنطقة وكل الخيارات الأخرى إلى قيمها الافتراضية. تبقى التوقيعات المحفوظة وأختامك والمستندات المفتوحة.';
+  String get settingsResetBody => 'تعود السمة واللغة والمنطقة وكل الخيارات الأخرى إلى قيمها الافتراضية. تبقى التوقيعات المحفوظة وأختامك والمستندات المفتوحة.';
 
   @override
   String get settingsResetConfirm => 'إعادة الضبط';
@@ -6263,8 +6062,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsImportTitle => 'استبدال إعداداتك؟';
 
   @override
-  String get settingsImportBody =>
-      'تحلّ الإعدادات الموجودة في الملف محلّ إعداداتك. تبقى التوقيعات المحفوظة والمستندات المفتوحة.';
+  String get settingsImportBody => 'تحلّ الإعدادات الموجودة في الملف محلّ إعداداتك. تبقى التوقيعات المحفوظة والمستندات المفتوحة.';
 
   @override
   String get settingsImportConfirm => 'استيراد';
@@ -6288,8 +6086,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsSettingsFile => 'ملف الإعدادات';
 
   @override
-  String get licencesIntro =>
-      'Ferman برنامج حر مرخّص بموجب رخصة Apache 2.0. وهو مبني على الأعمال أدناه، ويحتفظ كل جزء منها برخصته.';
+  String get licencesIntro => 'Ferman برنامج حر مرخّص بموجب رخصة Apache 2.0. وهو مبني على الأعمال أدناه، ويحتفظ كل جزء منها برخصته.';
 
   @override
   String get licencesSearch => 'البحث في التراخيص';
@@ -6313,8 +6110,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarLegendComments => 'التعليقات';
 
   @override
-  String get sidebarLegendCommentsBody =>
-      'ملاحظات أو تعليقات توضيحية على الصفحة';
+  String get sidebarLegendCommentsBody => 'ملاحظات أو تعليقات توضيحية على الصفحة';
 
   @override
   String get sidebarLegendFields => 'حقول النموذج';
@@ -6335,8 +6131,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarLegendWarningsBody => 'حروف ناقصة، فيض النص، روابط معطّلة';
 
   @override
-  String get sidebarLegendFootnote =>
-      'تسمع قارئات الشاشة الشارات ضمن اسم الصفحة، مثل «الصفحة 1، معدّلة، تعليقان، تحذير واحد».';
+  String get sidebarLegendFootnote => 'تسمع قارئات الشاشة الشارات ضمن اسم الصفحة، مثل «الصفحة 1، معدّلة، تعليقان، تحذير واحد».';
 
   @override
   String get sidebarBadgeEdited => 'معدّلة';
@@ -6413,12 +6208,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiClientsServer => 'السماح لعملاء الذكاء الاصطناعي بالاتصال';
 
   @override
-  String get aiClientsServerDescription =>
-      'يمكن لتطبيقات الذكاء الاصطناعي على هذا الحاسوب، مثل Claude Desktop، قراءة المستندات المفتوحة في Ferman، وتغييرها حيث تسمح بذلك. لا شيء يستمع على الشبكة.';
+  String get aiClientsServerDescription => 'يمكن لتطبيقات الذكاء الاصطناعي على هذا الحاسوب، مثل Claude Desktop، قراءة المستندات المفتوحة في Ferman، وتغييرها حيث تسمح بذلك. لا شيء يستمع على الشبكة.';
 
   @override
-  String get aiClientsStartFailed =>
-      'لا يمكن لعملاء الذكاء الاصطناعي الاتصال: تعذّر على Ferman فتح اتصاله على هذا الحاسوب.';
+  String get aiClientsStartFailed => 'لا يمكن لعملاء الذكاء الاصطناعي الاتصال: تعذّر على Ferman فتح اتصاله على هذا الحاسوب.';
 
   @override
   String get aiClientsConnected => 'العملاء المتصلون';
@@ -6459,8 +6252,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiClientsCopied => 'تم نسخ الإعدادات';
 
   @override
-  String get aiClientsChatGpt =>
-      'لا يمكن لـ ChatGPT الاتصال بعد: فهو يصل إلى الخوادم من سحابة OpenAI فقط، ولا يفتح Ferman أي منفذ على الإنترنت.';
+  String get aiClientsChatGpt => 'لا يمكن لـ ChatGPT الاتصال بعد: فهو يصل إلى الخوادم من سحابة OpenAI فقط، ولا يفتح Ferman أي منفذ على الإنترنت.';
 
   @override
   String aiClientsSetUpDone(String client) {
@@ -6478,8 +6270,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get aiClientsSetUpFailedBody =>
-      'انسخ الإعدادات وأضفها إلى إعدادات العميل.';
+  String get aiClientsSetUpFailedBody => 'انسخ الإعدادات وأضفها إلى إعدادات العميل.';
 
   @override
   String aiClientsNotice(String names) {
@@ -6501,8 +6292,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsNetAiClients => 'عملاء الذكاء الاصطناعي على هذا الحاسوب';
 
   @override
-  String get settingsNetAiClientsDescription =>
-      'ما يقرؤه العميل المتصل يرسله إلى مزوّده الخاص باسم حسابك.';
+  String get settingsNetAiClientsDescription => 'ما يقرؤه العميل المتصل يرسله إلى مزوّده الخاص باسم حسابك.';
 
   @override
   String clientRequestEditSigned(String client) {
@@ -6520,8 +6310,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get clientRequestSaveBody =>
-      'يحفظه Ferman فوق ملفه، كما يفعل أمر الحفظ.';
+  String get clientRequestSaveBody => 'يحفظه Ferman فوق ملفه، كما يفعل أمر الحفظ.';
 
   @override
   String clientRequestWriteFile(String client) {
@@ -6554,8 +6343,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get clientRequestRestoreBody =>
-      'يحلّ الإصدار محل الملف. ويُحفظ عملك غير المحفوظ كإصدار أولًا.';
+  String get clientRequestRestoreBody => 'يحلّ الإصدار محل الملف. ويُحفظ عملك غير المحفوظ كإصدار أولًا.';
 
   @override
   String get clientRequestAllow => 'السماح';
@@ -6564,6 +6352,5 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clientRequestDeny => 'عدم السماح';
 
   @override
-  String get aiClientsClaudeNote =>
-      'يضيف «إعداد» Ferman إلى إعداداته. أعد تشغيله بعد ذلك.';
+  String get aiClientsClaudeNote => 'يضيف «إعداد» Ferman إلى إعداداته. أعد تشغيله بعد ذلك.';
 }

@@ -63,8 +63,7 @@ import 'app_localizations_tr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -72,8 +71,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -85,19 +83,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
     Locale('en'),
-    Locale('tr'),
+    Locale('tr')
   ];
 
   /// Title bar: tooltip and screen-reader name of the house button that shows the start screen, and the name of the home tab when the start screen shows (FmWindow t.home).
@@ -1285,7 +1282,7 @@ abstract class AppLocalizations {
   /// Text of the update-check row on the first-run privacy step (a1-2b, G24). Platform means the operating system.
   ///
   /// In en, this message translates to:
-  /// **'Once a day, sending only the version number and platform. You can turn it off.'**
+  /// **'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform. You can turn it off.'**
   String get onboardingPrivacyUpdatesBody;
 
   /// Title of the network use for downloading text-recognition (OCR) language packs, on the first-run privacy step (a1-2b, G24). Name OCR packs: the interface languages are bundled with the app and never downloaded (G52).
@@ -1873,7 +1870,7 @@ abstract class AppLocalizations {
   /// Description of Check for updates in Settings › Privacy (a11-1h). Platform means the operating system.
   ///
   /// In en, this message translates to:
-  /// **'Once a day; sends only the version number and platform.'**
+  /// **'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform.'**
   String get settingsNetUpdatesDescription;
 
   /// A network use in Settings › Privacy (a11-1h): asking whether a certificate was revoked. Not enabled until the owner decides (design gap G51).
@@ -2522,12 +2519,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}}'**
-  String sidebarSearchSummary(
-    int matches,
-    String matchesText,
-    int pages,
-    String pagesText,
-  );
+  String sidebarSearchSummary(int matches, String matchesText, int pages, String pagesText);
 
   /// Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files.
   ///
@@ -6979,14 +6971,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{author}, {kind} on page {page}{resolved, plural, =0{} other{, resolved}}{count, plural, =0{} =1{, {shown} reply} other{, {shown} replies}}'**
-  String commentCardLabel(
-    String author,
-    String kind,
-    String page,
-    int resolved,
-    int count,
-    String shown,
-  );
+  String commentCardLabel(String author, String kind, String page, int resolved, int count, String shown);
 
   /// History step.
   ///
@@ -10187,8 +10172,7 @@ abstract class AppLocalizations {
   String get aiClientsClaudeNote;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -10197,28 +10181,26 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en', 'tr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar':
-      return AppLocalizationsAr();
-    case 'en':
-      return AppLocalizationsEn();
-    case 'tr':
-      return AppLocalizationsTr();
+    case 'ar': return AppLocalizationsAr();
+    case 'en': return AppLocalizationsEn();
+    case 'tr': return AppLocalizationsTr();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

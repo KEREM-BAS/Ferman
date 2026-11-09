@@ -490,8 +490,8 @@ void main() {
       }
       expect(
         find.text(
-          'Once a day, sending only the version number and platform. You can '
-          'turn it off.',
+          'Once a day, Ferman asks GitHub whether a newer version exists, '
+          'sending only its version number and platform. You can turn it off.',
         ),
         findsOneWidget,
       );

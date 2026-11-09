@@ -855,7 +855,7 @@
   "@onboardingPrivacyUpdatesTitle": {
     "description": "Title of the first of the four times Ferman uses the network, on the first-run privacy step (a1-2b, design gap G24)."
   },
-  "onboardingPrivacyUpdatesBody": "Once a day, sending only the version number and platform. You can turn it off.",
+  "onboardingPrivacyUpdatesBody": "Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform. You can turn it off.",
   "@onboardingPrivacyUpdatesBody": {
     "description": "Text of the update-check row on the first-run privacy step (a1-2b, G24). Platform means the operating system."
   },
@@ -1257,7 +1257,7 @@
   "@settingsNetUpdates": {
     "description": "A network use in Settings › Privacy (a11-1h)."
   },
-  "settingsNetUpdatesDescription": "Once a day; sends only the version number and platform.",
+  "settingsNetUpdatesDescription": "Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform.",
   "@settingsNetUpdatesDescription": {
     "description": "Description of Check for updates in Settings › Privacy (a11-1h). Platform means the operating system."
   },

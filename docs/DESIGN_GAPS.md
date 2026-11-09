@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-175 entries: 152 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1, G166 to G170 with Comment in its W2, G171 and G172 with its W3, G173 to G175 with W4, G176 to G181 with W5 and G182 to G185 with W6.
+184 entries: 161 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1, G166 to G170 with Comment in its W2, G171 and G172 with its W3, G173 to G175 with W4, G176 to G181 with W5 and G182 to G185 with W6. G186 to G194 were found while planning M5 and recorded in its W0.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 17 | 38 | 1 | 1 | 2 | 1 | 2 |
+| Entries | 59 | 35 | 17 | 57 | 10 | 1 | 2 | 1 | 2 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -247,6 +247,15 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G183](#g183) | conflict | M4 | Start: drop targets | Combine into one PDF: what a drop does | Decided |
 | [G184](#g184) | missing state | M4 | Sidebar: Pages | Page badges: where the legend opens | Decided |
 | [G185](#g185) | missing state | M4 | Document properties | Document properties: editing in place | Decided |
+| [G186](#g186) | conflict | M5 | Updates: wording | The update check is described three ways in a1-2b, a11-1h and a11-1i | Decided |
+| [G187](#g187) | missing state | M5 | Updates: banner | a11-4's banner is "dismissible" but draws no dismiss button | Decided |
+| [G188](#g188) | missing state | M5 | Updates: restart | Restart now and the update restart with unsaved work | Decided |
+| [G189](#g189) | conflict | M5 | Updates: What's new | What's new: sample copy, the "(3.13)" reference and when it shows | Decided |
+| [G190](#g190) | conflict | M5 | About | About: the build line, the copyright and the credits | Decided |
+| [G191](#g191) | missing screen | M5 | Settings: Privacy | The network activity log has no board | Decided |
+| [G192](#g192) | missing screen | M5 | Release: macOS DMG | The DMG window is not drawn | Decided |
+| [G193](#g193) | ambiguity | M5 | Updates: links | Where Release notes and Full release notes go | Decided |
+| [G194](#g194) | missing state | M5 | Updates: managed installs | "Managed by Flathub" and the AppImage, which G53 does not name | Decided |
 
 ## Entries
 
@@ -445,7 +454,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** none drawn; references to mirror: `f6a`, `a1-4c`, `a1-10b`, `a11-1w`
 - **Gap or conflict:** No Linux board exists, and "Linux" appears in no board. The platform prop of FmWindow, FmStart, FmSettings, FmEditPanel and FmDocPanel allows only `mac` and `win`, and FmBoard has no `linux` option. The Linux title bar and caption buttons, the dialog button order, Ctrl shortcuts and file-manager wording ("Show in Files") are undefined.
 - **Decision:** Linux gets a custom title bar: client-side decorations drawn by Ferman, matching the custom title bars on macOS and Windows, with the caption buttons at the end in the GNOME (libadwaita) style. Ctrl shortcuts, Cancel on the left and the affirmative button on the right in dialogs, and "Show in Files" wording. Until Linux boards exist, the Linux chrome is built from the Windows chrome of f6a with those changes and recorded in goldens. Boards for the main editor (like f6a), Start (like a1-4c), one dialog (like a1-10b) and Settings (like a11-1w) are asked for in the re-export. The owner chose the packaging on 2026-10-16 ([Q12](QUESTIONS.md#q12)): a Flatpak on Flathub plus an AppImage, in M5.
-- **Status:** Decided. The owner chose the custom title bar on 2026-10-15 ([Q12](QUESTIONS.md#q12), window chrome). Was Needs owner. On 2026-10-16 the Dialog component took over the platform's button order (`DialogButtonOrder`, [COMPONENTS.md](COMPONENTS.md) decision 43): Cancel first on macOS and Linux, last on Windows.
+- **Status:** Decided. The owner chose the custom title bar on 2026-10-15 ([Q12](QUESTIONS.md#q12), window chrome). Was Needs owner. On 2026-10-16 the Dialog component took over the platform's button order (`DialogButtonOrder`, [COMPONENTS.md](COMPONENTS.md) decision 43): Cancel first on macOS and Linux, last on Windows. With the M5 plan (2026-11-09, decision 12): the custom title bar stays in the Flatpak and the AppImage, and the `.desktop` file sets `StartupWMClass=ferman` so the shell groups the window with its launcher.
 - **Evidence:** A search of all files for Linux, GNOME, GTK, Ubuntu, Fedora, Flatpak, AppImage, libadwaita, Nautilus and "Show in Files" finds nothing. The Index describes FmWindow as "Desktop shell: macOS and Windows chrome".
 
 <a id="g16"></a>
@@ -946,7 +955,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a11-1i`, `a11-1h`, `a11-4`, `a11-4b`, `a13-16`
 - **Gap or conflict:** Drawn: "Up to date" (a11-1i: "Ferman 1.4.2 is up to date · Checked today at 09:12", Check now, a daily-check switch, automatic download off, a Stable or Beta channel), "Update ready" (the a11-4 banner) and What's new after an update (a11-4b). Missing: checking, update available (automatic download is off by default in a11-1i), downloading, failed or offline (only mobile a13-16 mentions offline), the check turned off (possible in both a11-1h and a11-1i), and updates managed by a package manager (Homebrew, winget, Linux packages).
 - **Decision:** Build all of these states in a11-1i and the a11-4 banner from design-system components. When a package manager installed Ferman, automatic updating is off and the pane says which manager handles updates ("Managed by Homebrew", "Managed by winget"). The endpoint and payload were settled on 2026-10-16 ([Q15](QUESTIONS.md#q15), [ADR 0015](adr/0015-privacy-and-network.md)): one signed manifest per channel, served from GitHub (Releases or Pages).
-- **Status:** Decided. The owner answered [Q15](QUESTIONS.md#q15) on 2026-10-16: the release files for macOS, Windows and Linux are published on GitHub Releases, and the update check reads one signed manifest per channel served from GitHub (Releases or Pages), sending no identifiers. Was Needs owner.
+- **Status:** Decided. The owner answered [Q15](QUESTIONS.md#q15) on 2026-10-16: the release files for macOS, Windows and Linux are published on GitHub Releases, and the update check reads one signed manifest per channel served from GitHub (Releases or Pages), sending no identifiers. Was Needs owner. With the M5 plan (2026-11-09): [ADR 0023](adr/0023-updates-and-release-packaging.md) decides the managed states: "Managed by Homebrew", "Managed by winget" and "Managed by Flathub", detected on the device, never download or install anything; an AppImage never updates itself and offers the release page ([G194](#g194)). The manifests are assets of a fixed `update-manifest` release, not GitHub Pages.
 - **Evidence:** A search for "checking for update", "update available", "downloading update", "managed by", Homebrew, winget and Linux finds nothing.
 
 <a id="g54"></a>
@@ -1847,6 +1856,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Status:** Decided. Built in M3 (W4): a1-9d's banner, lock, status and Save a copy… for a file with every write bit off (B120); the board draws it without edits, and an edit makes it an unsaved document whose Save shows a11-7d with Save as….
 - **Evidence:** `design/01 First run and files.dc.html` lines 155–215. Implemented in `app/lib/features/shell/open_files.dart`, `app/lib/features/shell/open_problem_tab.dart`, `app/lib/features/shell/open_problem_notice.dart` and `crates/ferman-api/src/facade/error.rs` (`diagnosis_details`); tests: `app/test/features/start/open_files_test.dart`, `crates/ferman-api/tests/open.rs`.
 
+<a id="g120"></a>
+
 ### G120 · What each document tab keeps
 
 - **Type:** gap
@@ -1857,6 +1868,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** per document: the view (layout, zoom, fit, tool, scroll), the layers shown, the search with its bar, the sidebar tab, the outline's folds and each sidebar list's scroll. Per window: the mode, whether the sidebar and the panel show, and the panel preference. A new document starts on Pages at the default view. The state lives outside the widgets, keyed by the document's id (`documentMemoryProvider`), so it also survives hiding the sidebar (B091) and going home; only the shown document holds engine views and bitmaps. Whether this replaces ADR 0011's "Open documents are kept in an IndexedStack too" is [Q23](QUESTIONS.md#q23).
 - **Status:** Decided.
 - **Evidence:** `app/lib/features/viewer/viewer_state.dart` (`DocumentMemory`, `SidebarMemory`), `app/lib/features/shell/shell_state.dart` (`ShellSidebarTab`), `app/lib/features/shell/shell_sidebar_tabs.dart`; tests in `app/test/features/shell/shell_sidebar_tabs_test.dart`, `app/test/features/shell/tab_overflow_test.dart` and `app/test/features/start/open_files_test.dart`.
+
+<a id="g121"></a>
 
 ### G121 · Show all open documents and Close other documents
 
@@ -1869,6 +1882,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Status:** Decided.
 - **Evidence:** `design/01 First run and files.dc.html` lines 231–238 and 401–410. Implemented in `app/lib/features/shell/shell_title_bar.dart` (`_MoreDocuments`), `app/lib/features/shell/open_files.dart` (`closeOthers`) and `app/lib/features/shell/shortcuts.dart` (`showAllDocuments`); tests in `app/test/features/shell/tab_overflow_test.dart`.
 
+<a id="g122"></a>
+
 ### G122 · Document properties: tabs, fonts and the facts no board pins down
 
 - **Type:** conflict
@@ -1879,6 +1894,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The tabs follow the boards: Summary (a2-7's grid read row by row, then the fonts table), Security (a2-10b) and Advanced (the document's language and G100's scripts row in a8-3's words). Fonts show Embedded, Subset or Not embedded with their type; the notes keep only the sentence that is true without the coverage check ("Only the characters already used.", "Subset: only characters already in the file."), and since M3 the notes add what the engine reads (`Engine::font_coverage`): a font that is not embedded names the family PDFium really draws it in, from the first page that uses it (none when that is the same face, as `TimesNewRomanPSMT` in Times New Roman, or when the page has no answer), so the name depends on the machine's fonts, not always a2-7's IBM Plex Sans; a subset names up to four letters of the UI language's alphabet that an edit cannot draw in it, step 1's own test, with "…" for more (a2-7's "Typing ‘ğ’ needs a substitute.", FmDocPanel's "No ‘ğ’, ‘Ğ’."). A Type 3 font counts as embedded, as the file draws it. The page size is the first page's, named A4 or Letter when it is one, either way up, within 1 pt. "Made with" is the producer, else the creator (a2-7's "LibreOffice 24.8" is a LibreOffice file's producer). The password reads "No password", "Password to open" or "Owner password" (a file whose permissions are all allowed counts as having none), and Encryption adds "owner password" only when a permission is off. Signing reads the form-filling bit, which covers signature fields (PDF 32000-1 table 22, bit 9). Empty metadata shows a2-10b's "None". Values from the file keep their own direction (bidi isolation), and the panel's path breaks anywhere, as FmDocPanel's `word-break: break-all`. Advanced's XMP and output intents wait for the engine (B122). ⌘D (Ctrl+D) opens the dialog in every mode but Organize, where it duplicates pages (a14-1d); a restricted document's Security tab carries a2-10b's Unlock with owner password…, which closes the dialog for G106's.
 - **Status:** Decided.
 - **Evidence:** `design/02 View.dc.html` lines 184–200 (a2-7) and 247–257 (a2-10b); `design/FmDocPanel.dc.html`. Implemented in `app/lib/features/shell/document_properties.dart` (`DocumentFacts`, `DocumentPanelSections`, `DocumentPropertiesDialog`), `app/lib/features/shell/shell_panel.dart` and `app/lib/features/shell/shell_canvas.dart`; tests in `app/test/features/shell/document_properties_test.dart`.
+
+<a id="g123"></a>
 
 ### G123 · The default-app question: when it asks again, and Ferman already the default
 
@@ -1891,6 +1908,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Status:** Decided.
 - **Evidence:** `design/01 First run and files.dc.html` (a1-3, its note). Implemented in `app/lib/features/start/default_app_prompt.dart`, `app/lib/features/settings/general_pane.dart` and `app/lib/platform/default_app.dart`; tests in `app/test/features/start/default_app_prompt_test.dart`.
 
+<a id="g124"></a>
+
 ### G124 · Saving an attachment: what follows the save panel
 
 - **Type:** missing state
@@ -1901,6 +1920,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A save that works shows nothing: the file is where the person put it, as a system save panel leads them to expect. One that fails shows a danger toast at the bottom end of the canvas, where a1-9f's toast goes, titled "“name” wasn't saved", with Dismiss, staying as errors do (a11-6). Its message says the file could not be written there for a file error, and otherwise the engine's message (a damaged attachment). The suggested name drops any folder the file's name carries. The file is never opened.
 - **Status:** Decided.
 - **Evidence:** `design/02 View.dc.html` (a2-3b). Implemented in `app/lib/features/shell/attachment_save.dart` and `app/lib/features/shell/shell_canvas.dart`; tests in `app/test/features/shell/shell_sidebar_tabs_test.dart`.
+
+<a id="g125"></a>
 
 ### G125 · Edit mode's hover before typing works
 
@@ -2568,3 +2589,120 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A click or Enter edits Title, Author, Subject or Keywords in place; Enter or leaving the field keeps, Esc cancels; each change is one step.
 - **Status:** Decided.
 - **Evidence:** `app/lib/features/shell/document_parts.dart`.
+
+<a id="g186"></a>
+
+### G186 · The update check is described three ways in a1-2b, a11-1h and a11-1i
+
+- **Type:** conflict
+- **Milestone:** M5
+- **Area:** Updates: wording
+- **Artboards:** `a1-2b`, `a11-1h`, `a11-1i`
+- **Gap or conflict:** ROADMAP's M5 criterion asks for the same words wherever the update check is described. a1-2b says "Once a day, sending only the version number and platform. You can turn it off.", a11-1h says "Once a day; sends only the version number and platform.", and a11-1i's switch "Check for updates once a day" says nothing about what is sent or to whom.
+- **Decision:** One sentence, approved by the owner, in all three places: "Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform." a1-2b and a11-1h use it as the row's body; a11-1i keeps the switch label and gets the sentence as the switch's description. Turkish and Arabic carry the same sentence.
+- **Status:** Decided. The owner approved the wording with the M5 plan on 2026-11-09 (question 5).
+- **Evidence:** `01 First run and files.dc.html` (a1-2b's update row), FmSettings `nets` (a11-1h) and its updates pane (a11-1i).
+
+<a id="g187"></a>
+
+### G187 · a11-4's banner is "dismissible" but draws no dismiss button
+
+- **Type:** missing state
+- **Milestone:** M5
+- **Area:** Updates: banner
+- **Artboards:** `a11-4`
+- **Gap or conflict:** a11-4's note says the Update ready bar is "shown once per version, dismissible", but the bar draws only What's new and Restart now.
+- **Decision:** The banner gets the DS Banner's dismiss button. Dismissing hides it for that version only; a newer version shows it again. The update still installs on quit when it is downloaded.
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 6).
+- **Evidence:** `11b App.dc.html` a11-4 (`actUpdate`).
+
+<a id="g188"></a>
+
+### G188 · Restart now and the update restart with unsaved work
+
+- **Type:** missing state
+- **Milestone:** M5
+- **Area:** Updates: restart
+- **Artboards:** `a11-4`
+- **Gap or conflict:** a11-4's note says unsaved documents "are restored after the restart", but no board draws how: the a1-12 recovery prompt would ask about files the user never lost.
+- **Decision:** Quitting for an update (Restart now, or install on quit) writes recovery files through the existing journal ([ADR 0008](adr/0008-file-safety-and-saving.md)) instead of asking to save. The next launch reopens them without the a1-12 prompt, and one toast says they were restored ([ADR 0023](adr/0023-updates-and-release-packaging.md)).
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 5).
+- **Evidence:** `11b App.dc.html` a11-4's note.
+
+<a id="g189"></a>
+
+### G189 · What's new: sample copy, the "(3.13)" reference and when it shows
+
+- **Type:** conflict
+- **Milestone:** M5
+- **Area:** Updates: What's new
+- **Artboards:** `a11-4b`
+- **Gap or conflict:** a11-4b's rows are sample copy for an invented version, one row ends in the board reference "(3.13)", and the board does not say when the dialog opens or where "Full release notes" goes.
+- **Decision:** Each release's What's new is written in the ARB files, so it is translated, at most five rows, with no board references. It shows once after an update and from the banner's What's new. "Full release notes" opens the GitHub release page through the OS, like a link in a document, so Ferman itself connects to nothing ([G193](#g193)).
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 7).
+- **Evidence:** `11b App.dc.html` a11-4b (`notesLink`, the Translate in place row).
+
+<a id="g190"></a>
+
+### G190 · About: the build line, the copyright and the credits
+
+- **Type:** conflict
+- **Milestone:** M5
+- **Area:** About
+- **Artboards:** `a11-5`
+- **Gap or conflict:** a11-5 shows "Version 1.4.2 · build 2026.10.08 (arm64)", while ROADMAP asks for the version and the commit; it has no copyright line; its credit line claims contributors "in 31 countries" and translations "in 21 languages", which are invented; and it does not say where Help translate Ferman and Support the project go.
+- **Decision:** The build line reads "Version 0.1.0 · commit 1a2b3c4 (arm64)", and Copy version info copies it. A copyright line reads "© The Ferman Authors" ([Q14](QUESTIONS.md#q14)). The credit line drops the two counts. Source code opens the repository through the OS; Help translate Ferman opens the translation section of CONTRIBUTING on GitHub until Weblate exists ([B085](BACKLOG.md#open)); Support the project stays disabled until the owner names a destination ([B086](BACKLOG.md#open)). The licence stays as [G13](#g13) decided.
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 8, and the owner's answer to question 7).
+- **Evidence:** `11b App.dc.html` lines 66 to 68 (a11-5).
+
+<a id="g191"></a>
+
+### G191 · The network activity log has no board
+
+- **Type:** missing screen
+- **Milestone:** M5
+- **Area:** Settings: Privacy
+- **Artboards:** `a11-1h`
+- **Gap or conflict:** a11-1h draws "Show network activity…" but no board draws what it opens ([G50](#g50) says only that it lists the connections Ferman made).
+- **Decision:** A DS dialog opened from Privacy lists each request with its time, purpose, host, bytes and result, newest first, with Clear. Nothing else is stored: no document names, the last 1,000 entries or 30 days ([M5 plan](PROGRESS.md#m5-plan), W1).
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 9).
+- **Evidence:** FmSettings `activity` ("Show network activity…").
+
+<a id="g192"></a>
+
+### G192 · The DMG window is not drawn
+
+- **Type:** missing screen
+- **Milestone:** M5
+- **Area:** Release: macOS DMG
+- **Artboards:** none drawn
+- **Gap or conflict:** No board draws the macOS disk image a user opens to install Ferman.
+- **Decision:** A plain `hdiutil` DMG with the app and an Applications link, with no background art.
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 11).
+- **Evidence:** A search of all files for DMG and disk image finds nothing.
+
+<a id="g193"></a>
+
+### G193 · Where Release notes and Full release notes go
+
+- **Type:** ambiguity
+- **Milestone:** M5
+- **Area:** Updates: links
+- **Artboards:** `a11-1i`, `a11-4b`
+- **Gap or conflict:** a11-1i draws a "Release notes" link and a11-4b a "Full release notes" link; neither says where they lead, and an in-app page would mean a connection that is not one of the listed network uses.
+- **Decision:** Both open the version's GitHub release page in the default browser through the OS, like a link in a document. Ferman itself makes no connection, so nothing is written to the network activity log.
+- **Status:** Decided. With the M5 plan (2026-11-09, decision 7).
+- **Evidence:** FmSettings updates pane ("Release notes"), `11b App.dc.html` a11-4b (`notesLink`).
+
+<a id="g194"></a>
+
+### G194 · "Managed by Flathub" and the AppImage, which G53 does not name
+
+- **Type:** missing state
+- **Milestone:** M5
+- **Area:** Updates: managed installs
+- **Artboards:** `a11-1i`
+- **Gap or conflict:** [G53](#g53) names "Managed by Homebrew" and "Managed by winget" but not the Linux packages the owner chose ([Q12](QUESTIONS.md#q12)): a Flatpak from Flathub and an AppImage.
+- **Decision:** A Flatpak install shows "Managed by Flathub" in a11-1i and never downloads or installs anything. An AppImage never updates itself: when the check is on and finds a newer version, a11-1i offers the release page, opened through the OS ([ADR 0023](adr/0023-updates-and-release-packaging.md)).
+- **Status:** Decided. With the M5 plan (2026-11-09).
+- **Evidence:** FmSettings updates pane; [G53](#g53).
