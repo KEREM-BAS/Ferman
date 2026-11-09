@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -304,7 +305,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellToolPageLabels => 'Sayfa etiketleri';
 
   @override
-  String get shellOrganizeHint => 'Sıralamak için sayfaları sürükleyin. Daha fazlası için sağ tıklayın.';
+  String get shellOrganizeHint =>
+      'Sıralamak için sayfaları sürükleyin. Daha fazlası için sağ tıklayın.';
 
   @override
   String get shellConvertTools => 'Dönüştürme araçları';
@@ -441,7 +443,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get shellWindowTooNarrow => 'Bu paneli göstermek için pencereyi genişletin';
+  String get shellWindowTooNarrow =>
+      'Bu paneli göstermek için pencereyi genişletin';
 
   @override
   String get shellAttachFile => 'Dosya ekle';
@@ -527,13 +530,16 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageSubtitle => 'Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz.';
+  String get onboardingLanguageSubtitle =>
+      'Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz.';
 
   @override
-  String get onboardingLanguageSearchPlaceholder => 'Dil ara · Search languages · Sprache suchen · ابحث عن لغة';
+  String get onboardingLanguageSearchPlaceholder =>
+      'Dil ara · Search languages · Sprache suchen · ابحث عن لغة';
 
   @override
-  String get onboardingLanguageSearchPlaceholderPhone => 'Ara · Search · Suchen · بحث';
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      'Ara · Search · Suchen · بحث';
 
   @override
   String get onboardingLanguageSearchLabel => 'Dil ara';
@@ -544,13 +550,15 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get onboardingLanguageNoMatchBody => 'Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın.';
+  String get onboardingLanguageNoMatchBody =>
+      'Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın.';
 
   @override
   String get onboardingLanguageMissing => 'Dilinizi bulamadınız mı?';
 
   @override
-  String get onboardingLanguageHelpTranslate => 'Ferman’ı çevirmeye yardım edin';
+  String get onboardingLanguageHelpTranslate =>
+      'Ferman’ı çevirmeye yardım edin';
 
   @override
   String get onboardingContinue => 'Devam';
@@ -581,73 +589,88 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboardingEditTitle => 'Her PDF’i bir belge gibi düzenleyin';
 
   @override
-  String get onboardingEditBody => 'Herhangi bir metne tıklayıp yazın. Ferman özgün yazı tipini, boyutu ve aralıkları korur, paragrafı çerçevesinin içinde yeniden yerleştirir.';
+  String get onboardingEditBody =>
+      'Herhangi bir metne tıklayıp yazın. Ferman özgün yazı tipini, boyutu ve aralıkları korur, paragrafı çerçevesinin içinde yeniden yerleştirir.';
 
   @override
-  String get onboardingEditGlyphs => 'Bir yazı tipinde bir karakter eksikse Ferman hangisi olduğunu ve yerine ne kullanacağını söyler.';
+  String get onboardingEditGlyphs =>
+      'Bir yazı tipinde bir karakter eksikse Ferman hangisi olduğunu ve yerine ne kullanacağını söyler.';
 
   @override
   String get onboardingPrivacyTitle => 'Her şey cihazınızda kalır';
 
   @override
-  String get onboardingPrivacyBody => 'Ferman belgeleri bu bilgisayarda açar, düzenler, imzalar ve metinlerini tanır. Hesap oluşturmanız ya da internete bir şey yüklemeniz gerekmez.';
+  String get onboardingPrivacyBody =>
+      'Ferman belgeleri bu bilgisayarda açar, düzenler, imzalar ve metinlerini tanır. Hesap oluşturmanız ya da internete bir şey yüklemeniz gerekmez.';
 
   @override
   String get onboardingPrivacyFilesTitle => 'Dosyalar bu cihazda kalır';
 
   @override
-  String get onboardingPrivacyFilesBody => 'Ferman dosyaları bulundukları yerde okur ve kaydeder. Hiçbir şey internete yüklenmez.';
+  String get onboardingPrivacyFilesBody =>
+      'Ferman dosyaları bulundukları yerde okur ve kaydeder. Hiçbir şey internete yüklenmez.';
 
   @override
   String get onboardingPrivacyOfflineTitle => 'Çevrimdışı çalışır';
 
   @override
-  String get onboardingPrivacyOfflineBody => 'Düzenleme, OCR, imzalama ve dönüştürme için internet bağlantısı gerekmez.';
+  String get onboardingPrivacyOfflineBody =>
+      'Düzenleme, OCR, imzalama ve dönüştürme için internet bağlantısı gerekmez.';
 
   @override
   String get onboardingPrivacyAccountTitle => 'Hesap yok';
 
   @override
-  String get onboardingPrivacyAccountBody => 'Kaydolmanız ya da oturum açmanız gerekmez.';
+  String get onboardingPrivacyAccountBody =>
+      'Kaydolmanız ya da oturum açmanız gerekmez.';
 
   @override
   String get onboardingPrivacyTelemetryTitle => 'Telemetri yok';
 
   @override
-  String get onboardingPrivacyTelemetryBody => 'Ferman kullanım verileri veya çökme raporları toplamaz.';
+  String get onboardingPrivacyTelemetryBody =>
+      'Ferman kullanım verileri veya çökme raporları toplamaz.';
 
   @override
-  String get onboardingPrivacyUpdatesTitle => 'İsteğe bağlı tek bir güncelleme denetimi';
+  String get onboardingPrivacyUpdatesTitle =>
+      'İsteğe bağlı tek bir güncelleme denetimi';
 
   @override
-  String get onboardingPrivacyUpdatesBody => 'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir. Kapatabilirsiniz.';
+  String get onboardingPrivacyUpdatesBody =>
+      'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir. Kapatabilirsiniz.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'OCR dil paketleri';
 
   @override
-  String get onboardingPrivacyPacksBody => 'Yalnızca siz istediğinizde indirilir. Kullanmadığınız sürece kapalıdır.';
+  String get onboardingPrivacyPacksBody =>
+      'Yalnızca siz istediğinizde indirilir. Kullanmadığınız sürece kapalıdır.';
 
   @override
   String get onboardingPrivacyAiTitle => 'Yapay zekâ yardımcısı';
 
   @override
-  String get onboardingPrivacyAiBody => 'Bu bilgisayarda çalışır ya da kendi API anahtarınızı kullanır. Kullanmadığınız sürece kapalıdır.';
+  String get onboardingPrivacyAiBody =>
+      'Bu bilgisayarda çalışır ya da kendi API anahtarınızı kullanır. Kullanmadığınız sürece kapalıdır.';
 
   @override
   String get onboardingPrivacyTimestampsTitle => 'İmza zaman damgaları';
 
   @override
-  String get onboardingPrivacyTimestampsBody => 'İmzaladığınızda seçtiğiniz zaman damgası sunucusuna bağlanır. Kullanmadığınız sürece kapalıdır.';
+  String get onboardingPrivacyTimestampsBody =>
+      'İmzaladığınızda seçtiğiniz zaman damgası sunucusuna bağlanır. Kullanmadığınız sürece kapalıdır.';
 
   @override
-  String get onboardingPrivacySettingsLink => 'Tüm ağ bağlantılarını Ayarlar › Gizlilik bölümünde görün';
+  String get onboardingPrivacySettingsLink =>
+      'Tüm ağ bağlantılarını Ayarlar › Gizlilik bölümünde görün';
 
   @override
-  String get onboardingFreeTitle => 'Sonsuza dek ücretsiz, hiçbir şey kilitli değil';
+  String get onboardingFreeTitle =>
+      'Sonsuza dek ücretsiz, hiçbir şey kilitli değil';
 
   @override
-  String get onboardingFreeBody => 'Tüm özellikler dâhildir; deneme süresi, abonelik ya da ücretli sürüm yoktur. Ferman açık kaynaklıdır, bu yüzden herkes kodunu okuyabilir, denetleyebilir ve geliştirebilir.';
+  String get onboardingFreeBody =>
+      'Tüm özellikler dâhildir; deneme süresi, abonelik ya da ücretli sürüm yoktur. Ferman açık kaynaklıdır, bu yüzden herkes kodunu okuyabilir, denetleyebilir ve geliştirebilir.';
 
   @override
   String get onboardingFreeLicence => 'Lisans: Apache-2.0';
@@ -709,19 +732,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startCreatePdf => 'PDF oluştur';
 
   @override
-  String get startCreatePdfDescription => 'Boş bir sayfadan, dosyalardan veya panodan';
+  String get startCreatePdfDescription =>
+      'Boş bir sayfadan, dosyalardan veya panodan';
 
   @override
   String get startCombineFiles => 'Dosyaları birleştir';
 
   @override
-  String get startCombineFilesDescription => 'Birden çok dosyayı tek bir PDF’de birleştirin';
+  String get startCombineFilesDescription =>
+      'Birden çok dosyayı tek bir PDF’de birleştirin';
 
   @override
   String get startScanToPdf => 'PDF olarak tara';
 
   @override
-  String get startScanToPdfDescription => 'Tarayıcıdan veya telefon kamerasından';
+  String get startScanToPdfDescription =>
+      'Tarayıcıdan veya telefon kamerasından';
 
   @override
   String get startQuickTools => 'Hızlı araçlar';
@@ -751,7 +777,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startDropSubtitle => 'veya bilgisayarınızdan bir PDF açın.';
 
   @override
-  String get startDropFootnote => 'Dosyalar bu cihazda kalır. Ferman onları hiçbir yere yüklemez.';
+  String get startDropFootnote =>
+      'Dosyalar bu cihazda kalır. Ferman onları hiçbir yere yüklemez.';
 
   @override
   String get startOpenPdf => 'PDF aç';
@@ -760,10 +787,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startNewBlankPdf => 'Yeni boş PDF';
 
   @override
-  String get startEngineUnavailableTitle => 'Ferman şu anda PDF dosyalarını açamıyor.';
+  String get startEngineUnavailableTitle =>
+      'Ferman şu anda PDF dosyalarını açamıyor.';
 
   @override
-  String get startEngineUnavailableMessage => 'Ferman’ın bir parçası eksik ya da bu sürümle uyuşmuyor. Ferman’ı yeniden yüklemek bunu düzeltir.';
+  String get startEngineUnavailableMessage =>
+      'Ferman’ın bir parçası eksik ya da bu sürümle uyuşmuyor. Ferman’ı yeniden yüklemek bunu düzeltir.';
 
   @override
   String get startCopyTechnicalDetails => 'Teknik ayrıntıları kopyala';
@@ -781,7 +810,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsSaveFailedTitle => 'Ayarlarınız kaydedilemedi.';
 
   @override
-  String get settingsSaveFailedMessage => 'Bu değişiklik, Ferman’ı kapatana kadar geçerli.';
+  String get settingsSaveFailedMessage =>
+      'Bu değişiklik, Ferman’ı kapatana kadar geçerli.';
 
   @override
   String get settingsSaveFailedDismiss => 'Kapat';
@@ -853,19 +883,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsPagePaper => 'Kâğıt beyazı';
 
   @override
-  String get settingsPagePaperDescription => 'Sayfalar tam olarak basıldığı gibi görünür.';
+  String get settingsPagePaperDescription =>
+      'Sayfalar tam olarak basıldığı gibi görünür.';
 
   @override
   String get settingsPageDimmed => 'Kısık parlaklık';
 
   @override
-  String get settingsPageDimmedDescription => 'Hafif sepya tonuyla biraz daha koyu. Renkler ters çevrilmez.';
+  String get settingsPageDimmedDescription =>
+      'Hafif sepya tonuyla biraz daha koyu. Renkler ters çevrilmez.';
 
   @override
   String get settingsPageDark => 'Koyu okuma modu';
 
   @override
-  String get settingsPageDarkDescription => 'Koyu sayfalarda açık renkli metin. Görseller renklerini korur. Baskıya yansımaz.';
+  String get settingsPageDarkDescription =>
+      'Koyu sayfalarda açık renkli metin. Görseller renklerini korur. Baskıya yansımaz.';
 
   @override
   String get settingsPageLayout => 'Yeni belgeler için sayfa düzeni';
@@ -892,22 +925,26 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsReopen => 'Son oturumdaki belgeleri yeniden aç';
 
   @override
-  String get settingsDefaultApp => 'Ferman, bir PDF’ye çift tıkladığınızda açılan uygulama olabilir.';
+  String get settingsDefaultApp =>
+      'Ferman, bir PDF’ye çift tıkladığınızda açılan uygulama olabilir.';
 
   @override
-  String get settingsDefaultAppWindows => 'Ferman, bir PDF’ye çift tıkladığınızda açılan uygulama olabilir. Windows’ta bunu Ayarlar › Varsayılan uygulamalar bölümünden seçebilirsiniz.';
+  String get settingsDefaultAppWindows =>
+      'Ferman, bir PDF’ye çift tıkladığınızda açılan uygulama olabilir. Windows’ta bunu Ayarlar › Varsayılan uygulamalar bölümünden seçebilirsiniz.';
 
   @override
   String get settingsMakeDefault => 'Ferman’ı varsayılan yap…';
 
   @override
-  String get settingsAppLanguageHint => 'Ferman dili hemen değiştirir. Yeniden başlatmanız gerekmez.';
+  String get settingsAppLanguageHint =>
+      'Ferman dili hemen değiştirir. Yeniden başlatmanız gerekmez.';
 
   @override
   String get settingsDocumentLanguages => 'Belge dilleri';
 
   @override
-  String get settingsDocumentLanguagesHint => 'Bir belge dilini belirtmediğinde metin tanıma, yazım denetimi ve tireleme için kullanılır.';
+  String get settingsDocumentLanguagesHint =>
+      'Bir belge dilini belirtmediğinde metin tanıma, yazım denetimi ve tireleme için kullanılır.';
 
   @override
   String get settingsAddDocumentLanguage => 'Ekle';
@@ -916,37 +953,43 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsPrivacyStatement => 'Ferman hiçbir şey toplamaz.';
 
   @override
-  String get settingsPrivacyStatementBody => 'Kullanım verisi, çökme raporu, belge içeriği ya da hesap yok. Dosyalar bu cihazda kalır. Ferman yalnızca şu durumlarda internete bağlanır ve her birini kapatabilirsiniz:';
+  String get settingsPrivacyStatementBody =>
+      'Kullanım verisi, çökme raporu, belge içeriği ya da hesap yok. Dosyalar bu cihazda kalır. Ferman yalnızca şu durumlarda internete bağlanır ve her birini kapatabilirsiniz:';
 
   @override
   String get settingsNetUpdates => 'Güncellemeleri denetle';
 
   @override
-  String get settingsNetUpdatesDescription => 'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir.';
+  String get settingsNetUpdatesDescription =>
+      'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir.';
 
   @override
   String get settingsNetSignatureChecks => 'İmza denetimleri';
 
   @override
-  String get settingsNetSignatureChecksDescription => 'İmzaladığınızda veya imzalı bir dosya açtığınızda, sertifika sağlayıcısına sertifikanın iptal edilip edilmediğini sorar.';
+  String get settingsNetSignatureChecksDescription =>
+      'İmzaladığınızda veya imzalı bir dosya açtığınızda, sertifika sağlayıcısına sertifikanın iptal edilip edilmediğini sorar.';
 
   @override
   String get settingsNetTimestamps => 'Zaman damgaları';
 
   @override
-  String get settingsNetTimestampsDescription => 'İmzaladığınızda seçtiğiniz zaman damgası sunucusuna bağlanır.';
+  String get settingsNetTimestampsDescription =>
+      'İmzaladığınızda seçtiğiniz zaman damgası sunucusuna bağlanır.';
 
   @override
   String get settingsNetDownloads => 'Başlattığınız indirmeler';
 
   @override
-  String get settingsNetDownloadsDescription => 'OCR dil paketleri ve yapay zekâ yardımcısının modeli.';
+  String get settingsNetDownloadsDescription =>
+      'OCR dil paketleri ve yapay zekâ yardımcısının modeli.';
 
   @override
   String get settingsNetAiProvider => 'Yapay zekâ sağlayıcınız';
 
   @override
-  String get settingsNetAiProviderDescription => 'Yalnızca kendi API anahtarınızı eklerseniz. Kapalı.';
+  String get settingsNetAiProviderDescription =>
+      'Yalnızca kendi API anahtarınızı eklerseniz. Kapalı.';
 
   @override
   String get settingsNetworkActivity => 'Ağ etkinliğini göster…';
@@ -1002,7 +1045,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get viewerPageFailedReason => 'Bu sayfadaki bir öğe okunamıyor. Belgenin geri kalanı her zamanki gibi çalışır.';
+  String get viewerPageFailedReason =>
+      'Bu sayfadaki bir öğe okunamıyor. Belgenin geri kalanı her zamanki gibi çalışır.';
 
   @override
   String get viewerTryAgain => 'Yeniden dene';
@@ -1021,46 +1065,55 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editNotEditableTitle => 'Bu metin düzenlenemez';
 
   @override
-  String get editTipImageOnly => 'Bu sayfada henüz metin yok · Düzenlemek için metni tanıyın';
+  String get editTipImageOnly =>
+      'Bu sayfada henüz metin yok · Düzenlemek için metni tanıyın';
 
   @override
-  String get editBodyImageOnly => 'Bu sayfa, taranmış bir belge gibi bir görüntü. Düzenlemek için metnini tanıyın.';
+  String get editBodyImageOnly =>
+      'Bu sayfa, taranmış bir belge gibi bir görüntü. Düzenlemek için metnini tanıyın.';
 
   @override
-  String get editTipOutlinedText => 'Bu metin şekillerle çizilmiş, düzenlenemez';
+  String get editTipOutlinedText =>
+      'Bu metin şekillerle çizilmiş, düzenlenemez';
 
   @override
-  String get editBodyOutlinedText => 'Bu metin harflerle değil, vektör şekillerle çizilmiş. Ferman onu yeniden çizmeden değiştiremez.';
+  String get editBodyOutlinedText =>
+      'Bu metin harflerle değil, vektör şekillerle çizilmiş. Ferman onu yeniden çizmeden değiştiremez.';
 
   @override
   String get editTipUnknownText => 'Ferman bu metnin harflerini okuyamıyor';
 
   @override
-  String get editBodyUnknownText => 'Yazı tipi, şekillerinin hangi harfler olduğunu söylemiyor; Ferman onu güvenle değiştiremez.';
+  String get editBodyUnknownText =>
+      'Yazı tipi, şekillerinin hangi harfler olduğunu söylemiyor; Ferman onu güvenle değiştiremez.';
 
   @override
   String get editTipInvisibleText => 'Bu metin görünmez';
 
   @override
-  String get editBodyInvisibleText => 'Bu, taramanın üzerindeki tanınmış metin gibi gizli bir metin. Ferman onu düzenlemez.';
+  String get editBodyInvisibleText =>
+      'Bu, taramanın üzerindeki tanınmış metin gibi gizli bir metin. Ferman onu düzenlemez.';
 
   @override
   String get editTipRestricted => 'Yazarın izinleri düzenlemeye izin vermiyor';
 
   @override
-  String get editBodyRestricted => 'Düzenlemek için belgenin kilidini sahip parolasıyla açın.';
+  String get editBodyRestricted =>
+      'Düzenlemek için belgenin kilidini sahip parolasıyla açın.';
 
   @override
   String get editTipReadOnly => 'Bu belge salt okunur';
 
   @override
-  String get editBodyReadOnly => 'Ferman bu belgeyi yalnızca görüntülemek için açtı; metni değiştirilemez.';
+  String get editBodyReadOnly =>
+      'Ferman bu belgeyi yalnızca görüntülemek için açtı; metni değiştirilemez.';
 
   @override
   String get editTipDamaged => 'Bu belge onarıldı, düzenlenemez';
 
   @override
-  String get editBodyDamaged => 'Ferman bu dosyada sorunlar buldu ve onu yalnızca görüntülemek için açtı. Düzenlemek için onarılmış bir kopyasını kaydedin.';
+  String get editBodyDamaged =>
+      'Ferman bu dosyada sorunlar buldu ve onu yalnızca görüntülemek için açtı. Düzenlemek için onarılmış bir kopyasını kaydedin.';
 
   @override
   String get editTipSignature => 'Bu metin bir imzanın parçası';
@@ -1072,19 +1125,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editTipAnnotation => 'Bu metin bir yoruma veya form alanına ait';
 
   @override
-  String get editBodyAnnotation => 'Yorum veya Doldur ve İmzala modunda değiştirin.';
+  String get editBodyAnnotation =>
+      'Yorum veya Doldur ve İmzala modunda değiştirin.';
 
   @override
   String get editTipTooComplex => 'Ferman bu metni güvenle değiştiremez';
 
   @override
-  String get editBodyLimits => 'Bu sayfa, Ferman’ın güvenle yeniden yazması için fazla büyük veya karmaşık.';
+  String get editBodyLimits =>
+      'Bu sayfa, Ferman’ın güvenle yeniden yazması için fazla büyük veya karmaşık.';
 
   @override
-  String get editBodySplit => 'Çizim komutları sayfanın iki parçasına bölünmüş; Ferman onu güvenle yeniden yazamaz.';
+  String get editBodySplit =>
+      'Çizim komutları sayfanın iki parçasına bölünmüş; Ferman onu güvenle yeniden yazamaz.';
 
   @override
-  String get editBodySkewed => 'Bu metin eğik; Ferman onu güvenle yeniden yazamaz.';
+  String get editBodySkewed =>
+      'Bu metin eğik; Ferman onu güvenle yeniden yazamaz.';
 
   @override
   String get viewerTextMenu => 'Metin';
@@ -1101,34 +1158,40 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sidebarNoBookmarks => 'Yer işareti yok';
 
   @override
-  String get sidebarNoBookmarksBody => 'Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin.';
+  String get sidebarNoBookmarksBody =>
+      'Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin.';
 
   @override
   String get sidebarNoAttachments => 'Ek yok';
 
   @override
-  String get sidebarNoAttachmentsBody => 'Bu PDF’ye gömülü dosyalar burada görünür.';
+  String get sidebarNoAttachmentsBody =>
+      'Bu PDF’ye gömülü dosyalar burada görünür.';
 
   @override
   String get sidebarNoLayers => 'Katman yok';
 
   @override
-  String get sidebarNoLayersBody => 'Bu belgede gösterilip gizlenebilecek katman yok.';
+  String get sidebarNoLayersBody =>
+      'Bu belgede gösterilip gizlenebilecek katman yok.';
 
   @override
   String get sidebarNoSignatures => 'İmza yok';
 
   @override
-  String get sidebarNoSignaturesBody => 'Bu belge imzalı değil ve imza alanı içermiyor.';
+  String get sidebarNoSignaturesBody =>
+      'Bu belge imzalı değil ve imza alanı içermiyor.';
 
   @override
-  String get sidebarAttachmentsNote => 'Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz.';
+  String get sidebarAttachmentsNote =>
+      'Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz.';
 
   @override
   String get sidebarSaveAttachment => 'Eki farklı kaydet…';
 
   @override
-  String get sidebarLayersNote => 'Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır.';
+  String get sidebarLayersNote =>
+      'Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır.';
 
   @override
   String get sidebarHideLayer => 'Katmanı gizle';
@@ -1140,7 +1203,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sidebarLayerLocked => 'Kilitli';
 
   @override
-  String get sidebarSignatureCheckingLater => 'İmza denetimi gelecek bir sürümde sunulacak.';
+  String get sidebarSignatureCheckingLater =>
+      'İmza denetimi gelecek bir sürümde sunulacak.';
 
   @override
   String get sidebarEmptySignatureField => 'Boş imza alanı';
@@ -1191,7 +1255,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get findIgnoreAccents => 'Aksanları ve noktalı/noktasız i’yi yok say';
 
   @override
-  String get findIgnoreAccentsBody => '“i”; İ, ı ve î’yi bulur; “c”, ç’yi bulur; “kira”, KİRA’yı bulur. Varsayılan olarak açık.';
+  String get findIgnoreAccentsBody =>
+      '“i”; İ, ı ve î’yi bulur; “c”, ç’yi bulur; “kira”, KİRA’yı bulur. Varsayılan olarak açık.';
 
   @override
   String get findLookIn => 'Şurada ara';
@@ -1275,10 +1340,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sidebarSearchNoTextTitle => 'Aranacak metin yok';
 
   @override
-  String get sidebarSearchNoTextBody => 'Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.';
+  String get sidebarSearchNoTextBody =>
+      'Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.';
 
   @override
-  String sidebarSearchSummary(int matches, String matchesText, int pages, String pagesText) {
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
       pages,
       locale: localeName,
@@ -1349,7 +1420,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get dropOverlayCombine => 'Tek bir PDF’de birleştir';
 
   @override
-  String get startDropStripTitle => 'Dosyaları bu pencerede herhangi bir yere bırakın';
+  String get startDropStripTitle =>
+      'Dosyaları bu pencerede herhangi bir yere bırakın';
 
   @override
   String get startDropStripSubtitle => 'PDF dosyaları sekmelerde açılır.';
@@ -1367,7 +1439,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startPhoneEmptyTitle => 'Henüz belge yok';
 
   @override
-  String get startPhoneEmptySubtitle => 'Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın.';
+  String get startPhoneEmptySubtitle =>
+      'Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın.';
 
   @override
   String get startPhoneOpen => 'Dosya aç';
@@ -1436,7 +1509,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startColumnOpened => 'Son açılma';
 
   @override
-  String get startRecentFooter => 'Son dosyalar yalnızca bu cihazda listelenir.';
+  String get startRecentFooter =>
+      'Son dosyalar yalnızca bu cihazda listelenir.';
 
   @override
   String get startClearList => 'Listeyi temizle';
@@ -1507,16 +1581,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get selectSheetClose => 'Kapat';
 
   @override
-  String get errorInternal => 'Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın.';
+  String get errorInternal =>
+      'Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın.';
 
   @override
-  String get errorFileNotFound => 'Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir.';
+  String get errorFileNotFound =>
+      'Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir.';
 
   @override
-  String get errorFilePermissionDenied => 'Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın.';
+  String get errorFilePermissionDenied =>
+      'Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın.';
 
   @override
-  String get errorFileRead => 'Ferman dosyayı bulunduğu diskten okuyamadı. Diskin hâlâ bağlı olduğuna bakıp yeniden deneyin.';
+  String get errorFileRead =>
+      'Ferman dosyayı bulunduğu diskten okuyamadı. Diskin hâlâ bağlı olduğuna bakıp yeniden deneyin.';
 
   @override
   String errorNotPdf(String name) {
@@ -1527,25 +1605,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String get errorPasswordRequired => 'Bu PDF parolayla korunuyor';
 
   @override
-  String get errorWrongPassword => 'Bu parola işe yaramadı. Caps Lock’a ve klavye düzenine bakın: Türkçe klavyede ı ile i ayrı tuşlardır.';
+  String get errorWrongPassword =>
+      'Bu parola işe yaramadı. Caps Lock’a ve klavye düzenine bakın: Türkçe klavyede ı ile i ayrı tuşlardır.';
 
   @override
-  String get errorDamaged => 'Dosya bozuk ve Ferman onaramıyor. Dosyayı yeniden edinmeyi deneyin.';
+  String get errorDamaged =>
+      'Dosya bozuk ve Ferman onaramıyor. Dosyayı yeniden edinmeyi deneyin.';
 
   @override
-  String get errorDamagedTruncated => 'Dosya sonuna gelmeden bitiyor, geri kalanı eksik. Büyük olasılıkla indirilirken ya da kopyalanırken yarıda kesildi. Dosyayı yeniden edinmeyi deneyin.';
+  String get errorDamagedTruncated =>
+      'Dosya sonuna gelmeden bitiyor, geri kalanı eksik. Büyük olasılıkla indirilirken ya da kopyalanırken yarıda kesildi. Dosyayı yeniden edinmeyi deneyin.';
 
   @override
-  String get errorDamagedEmpty => 'Dosya bir PDF gibi başlıyor, ama sonrası okunamıyor. Dosyayı yeniden edinmeyi deneyin.';
+  String get errorDamagedEmpty =>
+      'Dosya bir PDF gibi başlıyor, ama sonrası okunamıyor. Dosyayı yeniden edinmeyi deneyin.';
 
   @override
-  String get errorUnsupported => 'Ferman’ın henüz desteklemediği bir şey kullanıyor, örneğin sertifikayla şifreleme.';
+  String get errorUnsupported =>
+      'Ferman’ın henüz desteklemediği bir şey kullanıyor, örneğin sertifikayla şifreleme.';
 
   @override
-  String get errorTooComplex => 'Bu dosya Ferman’ın güvenlik sınırları içinde açılamayacak kadar karmaşık. Diğer belgeleriniz açık ve değişmedi.';
+  String get errorTooComplex =>
+      'Bu dosya Ferman’ın güvenlik sınırları içinde açılamayacak kadar karmaşık. Diğer belgeleriniz açık ve değişmedi.';
 
   @override
-  String get errorOutOfMemory => 'Dosya açılırken bilgisayarın belleği yetmedi. Diğer belgeleriniz açık ve değişmedi.';
+  String get errorOutOfMemory =>
+      'Dosya açılırken bilgisayarın belleği yetmedi. Diğer belgeleriniz açık ve değişmedi.';
 
   @override
   String openClosedTitle(String name) {
@@ -1594,10 +1679,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get restrictedTitle => 'Belgenin yazarı bu belgeyi kısıtladı.';
 
   @override
-  String get restrictedBody => 'Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı.';
+  String get restrictedBody =>
+      'Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı.';
 
   @override
-  String get restrictedBodyOther => 'Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı.';
+  String get restrictedBodyOther =>
+      'Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı.';
 
   @override
   String get restrictedUnlock => 'Sahip parolasıyla kilidi aç…';
@@ -1627,7 +1714,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get scriptsBody => 'Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir.';
+  String get scriptsBody =>
+      'Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir.';
 
   @override
   String get scriptsDismiss => 'Kapat';
@@ -1686,7 +1774,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get repairTrailerTitle => 'Dosyanın trailer bölümü eksikti';
 
   @override
-  String get repairTrailerBody => 'Ferman, belgenin nereden başladığını nesneleri arasında buldu.';
+  String get repairTrailerBody =>
+      'Ferman, belgenin nereden başladığını nesneleri arasında buldu.';
 
   @override
   String repairStreamsTitle(int count, String countText) {
@@ -1712,13 +1801,15 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get repairUnreadableBody => 'Bunları kullanan sayfalar ve özellikler eksik olabilir.';
+  String get repairUnreadableBody =>
+      'Bunları kullanan sayfalar ve özellikler eksik olabilir.';
 
   @override
   String get xfaTitle => 'Bu bir XFA formu; Ferman bu formu gösteremiyor.';
 
   @override
-  String get xfaBody => 'XFA, Adobe’ın artık sürdürmediği bir biçimdir. Dosyayı Adobe Acrobat Reader’da açın ya da gönderenden normal bir PDF isteyin.';
+  String get xfaBody =>
+      'XFA, Adobe’ın artık sürdürmediği bir biçimdir. Dosyayı Adobe Acrobat Reader’da açın ya da gönderenden normal bir PDF isteyin.';
 
   @override
   String disagreeTitle(String name) {
@@ -1726,7 +1817,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get disagreeBody => 'Bu dosyanın bazı bölümleri birbiriyle uyuşmuyor; bu, dosyanın hasarlı olduğu anlamına gelebilir. Dosyayı her zamanki gibi okuyabilirsiniz.';
+  String get disagreeBody =>
+      'Bu dosyanın bazı bölümleri birbiriyle uyuşmuyor; bu, dosyanın hasarlı olduğu anlamına gelebilir. Dosyayı her zamanki gibi okuyabilirsiniz.';
 
   @override
   String get propertiesFile => 'Dosya';
@@ -1821,7 +1913,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get propertiesPartial => 'Kısmi';
 
   @override
-  String get propertiesPartialNote => 'Alt küme: yalnızca dosyada zaten bulunan karakterler.';
+  String get propertiesPartialNote =>
+      'Alt küme: yalnızca dosyada zaten bulunan karakterler.';
 
   @override
   String propertiesPartialMissing(String letters) {
@@ -1964,7 +2057,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Dosya açılırken çalışan $countText betik. Ferman bunları hiçbir zaman çalıştırmaz.',
+      other:
+          'Dosya açılırken çalışan $countText betik. Ferman bunları hiçbir zaman çalıştırmaz.',
     );
     return '$_temp0';
   }
@@ -1981,7 +2075,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get defaultAppTitle => 'PDF’ler Ferman ile açılsın mı?';
 
   @override
-  String get defaultAppDescription => 'Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister.';
+  String get defaultAppDescription =>
+      'Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister.';
 
   @override
   String get defaultAppNow => 'PDF’leri şu an açan:';
@@ -2009,7 +2104,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get attachmentWriteFailed => 'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
+  String get attachmentWriteFailed =>
+      'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
 
   @override
   String editStepText(String page) {
@@ -2028,7 +2124,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get editHistoryNote => 'Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.';
+  String get editHistoryNote =>
+      'Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.';
 
   @override
   String get editNothingToUndo => 'Geri alınacak bir şey yok';
@@ -2078,7 +2175,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get editOverflowExtendPageEdge => 'Blok uzarsa sayfanın kenarını aşar.';
+  String get editOverflowExtendPageEdge =>
+      'Blok uzarsa sayfanın kenarını aşar.';
 
   @override
   String editOverflowTightenShort(int count, String n) {
@@ -2104,7 +2202,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editTotalsTitle => 'Toplamlar güncellenmez';
 
   @override
-  String get editTotalsBody => 'PDF, sayıları metin olarak saklar. İşaretli hücreler hâlâ eski tutarları gösteriyor.';
+  String get editTotalsBody =>
+      'PDF, sayıları metin olarak saklar. İşaretli hücreler hâlâ eski tutarları gösteriyor.';
 
   @override
   String editTotalsReview(int count, String n) {
@@ -2263,7 +2362,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get saveAsNameInvalid => 'Dosya adı / veya \\ içeremez.';
 
   @override
-  String get saveAsNameTaken => 'Bu adda bir dosya zaten var. Başka bir ad seçin ya da Başka bir konum… seçeneğini kullanın.';
+  String get saveAsNameTaken =>
+      'Bu adda bir dosya zaten var. Başka bir ad seçin ya da Başka bir konum… seçeneğini kullanın.';
 
   @override
   String get saveAsWhere => 'Konum';
@@ -2278,7 +2378,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get saveAsPdf => 'PDF';
 
   @override
-  String get saveAsPdfDescription => 'Standart PDF. Metin Ferman’da ve diğer düzenleyicilerde düzenlenebilir kalır.';
+  String get saveAsPdfDescription =>
+      'Standart PDF. Metin Ferman’da ve diğer düzenleyicilerde düzenlenebilir kalır.';
 
   @override
   String get saveAsPdfA => 'PDF/A-2b, arşivleme için';
@@ -2312,31 +2413,40 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get saveFailedDiskFull => 'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedDiskFull =>
+      'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedPermission => 'Bu dosyayı veya klasörünü değiştirme izniniz yok. Başka bir yere kaydedin ya da dosyanın sahibinden erişim isteyin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedPermission =>
+      'Bu dosyayı veya klasörünü değiştirme izniniz yok. Başka bir yere kaydedin ya da dosyanın sahibinden erişim isteyin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedLocked => 'Dosya başka bir uygulamada açık ve kilitli. Oradan kapatıp yeniden deneyin ya da başka bir yere kopya kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedLocked =>
+      'Dosya başka bir uygulamada açık ve kilitli. Oradan kapatıp yeniden deneyin ya da başka bir yere kopya kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedRename => 'Ferman değişikliklerinizi geçici bir dosyaya yazdı ama özgün dosyanın yerine koyamadı. Özgün dosya değişmedi, düzenlemeleriniz korunuyor.';
+  String get saveFailedRename =>
+      'Ferman değişikliklerinizi geçici bir dosyaya yazdı ama özgün dosyanın yerine koyamadı. Özgün dosya değişmedi, düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedVolume => 'Bu dosyanın bulunduğu sürücünün bağlantısı kesildi. Sürücüyü yeniden bağlayıp tekrar deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedVolume =>
+      'Bu dosyanın bulunduğu sürücünün bağlantısı kesildi. Sürücüyü yeniden bağlayıp tekrar deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedHardLinked => 'Bu dosyaya başka bağlantılar var ve dosyayı değiştirmek onları bozar. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedHardLinked =>
+      'Bu dosyaya başka bağlantılar var ve dosyayı değiştirmek onları bozar. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedNotOwner => 'Bu dosya başka birine ait ve Ferman sahibini koruyamadı. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedNotOwner =>
+      'Bu dosya başka birine ait ve Ferman sahibini koruyamadı. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedOther => 'Ferman dosyayı yazamadı. Yeniden deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+  String get saveFailedOther =>
+      'Ferman dosyayı yazamadı. Yeniden deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
-  String get saveFailedNoRecoveryCopy => 'Kurtarma kopyası yok: Ferman onu da yazamadı; bu düzenlemeler siz kaydedene kadar yalnızca bu pencerede.';
+  String get saveFailedNoRecoveryCopy =>
+      'Kurtarma kopyası yok: Ferman onu da yazamadı; bu düzenlemeler siz kaydedene kadar yalnızca bu pencerede.';
 
   @override
   String get saveTryAgain => 'Yeniden dene';
@@ -2348,10 +2458,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get saveAsEllipsis => 'Farklı kaydet…';
 
   @override
-  String get saveToastDiskFull => 'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin.';
+  String get saveToastDiskFull =>
+      'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin.';
 
   @override
-  String get saveToastOther => 'Düzenlemeleriniz korunuyor. Yeniden deneyin ya da başka bir yere kaydedin.';
+  String get saveToastOther =>
+      'Düzenlemeleriniz korunuyor. Yeniden deneyin ya da başka bir yere kaydedin.';
 
   @override
   String get saveToastDismiss => 'Kapat';
@@ -2362,7 +2474,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get fileChangedBody => 'Açıkken başka bir uygulama ya da eşitleme hizmeti değiştirdi. Yeniden yükleyin, kendi sürümünüzü koruyun ya da önce karşılaştırın.';
+  String get fileChangedBody =>
+      'Açıkken başka bir uygulama ya da eşitleme hizmeti değiştirdi. Yeniden yükleyin, kendi sürümünüzü koruyun ya da önce karşılaştırın.';
 
   @override
   String get fileChangedCompare => 'Karşılaştır';
@@ -2379,16 +2492,19 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get optimizeSignedBody => 'Ferman dosyanın tamamını önceki sürümleri olmadan yeniden yazar. İmzaları artık geçerli olmaz.';
+  String get optimizeSignedBody =>
+      'Ferman dosyanın tamamını önceki sürümleri olmadan yeniden yazar. İmzaları artık geçerli olmaz.';
 
   @override
   String get optimizeAction => 'Optimize et ve temizle';
 
   @override
-  String get saveAsNameInvalidWindows => 'Dosya adı şunları içeremez: / \\ : * ? \" < > |';
+  String get saveAsNameInvalidWindows =>
+      'Dosya adı şunları içeremez: / \\ : * ? \" < > |';
 
   @override
-  String get saveAsNameOpen => 'Bu dosya başka bir sekmede açık. Orada kapatın ya da başka bir ad seçin.';
+  String get saveAsNameOpen =>
+      'Bu dosya başka bir sekmede açık. Orada kapatın ya da başka bir ad seçin.';
 
   @override
   String saveAsCopyDescriptionHere(String name) {
@@ -2401,7 +2517,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get readOnlyFileBody => 'Ferman bu dosyaya değişiklik kaydedemez. Değişikliklerinizi saklamak için bir kopya kaydedin.';
+  String get readOnlyFileBody =>
+      'Ferman bu dosyaya değişiklik kaydedemez. Değişikliklerinizi saklamak için bir kopya kaydedin.';
 
   @override
   String get readOnlyFileSaveCopy => 'Kopya kaydet…';
@@ -2444,7 +2561,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get quitReviewBody => 'Ferman işaretli belgeleri kaydedip çıkar. İşaretsiz belgelerdeki değişiklikler kaybolur.';
+  String get quitReviewBody =>
+      'Ferman işaretli belgeleri kaydedip çıkar. İşaretsiz belgelerdeki değişiklikler kaybolur.';
 
   @override
   String get quitReviewSave => 'Kaydet ve çık';
@@ -2463,10 +2581,12 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get recoveryBody => 'Ferman beklenmedik şekilde kapandı. Bu belgelerde kaydedilmemiş değişiklikler vardı ve Ferman her birinin bir kopyasını bu cihazda tuttu.';
+  String get recoveryBody =>
+      'Ferman beklenmedik şekilde kapandı. Bu belgelerde kaydedilmemiş değişiklikler vardı ve Ferman her birinin bir kopyasını bu cihazda tuttu.';
 
   @override
-  String get recoveryNote => 'Geri yüklenen belgeler kaydedilmemiş olarak açılır; diskteki dosyalar değişmedi. Hiçbir yere bir şey gönderilmedi.';
+  String get recoveryNote =>
+      'Geri yüklenen belgeler kaydedilmemiş olarak açılır; diskteki dosyalar değişmedi. Hiçbir yere bir şey gönderilmedi.';
 
   @override
   String get recoveryDiscard => 'Kopyaları sil';
@@ -2485,7 +2605,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get recoveryChangedBadge => 'Diskte değişti';
 
   @override
-  String get recoveryChangedBody => 'Diskteki dosya, Ferman’ın kopyasından sonra değişti. Geri yüklenen sürüm yeni bir adla açılır; hiçbiri üzerine yazılmaz.';
+  String get recoveryChangedBody =>
+      'Diskteki dosya, Ferman’ın kopyasından sonra değişti. Geri yüklenen sürüm yeni bir adla açılır; hiçbiri üzerine yazılmaz.';
 
   @override
   String get recoveryFileSuffix => 'kurtarılan';
@@ -2503,8 +2624,10 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '“$name” belgesinde $formatted imza var. Belgedeki her değişiklik bu imzaları geçersiz kılar.',
-      one: '“$name” belgesinde 1 imza var. Belgedeki her değişiklik bu imzayı geçersiz kılar.',
+      other:
+          '“$name” belgesinde $formatted imza var. Belgedeki her değişiklik bu imzaları geçersiz kılar.',
+      one:
+          '“$name” belgesinde 1 imza var. Belgedeki her değişiklik bu imzayı geçersiz kılar.',
     );
     return '$_temp0';
   }
@@ -2527,7 +2650,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String signedCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem (kopya $numberString)';
@@ -2550,7 +2674,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get signedBannerBody => 'Belgeyi imzalandıktan sonra değiştirdiniz. Kaydettiğinizde imzalar belgede kalır ama geçersiz görünür.';
+  String get signedBannerBody =>
+      'Belgeyi imzalandıktan sonra değiştirdiniz. Kaydettiğinizde imzalar belgede kalır ama geçersiz görünür.';
 
   @override
   String get signedBannerReview => 'Düzenlemeleri incele';
@@ -2567,19 +2692,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsEditMarks => 'Düzenlenen metni işaretle';
 
   @override
-  String get settingsEditMarksNote => 'Yalnızca düzenlerken Ferman’da görünür. Dosyaya hiç kaydedilmez, yazdırılmaz.';
+  String get settingsEditMarksNote =>
+      'Yalnızca düzenlerken Ferman’da görünür. Dosyaya hiç kaydedilmez, yazdırılmaz.';
 
   @override
-  String get settingsMissingGlyphs => 'Bir yazı tipinde karakter eksik olduğunda';
+  String get settingsMissingGlyphs =>
+      'Bir yazı tipinde karakter eksik olduğunda';
 
   @override
-  String get settingsMissingGlyphsSimilar => 'Benzer bir yazı tipi kullan ve bunu söyle';
+  String get settingsMissingGlyphsSimilar =>
+      'Benzer bir yazı tipi kullan ve bunu söyle';
 
   @override
   String get settingsMissingGlyphsAsk => 'Her seferinde sor';
 
   @override
-  String get settingsMissingGlyphsMark => 'Özgün yazı tipini koru ve karakteri işaretle';
+  String get settingsMissingGlyphsMark =>
+      'Özgün yazı tipini koru ve karakteri işaretle';
 
   @override
   String get settingsFontForNewText => 'Yeni metnin yazı tipi';
@@ -2594,7 +2723,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsKeepVersions30 => '30 gün saklanır';
 
   @override
-  String get settingsReflow => 'Yazarken paragraflar çerçevelerinin içinde yeniden aksın';
+  String get settingsReflow =>
+      'Yazarken paragraflar çerçevelerinin içinde yeniden aksın';
 
   @override
   String get settingsRecoveryCopies => 'Her dakika bir kurtarma kopyası kaydet';
@@ -2606,13 +2736,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsSavingEnd => 'Değişiklikler dosyanın sonuna eklenir';
 
   @override
-  String get settingsSavingEndBody => 'Kaydetme hızlı kalır, değişikliklerinizden önce atılan imzalar bozulmaz. Ferman tüm dosyayı yalnızca siz Optimize et ve temizle’yi seçtiğinizde yeniden yazar.';
+  String get settingsSavingEndBody =>
+      'Kaydetme hızlı kalır, değişikliklerinizden önce atılan imzalar bozulmaz. Ferman tüm dosyayı yalnızca siz Optimize et ve temizle’yi seçtiğinizde yeniden yazar.';
 
   @override
   String get settingsOptimize => 'Optimize et ve temizle';
 
   @override
-  String get settingsOptimizeBody => 'Küçültmek için tüm dosyayı yeniden yazar. Komut paletinden çalıştırın; kendiliğinden hiç kullanılmaz ve imzalar geçersiz olacaksa Ferman önce sizi uyarır.';
+  String get settingsOptimizeBody =>
+      'Küçültmek için tüm dosyayı yeniden yazar. Komut paletinden çalıştırın; kendiliğinden hiç kullanılmaz ve imzalar geçersiz olacaksa Ferman önce sizi uyarır.';
 
   @override
   String get settingsRecoveryFolder => 'Kurtarma kopyaları';
@@ -2626,7 +2758,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellEditForbidden => 'Yazar düzenlemeye izin vermiyor';
 
   @override
-  String get editPanelTipClick => 'Bloğunu seçmek için herhangi bir metne tıklayın. İmleci yerleştirmek için yeniden tıklayın.';
+  String get editPanelTipClick =>
+      'Bloğunu seçmek için herhangi bir metne tıklayın. İmleci yerleştirmek için yeniden tıklayın.';
 
   @override
   String editPanelTipKeys(String key) {
@@ -2686,7 +2819,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get reviewEmptyTitle => 'Henüz düzenleme yok';
 
   @override
-  String get reviewEmptyBody => 'Bu oturumda yaptığınız değişiklikler burada görünür. Liste belgeyi kapattığınızda temizlenir; önceki oturumlar Sürüm geçmişi’nde.';
+  String get reviewEmptyBody =>
+      'Bu oturumda yaptığınız değişiklikler burada görünür. Liste belgeyi kapattığınızda temizlenir; önceki oturumlar Sürüm geçmişi’nde.';
 
   @override
   String get reviewNothing => 'Henüz düzenleme yok';
@@ -2755,7 +2889,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$shown sonraki düzenleme bu değişikliğe bağlı. “$change” geri alınırsa onlar da kaldırılır.',
+      other:
+          '$shown sonraki düzenleme bu değişikliğe bağlı. “$change” geri alınırsa onlar da kaldırılır.',
     );
     return '$_temp0';
   }
@@ -2847,13 +2982,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editPanelUnderline => 'Altı çizili';
 
   @override
-  String get editPanelNoBold => 'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek başka bir kalınlığı yok.';
+  String get editPanelNoBold =>
+      'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek başka bir kalınlığı yok.';
 
   @override
-  String get editPanelNoItalic => 'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek bir italiği yok.';
+  String get editPanelNoItalic =>
+      'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek bir italiği yok.';
 
   @override
-  String get editPanelNoUnderline => 'PDF yazı tiplerinde geçilecek bir altı çizili biçim yoktur ve Ferman sahtesini çizmez.';
+  String get editPanelNoUnderline =>
+      'PDF yazı tiplerinde geçilecek bir altı çizili biçim yoktur ve Ferman sahtesini çizmez.';
 
   @override
   String get editPanelAlignment => 'Hizalama';
@@ -2898,7 +3036,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editPanelReset => 'Metin stilini sıfırla';
 
   @override
-  String get editPanelHint => 'Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin.';
+  String get editPanelHint =>
+      'Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin.';
 
   @override
   String get editBarLabel => 'Seçimi biçimlendir';
@@ -2986,7 +3125,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get tasksEmptyTitle => 'Arka plan görevi yok';
 
   @override
-  String get tasksEmptyBody => 'Dosya sıkıştırma gibi uzun işler, siz çalışmaya devam ederken burada yürür.';
+  String get tasksEmptyBody =>
+      'Dosya sıkıştırma gibi uzun işler, siz çalışmaya devam ederken burada yürür.';
 
   @override
   String tasksRunning(int count, String formatted) {
@@ -3016,7 +3156,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get taskCancelBody => 'Şimdiye kadarki işi silinir ve geride dosya kalmaz.';
+  String get taskCancelBody =>
+      'Şimdiye kadarki işi silinir ve geride dosya kalmaz.';
 
   @override
   String get taskKeepRunning => 'Sürmeye devam etsin';
@@ -3035,7 +3176,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get tasksQuitBody => 'Çıkmak onları iptal eder; geride yarım dosya kalmaz.';
+  String get tasksQuitBody =>
+      'Çıkmak onları iptal eder; geride yarım dosya kalmaz.';
 
   @override
   String get tasksQuitKeep => 'Çalışmaya devam et';
@@ -3220,7 +3362,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$pages. Düzenleme geçmişini kaldırarak kaydedene ya da Optimize et ve temizle’yi seçene kadar dosyada kalır.',
+      other:
+          '$pages. Düzenleme geçmişini kaldırarak kaydedene ya da Optimize et ve temizle’yi seçene kadar dosyada kalır.',
     );
     return '$_temp0';
   }
@@ -3435,7 +3578,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get labelsTitle => 'Sayfa etiketleri';
 
   @override
-  String get labelsDescription => 'Sayfaların Ferman’da, diğer PDF uygulamalarında ve yazdırırken nasıl numaralanacağını seçin.';
+  String get labelsDescription =>
+      'Sayfaların Ferman’da, diğer PDF uygulamalarında ve yazdırırken nasıl numaralanacağını seçin.';
 
   @override
   String get labelsColumnPages => 'Sayfalar';
@@ -3483,7 +3627,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get labelsPrint => 'Numaraları sayfalara da bas';
 
   @override
-  String get labelsPrintNote => 'Altbilgi olarak eklenir. Zaten numara gösteren sayfalar atlanır.';
+  String get labelsPrintNote =>
+      'Altbilgi olarak eklenir. Zaten numara gösteren sayfalar atlanır.';
 
   @override
   String get labelsApply => 'Etiketleri uygula';
@@ -3605,7 +3750,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sourceUnlock => 'Kilidi aç';
 
   @override
-  String get sourceForbidden => 'Bu dosya sayfalarının alınmasına izin vermiyor. Sahip parolası bu kısıtlamayı kaldırır.';
+  String get sourceForbidden =>
+      'Bu dosya sayfalarının alınmasına izin vermiyor. Sahip parolası bu kısıtlamayı kaldırır.';
 
   @override
   String get sourceUnreadable => 'Ferman bu dosyayı okuyamıyor.';
@@ -3617,10 +3763,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get replaceThese => 'Bu belgedeki sayfalar';
 
   @override
-  String get replaceFewer => 'Dosyadan daha az sayfa geliyor: bu sayfaların kalanı silinir.';
+  String get replaceFewer =>
+      'Dosyadan daha az sayfa geliyor: bu sayfaların kalanı silinir.';
 
   @override
-  String get replaceMore => 'Dosyadan daha çok sayfa geliyor: fazlası sonuncunun ardına eklenir.';
+  String get replaceMore =>
+      'Dosyadan daha çok sayfa geliyor: fazlası sonuncunun ardına eklenir.';
 
   @override
   String replaceAction(int count, String formatted) {
@@ -3732,7 +3880,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get combineEmptyTitle => 'Henüz dosya yok';
 
   @override
-  String get combineEmptyBody => 'Tek bir yeni dosyada birleştirmek için PDF veya görsel ekleyin.';
+  String get combineEmptyBody =>
+      'Tek bir yeni dosyada birleştirmek için PDF veya görsel ekleyin.';
 
   @override
   String get combineDrag => 'Sıralamak için sürükleyin';
@@ -3762,10 +3911,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get combineNeedsPassword => 'Kilitli: eklemek için parolasını girin.';
 
   @override
-  String get combineWrongPassword => 'Bu parola dosyayı açmıyor. Yeniden deneyin.';
+  String get combineWrongPassword =>
+      'Bu parola dosyayı açmıyor. Yeniden deneyin.';
 
   @override
-  String get combineOwnerPassword => 'Bu dosya birleştirmeye izin vermiyor. Eklemek için sahip parolasını girin.';
+  String get combineOwnerPassword =>
+      'Bu dosya birleştirmeye izin vermiyor. Eklemek için sahip parolasını girin.';
 
   @override
   String get combineUnreadable => 'Ferman bu dosyayı okuyamıyor.';
@@ -3780,7 +3931,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get combineUnlock => 'Kilidi aç';
 
   @override
-  String get combineNotProtected => 'Yeni dosya bu dosyanın parolasını taşımayacak.';
+  String get combineNotProtected =>
+      'Yeni dosya bu dosyanın parolasını taşımayacak.';
 
   @override
   String get combineNotSigned => 'İmzaları yeni dosyaya geçmeyecek.';
@@ -3798,7 +3950,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get combineKeepForms => 'Form alanlarını koru';
 
   @override
-  String get combineKeepFormsNote => 'Özgün dosyalardaki imzalar yeni dosyaya geçmez.';
+  String get combineKeepFormsNote =>
+      'Özgün dosyalardaki imzalar yeni dosyaya geçmez.';
 
   @override
   String combineAbout(String size) {
@@ -3872,7 +4025,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get splitSize => 'Dosya boyutuna göre';
 
   @override
-  String get splitSizeBody => 'E-posta sınırları için, seçtiğiniz boyutu aşmayan dosyalar.';
+  String get splitSizeBody =>
+      'E-posta sınırları için, seçtiğiniz boyutu aşmayan dosyalar.';
 
   @override
   String get splitBlank => 'Boş sayfalarda';
@@ -3905,7 +4059,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get splitOverLimit => 'Tek bir sayfa bile bu boyuttan büyük.';
 
   @override
-  String get splitNotProtected => 'Yeni dosyalar bu belgenin parolasını taşımayacak.';
+  String get splitNotProtected =>
+      'Yeni dosyalar bu belgenin parolasını taşımayacak.';
 
   @override
   String get splitNotSigned => 'Yeni dosyalar imzalarını taşımayacak.';
@@ -4042,25 +4197,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commentsSortOther => 'Sayfa sırası';
 
   @override
-  String get commentsCertifiedNote => 'Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır.';
+  String get commentsCertifiedNote =>
+      'Bu belgenin sertifikası yorumlara izin veriyor: yorumlar sertifikayı geçerli bırakır.';
 
   @override
-  String get commentsTruncated => 'Bu dosyada Ferman\'ın listelediğinden daha çok yorum var.';
+  String get commentsTruncated =>
+      'Bu dosyada Ferman\'ın listelediğinden daha çok yorum var.';
 
   @override
   String get commentsEmptyTitle => 'Yorum yok';
 
   @override
-  String get commentsEmptyBody => 'Yukarıdan bir araç seçin, sonra sayfada işaretleyin.';
+  String get commentsEmptyBody =>
+      'Yukarıdan bir araç seçin, sonra sayfada işaretleyin.';
 
   @override
   String get commentsNoMatchTitle => 'Eşleşen yorum yok';
 
   @override
-  String get commentsNoMatchBody => 'Diğerlerini görmek için durumu veya filtreleri değiştirin.';
+  String get commentsNoMatchBody =>
+      'Diğerlerini görmek için durumu veya filtreleri değiştirin.';
 
   @override
-  String get commentsFootnote => 'Yorumlar PDF\'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez.';
+  String get commentsFootnote =>
+      'Yorumlar PDF\'e kaydedilir. Bahsetmeler dosyayla birlikte gider; Ferman bildirim göndermez.';
 
   @override
   String get commentsExportSummary => 'Özeti dışa aktar…';
@@ -4193,7 +4353,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commentYesterday => 'Dün';
 
   @override
-  String commentCardLabel(String author, String kind, String page, int resolved, int count, String shown) {
+  String commentCardLabel(
+    String author,
+    String kind,
+    String page,
+    int resolved,
+    int count,
+    String shown,
+  ) {
     String _temp0 = intl.Intl.pluralLogic(
       resolved,
       locale: localeName,
@@ -4237,7 +4404,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commentNameTitle => 'Yorumlardaki adınız';
 
   @override
-  String get commentNameBody => 'Bu PDF\'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel\'den değiştirebilir veya boş bırakabilirsiniz.';
+  String get commentNameBody =>
+      'Bu PDF\'i açan diğer kişiler adınızı yorumlarınızın yanında görür. Ayarlar › Genel\'den değiştirebilir veya boş bırakabilirsiniz.';
 
   @override
   String get commentNameSave => 'Devam et';
@@ -4312,7 +4480,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get summaryPageAndComments => 'Sayfa ve yorumlar';
 
   @override
-  String get summaryPageAndCommentsHint => 'Her sayfanın yanında numaralı işaretler';
+  String get summaryPageAndCommentsHint =>
+      'Her sayfanın yanında numaralı işaretler';
 
   @override
   String get summaryCommentsOnly => 'Yalnızca yorumlar';
@@ -4358,7 +4527,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get summaryExport => 'Özeti dışa aktar…';
 
   @override
-  String get jobSummaryPageUnsupported => 'Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır.';
+  String get jobSummaryPageUnsupported =>
+      'Bir sayfa, Ferman’ın özete henüz resmedemediği bir biçimde çizilmiş. Yalnızca yorumlar düzeni ya da CSV çalışır.';
 
   @override
   String flattenTitle(int count, String formatted) {
@@ -4372,7 +4542,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get flattenBody => 'Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür.';
+  String get flattenBody =>
+      'Sayfanın parçası olurlar. Ferman’da ya da başka bir uygulamada kimse onları düzenleyemez, yanıtlayamaz, gizleyemez veya kaldıramaz. Form alanları ve imzalar aynı görünür.';
 
   @override
   String flattenAll(int count, String formatted) {
@@ -4412,7 +4583,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String flattenCopyNameNumbered(String stem, int number) {
-    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return '$stem — yorumlu $numberString';
@@ -4448,7 +4620,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get jobFlattenPageUnsupported => 'Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi.';
+  String get jobFlattenPageUnsupported =>
+      'Bir sayfa, Ferman’ın henüz düzleştiremediği bir biçimde çizilmiş. Hiçbir şey değişmedi.';
 
   @override
   String sidebarSearchComment(String text) {
@@ -4492,7 +4665,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get stampImportFailed => 'Bu damga içe aktarılamıyor';
 
   @override
-  String get stampImportFailedBody => 'Dosya bir Ferman damgası değil ya da bozuk.';
+  String get stampImportFailedBody =>
+      'Dosya bir Ferman damgası değil ya da bozuk.';
 
   @override
   String get stampExportFailed => 'Damga dışa aktarılamadı';
@@ -4582,25 +4756,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get stepAddStamp => 'Damga ekle';
 
   @override
-  String get placeStampHint => 'Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın.';
+  String get placeStampHint =>
+      'Damgayı yerleştirmek için sayfaya tıklayın ya da sayfanın ortasına koymak için Enter’a basın.';
 
   @override
-  String get placeShapeHint => 'Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın.';
+  String get placeShapeHint =>
+      'Şekli çizmek için sayfada sürükleyin ya da sayfanın ortasına koymak için Enter’a basın.';
 
   @override
-  String get placePolygonHint => 'Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın.';
+  String get placePolygonHint =>
+      'Çokgenin her köşesine tıklayın, sonra Enter’a basın ya da ilk köşeye tıklayın.';
 
   @override
   String get linksTitle => 'Bağlantılar';
 
   @override
-  String get linksNote => 'Ferman, PDF\'teki bir web bağlantısını açmadan önce sorar.';
+  String get linksNote =>
+      'Ferman, PDF\'teki bir web bağlantısını açmadan önce sorar.';
 
   @override
   String get linksEmpty => 'Bu belgede bağlantı yok.';
 
   @override
-  String get linksTruncated => 'Bu belgede hepsi listelenemeyecek kadar çok bağlantı var.';
+  String get linksTruncated =>
+      'Bu belgede hepsi listelenemeyecek kadar çok bağlantı var.';
 
   @override
   String get linksSelectTextFirst => 'Önce bağlantı verilecek metni seçin';
@@ -4699,7 +4878,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get linkStepRemove => 'Bağlantıyı kaldır';
 
   @override
-  String get linkErrorWeb => 'http:// veya https:// ile başlayan bir web adresi yazın.';
+  String get linkErrorWeb =>
+      'http:// veya https:// ile başlayan bir web adresi yazın.';
 
   @override
   String get linkErrorMail => 'name@example.com gibi bir e-posta adresi yazın.';
@@ -4714,7 +4894,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get linkOpenMailTitle => 'Bu adrese e-posta yazılsın mı?';
 
   @override
-  String get linkOpenDescription => 'Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun.';
+  String get linkOpenDescription =>
+      'Bu bağlantı belgeden geliyor. Kendi uygulamalarınızda açılır; gittiği yere güvendiğinizden emin olun.';
 
   @override
   String get linkOpenAction => 'Bağlantıyı aç';
@@ -4729,7 +4910,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get linkRefusedTitle => 'Ferman bu bağlantıyı izlemedi';
 
   @override
-  String get linkRefusedScript => 'Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz.';
+  String get linkRefusedScript =>
+      'Betik çalıştıracaktı; Ferman belgelerdeki betikleri çalıştırmaz.';
 
   @override
   String linkRefusedLaunch(String target) {
@@ -4747,7 +4929,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get linkRefusedAction => 'Ferman\'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz.';
+  String get linkRefusedAction =>
+      'Ferman\'ın bilmediği bir şey yapıyor; dosyada kalır ve çalıştırılmaz.';
 
   @override
   String linksBrokenMeta(int count, String pages) {
@@ -4782,7 +4965,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signPadImage => 'Görüntü';
 
   @override
-  String get signPadArea => 'İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin.';
+  String get signPadArea =>
+      'İmza çizim alanı. Fare, izleme dörtgeni, kalem ya da parmakla çizin.';
 
   @override
   String get signPadTypeName => 'Adınızı yazın';
@@ -4797,7 +4981,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signPadTypeHint => 'Adınızı çizginin üstüne yazın';
 
   @override
-  String get signPadImageHint => 'İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır.';
+  String get signPadImageHint =>
+      'İmzanızın fotoğrafını ya da taramasını seçin. Ferman arka planı kaldırır.';
 
   @override
   String get signPadChooseImage => 'Görüntü seç…';
@@ -4836,7 +5021,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signHandwriting => 'El yazısı stili';
 
   @override
-  String get signNoStyle => 'Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın.';
+  String get signNoStyle =>
+      'Hiçbir el yazısı stili bu adın her harfini yazamıyor. Bunun yerine çizin ya da bir görüntü kullanın.';
 
   @override
   String get signSavedNote => 'Yalnızca bu cihaza kaydedilir.';
@@ -4863,10 +5049,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signDelete => 'Sil';
 
   @override
-  String get signSaveFailed => 'İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır.';
+  String get signSaveFailed =>
+      'İmza bu cihaza kaydedilemedi. Yine de yerleştirmeye hazır.';
 
   @override
-  String get signImageTooLarge => 'Bu görüntü çok büyük. 6 MB’tan küçük birini seçin.';
+  String get signImageTooLarge =>
+      'Bu görüntü çok büyük. 6 MB’tan küçük birini seçin.';
 
   @override
   String get signImageFilter => 'Görüntüler';
@@ -4878,7 +5066,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get stepAddInitials => 'Paraf ekle';
 
   @override
-  String get placeSignatureHint => 'Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın.';
+  String get placeSignatureHint =>
+      'Yerleştirmek için sayfaya ya da bir imza alanına tıklayın veya sayfanın ortasına koymak için Enter’a basın. Boyutlandırmak için köşelerini, döndürmek için yuvarlak tutamacını sürükleyin, sonra Enter’a basın.';
 
   @override
   String get formPanelTitle => 'Form';
@@ -4934,7 +5123,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get formSignedTitle => 'İmzalı form';
 
   @override
-  String get formSignedKeeps => 'Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır.';
+  String get formSignedKeeps =>
+      'Sertifikası doldurmaya izin veriyor, bu yüzden geçerli kalır.';
 
   @override
   String get formSignedBreaks => 'Doldurmak imzasını geçersiz kılar.';
@@ -4954,7 +5144,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get formRequired => 'Zorunlu';
 
   @override
-  String get formMarkedField => 'Bazı karakterler bu alanın yazı tipinde gösterilemiyor';
+  String get formMarkedField =>
+      'Bazı karakterler bu alanın yazı tipinde gösterilemiyor';
 
   @override
   String get formClear => 'Formu temizle…';
@@ -4973,7 +5164,8 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$formatted alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
+      other:
+          '$formatted alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
       one: '1 alan, $required zorunlu. Sekme tuşu sonraki alana geçer.',
     );
     return '$_temp0';
@@ -4986,7 +5178,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get fillBannerTitle => 'Bu PDF’te form alanı yok.';
 
   @override
-  String get fillBannerBody => 'Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun.';
+  String get fillBannerBody =>
+      'Yazmak için bir çizgiye ya da kutuya tıklayın veya alanları Ferman bulsun.';
 
   @override
   String get fillFindFields => 'Alanları bul';
@@ -5100,25 +5293,29 @@ class AppLocalizationsTr extends AppLocalizations {
   String get formXfaRemovedTitle => 'Formun XFA verisi kaldırıldı';
 
   @override
-  String get formXfaRemovedBody => 'XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır.';
+  String get formXfaRemovedBody =>
+      'XFA kullanan okuyucular eski değerleri gösterirdi. Asıl hâli dosyanın önceki sürümünde kalır.';
 
   @override
   String get formFinishTitle => 'Formu bitir';
 
   @override
-  String get formFinishBody => 'Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin.';
+  String get formFinishBody =>
+      'Tüm zorunlu alanlar dolduruldu. Formun nasıl kalacağını seçin, sonra kaydedin.';
 
   @override
   String get formFinishFlatten => 'Alanları düzleştir';
 
   @override
-  String get formFinishFlattenBody => 'Sayfanın parçası olurlar ve artık değiştirilemezler.';
+  String get formFinishFlattenBody =>
+      'Sayfanın parçası olurlar ve artık değiştirilemezler.';
 
   @override
   String get formFinishKeep => 'Alanlar düzenlenebilir kalsın';
 
   @override
-  String get formFinishKeepBody => 'Dosyayı açan herkes değerleri yine değiştirebilir.';
+  String get formFinishKeepBody =>
+      'Dosyayı açan herkes değerleri yine değiştirebilir.';
 
   @override
   String get formFinishSave => 'Kaydet';
@@ -5130,7 +5327,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get formClearTitle => 'Form temizlensin mi?';
 
   @override
-  String get formClearBody => 'Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz.';
+  String get formClearBody =>
+      'Bu formdaki tüm değerler silinir. İmzalar kalır. Bunu geri alabilirsiniz.';
 
   @override
   String get formClearConfirm => 'Formu temizle';
@@ -5139,7 +5337,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get formFontAskTitle => 'Bu alanın yazı tipinde eksik karakterler var';
 
   @override
-  String get formFontAskBody => 'Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir.';
+  String get formFontAskBody =>
+      'Ferman bunları belgeye eklenen IBM Plex ile çizebilir ya da alanın yazı tipini koruyup bunları dışarıda bırakabilir.';
 
   @override
   String get formFontAskPlex => 'IBM Plex kullan';
@@ -5210,7 +5409,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get jobCompressNotSmaller => 'Daha küçük olamıyor, bu yüzden hiçbir şey yazılmadı. Asıl dosya olduğu gibi kalıyor.';
+  String get jobCompressNotSmaller =>
+      'Daha küçük olamıyor, bu yüzden hiçbir şey yazılmadı. Asıl dosya olduğu gibi kalıyor.';
 
   @override
   String jobCompressedSizes(String before, String after) {
@@ -5346,16 +5546,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get compressHighQualityDescription => 'Görseller 300 ppi, baskı için.';
 
   @override
-  String get compressBalancedDescription => 'Görseller 150 ppi, paylaşmak ve ekranda okumak için.';
+  String get compressBalancedDescription =>
+      'Görseller 150 ppi, paylaşmak ve ekranda okumak için.';
 
   @override
-  String get compressSmallestDescription => 'Görseller 96 ppi, e-posta için. Metin keskin kalır.';
+  String get compressSmallestDescription =>
+      'Görseller 96 ppi, e-posta için. Metin keskin kalır.';
 
   @override
   String get compressCustom => 'Özel…';
 
   @override
-  String get compressCustomDescription => 'Görsel çözünürlüğünü, kaliteyi ve neyin kaldırılacağını ayarlayın.';
+  String get compressCustomDescription =>
+      'Görsel çözünürlüğünü, kaliteyi ve neyin kaldırılacağını ayarlayın.';
 
   @override
   String compressAbout(String size) {
@@ -5373,13 +5576,15 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$n örnek görselden tahmin edildi. Kesin boyut kaydettikten sonra gösterilir.',
+      other:
+          '$n örnek görselden tahmin edildi. Kesin boyut kaydettikten sonra gösterilir.',
     );
     return '$_temp0';
   }
 
   @override
-  String get compressEstimateExact => 'Her görselde ölçüldü. Kesin boyut kaydettikten sonra gösterilir.';
+  String get compressEstimateExact =>
+      'Her görselde ölçüldü. Kesin boyut kaydettikten sonra gösterilir.';
 
   @override
   String compressDoes(String preset) {
@@ -5407,26 +5612,30 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get compressDoesUnused => 'Kullanılmayan nesneleri ve küçük resimleri kaldırır';
+  String get compressDoesUnused =>
+      'Kullanılmayan nesneleri ve küçük resimleri kaldırır';
 
   @override
   String compressDoesLeft(int count, String n) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$n görseli olduğu gibi bırakır: Ferman bunları yeniden sıkıştıramaz',
+      other:
+          '$n görseli olduğu gibi bırakır: Ferman bunları yeniden sıkıştıramaz',
     );
     return '$_temp0';
   }
 
   @override
-  String get compressDoesKeeps => 'Metni, bağlantıları, yer imlerini ve formları korur';
+  String get compressDoesKeeps =>
+      'Metni, bağlantıları, yer imlerini ve formları korur';
 
   @override
   String get compressSignedTitle => 'Bu belge imzalı';
 
   @override
-  String get compressSignedBody => 'Sıkıştırılmış kopyada imza olmaz. İmzalı asıl dosya olduğu gibi kalır.';
+  String get compressSignedBody =>
+      'Sıkıştırılmış kopyada imza olmaz. İmzalı asıl dosya olduğu gibi kalır.';
 
   @override
   String get compressAction => 'Sıkıştır ve farklı kaydet…';
@@ -5437,10 +5646,12 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get saveAsHistoryOn => 'Dosya baştan yazılır; önceki düzeltmeler ve silinen sayfalar olmadan. İmzalar geçersiz olur.';
+  String get saveAsHistoryOn =>
+      'Dosya baştan yazılır; önceki düzeltmeler ve silinen sayfalar olmadan. İmzalar geçersiz olur.';
 
   @override
-  String get saveAsHistoryOff => 'Silinen sayfalar ve önceki metin dosyada kalır ve oradan geri alınabilir.';
+  String get saveAsHistoryOff =>
+      'Silinen sayfalar ve önceki metin dosyada kalır ve oradan geri alınabilir.';
 
   @override
   String get versionTitle => 'Sürüm geçmişi';
@@ -5462,7 +5673,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get versionNone => 'Henüz sürüm yok. Her kayıt bir sürüm saklar.';
 
   @override
-  String get versionKept => 'Bu aygıtta 30 gün saklanır. Ayarlar › Düzenleme’den değiştirin.';
+  String get versionKept =>
+      'Bu aygıtta 30 gün saklanır. Ayarlar › Düzenleme’den değiştirin.';
 
   @override
   String get versionNow => 'Şimdi';
@@ -5545,7 +5757,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get versionRestoreBody => 'Geçerli dosyanız, kaydedilmemiş düzenlemeleriyle birlikte önce bir sürüm olarak saklanır; hiçbir şey kaybolmaz.';
+  String get versionRestoreBody =>
+      'Geçerli dosyanız, kaydedilmemiş düzenlemeleriyle birlikte önce bir sürüm olarak saklanır; hiçbir şey kaybolmaz.';
 
   @override
   String get versionRestore => 'Geri yükle';
@@ -5629,7 +5842,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shortcutsSheetSearch => 'Kısayollarda ara';
 
   @override
-  String get shortcutsSheetNote => 'Kısayolları Ayarlar › Klavye kısayolları’ndan değiştirin.';
+  String get shortcutsSheetNote =>
+      'Kısayolları Ayarlar › Klavye kısayolları’ndan değiştirin.';
 
   @override
   String get shortcutsChanged => 'Değiştirildi';
@@ -5731,7 +5945,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsFontsInstalled => 'Yüklü';
 
   @override
-  String get settingsFontsLegend => 'TR Türkçe · LX Genişletilmiş Latin · CY Kiril · GR Yunan · AR Arapça · HE İbranice · DV Devanagari · CJK Çince, Japonca, Korece. Üstü çizili bir kod, yazı tipinin o yazıyı çizemediğini gösterir.';
+  String get settingsFontsLegend =>
+      'TR Türkçe · LX Genişletilmiş Latin · CY Kiril · GR Yunan · AR Arapça · HE İbranice · DV Devanagari · CJK Çince, Japonca, Korece. Üstü çizili bir kod, yazı tipinin o yazıyı çizemediğini gösterir.';
 
   @override
   String settingsFontsCovers(String script) {
@@ -5753,7 +5968,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsSavedSignatures => 'Kayıtlı imzalar · yalnızca bu cihazda';
 
   @override
-  String get settingsSavedSignaturesNone => 'Henüz kayıtlı imza yok. Doldur ve İmzala › İmzala ile bir tane oluşturabilirsiniz.';
+  String get settingsSavedSignaturesNone =>
+      'Henüz kayıtlı imza yok. Doldur ve İmzala › İmzala ile bir tane oluşturabilirsiniz.';
 
   @override
   String get settingsSignatureTyped => 'Yazılmış';
@@ -5780,7 +5996,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsTimestampNone => 'Yok';
 
   @override
-  String get settingsCheckRevocation => 'İmzalı dosyaları açarken iptal durumunu çevrimiçi denetle';
+  String get settingsCheckRevocation =>
+      'İmzalı dosyaları açarken iptal durumunu çevrimiçi denetle';
 
   @override
   String get settingsGpu => 'Sayfaları çizmek için ekran kartını kullan';
@@ -5798,7 +6015,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsThumbnailsAll => 'Açarken tümünü oluştur';
 
   @override
-  String get settingsObjectInspector => 'PDF nesne denetçisini göster (geliştiriciler için)';
+  String get settingsObjectInspector =>
+      'PDF nesne denetçisini göster (geliştiriciler için)';
 
   @override
   String get settingsExport => 'Ayarları dışa aktar…';
@@ -5810,7 +6028,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsShowLogs => 'Günlük dosyalarını göster';
 
   @override
-  String get settingsReset => 'Tüm ayarları varsayılanlarına döndürün. Kayıtlı imzalar ve sertifikalar korunur.';
+  String get settingsReset =>
+      'Tüm ayarları varsayılanlarına döndürün. Kayıtlı imzalar ve sertifikalar korunur.';
 
   @override
   String get settingsResetButton => 'Ayarları sıfırla…';
@@ -5819,7 +6038,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsResetTitle => 'Tüm ayarlar sıfırlansın mı?';
 
   @override
-  String get settingsResetBody => 'Tema, dil, bölge ve diğer tüm seçimler varsayılanlarına döner. Kayıtlı imzalar, damgalarınız ve açık belgeleriniz korunur.';
+  String get settingsResetBody =>
+      'Tema, dil, bölge ve diğer tüm seçimler varsayılanlarına döner. Kayıtlı imzalar, damgalarınız ve açık belgeleriniz korunur.';
 
   @override
   String get settingsResetConfirm => 'Sıfırla';
@@ -5828,7 +6048,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsImportTitle => 'Ayarlarınız değiştirilsin mi?';
 
   @override
-  String get settingsImportBody => 'Dosyadaki ayarlar sizinkilerin yerini alır. Kayıtlı imzalar ve açık belgeleriniz korunur.';
+  String get settingsImportBody =>
+      'Dosyadaki ayarlar sizinkilerin yerini alır. Kayıtlı imzalar ve açık belgeleriniz korunur.';
 
   @override
   String get settingsImportConfirm => 'İçe aktar';
@@ -5852,7 +6073,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsSettingsFile => 'Ayar dosyası';
 
   @override
-  String get licencesIntro => 'Ferman, Apache Lisansı 2.0 ile sunulan özgür bir yazılımdır. Aşağıdaki çalışmalar üzerine kuruludur ve her biri kendi lisansını korur.';
+  String get licencesIntro =>
+      'Ferman, Apache Lisansı 2.0 ile sunulan özgür bir yazılımdır. Aşağıdaki çalışmalar üzerine kuruludur ve her biri kendi lisansını korur.';
 
   @override
   String get licencesSearch => 'Lisanslarda ara';
@@ -5894,10 +6116,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sidebarLegendWarnings => 'Uyarılar';
 
   @override
-  String get sidebarLegendWarningsBody => 'eksik glifler, taşma, bozuk bağlantılar';
+  String get sidebarLegendWarningsBody =>
+      'eksik glifler, taşma, bozuk bağlantılar';
 
   @override
-  String get sidebarLegendFootnote => 'Ekran okuyucular rozetleri sayfa adında duyar, ör. “Sayfa 1, düzenlendi, 2 yorum, 1 uyarı”.';
+  String get sidebarLegendFootnote =>
+      'Ekran okuyucular rozetleri sayfa adında duyar, ör. “Sayfa 1, düzenlendi, 2 yorum, 1 uyarı”.';
 
   @override
   String get sidebarBadgeEdited => 'düzenlendi';
@@ -5959,7 +6183,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get propertiesStep => 'Belge özelliklerini değiştir';
 
   @override
-  String get dropOverlayCombineDescription => 'Gösterilen sırayla birleştirilir.';
+  String get dropOverlayCombineDescription =>
+      'Gösterilen sırayla birleştirilir.';
 
   @override
   String get settingsPaneAiClients => 'Yapay zekâ istemcileri';
@@ -5968,10 +6193,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aiClientsServer => 'Yapay zekâ istemcileri bağlanabilsin';
 
   @override
-  String get aiClientsServerDescription => 'Bu bilgisayardaki Claude Desktop gibi yapay zekâ uygulamaları Ferman\'da açık belgeleri okuyabilir, izin verdiğiniz yerde değiştirebilir. Ağda hiçbir şey dinlemez.';
+  String get aiClientsServerDescription =>
+      'Bu bilgisayardaki Claude Desktop gibi yapay zekâ uygulamaları Ferman\'da açık belgeleri okuyabilir, izin verdiğiniz yerde değiştirebilir. Ağda hiçbir şey dinlemez.';
 
   @override
-  String get aiClientsStartFailed => 'Yapay zekâ istemcileri bağlanamıyor: Ferman bu bilgisayarda bağlantısını açamadı.';
+  String get aiClientsStartFailed =>
+      'Yapay zekâ istemcileri bağlanamıyor: Ferman bu bilgisayarda bağlantısını açamadı.';
 
   @override
   String get aiClientsConnected => 'Bağlı istemciler';
@@ -5991,13 +6218,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aiClientsSetUpHeading => 'İstemci kur';
 
   @override
-  String get aiClientsOffNote => 'Bir istemci kurmak için yukarıdaki anahtarı açın.';
+  String get aiClientsOffNote =>
+      'Bir istemci kurmak için yukarıdaki anahtarı açın.';
 
   @override
   String get aiClientsSetUp => 'Kur';
 
   @override
-  String get aiClientsCopyInstead => 'Aşağıdaki yapılandırmayı onun ayarlarına kopyalayın.';
+  String get aiClientsCopyInstead =>
+      'Aşağıdaki yapılandırmayı onun ayarlarına kopyalayın.';
 
   @override
   String get aiClientsOther => 'Diğer yerel istemciler';
@@ -6012,7 +6241,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aiClientsCopied => 'Yapılandırma kopyalandı';
 
   @override
-  String get aiClientsChatGpt => 'ChatGPT henüz bağlanamaz: sunuculara yalnızca OpenAI\'ın bulutundan ulaşır ve Ferman internete port açmaz.';
+  String get aiClientsChatGpt =>
+      'ChatGPT henüz bağlanamaz: sunuculara yalnızca OpenAI\'ın bulutundan ulaşır ve Ferman internete port açmaz.';
 
   @override
   String aiClientsSetUpDone(String client) {
@@ -6030,7 +6260,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get aiClientsSetUpFailedBody => 'Yapılandırmayı kopyalayıp istemcinin ayarlarına ekleyin.';
+  String get aiClientsSetUpFailedBody =>
+      'Yapılandırmayı kopyalayıp istemcinin ayarlarına ekleyin.';
 
   @override
   String aiClientsNotice(String names) {
@@ -6052,7 +6283,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsNetAiClients => 'Bu bilgisayardaki yapay zekâ istemcileri';
 
   @override
-  String get settingsNetAiClientsDescription => 'Bağlı bir istemci okuduğunu kendi sağlayıcısına, sizin hesabınızla gönderir.';
+  String get settingsNetAiClientsDescription =>
+      'Bağlı bir istemci okuduğunu kendi sağlayıcısına, sizin hesabınızla gönderir.';
 
   @override
   String clientRequestEditSigned(String client) {
@@ -6070,7 +6302,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get clientRequestSaveBody => 'Ferman, Kaydet\'in yaptığı gibi dosyasının üzerine kaydeder.';
+  String get clientRequestSaveBody =>
+      'Ferman, Kaydet\'in yaptığı gibi dosyasının üzerine kaydeder.';
 
   @override
   String clientRequestWriteFile(String client) {
@@ -6103,7 +6336,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get clientRequestRestoreBody => 'Sürüm dosyanın yerine geçer. Kaydedilmemiş çalışmanız önce bir sürüm olarak saklanır.';
+  String get clientRequestRestoreBody =>
+      'Sürüm dosyanın yerine geçer. Kaydedilmemiş çalışmanız önce bir sürüm olarak saklanır.';
 
   @override
   String get clientRequestAllow => 'İzin ver';
@@ -6112,5 +6346,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get clientRequestDeny => 'İzin verme';
 
   @override
-  String get aiClientsClaudeNote => 'Kur, Ferman\'ı onun ayarlarına ekler. Ardından onu yeniden başlatın.';
+  String get aiClientsClaudeNote =>
+      'Kur, Ferman\'ı onun ayarlarına ekler. Ardından onu yeniden başlatın.';
 }
