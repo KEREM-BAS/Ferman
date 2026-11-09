@@ -77,6 +77,7 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 | [0020](0020-test-corpus.md) | Test corpus and its generators | Accepted (owner, with the M2 plan, 2026-10-17) |
 | [0021](0021-open-from-the-os.md) | Opening files from the operating system | Accepted (owner, with the M2 plan, 2026-10-17) |
 | [0022](0022-version-history.md) | Version history in the app data directory | Proposed: the place and the lookup approved with the M4 plan's question 2 (2026-11-06); the details wait for the M4 review |
+| [0023](0023-updates-and-release-packaging.md) | Updates, the network stack and release packaging | Proposed with the M5 plan (2026-11-09) |
 
 ## Waiting for the owner
 

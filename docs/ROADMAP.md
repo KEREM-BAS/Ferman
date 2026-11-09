@@ -2547,7 +2547,7 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** In progress on the branch `m4-rest-of-phase-1`. The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06, and M3 was accepted the same day. The owner's answers M4 needs came on
+**Status:** Accepted on 2026-11-08 (pull requests #19 `ca7a830`, #20 `0aba197` and #21 `bcc1f19`); E1 to E8 stay with the owner. The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06, and M3 was accepted the same day. The owner's answers M4 needs came on
 2026-10-16: [Q08](QUESTIONS.md#q08) group 3, the handwriting fonts for typed signatures (Caveat,
 Dancing Script and Homemade Apple, bundled); [Q06](QUESTIONS.md#q06), revocation lookups allowed,
 off until first use, so the drawn "Signature checks" row in Settings → Privacy stays visible but
@@ -2758,7 +2758,7 @@ E1 to E8, plus:
 
 ## 9. M5: release pipeline
 
-**Status:** Not started. **Needs first:** M4 accepted. The owner provides the Apple Developer ID,
+**Status:** Planning on the branch `m5-release` since 2026-11-09 ([M5 plan](PROGRESS.md#m5-plan)); M4 was accepted on 2026-11-08. **Needs first:** the owner approves the M5 plan. The owner provides the Apple Developer ID,
 notarization credentials and a Windows code-signing certificate. Already answered:
 [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03)
 minimum OS versions and [Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors" (2026-10-15), and on
