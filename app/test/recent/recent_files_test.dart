@@ -197,7 +197,7 @@ void main() {
   test('the home outside a macOS sandbox container', () {
     expect(
       homeOutsideContainer(
-        '/Users/elif/Library/Containers/io.github.kerembas.ferman/Data',
+        '/Users/elif/Library/Containers/com.fermanpdf.Ferman/Data',
       ),
       '/Users/elif',
     );

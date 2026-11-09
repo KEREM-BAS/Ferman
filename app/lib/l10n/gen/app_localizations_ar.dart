@@ -634,7 +634,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onboardingPrivacyUpdatesBody =>
-      'مرة واحدة يوميًا، ولا يُرسَل سوى رقم الإصدار ونظام التشغيل. يمكنك إيقافه.';
+      'مرة واحدة يوميًا، يسأل Ferman موقع GitHub عن وجود إصدار أحدث، ولا يُرسل سوى رقم إصداره ونظام التشغيل. يمكنك إيقافه.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'حزم لغات OCR';
@@ -954,7 +954,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsNetUpdatesDescription =>
-      'مرة واحدة يوميًا؛ يُرسل رقم الإصدار ونظام التشغيل فقط.';
+      'مرة واحدة يوميًا، يسأل Ferman موقع GitHub عن وجود إصدار أحدث، ولا يُرسل سوى رقم إصداره ونظام التشغيل.';
 
   @override
   String get settingsNetSignatureChecks => 'التحقق من التوقيعات';

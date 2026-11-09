@@ -296,14 +296,14 @@ mod tests {
         fs::write(&from, b"a").unwrap();
         fs::write(&to, b"b").unwrap();
         let status = std::process::Command::new("xattr")
-            .args(["-w", "io.github.kerembas.ferman.test", "kept"])
+            .args(["-w", "com.fermanpdf.Ferman.test", "kept"])
             .arg(&from)
             .status()
             .unwrap();
         assert!(status.success());
         copy_metadata(&File::open(&from).unwrap(), &File::open(&to).unwrap()).unwrap();
         let out = std::process::Command::new("xattr")
-            .args(["-p", "io.github.kerembas.ferman.test"])
+            .args(["-p", "com.fermanpdf.Ferman.test"])
             .arg(&to)
             .output()
             .unwrap();

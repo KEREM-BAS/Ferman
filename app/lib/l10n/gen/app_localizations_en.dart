@@ -634,7 +634,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPrivacyUpdatesBody =>
-      'Once a day, sending only the version number and platform. You can turn it off.';
+      'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform. You can turn it off.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'OCR language packs';
@@ -954,7 +954,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNetUpdatesDescription =>
-      'Once a day; sends only the version number and platform.';
+      'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform.';
 
   @override
   String get settingsNetSignatureChecks => 'Signature checks';

@@ -292,7 +292,7 @@ is ticked with its evidence; the open ones wait on the owner's checks on R1, R2 
 and on native-speaker review ([BACKLOG.md](BACKLOG.md) B100). The Proposed items were approved on
 2026-10-16 (the 640 px canvas minimum on 2026-10-17), and their boxes are ticked.
 **Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
-the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
+the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman` (amended on 2026-11-09 to `com.fermanpdf.Ferman`),
 [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
 [Q05](QUESTIONS.md#q05) eight mode tabs, [Q08](QUESTIONS.md#q08) Plex Sans Hebrew and Devanagari,
 [Q12](QUESTIONS.md#q12) the custom Linux title bar, [Q14](QUESTIONS.md#q14) "Copyright The Ferman
@@ -2547,7 +2547,7 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** In progress on the branch `m4-rest-of-phase-1`. The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06, and M3 was accepted the same day. The owner's answers M4 needs came on
+**Status:** Accepted on 2026-11-08 (pull requests #19 `ca7a830`, #20 `0aba197` and #21 `bcc1f19`); E1 to E8 stay with the owner. The [M4 plan](PROGRESS.md#m4-plan) was approved on 2026-11-06, and M3 was accepted the same day. The owner's answers M4 needs came on
 2026-10-16: [Q08](QUESTIONS.md#q08) group 3, the handwriting fonts for typed signatures (Caveat,
 Dancing Script and Homemade Apple, bundled); [Q06](QUESTIONS.md#q06), revocation lookups allowed,
 off until first use, so the drawn "Signature checks" row in Settings → Privacy stays visible but
@@ -2758,8 +2758,8 @@ E1 to E8, plus:
 
 ## 9. M5: release pipeline
 
-**Status:** Not started. **Needs first:** M4 accepted. The owner provides the Apple Developer ID,
-notarization credentials and a Windows code-signing certificate. Already answered:
+**Status:** In progress on the branch `m5-release` since 2026-11-09; the [M5 plan](PROGRESS.md#m5-plan) and [ADR 0023](adr/0023-updates-and-release-packaging.md) approved the same day, with the id `com.fermanpdf.Ferman` and SignPath Foundation for Windows. M4 was accepted on 2026-11-08. **Needs first:** The owner provides the Apple Developer ID,
+notarization credentials and, for Windows, the SignPath Foundation application. Already answered:
 [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03)
 minimum OS versions and [Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors" (2026-10-15), and on
 2026-10-16 [Q02](QUESTIONS.md#q02) code-signing publisher name (one name on both platforms),

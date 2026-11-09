@@ -637,7 +637,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboardingPrivacyUpdatesBody =>
-      'Günde bir kez; yalnızca sürüm numarası ve işletim sistemi gönderilir. Kapatabilirsiniz.';
+      'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir. Kapatabilirsiniz.';
 
   @override
   String get onboardingPrivacyPacksTitle => 'OCR dil paketleri';
@@ -961,7 +961,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsNetUpdatesDescription =>
-      'Günde bir kez; yalnızca sürüm numarasını ve işletim sistemini gönderir.';
+      'Günde bir kez, Ferman GitHub\'a yeni bir sürüm olup olmadığını sorar; yalnızca sürüm numarasını ve işletim sistemini gönderir.';
 
   @override
   String get settingsNetSignatureChecks => 'İmza denetimleri';

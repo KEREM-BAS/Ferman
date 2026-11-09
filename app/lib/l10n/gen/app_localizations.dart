@@ -1285,7 +1285,7 @@ abstract class AppLocalizations {
   /// Text of the update-check row on the first-run privacy step (a1-2b, G24). Platform means the operating system.
   ///
   /// In en, this message translates to:
-  /// **'Once a day, sending only the version number and platform. You can turn it off.'**
+  /// **'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform. You can turn it off.'**
   String get onboardingPrivacyUpdatesBody;
 
   /// Title of the network use for downloading text-recognition (OCR) language packs, on the first-run privacy step (a1-2b, G24). Name OCR packs: the interface languages are bundled with the app and never downloaded (G52).
@@ -1873,7 +1873,7 @@ abstract class AppLocalizations {
   /// Description of Check for updates in Settings › Privacy (a11-1h). Platform means the operating system.
   ///
   /// In en, this message translates to:
-  /// **'Once a day; sends only the version number and platform.'**
+  /// **'Once a day, Ferman asks GitHub whether a newer version exists, sending only its version number and platform.'**
   String get settingsNetUpdatesDescription;
 
   /// A network use in Settings › Privacy (a11-1h): asking whether a certificate was revoked. Not enabled until the owner decides (design gap G51).

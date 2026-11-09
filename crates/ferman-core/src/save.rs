@@ -1029,7 +1029,7 @@ mod tests {
         let dir = temp_dir("xattr");
         let target = dir.join("doc.txt");
         fs::write(&target, b"old").unwrap();
-        let tag = "io.github.kerembas.ferman.test";
+        let tag = "com.fermanpdf.Ferman.test";
         assert!(
             Command::new("xattr")
                 .args(["-w", tag, "kept"])
