@@ -137,7 +137,7 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), and `nightly-2026-10-15` for car
 
 **Dependencies**
 - Permissive licences only. The brief's "permissive or GPL-compatible", applied to an Apache-2.0 product, rules out GPL (any version), LGPL as a sole licence and AGPL. MPL-2.0 is allowed only per package after owner review. Never non-commercial; no MuPDF, no Ghostscript. Enforced with cargo-deny and the Dart licence check ([ADR 0016](docs/adr/0016-dependency-licence-policy.md)).
-- Three named licence exceptions are approved ([Q17](docs/QUESTIONS.md#q17), 2026-10-15): MPL-2.0 `dbus` through desktop_drop (from M2, unmodified, notice in every build, skipped by name in the pub check), NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0 Swatinem/rust-cache in CI only. They widen nothing else. The owner confirmed the stricter reading of "GPL-compatible" above on 2026-10-16 (Q17 part 4).
+- Three named licence exceptions are approved ([Q17](docs/QUESTIONS.md#q17), 2026-10-15): MPL-2.0 `dbus` through desktop_drop (from M2, unmodified, notice in every build, skipped by name in the pub check), NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0 Swatinem/rust-cache in CI only. They widen nothing else. Two more were approved with the M5 plan on 2026-11-09: Inno Setup 6's own licence for the Windows installer, and the unmodified AppImage type-2 runtime (LGPL-2.1 libfuse) in the AppImage only ([ADR 0023](docs/adr/0023-updates-and-release-packaging.md)). The owner confirmed the stricter reading of "GPL-compatible" above on 2026-10-16 (Q17 part 4).
 - Every dependency is listed with its licence in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md), updated in the same change.
 
 **Text editing** ([brief §4](docs/BRIEF.md#4-the-hardest-part-editing-existing-text-must-be-flawless))

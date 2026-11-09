@@ -1,8 +1,8 @@
 # ADR 0023: Updates, the network stack and release packaging
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-09
-- **Approval:** none yet
+- **Approval:** the owner, through the answers to the [M5 plan](../PROGRESS.md#m5-plan)'s questions, 2026-11-09
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -138,6 +138,16 @@ Constraints found:
 
 Out of scope: delta updates, the Mac App Store and the Microsoft Store, Linux arm64 packages, PAC
 proxies, a server of Ferman's own.
+
+### The owner's answers (2026-11-09)
+
+- Sparkle as the installer only, its entitlements and the Homebrew read-only exception: approved.
+- Inno Setup 6 and the unmodified AppImage type-2 runtime (system GTK, nothing else LGPL bundled):
+  approved as named exceptions in [ADR 0016](0016-dependency-licence-policy.md).
+- The id is `com.fermanpdf.Ferman` on every platform ([Q01](../QUESTIONS.md#q01), amended); the
+  Flatpak goes to Flathub once `fermanpdf.com` is registered and serves the verification file.
+- Windows signing through SignPath Foundation (free for open-source projects). The publisher shown
+  is the foundation. Until the project is accepted, nothing is published for Windows.
 
 ## Consequences
 

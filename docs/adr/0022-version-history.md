@@ -1,6 +1,6 @@
 # ADR 0022: Version history in the app data directory
 
-- **Status:** Proposed (the direction approved by the owner with the M4 plan's question 2 on 2026-11-06; the details below are Proposed)
+- **Status:** Accepted (the direction with the M4 plan's question 2 on 2026-11-06; the details by the owner on 2026-11-09, with the M5 plan)
 - **Date:** 2026-11-07
 - **Approval:** question 2 of the [M4 plan](../PROGRESS.md#m4-plan), 2026-11-06, for where versions live and how they are found
 - **Supersedes:** none

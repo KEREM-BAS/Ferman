@@ -183,6 +183,10 @@ the third-party notices screen ([G14](../DESIGN_GAPS.md#g14)).
 ### Follow-up
 
 - M0: [Q17](../QUESTIONS.md#q17) asked the owner about the three exceptions; approved on 2026-10-15.
+- M5: two more named exceptions, approved by the owner on 2026-11-09 with the M5 plan
+  ([ADR 0023](0023-updates-and-release-packaging.md)): Inno Setup 6's own licence for the Windows
+  installer's stub and uninstaller, and the unmodified AppImage type-2 runtime (libfuse, LGPL-2.1) in
+  the AppImage only, with the system GTK. Each ships its notice; neither widens the allow-list.
 - M1: `deny.toml` with the rustybuzz ban (ADR 0007 accepted), the CI jobs for cargo-deny and the pub
   licence check, the first DEPENDENCIES.md entries for real dependencies. Done so far: `deny.toml`, the
   cargo-deny CI job and the DEPENDENCIES.md entries; the dev-dependency licence run and the pub licence

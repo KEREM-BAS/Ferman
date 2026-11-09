@@ -134,6 +134,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     `<user>`. The repository's account is `KEREM-BAS`, not `kerembas`, so publishing on Flathub would
     need a GitHub account or organisation named `kerembas`, or a domain-based id for the Flatpak.
     This is raised again with the Linux packaging part of [Q12](#q12) before M5.
+  - **Amended on 2026-11-09** (the M5 plan's question 4): the id becomes `com.fermanpdf.Ferman` on
+    every platform, from the domain `fermanpdf.com` (not registered yet). Nothing has been released,
+    so no settings, recovery paths or associations move for users. M5 W0 changes the projects;
+    Flathub verifies the domain before the Flatpak is submitted.
 
 <a id="q02"></a>
 
@@ -171,6 +175,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   Developer Program membership, signed with the owner's legal name, unless an organisation exists.
   On Windows, Azure Trusted Signing or an organisation-validated certificate in the same name if
   available, and SignPath Foundation otherwise.
+  - **Amended on 2026-11-09** (the M5 plan's question 8): the owner chose the free path, SignPath
+    Foundation, so Windows shows the foundation as publisher while macOS shows the owner's name.
 
 
 <a id="q03"></a>
