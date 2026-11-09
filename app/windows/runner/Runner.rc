@@ -89,7 +89,7 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "io.github.kerembas" "\0"
+            VALUE "CompanyName", "The Ferman Authors" "\0"
             VALUE "FileDescription", "Ferman" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "ferman" "\0"

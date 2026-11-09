@@ -22,7 +22,7 @@ atomic writes.
 ## Decision
 
 1. **Place.** Versions live in `Versions` beside the recovery folder in the app data directory
-   (ARCHITECTURE §7.6): `~/Library/Application Support/io.github.kerembas.ferman/Versions` on macOS
+   (ARCHITECTURE §7.6): `~/Library/Application Support/com.fermanpdf.Ferman/Versions` on macOS
    (inside the container under the sandbox), `%LOCALAPPDATA%\Ferman\Versions` on Windows,
    `$XDG_STATE_HOME/ferman/versions` on Linux. The app names it once at launch
    (`Engine::start_versions`). Folders are created owner-only (0700 on Unix).

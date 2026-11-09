@@ -17,9 +17,9 @@ constexpr char kChannelName[] = "ferman/open";
 #ifdef _DEBUG
 // A debug build (flutter run, the integration test) never hands its files to
 // an installed Ferman, nor takes those of a later launch of one.
-constexpr wchar_t kName[] = L"io.github.kerembas.ferman.debug";
+constexpr wchar_t kName[] = L"com.fermanpdf.Ferman.debug";
 #else
-constexpr wchar_t kName[] = L"io.github.kerembas.ferman";
+constexpr wchar_t kName[] = L"com.fermanpdf.Ferman";
 #endif
 
 // The most a request may hold: thousands of paths.
@@ -176,7 +176,7 @@ std::vector<std::string> GetCommandLinePaths() {
 
 UINT OpenRequestMessage() {
   static const UINT message =
-      ::RegisterWindowMessageW(L"io.github.kerembas.ferman.open");
+      ::RegisterWindowMessageW(L"com.fermanpdf.Ferman.open");
   return message;
 }
 

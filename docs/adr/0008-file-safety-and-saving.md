@@ -195,11 +195,11 @@ closing the document and opening it again. "Compare" waits for a diff view.
 ### Autosave journal and recovery
 
 - Recovery data lives in the **app data directory**, never next to the user's file
-  ([brief §3](../BRIEF.md)): `~/Library/Application Support/io.github.kerembas.ferman/Recovery/` on
+  ([brief §3](../BRIEF.md)): `~/Library/Application Support/com.fermanpdf.Ferman/Recovery/` on
   macOS, `%LOCALAPPDATA%\Ferman\Recovery\` on Windows, `$XDG_STATE_HOME/ferman/recovery/` on Linux.
-  The bundle identifier is `io.github.kerembas.ferman` ([Q01](../QUESTIONS.md#q01)); while the macOS
+  The bundle identifier is `com.fermanpdf.Ferman` ([Q01](../QUESTIONS.md#q01)); while the macOS
   App Sandbox is on ([Q18](../QUESTIONS.md#q18)), the macOS path lies inside
-  `~/Library/Containers/io.github.kerembas.ferman/Data/`.
+  `~/Library/Containers/com.fermanpdf.Ferman/Data/`.
 - Every commit appends a checksummed record of the changed objects to a journal. While there are unsaved
   changes, a full snapshot of the pending incremental section is written every minute with the same
   atomic sequence (the a11-1c switch turns this off). Replay is pure data and does not depend on fonts or
